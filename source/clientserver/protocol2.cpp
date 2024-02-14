@@ -45,9 +45,9 @@ using namespace uda::logging;
 static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int protocolVersion);
-static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                                     USERDEFINEDTYPELIST* userdefinedtypelist, const void* str, int protocolVersion,
-                                     LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
+static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMallocList* logmalloclist,
+                                     UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
+                                     LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 static int handle_next_protocol(XDR* xdrs, int direction, int* token);
 static int handle_data_system(XDR* xdrs, int direction, const void* str);
 static int handle_system_config(XDR* xdrs, int direction, const void* str);
@@ -63,9 +63,9 @@ static int handle_dataobject_file(int direction, const void* str);
 static int handle_security_block(XDR* xdrs, int direction, const void* str);
 #endif
 
-int uda::client_server::protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                                  USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
-                                  LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+int uda::client_server::protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LogMallocList* logmalloclist,
+                                  UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
+                                  LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
 
@@ -536,9 +536,9 @@ static int handle_next_protocol(XDR* xdrs, int direction, int* token)
     return err;
 }
 
-static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                                     USERDEFINEDTYPELIST* userdefinedtypelist, const void* str, int protocolVersion,
-                                     LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMallocList* logmalloclist,
+                                     UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
+                                     LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
     auto putDataBlockList = (PutDataBlockList*)str;
@@ -591,7 +591,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
                     // logmalloc list is automatically generated
                     // userdefinedtypelist is passed from the client
-                    // NTREE is automatically generated
+                    // NTree is automatically generated
 
                     auto data_block = (DataBlock*)malloc(sizeof(DataBlock));
 
@@ -611,7 +611,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                     }
 
                     put_data.data = reinterpret_cast<char*>(data_block); // Compact memory block with structures
-                    auto general_block = (GENERAL_BLOCK*)data_block->opaque_block;
+                    auto general_block = (GeneralBlock*)data_block->opaque_block;
                     put_data.opaque_block = general_block->userdefinedtype;
                 }
 

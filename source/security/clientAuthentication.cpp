@@ -237,8 +237,8 @@ static int initialiseKeys(ClientBlock* client_block, gcry_sexp_t* publickey_out,
     return 0;
 }
 
-static int issueToken(ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
-                      USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
+static int issueToken(ClientBlock* client_block, LogMallocList* logmalloclist,
+                      UserDefinedTypeList* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                       gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
@@ -300,8 +300,8 @@ static int issueToken(ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
     return err;
 }
 
-static int decryptServerToken(ServerBlock* server_block, ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
-                              USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
+static int decryptServerToken(ServerBlock* server_block, ClientBlock* client_block, LogMallocList* logmalloclist,
+                              UserDefinedTypeList* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                               gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
@@ -375,8 +375,8 @@ static int decryptServerToken(ServerBlock* server_block, ClientBlock* client_blo
     return err;
 }
 
-static int encryptServerToken(ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
-                              USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
+static int encryptServerToken(ClientBlock* client_block, LogMallocList* logmalloclist,
+                              UserDefinedTypeList* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                               gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
@@ -429,8 +429,8 @@ static int encryptServerToken(ClientBlock* client_block, LOGMALLOCLIST* logmallo
     return err;
 }
 
-int clientAuthentication(ClientBlock* client_block, ServerBlock* server_block, LOGMALLOCLIST* logmalloclist,
-                         USERDEFINEDTYPELIST* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep)
+int clientAuthentication(ClientBlock* client_block, ServerBlock* server_block, LogMallocList* logmalloclist,
+                         UserDefinedTypeList* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep)
 {
     gcry_sexp_t privatekey = nullptr;
     gcry_sexp_t publickey = nullptr;

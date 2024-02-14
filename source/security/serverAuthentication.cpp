@@ -167,8 +167,8 @@ static int initialiseKeys(ClientBlock* client_block, gcry_sexp_t* publickey_out,
  * @param client_block
  * @return
  */
-static SECURITY_BLOCK* receiveSecurityBlock(ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
-                                            USERDEFINEDTYPELIST* userdefinedtypelist)
+static SECURITY_BLOCK* receiveSecurityBlock(ClientBlock* client_block, LogMallocList* logmalloclist,
+                                            UserDefinedTypeList* userdefinedtypelist)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
 
@@ -200,8 +200,8 @@ static SECURITY_BLOCK* receiveSecurityBlock(ClientBlock* client_block, LOGMALLOC
     return &client_block->securityBlock;
 }
 
-static int decryptClientToken(ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
-                              USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
+static int decryptClientToken(ClientBlock* client_block, LogMallocList* logmalloclist,
+                              UserDefinedTypeList* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                               gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
@@ -279,8 +279,8 @@ static int encryptClientToken(ServerBlock* server_block, gcry_sexp_t publickey, 
     return err;
 }
 
-static int issueToken(ServerBlock* server_block, LOGMALLOCLIST* logmalloclist,
-                      USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
+static int issueToken(ServerBlock* server_block, LogMallocList* logmalloclist,
+                      UserDefinedTypeList* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                       gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
@@ -327,8 +327,8 @@ static int issueToken(ServerBlock* server_block, LOGMALLOCLIST* logmalloclist,
     return err;
 }
 
-static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
+static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, LogMallocList* logmalloclist,
+                       UserDefinedTypeList* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                        gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
@@ -403,8 +403,8 @@ static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, LOG
     return err;
 }
 
-int serverAuthentication(ClientBlock* client_block, ServerBlock* server_block, LOGMALLOCLIST* logmalloclist,
-                         USERDEFINEDTYPELIST* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep)
+int serverAuthentication(ClientBlock* client_block, ServerBlock* server_block, LogMallocList* logmalloclist,
+                         UserDefinedTypeList* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep)
 {
     gcry_sexp_t privatekey = nullptr;
     gcry_sexp_t publickey = nullptr;

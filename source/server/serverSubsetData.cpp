@@ -80,7 +80,7 @@ int number_of_subsetting_operations(const Action* action)
     }
 }
 
-int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LOGMALLOCLIST* logmalloclist)
+int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LogMallocList* logmalloclist)
 {
     int n_bound = subset.nbound; // the Number of operations in the set
 
@@ -121,7 +121,7 @@ int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LOGMA
         if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES && subset.member[0] != '\0' &&
             data_block->opaque_block != nullptr) {
 
-            auto udt = (USERDEFINEDTYPE*)data_block->opaque_block;
+            auto udt = (UserDefinedType*)data_block->opaque_block;
 
             // Extract an atomic type data element from the data structure
 
@@ -1373,7 +1373,7 @@ int apply_functions(Subset subset, DataBlock* data_block)
     UDA_THROW_ERROR(999, "Unknown function");
 }
 
-int uda::server::serverSubsetData(DataBlock* data_block, const Action& action, LOGMALLOCLIST* logmalloclist)
+int uda::server::serverSubsetData(DataBlock* data_block, const Action& action, LogMallocList* logmalloclist)
 {
     print_action(action);
     print_data_block(*data_block);

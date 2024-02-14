@@ -64,9 +64,9 @@ void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timev
     }
 }
 
-int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
-                                 LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags,
+int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int* token, LogMallocList* logmalloclist,
+                                 UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
+                                 LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
                                  int malloc_source)
 {
     int err = 0;

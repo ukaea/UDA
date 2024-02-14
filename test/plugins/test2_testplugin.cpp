@@ -103,21 +103,21 @@ const std::vector<uda::Dim>& uda::Array::dims() const
 }
 
 template <typename T>
-uda::Scalar getScalar(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
+uda::Scalar getScalar(LogMallocList* logmalloclist, NTREE* node, const char* name)
 {
     T* val = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(*val);
 }
 
 template <>
-uda::Scalar getScalar<char*>(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
+uda::Scalar getScalar<char*>(LogMallocList* logmalloclist, NTREE* node, const char* name)
 {
     char* val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(val);
 }
 
 template <>
-uda::Scalar getScalar<char**>(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
+uda::Scalar getScalar<char**>(LogMallocList* logmalloclist, NTREE* node, const char* name)
 {
     char** val = reinterpret_cast<char**>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(val[0]);
@@ -125,7 +125,7 @@ uda::Scalar getScalar<char**>(LOGMALLOCLIST* logmalloclist, NTREE* node, const c
 
 uda::Scalar atomicScalar(const std::string& target, int handle, NTREE* ntree)
 {
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str()); // Locate the named variable target
     //NTREE * node = findNTreeStructureComponent(ntree, target.c_str()); // Locate the named variable target
     if (node == nullptr) {
@@ -171,14 +171,14 @@ uda::Scalar atomicScalar(const std::string& target, int handle, NTREE* ntree)
 }
 
 template <typename T>
-static uda::Vector getVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int count)
+static uda::Vector getVector(LogMallocList* logmalloclist, NTREE* node, const std::string& target, int count)
 {
     T* data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
     return uda::Vector(data, (size_t)count);
 }
 
-uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int* shape)
+uda::Vector getStringVector(LogMallocList* logmalloclist, NTREE* node, const std::string& target, int* shape)
 {
     int count = shape[1];
 
@@ -196,7 +196,7 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
     return uda::Vector(data, (size_t)count);
 }
 
-uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target)
+uda::Vector getStringVector(LogMallocList* logmalloclist, NTREE* node, const std::string& target)
 {
     auto data = static_cast<char**>(malloc(sizeof(char*)));
     if (data == nullptr) {
@@ -211,7 +211,7 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
 
 uda::Vector atomicVector(const std::string& target, int handle, NTREE* ntree)
 {
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str());
     //NTREE * node = findNTreeStructureComponent(ntree, (char *)target.c_str()); // Locate the named variable target
     if (node == nullptr) {
@@ -271,7 +271,7 @@ uda::Vector atomicVector(const std::string& target, int handle, NTREE* ntree)
 }
 
 template <typename T>
-static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int* shape, int rank)
+static uda::Array getArray(LogMallocList* logmalloclist, NTREE* node, const std::string& target, int* shape, int rank)
 {
     auto data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
@@ -289,7 +289,7 @@ static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std:
 
 uda::Array atomicArray(const std::string& target, int handle, NTREE* ntree)
 {
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str());
     //NTREE * node = findNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
     if (node == nullptr) {
@@ -525,11 +525,11 @@ TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGI
 
     ntree = getNodeChild(ntree, 0);
     
-    USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
+    UserDefinedTypeList* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
     USERDEFINEDTYPE* type = getNodeUserDefinedType(ntree);
     printUserDefinedTypeTable(userdefinedtypelist, *type);
 
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     printNTreeStructureNames(logmalloclist, ntree);
     
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
@@ -562,7 +562,7 @@ TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TES
 
     ntree = getNodeChild(ntree, 0);
 
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -604,10 +604,10 @@ TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" 
 
     ntree = getNodeChild(ntree, 0);
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
+    UserDefinedTypeList* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
     USERDEFINEDTYPE* type = getNodeUserDefinedType(ntree);
     printUserDefinedTypeTable(userdefinedtypelist, *type);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     printNTreeStructureNames(logmalloclist, ntree);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
@@ -639,7 +639,7 @@ TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TES
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -679,7 +679,7 @@ TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plug
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -717,7 +717,7 @@ TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string array
 
     REQUIRE( getNodeChildrenCount(ntree) == 4 );
 
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     
     for (int i = 0; i < 4; ++i)
     {
@@ -850,7 +850,7 @@ TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUG
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -885,7 +885,7 @@ TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TE
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -926,7 +926,7 @@ TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TE
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -975,7 +975,7 @@ TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1010,7 +1010,7 @@ TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as point
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1051,7 +1051,7 @@ TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as point
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1099,7 +1099,7 @@ TEST_CASE( "Run test18 - pass large number of structs containing single int", "[
 
     REQUIRE( getNodeChildrenCount(ntree) == 100000 );
 
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     
     for (int i = 0; i < 100000; ++i) {
         NTREE* child = getNodeChild(ntree, i);
@@ -1137,7 +1137,7 @@ TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins]
 
     REQUIRE( getNodeChildrenCount(ntree) == 3 );
 
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     
     for (int i = 0; i < 3; ++i) {
         NTREE* child = getNodeChild(ntree, i);
@@ -1214,7 +1214,7 @@ TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPL
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1249,7 +1249,7 @@ TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1290,7 +1290,7 @@ TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1339,7 +1339,7 @@ TEST_CASE( "Run test24 - pass struct containing single short passed as pointer",
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1374,7 +1374,7 @@ TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as poi
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1415,7 +1415,7 @@ TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as poi
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1464,7 +1464,7 @@ TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1511,7 +1511,7 @@ TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as poi
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1558,7 +1558,7 @@ TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGI
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 0 );
@@ -1600,7 +1600,7 @@ TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TEST
 
     REQUIRE( getNodeChildrenCount(ntree) == 100 );
 
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
     
     for (int i = 0; i < 100; ++i) {
         NTREE* child = getNodeChild(ntree, i);
@@ -1647,7 +1647,7 @@ TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 100 );
@@ -1708,7 +1708,7 @@ TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 100 );
@@ -1769,7 +1769,7 @@ TEST_CASE( "Run test34 - pass struct containing array of 100 structs containing 
     REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
     ntree = getNodeChild(ntree, 0);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    LogMallocList* logmalloclist = udaGetLogMallocList(handle);
 
     REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
     REQUIRE( getNodeChildrenCount(ntree) == 100 );

@@ -1186,12 +1186,12 @@ Environment* uda::client::Client::environment()
     return &environment_;
 }
 
-void uda::client::Client::set_user_defined_type_list(USERDEFINEDTYPELIST* userdefinedtypelist)
+void uda::client::Client::set_user_defined_type_list(UserDefinedTypeList* userdefinedtypelist)
 {
     userdefinedtypelist_ = userdefinedtypelist;
 }
 
-void uda::client::Client::set_log_malloc_list(LOGMALLOCLIST* logmalloclist)
+void uda::client::Client::set_log_malloc_list(LogMallocList* logmalloclist)
 {
     logmalloclist_ = logmalloclist;
 }

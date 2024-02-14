@@ -1502,7 +1502,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
     REQUEST_BLOCK* request_block = plugin_interface->request_block;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
+    init_user_defined_type(&usertype); // New structure definition
 
     strcpy(usertype.name, "TEST40");
     strcpy(usertype.source, "Test #40");
@@ -1515,7 +1515,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
     int offset = 0;
 
     COMPOUNDFIELD field;
-    initCompoundField(&field);
+    init_compound_field(&field);
 
     // The number of data blocks is given by: request_block->putDataBlockList.blockCount
     // For this test, all blocks must be of the same type: request_block->putDataBlockList.putDataBlock[0].data_type;
@@ -1545,7 +1545,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    initUserDefinedType(&usertype); // New structure definition
+    init_user_defined_type(&usertype); // New structure definition
 
     strcpy(usertype.name, "TEST41");
     strcpy(usertype.source, "Test #41");
@@ -1556,7 +1556,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
-    initCompoundField(&field);
+    init_compound_field(&field);
 
     defineField(&field, "count", "the number of data blocks", &offset, SCALARUINT);
 

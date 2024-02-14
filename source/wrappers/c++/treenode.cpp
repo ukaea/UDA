@@ -5,7 +5,8 @@
 
 uda::TreeNode uda::TreeNode::parent()
 {
-    return TreeNode(handle_, node_->parent);
+    auto parent = udaGetNodeParent(node_);
+    return TreeNode(handle_, parent);
 }
 
 size_t uda::TreeNode::numChildren() const
@@ -489,14 +490,16 @@ uda::StructData uda::TreeNode::structData(const std::string& target)
         return StructData::Null;
     }
 
-    int count = udaGetNodeChildrenCount(node->parent);
+    auto parent = udaGetNodeParent(node);
+    int count = udaGetNodeChildrenCount(parent);
 
     uda::StructData data;
 
     for (int j = 0; j < count; j++) {
-        void* ptr = udaGetNodeData(node->parent->children[j]);
-        std::string name(udaGetNodeStructureType(node->parent->children[j]));
-        auto size = static_cast<std::size_t>(udaGetNodeStructureSize(node->parent->children[j]));
+        auto child = udaGetNodeChild(parent, j);
+        void* ptr = udaGetNodeData(child);
+        std::string name(udaGetNodeStructureType(child));
+        auto size = static_cast<std::size_t>(udaGetNodeStructureSize(child));
         data.append(name, size, ptr);
     }
 

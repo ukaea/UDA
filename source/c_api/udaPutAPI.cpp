@@ -60,8 +60,8 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
 
     /* #ifndef FATCLIENT */
     /*         if (!udaGetAPICalledOnce) { */
-    /*       LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
-    /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
+    /*       LogMallocList* oldlogmalloclist = logmalloclist; */
+    /*         UserDefinedTypeList* olduserdefinedtypelist = userdefinedtypelist; */
     /*         logmalloclist = nullptr; */
     /*         userdefinedtypelist = nullptr; */
     /*         int h = udaGetAPI("help::ping()", ""); */
@@ -139,8 +139,8 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     /* #ifndef FATCLIENT */
     /*     if (!udaGetAPICalledOnce) { */
     /*         UDA_LOG(LOG_DEBUG, "!udaGetAPICalledOnce\n"); */
-    /*         LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
-    /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
+    /*         LogMallocList* oldlogmalloclist = logmalloclist; */
+    /*         UserDefinedTypeList* olduserdefinedtypelist = userdefinedtypelist; */
     /*         logmalloclist = nullptr; */
     /*         userdefinedtypelist = nullptr; */
     /*         int h = udaGetAPI("help::ping()", ""); */

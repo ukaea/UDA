@@ -8,15 +8,16 @@
 #include "clientserver/stringUtils.h"
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
+#include "genStructs.h"
 
 using namespace uda::client_server;
 using namespace uda::logging;
 
 static int recursiveDepth = 0; // Keep count of recursive calls
 
-int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* log_struct_list,
-                       USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype, void** data,
-                       int datacount, int structRank, int* structShape, int index, NTREE** NTree, int protocolVersion,
+int xdrUserDefinedData(XDR* xdrs, LogMallocList* logmalloclist, LogStructList* log_struct_list,
+                       UserDefinedTypeList* userdefinedtypelist, UserDefinedType* userdefinedtype, void** data,
+                       int datacount, int structRank, int* structShape, int index, NTree** n_tree, int protocolVersion,
                        int malloc_source)
 {
     // Grow the data tree recursively through pointer elements within individual structures
@@ -35,11 +36,6 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
     VOIDTYPE* p; // Type Needs to be the same size as a local pointer, e.g.,  int* on 32 and long long* on 64 bit
     VOIDTYPE* prev = nullptr; // Pointer to previous structure element (need to manage SOAP data bindings)
-
-    USERDEFINEDTYPE* utype = nullptr;
-
-    NTREE* newNTree = nullptr;
-    NTREE* subNTree = nullptr;
 
     // Flag whether there is Data to Send or Receive
 
@@ -76,6 +72,8 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
     //
     // Child nodes of the same type are branched consequentially
 
+    NTree* new_n_tree = nullptr;
+
     if (xdrs->x_op == XDR_DECODE) {
         UDA_LOG(UDA_LOG_DEBUG, "index: %d   datacount: %d\n", index, datacount);
 
@@ -90,14 +88,14 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
             structRank = 0;
         }
 
-        newNTree = (NTREE*)malloc(sizeof(NTREE)); // this is the parent node for the received structure
-        udaAddMalloc(logmalloclist, (void*)newNTree, 1, sizeof(NTREE), "NTREE");
+        new_n_tree = (NTree*)malloc(sizeof(NTree)); // this is the parent node for the received structure
+        udaAddMalloc(logmalloclist, (void*)new_n_tree, 1, sizeof(NTree), "NTree");
 
-        *NTree = newNTree; // Return the new tree node address
+        *n_tree = new_n_tree; // Return the new tree node address
 
-        initNTree(newNTree);
-        newNTree->data = nullptr;
-        newNTree->userdefinedtype = userdefinedtype; // preserve Pairing of data and data type
+        initNTree(new_n_tree);
+        new_n_tree->data = nullptr;
+        new_n_tree->userdefinedtype = userdefinedtype; // preserve Pairing of data and data type
     }
 
     // Start of the Structure Array Element
@@ -105,7 +103,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
     p0 = *((char**)data) + index * userdefinedtype->size;
 
     if (xdrs->x_op == XDR_DECODE) {
-        newNTree->data = (void*)p0;
+        new_n_tree->data = (void*)p0;
     } // Each tree node points to a structure or an atomic array
 
     // Loop over all structure elements: Send or Receive
@@ -1421,7 +1419,8 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                 // Pointer to structure definition (void type ignored)
 
-                if ((utype = udaFindUserDefinedType(userdefinedtypelist, type, 0)) == nullptr &&
+                UserDefinedType* utype;
+                if ((utype = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, type, 0))) == nullptr &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
                     UDA_LOG(UDA_LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
@@ -1460,39 +1459,40 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                         }
 
                         if (id == 0) { // Only send/receive new structures
+                            NTree* sub_n_tree;
                             if (userdefinedtype->compoundfield[j].pointer) {
                                 rc = rc && xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist,
                                                               utype, (void**)p, count, structRank, structShape, i,
-                                                              &subNTree, protocolVersion, malloc_source);
+                                                              &sub_n_tree, protocolVersion, malloc_source);
                             } else {
                                 rc = rc && xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist,
                                                               utype, (void**)&p, count, structRank, structShape, i,
-                                                              &subNTree, protocolVersion, malloc_source);
+                                                              &sub_n_tree, protocolVersion, malloc_source);
                             }
 
                             // Add the new data branch to the tree
                             // If this is the first pass, allocate all loopcount child nodes
                             // dgm 15Nov2011: pre-allocate to avoid performance degradation when tree becomes large
 
-                            if (xdrs->x_op == XDR_DECODE && subNTree != nullptr) {
-                                strcpy(subNTree->name, userdefinedtype->compoundfield[j].name);
+                            if (xdrs->x_op == XDR_DECODE && sub_n_tree != nullptr) {
+                                strcpy(sub_n_tree->name, userdefinedtype->compoundfield[j].name);
                                 if (i == 0 && loopcount > 0) {
-                                    if (newNTree->children == nullptr && newNTree->branches == 0) {
-                                        newNTree->children =
-                                            (NTREE**)malloc(loopcount * sizeof(NTREE*)); // Allocate the node array
-                                        udaAddMalloc(logmalloclist, (void*)newNTree->children, loopcount,
-                                                     sizeof(NTREE*), "NTREE *");
+                                    if (new_n_tree->children == nullptr && new_n_tree->branches == 0) {
+                                        new_n_tree->children =
+                                            (NTree**)malloc(loopcount * sizeof(NTree*)); // Allocate the node array
+                                        udaAddMalloc(logmalloclist, (void*)new_n_tree->children, loopcount,
+                                                     sizeof(NTree*), "NTree *");
                                     } else { // Multiple branches (user types) originating in the same node
-                                        auto old = (VOIDTYPE)newNTree->children;
-                                        newNTree->children = (NTREE**)realloc(
+                                        auto old = (VOIDTYPE)new_n_tree->children;
+                                        new_n_tree->children = (NTree**)realloc(
                                             (void*)old,
-                                            (newNTree->branches + loopcount) *
-                                                sizeof(NTREE*)); // Individual node addresses remain valid
-                                        udaChangeMalloc(logmalloclist, old, (void*)newNTree->children,
-                                                        newNTree->branches + loopcount, sizeof(NTREE*), "NTREE *");
+                                            (new_n_tree->branches + loopcount) *
+                                                sizeof(NTree*)); // Individual node addresses remain valid
+                                        udaChangeMalloc(logmalloclist, old, (void*)new_n_tree->children,
+                                                        new_n_tree->branches + loopcount, sizeof(NTree*), "NTree *");
                                     }
                                 }
-                                udaAddNTree(newNTree, subNTree); // Only first call creates new tree node
+                                udaAddNTree(new_n_tree, sub_n_tree); // Only first call creates new tree node
                             }
 
                         } else {

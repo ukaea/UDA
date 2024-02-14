@@ -20,9 +20,6 @@ extern "C" {
 #define MIN_STATUS (-1)          // Deny Access to Data if this Status Value
 #define DATA_STATUS_BAD (-17000) // Error Code if Status is Bad
 
-typedef struct LogMallocList LOGMALLOCLIST;
-typedef struct UserDefinedTypeList USERDEFINEDTYPELIST;
-
 #ifdef FATCLIENT
 #  define udaGetAPI udaGetAPIFat
 #  define udaGetBatchAPI udaGetBatchAPIFat

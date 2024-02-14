@@ -5,13 +5,13 @@
 #include "structures/genStructs.h"
 #include <cstdio>
 
-void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+void writeCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                     const uda::client_server::DataBlock* data_block, int protocolVersion,
-                    LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
+                    LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 
-uda::client_server::DataBlock* readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist,
-                                              USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
-                                              LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
+uda::client_server::DataBlock* readCacheData(FILE* fp, LogMallocList* logmalloclist,
+                                              UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
+                                              LogStructList* log_struct_list, unsigned int private_flags,
                                               int malloc_source);
 
 #endif // UDA_CACHE_CACHE_H

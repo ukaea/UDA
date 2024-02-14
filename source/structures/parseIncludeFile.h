@@ -3,6 +3,6 @@
 
 #include "genStructs.h"
 
-int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header);
+int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* header);
 
 #endif // UDA_STRUCTURES_PARSEINCLUDEFILE_H

@@ -39,9 +39,9 @@
  *
  * data_block->opaque_block    sending (server side): set to the User Defined Data Structure Definition of
  *                the Data (external to this routine).
- *                receiving (client side): set to the SARRAY Data Structure Definition
+ *                receiving (client side): set to the SArray Data Structure Definition
  *
- * The SARRAY structure has the following:
+ * The SArray structure has the following:
  *
  * sarray.count            set to the count of structure array elements. Identical to data_block->data_n.
  * sarray.rank            set to 1 (Higher ranked arrays possible ?)
@@ -74,9 +74,9 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 
-int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
-                                    LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags,
+int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, int* token, LogMallocList* logmalloclist,
+                                    UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
+                                    LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
                                     int malloc_source, CreateXDRStreams create_xdr_streams)
 {
     DataBlock* data_block;
@@ -124,25 +124,25 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                 if (xdrs->x_op == XDR_ENCODE) { // Send Data
 
-                    SARRAY sarray; // Structure array carrier structure
-                    SARRAY* psarray = &sarray;
+                    SArray sarray; // Structure array carrier structure
+                    SArray* psarray = &sarray;
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
-                    auto udt = (USERDEFINEDTYPE*)data_block->opaque_block; // The data's structure definition
-                    USERDEFINEDTYPE* u = udaFindUserDefinedType(userdefinedtypelist, "SARRAY",
-                                                                0); // Locate the carrier structure definition
+                    auto udt = (UserDefinedType*)data_block->opaque_block; // The data's structure definition
+                    auto u = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, "SArray",
+                                                                0)); // Locate the carrier structure definition
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client\n");
 
                     if (udt == nullptr || u == nullptr) {
                         err = 999;
-                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: nullptr SARRAY User defined data Structure Definition\n");
-                        printUserDefinedTypeListTable(*userdefinedtypelist);
+                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: nullptr SArray User defined data Structure Definition\n");
+                        print_user_defined_type_list_table(*userdefinedtypelist);
                         add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
                                   "nullptr User defined data Structure Definition");
                         break;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Creating SARRAY carrier structure\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Creating SArray carrier structure\n");
 
                     initSArray(&sarray);
                     sarray.count = data_block->data_n;     // Number of this structure
@@ -150,7 +150,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                     sarray.shape = &shape;                 // Only if rank > 1?
                     sarray.data = (void*)data_block->data; // Pointer to the data to be passed
                     strcpy(sarray.type, udt->name);        // The name of the type
-                    data = (void*)&psarray;                // Pointer to the SARRAY array pointer
+                    data = (void*)&psarray;                // Pointer to the SArray array pointer
                     udaAddNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: sending Structure Definitions\n");
@@ -360,13 +360,13 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                     // Unpack data structures
 
                     if (option == 1 || option == 2) {
-                        logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-                        initLogMallocList(logmalloclist);
+                        logmalloclist = (LogMallocList*)malloc(sizeof(LogMallocList));
+                        init_log_malloc_list(logmalloclist);
 
-                        userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-                        auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+                        userdefinedtypelist = (UserDefinedTypeList*)malloc(sizeof(UserDefinedTypeList));
+                        auto udt_received = (UserDefinedType*)malloc(sizeof(UserDefinedType));
 
-                        initUserDefinedTypeList(userdefinedtypelist);
+                        init_user_defined_type_list(userdefinedtypelist);
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdr_userdefinedtypelist #A\n");
 
@@ -424,7 +424,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                             break;
                         }
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #A\n");
-                        initUserDefinedType(udt_received);
+                        init_user_defined_type(udt_received);
 
                         rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
                                                           protocolVersion, xdr_stdio_flag, log_struct_list,
@@ -460,11 +460,11 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                         }
 #endif // !FATCLIENT
 
-                        if (STR_EQUALS(udt_received->name, "SARRAY")) { // expecting this carrier structure
+                        if (STR_EQUALS(udt_received->name, "SArray")) { // expecting this carrier structure
 
-                            auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+                            auto general_block = (GeneralBlock*)malloc(sizeof(GeneralBlock));
 
-                            auto s = (SARRAY*)data;
+                            auto s = (SArray*)data;
                             if (s->count != data_block->data_n) { // check for consistency
                                 err = 999;
                                 add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
@@ -550,13 +550,13 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                             // Unpack the data Structures
 
-                            logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-                            initLogMallocList(logmalloclist);
+                            logmalloclist = (LogMallocList*)malloc(sizeof(LogMallocList));
+                            init_log_malloc_list(logmalloclist);
 
-                            userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-                            auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+                            userdefinedtypelist = (UserDefinedTypeList*)malloc(sizeof(UserDefinedTypeList));
+                            auto udt_received = (UserDefinedType*)malloc(sizeof(UserDefinedType));
 
-                            initUserDefinedTypeList(userdefinedtypelist);
+                            init_user_defined_type_list(userdefinedtypelist);
 
                             // Create input xdr file stream
 
@@ -582,7 +582,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                                 break;
                             }
 
-                            initUserDefinedType(udt_received);
+                            init_user_defined_type(udt_received);
 
                             rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                               &data, protocolVersion, xdr_stdio_flag, log_struct_list,
@@ -611,11 +611,11 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                             // Regular client or server
 
                             if (STR_EQUALS(udt_received->name,
-                                           "SARRAY")) { // expecting this carrier structure
+                                           "SArray")) { // expecting this carrier structure
 
-                                auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+                                auto general_block = (GeneralBlock*)malloc(sizeof(GeneralBlock));
 
-                                auto s = (SARRAY*)data;
+                                auto s = (SArray*)data;
                                 if (s->count != data_block->data_n) { // check for consistency
                                     err = 999;
                                     add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");

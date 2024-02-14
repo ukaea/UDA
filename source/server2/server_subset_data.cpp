@@ -57,7 +57,7 @@ int serverNewDataArray2(Dims* dims, int rank, int dimid, char* data, int ndata, 
 } // namespace
 
 int uda::serverSubsetData(uda::client_server::DataBlock* data_block, uda::client_server::Action action,
-                          LOGMALLOCLIST* logmalloclist)
+                          LogMallocList* logmalloclist)
 {
     Dims* dim;
     Dims newdim;
@@ -159,7 +159,7 @@ int uda::serverSubsetData(uda::client_server::DataBlock* data_block, uda::client
                 int* shape;
                 const char* type_name;
                 char* extract = nullptr;
-                auto udt = (USERDEFINEDTYPE*)data_block->opaque_block;
+                auto udt = (UserDefinedType*)data_block->opaque_block;
 
                 // Extract an atomic type data element from the data structure
 

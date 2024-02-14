@@ -436,8 +436,8 @@ bool_t uda::client_server::xdr_data_object2(XDR* xdrs, DataObject* str)
     return rc;
 }
 
-bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                            DataBlock* str, int protocolVersion, bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list,
+bool_t xdr_serialise_object(XDR* xdrs, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                            DataBlock* str, int protocolVersion, bool xdr_stdio_flag, LogStructList* log_struct_list,
                             int malloc_source)
 {
     int err = 0, rc = 1;
@@ -446,12 +446,12 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
     if (xdrs->x_op == XDR_ENCODE) { // Send Data
 
-        SARRAY sarray; // Structure array carrier structure
-        SARRAY* psarray = &sarray;
+        SArray sarray; // Structure array carrier structure
+        SArray* psarray = &sarray;
         int shape = str->data_n;                        // rank 1 array of dimension lengths
-        auto udt = (USERDEFINEDTYPE*)str->opaque_block; // The data's structure definition
-        auto u = udaFindUserDefinedType(userdefinedtypelist, "SARRAY",
-                                        0); // Locate the carrier structure definition
+        auto udt = (UserDefinedType*)str->opaque_block; // The data's structure definition
+        auto u = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, "SArray",
+                                        0)); // Locate the carrier structure definition
 
         if (udt == nullptr || u == nullptr) {
             err = 999;
@@ -465,7 +465,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         sarray.shape = &shape;          // Only if rank > 1?
         sarray.data = (void*)str->data; // Pointer to the data to be passed
         strcpy(sarray.type, udt->name); // The name of the type
-        data = (void*)&psarray;         // Pointer to the SARRAY array pointer
+        data = (void*)&psarray;         // Pointer to the SArray array pointer
         udaAddNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
         packageType = UDA_PACKAGE_XDROBJECT; // The package is an XDR serialised object
@@ -497,13 +497,13 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         // Heap allocations log
 
-        logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(logmalloclist);
+        logmalloclist = (LogMallocList*)malloc(sizeof(LogMallocList));
+        init_log_malloc_list(logmalloclist);
 
         // Data structure definitions
 
-        userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-        initUserDefinedTypeList(userdefinedtypelist);
+        userdefinedtypelist = (UserDefinedTypeList*)malloc(sizeof(UserDefinedTypeList));
+        init_user_defined_type_list(userdefinedtypelist);
 
         // receive the full set of known named structures
         rc = rc && xdr_user_defined_type_list(xdrs, userdefinedtypelist, xdr_stdio_flag);
@@ -516,8 +516,8 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         // Receive data
 
-        auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
-        initUserDefinedType(udt_received);
+        auto udt_received = (UserDefinedType*)malloc(sizeof(UserDefinedType));
+        init_user_defined_type(udt_received);
 
         rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
                                           protocolVersion, xdr_stdio_flag, log_struct_list,
@@ -532,11 +532,11 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         // Prepare returned data structure containing the data
 
-        if (STR_EQUALS(udt_received->name, "SARRAY")) { // expecting this carrier structure
+        if (STR_EQUALS(udt_received->name, "SArray")) { // expecting this carrier structure
 
-            auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+            auto general_block = (GeneralBlock*)malloc(sizeof(GeneralBlock));
 
-            auto s = (SARRAY*)data;
+            auto s = (SArray*)data;
             if (s->count != str->data_n) { // check for consistency
                 err = 999;
                 add_error(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Inconsistent S Array Counts");

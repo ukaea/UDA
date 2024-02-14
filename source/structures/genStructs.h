@@ -33,43 +33,53 @@ typedef uintptr_t UVOIDTYPE;
 #  define ALIGNMENT 1 // Default Byte Boundary used for Structure Packing
 #endif
 
-typedef char STRING;
+typedef struct CNTree {} NTREE;
+typedef struct CNTreeList {} NTREELIST;
+typedef struct CLogMallocList {} LOGMALLOCLIST;
+typedef struct CLogMalloc {} LOGMALLOC;
+typedef struct CLogStruct {} LOGSTRUCT;
+typedef struct CLogStructList {} LOGSTRUCTLIST;
+typedef struct CCompoundField {} COMPOUNDFIELD;
+typedef struct CUserDefinedType {} USERDEFINEDTYPE;
+typedef struct CUserDefinedTypeList {} USERDEFINEDTYPELIST;
+
+typedef char String;
 
 //-------------------------------------------------------------------------------------------------------
 // Structure types
 
-typedef struct SArray {          // This structure must be parsed to create a structure definition.
+struct SArray {          // This structure must be parsed to create a structure definition.
                                  // Its function is to send or receive arrays of user defined structures and
                                  // atomic types. Single user defined structures can be passed directly.
     int count;                   // Number of data array elements
     int rank;                    // Rank of the data array
     int* shape;                  // Shape of the data array
     void* data;                  // Location of the Structure Array
-    STRING type[MAXELEMENTNAME]; // The Structure Array Element's type name (Must be Unique)
-} SARRAY;
+    String type[MAXELEMENTNAME]; // The Structure Array Element's type name (Must be Unique)
+};
 
-typedef struct EnumMember {
+struct EnumMember {
     char name[MAXELEMENTNAME]; // The Enumeration member name
     long long value;           // The value of the member
-} ENUMMEMBER;
+};
 
-typedef struct EnumList {
+struct EnumList {
     char name[MAXELEMENTNAME];     // The Enumeration name
     int type;                      // The integer base type
     int count;                     // The number of members of this enumeration class
-    ENUMMEMBER* enummember;        // Array of enum members
+    EnumMember* enummember;        // Array of enum members
     unsigned long long* enumarray; // Widest integer class to transport all integer type arrays
     int enumarray_rank;
     int enumarray_count;
     int* enumarray_shape;
-} ENUMLIST;
+};
 
-typedef struct VLenType { // Variable length (ragged) arrays
+struct VLenType { // Variable length (ragged) arrays
     unsigned int len;     // The array element count
     void* data;           // Array data
-} VLENTYPE;
+};
 
-typedef struct LogMalloc {
+struct LogMalloc {
     int count;                 // Number of elements allocated
     int rank;                  // Dimensionality
     size_t size;               // Size of each element allocated
@@ -77,27 +87,27 @@ typedef struct LogMalloc {
     char type[MAXELEMENTNAME]; // The type name (Atomic or User Defined)
     void* heap;                // Heap address of the allocated memory
     int* shape;                // Dimensional lengths. Only required when rank > 1.
-} LOGMALLOC;
+};
 
-typedef struct LogMallocList {
+struct LogMallocList : LOGMALLOCLIST {
     int listcount;        // Number of mallocs logged
     int listsize;         // Size of List
-    LOGMALLOC* logmalloc; // List of individual mallocs in allocation order
-} LOGMALLOCLIST;
+    LogMalloc* logmalloc; // List of individual mallocs in allocation order
+};
 
-typedef struct LogStruct {
+struct LogStruct {
     int id;                    // Structure Identity Number
     char type[MAXELEMENTNAME]; // The structure's type name
     void* heap;                // The structure's Heap address
-} LOGSTRUCT;
+};
 
-typedef struct LogStructList {
+struct LogStructList : LOGSTRUCTLIST {
     int listcount;        // Number of Structures logged
     int listsize;         // Size of List
-    LOGSTRUCT* logstruct; // List of individual structures in dispatch order
-} LOGSTRUCTLIST;
+    LogStruct* logstruct; // List of individual structures in dispatch order
+};
 
-typedef struct CompoundField {
+struct CompoundField : COMPOUNDFIELD {
     int size;                  // The size of the field type: Atomic or User Defined
     int offset;                // Data byte position within the structure (Architecture dependent)
     int offpad;                // Structure Packing before this element's position
@@ -110,9 +120,9 @@ typedef struct CompoundField {
     char type[MAXELEMENTNAME]; // The Element's type name (Atomic or User Defined)
     char name[MAXELEMENTNAME]; // The Element's name (may be different to its type), i.e., variable name
     char desc[MAXELEMENTNAME]; // Description or Comment about the structure element
-} COMPOUNDFIELD;
+};
 
-typedef struct UserDefinedType {
+struct UserDefinedType : USERDEFINEDTYPE {
     int idamclass;                // IDAM user defined class
     char name[MAXELEMENTNAME];    // Name of the user defined Type (must be unique)
     char source[MAXELEMENTNAME];  // Source of the Structure Definition (header file or data file)
@@ -121,36 +131,36 @@ typedef struct UserDefinedType {
     int ref_id;                   // Unique reference ID tag (Database Key etc.)
     int size;                     // The size of the type in local 32/64 bit architecture
     int fieldcount;               // the Number of data fields in the structure
-    COMPOUNDFIELD* compoundfield; // Array of field details
-} USERDEFINEDTYPE;
+    CompoundField* compoundfield; // Array of field details
+};
 
-typedef struct UserDefinedTypeList {
+struct UserDefinedTypeList : USERDEFINEDTYPELIST {
     int listCount;                    // Count of all User Structured Types
-    USERDEFINEDTYPE* userdefinedtype; // Array of User defined types
-} USERDEFINEDTYPELIST;
+    UserDefinedType* userdefinedtype; // Array of User defined types
+};
 
 // ***** How many structures are in data (rank, shape, etc?)
 
-typedef struct NTree {         // N-ary Tree linking all related user defined data structures: definitions and data
+struct NTree : NTREE {         // N-ary Tree linking all related user defined data structures: definitions and data
     int branches;              // Children (Branch) Count from this node
     char name[MAXELEMENTNAME]; // The Structure's and also the tree node's name
-    USERDEFINEDTYPE* userdefinedtype; // Definition of the data
+    UserDefinedType* userdefinedtype; // Definition of the data
     void* data;                       // the Data
     struct NTree* parent;             // Pointer to the parent node
     struct NTree** children;          // Pointer Array of sibling tree nodes (branches).
-} NTREE;
+};
 
-typedef struct NTreeList {
+struct NTreeList : NTREELIST {
     int listCount;  // Count of all Individual Trees
-    NTREE* forrest; // Array of Tree list structures
-} NTREELIST;
+    NTree* forrest; // Array of Tree list structures
+};
 
-typedef struct GeneralBlock {                 // Generalised Data Structures: Client Side Only
-    USERDEFINEDTYPE* userdefinedtype;         // User defined type of the Data
-    USERDEFINEDTYPELIST* userdefinedtypelist; // List of Known Structure Definitions
-    LOGMALLOCLIST* logmalloclist;             // List of Heap Mallocs
+struct GeneralBlock {                 // Generalised Data Structures: Client Side Only
+    UserDefinedType* userdefinedtype;         // User defined type of the Data
+    UserDefinedTypeList* userdefinedtypelist; // List of Known Structure Definitions
+    LogMallocList* logmalloclist;             // List of Heap Mallocs
     unsigned int lastMallocIndex;             // Associate last search entry position found in the Malloc Log
-} GENERAL_BLOCK;
+};
 
 #define UDA_MALLOC_SOURCE_NONE 0
 #define UDA_MALLOC_SOURCE_SOAP 1
@@ -161,8 +171,11 @@ typedef struct GeneralBlock {                 // Generalised Data Structures: Cl
 #define UDA_PACKAGE_STRUCTDATA 2
 #define UDA_PACKAGE_XDROBJECT 3
 
-int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size, char** data);
-void printUserDefinedTypeListTable(USERDEFINEDTYPELIST str);
-void initSArray(SARRAY* str);
+int xdrAtomicData(LogMallocList* logmalloclist, XDR* xdrs, const char* type, int count, int size, char** data);
+void print_user_defined_type_list_table(UserDefinedTypeList str);
+void initSArray(SArray* str);
+void initNTree(NTree* str);
+void copy_user_defined_type_list(UserDefinedTypeList** anew, const UserDefinedTypeList* parseduserdefinedtypelist);
+void get_initial_user_defined_type_list(UserDefinedTypeList** anew);
 
 #endif // UDA_STRUCTURES_GENSTRUCTS_H

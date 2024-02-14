@@ -4,7 +4,7 @@
 // Static Master list of all known user defined types from header files and data bindings to XML Schema.
 // This list is extended at run time when unknown types are encountered (e.g. from netCDF4 files)
 //
-// USERDEFINEDTYPELIST userdefinedtypelist = getOpaqueStructurefromDatabase or ...
+// UserDefinedTypeList user_defined_type_list = getOpaqueStructurefromDatabase or ...
 //
 // pointer to the Data structure with measurement data etc.
 //
@@ -12,13 +12,13 @@
 //
 // Fetch the structure Definition from the Master List of all known structures
 //
-// USERDEFINEDTYPE *udtype = udaFindUserDefinedType("MYSTRUCT");
+// UserDefinedType *udtype = udaFindUserDefinedType("MYSTRUCT");
 //
 // Send the Data
 //
 // rc = xdr_user_defined_type_data(xdrs, udtype, (void *)&mystruct);
 //
-// Arrays of User Defined Structures are ported using a special structure names SARRAY ....
+// Arrays of User Defined Structures are ported using a special structure names SArray ....
 //
 //==============================================================================================================
 // Example: Receive a user defined structure of unknown type
@@ -27,8 +27,8 @@
 //
 // Create an empty structure definition
 //
-// USERDEFINEDTYPE udtype;
-// initUserDefinedType(&udtype);
+// UserDefinedType udtype;
+// init_user_defined_type(&udtype);
 //
 // Receive the Data and its structure definition
 //
@@ -73,16 +73,16 @@ using namespace uda::logging;
 static unsigned int last_malloc_index = 0; // Malloc Log search index last value
 static unsigned int* last_malloc_index_value =
     &last_malloc_index; // Preserve Malloc Log search index last value in GENERAL_STRUCT
-static NTREE* full_ntree = nullptr;
+static NTree* full_ntree = nullptr;
 
 NTREE* udaGetFullNTree()
 {
-    return full_ntree;
+    return static_cast<NTREE*>(full_ntree);
 }
 
-void udaSetFullNTree(NTREE* ntree)
+void udaSetFullNTree(NTREE* c_tree)
 {
-    full_ntree = ntree;
+    full_ntree = static_cast<NTree*>(c_tree);
 }
 
 void udaSetLastMallocIndexValue(unsigned int* lastMallocIndexValue_in)
@@ -94,12 +94,12 @@ void udaSetLastMallocIndexValue(unsigned int* lastMallocIndexValue_in)
 //---------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------
 
-/** Initialise a SARRAY data structure.
+/** Initialise a SArray data structure.
  *
- * @param str A pointer to a SARRAY data structure instance.
+ * @param str A pointer to a SArray data structure instance.
  * @return Void.
  */
-void initSArray(SARRAY* str)
+void initSArray(SArray* str)
 {
     str->count = 0;
     str->rank = 0;
@@ -108,15 +108,15 @@ void initSArray(SARRAY* str)
     str->type[0] = '\0';
 }
 
-/** Print the Contents of a SARRAY data structure.
+/** Print the Contents of a SArray data structure.
  *
  * @param fd A File Descriptor.
- * @param str A SARRAY data structure instance.
+ * @param str A SArray data structure instance.
  * @return Void.
  */
-void udaPrintSarray(SARRAY str)
+void udaPrintSarray(SArray str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "SARRAY Contents\n");
+    UDA_LOG(UDA_LOG_DEBUG, "SArray Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "Type : %s\n", str.type);
     UDA_LOG(UDA_LOG_DEBUG, "Rank : %d\n", str.rank);
     UDA_LOG(UDA_LOG_DEBUG, "Count: %d\n", str.count);
@@ -134,27 +134,33 @@ void udaPrintSarray(SARRAY str)
     UDA_LOG(UDA_LOG_DEBUG, "\n");
 }
 
-/** Add an NTREE List entry.
+/** Add an NTree List entry.
  *
- * @param node A NTREE node to add.
+ * @param node A NTree node to add.
  * @return Void.
  */
-void udaAddNTreeList(LOGMALLOCLIST* logmalloclist, NTREE* node, NTREELIST* ntree_list)
+void udaAddNTreeList(LOGMALLOCLIST* c_log_malloc_list, NTREE* node, NTREELIST* ntree_list)
 {
-    VOIDTYPE old = (VOIDTYPE)ntree_list->forrest;
-    ntree_list->forrest = (NTREE*)realloc((void*)ntree_list->forrest, (++ntree_list->listCount) * sizeof(NTREE*));
-    udaChangeMalloc(logmalloclist, old, (void*)ntree_list->forrest, ntree_list->listCount, sizeof(NTREE*), "NTREE *");
-    ntree_list->forrest[ntree_list->listCount] = *node;
+    auto tree = static_cast<NTree*>(node);
+    auto list = static_cast<NTreeList*>(ntree_list);
+
+    VOIDTYPE old = (VOIDTYPE)list->forrest;
+    list->forrest = (NTree*)realloc((void*)list->forrest, (++list->listCount) * sizeof(NTree*));
+    udaChangeMalloc(c_log_malloc_list, old, (void*)list->forrest, list->listCount, sizeof(NTree*), "NTree *");
+    list->forrest[list->listCount] = *tree;
 }
 
-/** Add an NTREE node to an array of child nodes.
+/** Add an NTree node to an array of child nodes.
  *
- * @param parent A NTREE node with a set of child nodes
- * @param child A NTREE node to add to the existing set of child nodes
+ * @param parent A NTree node with a set of child nodes
+ * @param child A NTree node to add to the existing set of child nodes
  * @return Void.
  */
-void udaAddNTree(NTREE* parent, NTREE* child)
+void udaAddNTree(NTREE* c_parent, NTREE* c_child)
 {
+    auto child = static_cast<NTree*>(c_child);
+    auto parent = static_cast<NTree*>(c_parent);
+
     int branch;
     if (child == nullptr || parent == nullptr) {
         return;
@@ -165,21 +171,23 @@ void udaAddNTree(NTREE* parent, NTREE* child)
     parent->branches++;               // Update the count of children
 }
 
-/** Free an NTREE node together with the array of child nodes.
+/** Free an NTree node together with the array of child nodes.
  *
- * @param ntree A NTREE node with or without a set of child nodes
+ * @param tree A NTree node with or without a set of child nodes
  * @return Void.
  */
-void udaFreeNTreeNode(NTREE* ntree)
+void udaFreeNTreeNode(NTREE* c_ntree)
 {
-    if (ntree == nullptr) {
+    auto tree = static_cast<NTree*>(c_ntree);
+
+    if (tree == nullptr) {
         return;
     }
-    if (ntree->branches > 0 && ntree->children != nullptr) {
-        for (int i = 0; i < ntree->branches; i++) {
-            udaFreeNTreeNode(ntree->children[i]);
+    if (tree->branches > 0 && tree->children != nullptr) {
+        for (int i = 0; i < tree->branches; i++) {
+            udaFreeNTreeNode(tree->children[i]);
         }
-        free(ntree->children);
+        free(tree->children);
     }
 }
 
@@ -265,24 +273,24 @@ void udaExpandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], in
     }
 }
 
-/** Initialise a LOGMALLOCLIST data structure.
+/** Initialise a LogMallocList data structure.
  *
- * @param str A pointer to a LOGMALLOCLIST data structure instance.
+ * @param str A pointer to a LogMallocList data structure instance.
  * @return Void.
  */
-void initLogMallocList(LOGMALLOCLIST* str)
+void init_log_malloc_list(LogMallocList* str)
 {
     str->listcount = 0;
     str->listsize = 0;
     str->logmalloc = nullptr;
 }
 
-/** Initialise a LOGMALLOC data structure.
+/** Initialise a LogMalloc data structure.
  *
- * @param str A pointer to a LOGMALLOC data structure instance.
+ * @param str A pointer to a LogMalloc data structure instance.
  * @return Void.
  */
-void initLogMalloc(LOGMALLOC* str)
+void init_log_malloc(LogMalloc* str)
 {
     str->count = 0;
     str->rank = 0;
@@ -293,35 +301,35 @@ void initLogMalloc(LOGMALLOC* str)
     str->shape = nullptr;
 }
 
-/** Initialise a LOGSTRUCTLIST data structure.
+/** Initialise a LogStructList data structure.
  *
  * @return Void.
  */
-void initLogStructList(LOGSTRUCTLIST* log_struct_list)
+void init_log_struct_list(LogStructList* log_struct_list)
 {
     log_struct_list->listcount = 0;
     log_struct_list->listsize = 0;
     log_struct_list->logstruct = nullptr;
 }
 
-/** Initialise a LOGSTRUCT data structure.
+/** Initialise a LogStruct data structure.
  *
- * @param str A pointer to a LOGSTRUCT data structure instance.
+ * @param str A pointer to a LogStruct data structure instance.
  * @return Void.
  */
-void initLogStruct(LOGSTRUCT* str)
+void init_log_struct(LogStruct* str)
 {
     str->id = 0;
     str->type[0] = '\0';
     str->heap = nullptr;
 }
 
-/** Initialise a COMPOUNDFIELD data structure.
+/** Initialise a CompoundField data structure.
  *
- * @param str A pointer to a COMPOUNDFIELD data structure instance.
+ * @param str A pointer to a CompoundField data structure instance.
  * @return Void.
  */
-void initCompoundField(COMPOUNDFIELD* str)
+void init_compound_field(CompoundField* str)
 {
     str->size = 0;
     str->offset = 0;
@@ -337,41 +345,41 @@ void initCompoundField(COMPOUNDFIELD* str)
     memset(str->desc, '\0', MAXELEMENTNAME);
 }
 
-/** Initialise a USERDEFINEDTYPE data structure.
+/** Initialise a UserDefinedType data structure.
  *
- * @param str A pointer to a USERDEFINEDTYPE data structure instance.
+ * @param str A pointer to a UserDefinedType data structure instance.
  * @return Void.
  */
-void initUserDefinedType(USERDEFINEDTYPE* str)
+void init_user_defined_type(UserDefinedType* user_defined_type)
 {
-    str->idamclass = UDA_TYPE_UNKNOWN;
-    str->ref_id = 0;
-    memset(str->name, '\0', MAXELEMENTNAME);
-    memset(str->source, '\0', MAXELEMENTNAME);
-    str->imagecount = 0;
-    str->image = nullptr;
-    str->size = 0;
-    str->fieldcount = 0;
-    str->compoundfield = nullptr;
+    user_defined_type->idamclass = UDA_TYPE_UNKNOWN;
+    user_defined_type->ref_id = 0;
+    memset(user_defined_type->name, '\0', MAXELEMENTNAME);
+    memset(user_defined_type->source, '\0', MAXELEMENTNAME);
+    user_defined_type->imagecount = 0;
+    user_defined_type->image = nullptr;
+    user_defined_type->size = 0;
+    user_defined_type->fieldcount = 0;
+    user_defined_type->compoundfield = nullptr;
 }
 
-/** Initialise a USERDEFINEDTYPELIST data structure.
+/** Initialise a UserDefinedTypeList data structure.
  *
- * @param str A pointer to a USERDEFINEDTYPELIST data structure instance.
+ * @param str A pointer to a UserDefinedTypeList data structure instance.
  * @return Void.
  */
-void initUserDefinedTypeList(USERDEFINEDTYPELIST* str)
+void init_user_defined_type_list(UserDefinedTypeList* str)
 {
     str->listCount = 0;
     str->userdefinedtype = nullptr;
 }
 
-/** Initialise a GENERAL_BLOCK data structure.
+/** Initialise a GeneralBlock data structure.
  *
- * @param str A pointer to a GENERAL_BLOCK data structure instance.
+ * @param str A pointer to a GeneralBlock data structure instance.
  * @return Void.
  */
-void initGeneralBlock(GENERAL_BLOCK* str)
+void init_general_block(GeneralBlock* str)
 {
     str->userdefinedtype = nullptr;
     str->userdefinedtypelist = nullptr;
@@ -379,15 +387,15 @@ void initGeneralBlock(GENERAL_BLOCK* str)
     str->lastMallocIndex = 0;
 }
 
-/** Print the Contents of a COMPOUNDFIELD data structure.
+/** Print the Contents of a CompoundField data structure.
  *
  * @param fd A File Descriptor.
- * @param str A COMPOUNDFIELD data structure instance.
+ * @param str A CompoundField data structure instance.
  * @return Void.
  */
-void udaPrintCompoundField(COMPOUNDFIELD str)
+void print_compound_field(CompoundField str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "COMPOUNDFIELD Contents\n");
+    UDA_LOG(UDA_LOG_DEBUG, "CompoundField Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "name     : %s\n", str.name);
     UDA_LOG(UDA_LOG_DEBUG, "type     : %s\n", str.type);
     UDA_LOG(UDA_LOG_DEBUG, "desc     : %s\n", str.desc);
@@ -412,27 +420,27 @@ void udaPrintCompoundField(COMPOUNDFIELD str)
     }
 }
 
-/** Print the Tabulated Contents of a COMPOUNDFIELD data structure.
+/** Print the Tabulated Contents of a CompoundField data structure.
  *
  * @param fd A File Descriptor.
- * @param str A COMPOUNDFIELD data structure instance.
+ * @param str A CompoundField data structure instance.
  * @return Void.
  */
-void udaPrintCompoundFieldTable(COMPOUNDFIELD str)
+void print_compound_field_table(CompoundField str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "\t%20s\t%16s\t%d\t%d\t%d\t%d\t%d\t%d\n", str.name, str.type, str.pointer, str.size,
             str.count, str.offset, str.offpad, str.alignment);
 }
 
-/** Print the Contents of a USERDEFINEDTYPE data structure.
+/** Print the Contents of a UserDefinedType data structure.
  *
  * @param fd A File Descriptor.
- * @param str A USERDEFINEDTYPE data structure instance.
+ * @param str A UserDefinedType data structure instance.
  * @return Void.
  */
-void udaPrintUserDefinedType(USERDEFINEDTYPE str)
+void print_user_defined_type(UserDefinedType str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPE Contents\n");
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "name        : %s\n", str.name);
     UDA_LOG(UDA_LOG_DEBUG, "source      : %s\n", str.source);
     UDA_LOG(UDA_LOG_DEBUG, "ID Reference: %d\n", str.ref_id);
@@ -444,41 +452,41 @@ void udaPrintUserDefinedType(USERDEFINEDTYPE str)
 
     if (str.compoundfield != nullptr) {
         for (int i = 0; i < str.fieldcount; i++) {
-            udaPrintCompoundField(str.compoundfield[i]);
+            print_compound_field(str.compoundfield[i]);
         }
     }
     UDA_LOG(UDA_LOG_DEBUG, "\n");
 }
 
-/** Print the Tabulated Contents of a USERDEFINEDTYPE data structure.
+/** Print the Tabulated Contents of a UserDefinedType data structure.
  *
  * @param fd A File Descriptor.
- * @param str A USERDEFINEDTYPE data structure instance.
+ * @param str A UserDefinedType data structure instance.
  * @return Void.
  */
-void udaPrintUserDefinedTypeTable(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE str)
+void print_user_defined_type_table(UserDefinedTypeList* user_defined_type_list, UserDefinedType str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d [%d] fieldcount: %d ref_id: %d \n", str.name, str.size,
-            udaGetStructureSize(userdefinedtypelist, &str), str.fieldcount, str.ref_id);
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType name: %s size: %d [%d] fieldcount: %d ref_id: %d \n", str.name, str.size,
+            udaGetStructureSize(user_defined_type_list, &str), str.fieldcount, str.ref_id);
     if (str.compoundfield != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG,
                 "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
         for (int i = 0; i < str.fieldcount; i++) {
-            udaPrintCompoundFieldTable(str.compoundfield[i]);
+            print_compound_field_table(str.compoundfield[i]);
         }
     }
 }
 
-/** Print the Tabulated Contents of a USERDEFINEDTYPE data structure with Zero Sized elements.
+/** Print the Tabulated Contents of a UserDefinedType data structure with Zero Sized elements.
  *
  * @param fd A File Descriptor.
- * @param str A USERDEFINEDTYPE data structure instance.
+ * @param str A UserDefinedType data structure instance.
  * @return Void.
  */
-void udaPrintZeroSizedUserDefinedTypeTable(USERDEFINEDTYPE str)
+void print_zero_sized_user_defined_type_table(UserDefinedType str)
 {
     int size1 = 0, size2 = 0;
-    UDA_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d fieldcount %d\n", str.name, str.size, str.fieldcount);
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType name: %s size: %d fieldcount %d\n", str.name, str.size, str.fieldcount);
     if (str.compoundfield != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG,
                 "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
@@ -486,7 +494,7 @@ void udaPrintZeroSizedUserDefinedTypeTable(USERDEFINEDTYPE str)
             if (str.compoundfield[i].size > 0) {
                 continue;
             }
-            udaPrintCompoundFieldTable(str.compoundfield[i]);
+            print_compound_field_table(str.compoundfield[i]);
             if (str.compoundfield[i].pointer) {
                 size1 = size1 + str.compoundfield[i].size;
             } else {
@@ -504,61 +512,61 @@ void udaPrintZeroSizedUserDefinedTypeTable(USERDEFINEDTYPE str)
     UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]\n", size1, size2);
 }
 
-/** Print the Contents of a USERDEFINEDTYPELIST data structure.
+/** Print the Contents of a UserDefinedTypeList data structure.
  *
  * @param fd A File Descriptor.
- * @param str A USERDEFINEDTYPELIST data structure instance.
+ * @param str A UserDefinedTypeList data structure instance.
  * @return Void.
  */
-void udaPrintUserDefinedTypeList(USERDEFINEDTYPELIST str)
+void print_user_defined_type_list(UserDefinedTypeList str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPELIST Contents\n");
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedTypeList Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
     for (int i = 0; i < str.listCount; i++) {
-        udaPrintUserDefinedType(str.userdefinedtype[i]);
+        print_user_defined_type(str.userdefinedtype[i]);
     }
     UDA_LOG(UDA_LOG_DEBUG, "\n");
 }
 
-/** Print the Tabulated Contents of a USERDEFINEDTYPELIST data structure.
+/** Print the Tabulated Contents of a UserDefinedTypeList data structure.
  *
  * @param fd A File Descriptor.
- * @param str A USERDEFINEDTYPELIST data structure instance.
+ * @param str A UserDefinedTypeList data structure instance.
  * @return Void.
  */
-void printUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
+void print_user_defined_type_list_table(UserDefinedTypeList str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPELIST Contents\n");
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedTypeList Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
     for (int i = 0; i < str.listCount; i++) {
-        udaPrintUserDefinedTypeTable(&str, str.userdefinedtype[i]);
+        print_user_defined_type_table(&str, str.userdefinedtype[i]);
     }
     UDA_LOG(UDA_LOG_DEBUG, "\n\n");
 }
 
-/** Print the Tabulated Contents of a USERDEFINEDTYPELIST data structure where the size is zero.
+/** Print the Tabulated Contents of a UserDefinedTypeList data structure where the size is zero.
  *
  * @param fd A File Descriptor.
- * @param str A USERDEFINEDTYPELIST data structure instance.
+ * @param str A UserDefinedTypeList data structure instance.
  * @return Void.
  */
-void udaPrintZeroSizedUserDefinedTypeListTable(USERDEFINEDTYPELIST str)
+void print_zero_sized_user_defined_type_list_table(UserDefinedTypeList str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Zero Size USERDEFINEDTYPELIST Contents\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Zero Size UserDefinedTypeList Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
     for (int i = 0; i < str.listCount; i++) {
-        udaPrintZeroSizedUserDefinedTypeTable(str.userdefinedtype[i]);
+        print_zero_sized_user_defined_type_table(str.userdefinedtype[i]);
     }
     UDA_LOG(UDA_LOG_DEBUG, "\n\n");
 }
 
-/** Print the Contents of a LOGMALLOC data structure.
+/** Print the Contents of a LogMalloc data structure.
  *
  * @param fd A File Descriptor.
- * @param str A LOGMALLOC data structure instance.
+ * @param str A LogMalloc data structure instance.
  * @return Void.
  */
-void udaPrintMallocLog(LOGMALLOC str)
+void print_malloc_log(LogMalloc str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "%p\t%d\t%d\t%d\t%s\n", (void*)str.heap, str.count, str.size, str.freed, str.type);
     if (str.rank > 1 && str.shape != nullptr) {
@@ -570,19 +578,19 @@ void udaPrintMallocLog(LOGMALLOC str)
     }
 }
 
-/** Print the Contents of the Global LOGMALLOCLIST data structure.
+/** Print the Contents of the Global LogMallocList data structure.
  *
  * @param fd A File Descriptor.
  * @return Void.
  */
-void udaPrintMallocLogList(const LOGMALLOCLIST* logmalloclist)
+void print_malloc_log_list(const LogMallocList* log_malloc_list)
 {
     UDA_LOG(UDA_LOG_DEBUG, "MALLOC LOG List Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", logmalloclist->listcount);
+    UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", log_malloc_list->listcount);
     UDA_LOG(UDA_LOG_DEBUG, "Address\t\tCount\tSize\tFreed\tType\n");
-    for (int i = 0; i < logmalloclist->listcount; i++) {
+    for (int i = 0; i < log_malloc_list->listcount; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "[%3d]  ", i);
-        udaPrintMallocLog(logmalloclist->logmalloc[i]);
+        print_malloc_log(log_malloc_list->logmalloc[i]);
     }
     UDA_LOG(UDA_LOG_DEBUG, "\n\n");
 }
@@ -590,7 +598,7 @@ void udaPrintMallocLogList(const LOGMALLOCLIST* logmalloclist)
 //==============================================================================================================
 // Utility Functions
 
-/** Add a stack memory location to the LOGMALLOCLIST data structure. These are not freed.
+/** Add a stack memory location to the LogMallocList data structure. These are not freed.
  *
  * @param stack The memory location.
  * @param count The number of elements allocated.
@@ -598,29 +606,31 @@ void udaPrintMallocLogList(const LOGMALLOCLIST* logmalloclist)
  * @param type The name of the type allocated.
  * @return void.
  */
-void udaAddNonMalloc(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, const char* type)
+void udaAddNonMalloc(LOGMALLOCLIST* c_log_malloc_list, void* stack, int count, size_t size, const char* type)
 {
+    auto log_malloc_list = static_cast<LogMallocList*>(c_log_malloc_list);
+
     // Put a non malloc'd memory location on the malloc log flagging it as freed
 
-    if (logmalloclist->listcount + 1 >= logmalloclist->listsize) {
-        logmalloclist->logmalloc = (LOGMALLOC*)realloc((void*)logmalloclist->logmalloc,
-                                                       (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
-        logmalloclist->listsize = logmalloclist->listsize + GROWMALLOCLIST;
+    if (log_malloc_list->listcount + 1 >= log_malloc_list->listsize) {
+        log_malloc_list->logmalloc = (LogMalloc*)realloc((void*)log_malloc_list->logmalloc,
+                                                       (log_malloc_list->listsize + GROWMALLOCLIST) * sizeof(LogMalloc));
+        log_malloc_list->listsize = log_malloc_list->listsize + GROWMALLOCLIST;
     }
 
-    logmalloclist->logmalloc[logmalloclist->listcount].count = count;
-    logmalloclist->logmalloc[logmalloclist->listcount].size = size;
-    logmalloclist->logmalloc[logmalloclist->listcount].freed = 1;
-    logmalloclist->logmalloc[logmalloclist->listcount].heap = stack;
-    strcpy(logmalloclist->logmalloc[logmalloclist->listcount].type, type);
+    log_malloc_list->logmalloc[log_malloc_list->listcount].count = count;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].size = size;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].freed = 1;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].heap = stack;
+    strcpy(log_malloc_list->logmalloc[log_malloc_list->listcount].type, type);
 
-    logmalloclist->logmalloc[logmalloclist->listcount].rank = 0;
-    logmalloclist->logmalloc[logmalloclist->listcount].shape = nullptr;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].rank = 0;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].shape = nullptr;
 
-    logmalloclist->listcount++;
+    log_malloc_list->listcount++;
 }
 
-/** Add a stack memory location to the LOGMALLOCLIST data structure. These are not freed.
+/** Add a stack memory location to the LogMallocList data structure. These are not freed.
 *
 * @param stack The memory location.
 * @param count The number of elements allocated.
@@ -631,34 +641,36 @@ void udaAddNonMalloc(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_
 
 * @return void.
 */
-void udaAddNonMalloc2(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, const char* type, int rank,
+void udaAddNonMalloc2(LOGMALLOCLIST* c_log_malloc_list, void* stack, int count, size_t size, const char* type, int rank,
                       int* shape)
 {
+    auto log_malloc_list = static_cast<LogMallocList*>(c_log_malloc_list);
+
     // Put a non malloc'd memory location on the malloc log flagging it as freed
 
-    if (logmalloclist->listcount + 1 >= logmalloclist->listsize) {
-        logmalloclist->logmalloc = (LOGMALLOC*)realloc((void*)logmalloclist->logmalloc,
-                                                       (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
-        logmalloclist->listsize = logmalloclist->listsize + GROWMALLOCLIST;
+    if (log_malloc_list->listcount + 1 >= log_malloc_list->listsize) {
+        log_malloc_list->logmalloc = (LogMalloc*)realloc((void*)log_malloc_list->logmalloc,
+                                                       (log_malloc_list->listsize + GROWMALLOCLIST) * sizeof(LogMalloc));
+        log_malloc_list->listsize = log_malloc_list->listsize + GROWMALLOCLIST;
     }
 
-    logmalloclist->logmalloc[logmalloclist->listcount].count = count;
-    logmalloclist->logmalloc[logmalloclist->listcount].size = size;
-    logmalloclist->logmalloc[logmalloclist->listcount].freed = 1;
-    logmalloclist->logmalloc[logmalloclist->listcount].heap = stack;
-    strcpy(logmalloclist->logmalloc[logmalloclist->listcount].type, type);
+    log_malloc_list->logmalloc[log_malloc_list->listcount].count = count;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].size = size;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].freed = 1;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].heap = stack;
+    strcpy(log_malloc_list->logmalloc[log_malloc_list->listcount].type, type);
 
-    logmalloclist->logmalloc[logmalloclist->listcount].rank = rank;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].rank = rank;
     if (rank > 1) {
-        logmalloclist->logmalloc[logmalloclist->listcount].shape = shape;
+        log_malloc_list->logmalloc[log_malloc_list->listcount].shape = shape;
     } else {
-        logmalloclist->logmalloc[logmalloclist->listcount].shape = nullptr;
+        log_malloc_list->logmalloc[log_malloc_list->listcount].shape = nullptr;
     }
 
-    logmalloclist->listcount++;
+    log_malloc_list->listcount++;
 }
 
-/** Add a heap memory location to the LOGMALLOCLIST data structure. These are freed.
+/** Add a heap memory location to the LogMallocList data structure. These are freed.
  *
  * @param heap The memory location.
  * @param count The number of elements allocated.
@@ -666,36 +678,38 @@ void udaAddNonMalloc2(LOGMALLOCLIST* logmalloclist, void* stack, int count, size
  * @param type The name of the type allocated.
  * @return void.
  */
-void udaAddMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, const char* type)
+void udaAddMalloc(LOGMALLOCLIST* c_log_malloc_list, void* heap, int count, size_t size, const char* type)
 {
+    auto log_malloc_list = static_cast<LogMallocList*>(c_log_malloc_list);
+
     // Log all Heap allocations for Data from User Defined Structures
     // Grow the list when necessary
 
-    // USERDEFINEDTYPE *udt;
+    // UserDefinedType *udt;
 
     if (heap == nullptr) {
         return;
     }
 
-    if (logmalloclist->listcount + 1 >= logmalloclist->listsize) {
-        logmalloclist->logmalloc = (LOGMALLOC*)realloc((void*)logmalloclist->logmalloc,
-                                                       (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
-        logmalloclist->listsize = logmalloclist->listsize + GROWMALLOCLIST;
+    if (log_malloc_list->listcount + 1 >= log_malloc_list->listsize) {
+        log_malloc_list->logmalloc = (LogMalloc*)realloc((void*)log_malloc_list->logmalloc,
+                                                       (log_malloc_list->listsize + GROWMALLOCLIST) * sizeof(LogMalloc));
+        log_malloc_list->listsize = log_malloc_list->listsize + GROWMALLOCLIST;
     }
 
-    logmalloclist->logmalloc[logmalloclist->listcount].count = count;
-    logmalloclist->logmalloc[logmalloclist->listcount].size = size;
-    logmalloclist->logmalloc[logmalloclist->listcount].freed = 0;
-    logmalloclist->logmalloc[logmalloclist->listcount].heap = heap;
-    strcpy(logmalloclist->logmalloc[logmalloclist->listcount].type, type);
+    log_malloc_list->logmalloc[log_malloc_list->listcount].count = count;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].size = size;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].freed = 0;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].heap = heap;
+    strcpy(log_malloc_list->logmalloc[log_malloc_list->listcount].type, type);
 
-    logmalloclist->logmalloc[logmalloclist->listcount].rank = 0;
-    logmalloclist->logmalloc[logmalloclist->listcount].shape = nullptr;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].rank = 0;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].shape = nullptr;
 
-    logmalloclist->listcount++;
+    log_malloc_list->listcount++;
 }
 
-/** Add a heap memory location to the LOGMALLOCLIST data structure. These are freed.
+/** Add a heap memory location to the LogMallocList data structure. These are freed.
  *
  * @param heap The memory location.
  * @param count The number of elements allocated.
@@ -705,9 +719,11 @@ void udaAddMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t si
  * @param shape The shape of the allocated array. Only required when rank > 1.
  * @return void.
  */
-void udaAddMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, const char* type, int rank,
+void udaAddMalloc2(LOGMALLOCLIST* c_log_malloc_list, void* heap, int count, size_t size, const char* type, int rank,
                    int* shape)
 {
+    auto log_malloc_list = static_cast<LogMallocList*>(c_log_malloc_list);
+
     // Log all Heap allocations for Data from User Defined Structures
     // Grow the list when necessary
 
@@ -715,26 +731,26 @@ void udaAddMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t s
         return;
     }
 
-    if (logmalloclist->listcount + 1 >= logmalloclist->listsize) {
-        logmalloclist->logmalloc = (LOGMALLOC*)realloc((void*)logmalloclist->logmalloc,
-                                                       (logmalloclist->listsize + GROWMALLOCLIST) * sizeof(LOGMALLOC));
-        logmalloclist->listsize = logmalloclist->listsize + GROWMALLOCLIST;
+    if (log_malloc_list->listcount + 1 >= log_malloc_list->listsize) {
+        log_malloc_list->logmalloc = (LogMalloc*)realloc((void*)log_malloc_list->logmalloc,
+                                                       (log_malloc_list->listsize + GROWMALLOCLIST) * sizeof(LogMalloc));
+        log_malloc_list->listsize = log_malloc_list->listsize + GROWMALLOCLIST;
     }
 
-    logmalloclist->logmalloc[logmalloclist->listcount].count = count;
-    logmalloclist->logmalloc[logmalloclist->listcount].size = size;
-    logmalloclist->logmalloc[logmalloclist->listcount].freed = 0;
-    logmalloclist->logmalloc[logmalloclist->listcount].heap = heap;
-    strcpy(logmalloclist->logmalloc[logmalloclist->listcount].type, type);
+    log_malloc_list->logmalloc[log_malloc_list->listcount].count = count;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].size = size;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].freed = 0;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].heap = heap;
+    strcpy(log_malloc_list->logmalloc[log_malloc_list->listcount].type, type);
 
-    logmalloclist->logmalloc[logmalloclist->listcount].rank = rank;
+    log_malloc_list->logmalloc[log_malloc_list->listcount].rank = rank;
     if (rank > 1) {
-        logmalloclist->logmalloc[logmalloclist->listcount].shape = shape;
+        log_malloc_list->logmalloc[log_malloc_list->listcount].shape = shape;
     } else {
-        logmalloclist->logmalloc[logmalloclist->listcount].shape = nullptr;
+        log_malloc_list->logmalloc[log_malloc_list->listcount].shape = nullptr;
     }
 
-    logmalloclist->listcount++;
+    log_malloc_list->listcount++;
 }
 
 /** Change the logged memory location to a new location (necessary with realloc).
@@ -746,22 +762,24 @@ void udaAddMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t s
  * @param type The name of the type allocated.
  * @return void.
  */
-void udaChangeMalloc(LOGMALLOCLIST* logmalloclist, VOIDTYPE old, void* anew, int count, size_t size, const char* type)
+void udaChangeMalloc(LOGMALLOCLIST* c_log_malloc_list, VOIDTYPE old, void* anew, int count, size_t size, const char* type)
 {
+    auto log_malloc_list = static_cast<LogMallocList*>(c_log_malloc_list);
+
     // Change a List Entry
     if (old == 0) {
-        udaAddMalloc(logmalloclist, anew, count, size, type);
+        udaAddMalloc(log_malloc_list, anew, count, size, type);
         return;
     }
     auto target = (VOIDTYPE)((VOIDTYPE*)old);
-    for (int i = 0; i < logmalloclist->listcount; i++) {
-        auto candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
+    for (int i = 0; i < log_malloc_list->listcount; i++) {
+        auto candidate = (VOIDTYPE)((VOIDTYPE*)log_malloc_list->logmalloc[i].heap);
         if (target == candidate) {
-            logmalloclist->logmalloc[i].heap = anew;
-            logmalloclist->logmalloc[i].freed = 0;
-            logmalloclist->logmalloc[i].count = count;
-            logmalloclist->logmalloc[i].size = size;
-            strcpy(logmalloclist->logmalloc[i].type, type);
+            log_malloc_list->logmalloc[i].heap = anew;
+            log_malloc_list->logmalloc[i].freed = 0;
+            log_malloc_list->logmalloc[i].count = count;
+            log_malloc_list->logmalloc[i].size = size;
+            strcpy(log_malloc_list->logmalloc[i].type, type);
             return;
         }
     }
@@ -776,24 +794,26 @@ void udaChangeMalloc(LOGMALLOCLIST* logmalloclist, VOIDTYPE old, void* anew, int
  * @param type The name of the type allocated.
  * @return void.
  */
-void udaChangeNonMalloc(LOGMALLOCLIST* logmalloclist, void* old, void* anew, int count, size_t size, const char* type)
+void udaChangeNonMalloc(LOGMALLOCLIST* c_log_malloc_list, void* old, void* anew, int count, size_t size, const char* type)
 {
+    auto log_malloc_list = static_cast<LogMallocList*>(c_log_malloc_list);
+
     // Change a non-malloc List Entry
 
     VOIDTYPE target, candidate;
     if (old == nullptr) {
-        udaAddNonMalloc(logmalloclist, anew, count, size, type);
+        udaAddNonMalloc(log_malloc_list, anew, count, size, type);
         return;
     }
     target = (VOIDTYPE)((VOIDTYPE*)old);
-    for (int i = 0; i < logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
+    for (int i = 0; i < log_malloc_list->listcount; i++) {
+        candidate = (VOIDTYPE)((VOIDTYPE*)log_malloc_list->logmalloc[i].heap);
         if (target == candidate) {
-            logmalloclist->logmalloc[i].heap = anew;
-            logmalloclist->logmalloc[i].freed = 1;
-            logmalloclist->logmalloc[i].count = count;
-            logmalloclist->logmalloc[i].size = size;
-            strcpy(logmalloclist->logmalloc[i].type, type);
+            log_malloc_list->logmalloc[i].heap = anew;
+            log_malloc_list->logmalloc[i].freed = 1;
+            log_malloc_list->logmalloc[i].count = count;
+            log_malloc_list->logmalloc[i].size = size;
+            strcpy(log_malloc_list->logmalloc[i].type, type);
             return;
         }
     }
@@ -821,8 +841,10 @@ static int compare_ulong(const void* a, const void* b)
 }
 #endif
 
-int udaDupCountMallocLog(LOGMALLOCLIST* str)
+int udaDupCountMallocLog(LOGMALLOCLIST* c_str)
 {
+    auto str = static_cast<LogMallocList*>(c_str);
+
     int sortCount = 0, dupCount = 0;
     int compare_ulonglong(const void*, const void*);
     if (str == nullptr) {
@@ -861,8 +883,10 @@ int udaDupCountMallocLog(LOGMALLOCLIST* str)
  *
  * @return void.
  */
-void udaFreeMallocLog(LOGMALLOCLIST* str)
+void udaFreeMallocLog(LOGMALLOCLIST* c_str)
 {
+    auto str = static_cast<LogMallocList*>(c_str);
+
     if (str == nullptr) {
         return;
     }
@@ -880,12 +904,14 @@ void udaFreeMallocLog(LOGMALLOCLIST* str)
     }
 }
 
-/** Free allocated heap memory and reinitialise a new logmalloclist-> There are no arguments.
+/** Free allocated heap memory and reinitialise a new log_malloc_list-> There are no arguments.
  *
  * @return void.
  */
-void udaFreeMallocLogList(LOGMALLOCLIST* str)
+void udaFreeMallocLogList(LOGMALLOCLIST* c_str)
 {
+    auto str = static_cast<LogMallocList*>(c_str);
+
     if (str == nullptr) {
         return;
     }
@@ -894,7 +920,7 @@ void udaFreeMallocLogList(LOGMALLOCLIST* str)
         free(str->logmalloc);
     }
     str->logmalloc = nullptr;
-    initLogMallocList(str);
+    init_log_malloc_list(str);
 }
 
 /** Find the meta data associated with a specific memory location.
@@ -905,8 +931,10 @@ void udaFreeMallocLogList(LOGMALLOCLIST* str)
  * @param type The returned allocation type.
  * @return void.
  */
-void udaFindMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, const char** type)
+void udaFindMalloc(LOGMALLOCLIST* c_log_malloc_list, void* heap, int* count, int* size, const char** type)
 {
+    auto log_malloc_list = static_cast<LogMallocList*>(c_log_malloc_list);
+
     // Find a specific Heap allocation for Data within User Defined Structures
 
     VOIDTYPE candidate, target;
@@ -921,17 +949,17 @@ void udaFindMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* si
         return;
     }
 
-    if (last_malloc_index >= (unsigned int)logmalloclist->listcount) { // Defensive check
+    if (last_malloc_index >= (unsigned int)log_malloc_list->listcount) { // Defensive check
         last_malloc_index = 0;
         *last_malloc_index_value = last_malloc_index;
     }
 
-    for (unsigned int i = last_malloc_index; i < (unsigned int)logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
+    for (unsigned int i = last_malloc_index; i < (unsigned int)log_malloc_list->listcount; i++) {
+        candidate = (VOIDTYPE)log_malloc_list->logmalloc[i].heap;
         if (target == candidate) {
-            *count = logmalloclist->logmalloc[i].count;
-            *size = logmalloclist->logmalloc[i].size;
-            *type = logmalloclist->logmalloc[i].type;
+            *count = log_malloc_list->logmalloc[i].count;
+            *size = log_malloc_list->logmalloc[i].size;
+            *type = log_malloc_list->logmalloc[i].type;
             last_malloc_index = i;
             *last_malloc_index_value = last_malloc_index;
             return;
@@ -939,11 +967,11 @@ void udaFindMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* si
     }
 
     for (unsigned int i = 0; i < last_malloc_index; i++) {
-        candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
+        candidate = (VOIDTYPE)log_malloc_list->logmalloc[i].heap;
         if (target == candidate) {
-            *count = logmalloclist->logmalloc[i].count;
-            *size = logmalloclist->logmalloc[i].size;
-            *type = logmalloclist->logmalloc[i].type;
+            *count = log_malloc_list->logmalloc[i].count;
+            *size = log_malloc_list->logmalloc[i].size;
+            *type = log_malloc_list->logmalloc[i].type;
             last_malloc_index = i;
             *last_malloc_index_value = last_malloc_index;
             return;
@@ -962,9 +990,11 @@ void udaFindMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* si
 
 * @return void.
 */
-void udaFindMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, const char** type, int* rank,
+void udaFindMalloc2(LOGMALLOCLIST* c_log_malloc_list, void* heap, int* count, int* size, const char** type, int* rank,
                     int** shape)
 {
+    auto log_malloc_list = static_cast<LogMallocList*>(c_log_malloc_list);
+
     // Find a specific Heap allocation for Data within User Defined Structures
 
     VOIDTYPE candidate, target;
@@ -981,20 +1011,20 @@ void udaFindMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* s
         return;
     }
 
-    if (last_malloc_index >= (unsigned int)logmalloclist->listcount) { // Defensive check
+    if (last_malloc_index >= (unsigned int)log_malloc_list->listcount) { // Defensive check
         last_malloc_index = 0;
         *last_malloc_index_value = last_malloc_index;
     }
 
-    for (unsigned int i = last_malloc_index; i < (unsigned int)logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
+    for (unsigned int i = last_malloc_index; i < (unsigned int)log_malloc_list->listcount; i++) {
+        candidate = (VOIDTYPE)log_malloc_list->logmalloc[i].heap;
         if (target == candidate) {
-            *count = logmalloclist->logmalloc[i].count;
-            *size = logmalloclist->logmalloc[i].size;
-            *type = logmalloclist->logmalloc[i].type;
-            *rank = logmalloclist->logmalloc[i].rank;
+            *count = log_malloc_list->logmalloc[i].count;
+            *size = log_malloc_list->logmalloc[i].size;
+            *type = log_malloc_list->logmalloc[i].type;
+            *rank = log_malloc_list->logmalloc[i].rank;
             if (*rank > 1) {
-                *shape = logmalloclist->logmalloc[i].shape;
+                *shape = log_malloc_list->logmalloc[i].shape;
             }
             last_malloc_index = i; // Start at the current log entry
             *last_malloc_index_value = last_malloc_index;
@@ -1003,14 +1033,14 @@ void udaFindMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* s
     }
 
     for (unsigned int i = 0; i < last_malloc_index; i++) { // Start search at the first log entry
-        candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
+        candidate = (VOIDTYPE)log_malloc_list->logmalloc[i].heap;
         if (target == candidate) {
-            *count = logmalloclist->logmalloc[i].count;
-            *size = logmalloclist->logmalloc[i].size;
-            *type = logmalloclist->logmalloc[i].type;
-            *rank = logmalloclist->logmalloc[i].rank;
+            *count = log_malloc_list->logmalloc[i].count;
+            *size = log_malloc_list->logmalloc[i].size;
+            *type = log_malloc_list->logmalloc[i].type;
+            *rank = log_malloc_list->logmalloc[i].rank;
             if (*rank > 1) {
-                *shape = logmalloclist->logmalloc[i].shape;
+                *shape = log_malloc_list->logmalloc[i].shape;
             }
             last_malloc_index = i;
             *last_malloc_index_value = last_malloc_index;
@@ -1019,14 +1049,16 @@ void udaFindMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* s
     }
 }
 
-/** Add a heap memory location to the LOGSTRUCTLIST data structure. These are freed.
+/** Add a heap memory location to the LogStructList data structure. These are freed.
  *
  * @param heap The memory location.
  * @param type The name of the type allocated.
  * @return void.
  */
-void udaAddStruct(void* heap, const char* type, LOGSTRUCTLIST* log_struct_list)
+void udaAddStruct(void* heap, const char* type, LOGSTRUCTLIST* c_log_struct_list)
 {
+    auto log_struct_list = static_cast<LogStructList*>(c_log_struct_list);
+
     // Log all dispatched/received Structures
     // Grow the list when necessary
 
@@ -1035,8 +1067,8 @@ void udaAddStruct(void* heap, const char* type, LOGSTRUCTLIST* log_struct_list)
     }
 
     if (log_struct_list->listcount + 1 >= log_struct_list->listsize) {
-        log_struct_list->logstruct = (LOGSTRUCT*)realloc(
-            (void*)log_struct_list->logstruct, (log_struct_list->listsize + GROWMALLOCLIST) * sizeof(LOGSTRUCT));
+        log_struct_list->logstruct = (LogStruct*)realloc(
+            (void*)log_struct_list->logstruct, (log_struct_list->listsize + GROWMALLOCLIST) * sizeof(LogStruct));
         log_struct_list->listsize = log_struct_list->listsize + GROWMALLOCLIST;
     }
 
@@ -1047,14 +1079,16 @@ void udaAddStruct(void* heap, const char* type, LOGSTRUCTLIST* log_struct_list)
     log_struct_list->listcount++;
 }
 
-/** Free allocated heap memory and reinitialise a new LOGSTRUCTLIST. There are no arguments.
+/** Free allocated heap memory and reinitialise a new LogStructList. There are no arguments.
  *
  * @return void.
  */
-void udaFreeLogStructList(LOGSTRUCTLIST* log_struct_list)
+void udaFreeLogStructList(LOGSTRUCTLIST* c_log_struct_list)
 {
+    auto log_struct_list = static_cast<LogStructList*>(c_log_struct_list);
+
     free(log_struct_list->logstruct);
-    initLogStructList(log_struct_list);
+    init_log_struct_list(log_struct_list);
 }
 
 /** Find the meta data associated with a specific Structure.
@@ -1063,8 +1097,10 @@ void udaFreeLogStructList(LOGSTRUCTLIST* log_struct_list)
  * @param type The returned structure type.
  * @return The structure id.
  */
-int udaFindStructId(void* heap, char** type, LOGSTRUCTLIST* log_struct_list)
+int udaFindStructId(void* heap, char** type, LOGSTRUCTLIST* c_log_struct_list)
 {
+    auto log_struct_list = static_cast<LogStructList*>(c_log_struct_list);
+
     // Find a specific Data Structure
 
     // VOIDTYPE candidate, target;
@@ -1088,8 +1124,10 @@ int udaFindStructId(void* heap, char** type, LOGSTRUCTLIST* log_struct_list)
  * @param type The returned structure type.
  * @return The heap memory location
  */
-void* udaFindStructHeap(int id, char** type, LOGSTRUCTLIST* log_struct_list)
+void* udaFindStructHeap(int id, char** type, LOGSTRUCTLIST* c_log_struct_list)
 {
+    auto log_struct_list = static_cast<LogStructList*>(c_log_struct_list);
+
     // Find a specific Data Structure
 
     *type = nullptr;
@@ -1112,16 +1150,19 @@ void* udaFindStructHeap(int id, char** type, LOGSTRUCTLIST* log_struct_list)
  * @param anew The copy of the type definition.
  * @return void.
  */
-void udaCopyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
+void udaCopyUserDefinedType(USERDEFINEDTYPE* c_old, USERDEFINEDTYPE* c_anew)
 {
-    USERDEFINEDTYPE udt;
-    initUserDefinedType(&udt);
+    auto old = static_cast<UserDefinedType*>(c_old);
+    auto anew = static_cast<UserDefinedType*>(c_anew);
+
+    UserDefinedType udt;
+    init_user_defined_type(&udt);
     udt = *old;
     udt.image = (char*)malloc((old->imagecount) * sizeof(char));
     memcpy(udt.image, old->image, old->imagecount);
-    udt.compoundfield = (COMPOUNDFIELD*)malloc((old->fieldcount) * sizeof(COMPOUNDFIELD));
+    udt.compoundfield = (CompoundField*)malloc((old->fieldcount) * sizeof(CompoundField));
     for (int i = 0; i < old->fieldcount; i++) {
-        initCompoundField(&udt.compoundfield[i]);
+        init_compound_field(&udt.compoundfield[i]);
         udt.compoundfield[i] = old->compoundfield[i];
         if (old->compoundfield[i].rank > 0) {
             udt.compoundfield[i].shape = (int*)malloc(old->compoundfield[i].rank * sizeof(int));
@@ -1139,26 +1180,26 @@ void udaCopyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
  * @return void.
  */
 #if defined(SERVERBUILD)
-void udaCopyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist)
+void copy_user_defined_type_list(UserDefinedTypeList** anew, const UserDefinedTypeList* parseduserdefinedtypelist)
 {
-    USERDEFINEDTYPELIST* list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-    initUserDefinedTypeList(list);
+    UserDefinedTypeList* list = (UserDefinedTypeList*)malloc(sizeof(UserDefinedTypeList));
+    init_user_defined_type_list(list);
     list->listCount = parseduserdefinedtypelist->listCount; // Copy the standard set of structure definitions
-    list->userdefinedtype = (USERDEFINEDTYPE*)malloc(parseduserdefinedtypelist->listCount * sizeof(USERDEFINEDTYPE));
+    list->userdefinedtype = (UserDefinedType*)malloc(parseduserdefinedtypelist->listCount * sizeof(UserDefinedType));
 
     for (int i = 0; i < list->listCount; i++) {
-        USERDEFINEDTYPE usertypeOld = parseduserdefinedtypelist->userdefinedtype[i];
-        USERDEFINEDTYPE usertypeNew;
-        initUserDefinedType(&usertypeNew);
+        UserDefinedType usertypeOld = parseduserdefinedtypelist->userdefinedtype[i];
+        UserDefinedType usertypeNew;
+        init_user_defined_type(&usertypeNew);
         usertypeNew = usertypeOld;
         usertypeNew.image =
             (char*)malloc(usertypeOld.imagecount * sizeof(char)); // Copy pointer type (prevents double free)
         memcpy(usertypeNew.image, usertypeOld.image, usertypeOld.imagecount);
 
-        usertypeNew.compoundfield = (COMPOUNDFIELD*)malloc(usertypeOld.fieldcount * sizeof(COMPOUNDFIELD));
+        usertypeNew.compoundfield = (CompoundField*)malloc(usertypeOld.fieldcount * sizeof(CompoundField));
 
         for (int j = 0; j < usertypeOld.fieldcount; j++) {
-            initCompoundField(&usertypeNew.compoundfield[j]);
+            init_compound_field(&usertypeNew.compoundfield[j]);
             usertypeNew.compoundfield[j] = usertypeOld.compoundfield[j];
             if (usertypeOld.compoundfield[j].rank > 0) {
                 usertypeNew.compoundfield[j].shape = (int*)malloc(usertypeOld.compoundfield[j].rank * sizeof(int));
@@ -1170,13 +1211,14 @@ void udaCopyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYP
         }
         list->userdefinedtype[i] = usertypeNew;
     }
+
     *anew = list;
 }
 #else
 
-void udaCopyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist)
+void copy_user_defined_type_list(UserDefinedTypeList** anew, const UserDefinedTypeList* parseduserdefinedtypelist)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - USERDEFINEDTYPELIST is not allocated\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - UserDefinedTypeList is not allocated\n");
 }
 
 #endif
@@ -1186,42 +1228,42 @@ void udaCopyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYP
  * @param anew The initial type definition list.
  * @return void.
  */
-void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
+void get_initial_user_defined_type_list(UserDefinedTypeList** anew)
 {
-    auto list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-    initUserDefinedTypeList(list);
+    auto list = (UserDefinedTypeList*)malloc(sizeof(UserDefinedTypeList));
+    init_user_defined_type_list(list);
 
-    USERDEFINEDTYPE usertype;
-    COMPOUNDFIELD field;
+    UserDefinedType usertype;
+    CompoundField field;
 
     int offset = 0;
 
     //----------------------------------------------------------------------------------------------------------------
-    // SARRAY
+    // SArray
 
-    initUserDefinedType(&usertype); // New structure definition
-    initCompoundField(&field);
+    init_user_defined_type(&usertype); // New structure definition
+    init_compound_field(&field);
 
-    strcpy(usertype.name, "SARRAY");
-    strcpy(usertype.source, "udaGetInitialUserDefinedTypeList");
+    strcpy(usertype.name, "SArray");
+    strcpy(usertype.source, "get_initial_user_defined_type_list");
     usertype.ref_id = 0;
     usertype.imagecount = 0; // No Structure Image data
     usertype.image = nullptr;
-    usertype.size = sizeof(SARRAY); // Structure size
+    usertype.size = sizeof(SArray); // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
     defineField(&field, "count", "Number of data array elements", &offset, SCALARINT, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
     defineField(&field, "rank", "Rank of the data array", &offset, SCALARINT, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
     defineField(&field, "shape", "Shape of the data array", &offset, ARRAYINT, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
     defineField(&field, "data", "Location of the Structure Array", &offset, ARRAYVOID, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
-    initCompoundField(&field);
+    init_compound_field(&field);
     strcpy(field.name, "type");
     field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING");
@@ -1236,25 +1278,25 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size;
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
-    udaAddUserDefinedType(list, usertype);
+    add_user_defined_type(list, usertype);
 
     //----------------------------------------------------------------------------------------------------------------
-    // ENUMMEMBER
+    // EnumMember
 
-    initUserDefinedType(&usertype); // New structure definition
-    strcpy(usertype.name, "ENUMMEMBER");
-    strcpy(usertype.source, "ENUMMEMBER structure: for labels and values");
+    init_user_defined_type(&usertype); // New structure definition
+    strcpy(usertype.name, "EnumMember");
+    strcpy(usertype.source, "EnumMember structure: for labels and values");
     usertype.ref_id = 0;
     usertype.imagecount = 0; // No Structure Image data
     usertype.image = nullptr;
-    usertype.size = sizeof(ENUMMEMBER); // Structure size
+    usertype.size = sizeof(EnumMember); // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
-    initCompoundField(&field);
+    init_compound_field(&field);
     strcpy(field.name, "name");
     field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING"); // convert atomic type to a string label
@@ -1265,33 +1307,33 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
     field.shape[0] = field.count;
     field.size = field.count * sizeof(char);
-    field.offset = offsetof(ENUMMEMBER, name);
+    field.offset = offsetof(EnumMember, name);
     offset = field.offset + field.size;
     field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
-    initCompoundField(&field);
+    init_compound_field(&field);
     defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
-    udaAddUserDefinedType(list, usertype);
+    add_user_defined_type(list, usertype);
 
     //----------------------------------------------------------------------------------------------------------------
-    // ENUMLIST
+    // EnumList
 
-    initUserDefinedType(&usertype); // New structure definition
-    strcpy(usertype.name, "ENUMLIST");
+    init_user_defined_type(&usertype); // New structure definition
+    strcpy(usertype.name, "EnumList");
     strcpy(usertype.source, "Array of ENUM values with properties");
     usertype.ref_id = 0;
     usertype.imagecount = 0; // No Structure Image data
     usertype.image = nullptr;
-    usertype.size = sizeof(ENUMLIST); // Structure size
+    usertype.size = sizeof(EnumMember); // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
 
-    initCompoundField(&field);
+    init_compound_field(&field);
     strcpy(field.name, "name");
     field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING"); // convert atomic type to a string label
@@ -1302,58 +1344,58 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
     field.shape[0] = field.count;
     field.size = field.count * sizeof(char);
-    field.offset = offsetof(ENUMLIST, name);
+    field.offset = offsetof(EnumList, name);
     offset = field.offset + field.size;
     field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
-    initCompoundField(&field);
+    init_compound_field(&field);
     defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
-    initCompoundField(&field);
+    init_compound_field(&field);
     defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
-    initCompoundField(&field);
+    init_compound_field(&field);
     strcpy(field.name, "enummember");
     field.atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field.type, "ENUMMEMBER");
+    strcpy(field.type, "EnumMember");
     strcpy(field.desc, "The ENUM list members: labels and value");
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
     field.shape = nullptr;
-    field.size = sizeof(ENUMMEMBER*);
-    field.offset = offsetof(ENUMLIST, enummember); // Different to newoffset
+    field.size = sizeof(EnumMember*);
+    field.offset = offsetof(EnumList, enummember); // Different to newoffset
     offset = field.offset + field.size;
     field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
     // defineField(&field, "data", "Generalised data pointer for all integer type arrays", &offset, ARRAYVOID);
     // ARRAYVOID doesn't work - not implemented in the middleware!
     // Naming the field "data" hits a bug and garbage is returned!
     // Don't know the correct type until the structure is used!!!! - so cannot pre-define!
-    // Make the necessary changes to the structure definition when ENUMLIST is used or
+    // Make the necessary changes to the structure definition when EnumList is used or
     // Convert data to standard unsigned long64
 
-    initCompoundField(&field);
+    init_compound_field(&field);
     defineField(&field, "enumarray", "Data with this enumerated type", &offset, ARRAYULONG64, 0,
                 nullptr); // Data need to be converted to this type
-    udaAddCompoundField(&usertype, field);
-    initCompoundField(&field);
+    add_compound_field(&usertype, field);
+    init_compound_field(&field);
     defineField(&field, "enumarray_rank", "The rank of arraydata", &offset, SCALARINT, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
-    initCompoundField(&field);
+    add_compound_field(&usertype, field);
+    init_compound_field(&field);
     defineField(&field, "enumarray_count", "The count of arraydata", &offset, SCALARINT, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
-    initCompoundField(&field);
+    add_compound_field(&usertype, field);
+    init_compound_field(&field);
     defineField(&field, "enumarray_shape", "The shape of arraydata", &offset, ARRAYINT, 0, nullptr);
-    udaAddCompoundField(&usertype, field);
+    add_compound_field(&usertype, field);
 
-    udaAddUserDefinedType(list, usertype);
+    add_user_defined_type(list, usertype);
 
     *anew = list;
 }
@@ -1364,12 +1406,12 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
  * @param field The Compound field type.
  * @return void.
  */
-void udaAddCompoundField(USERDEFINEDTYPE* str, COMPOUNDFIELD field)
+void add_compound_field(UserDefinedType* user_defined_type, CompoundField compound_field)
 {
-    str->compoundfield =
-        (COMPOUNDFIELD*)realloc((void*)str->compoundfield, (str->fieldcount + 1) * sizeof(COMPOUNDFIELD));
-    initCompoundField(&str->compoundfield[str->fieldcount]);
-    str->compoundfield[str->fieldcount++] = field;
+    user_defined_type->compoundfield =
+        (CompoundField*)realloc((void*)user_defined_type->compoundfield, (user_defined_type->fieldcount + 1) * sizeof(CompoundField));
+    init_compound_field(&user_defined_type->compoundfield[user_defined_type->fieldcount]);
+    user_defined_type->compoundfield[user_defined_type->fieldcount++] = compound_field;
 }
 
 /** Add a structure definition to the List of structure types
@@ -1378,12 +1420,12 @@ void udaAddCompoundField(USERDEFINEDTYPE* str, COMPOUNDFIELD field)
  * @param type The new definition to add to the list.
  * @return void.
  */
-void udaAddUserDefinedType(USERDEFINEDTYPELIST* str, USERDEFINEDTYPE type)
+void add_user_defined_type(UserDefinedTypeList* user_defined_type_list, UserDefinedType user_defined_type)
 {
-    str->userdefinedtype =
-        (USERDEFINEDTYPE*)realloc((void*)str->userdefinedtype, (str->listCount + 1) * sizeof(USERDEFINEDTYPE));
-    initUserDefinedType(&str->userdefinedtype[str->listCount]);
-    str->userdefinedtype[str->listCount++] = type;
+    user_defined_type_list->userdefinedtype =
+        (UserDefinedType*)realloc((void*)user_defined_type_list->userdefinedtype, (user_defined_type_list->listCount + 1) * sizeof(UserDefinedType));
+    init_user_defined_type(&user_defined_type_list->userdefinedtype[user_defined_type_list->listCount]);
+    user_defined_type_list->userdefinedtype[user_defined_type_list->listCount++] = user_defined_type;
 }
 
 /** Replace the structure definition list with an different structure type.
@@ -1393,9 +1435,9 @@ void udaAddUserDefinedType(USERDEFINEDTYPELIST* str, USERDEFINEDTYPE type)
  * @param type The definition to add into the list.
  * @return void.
  */
-void udaUpdateUserDefinedType(USERDEFINEDTYPELIST* str, int typeId, USERDEFINEDTYPE type)
+void update_user_defined_type(UserDefinedTypeList* user_defined_type_list, int typeId, UserDefinedType user_defined_type)
 {
-    str->userdefinedtype[typeId] = type; // replace existing entry
+    user_defined_type_list->userdefinedtype[typeId] = user_defined_type; // replace existing entry
 }
 
 /** Change a structure element's property in the structure definition
@@ -1407,20 +1449,22 @@ void udaUpdateUserDefinedType(USERDEFINEDTYPELIST* str, int typeId, USERDEFINEDT
  * @param value The new property value
  * @return void.
  */
-void udaChangeUserDefinedTypeElementProperty(USERDEFINEDTYPELIST* str, int typeId, char* element, char* property,
+void udaChangeUserDefinedTypeElementProperty(USERDEFINEDTYPELIST* c_user_defined_type_list, int typeId, char* element, char* property,
                                              void* value)
 {
-    USERDEFINEDTYPE* userdefinedtype = str->userdefinedtype; // Target this definition
-    for (int i = 0; i < userdefinedtype[typeId].fieldcount; i++) {
-        if (!strcmp(userdefinedtype[typeId].compoundfield[i].name, element)) {
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+
+    UserDefinedType* user_defined_type = user_defined_type_list->userdefinedtype; // Target this definition
+    for (int i = 0; i < user_defined_type[typeId].fieldcount; i++) {
+        if (!strcmp(user_defined_type[typeId].compoundfield[i].name, element)) {
             if (!strcmp("atomictype", property)) {
-                userdefinedtype[typeId].compoundfield[i].atomictype = *(int*)value;
+                user_defined_type[typeId].compoundfield[i].atomictype = *(int*)value;
             } else if (!strcmp("type", property)) {
-                strcpy(userdefinedtype[typeId].compoundfield[i].type, (char*)value);
+                strcpy(user_defined_type[typeId].compoundfield[i].type, (char*)value);
             } else if (!strcmp("name", property)) {
-                strcpy(userdefinedtype[typeId].compoundfield[i].name, (char*)value);
+                strcpy(user_defined_type[typeId].compoundfield[i].name, (char*)value);
             } else if (!strcmp("desc", property)) {
-                strcpy(userdefinedtype[typeId].compoundfield[i].desc, (char*)value);
+                strcpy(user_defined_type[typeId].compoundfield[i].desc, (char*)value);
             }
         }
     }
@@ -1431,9 +1475,10 @@ void udaChangeUserDefinedTypeElementProperty(USERDEFINEDTYPELIST* str, int typeI
  * @param str The list of structure definitions.
  * @return The count of structured types.
  */
-int udaCountUserDefinedType(USERDEFINEDTYPELIST* str)
+int udaCountUserDefinedType(USERDEFINEDTYPELIST* c_user_defined_type_list)
 {
-    return str->listCount; // Number of user defined types
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+    return user_defined_type_list->listCount; // Number of user defined types
 }
 
 /** Free heap from a Compound Field.
@@ -1441,13 +1486,14 @@ int udaCountUserDefinedType(USERDEFINEDTYPELIST* str)
  * @param str The Compound Field.
  * @return void.
  */
-void udaFreeCompoundField(COMPOUNDFIELD* str)
+void udaFreeCompoundField(COMPOUNDFIELD* c_compound_field)
 {
-    if (str == nullptr) {
+    auto compound_field = static_cast<CompoundField*>(c_compound_field);
+    if (compound_field == nullptr) {
         return;
     }
-    free(str->shape);
-    str->shape = nullptr;
+    free(compound_field->shape);
+    compound_field->shape = nullptr;
 }
 
 /** Free heap from a User Defined Type.
@@ -1455,42 +1501,44 @@ void udaFreeCompoundField(COMPOUNDFIELD* str)
  * @param type The User Defined Type.
  * @return void.
  */
-void udaFreeUserDefinedType(USERDEFINEDTYPE* type)
+void udaFreeUserDefinedType(USERDEFINEDTYPE* c_user_defined_type)
 {
-    if (type == nullptr) {
+    auto user_defined_type = static_cast<UserDefinedType*>(c_user_defined_type);
+    if (user_defined_type == nullptr) {
         return;
     }
-    for (int i = 0; i < type->fieldcount; i++) {
-        udaFreeCompoundField(&type->compoundfield[i]);
+    for (int i = 0; i < user_defined_type->fieldcount; i++) {
+        udaFreeCompoundField(&user_defined_type->compoundfield[i]);
     }
-    free(type->compoundfield);
-    type->compoundfield = nullptr;
+    free(user_defined_type->compoundfield);
+    user_defined_type->compoundfield = nullptr;
 
-    free(type->image);
-    type->image = nullptr;
+    free(user_defined_type->image);
+    user_defined_type->image = nullptr;
 }
 
 /** Free heap from a User Defined Type List.
  *
- * @param userdefinedtypelist The User Defined Type List.
+ * @param user_defined_type_list The User Defined Type List.
  * @return void.
  */
-void udaFreeUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist)
+void udaFreeUserDefinedTypeList(USERDEFINEDTYPELIST* c_user_defined_type_list)
 {
-    if (userdefinedtypelist == nullptr) {
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+    if (user_defined_type_list == nullptr) {
         return;
     }
-    if (userdefinedtypelist->listCount == 0) {
+    if (user_defined_type_list->listCount == 0) {
         return;
     }
-    if (userdefinedtypelist->userdefinedtype == nullptr) {
+    if (user_defined_type_list->userdefinedtype == nullptr) {
         return;
     }
-    for (int i = 0; i < userdefinedtypelist->listCount; i++) {
-        udaFreeUserDefinedType(&userdefinedtypelist->userdefinedtype[i]);
+    for (int i = 0; i < user_defined_type_list->listCount; i++) {
+        udaFreeUserDefinedType(&user_defined_type_list->userdefinedtype[i]);
     }
-    free(userdefinedtypelist->userdefinedtype);
-    initUserDefinedTypeList(userdefinedtypelist);
+    free(user_defined_type_list->userdefinedtype);
+    init_user_defined_type_list(user_defined_type_list);
 }
 
 /** The size or byte count of an atomic or structured type
@@ -1498,9 +1546,8 @@ void udaFreeUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist)
  * @param type The name of the type
  * @return The size in bytes.
  */
-size_t udaGetsizeof(USERDEFINEDTYPELIST* userdefinedtypelist, const char* type)
+size_t udaGetsizeof(USERDEFINEDTYPELIST* c_user_defined_type_list, const char* type)
 {
-    USERDEFINEDTYPE* udt;
     const char* base = type;
 
     if (!strncmp(type, "const", 5)) {
@@ -1578,7 +1625,9 @@ size_t udaGetsizeof(USERDEFINEDTYPELIST* userdefinedtypelist, const char* type)
 
     // Search list of User defined types for size
 
-    if ((udt = udaFindUserDefinedType(userdefinedtypelist, base, 0)) != nullptr) {
+    USERDEFINEDTYPE* c_udt;
+    if ((c_udt = udaFindUserDefinedType(c_user_defined_type_list, base, 0)) != nullptr) {
+        auto udt = static_cast<UserDefinedType*>(c_udt);
         return (size_t)udt->size;
     }
 
@@ -1895,10 +1944,13 @@ const char* udaNameType(UDA_TYPE type)
  * @param str The user defined structure definition.
  * @return The size in bytes.
  */
-size_t udaGetStructureSize(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str)
+size_t udaGetStructureSize(USERDEFINEDTYPELIST* c_user_defined_type_list, USERDEFINEDTYPE* c_user_defined_type)
 {
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+    auto user_defined_type = static_cast<UserDefinedType*>(c_user_defined_type);
+
     size_t size;
-    if (str == nullptr) {
+    if (user_defined_type == nullptr) {
         return 0;
     }
 
@@ -1907,25 +1959,25 @@ size_t udaGetStructureSize(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINED
     int maxAlign = 0;
     size_t offset = 0;
 
-    for (int i = 0; i < str->fieldcount; i++) {
+    for (int i = 0; i < user_defined_type->fieldcount; i++) {
 
         int alignment;
 
-        if (str->compoundfield[i].pointer) {
+        if (user_defined_type->compoundfield[i].pointer) {
             size = sizeof(void*);
             alignment = udaGetalignmentof("*");
         } else {
-            size = udaGetsizeof(userdefinedtypelist, str->compoundfield[i].type);
-            alignment = udaGetalignmentof(str->compoundfield[i].type);
+            size = udaGetsizeof(user_defined_type_list, user_defined_type->compoundfield[i].type);
+            alignment = udaGetalignmentof(user_defined_type->compoundfield[i].type);
         }
 
-        size_t space = size * str->compoundfield[i].count;
+        size_t space = size * user_defined_type->compoundfield[i].count;
 
         if (i != 0) {
-            if (str->compoundfield[i].pointer) {
+            if (user_defined_type->compoundfield[i].pointer) {
                 offset = udaNewoffset(offset + space0, "*");
             } else {
-                offset = udaNewoffset(offset + space0, str->compoundfield[i].type);
+                offset = udaNewoffset(offset + space0, user_defined_type->compoundfield[i].type);
                 // Non-atomic types (structures) will already have been adjusted
             }
         } else {
@@ -1974,7 +2026,7 @@ void udaPrintError(int warning, int line, char* file, char* msg)
 
 // Send or Receive the Data Structure
 
-// Recursive Send/Receive Individual User Defined Structure Elements
+// Recursive Send/Receive Individual User Defined Structure Elements.
 // Structure elements may be primitive (atomic) types or other User defined types
 // The structure Size has two possible sizes if it contains pointers.
 // Pointer size changes from 4 to 8 bytes if hardware architecture changes from 32 to 64 bits.
@@ -1986,13 +2038,13 @@ void udaPrintError(int warning, int line, char* file, char* msg)
 // The count of data structures to be received is passed ...
 //
 
-int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size, char** data)
+int xdrAtomicData(LogMallocList* log_malloc_list, XDR* xdrs, const char* type, int count, int size, char** data)
 {
     int type_id = udaGettypeof(type);
     char* d;
     if (xdrs->x_op == XDR_DECODE) {
         d = (char*)malloc(count * size);
-        udaAddMalloc(logmalloclist, (void*)d, count, size, type);
+        udaAddMalloc(log_malloc_list, (void*)d, count, size, type);
         *data = d;
     } else {
         d = *data;
@@ -2091,18 +2143,18 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int
 
 // Send/Receive Array of Structures
 
-int uda::client_server::xdr_user_defined_type_data(XDR* xdrs, LOGMALLOCLIST* logmalloclist,
-                                               USERDEFINEDTYPELIST* userdefinedtypelist,
-                                               USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion,
-                                               bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list, int malloc_source)
+int uda::client_server::xdr_user_defined_type_data(XDR* xdrs, LogMallocList* log_malloc_list,
+                                               UserDefinedTypeList* user_defined_type_list,
+                                               UserDefinedType* user_defined_type, void** data, int protocolVersion,
+                                               bool xdr_stdio_flag, LogStructList* log_struct_list, int malloc_source)
 {
     int rc;
 
-    initLogStructList(log_struct_list); // Initialise Linked List Structure Log
+    init_log_struct_list(log_struct_list); // Initialise Linked List Structure Log
 
     if (xdrs->x_op == XDR_DECODE) {
 
-        NTREE* dataNTree = nullptr;
+        NTree* dataNTree = nullptr;
 
         if (!xdr_stdio_flag) {
             rc = xdrrec_skiprecord(xdrs); // Receiving
@@ -2110,23 +2162,23 @@ int uda::client_server::xdr_user_defined_type_data(XDR* xdrs, LOGMALLOCLIST* log
             rc = 1;
         }
 
-        rc = rc && xdr_user_defined_type(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
+        rc = rc && xdr_user_defined_type(xdrs, user_defined_type_list, user_defined_type); // User Defined Type Definitions
         rc = rc &&
-             xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0,
+             xdrUserDefinedData(xdrs, log_malloc_list, log_struct_list, user_defined_type_list, user_defined_type, data, 1, 0,
                                 nullptr, 0, &dataNTree, protocolVersion, malloc_source); // Data within Structures
 
         udaSetFullNTree(dataNTree); // Copy to Global
     } else {
 
-        if (userdefinedtype == nullptr) {
+        if (user_defined_type == nullptr) {
             add_error(UDA_CODE_ERROR_TYPE, "udaXDRUserDefinedTypeData", 999,
                       "No User Defined Type passed - cannot send!");
             return 0;
         }
 
-        rc = xdr_user_defined_type(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
+        rc = xdr_user_defined_type(xdrs, user_defined_type_list, user_defined_type); // User Defined Type Definitions
         rc = rc &&
-             xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0,
+             xdrUserDefinedData(xdrs, log_malloc_list, log_struct_list, user_defined_type_list, user_defined_type, data, 1, 0,
                                 nullptr, 0, nullptr, protocolVersion, malloc_source); // Data within Structures
 
         if (!xdr_stdio_flag) {
@@ -2139,28 +2191,29 @@ int uda::client_server::xdr_user_defined_type_data(XDR* xdrs, LOGMALLOCLIST* log
     return rc;
 }
 
-int udaFindUserDefinedTypeId(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name)
+int udaFindUserDefinedTypeId(USERDEFINEDTYPELIST* c_user_defined_type_list, const char* name)
 {
-
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+    
     // Return the List Index key for a Named User Defined Structure
 
-    for (int i = 0; i < userdefinedtypelist->listCount; i++) {
-        if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name)) {
+    for (int i = 0; i < user_defined_type_list->listCount; i++) {
+        if (!strcmp(user_defined_type_list->userdefinedtype[i].name, name)) {
             return i;
         }
     }
 #ifdef INCLUDESTRUCTPREFIX
     if (!strncmp(name, "struct ", 7)) { // search without the struct prefix
-        for (i = 0; i < userdefinedtypelist->listCount; i++) {
-            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, &name[7])) {
+        for (i = 0; i < user_defined_type_list->listCount; i++) {
+            if (!strcmp(user_defined_type_list->userdefinedtype[i].name, &name[7])) {
                 return (i);
             }
         }
     } else {
         char work[MAXELEMENTNAME + 25] = "struct "; // search with the struct prefix
         strcat(work, name);
-        for (i = 0; i < userdefinedtypelist->listCount; i++) {
-            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, work)) {
+        for (i = 0; i < user_defined_type_list->listCount; i++) {
+            if (!strcmp(user_defined_type_list->userdefinedtype[i].name, work)) {
                 return (i);
             }
         }
@@ -2169,23 +2222,25 @@ int udaFindUserDefinedTypeId(USERDEFINEDTYPELIST* userdefinedtypelist, const cha
     return -1;
 }
 
-USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name, int ref_id)
+USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* c_user_defined_type_list, const char* name, int ref_id)
 {
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+
     // Return the Structure Definition of a Named User Defined Structure
 
     UDA_LOG(UDA_LOG_DEBUG, "udaFindUserDefinedType: [%s]\n", name);
     UDA_LOG(UDA_LOG_DEBUG, "ref_id: %d\n", ref_id);
-    UDA_LOG(UDA_LOG_DEBUG, "listCount: %d\n", userdefinedtypelist->listCount);
+    UDA_LOG(UDA_LOG_DEBUG, "listCount: %d\n", user_defined_type_list->listCount);
 
     if (name == nullptr) {
         return nullptr;
     }
 
     if (ref_id > 0 && name[0] != '\0') {
-        for (int i = 0; i < userdefinedtypelist->listCount; i++) {
-            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name) &&
-                userdefinedtypelist->userdefinedtype[i].ref_id == ref_id) {
-                return (&userdefinedtypelist->userdefinedtype[i]);
+        for (int i = 0; i < user_defined_type_list->listCount; i++) {
+            if (!strcmp(user_defined_type_list->userdefinedtype[i].name, name) &&
+                user_defined_type_list->userdefinedtype[i].ref_id == ref_id) {
+                return (&user_defined_type_list->userdefinedtype[i]);
             }
         }
         return nullptr;
@@ -2193,19 +2248,19 @@ USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist
 
     if (ref_id == 0 && name[0] != '\0') {
 
-        for (int i = 0; i < userdefinedtypelist->listCount; i++) {
-            UDA_LOG(UDA_LOG_DEBUG, "[%2d]: [%s]\n", i, userdefinedtypelist->userdefinedtype[i].name);
-            if (!strcmp(userdefinedtypelist->userdefinedtype[i].name, name)) {
-                return (&userdefinedtypelist->userdefinedtype[i]);
+        for (int i = 0; i < user_defined_type_list->listCount; i++) {
+            UDA_LOG(UDA_LOG_DEBUG, "[%2d]: [%s]\n", i, user_defined_type_list->userdefinedtype[i].name);
+            if (!strcmp(user_defined_type_list->userdefinedtype[i].name, name)) {
+                return (&user_defined_type_list->userdefinedtype[i]);
             }
         }
         return nullptr;
     }
 
     if (ref_id != 0 && name[0] == '\0') {
-        for (int i = 0; i < userdefinedtypelist->listCount; i++) {
-            if (userdefinedtypelist->userdefinedtype[i].ref_id == ref_id) {
-                return (&userdefinedtypelist->userdefinedtype[i]);
+        for (int i = 0; i < user_defined_type_list->listCount; i++) {
+            if (user_defined_type_list->userdefinedtype[i].ref_id == ref_id) {
+                return (&user_defined_type_list->userdefinedtype[i]);
             }
         }
         return nullptr;
@@ -2214,18 +2269,20 @@ USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist
     return nullptr;
 }
 
-int udaTestUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt)
+int udaTestUserDefinedType(USERDEFINEDTYPELIST* c_user_defined_type_list, USERDEFINEDTYPE* udt)
 {
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+
     // Test a Structure Definition is a member of the Structure Type List
     // Return True (1) if the structure definition is found, False (0) otherwise.
 
-    USERDEFINEDTYPE* test;
+    UserDefinedType* test;
 
     if (udt == nullptr) {
         return 0;
     }
-    for (int i = 0; i < userdefinedtypelist->listCount; i++) {
-        test = &userdefinedtypelist->userdefinedtype[i];
+    for (int i = 0; i < user_defined_type_list->listCount; i++) {
+        test = &user_defined_type_list->userdefinedtype[i];
         if (test == udt) {
             return 1;
         }
@@ -2236,7 +2293,7 @@ int udaTestUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINED
 //==============================================================================================================
 // Functions to Send or Receive Definitions of User Defined Structure
 
-bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str)
+bool_t xdr_compoundfield(XDR* xdrs, CompoundField* str)
 {
 
     // Send/Receive individual compound types
@@ -2272,8 +2329,8 @@ bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str)
     return rc;
 }
 
-bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist,
-                                               USERDEFINEDTYPE* str)
+bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, UserDefinedTypeList* user_defined_type_list,
+                                               UserDefinedType* str)
 {
     // Send/Receive a single user defined type
 
@@ -2287,7 +2344,7 @@ bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, USERDEFINEDTYPELIST*
     rc = rc && xdr_int(xdrs, &str->imagecount);
     rc = rc && xdr_int(xdrs, &str->fieldcount);
 
-    udaPrintUserDefinedType(*str);
+    print_user_defined_type(*str);
 
     if (xdrs->x_op == XDR_DECODE) { // Receiving an array so allocate Heap for it then initialise
         if (str->imagecount > 0) {
@@ -2296,9 +2353,9 @@ bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, USERDEFINEDTYPELIST*
             str->image = nullptr;
         }
         if (str->fieldcount > 0) {
-            str->compoundfield = (COMPOUNDFIELD*)malloc(str->fieldcount * sizeof(COMPOUNDFIELD));
+            str->compoundfield = (CompoundField*)malloc(str->fieldcount * sizeof(CompoundField));
             for (int i = 0; i < str->fieldcount; i++) {
-                initCompoundField(&str->compoundfield[i]);
+                init_compound_field(&str->compoundfield[i]);
             }
         } else {
             str->compoundfield = nullptr;
@@ -2324,7 +2381,7 @@ bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, USERDEFINEDTYPELIST*
                 size = sizeof(void*);
             } else {
                 // Non-atomic types (structures) will already have been adjusted
-                size = udaGetsizeof(userdefinedtypelist, str->compoundfield[i].type);
+                size = udaGetsizeof(user_defined_type_list, str->compoundfield[i].type);
             }
             alignment = udaGetalignmentof(str->compoundfield[i].type);
             // Adjustment required
@@ -2342,7 +2399,7 @@ bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, USERDEFINEDTYPELIST*
                 size = sizeof(void*);
                 alignment = udaGetalignmentof("*");
             } else {
-                size = udaGetsizeof(userdefinedtypelist, str->compoundfield[i].type);
+                size = udaGetsizeof(user_defined_type_list, str->compoundfield[i].type);
                 alignment = udaGetalignmentof(str->compoundfield[i].type);
             }
 
@@ -2385,13 +2442,13 @@ bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, USERDEFINEDTYPELIST*
 
         str->size = byteCount;
 
-        udaPrintUserDefinedType(*str);
+        print_user_defined_type(*str);
     }
 
     return rc;
 }
 
-bool_t uda::client_server::xdr_user_defined_type_list(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag)
+bool_t uda::client_server::xdr_user_defined_type_list(XDR* xdrs, UserDefinedTypeList* str, bool xdr_stdio_flag)
 {
     // Send/Receive the list of userdefined types
 
@@ -2414,9 +2471,9 @@ bool_t uda::client_server::xdr_user_defined_type_list(XDR* xdrs, USERDEFINEDTYPE
     }
 
     if (xdrs->x_op == XDR_DECODE) { // Receiving array so allocate Heap for it then initialise
-        str->userdefinedtype = (USERDEFINEDTYPE*)malloc(str->listCount * sizeof(USERDEFINEDTYPE));
+        str->userdefinedtype = (UserDefinedType*)malloc(str->listCount * sizeof(UserDefinedType));
         for (int i = 0; i < str->listCount; i++) {
-            initUserDefinedType(&str->userdefinedtype[i]);
+            init_user_defined_type(&str->userdefinedtype[i]);
         }
     }
 
@@ -2586,33 +2643,35 @@ void udaPrintAtomicData(void* data, int atomictype, int count, const char* label
  * \todo {When the structure is an array, either print data from a single array element or print data from
  * all structure elements}
  */
-void udaPrintAtomicType(LOGMALLOCLIST* logmalloclist, NTREE* tree, const char* target)
+void udaPrintAtomicType(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
-    USERDEFINEDTYPE* userdefinedtype = tree->userdefinedtype;
+    auto tree = static_cast<NTree*>(c_tree);
+
+    UserDefinedType* user_defined_type = tree->userdefinedtype;
     char* p;
     void* data;
     int fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
-            if (userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
+        if (!strcmp(user_defined_type->compoundfield[i].name, target)) {
+            if (user_defined_type->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
                 p = (char*)tree->data;
-                if (userdefinedtype->compoundfield[i].pointer ||
-                    !strcmp(userdefinedtype->compoundfield[i].type, "STRING *")) { // Strings are an exception!
+                if (user_defined_type->compoundfield[i].pointer ||
+                    !strcmp(user_defined_type->compoundfield[i].type, "STRING *")) { // Strings are an exception!
                     int count, size;
                     const char* type;
-                    data = (void*)*((VOIDTYPE*)&p[userdefinedtype->compoundfield[i].offset]);
+                    data = (void*)*((VOIDTYPE*)&p[user_defined_type->compoundfield[i].offset]);
                     if (data == nullptr) {
                         UDA_LOG(UDA_LOG_DEBUG, "%40s: null\n", target);
                         return;
                     }
-                    udaFindMalloc(logmalloclist, &data, &count, &size, &type);
+                    udaFindMalloc(c_log_malloc_list, &data, &count, &size, &type);
                     if (count > 0) {
                         udaPrintAtomicData(data, udaGettypeof(type), count, target);
                     }
                 } else {
-                    data = (void*)&p[userdefinedtype->compoundfield[i].offset];
-                    udaPrintAtomicData(data, userdefinedtype->compoundfield[i].atomictype,
-                                       userdefinedtype->compoundfield[i].count, target);
+                    data = (void*)&p[user_defined_type->compoundfield[i].offset];
+                    udaPrintAtomicData(data, user_defined_type->compoundfield[i].atomictype,
+                                       user_defined_type->compoundfield[i].count, target);
                 }
             } else {
                 UDA_LOG(UDA_LOG_ERROR, "ERROR: %s is Not of Atomic Type\n", target);
@@ -2626,18 +2685,20 @@ void udaPrintAtomicType(LOGMALLOCLIST* logmalloclist, NTREE* tree, const char* t
 /** Print the Count of elements of a named data array from a given tree node to a specified File Descriptor.
  *
  * @param fd The File Descriptor, e.g., stdout
- * @param ntree A pointer to a tree node.
+ * @param tree A pointer to a tree node.
  * @param target The name of a Structure element.
  * @return Void
  */
-void udaPrintTypeCount(NTREE* ntree, const char* target)
+void udaPrintTypeCount(NTREE* c_tree, const char* target)
 {
-    USERDEFINEDTYPE* userdefinedtype = ntree->userdefinedtype;
-    int fieldcount = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+
+    UserDefinedType* user_defined_type = tree->userdefinedtype;
+    int fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
-            udaPrintCompoundField(userdefinedtype->compoundfield[i]);
-            UDA_LOG(UDA_LOG_DEBUG, "%s[ %d ]\n", target, userdefinedtype->compoundfield[i].count);
+        if (!strcmp(user_defined_type->compoundfield[i].name, target)) {
+            print_compound_field(user_defined_type->compoundfield[i]);
+            UDA_LOG(UDA_LOG_DEBUG, "%s[ %d ]\n", target, user_defined_type->compoundfield[i].count);
         }
     }
 }
@@ -2651,28 +2712,29 @@ void udaPrintTypeCount(NTREE* ntree, const char* target)
 
 /** Return a pointer to a User Defined Structure Component Structure.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a Structure Element.
  * @return the Structure Element Definition Structure.
  */
-COMPOUNDFIELD* getNodeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+COMPOUNDFIELD* udaGetNodeStructureComponent(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
-    USERDEFINEDTYPE* userdefinedtype;
+    UserDefinedType* user_defined_type;
     int fieldcount;
     const char* lastname;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
     // Locate the Node with a Structure Component
-    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    c_tree = udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname);
 
-    if (ntree != nullptr) {
-        userdefinedtype = ntree->userdefinedtype;
-        fieldcount = ntree->userdefinedtype->fieldcount;
+    if (c_tree != nullptr) {
+        auto tree = static_cast<NTree*>(c_tree);
+        user_defined_type = tree->userdefinedtype;
+        fieldcount = tree->userdefinedtype->fieldcount;
         for (int i = 0; i < fieldcount; i++) {
-            if (!strcmp(userdefinedtype->compoundfield[i].name, target)) {
-                return &userdefinedtype->compoundfield[i];
+            if (!strcmp(user_defined_type->compoundfield[i].name, target)) {
+                return &user_defined_type->compoundfield[i];
             }
         }
     }
@@ -2734,12 +2796,14 @@ char** udaParseTarget(const char* target, int* ntargets)
  * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return Void
  */
-void udaPrintNode(NTREE* tree)
+void udaPrintNode(NTREE* c_tree)
 {
+    auto tree = static_cast<NTree*>(c_tree);
+
     if (tree == nullptr) {
         tree = full_ntree;
     }
-    UDA_LOG(UDA_LOG_DEBUG, "NTREE Node Contents\n");
+    UDA_LOG(UDA_LOG_DEBUG, "NTree Node Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "Name    : %s \n", tree->name);
     UDA_LOG(UDA_LOG_DEBUG, "Branches: %d \n", tree->branches);
 #ifdef A64
@@ -2754,7 +2818,7 @@ void udaPrintNode(NTREE* tree)
         UDA_LOG(UDA_LOG_DEBUG, "Children[%d]: %p   (%x) \n", i, (void*)tree->children[i], (UVOIDTYPE)tree->children[i]);
     }
 #endif
-    udaPrintUserDefinedType(*tree->userdefinedtype);
+    print_user_defined_type(*tree->userdefinedtype);
 }
 
 /** Print the Contents of a tree node with the specified User Defined Structure name to a specified File Descriptor.
@@ -2766,14 +2830,14 @@ void udaPrintNode(NTREE* tree)
  */
 void udaPrintNodeStructureDefinition(const char* target)
 {
-    NTREE* ntree = nullptr;
+    NTREE* tree = nullptr;
     if (target[0] != '\0') {
-        if ((ntree = udaFindNTreeStructureDefinition(ntree, target)) == nullptr) {
+        if ((tree = udaFindNTreeStructureDefinition(tree, target)) == nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
             return;
         }
     }
-    udaPrintNode(ntree);
+    udaPrintNode(tree);
 }
 
 /** Print an Image of the Named Structure Definition to a specified File Descriptor.
@@ -2785,13 +2849,14 @@ void udaPrintNodeStructureDefinition(const char* target)
 
 void udaPrintNodeStructureImage(const char* target)
 {
-    NTREE* ntree = nullptr;
+    NTREE* c_tree = nullptr;
     if (target[0] != '\0') {
-        if ((ntree = udaFindNTreeStructureDefinition(ntree, target)) == nullptr) {
+        if ((c_tree = udaFindNTreeStructureDefinition(c_tree, target)) == nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
             return;
         }
-        printImage(ntree->userdefinedtype->image, ntree->userdefinedtype->imagecount);
+        auto tree = static_cast<NTree*>(c_tree);
+        printImage(tree->userdefinedtype->image, tree->userdefinedtype->imagecount);
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "no Structure Definition name was given!\n");
     }
@@ -2799,91 +2864,96 @@ void udaPrintNodeStructureImage(const char* target)
 
 /** Return a Pointer to the User Defined Type Structure of the data attached to this tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the User Defined Type Structure Definition.
  */
 
-USERDEFINEDTYPE* udaGetNodeUserDefinedType(NTREE* ntree)
+USERDEFINEDTYPE* udaGetNodeUserDefinedType(NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    return ntree->userdefinedtype;
+    auto tree = static_cast<NTree*>(c_tree);
+    return tree->userdefinedtype;
 }
 
 /** Return the name of the User Defined Type Structure.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the name of the User Defined Type Structure.
  */
-char* udaGetNodeStructureName(NTREE* ntree)
+char* udaGetNodeStructureName(NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    return ntree->name;
+    auto tree = static_cast<NTree*>(c_tree);
+    return tree->name;
 }
 
 /** Return the Type of the User Defined Type Structure.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the Type of the User Defined Type Structure.
  */
-char* udaGetNodeStructureType(NTREE* ntree)
+char* udaGetNodeStructureType(NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    return ntree->userdefinedtype->name;
+    auto tree = static_cast<NTree*>(c_tree);
+    return tree->userdefinedtype->name;
 }
 
 /** Return the Size of the User Defined Type Structure.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the Size (Bytes) of the User Defined Type Structure.
  */
-int udaGetNodeStructureSize(NTREE* ntree)
+int udaGetNodeStructureSize(NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    return ntree->userdefinedtype->size;
+    auto tree = static_cast<NTree*>(c_tree);
+    return tree->userdefinedtype->size;
 }
 
 /** Return a pointer to a Tree Nodes's Data Structure Array element.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param index The array index
  * @return a Pointer to a Structure Array element.
  */
-void* udaGetNodeStructureArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, int index)
+void* udaGetNodeStructureArrayData(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, int index)
 {
     char* p;
     if (index < 0) {
         add_error(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureArrayData", 999, "The Tree Node array index < 0");
         return nullptr;
     }
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if (udaGetNodeStructureDataCount(logmalloclist, ntree) < (index + 1)) {
+    if (udaGetNodeStructureDataCount(c_log_malloc_list, c_tree) < (index + 1)) {
         add_error(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureArrayData", 999,
                   "The Tree Node array index > allocated array dimension");
         return nullptr;
     }
-    p = (char*)ntree->data;
-    return (void*)&p[index * ntree->userdefinedtype->size];
+    auto tree = static_cast<NTree*>(c_tree);
+    p = (char*)tree->data;
+    return (void*)&p[index * tree->userdefinedtype->size];
 }
 
 /** Return a pointer to a Component Data Structure Array element.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of the Structure Array element.
  * @param structureindex The Array index
  * @param componentindex The structure element index
  * @return a Pointer to a Component Structure Array element.
  */
-void* udaGetNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
+void* udaGetNodeStructureComponentArrayData(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target,
                                             int structureindex, int componentindex)
 {
     int offset, count, size;
@@ -2899,24 +2969,25 @@ void* udaGetNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE*
                   "The Tree Node Structure Component array index < 0");
         return nullptr;
     }
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
-    if ((pp = (char*)udaGetNodeStructureArrayData(logmalloclist, ntree, structureindex)) == nullptr) {
+    if ((pp = (char*)udaGetNodeStructureArrayData(c_log_malloc_list, c_tree, structureindex)) == nullptr) {
         return nullptr;
     }
 
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (!strcmp(ntree->userdefinedtype->compoundfield[i].name, target)) {
-            offset = ntree->userdefinedtype->compoundfield[i].offset;
-            if (ntree->userdefinedtype->compoundfield[i].pointer) {
+    auto tree = static_cast<NTree*>(c_tree);
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (!strcmp(tree->userdefinedtype->compoundfield[i].name, target)) {
+            offset = tree->userdefinedtype->compoundfield[i].offset;
+            if (tree->userdefinedtype->compoundfield[i].pointer) {
                 p = (char*)*((VOIDTYPE*)&pp[offset]); // Data Element from the single Structure Array Element
-                udaFindMalloc(logmalloclist, p, &count, &size, &type);
+                udaFindMalloc(c_log_malloc_list, p, &count, &size, &type);
             } else {
                 p = &pp[offset];
-                size = ntree->userdefinedtype->compoundfield[i].size;
-                count = ntree->userdefinedtype->compoundfield[i].count;
+                size = tree->userdefinedtype->compoundfield[i].size;
+                count = tree->userdefinedtype->compoundfield[i].count;
             }
             if (size == 0) {
                 return nullptr;
@@ -2936,113 +3007,105 @@ void* udaGetNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE*
 
 /** Return the count of child User Defined Type Structures (elements of this structure).
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the name of the User Defined Type Structure.
  */
-int udaGetNodeChildrenCount(NTREE* ntree)
+int udaGetNodeChildrenCount(NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    return ntree->branches;
+    auto tree = static_cast<NTree*>(c_tree);
+    return tree->branches;
 }
 
 /** Return a Child Node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param child A integer index identifying which child from the child array to return
  * @return the Child Node.
  */
-NTREE* udaGetNodeChild(NTREE* ntree, int child)
+NTREE* udaGetNodeChild(NTREE* c_tree, int child)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if (child < 0 || child >= ntree->branches) {
+    auto tree = static_cast<NTree*>(c_tree);
+    if (child < 0 || child >= tree->branches) {
         return nullptr;
     }
-    return ntree->children[child];
+    return tree->children[child];
 }
 
 /** Return a Child Node'd ID (Branch index value).
  *
- * @param ntree A pointer to a Parent tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a Parent tree node. If nullptr the root node is assumed.
  * @param child A ipointer to a Child tree node.
  * @return the Child Node's ID.
  */
-int udaGetNodeChildId(NTREE* ntree, NTREE* child)
+int udaGetNodeChildId(NTREE* c_tree, NTREE* child)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
     if (child == nullptr) {
         return -1;
     }
-    if (ntree->branches == 0) {
+    auto tree = static_cast<NTree*>(c_tree);
+    if (tree->branches == 0) {
         return -1;
     }
-    for (int i = 0; i < ntree->branches; i++) {
-        if (ntree->children[i] == child) {
+    for (int i = 0; i < tree->branches; i++) {
+        if (tree->children[i] == child) {
             return i;
         }
     }
     return -1;
 }
 
-/** Return a Pointer to the children of this tree node.
- *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
- * @return the Array of children.
- */
-
-NTREE** udaGetNodeChildren(NTREE* ntree)
-{
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
-    }
-    return ntree->children;
-}
-
 /** Return the parent Node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the Parent Node.
  */
-NTREE* udaGetNodeParent(NTREE* ntree)
+NTREE* udaGetNodeParent(NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    return ntree->parent;
+    auto tree = static_cast<NTree*>(c_tree);
+    return tree->parent;
 }
 
 /** Return the Data pointer.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return a Pointer to the Data.
  */
-void* udaGetNodeData(NTREE* ntree)
+void* udaGetNodeData(NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    return ntree->data;
+    auto tree = static_cast<NTree*>(c_tree);
+    return tree->data;
 }
 
 /** Return a Count of Structured Component Types attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the Count of Structured types.
  */
 
-int udaGetNodeStructureCount(NTREE* ntree)
+int udaGetNodeStructureCount(NTREE* c_tree)
 {
     int count = 0;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
+    auto tree = static_cast<NTree*>(c_tree);
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
             count++;
         }
     }
@@ -3051,18 +3114,19 @@ int udaGetNodeStructureCount(NTREE* ntree)
 
 /** Return a Count of Atomic Component Types attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the Count of Atomic types.
  */
 
-int udaGetNodeAtomicCount(NTREE* ntree)
+int udaGetNodeAtomicCount(NTREE* c_tree)
 {
     int count = 0;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
+    auto tree = static_cast<NTree*>(c_tree);
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
             count++;
         }
     }
@@ -3071,26 +3135,27 @@ int udaGetNodeAtomicCount(NTREE* ntree)
 
 /** Return a List of Structure component Names attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Structure names.
  */
 
-char** udaGetNodeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNodeStructureNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count;
     char** names;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeStructureCount(ntree)) == 0) {
+    if ((count = udaGetNodeStructureCount(c_tree)) == 0) {
         return nullptr;
     }
     names = (char**)malloc(count * sizeof(char*));
-    udaAddMalloc(logmalloclist, (void*)names, count, sizeof(char*), "char *");
+    udaAddMalloc(c_log_malloc_list, (void*)names, count, sizeof(char*), "char *");
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
-            names[count++] = ntree->userdefinedtype->compoundfield[i].name;
+    auto tree = static_cast<NTree*>(c_tree);
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
+            names[count++] = tree->userdefinedtype->compoundfield[i].name;
         }
     }
     return names;
@@ -3098,27 +3163,28 @@ char** udaGetNodeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Atomic component Names attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Atomic element names.
  */
 
-char** udaGetNodeAtomicNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNodeAtomicNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count;
     char** names;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeAtomicCount(ntree)) == 0) {
+    if ((count = udaGetNodeAtomicCount(c_tree)) == 0) {
         return nullptr;
     }
     names = (char**)malloc(count * sizeof(char*));
-    udaAddMalloc(logmalloclist, (void*)names, count, sizeof(char*), "char *");
+    udaAddMalloc(c_log_malloc_list, (void*)names, count, sizeof(char*), "char *");
 
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
-            names[count++] = ntree->userdefinedtype->compoundfield[i].name;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
+            names[count++] = tree->userdefinedtype->compoundfield[i].name;
         }
     }
     return names;
@@ -3126,26 +3192,28 @@ char** udaGetNodeAtomicNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Structure Component Type Names attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Structure Type names.
  */
 
-char** udaGetNodeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNodeStructureTypes(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count;
     char** names;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeStructureCount(ntree)) == 0) {
+    if ((count = udaGetNodeStructureCount(c_tree)) == 0) {
         return nullptr;
     }
     names = (char**)malloc(count * sizeof(char*));
-    udaAddMalloc(logmalloclist, (void*)names, count, sizeof(char*), "char *");
+    udaAddMalloc(c_log_malloc_list, (void*)names, count, sizeof(char*), "char *");
+
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
-            names[count++] = ntree->userdefinedtype->compoundfield[i].type;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
+            names[count++] = tree->userdefinedtype->compoundfield[i].type;
         }
     }
     return names;
@@ -3153,26 +3221,28 @@ char** udaGetNodeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Atomic Component Type Names attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Atomic Type names.
  */
 
-char** udaGetNodeAtomicTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNodeAtomicTypes(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count;
     char** names;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeAtomicCount(ntree)) == 0) {
+    if ((count = udaGetNodeAtomicCount(c_tree)) == 0) {
         return nullptr;
     }
     names = (char**)malloc(count * sizeof(char*));
-    udaAddMalloc(logmalloclist, (void*)names, count, sizeof(char*), "char *");
+    udaAddMalloc(c_log_malloc_list, (void*)names, count, sizeof(char*), "char *");
+
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
-            names[count++] = ntree->userdefinedtype->compoundfield[i].type;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
+            names[count++] = tree->userdefinedtype->compoundfield[i].type;
         }
     }
     return names;
@@ -3180,26 +3250,28 @@ char** udaGetNodeAtomicTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Structure Component Pointer property attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Structure Pointer Properties.
  */
 
-int* udaGetNodeStructurePointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+int* udaGetNodeStructurePointers(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count;
     int* pointers;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeStructureCount(ntree)) == 0) {
+    if ((count = udaGetNodeStructureCount(c_tree)) == 0) {
         return nullptr;
     }
     pointers = (int*)malloc(count * sizeof(int));
-    udaAddMalloc(logmalloclist, (void*)pointers, count, sizeof(int), "int");
+    udaAddMalloc(c_log_malloc_list, (void*)pointers, count, sizeof(int), "int");
+
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
-            pointers[count] = ntree->userdefinedtype->compoundfield[i].pointer;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
+            pointers[count] = tree->userdefinedtype->compoundfield[i].pointer;
             count++;
         }
     }
@@ -3208,27 +3280,29 @@ int* udaGetNodeStructurePointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Atomic Component Pointer property attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Atomic Pointer Properties.
  */
 
-int* udaGetNodeAtomicPointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+int* udaGetNodeAtomicPointers(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count;
     int* pointers;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeAtomicCount(ntree)) == 0) {
+    if ((count = udaGetNodeAtomicCount(c_tree)) == 0) {
         return nullptr;
     }
     pointers = (int*)malloc(count * sizeof(int));
-    udaAddMalloc(logmalloclist, (void*)pointers, count, sizeof(int), "int");
+    udaAddMalloc(c_log_malloc_list, (void*)pointers, count, sizeof(int), "int");
+
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
-            pointers[count] = ntree->userdefinedtype->compoundfield[i].pointer;
-            // if (!strcmp(ntree->userdefinedtype->compoundfield[i].type, "STRING *")) pointers[count] = 1;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
+            pointers[count] = tree->userdefinedtype->compoundfield[i].pointer;
+            // if (!strcmp(tree->userdefinedtype->compoundfield[i].type, "STRING *")) pointers[count] = 1;
             count++;
         }
     }
@@ -3237,34 +3311,36 @@ int* udaGetNodeAtomicPointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Rank values of the Structure Components attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Structure Ranks.
  */
 
-int* udaGetNodeStructureRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+int* udaGetNodeStructureRank(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count, count0, size, rank;
     int *ranks, *shape;
     const char* type;
     char* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeStructureCount(ntree)) == 0) {
+    if ((count = udaGetNodeStructureCount(c_tree)) == 0) {
         return nullptr;
     }
     ranks = (int*)malloc(count * sizeof(int));
-    udaAddMalloc(logmalloclist, (void*)ranks, count, sizeof(int), "int");
+    udaAddMalloc(c_log_malloc_list, (void*)ranks, count, sizeof(int), "int");
+
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
-            if (!ntree->userdefinedtype->compoundfield[i].pointer) {
-                ranks[count] = ntree->userdefinedtype->compoundfield[i].rank;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
+            if (!tree->userdefinedtype->compoundfield[i].pointer) {
+                ranks[count] = tree->userdefinedtype->compoundfield[i].rank;
             } else {
-                if ((data = (char*)ntree->data) == nullptr) {
+                if ((data = (char*)tree->data) == nullptr) {
                     return nullptr;
                 }
-                udaFindMalloc2(logmalloclist, &data[ntree->userdefinedtype->compoundfield[i].offset], &count0, &size,
+                udaFindMalloc2(c_log_malloc_list, &data[tree->userdefinedtype->compoundfield[i].offset], &count0, &size,
                                &type, &rank, &shape);
                 ranks[count] = rank;
             }
@@ -3276,34 +3352,36 @@ int* udaGetNodeStructureRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Rank values of the Atomic Components attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Atomic Ranks.
  */
 
-int* udaGetNodeAtomicRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+int* udaGetNodeAtomicRank(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count, count0, size, rank;
     int *ranks, *shape;
     const char* type;
     char* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeAtomicCount(ntree)) == 0) {
+    if ((count = udaGetNodeAtomicCount(c_tree)) == 0) {
         return nullptr;
     }
     ranks = (int*)malloc(count * sizeof(int));
-    udaAddMalloc(logmalloclist, (void*)ranks, count, sizeof(int), "int");
+    udaAddMalloc(c_log_malloc_list, (void*)ranks, count, sizeof(int), "int");
+
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
-            if (!ntree->userdefinedtype->compoundfield[i].pointer) {
-                ranks[count] = ntree->userdefinedtype->compoundfield[i].rank;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
+            if (!tree->userdefinedtype->compoundfield[i].pointer) {
+                ranks[count] = tree->userdefinedtype->compoundfield[i].rank;
             } else {
-                if ((data = (char*)ntree->data) == nullptr) {
+                if ((data = (char*)tree->data) == nullptr) {
                     return nullptr;
                 }
-                udaFindMalloc2(logmalloclist, &data[ntree->userdefinedtype->compoundfield[i].offset], &count0, &size,
+                udaFindMalloc2(c_log_malloc_list, &data[tree->userdefinedtype->compoundfield[i].offset], &count0, &size,
                                &type, &rank, &shape);
                 ranks[count] = rank;
             }
@@ -3315,34 +3393,36 @@ int* udaGetNodeAtomicRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Shape Arrays of the Structure Components attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Structure Shape Arrays.
  */
-int** udaGetNodeStructureShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+int** udaGetNodeStructureShape(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count, count0, size, rank;
     int* shape;
     int** shapes;
     const char* type;
     char* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeStructureCount(ntree)) == 0) {
+    if ((count = udaGetNodeStructureCount(c_tree)) == 0) {
         return nullptr;
     }
     shapes = (int**)malloc(count * sizeof(int*));
-    udaAddMalloc(logmalloclist, (void*)shapes, count, sizeof(int*), "int *");
+    udaAddMalloc(c_log_malloc_list, (void*)shapes, count, sizeof(int*), "int *");
+
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
-            if (!ntree->userdefinedtype->compoundfield[i].pointer) {
-                shapes[count] = ntree->userdefinedtype->compoundfield[i].shape;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype == UDA_TYPE_UNKNOWN) {
+            if (!tree->userdefinedtype->compoundfield[i].pointer) {
+                shapes[count] = tree->userdefinedtype->compoundfield[i].shape;
             } else {
-                if ((data = (char*)ntree->data) == nullptr) {
+                if ((data = (char*)tree->data) == nullptr) {
                     return nullptr;
                 }
-                udaFindMalloc2(logmalloclist, &data[ntree->userdefinedtype->compoundfield[i].offset], &count0, &size,
+                udaFindMalloc2(c_log_malloc_list, &data[tree->userdefinedtype->compoundfield[i].offset], &count0, &size,
                                &type, &rank, &shape);
                 shapes[count] = shape;
             }
@@ -3354,44 +3434,46 @@ int** udaGetNodeStructureShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of Shape Arrays of the Atomic Components attached to a tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of Atomic Shape Arrays.
  */
-int** udaGetNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+int** udaGetNodeAtomicShape(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count, count0, size, rank;
     const char* type;
     char* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if ((count = udaGetNodeAtomicCount(ntree)) == 0) {
+    if ((count = udaGetNodeAtomicCount(c_tree)) == 0) {
         return nullptr;
     }
     int** shapes = (int**)malloc(count * sizeof(int*));
-    udaAddMalloc(logmalloclist, (void*)shapes, count, sizeof(int*), "int *");
+    udaAddMalloc(c_log_malloc_list, (void*)shapes, count, sizeof(int*), "int *");
+
+    auto tree = static_cast<NTree*>(c_tree);
     count = 0;
-    for (int i = 0; i < ntree->userdefinedtype->fieldcount; i++) {
-        if (ntree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
-            if (!ntree->userdefinedtype->compoundfield[i].pointer) {
-                shapes[count] = ntree->userdefinedtype->compoundfield[i].shape;
+    for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
+        if (tree->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
+            if (!tree->userdefinedtype->compoundfield[i].pointer) {
+                shapes[count] = tree->userdefinedtype->compoundfield[i].shape;
                 if (shapes[count] == nullptr &&
-                    ntree->userdefinedtype->compoundfield[i].rank < 2) { // Not passed so create
+                    tree->userdefinedtype->compoundfield[i].rank < 2) { // Not passed so create
                     shapes[count] = (int*)malloc(sizeof(int));
-                    shapes[count][0] = ntree->userdefinedtype->compoundfield[i].count;
-                    ntree->userdefinedtype->compoundfield[i].shape = shapes[count];
+                    shapes[count][0] = tree->userdefinedtype->compoundfield[i].count;
+                    tree->userdefinedtype->compoundfield[i].shape = shapes[count];
                 }
             } else {
-                if ((data = (char*)ntree->data) == nullptr) {
+                if ((data = (char*)tree->data) == nullptr) {
                     return nullptr;
                 }
                 int* shape;
-                void* ptr = &data[ntree->userdefinedtype->compoundfield[i].offset];
-                udaFindMalloc2(logmalloclist, ptr, &count0, &size, &type, &rank, &shape);
+                void* ptr = &data[tree->userdefinedtype->compoundfield[i].offset];
+                udaFindMalloc2(c_log_malloc_list, ptr, &count0, &size, &type, &rank, &shape);
                 shapes[count] = shape;
                 if (shape == 0 && (rank < 2)) {
                     shape = (int*)malloc(sizeof(int)); // Assume rank 1
-                    udaAddMalloc(logmalloclist, (void*)shape, 1, sizeof(int), "int");
+                    udaAddMalloc(c_log_malloc_list, (void*)shape, 1, sizeof(int), "int");
                     shape[0] = count0;
                     shapes[count] =
                         shape; // Pass back the length of the scalar or rank 1 array from the malloc log query
@@ -3410,8 +3492,10 @@ int** udaGetNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
  * @return Void
  */
 
-void udaPrintNodeNames(LOGMALLOCLIST* logmalloclist, NTREE* tree)
+void udaPrintNodeNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
+    auto tree = static_cast<NTree*>(c_tree);
+
     int namecount;
     char** namelist;
     char** typelist;
@@ -3421,8 +3505,8 @@ void udaPrintNodeNames(LOGMALLOCLIST* logmalloclist, NTREE* tree)
 
     UDA_LOG(UDA_LOG_DEBUG, "\nData Node Structure Names and Types\n");
     namecount = udaGetNodeStructureCount(tree);               // Count of all local data structures
-    namelist = udaGetNodeStructureNames(logmalloclist, tree); // Names
-    typelist = udaGetNodeStructureTypes(logmalloclist, tree); // Types
+    namelist = udaGetNodeStructureNames(c_log_malloc_list, tree); // Names
+    typelist = udaGetNodeStructureTypes(c_log_malloc_list, tree); // Types
     UDA_LOG(UDA_LOG_DEBUG, "Structure Count %d\n", namecount);
     if (namecount > 0) {
         UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
@@ -3432,8 +3516,8 @@ void udaPrintNodeNames(LOGMALLOCLIST* logmalloclist, NTREE* tree)
     }
     UDA_LOG(UDA_LOG_DEBUG, "\nData Node Atomic Names and Types\n");
     namecount = udaGetNodeAtomicCount(tree);               // Count of all local atomic data
-    namelist = udaGetNodeAtomicNames(logmalloclist, tree); // Names
-    typelist = udaGetNodeAtomicTypes(logmalloclist, tree); // Types
+    namelist = udaGetNodeAtomicNames(c_log_malloc_list, tree); // Names
+    typelist = udaGetNodeAtomicTypes(c_log_malloc_list, tree); // Types
     UDA_LOG(UDA_LOG_DEBUG, "Atomic Count %d\n", namecount);
     if (namecount > 0) {
         UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
@@ -3449,142 +3533,150 @@ void udaPrintNodeNames(LOGMALLOCLIST* logmalloclist, NTREE* tree)
  * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return Void
  */
-void udaPrintNodeAtomic(LOGMALLOCLIST* logmalloclist, NTREE* tree)
+void udaPrintNodeAtomic(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
+    auto tree = static_cast<NTree*>(c_tree);
+
     int namecount;
     char** namelist;
     if (tree == nullptr) {
         tree = full_ntree;
     }
     namecount = udaGetNodeAtomicCount(tree);               // Count of all local atomic data
-    namelist = udaGetNodeAtomicNames(logmalloclist, tree); // Names
+    namelist = udaGetNodeAtomicNames(c_log_malloc_list, tree); // Names
     for (int i = 0; i < namecount; i++) {
-        udaPrintAtomicType(logmalloclist, tree, namelist[i]);
+        udaPrintAtomicType(c_log_malloc_list, tree, namelist[i]);
     }
 }
 
 /** Return the number of User Defined Type Structure Definition Components attached to this tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the number of User Defined Type Structure Definition Components.
  */
-int udaGetNodeStructureComponentCount(NTREE* ntree)
+int udaGetNodeStructureComponentCount(NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    return ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    return tree->userdefinedtype->fieldcount;
 }
 
 /** Return a List of User Defined Type Structure Definition Components Names attached to this tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of User Defined Type Structure Definition Component names.
  */
-char** udaGetNodeStructureComponentNames(NTREE* ntree)
+char** udaGetNodeStructureComponentNames(NTREE* c_tree)
 {
     int count;
     char** names;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    count = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    count = tree->userdefinedtype->fieldcount;
     if (count == 0) {
         return nullptr;
     }
     names = (char**)malloc(count * sizeof(char*));
     for (int i = 0; i < count; i++) {
-        names[i] = (char*)ntree->userdefinedtype->compoundfield[i].name;
+        names[i] = (char*)tree->userdefinedtype->compoundfield[i].name;
     }
     return names;
 }
 
 /** Return a List of User Defined Type Structure Definition Components Types attached to this tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of User Defined Type Structure Definition Component Types.
  */
-char** udaGetNodeStructureComponentTypes(NTREE* ntree)
+char** udaGetNodeStructureComponentTypes(NTREE* c_tree)
 {
     int count;
     char** names;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    count = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    count = tree->userdefinedtype->fieldcount;
     if (count == 0) {
         return nullptr;
     }
     names = (char**)malloc(count * sizeof(char*));
     for (int i = 0; i < count; i++) {
-        names[i] = (char*)ntree->userdefinedtype->compoundfield[i].type;
+        names[i] = (char*)tree->userdefinedtype->compoundfield[i].type;
     }
     return names;
 }
 
 /** Return a List of User Defined Type Structure Definition Components Descriptions attached to this tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of User Defined Type Structure Definition Component Descriptions.
  */
-char** udaGetNodeStructureComponentDescriptions(NTREE* ntree)
+char** udaGetNodeStructureComponentDescriptions(NTREE* c_tree)
 {
     int count;
     char** names;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    count = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    count = tree->userdefinedtype->fieldcount;
     if (count == 0) {
         return nullptr;
     }
     names = (char**)malloc(count * sizeof(char*));
     for (int i = 0; i < count; i++) {
-        names[i] = (char*)ntree->userdefinedtype->compoundfield[i].desc;
+        names[i] = (char*)tree->userdefinedtype->compoundfield[i].desc;
     }
     return names;
 }
 
 /** Return the Count of User Defined Structure Component Data array elements attached to this tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure definition.
  * @return the Count of User Defined Structure Component Data Array elements.
  */
 
-int udaGetNodeStructureComponentDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+int udaGetNodeStructureComponentDataCount(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
     const char* lastname;
-    USERDEFINEDTYPE* userdefinedtype;
+    UserDefinedType* user_defined_type;
     int count = 0, size, fieldcount;
     const char* type;
     char* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    ntree =
-        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == nullptr) {
+    c_tree =
+        udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname); // Identify node and component name
+    if (c_tree == nullptr) {
         return 0;
     }
 
+    auto tree = static_cast<NTree*>(c_tree);
+
     // dgm 05Aug2015        structure and first component share the same address
-    if (!strcmp(ntree->name, lastname)) {
-        return ntree->parent->branches;
+    if (!strcmp(tree->name, lastname)) {
+        return tree->parent->branches;
     }
 
-    userdefinedtype = ntree->userdefinedtype;
-    fieldcount = ntree->userdefinedtype->fieldcount;
+    user_defined_type = tree->userdefinedtype;
+    fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
-            if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*)ntree->data) == nullptr) {
+        if (!strcmp(user_defined_type->compoundfield[i].name, lastname)) {
+            if (user_defined_type->compoundfield[i].pointer) {
+                if ((data = (char*)tree->data) == nullptr) {
                     break;
                 }
-                udaFindMalloc(logmalloclist, &data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
+                udaFindMalloc(c_log_malloc_list, &data[user_defined_type->compoundfield[i].offset], &count, &size, &type);
                 break;
             } else {
-                count = userdefinedtype->compoundfield[i].count;
+                count = user_defined_type->compoundfield[i].count;
                 break;
             }
         }
@@ -3594,41 +3686,42 @@ int udaGetNodeStructureComponentDataCount(LOGMALLOCLIST* logmalloclist, NTREE* n
 
 /** Return the Rank of User Defined Structure Component Data array attached to this tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure definition.
  * @return the Rank of User Defined Structure Component Data array.
  */
-int udaGetNodeStructureComponentDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+int udaGetNodeStructureComponentDataRank(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
     const char* lastname;
     char* data;
     const char* type;
-    USERDEFINEDTYPE* userdefinedtype;
+    UserDefinedType* user_defined_type;
     int rank = 0, fieldcount, count, size;
     int* shape;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    ntree =
-        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == nullptr) {
+    c_tree =
+        udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname); // Identify node and component name
+    if (c_tree == nullptr) {
         return 0;
     }
-    userdefinedtype = ntree->userdefinedtype;
-    fieldcount = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    user_defined_type = tree->userdefinedtype;
+    fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
-            if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*)ntree->data) == nullptr) {
+        if (!strcmp(user_defined_type->compoundfield[i].name, lastname)) {
+            if (user_defined_type->compoundfield[i].pointer) {
+                if ((data = (char*)tree->data) == nullptr) {
                     return 0;
                 }
-                udaFindMalloc2(logmalloclist, &data[ntree->userdefinedtype->compoundfield[i].offset], &count, &size,
+                udaFindMalloc2(c_log_malloc_list, &data[tree->userdefinedtype->compoundfield[i].offset], &count, &size,
                                &type, &rank, &shape);
                 if (count == 0) {
                     rank = 0;
                 }
             } else {
-                rank = userdefinedtype->compoundfield[i].rank;
+                rank = user_defined_type->compoundfield[i].rank;
             }
             break;
         }
@@ -3638,41 +3731,42 @@ int udaGetNodeStructureComponentDataRank(LOGMALLOCLIST* logmalloclist, NTREE* nt
 
 /** Return the Shape array of the User Defined Structure Component Data array attached to this tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure definition.
  * @return the Shape array of length Rank of the User Defined Structure Component Data array.
  */
-int* udaGetNodeStructureComponentDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+int* udaGetNodeStructureComponentDataShape(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
     const char* lastname;
     char* data;
     const char* type;
-    USERDEFINEDTYPE* userdefinedtype;
+    UserDefinedType* user_defined_type;
     int fieldcount, count, size, rank;
     int* shape = nullptr;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    ntree =
-        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == nullptr) {
+    c_tree =
+        udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname); // Identify node and component name
+    if (c_tree == nullptr) {
         return nullptr;
     }
-    userdefinedtype = ntree->userdefinedtype;
-    fieldcount = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    user_defined_type = tree->userdefinedtype;
+    fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
-            if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*)ntree->data) == nullptr) {
+        if (!strcmp(user_defined_type->compoundfield[i].name, lastname)) {
+            if (user_defined_type->compoundfield[i].pointer) {
+                if ((data = (char*)tree->data) == nullptr) {
                     return 0;
                 }
-                udaFindMalloc2(logmalloclist, &data[ntree->userdefinedtype->compoundfield[i].offset], &count, &size,
+                udaFindMalloc2(c_log_malloc_list, &data[tree->userdefinedtype->compoundfield[i].offset], &count, &size,
                                &type, &rank, &shape);
                 if (count == 0) {
                     shape = nullptr;
                 }
             } else {
-                shape = userdefinedtype->compoundfield[i].shape;
+                shape = user_defined_type->compoundfield[i].shape;
             }
             break;
         }
@@ -3683,28 +3777,29 @@ int* udaGetNodeStructureComponentDataShape(LOGMALLOCLIST* logmalloclist, NTREE* 
 /** Return True (1) if the User Defined Structure Component Data array, attached to this tree node,
  * is a pointer type. Returns False (0) otherwise.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure definition.
  * @return the value 1 if the User Defined Structure Component Data array is a pointer type.
  */
-int udaGetNodeStructureComponentDataIsPointer(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+int udaGetNodeStructureComponentDataIsPointer(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
     const char* lastname;
-    USERDEFINEDTYPE* userdefinedtype;
+    UserDefinedType* user_defined_type;
     int ispointer = 0, fieldcount;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    ntree =
-        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == nullptr) {
+    c_tree =
+        udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname); // Identify node and component name
+    if (c_tree == nullptr) {
         return 0;
     }
-    userdefinedtype = ntree->userdefinedtype;
-    fieldcount = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    user_defined_type = tree->userdefinedtype;
+    fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
-            ispointer = userdefinedtype->compoundfield[i].pointer;
+        if (!strcmp(user_defined_type->compoundfield[i].name, lastname)) {
+            ispointer = user_defined_type->compoundfield[i].pointer;
             break;
         }
     }
@@ -3713,37 +3808,38 @@ int udaGetNodeStructureComponentDataIsPointer(LOGMALLOCLIST* logmalloclist, NTRE
 
 /** Return the Size of a User Defined Structure Component.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure Component.
  * @return the Size of the User Defined Structure Component.
  */
-int udaGetNodeStructureComponentDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+int udaGetNodeStructureComponentDataSize(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
     const char* lastname;
-    USERDEFINEDTYPE* userdefinedtype;
+    UserDefinedType* user_defined_type;
     int count, size = 0, fieldcount;
     const char* type;
     char* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    ntree =
-        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == nullptr) {
+    c_tree =
+        udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname); // Identify node and component name
+    if (c_tree == nullptr) {
         return 0;
     }
-    userdefinedtype = ntree->userdefinedtype;
-    fieldcount = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    user_defined_type = tree->userdefinedtype;
+    fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
-            if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*)ntree->data) == nullptr) {
+        if (!strcmp(user_defined_type->compoundfield[i].name, lastname)) {
+            if (user_defined_type->compoundfield[i].pointer) {
+                if ((data = (char*)tree->data) == nullptr) {
                     break;
                 }
-                udaFindMalloc(logmalloclist, &data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
+                udaFindMalloc(c_log_malloc_list, &data[user_defined_type->compoundfield[i].offset], &count, &size, &type);
                 break;
             } else {
-                size = userdefinedtype->compoundfield[i].size;
+                size = user_defined_type->compoundfield[i].size;
                 break;
             }
         }
@@ -3753,37 +3849,38 @@ int udaGetNodeStructureComponentDataSize(LOGMALLOCLIST* logmalloclist, NTREE* nt
 
 /** Return the Type Name of a User Defined Structure Component.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure Component.
  * @return the Type Name of the User Defined Structure Component.
  */
-const char* udaGetNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+const char* udaGetNodeStructureComponentDataDataType(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
     const char* lastname;
-    USERDEFINEDTYPE* userdefinedtype;
+    UserDefinedType* user_defined_type;
     int count, size, fieldcount;
     const char* type = nullptr;
     char* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    ntree =
-        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == nullptr) {
+    c_tree =
+        udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname); // Identify node and component name
+    if (c_tree == nullptr) {
         return "unknown";
     }
-    userdefinedtype = ntree->userdefinedtype;
-    fieldcount = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+    user_defined_type = tree->userdefinedtype;
+    fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
-            if (userdefinedtype->compoundfield[i].pointer) {
-                if ((data = (char*)ntree->data) == nullptr) {
+        if (!strcmp(user_defined_type->compoundfield[i].name, lastname)) {
+            if (user_defined_type->compoundfield[i].pointer) {
+                if ((data = (char*)tree->data) == nullptr) {
                     break;
                 }
-                udaFindMalloc(logmalloclist, &data[userdefinedtype->compoundfield[i].offset], &count, &size, &type);
+                udaFindMalloc(c_log_malloc_list, &data[user_defined_type->compoundfield[i].offset], &count, &size, &type);
                 break;
             } else {
-                type = userdefinedtype->compoundfield[i].type;
+                type = user_defined_type->compoundfield[i].type;
                 break;
             }
         }
@@ -3793,41 +3890,43 @@ const char* udaGetNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclis
 
 /** Return a pointer to a User Defined Structure Component's data.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure Component.
  * @return the User Defined Structure Component's data.
  */
-void* udaGetNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+void* udaGetNodeStructureComponentData(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
     const char* lastname;
-    USERDEFINEDTYPE* userdefinedtype;
+    UserDefinedType* user_defined_type;
     int offset, fieldcount;
     char* p;
     void* data = nullptr;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    ntree =
-        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
-    if (ntree == nullptr) {
+    c_tree =
+        udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname); // Identify node and component name
+    if (c_tree == nullptr) {
         return nullptr;
     }
 
-    if ((strchr(target, '.') != nullptr || strchr(target, '/') != nullptr) && !strcmp(ntree->name, lastname)) {
-        return ntree->data;
+    auto tree = static_cast<NTree*>(c_tree);
+
+    if ((strchr(target, '.') != nullptr || strchr(target, '/') != nullptr) && !strcmp(tree->name, lastname)) {
+        return tree->data;
     }
 
-    if (strcmp(ntree->name, lastname) == 0 && strcmp(target, lastname) == 0) {
-        return ntree->data;
+    if (strcmp(tree->name, lastname) == 0 && strcmp(target, lastname) == 0) {
+        return tree->data;
     }
 
-    userdefinedtype = ntree->userdefinedtype;
-    fieldcount = ntree->userdefinedtype->fieldcount;
+    user_defined_type = tree->userdefinedtype;
+    fieldcount = tree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
-        if (!strcmp(userdefinedtype->compoundfield[i].name, lastname)) {
-            p = (char*)ntree->data;
-            offset = userdefinedtype->compoundfield[i].offset;
-            if (userdefinedtype->compoundfield[i].pointer) {
+        if (!strcmp(user_defined_type->compoundfield[i].name, lastname)) {
+            p = (char*)tree->data;
+            offset = user_defined_type->compoundfield[i].offset;
+            if (user_defined_type->compoundfield[i].pointer) {
                 data = (void*)*((VOIDTYPE*)&p[offset]);
             } else {
                 data = (void*)&p[offset];
@@ -3841,74 +3940,78 @@ void* udaGetNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntre
 /** Print a User Defined Structure Component's data.
  *
  * @param fd File Descriptor
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure Component.
  * @return void.
  */
-void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist,
-                                        USERDEFINEDTYPELIST* userdefinedtypelist, const char* target)
+void udaPrintNodeStructureComponentData(NTREE* c_tree, LOGMALLOCLIST* c_log_malloc_list,
+                                        USERDEFINEDTYPELIST* c_user_defined_type_list, const char* target)
 {
-    NTREE* node;
-    USERDEFINEDTYPE* userdefinedtype;
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+    
     int namecount, count;
     const char* type;
     const char* lastname;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
-    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Locate the Node
-    if (ntree == nullptr) {
+    NTREE* node = udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname); // Locate the Node
+    if (c_tree == nullptr) {
         return;
     }
 
-    count = udaGetNodeStructureComponentDataCount(logmalloclist, node, lastname);   // Array Size
-    type = udaGetNodeStructureComponentDataDataType(logmalloclist, node, lastname); // Type
+    count = udaGetNodeStructureComponentDataCount(c_log_malloc_list, node, lastname);   // Array Size
+    type = udaGetNodeStructureComponentDataDataType(c_log_malloc_list, node, lastname); // Type
 
     if (count > 0) {
         UDA_LOG(UDA_LOG_DEBUG, "[%s] Data Count %d   Type %s\n", target, count, type);
         UDA_LOG(UDA_LOG_DEBUG, "Data Values\n");
         if (!strcmp(type, "float")) {
-            auto s = (float*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+            auto s = (float*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
             for (int i = 0; i < count; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] %f\n", i, s[i]);
             }
             return;
         }
         if (!strcmp(type, "int")) {
-            auto s = (int*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+            auto s = (int*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
             for (int i = 0; i < count; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] %d\n", i, s[i]);
             }
             return;
         }
         if (!strcmp(type, "STRING")) {
-            auto s = (char*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+            auto s = (char*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
             UDA_LOG(UDA_LOG_DEBUG, "%s\n", s);
             return;
         }
-        if ((userdefinedtype = udaFindUserDefinedType(userdefinedtypelist, type, 0)) != nullptr) {
+
+        USERDEFINEDTYPE* c_user_defined_type;
+        if ((c_user_defined_type = udaFindUserDefinedType(c_user_defined_type_list, type, 0)) != nullptr) {
+            auto user_defined_type = static_cast<UserDefinedType*>(c_user_defined_type);
+            
             int firstpass = 1, offset, namecount2;
             char** namelist2;
-            NTREE temp;
+            NTree temp;
             initNTree(&temp);
             void* str = nullptr;
             void* data = nullptr;
             void* olddata = nullptr;
-            char* p = (char*)udaGetNodeStructureComponentData(logmalloclist, node, lastname); // Structure Array
+            char* p = (char*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname); // Structure Array
             char* pp = nullptr;
-            namecount = userdefinedtype->fieldcount; // Count of sub-structure elements
+            namecount = user_defined_type->fieldcount; // Count of sub-structure elements
             UDA_LOG(UDA_LOG_DEBUG, "Data Count %d   Type %s\n", namecount, type);
             for (int j = 0; j < count; j++) {
-                str = (void*)&p[j * userdefinedtype->size];
+                str = (void*)&p[j * user_defined_type->size];
                 pp = (char*)str;
                 for (int i = 0; i < namecount; i++) {
-                    offset = userdefinedtype->compoundfield[i].offset;
-                    type = userdefinedtype->compoundfield[i].type;
+                    offset = user_defined_type->compoundfield[i].offset;
+                    type = user_defined_type->compoundfield[i].type;
                     UDA_LOG(UDA_LOG_DEBUG, "[%d]   Type %s   Name %s\n", i, type,
-                            userdefinedtype->compoundfield[i].name);
+                            user_defined_type->compoundfield[i].name);
 
-                    if (userdefinedtype->compoundfield[i].pointer) {
+                    if (user_defined_type->compoundfield[i].pointer) {
                         data = (void*)*((VOIDTYPE*)&pp[offset]); // Data Element from the single Structure Array Element
                     } else {
                         data = (void*)&pp[offset];
@@ -3916,19 +4019,19 @@ void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmallocli
                     if (data == nullptr) {
                         continue;
                     }
-                    if (userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
-                        udaPrintAtomicData(data, userdefinedtype->compoundfield[i].atomictype,
-                                           userdefinedtype->compoundfield[i].count, lastname);
+                    if (user_defined_type->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
+                        udaPrintAtomicData(data, user_defined_type->compoundfield[i].atomictype,
+                                           user_defined_type->compoundfield[i].count, lastname);
                     } else {
 
                         temp.data = data;
-                        strcpy(temp.name, userdefinedtype->compoundfield[i].name);
-                        temp.userdefinedtype = udaFindUserDefinedType(userdefinedtypelist, type, 0);
+                        strcpy(temp.name, user_defined_type->compoundfield[i].name);
+                        temp.userdefinedtype = static_cast<UserDefinedType*>(udaFindUserDefinedType(user_defined_type_list, type, 0));
                         if (firstpass) {
-                            udaAddNonMalloc(logmalloclist, data, 1, userdefinedtype->compoundfield[i].size, type);
+                            udaAddNonMalloc(c_log_malloc_list, data, 1, user_defined_type->compoundfield[i].size, type);
                             firstpass = 0;
                         } else {
-                            udaChangeNonMalloc(logmalloclist, olddata, data, 1, userdefinedtype->compoundfield[i].size,
+                            udaChangeNonMalloc(c_log_malloc_list, olddata, data, 1, user_defined_type->compoundfield[i].size,
                                                type);
                         }
                         olddata = data;
@@ -3938,7 +4041,7 @@ void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmallocli
                         UDA_LOG(UDA_LOG_DEBUG, "Data Count %d   Type %s\n", namecount2, type);
 
                         for (int k = 0; k < namecount2; k++) {
-                            udaPrintNodeStructureComponentData(&temp, logmalloclist, userdefinedtypelist, namelist2[k]);
+                            udaPrintNodeStructureComponentData(&temp, c_log_malloc_list, user_defined_type_list, namelist2[k]);
                         }
                     }
                 }
@@ -3951,33 +4054,33 @@ void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmallocli
 /** Print a Data Structure's Contents.
  *
  * @param fd File Descriptor
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return void.
  */
-void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+void udaPrintNodeStructure(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
     int count, acount, scount, kstart = 1;
     char **anamelist, **snamelist;
-    NTREE *node, *node2;
     void* data;
 
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
-    acount = udaGetNodeAtomicCount(ntree); // Count of the Tree Node Structure atomic type components
-    anamelist = udaGetNodeAtomicNames(logmalloclist, ntree);
-    scount = udaGetNodeStructureCount(ntree); // Count of the Tree Node Structure structure type components
-    snamelist = udaGetNodeStructureNames(logmalloclist, ntree);
-    count = udaGetNodeStructureDataCount(logmalloclist, ntree); // Count of the Tree Node Structure Array elements
+    acount = udaGetNodeAtomicCount(c_tree); // Count of the Tree Node Structure atomic type components
+    anamelist = udaGetNodeAtomicNames(c_log_malloc_list, c_tree);
+    scount = udaGetNodeStructureCount(c_tree); // Count of the Tree Node Structure structure type components
+    snamelist = udaGetNodeStructureNames(c_log_malloc_list, c_tree);
+    count = udaGetNodeStructureDataCount(c_log_malloc_list, c_tree); // Count of the Tree Node Structure Array elements
 
-    node = ntree; // Start at the base node: all other structure array elements are sibling nodes
+    NTREE* node = c_tree; // Start at the base node: all other structure array elements are sibling nodes
+    auto tree = static_cast<NTree*>(c_tree);
 
     for (int j = 0; j < count; j++) {
 
-        UDA_LOG(UDA_LOG_DEBUG, "%s contents:\n", ntree->userdefinedtype->name);
+        UDA_LOG(UDA_LOG_DEBUG, "%s contents:\n", tree->userdefinedtype->name);
 
-        data = udaGetNodeStructureArrayData(logmalloclist, ntree, j); // Loop over Structure Array Elements
+        data = udaGetNodeStructureArrayData(c_log_malloc_list, tree, j); // Loop over Structure Array Elements
 
         // Find the next structure array element node - it must be a sibling node
         // Nodes are ordered so start at the previous node
@@ -3985,10 +4088,10 @@ void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
         if (j > 0) {
             node = nullptr;
-            for (int k = kstart; k < ntree->parent->branches; k++) {
-                if (!strcmp(ntree->parent->children[k]->name, ntree->name) &&
-                    (ntree->parent->children[k]->data == data)) {
-                    node = ntree->parent->children[k];
+            for (int k = kstart; k < tree->parent->branches; k++) {
+                if (!strcmp(tree->parent->children[k]->name, tree->name) &&
+                    (tree->parent->children[k]->data == data)) {
+                    node = tree->parent->children[k];
                     kstart = k + 1; // Next Start from the next sibling node
                 }
             }
@@ -3999,15 +4102,15 @@ void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
         }
 
         for (int i = 0; i < acount; i++) {
-            udaPrintAtomicType(logmalloclist, node, anamelist[i]); // Print Atomic Components
+            udaPrintAtomicType(c_log_malloc_list, node, anamelist[i]); // Print Atomic Components
         }
 
         for (int i = 0; i < scount; i++) { // Print Structured Components
 
             // Structured components must be children of this node.
-
-            if ((node2 = udaFindNTreeStructure(logmalloclist, node, snamelist[i])) != nullptr) {
-                udaPrintNodeStructure(logmalloclist, node2);
+            NTREE* node2;
+            if ((node2 = udaFindNTreeStructure(c_log_malloc_list, node, snamelist[i])) != nullptr) {
+                udaPrintNodeStructure(c_log_malloc_list, node2);
             } else {
                 UDA_LOG(UDA_LOG_DEBUG, "%40s: null\n", snamelist[i]);
             }
@@ -4017,31 +4120,30 @@ void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a pointer to a User Defined Structure Component's data cast to FLOAT.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure Component.
  * @return the User Defined Structure Component's data cast to float.
  */
-float* udaCastNodeStructureComponentDatatoFloat(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+float* udaCastNodeStructureComponentDatatoFloat(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
-    NTREE* node;
     int count;
     const char* type;
     const char* lastname;
     float* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
-    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
-    if (ntree == nullptr) {
+    NTREE* node = udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname);
+    if (c_tree == nullptr) {
         return nullptr;
     }
 
-    count = udaGetNodeStructureComponentDataCount(logmalloclist, node, lastname);
-    type = udaGetNodeStructureComponentDataDataType(logmalloclist, node, lastname);
+    count = udaGetNodeStructureComponentDataCount(c_log_malloc_list, node, lastname);
+    type = udaGetNodeStructureComponentDataDataType(c_log_malloc_list, node, lastname);
 
     if (!strcmp(type, "float")) {
-        return ((float*)udaGetNodeStructureComponentData(logmalloclist, node, lastname));
+        return ((float*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname));
     }
 
     if (count == 0) {
@@ -4050,14 +4152,14 @@ float* udaCastNodeStructureComponentDatatoFloat(LOGMALLOCLIST* logmalloclist, NT
 
     data = (float*)malloc(count * sizeof(float));
     if (!strcmp(type, "double")) {
-        double* s = (double*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        double* s = (double*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (float)s[i];
         }
         return data;
     }
     if (!strcmp(type, "int")) {
-        int* s = (int*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        int* s = (int*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (float)s[i];
         }
@@ -4069,31 +4171,30 @@ float* udaCastNodeStructureComponentDatatoFloat(LOGMALLOCLIST* logmalloclist, NT
 
 /** Return a pointer to a User Defined Structure Component's data cast to DOUBLE.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @param target The name of a User Defined Structure Component.
  * @return the User Defined Structure Component's data cast to float.
  */
-double* castNodeStructureComponentDatatoDouble(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+double* udaCastNodeStructureComponentDatatoDouble(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
-    NTREE* node;
     int count;
     const char* type;
     const char* lastname;
     double* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
-    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
-    if (ntree == nullptr) {
+    NTREE* node = udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname);
+    if (c_tree == nullptr) {
         return nullptr;
     }
 
-    count = udaGetNodeStructureComponentDataCount(logmalloclist, node, lastname);
-    type = udaGetNodeStructureComponentDataDataType(logmalloclist, node, lastname);
+    count = udaGetNodeStructureComponentDataCount(c_log_malloc_list, node, lastname);
+    type = udaGetNodeStructureComponentDataDataType(c_log_malloc_list, node, lastname);
 
     if (!strcmp(type, "double")) {
-        return (double*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        return (double*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
     }
 
     if (count == 0) {
@@ -4102,14 +4203,14 @@ double* castNodeStructureComponentDatatoDouble(LOGMALLOCLIST* logmalloclist, NTR
 
     data = (double*)malloc(count * sizeof(double));
     if (!strcmp(type, "float")) {
-        float* s = (float*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        float* s = (float*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (double)s[i];
         }
         return data;
     }
     if (!strcmp(type, "int")) {
-        int* s = (int*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        int* s = (int*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (double)s[i];
         }
@@ -4122,12 +4223,12 @@ double* castNodeStructureComponentDatatoDouble(LOGMALLOCLIST* logmalloclist, NTR
 //---------------------------------------------------------------------------------------------
 // Tree Branch Family: Whole tree is in scope
 
-/** Initialise a NTREE data structure.
+/** Initialise a NTree data structure.
  *
- * @param str A pointer to a NTREE data structure instance.
+ * @param str A pointer to a NTree data structure instance.
  * @return Void.
  */
-void initNTree(NTREE* str)
+void initNTree(NTree* str)
 {
     str->branches = 0;
     str->name[0] = '\0';
@@ -4137,11 +4238,11 @@ void initNTree(NTREE* str)
     str->children = nullptr;
 }
 
-/** Initialise the Global NTREE list structure.
+/** Initialise the Global NTree list structure.
  *
  * @return Void.
  */
-void initNTreeList(NTREELIST* ntree_list)
+void initNTreeList(NTreeList* ntree_list)
 {
     ntree_list->listCount = 0;
     ntree_list->forrest = nullptr;
@@ -4153,12 +4254,14 @@ void initNTreeList(NTREELIST* ntree_list)
  * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return Void
  */
-void udaPrintNTree2(NTREE* tree)
+void udaPrintNTree2(NTREE* c_tree)
 {
+    auto tree = static_cast<NTree*>(c_tree);
+
     if (tree == nullptr) {
         tree = full_ntree;
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\nNTREE Node Contents\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "Name    : %s\n", tree->name);
     UDA_LOG(UDA_LOG_DEBUG, "Type    : %s\n", tree->userdefinedtype->name);
 #ifdef A64
@@ -4187,22 +4290,25 @@ void udaPrintNTree2(NTREE* tree)
  * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return Void
  */
-void udaPrintNTree(NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist)
+void udaPrintNTree(NTREE* c_tree, USERDEFINEDTYPELIST* c_user_defined_type_list)
 {
+    auto tree = static_cast<NTree*>(c_tree);
+
     if (tree == nullptr) {
         tree = full_ntree;
     }
     UDA_LOG(UDA_LOG_DEBUG, "--------------------------------------------------------------------\n");
 #ifdef A64
-    UDA_LOG(UDA_LOG_DEBUG, "\nNTREE Node %llx (%lld) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
+    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node %llx (%lld) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
 #else
-    UDA_LOG(UDA_LOG_DEBUG, "\nNTREE Node %x (%d) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
+    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node %x (%d) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
 #endif
     UDA_LOG(UDA_LOG_DEBUG, "Name: %s\n", tree->name);
     UDA_LOG(UDA_LOG_DEBUG, "Children: %d\n", tree->branches);
-    udaPrintUserDefinedTypeTable(userdefinedtypelist, *tree->userdefinedtype);
+    auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
+    print_user_defined_type_table(user_defined_type_list, *tree->userdefinedtype);
     for (int i = 0; i < tree->branches; i++) {
-        udaPrintNTree(tree->children[i], userdefinedtypelist);
+        udaPrintNTree(tree->children[i], c_user_defined_type_list);
     }
 }
 
@@ -4212,8 +4318,10 @@ void udaPrintNTree(NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist)
  * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return Void
  */
-void udaPrintNTreeList(NTREE* tree)
+void udaPrintNTreeList(NTREE* c_tree)
 {
+    auto tree = static_cast<NTree*>(c_tree);
+
     if (tree == nullptr) {
         tree = full_ntree;
     }
@@ -4231,22 +4339,23 @@ void udaPrintNTreeList(NTREE* tree)
 
 /** Return a Count of User Defined Type Tree Nodes from and including the passed tree node.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the Count of Tree Nodes.
  */
-int udaGetNTreeStructureCount(NTREE* ntree)
+int udaGetNTreeStructureCount(NTREE* c_tree)
 {
     int count = 1;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    if (ntree->branches == 0) {
+    auto tree = static_cast<NTree*>(c_tree);
+    if (tree->branches == 0) {
         return count;
     }
-    for (int i = 0; i < ntree->branches; i++) {
+    for (int i = 0; i < tree->branches; i++) {
         if (i == 0 ||
-            strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
-            count = count + udaGetNTreeStructureCount(ntree->children[i]);
+            strcmp(tree->children[i]->userdefinedtype->name, tree->children[i - 1]->userdefinedtype->name) != 0) {
+            count = count + udaGetNTreeStructureCount(tree->children[i]);
         }
     }
     return count;
@@ -4254,32 +4363,35 @@ int udaGetNTreeStructureCount(NTREE* ntree)
 
 /** Return a List of User Defined Type Structure Names attached to this tree branch.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of User Defined Type Structure names.
  */
-char** udaGetNTreeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNTreeStructureNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
     auto names = (char**)malloc(sizeof(char*));
-    udaAddMalloc(logmalloclist, (void*)names, 1, sizeof(char*), "char *");
-    names[0] = ntree->name;
+    udaAddMalloc(c_log_malloc_list, (void*)names, 1, sizeof(char*), "char *");
 
-    if (ntree->branches == 0) {
+    auto tree = static_cast<NTree*>(c_tree);
+
+    names[0] = tree->name;
+
+    if (tree->branches == 0) {
         return names;
     }
 
     int count = 1;
-    for (int i = 0; i < ntree->branches; i++) {
+    for (int i = 0; i < tree->branches; i++) {
         if (i == 0 ||
-            strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
-            int childcount = udaGetNTreeStructureCount(ntree->children[i]);
+            strcmp(tree->children[i]->userdefinedtype->name, tree->children[i - 1]->userdefinedtype->name) != 0) {
+            int childcount = udaGetNTreeStructureCount(tree->children[i]);
             VOIDTYPE old = (VOIDTYPE)names;
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
-            udaChangeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
-            char** childnames = udaGetNTreeStructureNames(logmalloclist, ntree->children[i]);
+            udaChangeMalloc(c_log_malloc_list, old, (void*)names, (count + childcount), sizeof(char*), "char *");
+            char** childnames = udaGetNTreeStructureNames(c_log_malloc_list, tree->children[i]);
             for (int j = 0; j < childcount; j++) {
                 names[count + j] = childnames[j];
             }
@@ -4291,31 +4403,34 @@ char** udaGetNTreeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
 /** Return a List of User Defined Type Structure Type Names attached to this tree branch.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of User Defined Type Structure Type names.
  */
-char** udaGetNTreeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNTreeStructureTypes(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
     auto names = (char**)malloc(sizeof(char*));
-    udaAddMalloc(logmalloclist, (void*)names, 1, sizeof(char*), "char *");
-    names[0] = ntree->userdefinedtype->name;
-    if (ntree->branches == 0) {
+    udaAddMalloc(c_log_malloc_list, (void*)names, 1, sizeof(char*), "char *");
+
+    auto tree = static_cast<NTree*>(c_tree);
+
+    names[0] = tree->userdefinedtype->name;
+    if (tree->branches == 0) {
         return names;
     }
 
     int count = 1;
-    for (int i = 0; i < ntree->branches; i++) {
+    for (int i = 0; i < tree->branches; i++) {
         if (i == 0 ||
-            strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
-            int childcount = udaGetNTreeStructureCount(ntree->children[i]);
+            strcmp(tree->children[i]->userdefinedtype->name, tree->children[i - 1]->userdefinedtype->name) != 0) {
+            int childcount = udaGetNTreeStructureCount(tree->children[i]);
             VOIDTYPE old = (VOIDTYPE)names;
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
-            udaChangeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
-            char** childnames = udaGetNTreeStructureTypes(logmalloclist, ntree->children[i]);
+            udaChangeMalloc(c_log_malloc_list, old, (void*)names, (count + childcount), sizeof(char*), "char *");
+            char** childnames = udaGetNTreeStructureTypes(c_log_malloc_list, tree->children[i]);
             for (int j = 0; j < childcount; j++) {
                 names[count + j] = childnames[j];
             }
@@ -4331,8 +4446,10 @@ char** udaGetNTreeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
  * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return Void
  */
-void udaPrintNTreeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* tree)
+void udaPrintNTreeStructureNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
+    auto tree = static_cast<NTree*>(c_tree);
+
     int namecount;
     char **namelist, **typelist;
     if (tree == nullptr) {
@@ -4344,8 +4461,8 @@ void udaPrintNTreeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* tree)
     UDA_LOG(UDA_LOG_DEBUG, "\nData Tree %x Structure Names and Types\n", (UVOIDTYPE)tree);
 #endif
     namecount = udaGetNTreeStructureCount(tree);               // Count of all Tree Nodes
-    namelist = udaGetNTreeStructureNames(logmalloclist, tree); // Names of all user defined data structures
-    typelist = udaGetNTreeStructureTypes(logmalloclist, tree); // Types of all user defined data structures
+    namelist = udaGetNTreeStructureNames(c_log_malloc_list, tree); // Names of all user defined data structures
+    typelist = udaGetNTreeStructureTypes(c_log_malloc_list, tree); // Types of all user defined data structures
     UDA_LOG(UDA_LOG_DEBUG, "Total Structure Count %d\n", namecount);
     UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
     for (int i = 0; i < namecount; i++) {
@@ -4355,21 +4472,24 @@ void udaPrintNTreeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* tree)
 
 /** Return the total number of User Defined Type Structure Definition Components attached to this tree branch.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the number of User Defined Type Structure Definition Components.
  */
-int udaGetNTreeStructureComponentCount(NTREE* ntree)
+int udaGetNTreeStructureComponentCount(NTREE* c_tree)
 {
     int count;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
-    count = ntree->userdefinedtype->fieldcount;
 
-    for (int i = 0; i < ntree->branches; i++) {
+    auto tree = static_cast<NTree*>(c_tree);
+
+    count = tree->userdefinedtype->fieldcount;
+
+    for (int i = 0; i < tree->branches; i++) {
         if (i == 0 ||
-            strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
-            count = count + udaGetNTreeStructureComponentCount(ntree->children[i]);
+            strcmp(tree->children[i]->userdefinedtype->name, tree->children[i - 1]->userdefinedtype->name) != 0) {
+            count = count + udaGetNTreeStructureComponentCount(tree->children[i]);
         }
     }
     return count;
@@ -4377,30 +4497,32 @@ int udaGetNTreeStructureComponentCount(NTREE* ntree)
 
 /** Return a List of User Defined Type Structure Definition Components Names attached to this tree branch.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of User Defined Type Structure Definition Component names.
  */
-char** udaGetNTreeStructureComponentNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNTreeStructureComponentNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
-    int count = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+
+    int count = tree->userdefinedtype->fieldcount;
     if (count == 0) {
         return nullptr;
     }
 
-    char** names = udaGetNodeStructureComponentNames(ntree);
+    char** names = udaGetNodeStructureComponentNames(tree);
 
-    for (int i = 0; i < ntree->branches; i++) {
+    for (int i = 0; i < tree->branches; i++) {
         if (i == 0 ||
-            strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
-            int childcount = udaGetNTreeStructureComponentCount(ntree->children[i]);
+            strcmp(tree->children[i]->userdefinedtype->name, tree->children[i - 1]->userdefinedtype->name) != 0) {
+            int childcount = udaGetNTreeStructureComponentCount(tree->children[i]);
             auto old = (VOIDTYPE)names;
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
-            udaChangeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
-            char** childnames = udaGetNTreeStructureComponentNames(logmalloclist, ntree->children[i]);
+            udaChangeMalloc(c_log_malloc_list, old, (void*)names, (count + childcount), sizeof(char*), "char *");
+            char** childnames = udaGetNTreeStructureComponentNames(c_log_malloc_list, tree->children[i]);
             for (int j = 0; j < childcount; j++) {
                 names[count + j] = childnames[j];
             }
@@ -4412,30 +4534,32 @@ char** udaGetNTreeStructureComponentNames(LOGMALLOCLIST* logmalloclist, NTREE* n
 
 /** Return a List of User Defined Type Structure Definition Components Types attached to this tree branch.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of User Defined Type Structure Definition Component Types.
  */
-char** udaGetNTreeStructureComponentTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNTreeStructureComponentTypes(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
-    int count = ntree->userdefinedtype->fieldcount;
+    auto tree = static_cast<NTree*>(c_tree);
+
+    int count = tree->userdefinedtype->fieldcount;
     if (count == 0) {
         return nullptr;
     }
 
-    char** names = udaGetNodeStructureComponentTypes(ntree);
+    char** names = udaGetNodeStructureComponentTypes(tree);
 
-    for (int i = 0; i < ntree->branches; i++) {
+    for (int i = 0; i < tree->branches; i++) {
         if (i == 0 ||
-            strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
-            int childcount = udaGetNTreeStructureComponentCount(ntree->children[i]);
+            strcmp(tree->children[i]->userdefinedtype->name, tree->children[i - 1]->userdefinedtype->name) != 0) {
+            int childcount = udaGetNTreeStructureComponentCount(tree->children[i]);
             auto old = (VOIDTYPE)names;
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
-            udaChangeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
-            char** childnames = udaGetNTreeStructureComponentTypes(logmalloclist, ntree->children[i]);
+            udaChangeMalloc(c_log_malloc_list, old, (void*)names, (count + childcount), sizeof(char*), "char *");
+            char** childnames = udaGetNTreeStructureComponentTypes(c_log_malloc_list, tree->children[i]);
             for (int j = 0; j < childcount; j++) {
                 names[count + j] = childnames[j];
             }
@@ -4447,30 +4571,32 @@ char** udaGetNTreeStructureComponentTypes(LOGMALLOCLIST* logmalloclist, NTREE* n
 
 /** Return a List of User Defined Type Structure Definition Components Descriptions attached to this tree branch.
  *
- * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
+ * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return the List of User Defined Type Structure Definition Component Descriptions.
  */
-char** udaGetNTreeStructureComponentDescriptions(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+char** udaGetNTreeStructureComponentDescriptions(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    auto tree = static_cast<NTree*>(c_tree);
+    
+    if (tree == nullptr) {
+        tree = static_cast<NTree*>(udaGetFullNTree());
     }
 
-    int count = ntree->userdefinedtype->fieldcount;
+    int count = tree->userdefinedtype->fieldcount;
     if (count == 0) {
         return nullptr;
     }
 
-    char** names = udaGetNodeStructureComponentDescriptions(ntree);
+    char** names = udaGetNodeStructureComponentDescriptions(tree);
 
-    for (int i = 0; i < ntree->branches; i++) {
+    for (int i = 0; i < tree->branches; i++) {
         if (i == 0 ||
-            strcmp(ntree->children[i]->userdefinedtype->name, ntree->children[i - 1]->userdefinedtype->name) != 0) {
-            int childcount = udaGetNTreeStructureComponentCount(ntree->children[i]);
+            strcmp(tree->children[i]->userdefinedtype->name, tree->children[i - 1]->userdefinedtype->name) != 0) {
+            int childcount = udaGetNTreeStructureComponentCount(tree->children[i]);
             auto old = (VOIDTYPE)names;
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
-            udaChangeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
-            char** childnames = udaGetNTreeStructureComponentDescriptions(logmalloclist, ntree->children[i]);
+            udaChangeMalloc(c_log_malloc_list, old, (void*)names, (count + childcount), sizeof(char*), "char *");
+            char** childnames = udaGetNTreeStructureComponentDescriptions(c_log_malloc_list, tree->children[i]);
             for (int j = 0; j < childcount; j++) {
                 names[count + j] = childnames[j];
             }
@@ -4486,8 +4612,10 @@ char** udaGetNTreeStructureComponentDescriptions(LOGMALLOCLIST* logmalloclist, N
  * @param tree A pointer to a tree node. If nullptr the root node is assumed.
  * @return Void
  */
-void udaPrintNTreeStructureComponentNames(LOGMALLOCLIST* logmalloclist, NTREE* tree)
+void udaPrintNTreeStructureComponentNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 {
+    auto tree = static_cast<NTree*>(c_tree);
+
     int namecount;
     char **namelist, **typelist, **desclist;
     if (tree == nullptr) {
@@ -4495,9 +4623,9 @@ void udaPrintNTreeStructureComponentNames(LOGMALLOCLIST* logmalloclist, NTREE* t
     }
     UDA_LOG(UDA_LOG_DEBUG, "\nData Tree Structure Component Names, Types and Descriptions\n");
     namecount = udaGetNTreeStructureComponentCount(tree);                      // Count of all Tree Nodes
-    namelist = udaGetNTreeStructureComponentNames(logmalloclist, tree);        // Names of all structure elements
-    typelist = udaGetNTreeStructureComponentTypes(logmalloclist, tree);        // Types of all structure elements
-    desclist = udaGetNTreeStructureComponentDescriptions(logmalloclist, tree); // Descriptions of all structure elements
+    namelist = udaGetNTreeStructureComponentNames(c_log_malloc_list, tree);        // Names of all structure elements
+    typelist = udaGetNTreeStructureComponentTypes(c_log_malloc_list, tree);        // Types of all structure elements
+    desclist = udaGetNTreeStructureComponentDescriptions(c_log_malloc_list, tree); // Descriptions of all structure elements
     UDA_LOG(UDA_LOG_DEBUG, "Total Structure Component Count %d\n", namecount);
     UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\tDescription\n");
     for (int i = 0; i < namecount; i++) {
@@ -4505,70 +4633,38 @@ void udaPrintNTreeStructureComponentNames(LOGMALLOCLIST* logmalloclist, NTREE* t
     }
 }
 
-//=======================================================================================================
-// Print utility functions: explicit output to stdout
-void udaPrintNode_stdout(NTREE* tree)
-{
-    udaPrintNode(tree);
-}
-
-void udaPrintNodeNames_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree)
-{
-    udaPrintNodeNames(logmalloclist, tree);
-}
-
-void udaPrintNodeAtomic_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree)
-{
-    udaPrintNodeAtomic(logmalloclist, tree);
-}
-
-void udaPrintNTreeStructureNames_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree)
-{
-    udaPrintNTreeStructureNames(logmalloclist, tree);
-}
-
-void udaPrintNTreeStructureComponentNames_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree)
-{
-    udaPrintNTreeStructureComponentNames(logmalloclist, tree);
-}
-
-void udaPrintAtomicType_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree, const char* target)
-{
-    udaPrintAtomicType(logmalloclist, tree, target);
-}
-
-void udaGetNodeStructureComponentDataShape_f(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
+void udaGetNodeStructureComponentDataShape_f(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target,
                                              int* shape_f)
 {
-    int rank = udaGetNodeStructureComponentDataRank(logmalloclist, ntree, target);
+    int rank = udaGetNodeStructureComponentDataRank(c_log_malloc_list, c_tree, target);
     for (int i = 0; i < MAXRANK; i++) {
         shape_f[i] = 0;
     }
     if (rank > 1 && rank <= MAXRANK) {
-        int* shape = udaGetNodeStructureComponentDataShape(logmalloclist, ntree, target);
+        int* shape = udaGetNodeStructureComponentDataShape(c_log_malloc_list, c_tree, target);
         if (shape != nullptr) {
             for (int i = 0; i < rank; i++) {
                 shape_f[i] = shape[i];
             }
         }
     } else {
-        shape_f[0] = udaGetNodeStructureComponentDataCount(logmalloclist, ntree, target);
+        shape_f[0] = udaGetNodeStructureComponentDataCount(c_log_malloc_list, c_tree, target);
     }
 }
 
-void getNodeStructureComponentShortData_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, short* data_f)
+void udaGetNodeStructureComponentShortData_f(LOGMALLOCLIST* c_log_malloc_list, NTREE* node, const char* target, short* data_f)
 {
-    auto data = (short*)udaGetNodeStructureComponentData(logmalloclist, node, target);
-    int count = udaGetNodeStructureComponentDataCount(logmalloclist, node, target);
+    auto data = (short*)udaGetNodeStructureComponentData(c_log_malloc_list, node, target);
+    int count = udaGetNodeStructureComponentDataCount(c_log_malloc_list, node, target);
     for (int i = 0; i < count; i++) {
         data_f[i] = data[i];
     }
 }
 
-void getNodeStructureComponentFloatData_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, float* data_f)
+void udaGetNodeStructureComponentFloatData_f(LOGMALLOCLIST* c_log_malloc_list, NTREE* node, const char* target, float* data_f)
 {
-    float* data = (float*)udaGetNodeStructureComponentData(logmalloclist, node, target);
-    int count = udaGetNodeStructureComponentDataCount(logmalloclist, node, target);
+    float* data = (float*)udaGetNodeStructureComponentData(c_log_malloc_list, node, target);
+    int count = udaGetNodeStructureComponentDataCount(c_log_malloc_list, node, target);
     for (int i = 0; i < count; i++) {
         data_f[i] = data[i];
     }
@@ -4588,27 +4684,26 @@ void udaDereferenceFloatData(float* data_c, int count, float* data_f)
     }
 }
 
-short* udaCastNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
+short* udaCastNodeStructureComponentDatatoShort(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const char* target)
 {
-    NTREE* node;
     int count;
     const char* type;
     const char* lastname;
     short* data;
-    if (ntree == nullptr) {
-        ntree = udaGetFullNTree();
+    if (c_tree == nullptr) {
+        c_tree = udaGetFullNTree();
     }
 
-    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
-    if (ntree == nullptr) {
+    NTREE* node = udaFindNTreeStructureComponent2(c_log_malloc_list, c_tree, target, &lastname);
+    if (node == nullptr) {
         return nullptr;
     }
 
-    count = udaGetNodeStructureComponentDataCount(logmalloclist, node, lastname);
-    type = udaGetNodeStructureComponentDataDataType(logmalloclist, node, lastname);
+    count = udaGetNodeStructureComponentDataCount(c_log_malloc_list, node, lastname);
+    type = udaGetNodeStructureComponentDataDataType(c_log_malloc_list, node, lastname);
 
     if (!strcmp(type, "short")) {
-        return (short*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        return (short*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
     }
 
     if (count == 0) {
@@ -4617,35 +4712,35 @@ short* udaCastNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NT
 
     data = (short*)malloc(count * sizeof(short));
     if (!strcmp(type, "double")) {
-        double* s = (double*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        double* s = (double*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (short)s[i];
         }
         return data;
     }
     if (!strcmp(type, "float")) {
-        float* s = (float*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        float* s = (float*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (short)s[i];
         }
         return data;
     }
     if (!strcmp(type, "int")) {
-        int* s = (int*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        int* s = (int*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (short)s[i];
         }
         return data;
     }
     if (!strcmp(type, "unsigned int")) {
-        unsigned int* s = (unsigned int*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        unsigned int* s = (unsigned int*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (short)s[i];
         }
         return data;
     }
     if (!strcmp(type, "unsigned short")) {
-        unsigned short* s = (unsigned short*)udaGetNodeStructureComponentData(logmalloclist, node, lastname);
+        unsigned short* s = (unsigned short*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
         for (int i = 0; i < count; i++) {
             data[i] = (short)s[i];
         }
@@ -4654,12 +4749,12 @@ short* udaCastNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NT
     return nullptr;
 }
 
-void udaCastNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target,
+void udaCastNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* c_log_malloc_list, NTREE* node, const char* target,
                                                 short* data_f)
 {
-    short* data = udaCastNodeStructureComponentDatatoShort(logmalloclist, node, target);
+    short* data = udaCastNodeStructureComponentDatatoShort(c_log_malloc_list, node, target);
     if (data != nullptr) {
-        int count = udaGetNodeStructureComponentDataCount(logmalloclist, node, target);
+        int count = udaGetNodeStructureComponentDataCount(c_log_malloc_list, node, target);
         for (int i = 0; i < count; i++) {
             data_f[i] = data[i];
         }
@@ -4667,12 +4762,12 @@ void udaCastNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* logmalloclist, NT
     }
 }
 
-void udaCastNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target,
+void udaCastNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* c_log_malloc_list, NTREE* node, const char* target,
                                                 float* data_f)
 {
-    float* data = udaCastNodeStructureComponentDatatoFloat(logmalloclist, node, target);
+    float* data = udaCastNodeStructureComponentDatatoFloat(c_log_malloc_list, node, target);
     if (data != nullptr) {
-        int count = udaGetNodeStructureComponentDataCount(logmalloclist, node, target);
+        int count = udaGetNodeStructureComponentDataCount(c_log_malloc_list, node, target);
         for (int i = 0; i < count; i++) {
             data_f[i] = data[i];
         }
@@ -4683,8 +4778,8 @@ void udaCastNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NT
 void udaAddStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc, UDA_TYPE data_type,
                           bool is_pointer, int rank, int* shape, size_t offset)
 {
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    CompoundField field;
+    init_compound_field(&field);
 
     strcpy(field.name, name);
     field.atomictype = data_type;
@@ -4712,5 +4807,5 @@ void udaAddStructureField(USERDEFINEDTYPE* user_type, const char* name, const ch
     field.offpad = (int)udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
 
-    udaAddCompoundField(user_type, field);
+    add_compound_field(static_cast<UserDefinedType*>(user_type), field);
 }

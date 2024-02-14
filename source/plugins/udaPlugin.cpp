@@ -37,8 +37,8 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
     auto request_data = (RequestData*)calloc(1, sizeof(RequestData));
     make_request_data(request_data, plugin_list, environment);
 
-    auto user_defined_type_list = (USERDEFINEDTYPELIST*)calloc(1, sizeof(USERDEFINEDTYPELIST));
-    auto log_malloc_list = (LOGMALLOCLIST*)calloc(1, sizeof(LOGMALLOCLIST));
+    auto user_defined_type_list = (UserDefinedTypeList*)calloc(1, sizeof(UserDefinedTypeList));
+    auto log_malloc_list = (LogMallocList*)calloc(1, sizeof(LogMallocList));
 
     plugin_interface->request_data = request_data;
     plugin_interface->pluginList = plugin_list;
@@ -478,7 +478,7 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
 
 COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type)
 {
-    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
+    CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
     defineField(field, name, description, offset, type, 0, nullptr);
     return field;
 }
@@ -486,7 +486,7 @@ COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, in
 COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* description, int* offset, int type, int rank,
                                         int* shape)
 {
-    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
+    CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
     defineField(field, name, description, offset, type, rank, shape);
     return field;
 }
@@ -494,31 +494,31 @@ COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* descriptio
 COMPOUNDFIELD* udaNewCompoundUserTypeField(const char* name, const char* description, int* offset,
                                            USERDEFINEDTYPE* user_type)
 {
-    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
-    defineUserTypeField(field, name, description, offset, 0, nullptr, user_type, false);
+    CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
+    defineUserTypeField(field, name, description, offset, 0, nullptr, static_cast<UserDefinedType*>(user_type), false);
     return field;
 }
 
 COMPOUNDFIELD* udaNewCompoundUserTypePointerField(const char* name, const char* description, int* offset,
                                                   USERDEFINEDTYPE* user_type)
 {
-    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
-    defineUserTypeField(field, name, description, offset, 0, nullptr, user_type, true);
+    CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
+    defineUserTypeField(field, name, description, offset, 0, nullptr, static_cast<UserDefinedType*>(user_type), true);
     return field;
 }
 
 COMPOUNDFIELD* udaNewCompoundUserTypeArrayField(const char* name, const char* description, int* offset,
                                                 USERDEFINEDTYPE* user_type, int rank, int* shape)
 {
-    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
-    defineUserTypeField(field, name, description, offset, rank, shape, user_type, false);
+    CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
+    defineUserTypeField(field, name, description, offset, rank, shape, static_cast<UserDefinedType*>(user_type), false);
     return field;
 }
 
 USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id, int image_count, char* image,
                                 size_t size, size_t num_fields, COMPOUNDFIELD** fields)
 {
-    USERDEFINEDTYPE* user_type = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+    UserDefinedType* user_type = (UserDefinedType*)malloc(sizeof(UserDefinedType));
 
     strcpy(user_type->name, name);
     strcpy(user_type->source, source);
@@ -529,8 +529,8 @@ USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id
     user_type->idamclass = UDA_TYPE_COMPOUND;
 
     for (size_t i = 0; i < num_fields; ++i) {
-        COMPOUNDFIELD* field = fields[i];
-        udaAddCompoundField(user_type, *field);
+        CompoundField* field = static_cast<CompoundField*>(fields[i]);
+        add_compound_field(user_type, *field);
     }
 
     return user_type;
@@ -539,8 +539,8 @@ USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id
 int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user_type)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    USERDEFINEDTYPELIST* userdefinedtypelist = interface->userdefinedtypelist;
-    udaAddUserDefinedType(userdefinedtypelist, *user_type);
+    UserDefinedTypeList* userdefinedtypelist = interface->userdefinedtypelist;
+    add_user_defined_type(userdefinedtypelist, *static_cast<UserDefinedType*>(user_type));
 
     return 0;
 }

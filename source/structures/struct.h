@@ -2,53 +2,53 @@
 
 #include "genStructs.h"
 
-/** Initialise a LOGMALLOCLIST data structure.
+/** Initialise a LogMallocList data structure.
  *
- * @param str A pointer to a LOGMALLOCLIST data structure instance.
+ * @param str A pointer to a LogMallocList data structure instance.
  * @return void.
  */
-void initLogMallocList(LOGMALLOCLIST* str);
+void init_log_malloc_list(LogMallocList* str);
 
-/** Initialise a LOGMALLOC data structure.
+/** Initialise a LogMalloc data structure.
  *
- * @param str A pointer to a LOGMALLOC data structure instance.
+ * @param str A pointer to a LogMalloc data structure instance.
  * @return void.
  */
-void initLogMalloc(LOGMALLOC* str);
+void init_log_malloc(LogMalloc* str);
 
-/** Initialise a LOGSTRUCTLIST data structure.
+/** Initialise a LogStructList data structure.
  *
  * @return void.
  */
-void initLogStructList(LOGSTRUCTLIST* logstructlist);
+void init_log_struct_list(LogStructList* logstructlist);
 
-/** Initialise a LOGSTRUCT data structure.
+/** Initialise a LogStruct data structure.
  *
- * @param str A pointer to a LOGSTRUCT data structure instance.
+ * @param str A pointer to a LogStruct data structure instance.
  * @return void.
  */
-void initLogStruct(LOGSTRUCT* str);
+void init_log_struct(LogStruct* str);
 
-/** Initialise a COMPOUNDFIELD data structure.
+/** Initialise a CompoundField data structure.
  *
- * @param str A pointer to a COMPOUNDFIELD data structure instance.
+ * @param str A pointer to a CompoundField data structure instance.
  * @return void.
  */
-void initCompoundField(COMPOUNDFIELD* str);
+void init_compound_field(CompoundField* str);
 
-/** Initialise a USERDEFINEDTYPE data structure.
+/** Initialise a UserDefinedType data structure.
  *
- * @param str A pointer to a USERDEFINEDTYPE data structure instance.
+ * @param str A pointer to a UserDefinedType data structure instance.
  * @return void.
  */
-void initUserDefinedType(USERDEFINEDTYPE* str);
+void init_user_defined_type(UserDefinedType* str);
 
-/** Initialise a USERDEFINEDTYPELIST data structure.
+/** Initialise a UserDefinedTypeList data structure.
  *
- * @param str A pointer to a USERDEFINEDTYPELIST data structure instance.
+ * @param str A pointer to a UserDefinedTypeList data structure instance.
  * @return void.
  */
-void initUserDefinedTypeList(USERDEFINEDTYPELIST* str);
+void init_user_defined_type_list(UserDefinedTypeList* str);
 
 /** Add a Compound Field type to a structure definition.
  *
@@ -56,7 +56,7 @@ void initUserDefinedTypeList(USERDEFINEDTYPELIST* str);
  * @param field The Compound field type.
  * @return void.
  */
-void udaAddCompoundField(USERDEFINEDTYPE* str, COMPOUNDFIELD field);
+void add_compound_field(UserDefinedType* str, CompoundField field);
 
 /** Add a structure definition to the List of structure types
  *
@@ -64,7 +64,7 @@ void udaAddCompoundField(USERDEFINEDTYPE* str, COMPOUNDFIELD field);
  * @param type The new definition to add to the list.
  * @return void.
  */
-void udaAddUserDefinedType(USERDEFINEDTYPELIST* str, USERDEFINEDTYPE type);
+void add_user_defined_type(UserDefinedTypeList* str, UserDefinedType type);
 
 /** Replace/Update the structure definition list with an different structure type.
  *
@@ -73,4 +73,4 @@ void udaAddUserDefinedType(USERDEFINEDTYPELIST* str, USERDEFINEDTYPE type);
  * @param type The definition to add into the list.
  * @return void.
  */
-void udaUpdateUserDefinedType(USERDEFINEDTYPELIST* str, int typeId, USERDEFINEDTYPE type);
+void update_user_defined_type(UserDefinedTypeList* str, int typeId, UserDefinedType type);

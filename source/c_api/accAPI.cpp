@@ -35,8 +35,8 @@ using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::logging;
 
-USERDEFINEDTYPE* udaGetUserDefinedType(int handle);
-USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);
+USERDEFINEDTYPE * udaGetUserDefinedType(int handle);
+USERDEFINEDTYPELIST * udaGetUserDefinedTypeList(int handle);
 LOGMALLOCLIST* udaGetLogMallocList(int handle);
 
 //---------------------------- Mutex locking for thread safety -------------------------
@@ -3461,7 +3461,7 @@ int udaGetDimDataCheckSum(int handle, int ndim)
 // Access to (De)Serialiser
 
 void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize,
-                                     int protocolVersion, LOGSTRUCTLIST* log_struct_list, int private_flags,
+                                     int protocolVersion, LogStructList* log_struct_list, int private_flags,
                                      int malloc_source)
 {
     // Extract the serialised Data Block from Cache or serialise it if not cached (hash key in Data Block, empty if not
@@ -3487,8 +3487,8 @@ void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSi
 
     int token;
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
-    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
+    auto userdefinedtypelist = static_cast<UserDefinedTypeList*>(udaGetUserDefinedTypeList(handle));
+    auto logmalloclist = static_cast<LogMallocList*>(udaGetLogMallocList(handle));
     DataBlockList data_block_list;
     data_block_list.count = 1;
     data_block_list.data = getDataBlock(handle);
@@ -3532,9 +3532,9 @@ int udaSetDataTree(int handle)
 
     udaSetFullNTree((NTREE*)udaGetData(handle));
     void* opaque_block = udaGetDataOpaqueBlock(handle);
-    setUserDefinedTypeList(((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist);
-    setLogMallocList(((GENERAL_BLOCK*)opaque_block)->logmalloclist);
-    udaSetLastMallocIndexValue(&(((GENERAL_BLOCK*)opaque_block)->lastMallocIndex));
+    setUserDefinedTypeList(((GeneralBlock*)opaque_block)->userdefinedtypelist);
+    setLogMallocList(((GeneralBlock*)opaque_block)->logmalloclist);
+    udaSetLastMallocIndexValue(&(((GeneralBlock*)opaque_block)->lastMallocIndex));
     return 1; // Return TRUE
 }
 
@@ -3577,7 +3577,7 @@ USERDEFINEDTYPE* udaGetUserDefinedType(int handle)
         return nullptr;
     }
     void* opaque_block = udaGetDataOpaqueBlock(handle);
-    return ((GENERAL_BLOCK*)opaque_block)->userdefinedtype;
+    return ((GeneralBlock*)opaque_block)->userdefinedtype;
 }
 
 USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle)
@@ -3586,7 +3586,7 @@ USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle)
         return nullptr;
     }
     void* opaque_block = udaGetDataOpaqueBlock(handle);
-    return ((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist;
+    return ((GeneralBlock*)opaque_block)->userdefinedtypelist;
 }
 
 LOGMALLOCLIST* udaGetLogMallocList(int handle)
@@ -3595,7 +3595,7 @@ LOGMALLOCLIST* udaGetLogMallocList(int handle)
         return nullptr;
     }
     void* opaque_block = udaGetDataOpaqueBlock(handle);
-    return ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
+    return ((GeneralBlock*)opaque_block)->logmalloclist;
 }
 
 NTREE* udaFindIdamNTreeStructureDefinition(NTREE* node, const char* target)

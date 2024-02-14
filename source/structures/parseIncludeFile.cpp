@@ -33,7 +33,7 @@
 
 using namespace uda::client_server;
 
-int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header)
+int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* header)
 {
     int lstr, rnk = 0, status = 0, err, model = 0, space, isStruct, isConst, isUnsigned, isLong64, isEnum = 0,
               maxAlign = 0;
@@ -69,7 +69,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     char defnames[MAXELEMENTS][MAXELEMENTNAME];
     int defvalues[MAXELEMENTS];
 
-    USERDEFINEDTYPE* userdefinedtype = nullptr;
+    UserDefinedType* userdefinedtype = nullptr;
 
     //------------------------------------------------------------------------------------------
     // Initialise
@@ -378,12 +378,12 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                             if (STR_STARTSWITH(name, name1) &&
                                 STR_STARTSWITH(name, name2)) { // Create Meta data on structure
                                 if (itemCount > 0) {
-                                    userdefinedtypelist->userdefinedtype = (USERDEFINEDTYPE*)realloc(
+                                    userdefinedtypelist->userdefinedtype = (UserDefinedType*)realloc(
                                         (void*)userdefinedtypelist->userdefinedtype,
-                                        (userdefinedtypelist->listCount + 1) * sizeof(USERDEFINEDTYPE));
+                                        (userdefinedtypelist->listCount + 1) * sizeof(UserDefinedType));
                                     userdefinedtype =
                                         &userdefinedtypelist->userdefinedtype[userdefinedtypelist->listCount];
-                                    initUserDefinedType(userdefinedtype);
+                                    init_user_defined_type(userdefinedtype);
 
                                     userdefinedtypelist->listCount = userdefinedtypelist->listCount + 1;
 
@@ -392,11 +392,11 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     userdefinedtype->idamclass = UDA_TYPE_COMPOUND; // Class of object
 
                                     userdefinedtype->compoundfield =
-                                        (COMPOUNDFIELD*)malloc(itemCount * sizeof(COMPOUNDFIELD));
+                                        (CompoundField*)malloc(itemCount * sizeof(CompoundField));
                                     byteCount = 0;
                                     maxAlign = 0;
                                     for (int i = 0; i < itemCount; i++) {
-                                        initCompoundField(&userdefinedtype->compoundfield[i]);
+                                        init_compound_field(&userdefinedtype->compoundfield[i]);
                                         strcpy(userdefinedtype->compoundfield[i].name, item[i]);
                                         strcpy(userdefinedtype->compoundfield[i].type, type[i]);
                                         strcpy(userdefinedtype->compoundfield[i].desc, desc[i]);

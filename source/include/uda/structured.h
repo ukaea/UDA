@@ -65,13 +65,6 @@ LIBRARY_API void udaAddImage(char** image, int* imagecount, const char* line);
 LIBRARY_API void udaExpandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* defvalues, int defCount,
                                 char* expand);
 
-/** Print the Contents of the Global LOGMALLOCLIST data structure.
- *
- * @param fd A File Descriptor.
- * @return void.
- */
-LIBRARY_API void udaPrintMallocLogList(const LOGMALLOCLIST* logmalloclist);
-
 //==============================================================================================================
 // Utility Functions
 
@@ -221,21 +214,6 @@ LIBRARY_API void* udaFindStructHeap(int id, char** type, LOGSTRUCTLIST* log_stru
  * @return void.
  */
 LIBRARY_API void udaCopyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew);
-
-/** Copy the Master User Defined Structure Definition List.
- *
- * @param anew The copy of the type definition list.
- * @return void.
- */
-LIBRARY_API void udaCopyUserDefinedTypeList(USERDEFINEDTYPELIST** anew,
-                                            const USERDEFINEDTYPELIST* parseduserdefinedtypelist);
-
-/** Create the Initial User Defined Structure Definition List.
- *
- * @param anew The initial type definition list.
- * @return void.
- */
-LIBRARY_API void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew);
 
 /** Change a structure element's property in the structure definition
  *
@@ -526,13 +504,6 @@ LIBRARY_API NTREE* udaGetNodeChild(NTREE* ntree, int child);
  */
 LIBRARY_API int udaGetNodeChildId(NTREE* ntree, NTREE* child);
 
-/** Return a Pointer to the children of this tree node.
- *
- * @param ntree A pointer to a tree node. If NULL the root node is assumed.
- * @return the Array of children.
- */
-LIBRARY_API NTREE** udaGetNodeChildren(NTREE* ntree);
-
 /** Return the parent Node.
  *
  * @param ntree A pointer to a tree node. If NULL the root node is assumed.
@@ -790,21 +761,6 @@ LIBRARY_API double* udaCastNodeStructureComponentDatatoDouble(LOGMALLOCLIST* log
 //---------------------------------------------------------------------------------------------
 // Tree Branch Family: Whole tree is in scope
 
-/** Initialise a NTREE data structure.
- *
- * @param str A pointer to a NTREE data structure instance.
- * @return void.
- */
-
-LIBRARY_API void initNTree(NTREE* str);
-
-/** Initialise the Global NTREE list structure.
- *
- * @return void.
- */
-
-LIBRARY_API void initNTreeList(NTREELIST* ntree_list);
-
 /** Print the Contents of a tree node to a specified File Descriptor.
  *
  * @param fd The File Descriptor, e.g., stdout
@@ -901,18 +857,6 @@ LIBRARY_API void udaPrintNTreeStructureComponentNames(LOGMALLOCLIST* logmallocli
 
 //=======================================================================================================
 // Print utility functions: explicit output to stdout
-
-LIBRARY_API void udaPrintNode_stdout(NTREE* tree);
-
-LIBRARY_API void udaPrintNodeNames_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree);
-
-LIBRARY_API void udaPrintNodeAtomic_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree);
-
-LIBRARY_API void udaPrintNTreeStructureNames_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree);
-
-LIBRARY_API void udaPrintNTreeStructureComponentNames_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree);
-
-LIBRARY_API void udaPrintAtomicType_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree, const char* target);
 
 LIBRARY_API void udaGetNodeStructureComponentDataShape_f(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
                                                          int* shape_f);

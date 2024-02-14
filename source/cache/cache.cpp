@@ -6,8 +6,8 @@
 
 using namespace uda::client_server;
 
-void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                    const DataBlock* data_block, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+void writeCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                    const DataBlock* data_block, int protocolVersion, LogStructList* log_struct_list,
                     unsigned int private_flags, int malloc_source)
 {
     XDR xdrs;
@@ -23,8 +23,8 @@ void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST*
     xdr_destroy(&xdrs); // Destroy before the  file otherwise a segmentation error occurs
 }
 
-DataBlock* readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                          int protocolVersion, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
+DataBlock* readCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                          int protocolVersion, LogStructList* log_struct_list, unsigned int private_flags,
                           int malloc_source)
 {
     XDR xdrs;

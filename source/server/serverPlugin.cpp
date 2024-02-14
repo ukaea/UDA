@@ -509,11 +509,11 @@ int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* ori
         UDA_THROW_ERROR(999, "The Provenance Plugin's Interface Version is not Implemented.");
     }
 
-    USERDEFINEDTYPELIST userdefinedtypelist;
-    initUserDefinedTypeList(&userdefinedtypelist);
+    UserDefinedTypeList userdefinedtypelist;
+    init_user_defined_type_list(&userdefinedtypelist);
 
-    LOGMALLOCLIST logmalloclist;
-    initLogMallocList(&logmalloclist);
+    LogMallocList logmalloclist;
+    init_log_malloc_list(&logmalloclist);
 
     plugin_interface.interfaceVersion = 1;
     plugin_interface.pluginVersion = 0;
@@ -661,11 +661,11 @@ int uda::server::udaServerMetaDataPlugin(const uda::plugins::PluginList* plugin_
     init_data_block(&data_block);
     data_block.signal_rec = signal_rec;
 
-    USERDEFINEDTYPELIST userdefinedtypelist;
-    initUserDefinedTypeList(&userdefinedtypelist);
+    UserDefinedTypeList userdefinedtypelist;
+    init_user_defined_type_list(&userdefinedtypelist);
 
-    LOGMALLOCLIST logmalloclist;
-    initLogMallocList(&logmalloclist);
+    LogMallocList logmalloclist;
+    init_log_malloc_list(&logmalloclist);
 
     plugin_interface.interfaceVersion = 1;
     plugin_interface.pluginVersion = 0;

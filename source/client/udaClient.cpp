@@ -50,14 +50,14 @@ int client_version = 9; // previous version
 // FATCLIENT objects shared with server code
 
 #ifndef FATCLIENT
-USERDEFINEDTYPELIST* g_user_defined_type_list = nullptr; // List of all known User Defined Structure Types
-LOGMALLOCLIST* g_log_malloc_list = nullptr;              // List of all Heap Allocations for Data
+UserDefinedTypeList* g_user_defined_type_list = nullptr; // List of all known User Defined Structure Types
+LogMallocList* g_log_malloc_list = nullptr;              // List of all Heap Allocations for Data
 unsigned int g_last_malloc_index = 0;                    // Malloc Log search index last value
 unsigned int* g_last_malloc_index_value = &g_last_malloc_index;
 ; // Preserve Malloc Log search index last value in GENERAL_STRUCT
 XDR** g_client_input = nullptr;
 XDR** g_client_output = nullptr;
-LOGSTRUCTLIST* g_log_struct_list = nullptr;
+LogStructList* g_log_struct_list = nullptr;
 #endif // FATCLIENT
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -74,19 +74,19 @@ int authentication_needed = 1; // Enable the mutual authentication conversation 
 
 #ifndef FATCLIENT
 
-void uda::client::setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
+void uda::client::setUserDefinedTypeList(UserDefinedTypeList* userdefinedtypelist_in)
 {
     g_user_defined_type_list = userdefinedtypelist_in;
 }
 
-void uda::client::setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
+void uda::client::setLogMallocList(LogMallocList* logmalloclist_in)
 {
     g_log_malloc_list = logmalloclist_in;
 }
 
 #else
-void uda::client::setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in) {}
-void uda::client::setLogMallocList(LOGMALLOCLIST* logmalloclist_in) {}
+void uda::client::setUserDefinedTypeList(UserDefinedTypeList* userdefinedtypelist_in) {}
+void uda::client::setLogMallocList(LogMallocList* logmalloclist_in) {}
 
 extern SOCKETLIST socket_list;
 #endif
@@ -237,8 +237,8 @@ void uda::client::updateClientBlock(ClientBlock* str, const CLIENT_FLAGS* client
  * @param p_data_block
  * @return
  */
-int check_file_cache(const RequestData* request_data, DataBlock** p_data_block, LOGMALLOCLIST* log_malloc_list,
-                     USERDEFINEDTYPELIST* user_defined_type_list, LOGSTRUCTLIST* log_struct_list,
+int check_file_cache(const RequestData* request_data, DataBlock** p_data_block, LogMallocList* log_malloc_list,
+                     UserDefinedTypeList* user_defined_type_list, LogStructList* log_struct_list,
                      CLIENT_FLAGS* client_flags, unsigned int private_flags, int malloc_source)
 {
     if (client_flags->flags & CLIENTFLAG_FILECACHE && !request_data->put) {
@@ -267,8 +267,8 @@ int check_file_cache(const RequestData* request_data, DataBlock** p_data_block, 
 }
 
 int check_mem_cache(uda::cache::UdaCache* cache, RequestData* request_data, DataBlock** p_data_block,
-                    LOGMALLOCLIST* log_malloc_list, USERDEFINEDTYPELIST* user_defined_type_list,
-                    LOGSTRUCTLIST* log_struct_list, CLIENT_FLAGS* client_flags, unsigned int private_flags,
+                    LogMallocList* log_malloc_list, UserDefinedTypeList* user_defined_type_list,
+                    LogStructList* log_struct_list, CLIENT_FLAGS* client_flags, unsigned int private_flags,
                     int malloc_source)
 {
     // Check Client Properties for permission to cache
@@ -352,7 +352,7 @@ void copyClientBlock(ClientBlock* str, const CLIENT_FLAGS* client_flags)
  *
  * manages it's own client/server conversation current buffer status in protocolXML2 ...
  */
-static int fetchHierarchicalData(XDR* client_input, DataBlock* data_block, LOGSTRUCTLIST* log_struct_list,
+static int fetchHierarchicalData(XDR* client_input, DataBlock* data_block, LogStructList* log_struct_list,
                                  unsigned int private_flags, int malloc_source)
 {
     if (data_block->data_type == UDA_TYPE_COMPOUND && data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
@@ -407,7 +407,7 @@ static int allocMeta(DataSystem** data_system, SystemConfig** system_config, Dat
 
 static int fetchMeta(XDR* client_input, DataSystem* data_system, SystemConfig* system_config,
                      DataSource* data_source, Signal* signal_rec, SignalDesc* signal_desc,
-                     LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+                     LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
 
@@ -496,8 +496,8 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
     g_client_output = &client_output; // needed for udaFreeAll
 #endif
 
-    LOGSTRUCTLIST log_struct_list;
-    initLogStructList(&log_struct_list);
+    LogStructList log_struct_list;
+    init_log_struct_list(&log_struct_list);
 
     unsigned int* private_flags = udaPrivateFlags();
     CLIENT_FLAGS* client_flags = udaClientFlags();
@@ -1370,7 +1370,7 @@ void udaFree(int handle)
 
         case UDA_OPAQUE_TYPE_STRUCTURES: {
             if (data_block->opaque_block != nullptr) {
-                auto general_block = (GENERAL_BLOCK*)data_block->opaque_block;
+                auto general_block = (GeneralBlock*)data_block->opaque_block;
 
                 if (general_block->userdefinedtypelist != nullptr) {
 #ifndef FATCLIENT

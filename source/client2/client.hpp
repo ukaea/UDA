@@ -80,8 +80,8 @@ public:
     const CLIENT_FLAGS* client_flags();
     const uda::client_server::ServerBlock* server_block();
     uda::client_server::Environment* environment();
-    void set_user_defined_type_list(USERDEFINEDTYPELIST* userdefinedtypelist);
-    void set_log_malloc_list(LOGMALLOCLIST* logmalloclist);
+    void set_user_defined_type_list(UserDefinedTypeList* userdefinedtypelist);
+    void set_log_malloc_list(LogMallocList* logmalloclist);
     void set_full_ntree(NTREE* full_ntree);
 
     Client(const Client&) = delete;
@@ -115,10 +115,10 @@ private:
     bool reopen_logs_ = false;
     std::string client_username_ = "client";
     int protocol_version_ = ClientVersion;
-    USERDEFINEDTYPELIST* userdefinedtypelist_ = nullptr; // List of all known User Defined Structure Types
-    LOGMALLOCLIST* logmalloclist_ = nullptr;             // List of all Heap Allocations for Data
+    UserDefinedTypeList* userdefinedtypelist_ = nullptr; // List of all known User Defined Structure Types
+    LogMallocList* logmalloclist_ = nullptr;             // List of all Heap Allocations for Data
     NTREE* full_ntree_ = nullptr;
-    LOGSTRUCTLIST log_struct_list_ = {};
+    LogStructList log_struct_list_ = {};
     int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
     MetadataBlock metadata_ = {};
 

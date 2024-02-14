@@ -11,7 +11,7 @@ namespace uda
 {
 
 int serverSubsetData(uda::client_server::DataBlock* data_block, uda::client_server::Action action,
-                     LOGMALLOCLIST* logmalloclist);
+                     LogMallocList* logmalloclist);
 
 int serverParseServerSide(uda::client_server::RequestData* request_block,
                           uda::client_server::Actions* actions_serverside,

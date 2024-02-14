@@ -229,14 +229,14 @@ void uda::Server::loop()
         UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
-        // udaCopyUserDefinedTypeList(&userdefinedtypelist);
+        // copy_user_defined_type_list(&userdefinedtypelist);
 
-        udaGetInitialUserDefinedTypeList(&user_defined_type_list_);
+        get_initial_user_defined_type_list(&user_defined_type_list_);
         parsed_user_defined_type_list_ = *user_defined_type_list_;
-        //        udaPrintUserDefinedTypeList(*user_defined_type_list_);
+        //        print_user_defined_type_list(*user_defined_type_list_);
 
-        log_malloc_list_ = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(log_malloc_list_);
+        log_malloc_list_ = (LogMallocList*)malloc(sizeof(LogMallocList));
+        init_log_malloc_list(log_malloc_list_);
 
         server_closedown_ = false;
 

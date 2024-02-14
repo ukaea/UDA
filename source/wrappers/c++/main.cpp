@@ -122,7 +122,7 @@ int main()
         node = root.findStructureComponent("lastshot");
 
         node.print();
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         int acount = node.atomicCount();
 
@@ -202,7 +202,7 @@ int main()
         // Target the first child node with the named variable target
         node = root.findStructureComponent("signal_name");
 
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // If the structure definition is known and located, a simple cast is all that is required
 
@@ -261,7 +261,7 @@ int main()
         // Target the first child node with the named variable target
         node = root.findStructureComponent("signal_name");
 
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // If the structure definition is known and located, a simple cast is all that is required
         // Check the number of structures is one
@@ -360,12 +360,12 @@ int main()
         root.printStructureNames();
 
         // node containing data with a specific structure type
-        uda::TreeNode node = root.findStructureDefinition("SARRAY.root.SIGNALSET");
+        uda::TreeNode node = root.findStructureDefinition("SArray.root.SIGNALSET");
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("SIGNALSET");
 
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         std::vector<uda::TreeNode> signals = node.parent().children();
         int signalSetCount = signals.size();
@@ -511,11 +511,11 @@ int main()
             root.printStructureNames();
 
             // node containing data with a specific structure type
-            node = root.findStructureDefinition("SARRAY.root.COIL");
+            node = root.findStructureDefinition("SArray.root.COIL");
 
             if (i == 0) {
-                node.udaPrintUserDefinedTypeTable();
-                node.udaPrintUserDefinedTypeTable("COORDINATE");
+                node.print_user_defined_type_table();
+                node.print_user_defined_type_table("COORDINATE");
             }
 
             std::vector<uda::TreeNode> coils = node.parent().children();
@@ -606,11 +606,11 @@ int main()
 
         root.printStructureNames();
 
-        uda::TreeNode node = root.findStructureDefinition("SARRAY.TEST11");
+        uda::TreeNode node = root.findStructureDefinition("SArray.TEST11");
 
         node = root.findStructureDefinition("TEST11");
 
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // Check only 1 structure
 
@@ -672,11 +672,11 @@ int main()
 
         root.printStructureNames();
 
-        uda::TreeNode node = root.findStructureDefinition("SARRAY.TEST12");
+        uda::TreeNode node = root.findStructureDefinition("SArray.TEST12");
 
         node = root.findStructureDefinition("TEST12");
 
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // Check only 1 structure
 
@@ -739,27 +739,27 @@ int main()
         root.printStructureNames();
 
         // target a data tree node containing data with a specific structure type
-        uda::TreeNode node = root.findStructureDefinition("SARRAY.root");
+        uda::TreeNode node = root.findStructureDefinition("SArray.root");
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("root");
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("magnetics");
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("flux_loop");
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("13");
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("flux");
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // *** Searching by Type may fail as types are auto-generated to be unique.
         // *** Searching without hierarchical structure will return the first data node satisfying the passed name -
@@ -768,7 +768,7 @@ int main()
 
         // node containing data with a specific component name
         node = root.findStructureComponent("magnetics.flux_loop.13.flux");
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         if (test != 0) {
             return 0;
@@ -805,7 +805,7 @@ int main()
         // The first node has no name other tha the generic 'data'
         uda::TreeNode node = root.findStructureComponent("data");
 
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // Check only 1 structure
 
@@ -871,7 +871,7 @@ int main()
 
         uda::TreeNode node = root.findStructureComponent("2");
 
-        node.udaPrintUserDefinedTypeTable();
+        node.print_user_defined_type_table();
 
         // Check only 1 structure
 

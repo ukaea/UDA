@@ -41,7 +41,7 @@ constexpr int server_version = 8;
 // Legacy Server Entry point
 
 int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::PluginList* pluginlist,
-                              LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                              LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                               SOCKETLIST* socket_list, int protocolVersion, XDR* server_input, XDR* server_output,
                               unsigned int private_flags, int malloc_source)
 {
@@ -65,8 +65,8 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
     Actions actions_desc;
     Actions actions_sig;
 
-    LOGSTRUCTLIST log_struct_list;
-    initLogStructList(&log_struct_list);
+    LogStructList log_struct_list;
+    init_log_struct_list(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -86,7 +86,7 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
     init_actions(&actions_desc); // There may be a Sequence of Actions to Apply
     init_actions(&actions_sig);
 
-    USERDEFINEDTYPELIST parseduserdefinedtypelist;
+    UserDefinedTypeList parseduserdefinedtypelist;
 
     //----------------------------------------------------------------------------
     // Start of Server Wait Loop
@@ -374,7 +374,7 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
 
             for (int i = 0; i < request_block.num_requests; ++i) {
                 auto request = &request_block.requests[i];
-                err = udaGetData(&depth, request, client_block, &data_block, &data_source, &signal_rec, &signal_desc,
+                err = get_data(&depth, request, client_block, &data_block, &data_source, &signal_rec, &signal_desc,
                                  &actions_desc, &actions_sig, pluginlist, logmalloclist, userdefinedtypelist,
                                  socket_list, protocolVersion);
             }

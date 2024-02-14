@@ -38,7 +38,7 @@ void uda::client::free_handle(int handle)
 
         case UDA_OPAQUE_TYPE_STRUCTURES: {
             if (data_block->opaque_block != nullptr) {
-                auto general_block = (GENERAL_BLOCK*)data_block->opaque_block;
+                auto general_block = (GeneralBlock*)data_block->opaque_block;
 
                 if (general_block->userdefinedtypelist != nullptr) {
                     udaFreeUserDefinedTypeList(general_block->userdefinedtypelist);

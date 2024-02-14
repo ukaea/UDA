@@ -66,12 +66,12 @@ constexpr int server_version = 9;
 static int protocol_version = 9;
 static int legacy_server_version = 6;
 
-static USERDEFINEDTYPELIST* user_defined_type_list = nullptr; // User Defined Structure Types from Data Files & Plugins
-static LOGMALLOCLIST* log_malloc_list =
+static UserDefinedTypeList* user_defined_type_list = nullptr; // User Defined Structure Types from Data Files & Plugins
+static LogMallocList* log_malloc_list =
     nullptr; // List of all Heap Allocations for Data: Freed after data is dispatched
 int malloc_source = UDA_MALLOC_SOURCE_NONE;
 
-USERDEFINEDTYPELIST parsed_user_defined_type_list; // Initial set of User Defined Structure Types
+UserDefinedTypeList parsed_user_defined_type_list; // Initial set of User Defined Structure Types
 
 // Total amount sent for the last data request
 
@@ -94,17 +94,17 @@ static int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& s
 static int handle_request(RequestBlock* request_block, ClientBlock* client_block, ServerBlock* server_block,
                           MetaDataBlock* metadata_block, Actions* actions_desc, Actions* actions_sig,
                           DataBlockList* data_block_list, int* fatal, int* server_closedown,
-                          uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
+                          uda::cache::UdaCache* cache, LogStructList* log_struct_list, XDR* server_input,
                           const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout);
 
 static int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, ClientBlock* client_block,
                           ServerBlock* server_block, MetaDataBlock* metadata_block, Actions* actions_desc,
-                          Actions* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
+                          Actions* actions_sig, int* fatal, uda::cache::UdaCache* cache, LogStructList* log_struct_list,
                           XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
                           int server_tot_block_time, int* server_timeout);
 
 static int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, ClientBlock* client_block,
-                            int trap1Err, MetaDataBlock* metadata_block, LOGSTRUCTLIST* log_struct_list,
+                            int trap1Err, MetaDataBlock* metadata_block, LogStructList* log_struct_list,
                             XDR* server_output, unsigned int* total_datablock_size);
 
 static int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block,
@@ -114,7 +114,7 @@ static int do_server_closedown(ClientBlock* client_block, RequestBlock* request_
 static int authenticateClient(ClientBlock* client_block, ServerBlock* server_block);
 #else
 static int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* server_closedown,
-                            LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output);
+                            LogStructList* log_struct_list, XDR* server_input, XDR* server_output);
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -135,8 +135,8 @@ int uda::server::uda_server(uda::client_server::ClientBlock client_block)
     XDR* server_input = nullptr;
     XDR* server_output = nullptr;
 
-    LOGSTRUCTLIST log_struct_list;
-    initLogStructList(&log_struct_list);
+    LogStructList log_struct_list;
+    init_log_struct_list(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -188,7 +188,7 @@ int uda::server::uda_server(uda::client_server::ClientBlock client_block)
 }
 
 int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, ClientBlock* client_block,
-                     int trap1Err, MetaDataBlock* metadata_block, LOGSTRUCTLIST* log_struct_list, XDR* server_output,
+                     int trap1Err, MetaDataBlock* metadata_block, LogStructList* log_struct_list, XDR* server_output,
                      unsigned int* total_datablock_size)
 {
     //----------------------------------------------------------------------------
@@ -388,7 +388,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
 int handle_request(RequestBlock* request_block, ClientBlock* client_block, ServerBlock* server_block,
                    MetaDataBlock* metadata_block, Actions* actions_desc, Actions* actions_sig,
                    DataBlockList* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
-                   LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
+                   LogStructList* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
                    int server_tot_block_time, int* server_timeout)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
@@ -759,7 +759,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
 
         DataBlock* data_block = &data_block_list->data[i];
         int depth = 0;
-        err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
+        err = get_data(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                          &plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
 
@@ -849,7 +849,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
 
 int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, ClientBlock* client_block,
                    ServerBlock* server_block, MetaDataBlock* metadata_block, Actions* actions_desc,
-                   Actions* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
+                   Actions* actions_sig, int* fatal, uda::cache::UdaCache* cache, LogStructList* log_struct_list,
                    XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int server_tot_block_time,
                    int* server_timeout)
 {
@@ -861,13 +861,13 @@ int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, 
         UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
-        // udaCopyUserDefinedTypeList(&userdefinedtypelist);
+        // copy_user_defined_type_list(&userdefinedtypelist);
 
-        udaGetInitialUserDefinedTypeList(&user_defined_type_list);
+        get_initial_user_defined_type_list(&user_defined_type_list);
         parsed_user_defined_type_list = *user_defined_type_list;
 
-        log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(log_malloc_list);
+        log_malloc_list = (LogMallocList*)malloc(sizeof(LogMallocList));
+        init_log_malloc_list(log_malloc_list);
 
         int server_closedown = 0;
         err = handle_request(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
@@ -1052,7 +1052,7 @@ int authenticateClient(ClientBlock* client_block, ServerBlock* server_block)
 #endif
 
 int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* server_closedown,
-                     LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output)
+                     LogStructList* log_struct_list, XDR* server_input, XDR* server_output)
 {
     // Exchange version details - once only
 
@@ -1194,7 +1194,7 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
     /*
         if (!fileParsed) {
             fileParsed = 1;
-            initUserDefinedTypeList(&parseduserdefinedtypelist);
+            init_user_defined_type_list(&parseduserdefinedtypelist);
 
             char* token = nullptr;
             if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {
@@ -1202,8 +1202,8 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
             }
 
             UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
-            parseIncludeFile(&parseduserdefinedtypelist, token); // file containing the SARRAY structure definition
-            udaPrintUserDefinedTypeList(parseduserdefinedtypelist);
+            parseIncludeFile(&parseduserdefinedtypelist, token); // file containing the SArray structure definition
+            print_user_defined_type_list(parseduserdefinedtypelist);
         }
     */
 

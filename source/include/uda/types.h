@@ -97,18 +97,16 @@ LIBRARY_API size_t getPtrSizeOf(UDA_TYPE data_type);
 #define SCALARCOMPOUND 24
 #define ARRAYCOMPOUND 25
 
-typedef struct NTree NTREE;
-typedef struct NTreeList NTREELIST;
-typedef struct LogMallocList LOGMALLOCLIST;
-typedef struct LogMalloc LOGMALLOC;
-typedef struct LogStruct LOGSTRUCT;
-typedef struct LogStructList LOGSTRUCTLIST;
-typedef struct CompoundField COMPOUNDFIELD;
-typedef struct UserDefinedType USERDEFINEDTYPE;
-typedef struct UserDefinedTypeList USERDEFINEDTYPELIST;
+typedef struct CNTree NTREE;
+typedef struct CNTreeList NTREELIST;
+typedef struct CLogMallocList LOGMALLOCLIST;
+typedef struct CLogMalloc LOGMALLOC;
+typedef struct CLogStruct LOGSTRUCT;
+typedef struct CLogStructList LOGSTRUCTLIST;
+typedef struct CCompoundField COMPOUNDFIELD;
+typedef struct CUserDefinedType USERDEFINEDTYPE;
+typedef struct CUserDefinedTypeList USERDEFINEDTYPELIST;
 typedef struct CUdaPluginInterface UDA_PLUGIN_INTERFACE;
-typedef struct CompoundField COMPOUNDFIELD;
-typedef struct UserDefinedType USERDEFINEDTYPE;
 
 typedef struct CUdaErrorStack UDA_ERROR_STACK;
 typedef struct CPutDataBlockList PUTDATA_BLOCK_LIST;

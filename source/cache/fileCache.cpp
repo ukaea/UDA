@@ -27,15 +27,15 @@ char source[]
 #include "fileCache.h"
 
 #ifdef _WIN32
-DataBlock* udaFileCacheRead(const RequestData* request, LOGMALLOCLIST* logmalloclist,
-                             USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
-                             LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+DataBlock* udaFileCacheRead(const RequestData* request, LogMallocList* logmalloclist,
+                             UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
+                             LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return nullptr;
 }
 
-int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_block, LOGMALLOCLIST* logmalloclist,
-                      USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_block, LogMallocList* logmalloclist,
+                      UserDefinedTypeList* userdefinedtypelist, int protocolVersion, LogStructList* log_struct_list,
                       unsigned int private_flags, int malloc_source)
 {
     return 0;
@@ -373,9 +373,9 @@ boost::optional<CacheStats> purge_cache(FILE* db)
     return stats;
 }
 
-DataBlock* udaFileCacheRead(const RequestData* request, LOGMALLOCLIST* logmalloclist,
-                             USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
-                             LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+DataBlock* udaFileCacheRead(const RequestData* request, LogMallocList* logmalloclist,
+                             UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
+                             LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     auto maybe_entry = find_cache_entry(request);
     if (!maybe_entry) {
@@ -603,8 +603,8 @@ std::string generate_cache_filename(const RequestData* request)
     return std::string{"uda_"} + std::to_string(key) + ".cache";
 }
 
-int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_block, LOGMALLOCLIST* logmalloclist,
-                      USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_block, LogMallocList* logmalloclist,
+                      UserDefinedTypeList* userdefinedtypelist, int protocolVersion, LogStructList* log_struct_list,
                       unsigned int private_flags, int malloc_source)
 {
     RequestData* request = &request_block->requests[0];

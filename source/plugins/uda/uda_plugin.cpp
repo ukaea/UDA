@@ -584,7 +584,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     // No access to malloc log within client
     //
     // Data received is a Data Tree. This would need to be restructured - i.e., pointer extracted from
-    // structure SARRAY (may be different to local SARRAY!)
+    // structure SArray (may be different to local SArray!)
     //    Don't pass a data tree - use an XDR file instead.
     //    Required if http is to be adopted as middleware protocol
     //     Relay everything from the external server back to the client without interpretation.
