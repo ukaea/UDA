@@ -1,5 +1,4 @@
-#ifndef UDA_STRUCTURES_GENSTRUCTS_H
-#define UDA_STRUCTURES_GENSTRUCTS_H
+#pragma once
 
 // needs to be included before xdr.h
 #include <stdio.h>
@@ -33,24 +32,36 @@ typedef uintptr_t UVOIDTYPE;
 #  define ALIGNMENT 1 // Default Byte Boundary used for Structure Packing
 #endif
 
-typedef struct CNTree {} NTREE;
-typedef struct CNTreeList {} NTREELIST;
-typedef struct CLogMallocList {} LOGMALLOCLIST;
-typedef struct CLogMalloc {} LOGMALLOC;
-typedef struct CLogStruct {} LOGSTRUCT;
-typedef struct CLogStructList {} LOGSTRUCTLIST;
-typedef struct CCompoundField {} COMPOUNDFIELD;
-typedef struct CUserDefinedType {} USERDEFINEDTYPE;
-typedef struct CUserDefinedTypeList {} USERDEFINEDTYPELIST;
+typedef struct CNTree {
+} NTREE;
+typedef struct CNTreeList {
+} NTREELIST;
+typedef struct CLogMallocList {
+} LOGMALLOCLIST;
+typedef struct CLogMalloc {
+} LOGMALLOC;
+typedef struct CLogStruct {
+} LOGSTRUCT;
+typedef struct CLogStructList {
+} LOGSTRUCTLIST;
+typedef struct CCompoundField {
+} COMPOUNDFIELD;
+typedef struct CUserDefinedType {
+} USERDEFINEDTYPE;
+typedef struct CUserDefinedTypeList {
+} USERDEFINEDTYPELIST;
+
+namespace uda::structures
+{
 
 typedef char String;
 
 //-------------------------------------------------------------------------------------------------------
 // Structure types
 
-struct SArray {          // This structure must be parsed to create a structure definition.
-                                 // Its function is to send or receive arrays of user defined structures and
-                                 // atomic types. Single user defined structures can be passed directly.
+struct SArray { // This structure must be parsed to create a structure definition.
+    // Its function is to send or receive arrays of user defined structures and
+    // atomic types. Single user defined structures can be passed directly.
     int count;                   // Number of data array elements
     int rank;                    // Rank of the data array
     int* shape;                  // Shape of the data array
@@ -74,9 +85,9 @@ struct EnumList {
     int* enumarray_shape;
 };
 
-struct VLenType { // Variable length (ragged) arrays
-    unsigned int len;     // The array element count
-    void* data;           // Array data
+struct VLenType {     // Variable length (ragged) arrays
+    unsigned int len; // The array element count
+    void* data;       // Array data
 };
 
 struct LogMalloc {
@@ -155,7 +166,7 @@ struct NTreeList : NTREELIST {
     NTree* forrest; // Array of Tree list structures
 };
 
-struct GeneralBlock {                 // Generalised Data Structures: Client Side Only
+struct GeneralBlock {                         // Generalised Data Structures: Client Side Only
     UserDefinedType* userdefinedtype;         // User defined type of the Data
     UserDefinedTypeList* userdefinedtypelist; // List of Known Structure Definitions
     LogMallocList* logmalloclist;             // List of Heap Mallocs
@@ -172,10 +183,15 @@ struct GeneralBlock {                 // Generalised Data Structures: Client Sid
 #define UDA_PACKAGE_XDROBJECT 3
 
 int xdrAtomicData(LogMallocList* logmalloclist, XDR* xdrs, const char* type, int count, int size, char** data);
+
 void print_user_defined_type_list_table(UserDefinedTypeList str);
+
 void initSArray(SArray* str);
+
 void initNTree(NTree* str);
+
 void copy_user_defined_type_list(UserDefinedTypeList** anew, const UserDefinedTypeList* parseduserdefinedtypelist);
+
 void get_initial_user_defined_type_list(UserDefinedTypeList** anew);
 
-#endif // UDA_STRUCTURES_GENSTRUCTS_H
+} // namespace uda::structures

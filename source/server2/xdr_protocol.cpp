@@ -33,6 +33,7 @@ using namespace uda::authentication;
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 int serverSocket = 0;
 
@@ -460,8 +461,8 @@ int uda::XdrProtocol::eof()
 }
 
 DataBlock* uda::XdrProtocol::read_from_cache(uda::cache::UdaCache* cache, RequestData* request,
-                                              server::Environment& environment, LogMallocList* log_malloc_list,
-                                              UserDefinedTypeList* user_defined_type_list)
+                                             server::Environment& environment, LogMallocList* log_malloc_list,
+                                             UserDefinedTypeList* user_defined_type_list)
 {
     return cache_read(cache, request, log_malloc_list, user_defined_type_list, *environment.p_env(), protocol_version_,
                       CLIENTFLAG_CACHE, &log_struct_list_, private_flags_, malloc_source_);

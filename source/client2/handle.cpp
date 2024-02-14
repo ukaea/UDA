@@ -7,6 +7,7 @@
 #include "thread_client.hpp"
 
 using namespace uda::client_server;
+using namespace uda::structures;
 
 void uda::client::free_handle(int handle)
 {

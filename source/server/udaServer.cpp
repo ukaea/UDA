@@ -47,6 +47,7 @@ using namespace uda::authentication;
 using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 //--------------------------------------------------------------------------------------
 // static globals
@@ -107,8 +108,8 @@ static int report_to_client(ServerBlock* server_block, DataBlockList* data_block
                             int trap1Err, MetaDataBlock* metadata_block, LogStructList* log_struct_list,
                             XDR* server_output, unsigned int* total_datablock_size);
 
-static int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block,
-                               DataBlockList* data_block_list, int server_tot_block_time, int server_timeout);
+static int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block, DataBlockList* data_block_list,
+                               int server_tot_block_time, int server_timeout);
 
 #ifdef SECURITYENABLED
 static int authenticateClient(ClientBlock* client_block, ServerBlock* server_block);
@@ -187,8 +188,8 @@ int uda::server::uda_server(uda::client_server::ClientBlock client_block)
     return err;
 }
 
-int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, ClientBlock* client_block,
-                     int trap1Err, MetaDataBlock* metadata_block, LogStructList* log_struct_list, XDR* server_output,
+int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, ClientBlock* client_block, int trap1Err,
+                     MetaDataBlock* metadata_block, LogStructList* log_struct_list, XDR* server_output,
                      unsigned int* total_datablock_size)
 {
     //----------------------------------------------------------------------------
@@ -760,8 +761,8 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
         DataBlock* data_block = &data_block_list->data[i];
         int depth = 0;
         err = get_data(&depth, request, *client_block, data_block, &metadata_block->data_source,
-                         &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                         &plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
+                       &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
+                       &plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
 
         cache_write(cache, request, data_block, log_malloc_list, user_defined_type_list, environment, 8,
                     CLIENTFLAG_CACHE, log_struct_list, private_flags, malloc_source);

@@ -92,8 +92,7 @@ unsigned int uda::logging::countDataBlockSize(const DataBlock* data_block, Clien
     }
 
     if (client_block->get_meta) {
-        count +=
-            sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
+        count += sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
     }
 
     return count;

@@ -224,7 +224,8 @@ struct ClientBlock {
     char DOI[STRING_LENGTH];    // User's research DOI - to be logged with all data access requests
 
     char uid2[STRING_LENGTH]; // Who the Client is (claim of identity to the last server)
-    SecurityBlock securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
+    SecurityBlock
+        securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
 
 struct DataBlock {
@@ -313,7 +314,7 @@ struct UdaError {
 
 struct ErrorStack : UDA_ERROR_STACK {
     unsigned int nerrors; // Number of Errors
-    UdaError* idamerror; // Array of Errors
+    UdaError* idamerror;  // Array of Errors
 };
 
 struct ServerBlock {
@@ -324,7 +325,8 @@ struct ServerBlock {
     ErrorStack idamerrorstack;
     char OSName[STRING_LENGTH]; // Name of the Server's Operating System, e.g. OSX
     char DOI[STRING_LENGTH];    // Server version/implementation DOI - to be logged with all data consumers
-    SecurityBlock securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
+    SecurityBlock
+        securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
 
 struct NameValue {
@@ -377,9 +379,9 @@ struct Subset {
     int reform;                                             // reduce Rank if any dimension has length 1
     int order;                                              // Time Dimension order
     double bound[UDA_MAX_DATA_RANK];                        // Array of Floating point Bounding values
-    OptionalLong stride[UDA_MAX_DATA_RANK];                // Array of Integer values: Striding values
-    OptionalLong ubindex[UDA_MAX_DATA_RANK];               // Array of Integer values: Bounding or Upper Index
-    OptionalLong lbindex[UDA_MAX_DATA_RANK];               // Array of Integer values: Lower Index
+    OptionalLong stride[UDA_MAX_DATA_RANK];                 // Array of Integer values: Striding values
+    OptionalLong ubindex[UDA_MAX_DATA_RANK];                // Array of Integer values: Bounding or Upper Index
+    OptionalLong lbindex[UDA_MAX_DATA_RANK];                // Array of Integer values: Lower Index
     char operation[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING]; // Array of Subsetting Operations
     int dimid[UDA_MAX_DATA_RANK];                           // Array of Dimension IDs to subset
     bool isindex[UDA_MAX_DATA_RANK];                        // Flag the Operation Bound is an Integer Type

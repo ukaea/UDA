@@ -86,8 +86,8 @@ int uda::client_server::name_value_substitution(NameValueList* nameValueList, ch
                         tpassPosition++; // Ordering: Default substitution value to use - list position
                     if (nameValueList->nameValue[i].value[1] != '\0') {
                         if (is_number(&nameValueList->nameValue[i]
-                                          .value[1])) { // Is the placeholder numbered? - Use the specific substitution
-                                                        // value identified by list order
+                                           .value[1])) { // Is the placeholder numbered? - Use the specific substitution
+                                                         // value identified by list order
                             tpassIndex[placeholderCount] = atoi(&nameValueList->nameValue[i].value[1]) -
                                                            1; // Position labelling begins '1' not '0'
                         } else {

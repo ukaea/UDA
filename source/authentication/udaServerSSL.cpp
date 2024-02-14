@@ -531,7 +531,8 @@ int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
         }
 #  endif
 
-        update_select_params(g_sslSocket, &rfds, &tv, *io_data->server_tot_block_time); // Keep blocking and wait for data
+        update_select_params(g_sslSocket, &rfds, &tv,
+                             *io_data->server_tot_block_time); // Keep blocking and wait for data
         tvc = tv;
     }
 

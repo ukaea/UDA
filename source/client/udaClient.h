@@ -47,8 +47,8 @@ int idamClient(uda::client_server::RequestBlock* request_block, int* indices);
 void updateClientBlock(uda::client_server::ClientBlock* str, const CLIENT_FLAGS* client_flags,
                        unsigned int private_flags);
 
-void setUserDefinedTypeList(UserDefinedTypeList* userdefinedtypelist);
+void setUserDefinedTypeList(uda::structures::UserDefinedTypeList* userdefinedtypelist);
 
-void setLogMallocList(LogMallocList* logmalloclist_in);
+void setLogMallocList(uda::structures::LogMallocList* logmalloclist_in);
 
 } // namespace uda::client

@@ -32,6 +32,7 @@
 #include "struct.h"
 
 using namespace uda::client_server;
+using namespace uda::structures;
 
 int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* header)
 {

@@ -35,6 +35,7 @@ int idamLegacyServer(ClientBlock client_block)
 using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 constexpr int server_version = 8;
 
@@ -375,8 +376,8 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
             for (int i = 0; i < request_block.num_requests; ++i) {
                 auto request = &request_block.requests[i];
                 err = get_data(&depth, request, client_block, &data_block, &data_source, &signal_rec, &signal_desc,
-                                 &actions_desc, &actions_sig, pluginlist, logmalloclist, userdefinedtypelist,
-                                 socket_list, protocolVersion);
+                               &actions_desc, &actions_sig, pluginlist, logmalloclist, userdefinedtypelist, socket_list,
+                               protocolVersion);
             }
 
             UDA_LOG(UDA_LOG_DEBUG,

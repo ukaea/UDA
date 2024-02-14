@@ -1,8 +1,10 @@
-#ifndef UDA_STRUCTURES_PARSEINCLUDEFILE_H
-#define UDA_STRUCTURES_PARSEINCLUDEFILE_H
+#pragma once
 
 #include "genStructs.h"
 
+namespace uda::structures
+{
+
 int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* header);
 
-#endif // UDA_STRUCTURES_PARSEINCLUDEFILE_H
+}

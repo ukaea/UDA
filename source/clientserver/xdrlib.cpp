@@ -22,6 +22,7 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 //-----------------------------------------------------------------------
 // Test version's type passing capability
@@ -451,7 +452,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LogMallocList* logmalloclist, UserDefined
         int shape = str->data_n;                        // rank 1 array of dimension lengths
         auto udt = (UserDefinedType*)str->opaque_block; // The data's structure definition
         auto u = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, "SArray",
-                                        0)); // Locate the carrier structure definition
+                                                                      0)); // Locate the carrier structure definition
 
         if (udt == nullptr || u == nullptr) {
             err = 999;
@@ -475,9 +476,10 @@ bool_t xdr_serialise_object(XDR* xdrs, LogMallocList* logmalloclist, UserDefined
         // Send the data
 
         rc = rc && xdr_user_defined_type_list(xdrs, userdefinedtypelist,
-                                           xdr_stdio_flag); // send the full set of known named structures
-        rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
-                                          xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
+                                              xdr_stdio_flag); // send the full set of known named structures
+        rc =
+            rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
+                                             xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
 
         if (!rc) {
             err = 999;
@@ -520,8 +522,8 @@ bool_t xdr_serialise_object(XDR* xdrs, LogMallocList* logmalloclist, UserDefined
         init_user_defined_type(udt_received);
 
         rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                          protocolVersion, xdr_stdio_flag, log_struct_list,
-                                          malloc_source); // receive the Data
+                                              protocolVersion, xdr_stdio_flag, log_struct_list,
+                                              malloc_source); // receive the Data
 
         if (!rc) {
             err = 999;
@@ -1385,7 +1387,8 @@ bool_t uda::client_server::xdr_data_system(XDR* xdrs, DataSystem* str)
            xdr_char(xdrs, &str->type) && wrap_xdr_string(xdrs, (char*)str->device_name, STRING_LENGTH) &&
            wrap_xdr_string(xdrs, (char*)str->system_name, STRING_LENGTH) &&
            wrap_xdr_string(xdrs, (char*)str->system_desc, MAX_STRING_LENGTH) &&
-           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
            wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
@@ -1397,7 +1400,8 @@ bool_t uda::client_server::xdr_system_config(XDR* xdrs, SystemConfig* str)
     return xdr_int(xdrs, &str->config_id) && xdr_int(xdrs, &str->system_id) && xdr_int(xdrs, &str->meta_id) &&
            wrap_xdr_string(xdrs, (char*)str->config_name, STRING_LENGTH) &&
            wrap_xdr_string(xdrs, (char*)str->config_desc, MAX_STRING_LENGTH) &&
-           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
            wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
@@ -1424,7 +1428,8 @@ bool_t uda::client_server::xdr_data_source(XDR* xdrs, DataSource* str)
            wrap_xdr_string(xdrs, (char*)str->status_desc, MAXMETA) &&
            wrap_xdr_string(xdrs, (char*)str->run_desc, MAXMETA) &&
            wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) &&
-           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
            wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
@@ -1439,7 +1444,8 @@ bool_t uda::client_server::xdr_signal(XDR* xdrs, Signal* str)
            xdr_char(xdrs, &str->access) && xdr_char(xdrs, &str->reprocess) &&
            wrap_xdr_string(xdrs, (char*)str->status_desc, MAXMETA) &&
            wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) &&
-           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
            wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
@@ -1458,6 +1464,7 @@ bool_t uda::client_server::xdr_signal_desc(XDR* xdrs, SignalDesc* str)
            wrap_xdr_string(xdrs, (char*)str->signal_class, MAX_STRING_LENGTH) &&
            wrap_xdr_string(xdrs, (char*)str->signal_owner, MAX_STRING_LENGTH) &&
            wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) &&
-           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
            wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }

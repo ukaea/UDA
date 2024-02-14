@@ -18,14 +18,16 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 static int recursiveDepthPut = 0; // Keep count of recursive calls
 
-int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logmalloclist, LogStructList* log_struct_list,
-                                              UserDefinedTypeList* userdefinedtypelist,
-                                              UserDefinedType* userdefinedtype, void** data, int datacount,
-                                              int structRank, int* structShape, int index, NTree** n_tree,
-                                              int protocolVersion, int malloc_source)
+int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logmalloclist,
+                                                  LogStructList* log_struct_list,
+                                                  UserDefinedTypeList* userdefinedtypelist,
+                                                  UserDefinedType* userdefinedtype, void** data, int datacount,
+                                                  int structRank, int* structShape, int index, NTree** n_tree,
+                                                  int protocolVersion, int malloc_source)
 {
     // Grow the data tree recursively through pointer elements within individual structures
     // Build a linked list tree structure when receiving data.
@@ -1201,7 +1203,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                 }
                                 for (istr = 0; istr < nstr; istr++) { // send/receive individual strings
                                     rc = rc && wrap_xdr_string(xdrs, &str[istr * stride],
-                                                             userdefinedtype->compoundfield[j].count);
+                                                               userdefinedtype->compoundfield[j].count);
                                 }
                             }
                         }
@@ -1357,7 +1359,8 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
 
                 // Pointer to structure definition (void type ignored)
 
-                if ((utype = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, type, 0))) == nullptr &&
+                if ((utype = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, type, 0))) ==
+                        nullptr &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
                     UDA_LOG(UDA_LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
@@ -1486,11 +1489,11 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LogMallocList* logmalloclist, UserDe
         NTree* dataNTree = nullptr;
 
         rc = rc && xdr_user_defined_type(xdrs, userdefinedtypelist,
-                                       userdefinedtype); // User Defined Type Definitions
+                                         userdefinedtype); // User Defined Type Definitions
 
-        rc = rc &&
-             xdr_user_defined_data_put(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1,
-                                   0, nullptr, 0, &dataNTree, protocolVersion, malloc_source); // Data within Structures
+        rc = rc && xdr_user_defined_data_put(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype,
+                                             data, 1, 0, nullptr, 0, &dataNTree, protocolVersion,
+                                             malloc_source); // Data within Structures
 
         udaSetFullNTree(dataNTree); // Copy to Global
     } else {
@@ -1502,11 +1505,11 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LogMallocList* logmalloclist, UserDe
         }
 
         rc = xdr_user_defined_type(xdrs, userdefinedtypelist,
-                                 userdefinedtype); // User Defined Type Definitions
+                                   userdefinedtype); // User Defined Type Definitions
 
-        rc = rc &&
-             xdr_user_defined_data_put(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1,
-                                   0, nullptr, 0, nullptr, protocolVersion, malloc_source); // Data within Structures
+        rc = rc && xdr_user_defined_data_put(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype,
+                                             data, 1, 0, nullptr, 0, nullptr, protocolVersion,
+                                             malloc_source); // Data within Structures
         /*
               if(!XDRstdioFlag) rc = rc && xdrrec_endofrecord(xdrs, 1);
         */
@@ -1547,9 +1550,9 @@ bool_t uda::client_server::xdr_user_defined_type_list_put(XDR* xdrs, UserDefined
 }
 
 int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direction, int* token,
-                                        LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
-                                        void* str, int protocolVersion, LogStructList* log_struct_list,
-                                        unsigned int private_flags, int malloc_source)
+                                          LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                                          void* str, int protocolVersion, LogStructList* log_struct_list,
+                                          unsigned int private_flags, int malloc_source)
 {
     DataBlock* data_block;
 
@@ -1578,8 +1581,9 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                     SArray* psarray = &sarray;
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
                     auto udt = (UserDefinedType*)data_block->opaque_block; // The data's structure definition
-                    UserDefinedType* u = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, "SArray",
-                                                                0)); // Locate the carrier structure definition
+                    UserDefinedType* u = static_cast<UserDefinedType*>(
+                        udaFindUserDefinedType(userdefinedtypelist, "SArray",
+                                               0)); // Locate the carrier structure definition
 
                     if (udt == nullptr || u == nullptr) {
                         err = 999;
@@ -1611,9 +1615,9 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                     // **** the original protocolXML2 marks this as the end of a record and dispatches. This causes an
                     // error - unknown root cause
 
-                    rc = rc &&
-                         xdr_user_defined_type_list_put(xdrs,
-                                                    userdefinedtypelist); // send the full set of known named structures
+                    rc = rc && xdr_user_defined_type_list_put(
+                                   xdrs,
+                                   userdefinedtypelist); // send the full set of known named structures
 
                     UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
 

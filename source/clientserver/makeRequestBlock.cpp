@@ -41,8 +41,8 @@ using namespace uda::logging;
 
 static void extract_function_name(const char* str, RequestData* request);
 
-static int source_file_format_test(const char* source, RequestData* request,
-                                   const uda::plugins::PluginList* pluginList, const Environment* environment);
+static int source_file_format_test(const char* source, RequestData* request, const uda::plugins::PluginList* pluginList,
+                                   const Environment* environment);
 
 static int extract_archive(RequestData* request, int reduceSignal, const Environment* environment);
 
@@ -72,7 +72,7 @@ static int find_plugin_id_by_format(const char* format, const uda::plugins::Plug
 }
 
 int uda::client_server::make_request_data(RequestData* request, const uda::plugins::PluginList* pluginList,
-                                        const Environment* environment)
+                                          const Environment* environment)
 {
     int ldelim;
     int err = 0;
@@ -1086,7 +1086,7 @@ int generic_request_test(const char* source, RequestData* request)
     } else {
         strcpy(work, source);
         if ((token = strtok(work, "/")) != nullptr) { // Tokenise the remaining string
-            if (is_number(token)) {                    // Is the First token an integer number?
+            if (is_number(token)) {                   // Is the First token an integer number?
                 rc = 1;
                 request->request = REQUEST_READ_GENERIC;
                 strcpy(request->path, ""); // Clean the path

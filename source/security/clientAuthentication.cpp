@@ -237,9 +237,9 @@ static int initialiseKeys(ClientBlock* client_block, gcry_sexp_t* publickey_out,
     return 0;
 }
 
-static int issueToken(ClientBlock* client_block, LogMallocList* logmalloclist,
-                      UserDefinedTypeList* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
-                      gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
+static int issueToken(ClientBlock* client_block, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                      gcry_sexp_t publickey, gcry_sexp_t privatekey, gcry_mpi_t* client_mpiToken,
+                      gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
 

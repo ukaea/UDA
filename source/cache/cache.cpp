@@ -5,6 +5,7 @@
 #include "clientserver/xdrlib.h"
 
 using namespace uda::client_server;
+using namespace uda::structures;
 
 void writeCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                     const DataBlock* data_block, int protocolVersion, LogStructList* log_struct_list,
@@ -24,8 +25,8 @@ void writeCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList*
 }
 
 DataBlock* readCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
-                          int protocolVersion, LogStructList* log_struct_list, unsigned int private_flags,
-                          int malloc_source)
+                         int protocolVersion, LogStructList* log_struct_list, unsigned int private_flags,
+                         int malloc_source)
 {
     XDR xdrs;
     xdrstdio_create(&xdrs, fp, XDR_DECODE);

@@ -114,8 +114,7 @@ void uda::client_server::print_error_stack()
 //            1 => Code Error
 //            2 => Plugin Error
 
-uda::client_server::UdaError uda::client_server::create_error(int type, const char* location, int code,
-                                                               const char* msg)
+uda::client_server::UdaError uda::client_server::create_error(int type, const char* location, int code, const char* msg)
 {
     UdaError error;
 

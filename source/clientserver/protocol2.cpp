@@ -41,6 +41,7 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
@@ -119,7 +120,7 @@ int uda::client_server::protocol2(XDR* xdrs, int protocol_id, int direction, int
         default:
             if (protocol_id > UDA_PROTOCOL_OPAQUE_START && protocol_id < UDA_PROTOCOL_OPAQUE_STOP) {
                 err = protocol_xml2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
-                                   protocolVersion, log_struct_list, private_flags, malloc_source);
+                                    protocolVersion, log_struct_list, private_flags, malloc_source);
             }
     }
 
@@ -603,9 +604,9 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMa
                     data_block->opaque_block = put_data.opaque_block; // User Defined Type
 
                     int protocol_id = UDA_PROTOCOL_STRUCTURES;
-                    if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
-                                               data_block, protocolVersion, log_struct_list, private_flags,
-                                               malloc_source)) != 0) {
+                    if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist,
+                                                 userdefinedtypelist, data_block, protocolVersion, log_struct_list,
+                                                 private_flags, malloc_source)) != 0) {
                         // Fetch Structured data
                         break;
                     }
@@ -668,9 +669,9 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMa
                         (char*)putDataBlockList->putDataBlock[i].data; // Compact memory block with structures
 
                     int protocol_id = UDA_PROTOCOL_STRUCTURES;
-                    if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
-                                               &data_block, protocolVersion, log_struct_list, private_flags,
-                                               malloc_source)) != 0) {
+                    if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist,
+                                                 userdefinedtypelist, &data_block, protocolVersion, log_struct_list,
+                                                 private_flags, malloc_source)) != 0) {
                         // Send Structured data
                         break;
                     }

@@ -279,9 +279,9 @@ static int encryptClientToken(ServerBlock* server_block, gcry_sexp_t publickey, 
     return err;
 }
 
-static int issueToken(ServerBlock* server_block, LogMallocList* logmalloclist,
-                      UserDefinedTypeList* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
-                      gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
+static int issueToken(ServerBlock* server_block, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                      gcry_sexp_t publickey, gcry_sexp_t privatekey, gcry_mpi_t* client_mpiToken,
+                      gcry_mpi_t* server_mpiToken)
 {
     int err = 0;
     //---------------------------------------------------------------------------------------------------------------

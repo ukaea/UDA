@@ -85,6 +85,7 @@
 #define PARTBLOCKOUTPUT 3
 
 using namespace uda::client_server;
+using namespace uda::structures;
 using namespace uda::logging;
 
 extern "C" {
@@ -97,9 +98,9 @@ int sha1File(char* name, FILE* fh, unsigned char* md);
 #define MAX_ELEMENT_SHA1 20
 
 int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction, int* token,
-                                     LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
-                                     int protocolVersion, LogStructList* log_struct_list, unsigned int private_flags,
-                                     int malloc_source)
+                                      LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
+                                      int protocolVersion, LogStructList* log_struct_list, unsigned int private_flags,
+                                      int malloc_source)
 {
     DataBlock* data_block;
 
@@ -174,7 +175,8 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
                     auto udt = (UserDefinedType*)data_block->opaque_block; // The data's structure definition
                     // Locate the carrier structure definition
-                    UserDefinedType* u = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, "SArray", 0));
+                    UserDefinedType* u =
+                        static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, "SArray", 0));
 
                     UDA_LOG(UDA_LOG_DEBUG, "Sending to Client\n");
 
@@ -332,8 +334,8 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                     }
 
                     rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
-                                                      protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                      malloc_source); // send the Data
+                                                          protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                          malloc_source); // send the Data
 
                     UDA_LOG(UDA_LOG_DEBUG, "Data sent: rc = %d\n", rc);
 
@@ -714,9 +716,9 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                         UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #A\n");
                         init_user_defined_type(udt_received);
 
-                        rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                                          protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                          malloc_source); // receive the Data
+                        rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                              malloc_source); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -908,9 +910,10 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
 
                             init_user_defined_type(udt_received);
 
-                            rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                              malloc_source); // receive the Data
+                            rc = rc &&
+                                 xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                            &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                            malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -1042,9 +1045,10 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
 
                             init_user_defined_type(udt_received);
 
-                            rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                              malloc_source); // receive the Data
+                            rc = rc &&
+                                 xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                            &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                            malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -1232,7 +1236,7 @@ int unpackXDRFile(LogMallocList* logmalloclist, XDR* xdrs, unsigned char* filena
         init_user_defined_type(udt_received);
 
         rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                          protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
+                                              protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
         if (!rc) {
             err = 999;
@@ -1342,7 +1346,7 @@ int unpackXDRObject(LogMallocList* logmalloclist, XDR* xdrs, unsigned char* obje
         init_user_defined_type(udt_received);
 
         rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                          protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
+                                              protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
         if (!rc) {
             err = 999;

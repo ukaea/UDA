@@ -25,6 +25,7 @@
 using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 static int swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmetry);
 static int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2);
@@ -35,10 +36,10 @@ static int read_data(RequestData* request, ClientBlock client_block, DataBlock* 
                      LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist);
 
 int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock client_block, DataBlock* data_block,
-                            DataSource* data_source, Signal* signal_rec, SignalDesc* signal_desc,
-                            Actions* actions_desc, Actions* actions_sig, const uda::plugins::PluginList* pluginlist,
-                            LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
-                            SOCKETLIST* socket_list, int protocolVersion)
+                          DataSource* data_source, Signal* signal_rec, SignalDesc* signal_desc, Actions* actions_desc,
+                          Actions* actions_sig, const uda::plugins::PluginList* pluginlist,
+                          LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                          SOCKETLIST* socket_list, int protocolVersion)
 {
     int isDerived = 0, compId = -1, serverside = 0;
 
@@ -302,8 +303,8 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
                     UDA_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA\n");
 
                     rc = get_data(depth, &request_block2, client_block, data_block, data_source, signal_rec,
-                                    signal_desc, actions_desc, actions_sig, pluginlist, logmalloclist,
-                                    userdefinedtypelist, socket_list, protocolVersion);
+                                  signal_desc, actions_desc, actions_sig, pluginlist, logmalloclist,
+                                  userdefinedtypelist, socket_list, protocolVersion);
 
                     free_actions(actions_desc); // Added 06Nov2008
                     free_actions(actions_sig);
@@ -401,8 +402,8 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
             }
 
             rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                            &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
-                            userdefinedtypelist, socket_list, protocolVersion);
+                          &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                          userdefinedtypelist, socket_list, protocolVersion);
 
             free_actions(&actions_comp_desc2);
             free_actions(&actions_comp_sig2);
@@ -447,8 +448,8 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
             }
 
             rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                            &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
-                            userdefinedtypelist, socket_list, protocolVersion);
+                          &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                          userdefinedtypelist, socket_list, protocolVersion);
 
             free_actions(&actions_comp_desc2);
             free_actions(&actions_comp_sig2);
@@ -551,8 +552,8 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
                     // Recursive call
 
                     rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                                    &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
-                                    userdefinedtypelist, socket_list, protocolVersion);
+                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                  userdefinedtypelist, socket_list, protocolVersion);
 
                     free_actions(&actions_comp_desc2);
                     free_actions(&actions_comp_sig2);
@@ -599,8 +600,8 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
                     }
 
                     rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                                    &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
-                                    userdefinedtypelist, socket_list, protocolVersion);
+                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                  userdefinedtypelist, socket_list, protocolVersion);
 
                     free_actions(&actions_comp_desc2);
                     free_actions(&actions_comp_sig2);
@@ -647,8 +648,8 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
                     }
 
                     rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                                    &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
-                                    userdefinedtypelist, socket_list, protocolVersion);
+                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                  userdefinedtypelist, socket_list, protocolVersion);
 
                     free_actions(&actions_comp_desc2);
                     free_actions(&actions_comp_sig2);

@@ -15,6 +15,7 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 int uda::server::sleepServer(XDR* server_input, XDR* server_output, LogMallocList* logmalloclist,
                              UserDefinedTypeList* userdefinedtypelist, int protocolVersion,

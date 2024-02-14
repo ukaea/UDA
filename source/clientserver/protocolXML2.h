@@ -12,14 +12,15 @@
 namespace uda::client_server
 {
 
-int protocol_xml2(XDR* xdrs, int protocol_id, int direction, int* token, LogMallocList* logmalloclist,
-                 UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
-                 LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
+int protocol_xml2(XDR* xdrs, int protocol_id, int direction, int* token, uda::structures::LogMallocList* logmalloclist,
+                  uda::structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
+                  uda::structures::LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 
-int xdr_user_defined_type_data(XDR* xdrs, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
-                           UserDefinedType* userdefinedtype, void** data, int protocolVersion, bool xdr_stdio_flag,
-                               LogStructList* log_struct_list, int malloc_source);
+int xdr_user_defined_type_data(XDR* xdrs, uda::structures::LogMallocList* logmalloclist,
+                               uda::structures::UserDefinedTypeList* userdefinedtypelist,
+                               uda::structures::UserDefinedType* userdefinedtype, void** data, int protocolVersion,
+                               bool xdr_stdio_flag, uda::structures::LogStructList* log_struct_list, int malloc_source);
 
-bool_t xdr_user_defined_type_list(XDR* xdrs, UserDefinedTypeList* str, bool xdr_stdio_flag);
+bool_t xdr_user_defined_type_list(XDR* xdrs, uda::structures::UserDefinedTypeList* str, bool xdr_stdio_flag);
 
 } // namespace uda::client_server

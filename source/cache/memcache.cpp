@@ -7,6 +7,10 @@
 
 #ifdef NOLIBMEMCACHED
 
+using namespace uda::structures;
+using namespace uda::client_server;
+using namespace uda::cache;
+
 namespace uda
 {
 namespace cache
@@ -26,20 +30,18 @@ uda::cache::UdaCache* uda::cache::open_cache()
 
 void uda::cache::free_cache() {}
 
-int uda::cache::cache_write(uda::cache::UdaCache* cache, const uda::client_server::RequestData* request_data,
-                            uda::client_server::DataBlock* data_block, LogMallocList* logmalloclist,
-                            UserDefinedTypeList* userdefinedtypelist, uda::client_server::Environment environment,
-                            int protocolVersion, uint32_t flags, LogStructList* log_struct_list,
-                            unsigned int private_flags, int malloc_source)
+int uda::cache::cache_write(UdaCache* cache, const RequestData* request_data, DataBlock* data_block,
+                            LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                            Environment environment, int protocolVersion, uint32_t flags,
+                            LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return 0;
 }
 
 uda::client_server::DataBlock*
-uda::cache::cache_read(uda::cache::UdaCache* cache, const uda::client_server::RequestData* request_data,
-                       LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
-                       uda::client_server::Environment environment, int protocolVersion, uint32_t flags,
-                       LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
+uda::cache::cache_read(UdaCache* cache, const RequestData* request_data, LogMallocList* logmalloclist,
+                       UserDefinedTypeList* userdefinedtypelist, Environment environment, int protocolVersion,
+                       uint32_t flags, LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return nullptr;
 }
@@ -282,9 +284,9 @@ int uda::cache::cache_write(uda::cache::UdaCache* cache, const RequestData* requ
 }
 
 DataBlock* uda::cache::cache_read(uda::cache::UdaCache* cache, const RequestData* request_data,
-                                   LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
-                                   Environment environment, int protocolVersion, uint32_t flags,
-                                   LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
+                                  LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+                                  Environment environment, int protocolVersion, uint32_t flags,
+                                  LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     auto key = generate_cache_key(request_data, environment, flags, private_flags);
     if (key.empty()) {

@@ -25,6 +25,7 @@ using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::plugins;
 using namespace uda::logging;
+using namespace uda::structures;
 
 UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {

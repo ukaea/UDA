@@ -40,6 +40,7 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 void uda::client_server::set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
 {
@@ -402,7 +403,8 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                             break;
                         }
 
-                        if (protocol_version_type_test(protocolVersion, put_data_block_list->putDataBlock[i].data_type)) {
+                        if (protocol_version_type_test(protocolVersion,
+                                                       put_data_block_list->putDataBlock[i].data_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
@@ -839,7 +841,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id > UDA_PROTOCOL_OPAQUE_START && protocol_id < UDA_PROTOCOL_OPAQUE_STOP) {
             err = protocol_xml(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
-                              protocolVersion, log_struct_list, io_data, private_flags, malloc_source, nullptr);
+                               protocolVersion, log_struct_list, io_data, private_flags, malloc_source, nullptr);
         }
 
         //----------------------------------------------------------------------------

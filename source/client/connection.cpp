@@ -98,7 +98,7 @@ int uda::client::reconnect(Environment* environment, XDR** client_input, XDR** c
         int status;
         int fh;
         if (get_socket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port,
-                      &fh) == 0) {
+                       &fh) == 0) {
             environment->server_socket = fh;
             environment->server_change_socket = 1;
         } else {
@@ -555,11 +555,12 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
 
     // Add New Socket to the Socket's List
     add_socket(&client_socketlist, TYPE_UDA_SERVER, 1, environment->server_host, environment->server_port,
-              client_socket);
+               client_socket);
     client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].Input = client_input;
     client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].Output = client_output;
     client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].user_timeout = user_timeout;
-    client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].tv_server_start = *tv_server_start;
+    client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].tv_server_start =
+        *tv_server_start;
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = client_socket;

@@ -73,11 +73,12 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
-int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, int* token, LogMallocList* logmalloclist,
-                                    UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
-                                    LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
-                                    int malloc_source, CreateXDRStreams create_xdr_streams)
+int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, int* token,
+                                     LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
+                                     int protocolVersion, LogStructList* log_struct_list, IoData* io_data,
+                                     unsigned int private_flags, int malloc_source, CreateXDRStreams create_xdr_streams)
 {
     DataBlock* data_block;
 
@@ -128,8 +129,9 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                     SArray* psarray = &sarray;
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
                     auto udt = (UserDefinedType*)data_block->opaque_block; // The data's structure definition
-                    auto u = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, "SArray",
-                                                                0)); // Locate the carrier structure definition
+                    auto u = static_cast<UserDefinedType*>(
+                        udaFindUserDefinedType(userdefinedtypelist, "SArray",
+                                               0)); // Locate the carrier structure definition
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client\n");
 
@@ -225,8 +227,9 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
                     // send the Data
-                    rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
-                                                      protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
+                    rc = rc &&
+                         xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
+                                                    protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
 
@@ -426,9 +429,9 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #A\n");
                         init_user_defined_type(udt_received);
 
-                        rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                                          protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                          malloc_source); // receive the Data
+                        rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                              malloc_source); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -584,9 +587,10 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                             init_user_defined_type(udt_received);
 
-                            rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                              malloc_source); // receive the Data
+                            rc = rc &&
+                                 xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                            &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                            malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;

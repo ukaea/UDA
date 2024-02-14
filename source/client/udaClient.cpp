@@ -38,6 +38,7 @@ using namespace uda::authentication;
 using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::logging;
+using namespace uda::structures;
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
@@ -244,7 +245,7 @@ int check_file_cache(const RequestData* request_data, DataBlock** p_data_block, 
     if (client_flags->flags & CLIENTFLAG_FILECACHE && !request_data->put) {
         // Query the cache for the Data
         DataBlock* data = udaFileCacheRead(request_data, log_malloc_list, user_defined_type_list, protocol_version,
-                                            log_struct_list, private_flags, malloc_source);
+                                           log_struct_list, private_flags, malloc_source);
 
         if (data != nullptr) {
             // Success
@@ -405,9 +406,9 @@ static int allocMeta(DataSystem** data_system, SystemConfig** system_config, Dat
     return err;
 }
 
-static int fetchMeta(XDR* client_input, DataSystem* data_system, SystemConfig* system_config,
-                     DataSource* data_source, Signal* signal_rec, SignalDesc* signal_desc,
-                     LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
+static int fetchMeta(XDR* client_input, DataSystem* data_system, SystemConfig* system_config, DataSource* data_source,
+                     Signal* signal_rec, SignalDesc* signal_desc, LogStructList* log_struct_list,
+                     unsigned int private_flags, int malloc_source)
 {
     int err = 0;
 
@@ -1619,7 +1620,7 @@ void uda::client::udaPutThreadClientBlock(ClientBlock* str)
 }
 
 ClientBlock udaSaveProperties(const CLIENT_FLAGS* client_flags)
-{                                   // save current state of properties for future rollback
+{                                  // save current state of properties for future rollback
     ClientBlock cb = client_block; // Copy of Global Structure (maybe not initialised! i.e. idam API not called)
     cb.get_datadble = client_flags->get_datadble; // Copy individual properties only
     cb.get_dimdble = client_flags->get_dimdble;

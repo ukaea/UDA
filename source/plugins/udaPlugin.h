@@ -66,8 +66,8 @@ struct UdaPluginInterface : UDA_PLUGIN_INTERFACE { // Standard Plugin interface
     uda::client_server::DataSource* data_source;
     uda::client_server::SignalDesc* signal_desc;
     const uda::client_server::Environment* environment; // Server environment
-    LogMallocList* logmalloclist;
-    UserDefinedTypeList* userdefinedtypelist;
+    uda::structures::LogMallocList* logmalloclist;
+    uda::structures::UserDefinedTypeList* userdefinedtypelist;
     void* sqlConnection;          // Opaque structure
     const PluginList* pluginList; // List of data readers, filters, models, and servers
     uda::client_server::ErrorStack error_stack;

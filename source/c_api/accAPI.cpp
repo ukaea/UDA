@@ -34,9 +34,10 @@
 using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::logging;
+using namespace uda::structures;
 
-USERDEFINEDTYPE * udaGetUserDefinedType(int handle);
-USERDEFINEDTYPELIST * udaGetUserDefinedTypeList(int handle);
+USERDEFINEDTYPE* udaGetUserDefinedType(int handle);
+USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);
 LOGMALLOCLIST* udaGetLogMallocList(int handle);
 
 //---------------------------- Mutex locking for thread safety -------------------------

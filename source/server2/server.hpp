@@ -63,9 +63,9 @@ private:
     int server_timeout_ = TIMEOUT;
     int server_tot_block_time_;
     bool fatal_error_ = false;
-    LogMallocList* log_malloc_list_ = nullptr;
-    UserDefinedTypeList* user_defined_type_list_ = nullptr;
-    UserDefinedTypeList parsed_user_defined_type_list_;
+    uda::structures::LogMallocList* log_malloc_list_ = nullptr;
+    uda::structures::UserDefinedTypeList* user_defined_type_list_ = nullptr;
+    uda::structures::UserDefinedTypeList parsed_user_defined_type_list_;
 };
 
 } // namespace uda

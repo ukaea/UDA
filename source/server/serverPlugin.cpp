@@ -34,6 +34,7 @@ using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::plugins;
 using namespace uda::logging;
+using namespace uda::structures;
 
 /**
  * Find the Plugin identity: return the reference id or -1 if not found.
@@ -406,10 +407,9 @@ int uda::server::udaServerPlugin(RequestData* request, DataSource* data_source, 
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* original_request,
-                                     DataSource* data_source, SignalDesc* signal_desc,
-                                     const uda::plugins::PluginList* plugin_list, const char* logRecord,
-                                     const Environment* environment)
+int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* original_request, DataSource* data_source,
+                                     SignalDesc* signal_desc, const uda::plugins::PluginList* plugin_list,
+                                     const char* logRecord, const Environment* environment)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {

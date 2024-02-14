@@ -28,8 +28,8 @@ char source[]
 
 #ifdef _WIN32
 DataBlock* udaFileCacheRead(const RequestData* request, LogMallocList* logmalloclist,
-                             UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
-                             LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
+                            UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
+                            LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return nullptr;
 }
@@ -56,6 +56,7 @@ int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_b
 #  include <sstream>
 
 using namespace uda::client_server;
+using namespace uda::structures;
 
 constexpr int CACHE_MAXCOUNT = 100; // Max Attempts at obtaining a database table lock
 constexpr int CACHE_HOURSVALID = 0;
@@ -374,8 +375,8 @@ boost::optional<CacheStats> purge_cache(FILE* db)
 }
 
 DataBlock* udaFileCacheRead(const RequestData* request, LogMallocList* logmalloclist,
-                             UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
-                             LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
+                            UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
+                            LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     auto maybe_entry = find_cache_entry(request);
     if (!maybe_entry) {

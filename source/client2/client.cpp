@@ -21,6 +21,7 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 namespace
 {
@@ -1198,7 +1199,7 @@ void uda::client::Client::set_log_malloc_list(LogMallocList* logmalloclist)
 
 void uda::client::Client::set_full_ntree(NTREE* full_ntree)
 {
-    full_ntree_ = full_ntree;
+    full_ntree_ = static_cast<NTree*>(full_ntree);
 }
 
 int uda::client::Client::put(std::string_view put_instruction, uda::client_server::PutDataBlock* putdata_block)

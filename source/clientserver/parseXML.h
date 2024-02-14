@@ -134,7 +134,6 @@ struct Action {
         Subset subset;
         Map map;
     };
-
 };
 
 struct Actions {

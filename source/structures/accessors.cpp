@@ -55,6 +55,7 @@
 #include "struct.h"
 
 using namespace uda::logging;
+using namespace uda::structures;
 
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.
  *
@@ -615,8 +616,8 @@ int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* c_tree, USE
         // VLEN!)
 
         auto old = (VOIDTYPE)vlen->data;
-        UserDefinedType* child =
-            static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, tree->userdefinedtype->compoundfield[1].type, 0));
+        UserDefinedType* child = static_cast<UserDefinedType*>(
+            udaFindUserDefinedType(userdefinedtypelist, tree->userdefinedtype->compoundfield[1].type, 0));
         vlen->data = realloc(vlen->data, count * child->size); // Expand Heap to regularise
         newnew = vlen->data;
         size = child->size;
@@ -949,8 +950,8 @@ void defineArrayField(CompoundField* field, const char* name, const char* desc, 
  * @param type_id Enumerated key indicating the type of data field, e.g. float array
  * @return Void
  */
-void defineField(CompoundField* field, const char* name, const char* desc, int* offset, unsigned short type_id,
-                 int rank, int* shape)
+void uda::structures::defineField(CompoundField* field, const char* name, const char* desc, int* offset,
+                                  unsigned short type_id, int rank, int* shape)
 {
     init_compound_field(field);
     strcpy(field->name, name);
@@ -1096,8 +1097,8 @@ void defineField(CompoundField* field, const char* name, const char* desc, int* 
     *offset = field->offset + field->size; // Next Offset
 }
 
-void defineUserTypeField(CompoundField* field, const char* name, const char* desc, int* offset, int rank, int* shape,
-                         UserDefinedType* user_type, bool is_pointer)
+void uda::structures::defineUserTypeField(CompoundField* field, const char* name, const char* desc, int* offset,
+                                          int rank, int* shape, UserDefinedType* user_type, bool is_pointer)
 {
     init_compound_field(field);
     strcpy(field->name, name);

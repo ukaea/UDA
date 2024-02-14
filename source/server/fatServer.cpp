@@ -32,6 +32,7 @@ void ncclose(int fh) {}
 using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 static uda::plugins::PluginList pluginList; // List of all data reader plugins (internal and external shared libraries)
 Environment environment;                    // Holds local environment variable values
@@ -212,8 +213,9 @@ static int process_hierarchical_data(DataBlock* data_block, LogStructList* log_s
     // Write data to the temporary file
 
     int protocol_id = UDA_PROTOCOL_STRUCTURES;
-    protocol_xml(&xdr_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list, data_block,
-                protocol_version, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
+    protocol_xml(&xdr_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                 data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
+                 serverCreateXDRStream);
 
     // Close the stream and file
 
@@ -238,8 +240,8 @@ static int process_hierarchical_data(DataBlock* data_block, LogStructList* log_s
 
     protocol_id = UDA_PROTOCOL_STRUCTURES;
     err = protocol_xml(&xdr_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
-                      data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
-                      serverCreateXDRStream);
+                       data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
+                       serverCreateXDRStream);
 
     // Close the stream and file
 
@@ -338,8 +340,8 @@ int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0
         auto data_block = &data_blocks->data[i];
         init_data_block(data_block);
         err = get_data(&depth, request, *client_block, data_block, &metadata_block->data_source,
-                         &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                         &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
+                       &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
+                       &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
         ++data_blocks->count;
     }
 

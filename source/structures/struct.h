@@ -2,6 +2,9 @@
 
 #include "genStructs.h"
 
+namespace uda::structures
+{
+
 /** Initialise a LogMallocList data structure.
  *
  * @param str A pointer to a LogMallocList data structure instance.
@@ -74,3 +77,5 @@ void add_user_defined_type(UserDefinedTypeList* str, UserDefinedType type);
  * @return void.
  */
 void update_user_defined_type(UserDefinedTypeList* str, int typeId, UserDefinedType type);
+
+} // namespace uda::structures

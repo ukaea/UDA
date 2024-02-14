@@ -7,18 +7,19 @@
 #include "clientserver/protocol.h"
 #include "clientserver/stringUtils.h"
 #include "clientserver/xdrlib.h"
-#include "logging/logging.h"
 #include "genStructs.h"
+#include "logging/logging.h"
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::structures;
 
 static int recursiveDepth = 0; // Keep count of recursive calls
 
-int xdrUserDefinedData(XDR* xdrs, LogMallocList* logmalloclist, LogStructList* log_struct_list,
-                       UserDefinedTypeList* userdefinedtypelist, UserDefinedType* userdefinedtype, void** data,
-                       int datacount, int structRank, int* structShape, int index, NTree** n_tree, int protocolVersion,
-                       int malloc_source)
+int uda::structures::xdrUserDefinedData(XDR* xdrs, LogMallocList* logmalloclist, LogStructList* log_struct_list,
+                                        UserDefinedTypeList* userdefinedtypelist, UserDefinedType* userdefinedtype,
+                                        void** data, int datacount, int structRank, int* structShape, int index,
+                                        NTree** n_tree, int protocolVersion, int malloc_source)
 {
     // Grow the data tree recursively through pointer elements within individual structures
     // Build a linked list tree structure when receiving data.
@@ -1261,7 +1262,7 @@ int xdrUserDefinedData(XDR* xdrs, LogMallocList* logmalloclist, LogStructList* l
                                 }
                                 for (istr = 0; istr < nstr; istr++) { // send/receive individual strings
                                     rc = rc && wrap_xdr_string(xdrs, &str[istr * stride],
-                                                             userdefinedtype->compoundfield[j].count);
+                                                               userdefinedtype->compoundfield[j].count);
                                 }
                             }
                         }
@@ -1420,7 +1421,8 @@ int xdrUserDefinedData(XDR* xdrs, LogMallocList* logmalloclist, LogStructList* l
                 // Pointer to structure definition (void type ignored)
 
                 UserDefinedType* utype;
-                if ((utype = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, type, 0))) == nullptr &&
+                if ((utype = static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, type, 0))) ==
+                        nullptr &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
                     UDA_LOG(UDA_LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
