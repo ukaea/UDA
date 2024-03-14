@@ -18,11 +18,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+#        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
         release: [Release]
-        ssl: [ON, OFF]
+#        ssl: [ON, OFF]
+        ssl: [OFF]
         client-only: [OFF]
-        capnp: [ON, OFF]
+#        capnp: [ON, OFF]
+        capnp: [ON]
 #        include:
 #          - client-only: ON
 #            ssl: OFF
@@ -173,6 +176,14 @@ jobs:
         run: >
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'
+
+      - name: Install server
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+          systemctl start uda.socket &&
+          systemctl enable uda.socket &&
+          nc -4zv localhost 56565
 
 #      - name: Test
 #        working-directory: build

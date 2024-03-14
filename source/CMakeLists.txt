@@ -146,3 +146,23 @@ install(
   DESTINATION etc
   PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 )
+
+set( SERVICE_FILES
+  uda.socket
+  uda@.service
+)
+
+foreach( SERVICE_FILE ${SERVICE_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/source/etc/${SERVICE_FILE}.in"
+    "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+    @ONLY
+  )
+
+  install(
+    FILES "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+    DESTINATION etc
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+  )
+endforeach()
+
