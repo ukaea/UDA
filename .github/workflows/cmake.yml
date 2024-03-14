@@ -177,7 +177,7 @@ jobs:
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'
 
-      - name: Install server
+      - name: Run system tests
         if: matrix.os == 'ubuntu-latest'
         run: >
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
@@ -187,7 +187,7 @@ jobs:
           nc -4zv localhost 56565 &&
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
-          ./build/test/plugins/plugin_test_testplugin "Test help function"
+          ./build/test/plugins/plugin_test_testplugin
 
 #      - name: Test
 #        working-directory: build
