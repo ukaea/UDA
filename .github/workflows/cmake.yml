@@ -180,9 +180,9 @@ jobs:
       - name: Install server
         if: matrix.os == 'ubuntu-latest'
         run: >
-          cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
-          systemctl start uda.socket &&
-          systemctl enable uda.socket &&
+          sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+          sudo systemctl start uda.socket &&
+          sudo systemctl enable uda.socket &&
           nc -4zv localhost 56565
 
 #      - name: Test
