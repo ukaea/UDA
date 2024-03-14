@@ -21,7 +21,6 @@
 #include <openssl/x509.h>
 
 #define VERIFY_DEPTH 4
-#define X509STRINGSIZE 256
 
 #include <client/udaClientHostList.h>
 #include <clientserver/export.h>

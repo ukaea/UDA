@@ -15,8 +15,9 @@
 #include <logging/logging.h>
 #include <server/writer.h>
 
+#include "utils.h"
+
 #define VERIFY_DEPTH 4
-#define X509STRINGSIZE 256
 
 /*
 Note on initialisation:
@@ -94,9 +95,7 @@ void initUdaServerSSL()
         UDA_LOG(UDA_LOG_DEBUG, "Prior SSL initialisation\n");
         return;
     }
-    SSL_library_init();
-    SSL_load_error_strings();
-    OpenSSL_add_ssl_algorithms();
+    OPENSSL_init_ssl(OPENSSL_INIT_SSL_DEFAULT, nullptr);
 #ifdef _WIN32
     _putenv_s("UDA_SSL_INITIALISED", "1");
 #else
@@ -122,7 +121,6 @@ void closeUdaServerSSL()
     }
     if (g_ctx != nullptr)
         SSL_CTX_free(g_ctx);
-    EVP_cleanup();
     g_ssl = nullptr;
     g_ctx = nullptr;
 #ifdef _WIN32
@@ -150,14 +148,6 @@ SSL_CTX* createUdaServerSSLContext()
 
     // Disable SSLv2 for v3 and TSLv1  negotiation
     SSL_CTX_set_options(g_ctx, SSL_OP_NO_SSLv2);
-
-    /*
-    // Set the Cipher List
-       if (SSL_CTX_set_cipher_list(g_ctx, "AES128-SHA") <= 0) {
-          printf("Error setting the cipher list.\n");
-          exit(0);
-       }
-    */
 
     UDA_LOG(UDA_LOG_DEBUG, "SSL Context created\n");
 
@@ -210,12 +200,12 @@ int configureUdaServerSSLContext()
     SSL_CTX_set_verify(g_ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
     SSL_CTX_set_verify_depth(g_ctx, VERIFY_DEPTH);
 
-    // Add verification against the Certificate Revocation List
-    X509_VERIFY_PARAM* params = X509_VERIFY_PARAM_new();
-    X509_VERIFY_PARAM_set_flags(params, X509_V_FLAG_CRL_CHECK);
-    SSL_CTX_set1_param(g_ctx, params);
-
     if (crlist != nullptr) {
+        // Add verification against the Certificate Revocation List
+        X509_VERIFY_PARAM* params = X509_VERIFY_PARAM_new();
+        X509_VERIFY_PARAM_set_flags(params, X509_V_FLAG_CRL_CHECK);
+        SSL_CTX_set1_param(g_ctx, params);
+
         X509_CRL* crl = loadUdaServerSSLCrl(crlist);
         if (!crl) {
             return 999; // CRL not loaded
@@ -231,22 +221,6 @@ int configureUdaServerSSLContext()
         addUdaServerSSLCrlsStore(st, crls);
         SSL_CTX_set1_verify_cert_store(g_ctx, st);
     }
-
-    // Set CA list used for client authentication
-
-    /*
-      if(SSL_CTX_use_certificate_chain_file(g_ctx, getenv("UDA_SERVER_CA_SSL_CERT")) < 1){
-         //printf("Error setting the CA chain file\n");
-         exit(0);
-      }
-    */
-    /*
-      SSL_CTX_set_client_CA_list(g_ctx, SSL_load_client_CA_file(getenv("UDA_SERVER_CA_SSL_CERT")));
-
-       rc = load_CA(g_ssl, g_ctx, getenv("UDA_SERVER_CA_SSL_CERT"));    // calls SSL_CTX_add_client_CA(g_ctx, X509
-      *cacert) and         SSL_add_client_CA(g_ssl, X509 *cacert) if(rc == 0)fprintf(logout, "Unable to load Client
-      CA!\n");
-    */
 
     UDA_LOG(UDA_LOG_DEBUG, "SSL Context configured\n");
 
@@ -346,10 +320,10 @@ int startUdaServerSSL()
     }
 
     // Get the Client's certificate and verify
-    X509* peer = SSL_get_peer_certificate(g_ssl);
+    X509* peer = SSL_get1_peer_certificate(g_ssl);
 
     if (peer != nullptr) {
-        if ((rc = SSL_get_verify_result(g_ssl)) != X509_V_OK) {
+        if ((rc = (int)SSL_get_verify_result(g_ssl)) != X509_V_OK) {
             // returns X509_V_OK if the certificate was not obtained as no error occured!
             X509_free(peer);
             UDA_LOG(UDA_LOG_DEBUG, "SSL Client certificate presented but verification error!\n");
@@ -359,13 +333,20 @@ int startUdaServerSSL()
 
         // Client's details
 
-        char work[X509STRINGSIZE];
+        char work[X509_STRING_SIZE];
         UDA_LOG(UDA_LOG_DEBUG, "Client certificate verified\n");
         UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
                 X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
         UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n", X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", X509_get_notBefore(peer));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", X509_get_notAfter(peer));
+
+        ASN1_TIME* before = X509_getm_notBefore(peer);
+        ASN1_TIME* after = X509_getm_notAfter(peer);
+
+        std::string before_string = to_string(before);
+        std::string after_string = to_string(after);
+
+        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", before_string.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", after_string.c_str());
         X509_free(peer);
     } else {
         X509_free(peer);

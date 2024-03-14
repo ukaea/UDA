@@ -12,6 +12,8 @@
 #include <logging/logging.h>
 #include <client/udaClientHostList.h>
 
+#include "utils.h"
+
 static bool g_sslDisabled = true;   // Default state is not SSL authentication
 static int g_sslProtocol = 0;       // The default server host name has the SSL protocol name prefix or
 static int g_sslSocket = -1;
@@ -51,9 +53,7 @@ static void init_ssl_library()
         UDA_LOG(UDA_LOG_DEBUG, "Prior SSL initialisation\n");
         return;
     }
-    SSL_library_init();
-    SSL_load_error_strings();
-    OpenSSL_add_ssl_algorithms();
+    OPENSSL_init_ssl(OPENSSL_INIT_SSL_DEFAULT, nullptr);
 #ifdef _WIN32
     if (getenv("UDA_SSL_INITIALISED") == nullptr) {
         _putenv_s("UDA_SSL_INITIALISED", "1");
@@ -84,7 +84,6 @@ void closeUdaClientSSL()
     if (ctx != nullptr) {
         SSL_CTX_free(ctx);
     }
-    EVP_cleanup();
     g_ssl = nullptr;
     g_ctx = nullptr;
 #ifdef _WIN32
@@ -272,10 +271,10 @@ int configureUdaClientSSLContext(const HostData* host)
         UDA_THROW_ERROR(999, "Unable to parse client certificate [%s] to verify certificate validity");
     }
 
-    const ASN1_TIME* before = X509_get_notBefore(clientCert);
-    const ASN1_TIME* after = X509_get_notAfter(clientCert);
+    const ASN1_TIME* before = X509_getm_notBefore(clientCert);
+    const ASN1_TIME* after = X509_getm_notAfter(clientCert);
 
-    char work[X509STRINGSIZE];
+    char work[X509_STRING_SIZE];
     UDA_LOG(UDA_LOG_DEBUG, "Client X509 subject: %s\n",
             X509_NAME_oneline(X509_get_subject_name(clientCert), work, sizeof(work)));
     UDA_LOG(UDA_LOG_DEBUG, "Client X509 issuer: %s\n",
@@ -284,31 +283,22 @@ int configureUdaClientSSLContext(const HostData* host)
     time_t current_time = time(nullptr);
     char* c_time_string = ctime(&current_time);
 
-    int rc = 0, count = 0;
-    BIO* b = BIO_new(BIO_s_mem());
-    if (b && ASN1_TIME_print(b, before)) {
-        count = BIO_read(b, work, X509STRINGSIZE - 1);
-        BIO_free(b);
-    }
-    work[count] = '\0';
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before: %s\n", work);
+    std::string before_string = to_string(before);
+
+    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before: %s\n", before_string.c_str());
+    int rc = 0;
     if ((rc = X509_cmp_time(before, &current_time)) >= 0) {
         // Not Before is after Now!
         X509_free(clientCert);
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
         UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before date is before the current date!\n");
-        UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Vaidity Date is in the future!\n");
-        UDA_THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
+        UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Validity Date is in the future!\n");
+        UDA_THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Validity Date is in the future");
     }
 
-    count = 0;
-    b = BIO_new(BIO_s_mem());
-    if (b && ASN1_TIME_print(b, after)) {
-        count = BIO_read(b, work, X509STRINGSIZE - 1);
-        BIO_free(b);
-    }
-    work[count] = '\0';
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after   : %s\n", work);
+    std::string after_string = to_string(after);
+
+    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after   : %s\n", after_string.c_str());
     if ((rc = X509_cmp_time(after, &current_time)) <= 0) {// Not After is before Now!
         X509_free(clientCert);
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
@@ -319,7 +309,7 @@ int configureUdaClientSSLContext(const HostData* host)
     X509_free(clientCert);
 
     UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-    UDA_LOG(UDA_LOG_DEBUG, "Cient certificate date validity checked but not validated \n");
+    UDA_LOG(UDA_LOG_DEBUG, "Client certificate date validity checked but not validated \n");
 
     return 0;
 }
@@ -393,7 +383,7 @@ int startUdaClientSSL()
     }
 
     // Get the Server certificate and verify
-    X509* peer = SSL_get_peer_certificate(g_ssl);
+    X509* peer = SSL_get1_peer_certificate(g_ssl);
 
     if (peer != nullptr) {
 
@@ -407,7 +397,7 @@ int startUdaClientSSL()
 
         // Server's details - not required apart from logging
 
-        char work[X509STRINGSIZE];
+        char work[X509_STRING_SIZE];
         UDA_LOG(UDA_LOG_DEBUG, "Server certificate verified\n");
         UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
                 X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
@@ -416,20 +406,15 @@ int startUdaClientSSL()
 
         // Verify Date validity
 
-        const ASN1_TIME* before = X509_get_notBefore(peer);
-        const ASN1_TIME* after = X509_get_notAfter(peer);
+        const ASN1_TIME* before = X509_getm_notBefore(peer);
+        const ASN1_TIME* after = X509_getm_notAfter(peer);
 
         time_t current_time = time(nullptr);
         char* c_time_string = ctime(&current_time);
 
-        int count = 0;
-        BIO* b = BIO_new(BIO_s_mem());
-        if (b && ASN1_TIME_print(b, before)) {
-            count = BIO_read(b, work, X509STRINGSIZE - 1);
-            BIO_free(b);
-        }
-        work[count] = '\0';
-        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before: %s\n", work);
+        std::string before_string = to_string(before);
+
+        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before: %s\n", before_string.c_str());
         if ((rc = X509_cmp_time(before, &current_time)) >= 0) {// Not Before is after Now!
             X509_free(peer);
             UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
@@ -439,14 +424,9 @@ int startUdaClientSSL()
             UDA_THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
         }
 
-        count = 0;
-        b = BIO_new(BIO_s_mem());
-        if (b && ASN1_TIME_print(b, after)) {
-            count = BIO_read(b, work, X509STRINGSIZE - 1);
-            BIO_free(b);
-        }
-        work[count] = '\0';
-        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after   : %s\n", work);
+        std::string after_string = to_string(after);
+
+        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after   : %s\n", after_string.c_str());
         if ((rc = X509_cmp_time(after, &current_time)) <= 0) {// Not After is before Now!
             X509_free(peer);
             UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
