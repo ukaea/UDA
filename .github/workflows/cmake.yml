@@ -183,7 +183,10 @@ jobs:
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
           sudo systemctl start uda.socket &&
           sudo systemctl enable uda.socket &&
-          nc -4zv localhost 56565
+          nc -4zv localhost 56565 &&
+          export UDA_HOST=localhost &&
+          export UDA_PORT=56565 &&
+          ./build/test/plugins/plugin_test_testplugin "Test help function"
 
 #      - name: Test
 #        working-directory: build
