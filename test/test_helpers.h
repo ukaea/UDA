@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 
-#include "catch.hpp"
+#include <catch2/catch_all.hpp>
 
 namespace Catch {
 namespace Detail {

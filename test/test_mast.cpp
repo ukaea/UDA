@@ -1,7 +1,9 @@
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include <catch2/catch_all.hpp>
 
 #include <c++/UDA.hpp>
+
+using Catch::Approx;
 
 TEST_CASE( "Test get anu_neutrons signal", "[MAST]" )
 {

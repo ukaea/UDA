@@ -5,6 +5,12 @@ if( NO_WRAPPERS )
   return()
 endif()
 
+find_package( Catch2 3 QUIET )
+if( NOT Catch2_FOUND )
+  message( WARNING "Catch2 not found - skipping tests" )
+  return()
+endif()
+
 enable_testing()
 
 find_package( Boost )
@@ -106,6 +112,7 @@ macro( BUILD_TEST NAME SOURCE )
     ${CACHE_LIBRARIES}
     ${LIBRARIES}
     ${LINK_STD}
+    Catch2::Catch2WithMain
   )
 
   set_target_properties( ${NAME}
@@ -131,6 +138,7 @@ macro( BUILD_TEST NAME SOURCE )
     ${LINK_M}
     ${LINK_DL}
     ${LINK_STD}
+    Catch2::Catch2WithMain
   )
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )

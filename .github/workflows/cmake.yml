@@ -66,6 +66,7 @@ jobs:
           python3-dev
           python3-pip
           python3-venv
+          catch2
 
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
@@ -80,6 +81,7 @@ jobs:
           spdlog
           ninja
           capnp
+          catch2
 
 #      - name: Cache windows packages
 #        id: cache-vcpkg
@@ -103,6 +105,7 @@ jobs:
           openssl
           dlfcn-win32
           spdlog
+          catch2
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
@@ -177,17 +180,17 @@ jobs:
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'
 
-#      - name: Run system tests
-#        if: matrix.os == 'ubuntu-latest'
-#        run: >
-#          sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
-#          sudo systemctl start uda.socket &&
-#          sudo systemctl enable uda.socket &&
-#          sudo chown -R $USER:$USER /usr/local/etc &&
-#          nc -4zv localhost 56565 &&
-#          export UDA_HOST=localhost &&
-#          export UDA_PORT=56565 &&
-#          ./build/test/plugins/plugin_test_testplugin
+      - name: Run non-SSL system tests
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'OFF'
+        run: >
+          sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+          sudo systemctl start uda.socket &&
+          sudo systemctl enable uda.socket &&
+          sudo chown -R $USER:$USER /usr/local/etc &&
+          nc -4zv localhost 56565 &&
+          export UDA_HOST=localhost &&
+          export UDA_PORT=56565 &&
+          ./build/test/plugins/plugin_test_testplugin
 
       - name: Run SSL system tests
         if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
