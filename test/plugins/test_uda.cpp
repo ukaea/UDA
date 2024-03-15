@@ -1,9 +1,7 @@
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch_all.hpp>
+#include "catch.hpp"
 
 #include <c++/UDA.hpp>
-
-using Catch::Approx;
 
 TEST_CASE( "Test UDA::help() function", "[UDA][plugins]" )
 {

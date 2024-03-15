@@ -1,11 +1,8 @@
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch_all.hpp>
+#include "catch.hpp"
 
 #include <c++/UDA.hpp>
 #include <serialisation/capnp_serialisation.h>
-
-using Catch::Matchers::ContainsSubstring;
-using Catch::Approx;
 
 TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 {
@@ -1605,7 +1602,7 @@ TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 
 #ifndef FATCLIENT
     // This test hard crashes the server code so can't be run in fat-client mode
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), ContainsSubstring("[idamClient]:  Protocol 11 Error (Server Block #2)") );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), Catch::Contains("[idamClient]:  Protocol 11 Error (Server Block #2)") );
 #endif
 }
 
