@@ -257,6 +257,10 @@ int configureUdaClientSSLContext(const HostData* host)
 
     UDA_LOG(UDA_LOG_DEBUG, "SSL context configured\n");
 
+    if (std::string{ cert } == "none") {
+        return 0;
+    }
+
     // validate the client's certificate
     FILE* fd = fopen(cert, "r");
 

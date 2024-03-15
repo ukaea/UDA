@@ -193,10 +193,10 @@ int configureUdaServerSSLContext()
 
     // Load certificates of trusted CAs
     if (SSL_CTX_load_verify_locations(g_ctx, ca, nullptr) < 1) {
-        UDA_THROW_ERROR(999, "Error setting the Cetificate Authority verify locations!");
+        UDA_THROW_ERROR(999, "Error setting the Certificate Authority verify locations!");
     }
 
-    const char* no_verify = getenv("UDA_SERVER_NO_VERIFY");
+    const char* no_verify = getenv("UDA_SERVER_SSL_NO_VERIFY");
 
     if (no_verify) {
         SSL_CTX_set_verify(g_ctx, SSL_VERIFY_NONE, nullptr);
@@ -325,7 +325,7 @@ int startUdaServerSSL()
         return err;
     }
 
-    const char* no_verify = getenv("UDA_SERVER_NO_VERIFY");
+    const char* no_verify = getenv("UDA_SERVER_SSL_NO_VERIFY");
 
     if (!no_verify) {
         // Get the Client's certificate and verify
