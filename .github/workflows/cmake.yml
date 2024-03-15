@@ -190,7 +190,7 @@ jobs:
 #          ./build/test/plugins/plugin_test_testplugin
 
       - name: Run SSL system tests
-        if: matrix.os == 'ubuntu-latest' && matrix.ssl = 'ON'
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
         run: >
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
           sudo chown -R $USER:$USER /usr/local/etc &&
