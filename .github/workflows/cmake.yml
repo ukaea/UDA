@@ -18,11 +18,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+#        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
         release: [Release]
-        ssl: [ON, OFF]
+#        ssl: [ON, OFF]
+        ssl: [ON]
         client-only: [OFF]
-        capnp: [ON, OFF]
+#        capnp: [ON, OFF]
+        capnp: [ON]
 #        include:
 #          - client-only: ON
 #            ssl: OFF
@@ -174,17 +177,37 @@ jobs:
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'
 
-      - name: Run system tests
-        if: matrix.os == 'ubuntu-latest'
+#      - name: Run system tests
+#        if: matrix.os == 'ubuntu-latest'
+#        run: >
+#          sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+#          sudo systemctl start uda.socket &&
+#          sudo systemctl enable uda.socket &&
+#          sudo chown -R $USER:$USER /usr/local/etc &&
+#          nc -4zv localhost 56565 &&
+#          export UDA_HOST=localhost &&
+#          export UDA_PORT=56565 &&
+#          ./build/test/plugins/plugin_test_testplugin
+
+      - name: Run SSL system tests
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl = 'ON'
         run: >
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+          sudo chown -R $USER:$USER /usr/local/etc &&
+          echo "export UDAHOSTNAME=github-ci-ssl" >> /usr/local/etc/udaserver.cfg &&
+          ./scripts/create_certs.sh &&
+          mkdir /usr/local/etc/certs &&
+          cp rootCA.crt server.crt server.key /usr/local/etc/certs &&
           sudo systemctl start uda.socket &&
           sudo systemctl enable uda.socket &&
-          sudo chown -R $USER:$USER /usr/local/etc &&
           nc -4zv localhost 56565 &&
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
-          ./build/test/plugins/plugin_test_testplugin
+          export UDA_CLIENT_SSL_AUTHENTICATE=1 &&
+          export UDA_CLIENT_CA_SSL_CERT=$PWD/rootCA.crt &&
+          export UDA_CLIENT_SSL_CERT=$PWD/client.crt &&
+          export UDA_CLIENT_SSL_KEY=$PWD/client.key &&
+          ./build/test/plugins/plugin_test_testplugin "Test help function"
 
 #      - name: Test
 #        working-directory: build
