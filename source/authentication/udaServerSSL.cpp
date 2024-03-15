@@ -134,7 +134,7 @@ void closeUdaServerSSL()
 
 SSL_CTX* createUdaServerSSLContext()
 {
-    const SSL_METHOD* method = SSLv23_server_method(); // standard TCP
+    const SSL_METHOD* method = TLS_server_method(); // standard TCP
 
     // method = DTLSv1_server_method()        // reliable UDP
 
@@ -196,9 +196,15 @@ int configureUdaServerSSLContext()
         UDA_THROW_ERROR(999, "Error setting the Cetificate Authority verify locations!");
     }
 
-    // Peer certificate verification
-    SSL_CTX_set_verify(g_ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
-    SSL_CTX_set_verify_depth(g_ctx, VERIFY_DEPTH);
+    const char* no_verify = getenv("UDA_SERVER_NO_VERIFY");
+
+    if (no_verify) {
+        SSL_CTX_set_verify(g_ctx, SSL_VERIFY_NONE, nullptr);
+    } else {
+        // Peer certificate verification
+        SSL_CTX_set_verify(g_ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
+        SSL_CTX_set_verify_depth(g_ctx, VERIFY_DEPTH);
+    }
 
     if (crlist != nullptr) {
         // Add verification against the Certificate Revocation List
@@ -319,39 +325,44 @@ int startUdaServerSSL()
         return err;
     }
 
-    // Get the Client's certificate and verify
-    X509* peer = SSL_get1_peer_certificate(g_ssl);
+    const char* no_verify = getenv("UDA_SERVER_NO_VERIFY");
 
-    if (peer != nullptr) {
-        if ((rc = (int)SSL_get_verify_result(g_ssl)) != X509_V_OK) {
-            // returns X509_V_OK if the certificate was not obtained as no error occured!
+    if (!no_verify) {
+        // Get the Client's certificate and verify
+        X509 *peer = SSL_get1_peer_certificate(g_ssl);
+
+        if (peer != nullptr) {
+            if ((rc = (int) SSL_get_verify_result(g_ssl)) != X509_V_OK) {
+                // returns X509_V_OK if the certificate was not obtained as no error occured!
+                X509_free(peer);
+                UDA_LOG(UDA_LOG_DEBUG, "SSL Client certificate presented but verification error!\n");
+                UDA_ADD_ERROR(999, "SSL Client certificate  presented but verification error!");
+                UDA_THROW_ERROR(999, X509_verify_cert_error_string(rc));
+            }
+
+            // Client's details
+
+            char work[X509_STRING_SIZE];
+            UDA_LOG(UDA_LOG_DEBUG, "Client certificate verified\n");
+            UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
+                    X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
+            UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n",
+                    X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
+
+            ASN1_TIME *before = X509_getm_notBefore(peer);
+            ASN1_TIME *after = X509_getm_notAfter(peer);
+
+            std::string before_string = to_string(before);
+            std::string after_string = to_string(after);
+
+            UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", before_string.c_str());
+            UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", after_string.c_str());
             X509_free(peer);
-            UDA_LOG(UDA_LOG_DEBUG, "SSL Client certificate presented but verification error!\n");
-            UDA_ADD_ERROR(999, "SSL Client certificate  presented but verification error!");
-            UDA_THROW_ERROR(999, X509_verify_cert_error_string(rc));
+        } else {
+            X509_free(peer);
+            UDA_LOG(UDA_LOG_DEBUG, "Client certificate not presented for verification!\n");
+            UDA_THROW_ERROR(999, "Client certificate not presented for verification!");
         }
-
-        // Client's details
-
-        char work[X509_STRING_SIZE];
-        UDA_LOG(UDA_LOG_DEBUG, "Client certificate verified\n");
-        UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
-                X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n", X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
-
-        ASN1_TIME* before = X509_getm_notBefore(peer);
-        ASN1_TIME* after = X509_getm_notAfter(peer);
-
-        std::string before_string = to_string(before);
-        std::string after_string = to_string(after);
-
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", before_string.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", after_string.c_str());
-        X509_free(peer);
-    } else {
-        X509_free(peer);
-        UDA_LOG(UDA_LOG_DEBUG, "Client certificate not presented for verification!\n");
-        UDA_THROW_ERROR(999, "Client certificate not presented for verification!");
     }
 
     // Print out connection details

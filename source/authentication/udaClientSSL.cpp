@@ -146,7 +146,7 @@ void reportSSLErrorCode(int rc)
 
 SSL_CTX* createUdaClientSSLContext()
 {
-    const SSL_METHOD* method = SSLv23_client_method(); // standard TCP
+    const SSL_METHOD* method = TLS_client_method(); // standard TCP
 
     // method = DTLSv1_client_method()// reliable UDP
 
@@ -225,20 +225,24 @@ int configureUdaClientSSLContext(const HostData* host)
     UDA_LOG(UDA_LOG_DEBUG, "Client SSL key: %s\n", key);
     UDA_LOG(UDA_LOG_DEBUG, "CA SSL certificates: %s\n", ca);
 
-    if (SSL_CTX_use_certificate_file(g_ctx, cert, SSL_FILETYPE_PEM) <= 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client certificate!\n");
-        UDA_THROW_ERROR(999, "Failed to set the client certificate!");
+    if (std::string{ cert } != "none") {
+        if (SSL_CTX_use_certificate_file(g_ctx, cert, SSL_FILETYPE_PEM) <= 0) {
+            UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client certificate!\n");
+            UDA_THROW_ERROR(999, "Failed to set the client certificate!");
+        }
     }
 
-    if (SSL_CTX_use_PrivateKey_file(g_ctx, key, SSL_FILETYPE_PEM) <= 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client key!\n");
-        UDA_THROW_ERROR(999, "Failed to set the client key!");
-    }
+    if (std::string{ key } != "none") {
+        if (SSL_CTX_use_PrivateKey_file(g_ctx, key, SSL_FILETYPE_PEM) <= 0) {
+            UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client key!\n");
+            UDA_THROW_ERROR(999, "Failed to set the client key!");
+        }
 
-    // Check key and certificate match
-    if (SSL_CTX_check_private_key(g_ctx) == 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error: Private key does not match the certificate public key!\n");
-        UDA_THROW_ERROR(999, "Private key does not match the certificate public key!");
+        // Check key and certificate match
+        if (SSL_CTX_check_private_key(g_ctx) == 0) {
+            UDA_LOG(UDA_LOG_DEBUG, "Error: Private key does not match the certificate public key!\n");
+            UDA_THROW_ERROR(999, "Private key does not match the certificate public key!");
+        }
     }
 
     // Load certificates of trusted CAs based on file provided
