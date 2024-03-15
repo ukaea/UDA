@@ -63,7 +63,6 @@ jobs:
           python3-dev
           python3-pip
           python3-venv
-          catch2
 
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
@@ -78,7 +77,6 @@ jobs:
           spdlog
           ninja
           capnp
-          catch2
 
 #      - name: Cache windows packages
 #        id: cache-vcpkg
@@ -102,7 +100,6 @@ jobs:
           openssl
           dlfcn-win32
           spdlog
-          catch2
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
