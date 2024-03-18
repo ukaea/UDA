@@ -6,6 +6,7 @@
 
 #include "clientserver/errorLog.h"
 #include "logging/logging.h"
+#include "server_config.h"
 
 using namespace uda::client_server;
 using namespace uda::plugins;
@@ -20,7 +21,8 @@ using namespace uda::logging;
  * @param pluginfunp the address of the library function
  * @return
  */
-int uda::get_plugin_address(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* pluginfunp)
+int uda::server::get_plugin_address(const Config& config, void** pluginHandle, const char* library, const char* symbol,
+                                    PLUGINFUNP* pluginfunp)
 {
     *pluginfunp = (PLUGINFUNP) nullptr;
 
@@ -29,23 +31,24 @@ int uda::get_plugin_address(void** pluginHandle, const char* library, const char
         return 0;
     }
 
-    const char* plugin_dir = getenv("UDA_PLUGIN_DIR");
+    auto plugin_dir = config.get("plugin.directory");
+
     std::string full_path;
-    if (plugin_dir != nullptr) {
-        full_path = fmt::format("{}/{}", plugin_dir, library);
+    if (plugin_dir) {
+        full_path = fmt::format("{}/{}", plugin_dir.as<std::string>(), library);
     } else {
         full_path = strdup(library);
     }
 
     // Open the named library
 
-    const char* fail_on_load = getenv("UDA_PLUGIN_FAIL_ON_LOAD");
+    bool fail_on_load = config.get("plugin.fail_on_load").as_or_default(false);
 
     if (*pluginHandle == nullptr) {
         if ((*pluginHandle = dlopen(full_path.c_str(), RTLD_LOCAL | RTLD_LAZY)) == nullptr) {
             const char* errmsg = dlerror();
             UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s\n", library, errmsg);
-            if (fail_on_load != nullptr) {
+            if (fail_on_load) {
                 UDA_ADD_ERROR(999, "Cannot open the target shared library");
                 UDA_ADD_ERROR(999, errmsg);
             }
@@ -66,7 +69,7 @@ int uda::get_plugin_address(void** pluginHandle, const char* library, const char
         *pluginfunp = (PLUGINFUNP)fptr;
     } else {
         UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s\n", library, errstr);
-        if (fail_on_load != nullptr) {
+        if (fail_on_load) {
             UDA_ADD_ERROR(999, "Cannot locate the data reader with the target shared library");
             UDA_ADD_ERROR(999, errstr);
         }

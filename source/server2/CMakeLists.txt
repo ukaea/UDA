@@ -34,6 +34,7 @@ set( SRC_FILES
   make_server_request_block.cpp
   plugins.cpp
   server.cpp
+  server_config.cpp
   server_environment.cpp
   server_exceptions.cpp
   server_plugin.cpp

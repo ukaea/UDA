@@ -27,6 +27,7 @@
 #include "logging/logging.h"
 #include "structures/struct.h"
 #include "uda/plugins.h"
+#include "server_config.h"
 
 #define REQUEST_READ_START 1000
 #define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered
@@ -37,7 +38,7 @@ using namespace uda::plugins;
 using namespace uda::logging;
 using namespace uda::structures;
 
-int uda::serverRedirectStdStreams(int reset)
+int uda::server::server_redirect_std_streams(const Config& config, int reset)
 {
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
@@ -49,19 +50,14 @@ int uda::serverRedirectStdStreams(int reset)
     static FILE* mdsmsgFH = nullptr;
 
     static char mksdir_template[MAXPATH] = {0};
-    static char tempFile[MAXPATH] = {0};
+    static char temp_file[MAXPATH] = {0};
 
-    static bool singleFile = false;
+    static bool single_file = false;
 
     if (!reset) {
-        if (!singleFile) {
-            const char* env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE"); // Use a single file for all plugin data requests
-            if (env != nullptr) {
-                singleFile = true; // Define UDA_PLUGIN_DEBUG to retain the file
-            }
-        }
+        single_file = config.get("plugins.debug_single_file").as_or_default(false); // Define UDA_PLUGIN_DEBUG to retain the file
 
-        if (mdsmsgFH != nullptr && singleFile) {
+        if (mdsmsgFH != nullptr && single_file) {
             // Multi platform compliance
             // stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
             // stderr = mdsmsgFH;
@@ -80,26 +76,27 @@ int uda::serverRedirectStdStreams(int reset)
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
         if (mksdir_template[0] == '\0') {
-            const char* env = getenv("UDA_PLUGIN_REDIVERT");
+            auto redirect = config.get("plugins.redirect");
 
-            if (env == nullptr) {
-                if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-                    snprintf(mksdir_template, MAXPATH, "%s/idamPLUGINXXXXXX", env);
+            if (!redirect) {
+                auto work_dir = config.get("plugins.work_dir");
+                if (work_dir) {
+                    snprintf(mksdir_template, MAXPATH, "%s/idamPLUGINXXXXXX", work_dir.as<std::string>().c_str());
                 } else {
                     strcpy(mksdir_template, "/tmp/idamPLUGINXXXXXX");
                 }
             } else {
-                strcpy(mksdir_template, env);
+                strcpy(mksdir_template, redirect.as<std::string>().c_str());
             }
         }
 
-        strcpy(tempFile, mksdir_template);
+        strcpy(temp_file, mksdir_template);
 
         // Open the message Trap
 
         errno = 0;
 
-        int fd = mkstemp(tempFile);
+        int fd = mkstemp(temp_file);
         if (fd < 0 || errno != 0) {
             int err = (errno != 0) ? errno : 994;
             UDA_THROW_ERROR(err, "Unable to Obtain a Temporary File Name");
@@ -120,7 +117,7 @@ int uda::serverRedirectStdStreams(int reset)
         if (mdsmsgFH != nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles and removing temporary file\n");
 
-            if (!singleFile) {
+            if (!single_file) {
                 if (mdsmsgFH != nullptr) {
                     errno = 0;
                     int rc = fclose(mdsmsgFH);
@@ -130,14 +127,15 @@ int uda::serverRedirectStdStreams(int reset)
                     }
                 }
                 mdsmsgFH = nullptr;
-                if (getenv("UDA_PLUGIN_DEBUG") == nullptr) {
+                auto debug = config.get("plugins.debug").as_or_default(false);
+                if (!debug) {
                     errno = 0;
-                    int rc = remove(tempFile); // Delete the temporary file
+                    int rc = remove(temp_file); // Delete the temporary file
                     if (rc) {
                         int err = errno;
                         UDA_THROW_ERROR(err, strerror(err));
                     }
-                    tempFile[0] = '\0';
+                    temp_file[0] = '\0';
                 }
             }
 
@@ -173,8 +171,8 @@ int uda::serverRedirectStdStreams(int reset)
 // 5. open the library
 // 6. get plugin function address
 // 7. close the file
-int uda::serverPlugin(RequestData* request, DataSource* data_source, SignalDesc* signal_desc, const Plugins& plugins,
-                      const Environment* environment)
+int uda::server::server_plugin(uda::client_server::RequestData *request, uda::client_server::DataSource *data_source, uda::client_server::SignalDesc *signal_desc,
+                               const Plugins& plugins, const uda::client_server::Environment* environment)
 {
     int err = 0;
 
@@ -242,8 +240,9 @@ int uda::serverPlugin(RequestData* request, DataSource* data_source, SignalDesc*
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_request, const Plugins& plugins,
-                          const char* logRecord, const server::Environment& environment, uda::MetadataBlock& metadata)
+int uda::server::provenance_plugin(const Config& config, uda::client_server::ClientBlock *client_block, uda::client_server::RequestData *original_request, const Plugins& plugins,
+                                   const char* logRecord, const server::Environment& environment,
+                                   MetadataBlock& metadata)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {
@@ -254,9 +253,8 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     // Identify the Provenance Gathering plugin (must be a function library type plugin)
 
     static bool initialised = false;
-    static boost::optional<uda::plugins::PluginData> plugin = {};
+    static boost::optional<PluginData> plugin = {};
     static int exec_method = 1; // The default method used to write efficiently to the backend SQL server
-    char* env = nullptr;
 
     struct timeval tv_start = {};
     struct timeval tv_stop = {};
@@ -265,10 +263,12 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 
     if (!initialised) {
         // On initialisation
-        if ((env = getenv("UDA_PROVENANCE_PLUGIN")) != nullptr) {
+        auto provenance_plugin = config.get("plugins.provenance_plugin");
+        if (provenance_plugin) {
+            std::string plugin_name = provenance_plugin.as<std::string>();
             // Must be set in the server startup script
-            UDA_LOG(UDA_LOG_DEBUG, "Plugin name: %s\n", env);
-            auto maybe_plugin = plugins.find_by_format(env);
+            UDA_LOG(UDA_LOG_DEBUG, "Plugin name: %s\n", plugin_name.c_str());
+            auto maybe_plugin = plugins.find_by_format(plugin_name.c_str());
             if (maybe_plugin) {
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION = %d\n",
                         maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
@@ -286,8 +286,9 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
                 plugin = maybe_plugin.get();
             }
         }
-        if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != nullptr) {
-            exec_method = atoi(env);
+        auto provenance_exec_method = config.get("plugins.provenance_exec_method");
+        if (provenance_exec_method) {
+            exec_method = provenance_exec_method.as<int>();
         }
         initialised = true;
     }
@@ -329,7 +330,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 
     int err, rc, reset;
     DataBlock data_block = {};
-    uda::plugins::UdaPluginInterface plugin_interface = {};
+    UdaPluginInterface plugin_interface = {};
 
     // Initialise the Data Block
 
@@ -368,7 +369,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     // Redirect Output to temporary file if no file handles passed
 
     reset = 0;
-    if ((err = uda::serverRedirectStdStreams(reset)) != 0) {
+    if ((err = server_redirect_std_streams(config, reset)) != 0) {
         UDA_THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
@@ -398,7 +399,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     // Reset Redirected Output
 
     reset = 1;
-    if ((rc = uda::serverRedirectStdStreams(reset)) != 0 || err != 0) {
+    if ((rc = uda::server::server_redirect_std_streams(config, reset)) != 0 || err != 0) {
         if (rc != 0) {
             add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
@@ -420,11 +421,11 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID
 
-boost::optional<uda::plugins::PluginData> uda::find_metadata_plugin(const Plugins& plugins,
-                                                                    const server::Environment& environment)
+boost::optional<PluginData> uda::server::find_metadata_plugin(const Config& config, const Plugins& plugins,
+                                                              const server::Environment& environment)
 {
     static bool no_plugin_registered = false;
-    static boost::optional<uda::plugins::PluginData> plugin = {};
+    static boost::optional<PluginData> plugin = {};
 
     UDA_LOG(UDA_LOG_DEBUG, "Entered: no_plugin_registered state = %d\n", no_plugin_registered);
 
@@ -437,9 +438,9 @@ boost::optional<uda::plugins::PluginData> uda::find_metadata_plugin(const Plugin
 
     // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
-    char* env = nullptr;
-    if ((env = getenv("UDA_METADATA_PLUGIN")) != nullptr) { // Must be set in the server startup script
-        auto maybe_plugin = plugins.find_by_format(env);
+    auto metadata_plugin = config.get("plugins.metadata_plugin");
+    if (metadata_plugin) { // Must be set in the server startup script
+        auto maybe_plugin = plugins.find_by_format(metadata_plugin.as<std::string>().c_str());
         if (maybe_plugin && maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
             maybe_plugin->status == UDA_PLUGIN_OPERATIONAL && maybe_plugin->pluginHandle != nullptr &&
             maybe_plugin->idamPlugin != nullptr) {
@@ -451,7 +452,7 @@ boost::optional<uda::plugins::PluginData> uda::find_metadata_plugin(const Plugin
             plugin = {};
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", env);
+        UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", metadata_plugin.as<std::string>().c_str());
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: %d\n",
                 maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: %d\n", maybe_plugin->is_private == UDA_PLUGIN_PRIVATE);
@@ -475,12 +476,12 @@ boost::optional<uda::plugins::PluginData> uda::find_metadata_plugin(const Plugin
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int uda::call_metadata_plugin(const uda::plugins::PluginData& plugin, RequestData* request_block,
-                              const server::Environment& environment, const uda::Plugins& plugins,
-                              uda::MetadataBlock& metadata)
+int uda::server::call_metadata_plugin(const Config& config, const PluginData& plugin, RequestData* request_block,
+                                      const server::Environment& environment, const uda::server::Plugins& plugins,
+                                      uda::server::MetadataBlock& metadata)
 {
     int err, reset, rc;
-    uda::plugins::UdaPluginInterface plugin_interface = {};
+    UdaPluginInterface plugin_interface = {};
 
     // Check the Interface Compliance
 
@@ -518,7 +519,7 @@ int uda::call_metadata_plugin(const uda::plugins::PluginData& plugin, RequestDat
     // Redirect Output to temporary file if no file handles passed
 
     reset = 0;
-    if ((err = uda::serverRedirectStdStreams(reset)) != 0) {
+    if ((err = server_redirect_std_streams(config, reset)) != 0) {
         UDA_THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
@@ -529,7 +530,7 @@ int uda::call_metadata_plugin(const uda::plugins::PluginData& plugin, RequestDat
     // Reset Redirected Output
 
     reset = 1;
-    if ((rc = uda::serverRedirectStdStreams(reset)) != 0 || err != 0) {
+    if ((rc = server_redirect_std_streams(config, reset)) != 0 || err != 0) {
         if (rc != 0) {
             add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }

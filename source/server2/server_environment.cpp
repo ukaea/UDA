@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <string>
 
+#include "server_config.h"
 #include "logging/logging.h"
 
 using namespace uda::logging;
@@ -11,90 +12,86 @@ using namespace uda::logging;
 void uda::server::Environment::print()
 {
     UDA_LOG(UDA_LOG_INFO, "Server Environment Variable values\n");
-    UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment_.logdir);
-    UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : %s\n", environment_.logmode);
-    UDA_LOG(UDA_LOG_INFO, "Log Level       : %d\n", environment_.loglevel);
-    UDA_LOG(UDA_LOG_INFO, "External User?  : %d\n", environment_.external_user);
-    UDA_LOG(UDA_LOG_INFO, "UDA Proxy Host  : %s\n", environment_.server_proxy);
-    UDA_LOG(UDA_LOG_INFO, "UDA This Host   : %s\n", environment_.server_this);
-    UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", environment_.private_path_target);
-    UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment_.private_path_substitute);
+    UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", _environment.logdir);
+    UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : %s\n", _environment.logmode);
+    UDA_LOG(UDA_LOG_INFO, "Log Level       : %d\n", _environment.loglevel);
+    UDA_LOG(UDA_LOG_INFO, "External User?  : %d\n", _environment.external_user);
+    UDA_LOG(UDA_LOG_INFO, "UDA Proxy Host  : %s\n", _environment.server_proxy);
+    UDA_LOG(UDA_LOG_INFO, "UDA This Host   : %s\n", _environment.server_this);
+    UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", _environment.private_path_target);
+    UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", _environment.private_path_substitute);
 }
 
-uda::server::Environment::Environment()
+uda::server::Environment::Environment(const Config& config) : _config{ config }
 {
-    char* env = nullptr;
-
     //--- Read Standard Set of Environment Variables ------------------------------------
 
     // Log Output
 
-    if ((env = getenv("UDA_LOG")) != nullptr) {
-        strcpy(environment_.logdir, env);
-        strcat(environment_.logdir, "/");
+    auto path = _config.get("logging.path");
+
+    if (path) {
+        strcpy(_environment.logdir, path.as<std::string>().c_str());
+        strcat(_environment.logdir, "/");
     } else {
-        strcpy(environment_.logdir, "/scratch/udalog/"); // Log is on Scratch
+        strcpy(_environment.logdir, "/scratch/udalog/"); // Log is on Scratch
     }
 
-    environment_.loglevel = UDA_LOG_NONE;
-    if ((env = getenv("UDA_LOG_LEVEL")) != nullptr) {
-        std::string level = env;
+    auto level_string = _config.get("logging.level");
+
+    _environment.loglevel = UDA_LOG_NONE;
+    if (level_string) {
+        std::string level = level_string.as<std::string>();
         boost::to_upper(level);
         if (level == "ACCESS") {
-            environment_.loglevel = UDA_LOG_ACCESS;
+            _environment.loglevel = UDA_LOG_ACCESS;
         } else if (level == "ERROR") {
-            environment_.loglevel = UDA_LOG_ERROR;
+            _environment.loglevel = UDA_LOG_ERROR;
         } else if (level == "WARN") {
-            environment_.loglevel = UDA_LOG_WARN;
+            _environment.loglevel = UDA_LOG_WARN;
         } else if (level == "DEBUG") {
-            environment_.loglevel = UDA_LOG_DEBUG;
+            _environment.loglevel = UDA_LOG_DEBUG;
         } else if (level == "INFO") {
-            environment_.loglevel = UDA_LOG_INFO;
+            _environment.loglevel = UDA_LOG_INFO;
         }
     }
 
     // Log Output Write Mode
 
-    strcpy(environment_.logmode, "w"); // Write & Replace Mode
-    if ((env = getenv("UDA_LOG_MODE")) != nullptr) {
-        if (env[0] == 'a' && strlen(env) == 1) {
-            environment_.logmode[0] = 'a';
-        }
-    } // Append Mode
+    auto mode = _config.get("logging.mode");
+    if (mode) {
+        _environment.logmode[0] = mode.as_or_default<char>('w');
+    }
 
     //-------------------------------------------------------------------------------------------
     // API Defaults
 
-    if ((env = getenv("UDA_DEVICE")) != nullptr) {
-        strcpy(environment_.api_device, env);
+    auto device = _config.get("server.default_device");
+    if (device) {
+        strcpy(_environment.api_device, device.as<std::string>().c_str());
     } else {
         UDA_LOG(UDA_LOG_WARN, "UDA_DEVICE environment variable not set");
     }
 
-    if ((env = getenv("UDA_ARCHIVE")) != nullptr) {
-        strcpy(environment_.api_archive, env);
+    auto archive = _config.get("server.default_archive");
+    if (archive) {
+        strcpy(_environment.api_archive, archive.as<std::string>().c_str());
     } else {
         UDA_LOG(UDA_LOG_WARN, "UDA_ARCHIVE environment variable not set");
     }
 
-    if ((env = getenv("UDA_API_DELIM")) != nullptr) {
-        strcpy(environment_.api_delim, env);
+    auto delim = _config.get("server.delim");
+    if (delim) {
+        strcpy(_environment.api_delim, delim.as<std::string>().c_str());
     } else {
         UDA_LOG(UDA_LOG_WARN, "UDA_API_DELIM environment variable not set");
     }
 
-    if ((env = getenv("UDA_FILE_FORMAT")) != nullptr) {
-        strcpy(environment_.api_format, env);
+    auto format = _config.get("server.default_format");
+    if (format) {
+        strcpy(_environment.api_format, format.as<std::string>().c_str());
     } else {
         UDA_LOG(UDA_LOG_WARN, "UDA_FILE_FORMAT environment variable not set");
-    }
-
-    //-------------------------------------------------------------------------------------------
-    // Standard Data Location Path Algorithm ID
-
-    environment_.data_path_id = 0;
-    if ((env = getenv("UDA_DATAPATHID")) != nullptr) {
-        environment_.data_path_id = atoi(env);
     }
 
     //-------------------------------------------------------------------------------------------
@@ -103,45 +100,45 @@ uda::server::Environment::Environment()
 #ifdef EXTERNAL_USER
     environment_.external_user = 1;
 #else
-    environment_.external_user = 0;
+    _environment.external_user = 0;
 #endif
 
-    if ((env = getenv("EXTERNAL_USER")) != nullptr) {
-        environment_.external_user = 1;
-    }
-    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) {
-        environment_.external_user = 1;
+    auto external_user = _config.get("server.external_user");
+    if (external_user) {
+        _environment.external_user = external_user.as<bool>();
     }
 
     //-------------------------------------------------------------------------------------------
     // UDA Proxy Host: redirect ALL requests
 
-    if ((env = getenv("UDA_PROXY_TARGETHOST")) != nullptr) {
-        strcpy(environment_.server_proxy, env);
+    auto proxy_target = _config.get("server.proxy_target");
+    if (proxy_target) {
+        strcpy(_environment.server_proxy, proxy_target.as<std::string>().c_str());
     } else {
-        environment_.server_proxy[0] = '\0';
+        _environment.server_proxy[0] = '\0';
     }
 
-    if ((env = getenv("UDA_PROXY_THISHOST")) != nullptr) {
-        strcpy(environment_.server_this, env);
+    auto proxy_source = _config.get("server.proxy_source");
+    if (proxy_source) {
+        strcpy(_environment.server_this, proxy_source.as<std::string>().c_str());
     } else {
-        environment_.server_this[0] = '\0';
+        _environment.server_this[0] = '\0';
     }
 
-    //-------------------------------------------------------------------------------------------
-    // Private File Path substitution: Enables server to see files if the path contains too many hierarchical elements
+    auto path_targets = _config.get("server.private_path_targets");
+    auto path_substitutes = _config.get("server.private_path_substitutes");
 
-    if ((env = getenv("UDA_PRIVATE_PATH_TARGET")) != nullptr) {
-        strcpy(environment_.private_path_target, env);
-        if ((env = getenv("UDA_PRIVATE_PATH_SUBSTITUTE")) != nullptr) {
-            strcpy(environment_.private_path_substitute, env);
+    if (path_targets) {
+        strcpy(_environment.private_path_target, path_targets.as<std::string>().c_str());
+        if (path_substitutes) {
+            strcpy(_environment.private_path_substitute, path_substitutes.as<std::string>().c_str());
         } else {
-            environment_.private_path_substitute[0] = '\0';
+            _environment.private_path_substitute[0] = '\0';
         }
     } else {
-        environment_.private_path_target[0] = '\0';
-        environment_.private_path_substitute[0] = '\0';
+        _environment.private_path_target[0] = '\0';
+        _environment.private_path_substitute[0] = '\0';
     }
 
-    environment_.initialised = 1;
+    _environment.initialised = 1;
 }

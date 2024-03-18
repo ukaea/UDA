@@ -2,8 +2,12 @@
 
 #include "plugins.hpp"
 
-namespace uda {
+namespace uda::server
+{
 
-int get_plugin_address(void** pluginHandle, const char* library, const char* symbol, uda::plugins::PLUGINFUNP* pluginfunp);
+class Config;
 
-}
+int get_plugin_address(const Config& config, void** pluginHandle, const char* library, const char* symbol,
+                       uda::plugins::PLUGINFUNP* pluginfunp);
+
+} // namespace uda::server

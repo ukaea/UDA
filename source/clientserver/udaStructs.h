@@ -449,7 +449,7 @@ struct Environment {
     char api_format[STRING_LENGTH];              // API Default Client File Format
     char private_path_target[STRING_LENGTH];     // Target this path to private files
     char private_path_substitute[STRING_LENGTH]; // and substitute with this path (so the server can locate them!)
-    char initialised;                            // Environment already initialised.
+    unsigned char initialised;                            // Environment already initialised.
     char _padding[1];
 };
 

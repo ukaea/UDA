@@ -10,6 +10,7 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
+#include "server_config.h"
 #include "uda/plugins.h"
 
 #define REQUEST_READ_START 1000
@@ -186,24 +187,23 @@ int process_line(const std::string& line, uda::plugins::PluginData& plugin)
     return 0;
 }
 
-std::ifstream open_config_file()
+std::ifstream open_config_file(const uda::server::Config& config)
 {
-    char* root;
-    char* config = getenv("UDA_PLUGIN_CONFIG");   // Server plugin configuration file
+    auto plugin_config = config.get("plugins.config");
     const char* default_file = "udaPlugins.conf"; // Default name
     std::string file_path;
 
     // Locate the plugin registration file
 
-    if (config == nullptr) {
-        root = getenv("UDA_SERVERROOT"); // Where udaPlugins.conf is located by default
-        if (root == nullptr) {
-            file_path = std::string{"./"} + default_file;
+    if (plugin_config) {
+        auto root = config.get("server.root");
+        if (root) {
+            file_path = root.as<std::string>() + "/" + default_file;
         } else {
-            file_path = std::string{root} + "/" + default_file;
+            file_path = std::string{"./"} + default_file;
         }
     } else {
-        file_path = config;
+        file_path = plugin_config.as<std::string>();
     }
 
     // Read the registration file
@@ -214,9 +214,9 @@ std::ifstream open_config_file()
 
 } // namespace
 
-void uda::Plugins::init()
+void uda::server::Plugins::init()
 {
-    if (initialised_) {
+    if (_initialised) {
         return;
     }
 
@@ -226,7 +226,7 @@ void uda::Plugins::init()
     //----------------------------------------------------------------------------------------------------------------------
     // Read all other plugins registered via the server configuration file.
 
-    std::ifstream conf_file = open_config_file();
+    std::ifstream conf_file = open_config_file(_config);
     if (!conf_file) {
         UDA_ADD_SYS_ERROR(strerror(errno));
         UDA_ADD_ERROR(999, "No Server Plugin Configuration File found!");
@@ -237,15 +237,15 @@ void uda::Plugins::init()
 
     UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
     int i = 0;
-    for (const auto& plugin : plugins_) {
+    for (const auto& plugin : _plugins) {
         UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, plugin.request, plugin.format);
         ++i;
     }
 
-    initialised_ = true;
+    _initialised = true;
 }
 
-void uda::Plugins::process_config_file(std::ifstream& conf_file)
+void uda::server::Plugins::process_config_file(std::ifstream& conf_file)
 {
     /*
     record format: csv, empty records ignored, comment begins #, max record size 1023;
@@ -313,7 +313,7 @@ void uda::Plugins::process_config_file(std::ifstream& conf_file)
         // 3. library opened, symbol located: re-use
 
         int j = 0;
-        for (auto& test : plugins_) {
+        for (auto& test : _plugins) {
             // External sources only
             if (test.external == UDA_PLUGIN_EXTERNAL && test.status == UDA_PLUGIN_OPERATIONAL &&
                 test.pluginHandle != nullptr && STR_IEQUALS(test.library, plugin.library)) {
@@ -326,7 +326,7 @@ void uda::Plugins::process_config_file(std::ifstream& conf_file)
                 } else {
                     // New symbol in opened library
                     if (plugin.plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                        rc = get_plugin_address(&test.pluginHandle, // locate symbol
+                        rc = get_plugin_address(_config, &test.pluginHandle, // locate symbol
                                                 test.library, plugin.symbol, &plugin.idamPlugin);
                     }
                 }
@@ -340,7 +340,8 @@ void uda::Plugins::process_config_file(std::ifstream& conf_file)
 
         if (pluginID == -1) { // open library and locate symbol
             if (plugin.plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                rc = get_plugin_address(&plugin.pluginHandle, plugin.library, plugin.symbol, &plugin.idamPlugin);
+                rc = get_plugin_address(_config, &plugin.pluginHandle, plugin.library, plugin.symbol,
+                                        &plugin.idamPlugin);
             }
         }
 
@@ -348,11 +349,11 @@ void uda::Plugins::process_config_file(std::ifstream& conf_file)
             plugin.status = UDA_PLUGIN_OPERATIONAL;
         }
 
-        plugins_.push_back(plugin);
+        _plugins.push_back(plugin);
     }
 }
 
-void uda::Plugins::init_generic_plugin()
+void uda::server::Plugins::init_generic_plugin()
 {
     //----------------------------------------------------------------------------------------------------------------------
     // Data Access Server Protocols
@@ -371,10 +372,10 @@ void uda::Plugins::init_generic_plugin()
     plugin.status = UDA_PLUGIN_OPERATIONAL;            // By default all these are available
     plugin.cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // OK or not for Client and Server to Cache
 
-    plugins_.push_back(plugin);
+    _plugins.push_back(plugin);
 }
 
-void uda::Plugins::init_serverside_functions()
+void uda::server::Plugins::init_serverside_functions()
 { //----------------------------------------------------------------------------------------------------------------------
     // Server-Side Functions
 
@@ -395,31 +396,31 @@ void uda::Plugins::init_serverside_functions()
         plugin.status = UDA_PLUGIN_OPERATIONAL;            // By default all these are available
         plugin.cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // OK or not for Client and Server to Cache
 
-        plugins_.push_back(plugin);
+        _plugins.push_back(plugin);
     }
 }
 
-void uda::Plugins::close()
+void uda::server::Plugins::close()
 {
-    for (auto& plugin : plugins_) {
+    for (auto& plugin : _plugins) {
         dlclose(plugin.pluginHandle);
     }
-    plugins_.clear();
+    _plugins.clear();
 }
 
-uda::plugins::PluginList uda::Plugins::as_plugin_list() const
+uda::plugins::PluginList uda::server::Plugins::as_plugin_list() const
 {
     uda::plugins::PluginList plugin_list = {};
-    plugin_list.plugin = (uda::plugins::PluginData*)plugins_.data();
-    plugin_list.count = (int)plugins_.size();
-    plugin_list.mcount = (int)plugins_.size();
+    plugin_list.plugin = (uda::plugins::PluginData*)_plugins.data();
+    plugin_list.count = (int)_plugins.size();
+    plugin_list.mcount = (int)_plugins.size();
 
     return plugin_list;
 }
 
-boost::optional<const uda::plugins::PluginData&> uda::Plugins::find_by_format(const char* format) const
+boost::optional<const uda::plugins::PluginData&> uda::server::Plugins::find_by_format(const char* format) const
 {
-    for (auto& plugin : plugins_) {
+    for (auto& plugin : _plugins) {
         if (STR_IEQUALS(plugin.format, format)) {
             return plugin;
         }
@@ -427,9 +428,9 @@ boost::optional<const uda::plugins::PluginData&> uda::Plugins::find_by_format(co
     return {};
 }
 
-boost::optional<const uda::plugins::PluginData&> uda::Plugins::find_by_request(int request) const
+boost::optional<const uda::plugins::PluginData&> uda::server::Plugins::find_by_request(int request) const
 {
-    for (auto& plugin : plugins_) {
+    for (auto& plugin : _plugins) {
         if (plugin.request == request) {
             return plugin;
         }

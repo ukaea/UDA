@@ -56,27 +56,28 @@ void print_data_block_list(const std::vector<DataBlock>& data_blocks)
     }
 }
 
-uda::Server::Server() : error_stack_{}, environment_{}, sockets_{}
+uda::server::Server::Server(const Config& config)
+    : _config{config}, _error_stack{}, _environment{config}, _sockets{}, _plugins{config}
 {
-    init_server_block(&server_block_, ServerVersion);
-    init_actions(&actions_desc_); // There may be a Sequence of Actions to Apply
-    init_actions(&actions_sig_);
-    init_request_block(&request_block_);
-    cache_ = cache::open_cache();
+    init_server_block(&_server_block, ServerVersion);
+    init_actions(&_actions_desc); // There may be a Sequence of Actions to Apply
+    init_actions(&_actions_sig);
+    init_request_block(&_request_block);
+    _cache = cache::open_cache();
 }
 
-void uda::Server::start_logs()
+void uda::server::Server::start_logs()
 {
-    if (environment_->loglevel <= UDA_LOG_ACCESS) {
-        std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", environment_->logdir);
+    if (_environment->loglevel <= UDA_LOG_ACCESS) {
+        std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", _environment->logdir);
         if (system(cmd.c_str()) != 0) {
             add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
             throw uda::server::StartupException("mkdir command failed");
         }
 
         errno = 0;
-        std::string log_file = std::string{environment_->logdir} + "Access.log";
-        FILE* accout = fopen(log_file.c_str(), environment_->logmode);
+        std::string log_file = std::string{_environment->logdir} + "Access.log";
+        FILE* accout = fopen(log_file.c_str(), _environment->logmode);
 
         if (errno != 0) {
             add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
@@ -89,10 +90,10 @@ void uda::Server::start_logs()
         }
     }
 
-    if (environment_->loglevel <= UDA_LOG_ERROR) {
+    if (_environment->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
-        std::string log_file = std::string{environment_->logdir} + "Error.log";
-        FILE* errout = fopen(log_file.c_str(), environment_->logmode);
+        std::string log_file = std::string{_environment->logdir} + "Error.log";
+        FILE* errout = fopen(log_file.c_str(), _environment->logmode);
 
         if (errno != 0) {
             add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
@@ -105,10 +106,10 @@ void uda::Server::start_logs()
         }
     }
 
-    if (environment_->loglevel <= UDA_LOG_WARN) {
+    if (_environment->loglevel <= UDA_LOG_WARN) {
         errno = 0;
-        std::string log_file = std::string{environment_->logdir} + "DebugServer.log";
-        FILE* dbgout = fopen(log_file.c_str(), environment_->logmode);
+        std::string log_file = std::string{_environment->logdir} + "DebugServer.log";
+        FILE* dbgout = fopen(log_file.c_str(), _environment->logmode);
 
         if (errno != 0) {
             add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Debug Log: ");
@@ -123,72 +124,70 @@ void uda::Server::start_logs()
     }
 }
 
-void uda::Server::startup()
+void uda::server::Server::startup()
 {
-    udaSetLogLevel((LOG_LEVEL)environment_->loglevel);
+    udaSetLogLevel((LOG_LEVEL)_environment->loglevel);
 
     start_logs();
 
-    environment_.print();
+    _environment.print();
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
 
     //-------------------------------------------------------------------------
     // Create the XDR Record Streams
-    protocol_.create();
+    _protocol.create();
 
     //-------------------------------------------------------------------------
     // Initialise the plugins
-    plugins_.init();
+    _plugins.init();
 
     //----------------------------------------------------------------------------
     // Server Information: Operating System Name - may limit types of data that can be received by the Client
 
-    char* env = nullptr;
-
-    if ((env = getenv("OSTYPE")) != nullptr) {
-        strcpy(server_block_.OSName, env);
-    } else if ((env = getenv("UDA_SERVER_OS")) != nullptr) {
-        strcpy(server_block_.OSName, env);
+    auto os = _config.get("server.os");
+    if (os) {
+        strcpy(_server_block.OSName, os.as<std::string>().c_str());
     }
 
     // Server Configuration and Environment DOI
 
-    if ((env = getenv("UDA_SERVER_DOI")) != nullptr) {
-        strcpy(server_block_.DOI, env);
+    auto doi = _config.get("server.doi");
+    if (doi) {
+        strcpy(_server_block.DOI, doi.as<std::string>().c_str());
     }
 }
 
-void uda::Server::run()
+void uda::server::Server::run()
 {
     startup();
     handshake_client();
-    if (!server_closedown_) {
+    if (!_server_closedown) {
         loop();
     }
     close();
 }
 
-void uda::Server::close()
+void uda::server::Server::close()
 {
     //----------------------------------------------------------------------------
     // Server Destruct.....
 
     UDA_LOG(UDA_LOG_DEBUG, "Server Shutting Down\n");
-    if (server_tot_block_time_ > 1000 * server_timeout_) {
-        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after %d secs\n", server_timeout_);
+    if (_server_tot_block_time > 1000 * _server_timeout) {
+        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after %d secs\n", _server_timeout);
     }
 
     //----------------------------------------------------------------------------
     // Write the Error Log Record & Free Error Stack Heap
 
-    error_log(client_block_, request_block_, nullptr);
+    error_log(_client_block, _request_block, nullptr);
     close_error();
 
     //----------------------------------------------------------------------------
     // Free Data Block Heap Memory in case by-passed
 
-    free_data_blocks(data_blocks_);
+    free_data_blocks(_data_blocks);
 
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)
@@ -198,7 +197,7 @@ void uda::Server::close()
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
 
-    plugins_.close();
+    _plugins.close();
 
     //----------------------------------------------------------------------------
     // Close the Logs
@@ -217,10 +216,10 @@ void uda::Server::close()
     //----------------------------------------------------------------------------
     // Close the Socket Connections to Other Data Servers
 
-    close_sockets(sockets_);
+    close_sockets(_sockets);
 }
 
-void uda::Server::loop()
+void uda::server::Server::loop()
 {
     int err = 0;
 
@@ -232,29 +231,29 @@ void uda::Server::loop()
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
         // copy_user_defined_type_list(&userdefinedtypelist);
 
-        get_initial_user_defined_type_list(&user_defined_type_list_);
-        parsed_user_defined_type_list_ = *user_defined_type_list_;
+        get_initial_user_defined_type_list(&_user_defined_type_list);
+        _parsed_user_defined_type_list = *_user_defined_type_list;
         //        print_user_defined_type_list(*user_defined_type_list_);
 
-        log_malloc_list_ = (LogMallocList*)malloc(sizeof(LogMallocList));
-        init_log_malloc_list(log_malloc_list_);
+        _log_malloc_list = (LogMallocList*)malloc(sizeof(LogMallocList));
+        init_log_malloc_list(_log_malloc_list);
 
-        server_closedown_ = false;
+        _server_closedown = false;
 
         err = handle_request();
 
-        if (server_closedown_) {
+        if (_server_closedown) {
             break;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: %d [%d]\n", err, (int)fatal_error_);
+        UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: %d [%d]\n", err, (int)_fatal_error);
 
         err = report_to_client();
 
         UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
-        UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, (int)fatal_error_);
+        UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, (int)_fatal_error);
 
-        udaAccessLog(FALSE, client_block_, request_block_, server_block_, total_datablock_size_);
+        udaAccessLog(FALSE, _client_block, _request_block, _server_block, _total_data_block_size);
 
         err = 0;
         next_protocol = UDA_PROTOCOL_SLEEP;
@@ -264,49 +263,49 @@ void uda::Server::loop()
         // Free Data Block Heap Memory
 
         UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList\n");
-        udaFreeUserDefinedTypeList(user_defined_type_list_);
-        user_defined_type_list_ = nullptr;
+        udaFreeUserDefinedTypeList(_user_defined_type_list);
+        _user_defined_type_list = nullptr;
 
-        udaFreeMallocLogList(log_malloc_list_);
-        ::free(log_malloc_list_);
-        log_malloc_list_ = nullptr;
+        udaFreeMallocLogList(_log_malloc_list);
+        ::free(_log_malloc_list);
+        _log_malloc_list = nullptr;
 
         UDA_LOG(UDA_LOG_DEBUG, "freeDataBlockList\n");
-        free_data_blocks(data_blocks_);
+        free_data_blocks(_data_blocks);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
-        free_actions(&actions_desc_);
+        free_actions(&_actions_desc);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
-        free_actions(&actions_sig_);
+        free_actions(&_actions_sig);
 
-        freeRequestBlock(&request_block_);
+        freeRequestBlock(&_request_block);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
         UDA_LOG(UDA_LOG_DEBUG, "concat_error\n");
-        concat_error(&server_block_.idamerrorstack); // Update Server State with Error Stack
+        concat_error(&_server_block.idamerrorstack); // Update Server State with Error Stack
 
         UDA_LOG(UDA_LOG_DEBUG, "close_error\n");
         close_error();
 
         UDA_LOG(UDA_LOG_DEBUG, "error_log\n");
-        error_log(client_block_, request_block_, &server_block_.idamerrorstack);
+        error_log(_client_block, _request_block, &_server_block.idamerrorstack);
 
         UDA_LOG(UDA_LOG_DEBUG, "close_error\n");
         close_error();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        init_server_block(&server_block_, ServerVersion);
+        init_server_block(&_server_block, ServerVersion);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
 
-    } while (err == 0 && next_protocol == UDA_PROTOCOL_SLEEP && !fatal_error_);
+    } while (err == 0 && next_protocol == UDA_PROTOCOL_SLEEP && !_fatal_error);
 }
 
-int uda::Server::handle_request()
+int uda::server::Server::handle_request()
 {
     UDA_LOG(UDA_LOG_DEBUG, "Beginning request handling\n");
 
@@ -318,46 +317,46 @@ int uda::Server::handle_request()
 
     int err = 0;
 
-    init_client_block(&client_block_, 0, "");
+    init_client_block(&_client_block, 0, "");
 
-    err = protocol_.recv_client_block(server_block_, &client_block_, &fatal_error_, server_tot_block_time_,
-                                      &server_timeout_, log_malloc_list_, user_defined_type_list_);
+    err = _protocol.recv_client_block(_server_block, &_client_block, &_fatal_error, _server_tot_block_time,
+                                      &_server_timeout, _log_malloc_list, _user_defined_type_list);
     if (err != 0) {
         return err;
     }
 
-    server_timeout_ = client_block_.timeout;                 // User specified Server Lifetime
-    unsigned int private_flags = client_block_.privateFlags; // Server to Server flags
-    unsigned int clientFlags = client_block_.clientFlags;    // Client set flags
-    int altRank = client_block_.altRank;                     // Rank of Alternative source
+    _server_timeout = _client_block.timeout;                 // User specified Server Lifetime
+    unsigned int private_flags = _client_block.privateFlags; // Server to Server flags
+    unsigned int clientFlags = _client_block.clientFlags;    // Client set flags
+    int altRank = _client_block.altRank;                     // Rank of Alternative source
 
     // Protocol Version: Lower of the client and server version numbers
     // This defines the set of elements within data structures passed between client and server
     // Must be the same on both sides of the socket
 
     int protocol_version = ServerVersion;
-    if (client_block_.version < ServerVersion) {
-        protocol_version = client_block_.version;
+    if (_client_block.version < ServerVersion) {
+        protocol_version = _client_block.version;
     }
-    protocol_.set_version(protocol_version);
+    _protocol.set_version(protocol_version);
 
     // The client request may originate from a server.
     // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access
     // policy
 
-    if (!environment_->external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
-        environment_->external_user = 1;
+    if (!_environment->external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
+        _environment->external_user = 1;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "client version  %d\n", client_block_.version);
+    UDA_LOG(UDA_LOG_DEBUG, "client version  %d\n", _client_block.version);
     UDA_LOG(UDA_LOG_DEBUG, "private_flags   %d\n", private_flags);
     UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  %d\n", clientFlags);
     UDA_LOG(UDA_LOG_DEBUG, "altRank         %d\n", altRank);
-    UDA_LOG(UDA_LOG_DEBUG, "external?       %d\n", environment_->external_user);
+    UDA_LOG(UDA_LOG_DEBUG, "external?       %d\n", _environment->external_user);
 
-    if (server_block_.idamerrorstack.nerrors > 0) {
-        server_block_.error = server_block_.idamerrorstack.idamerror[0].code;
-        strcpy(server_block_.msg, server_block_.idamerrorstack.idamerror[0].msg);
+    if (_server_block.idamerrorstack.nerrors > 0) {
+        _server_block.error = _server_block.idamerrorstack.idamerror[0].code;
+        strcpy(_server_block.msg, _server_block.idamerrorstack.idamerror[0].msg);
     }
 
     // Test the client version is compatible with this server version
@@ -366,9 +365,9 @@ int uda::Server::handle_request()
         UDA_THROW_ERROR(999, "Protocol Error: Client API Version is Newer than the Server Version");
     }
 
-    if (fatal_error_) {
-        if (server_block_.idamerrorstack.nerrors > 0) {
-            err = server_block_.idamerrorstack.idamerror[0].code;
+    if (_fatal_error) {
+        if (_server_block.idamerrorstack.nerrors > 0) {
+            err = _server_block.idamerrorstack.idamerror[0].code;
         } else {
             err = 1;
         }
@@ -377,8 +376,8 @@ int uda::Server::handle_request()
 
     // Test for an immediate CLOSEDOWN instruction
 
-    if (client_block_.timeout == 0 || (client_block_.clientFlags & CLIENTFLAG_CLOSEDOWN)) {
-        server_closedown_ = true;
+    if (_client_block.timeout == 0 || (_client_block.clientFlags & CLIENTFLAG_CLOSEDOWN)) {
+        _server_closedown = true;
         return err;
     }
 
@@ -388,14 +387,14 @@ int uda::Server::handle_request()
     // Errors: Fatal to Data Access
     //       Pass Back and Await Client Instruction
 
-    err = protocol_.recv_request_block(&request_block_, log_malloc_list_, user_defined_type_list_);
+    err = _protocol.recv_request_block(&_request_block, _log_malloc_list, _user_defined_type_list);
     if (err != 0) {
         return err;
     }
 
-    print_client_block(client_block_);
-    print_server_block(server_block_);
-    print_request_block(request_block_);
+    print_client_block(_client_block);
+    print_server_block(_server_block);
+    print_request_block(_request_block);
 
     //------------------------------------------------------------------------------------------------------------------
     // Prepend Proxy Host to Source to redirect client request
@@ -418,29 +417,29 @@ int uda::Server::handle_request()
 #ifdef PROXYSERVER
 
     // Name of the Proxy plugin
+    
+    std::string proxy_name = "UDA";
 
-    char* proxyNameDefault = "UDA";
-    char* proxyName = nullptr;
-
-    char work[STRING_LENGTH];
-
-    if ((proxyName = getenv("UDA_PROXYPLUGINNAME")) == nullptr) {
-        proxyName = proxyNameDefault;
+    auto proxy_plugin = _config.get("server.proxy_plugin");
+    if (proxy_plugin) {
+        proxy_name = proxy_plugin.as<std::string>();
     }
 
     // Check string length compatibility
 
-    if (strlen(request_block_.source) >= (STRING_LENGTH - 1 - strlen(proxyName) - strlen(environment_->server_proxy) -
+    if (strlen(request_block_.source) >= (STRING_LENGTH - 1 - proxy_name.size() - strlen(environment_->server_proxy) -
                                           strlen(request_block_.api_delim))) {
         UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
     }
 
     // Prepend the client request and test for a redirection request via the proxy's plugin
 
+    char work[STRING_LENGTH];
+
     if (request_block_.api_delim[0] != '\0') {
-        sprintf(work, "%s%s", proxyName, request_block_.api_delim);
+        sprintf(work, "%s%s", proxy_name.c_str(), request_block_.api_delim);
     } else {
-        sprintf(work, "%s%s", proxyName, environment_->api_delim);
+        sprintf(work, "%s%s", proxy_name.c_str(), environment_->api_delim);
     }
 
     if (strncasecmp(request_block_.source, work, strlen(work)) != 0) {
@@ -451,9 +450,9 @@ int uda::Server::handle_request()
 
         if (environment_->server_proxy[0] == '\0') {
             if (request_block_.api_delim[0] != '\0') {
-                sprintf(work, "%s%s%s", proxyName, request_block_.api_delim, request_block_.source);
+                sprintf(work, "%s%s%s", proxy_name.c_str(), request_block_.api_delim, request_block_.source);
             } else {
-                sprintf(work, "%s%s%s", proxyName, environment_->api_delim, request_block_.source);
+                sprintf(work, "%s%s%s", proxy_name.c_str(), environment_->api_delim, request_block_.source);
             }
 
             strcpy(request_block_.source, work);
@@ -475,9 +474,9 @@ int uda::Server::handle_request()
 
             if (environment_->server_this[0] != '\0') {
                 if (request_block_.api_delim[0] != '\0') {
-                    sprintf(work, "%s%s%s", proxyName, request_block_.api_delim, environment_->server_this);
+                    sprintf(work, "%s%s%s", proxy_name.c_str(), request_block_.api_delim, environment_->server_this);
                 } else {
-                    sprintf(work, "%s%s%s", proxyName, environment_->api_delim, environment_->server_this);
+                    sprintf(work, "%s%s%s", proxy_name.c_str(), environment_->api_delim, environment_->server_this);
                 }
 
                 if (strstr(request_block_.source, work) != nullptr) {
@@ -491,18 +490,18 @@ int uda::Server::handle_request()
 
             if (request_block_.source[0] == '/') {
                 if (request_block_.api_delim[0] != '\0') {
-                    sprintf(work, "%s%s%s%s", proxyName, request_block_.api_delim, environment_->server_proxy,
+                    sprintf(work, "%s%s%s%s", proxy_name.c_str(), request_block_.api_delim, environment_->server_proxy,
                             request_block_.source);
                 } else {
-                    sprintf(work, "%s%s%s%s", proxyName, environment_->api_delim, environment_->server_proxy,
+                    sprintf(work, "%s%s%s%s", proxy_name.c_str(), environment_->api_delim, environment_->server_proxy,
                             request_block_.source);
                 }
             } else {
                 if (request_block_.api_delim[0] != '\0') {
-                    sprintf(work, "%s%s%s/%s", proxyName, request_block_.api_delim, environment_->server_proxy,
+                    sprintf(work, "%s%s%s/%s", proxy_name.c_str(), request_block_.api_delim, environment_->server_proxy,
                             request_block_.source);
                 } else {
-                    sprintf(work, "%s%s%s/%s", proxyName, environment_->api_delim, environment_->server_proxy,
+                    sprintf(work, "%s%s%s/%s", proxy_name.c_str(), environment_->api_delim, environment_->server_proxy,
                             request_block_.source);
                 }
             }
@@ -511,27 +510,27 @@ int uda::Server::handle_request()
 
         UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s avoiding %s\n", environment_->server_proxy,
                 environment_->server_this);
-        UDA_LOG(UDA_LOG_DEBUG, "plugin: %s\n", proxyName);
+        UDA_LOG(UDA_LOG_DEBUG, "plugin: %s\n", proxy_name.c_str());
         UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request_block_.source);
     }
 
 #else
 
-    for (int i = 0; i < request_block_.num_requests; ++i) {
-        RequestData* request = &request_block_.requests[0];
+    for (int i = 0; i < _request_block.num_requests; ++i) {
+        RequestData* request = &_request_block.requests[0];
 
         char work[STRING_LENGTH];
         if (request->api_delim[0] != '\0') {
             snprintf(work, STRING_LENGTH, "UDA%s", request->api_delim);
         } else {
-            snprintf(work, STRING_LENGTH, "UDA%s", environment_->api_delim);
+            snprintf(work, STRING_LENGTH, "UDA%s", _environment->api_delim);
         }
 
-        if (environment_->server_proxy[0] != '\0' && strncasecmp(request->source, work, strlen(work)) != 0) {
+        if (_environment->server_proxy[0] != '\0' && strncasecmp(request->source, work, strlen(work)) != 0) {
 
             // Check the Server Version is Compatible with the Originating client version ?
 
-            if (client_block_.version < 6) {
+            if (_client_block.version < 6) {
                 UDA_THROW_ERROR(
                     999,
                     "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
@@ -542,9 +541,9 @@ int uda::Server::handle_request()
             // never passed.
 
             if (request->api_delim[0] != '\0') {
-                snprintf(work, STRING_LENGTH, "UDA%s%s", request->api_delim, environment_->server_this);
+                snprintf(work, STRING_LENGTH, "UDA%s%s", request->api_delim, _environment->server_this);
             } else {
-                snprintf(work, STRING_LENGTH, "UDA%s%s", environment_->api_delim, environment_->server_this);
+                snprintf(work, STRING_LENGTH, "UDA%s%s", _environment->api_delim, _environment->server_this);
             }
 
             if (strstr(request->source, work) != nullptr) {
@@ -555,23 +554,23 @@ int uda::Server::handle_request()
             // Check string length compatibility
 
             if (strlen(request->source) >=
-                (STRING_LENGTH - 1 - strlen(environment_->server_proxy) - 4 + strlen(request->api_delim))) {
+                (STRING_LENGTH - 1 - strlen(_environment->server_proxy) - 4 + strlen(request->api_delim))) {
                 UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
             }
 
             // Prepend the redirection UDA server details
 
             if (request->api_delim[0] != '\0') {
-                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", request->api_delim, environment_->server_proxy,
+                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", request->api_delim, _environment->server_proxy,
                          request->source);
             } else {
-                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", environment_->api_delim, environment_->server_proxy,
+                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", _environment->api_delim, _environment->server_proxy,
                          request->source);
             }
 
             strcpy(request->source, work);
 
-            UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s\n", environment_->server_proxy);
+            UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s\n", _environment->server_proxy);
             UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request->source);
         }
     }
@@ -580,26 +579,26 @@ int uda::Server::handle_request()
     //----------------------------------------------------------------------
     // Write to the Access Log
 
-    udaAccessLog(TRUE, client_block_, request_block_, server_block_, total_datablock_size_);
+    udaAccessLog(TRUE, _client_block, _request_block, _server_block, _total_data_block_size);
 
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    init_data_source(&metadata_block_.data_source);
-    init_signal_desc(&metadata_block_.signal_desc);
-    init_signal(&metadata_block_.signal_rec);
+    init_data_source(&_metadata_block.data_source);
+    init_signal_desc(&_metadata_block.signal_desc);
+    init_signal(&_metadata_block.signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
 
-    for (int i = 0; i < request_block_.num_requests; ++i) {
-        RequestData* request = &request_block_.requests[0];
+    for (int i = 0; i < _request_block.num_requests; ++i) {
+        RequestData* request = &_request_block.requests[0];
 
         init_put_data_block_list(&request->putDataBlockList);
 
         if (request->put) {
-            err = protocol_.recv_putdata_block_list(&request->putDataBlockList, log_malloc_list_,
-                                                    user_defined_type_list_);
+            err = _protocol.recv_putdata_block_list(&request->putDataBlockList, _log_malloc_list,
+                                                    _user_defined_type_list);
             if (err != 0) {
                 return err;
             }
@@ -612,11 +611,11 @@ int uda::Server::handle_request()
     // Decode the API Arguments: determine appropriate data plug-in to use
     // Decide on Authentication procedure
 
-    for (int i = 0; i < request_block_.num_requests; ++i) {
-        auto request = &request_block_.requests[i];
+    for (int i = 0; i < _request_block.num_requests; ++i) {
+        auto request = &_request_block.requests[i];
         if (protocol_version >= 6) {
-            if ((err = uda::serverPlugin(request, &metadata_block_.data_source, &metadata_block_.signal_desc, plugins_,
-                                         environment_.p_env())) != 0) {
+            if ((err = server_plugin(request, &_metadata_block.data_source, &_metadata_block.signal_desc, _plugins,
+                                     _environment.p_env())) != 0) {
                 return err;
             }
         } else {
@@ -631,30 +630,30 @@ int uda::Server::handle_request()
 
     int depth = 0;
 
-    for (int i = 0; i < request_block_.num_requests; ++i) {
-        auto request = &request_block_.requests[i];
+    for (int i = 0; i < _request_block.num_requests; ++i) {
+        auto request = &_request_block.requests[i];
 
         auto cache_block =
-            protocol_.read_from_cache(cache_, request, environment_, log_malloc_list_, user_defined_type_list_);
+            _protocol.read_from_cache(_cache, request, _environment, _log_malloc_list, _user_defined_type_list);
         if (cache_block != nullptr) {
-            data_blocks_.push_back(*cache_block);
+            _data_blocks.push_back(*cache_block);
             continue;
         }
 
-        data_blocks_.push_back({});
-        DataBlock* data_block = &data_blocks_.back();
+        _data_blocks.push_back({});
+        DataBlock* data_block = &_data_blocks.back();
 
         err = get_data(&depth, request, data_block, protocol_version);
 
-        protocol_.write_to_cache(cache_, request, environment_, data_block, log_malloc_list_, user_defined_type_list_);
+        _protocol.write_to_cache(_cache, request, _environment, data_block, _log_malloc_list, _user_defined_type_list);
     }
 
-    for (int i = 0; i < request_block_.num_requests; ++i) {
-        request_block_.requests[i].function[0] = '\0';
+    for (int i = 0; i < _request_block.num_requests; ++i) {
+        _request_block.requests[i].function[0] = '\0';
     }
 
-    DataSource* data_source = &metadata_block_.data_source;
-    SignalDesc* signal_desc = &metadata_block_.signal_desc;
+    DataSource* data_source = &_metadata_block.data_source;
+    SignalDesc* signal_desc = &_metadata_block.signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
     UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
@@ -665,11 +664,11 @@ int uda::Server::handle_request()
     UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
     UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
     UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
-    print_request_block(request_block_);
+    print_request_block(_request_block);
     print_data_source(*data_source);
-    print_signal(metadata_block_.signal_rec);
+    print_signal(_metadata_block.signal_rec);
     print_signal_desc(*signal_desc);
-    print_data_block_list(data_blocks_);
+    print_data_block_list(_data_blocks);
     print_error_stack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
@@ -681,9 +680,9 @@ int uda::Server::handle_request()
     //------------------------------------------------------------------------------------------------
     // Server-Side Data Processing
 
-    if (client_block_.get_dimdble || client_block_.get_timedble || client_block_.get_scalar) {
-        for (auto& data_block : data_blocks_) {
-            if (uda::serverProcessing(client_block_, &data_block) != 0) {
+    if (_client_block.get_dimdble || _client_block.get_timedble || _client_block.get_scalar) {
+        for (auto& data_block : _data_blocks) {
+            if (uda::serverProcessing(_client_block, &data_block) != 0) {
                 UDA_THROW_ERROR(779, "Server-Side Processing Error");
             }
         }
@@ -693,7 +692,7 @@ int uda::Server::handle_request()
     // Check the Client can receive the data type: Version dependent
     // Otherwise inform the client via the server state block
 
-    for (auto& data_block : data_blocks_) {
+    for (auto& data_block : _data_blocks) {
 
         if (protocol_version < 6 && data_block.data_type == UDA_TYPE_STRING) {
             data_block.data_type = UDA_TYPE_CHAR;
@@ -748,43 +747,43 @@ void print_data_blocks(const std::vector<DataBlock>& data_blocks)
     }
 }
 
-int uda::Server::report_to_client()
+int uda::server::Server::report_to_client()
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    concat_error(&server_block_.idamerrorstack);
+    concat_error(&_server_block.idamerrorstack);
     close_error();
 
     int err = 0;
 
-    if (server_block_.idamerrorstack.nerrors > 0) {
-        server_block_.error = server_block_.idamerrorstack.idamerror[0].code;
-        strcpy(server_block_.msg, server_block_.idamerrorstack.idamerror[0].msg);
+    if (_server_block.idamerrorstack.nerrors > 0) {
+        _server_block.error = _server_block.idamerrorstack.idamerror[0].code;
+        strcpy(_server_block.msg, _server_block.idamerrorstack.idamerror[0].msg);
     }
 
     //------------------------------------------------------------------------------------------------
     // How much data to be sent?
 
-    total_datablock_size_ = count_data_block_list_size(data_blocks_, &client_block_);
+    _total_data_block_size = count_data_block_list_size(_data_blocks, &_client_block);
 
-    print_server_block(server_block_);
+    print_server_block(_server_block);
 
     //------------------------------------------------------------------------------------------------
     // Send the server block and all data in a single (minimal number) tcp packet
 
-    err = protocol_.send_server_block(server_block_, log_malloc_list_, user_defined_type_list_);
+    err = _protocol.send_server_block(_server_block, _log_malloc_list, _user_defined_type_list);
 
-    if (server_block_.idamerrorstack.nerrors > 0) {
-        err = server_block_.idamerrorstack.idamerror[0].code;
+    if (_server_block.idamerrorstack.nerrors > 0) {
+        err = _server_block.idamerrorstack.idamerror[0].code;
     }
 
     if (err != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop\n");
 
         // Send the Server Block and bypass sending data (there are none!)
-        int rc = protocol_.flush();
+        int rc = _protocol.flush();
         if (rc != 0) {
             return rc;
         }
@@ -792,11 +791,11 @@ int uda::Server::report_to_client()
         return err;
     }
 
-    if (client_block_.get_meta) {
-        total_datablock_size_ +=
+    if (_client_block.get_meta) {
+        _total_data_block_size +=
             sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
 
-        err = protocol_.send_meta_data(metadata_block_, log_malloc_list_, user_defined_type_list_);
+        err = _protocol.send_meta_data(_metadata_block, _log_malloc_list, _user_defined_type_list);
         if (err != 0) {
             return err;
         }
@@ -805,8 +804,8 @@ int uda::Server::report_to_client()
     //----------------------------------------------------------------------------
     // Send the Data
 
-    print_data_blocks(data_blocks_);
-    err = protocol_.send_data_blocks(data_blocks_, log_malloc_list_, user_defined_type_list_);
+    print_data_blocks(_data_blocks);
+    err = _protocol.send_data_blocks(_data_blocks, _log_malloc_list, _user_defined_type_list);
     if (err != 0) {
         return err;
     }
@@ -814,13 +813,13 @@ int uda::Server::report_to_client()
     //----------------------------------------------------------------------------
     // Send the data in a single full TCP packet
 
-    protocol_.flush();
+    _protocol.flush();
 
     //------------------------------------------------------------------------------
     // Legacy Hierarchical Data Structures
 
-    for (const auto& data_block : data_blocks_) {
-        err = protocol_.send_hierachical_data(data_block, log_malloc_list_, user_defined_type_list_);
+    for (const auto& data_block : _data_blocks) {
+        err = _protocol.send_hierachical_data(data_block, _log_malloc_list, _user_defined_type_list);
         if (err != 0) {
             return err;
         }
@@ -829,11 +828,11 @@ int uda::Server::report_to_client()
     return err;
 }
 
-void uda::Server::handshake_client()
+void uda::server::Server::handshake_client()
 {
     // Exchange version details - once only
 
-    init_client_block(&client_block_, 0, "");
+    init_client_block(&_client_block, 0, "");
 
     // Receive the client block, respecting earlier protocol versions
 
@@ -841,10 +840,10 @@ void uda::Server::handshake_client()
 
     int err = 0;
 
-    err = protocol_.read_client_block(&client_block_, log_malloc_list_, user_defined_type_list_);
+    err = _protocol.read_client_block(&_client_block, _log_malloc_list, _user_defined_type_list);
 
-    if (client_block_.timeout == 0 || client_block_.clientFlags & CLIENTFLAG_CLOSEDOWN) {
-        server_closedown_ = true;
+    if (_client_block.timeout == 0 || _client_block.clientFlags & CLIENTFLAG_CLOSEDOWN) {
+        _server_closedown = true;
         return;
     }
 
@@ -865,19 +864,19 @@ void uda::Server::handshake_client()
 
     // Send the server block
 
-    err = protocol_.send_server_block(server_block_, log_malloc_list_, user_defined_type_list_);
+    err = _protocol.send_server_block(_server_block, _log_malloc_list, _user_defined_type_list);
     if (err != 0) {
         throw server::ProtocolError{"Failed to send server block"};
     }
 
-    err = protocol_.flush();
+    err = _protocol.flush();
     if (err != 0) {
         throw server::ProtocolError{"Failed to flush protocol"};
     }
 
     // If the protocol version is legacy (<=6), then divert full control to a legacy server
 
-    if (client_block_.version <= LegacyServerVersion) {
+    if (_client_block.version <= LegacyServerVersion) {
         throw server::ProtocolVersionError{"Unsupported protocol version"};
     }
 }

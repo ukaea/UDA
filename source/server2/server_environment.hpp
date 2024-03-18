@@ -1,29 +1,30 @@
 #pragma once
 
 #ifndef UDA_SERVER_GETSERVERENVIRONMENT_HPP
-#define UDA_SERVER_GETSERVERENVIRONMENT_HPP
+#  define UDA_SERVER_GETSERVERENVIRONMENT_HPP
 
-#include "clientserver/udaStructs.h"
+#  include "clientserver/udaStructs.h"
 
-namespace uda {
-namespace server {
+namespace uda::server {
+
+class Config;
 
 class Environment
 {
-public:
-    Environment();
+  public:
+    Environment(const Config& config);
 
     void print();
-    [[nodiscard]] uda::client_server::Environment* p_env() { return &environment_; }
-    [[nodiscard]] const uda::client_server::Environment* p_env() const { return &environment_; }
-    uda::client_server::Environment* operator->() { return &environment_; }
-    const uda::client_server::Environment* operator->() const { return &environment_; }
+    [[nodiscard]] uda::client_server::Environment* p_env() { return &_environment; }
+    [[nodiscard]] const uda::client_server::Environment* p_env() const { return &_environment; }
+    uda::client_server::Environment* operator->() { return &_environment; }
+    const uda::client_server::Environment* operator->() const { return &_environment; }
 
-private:
-    uda::client_server::Environment environment_ = {};
+  private:
+    const Config& _config;
+    uda::client_server::Environment _environment = {};
 };
 
-} // namespace server
-} // namespace uda
+} // uda::server
 
 #endif // UDA_SERVER_GETSERVERENVIRONMENT_HPP

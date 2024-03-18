@@ -5,10 +5,10 @@
 #include "clientserver/udaErrors.h"
 #include "clientserver/xdrlib.h"
 #include <uda/types.h>
+
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include "authentication/udaServerSSL.h"
 
-using namespace uda::authentication;
 #endif
 
 #include <cerrno>
@@ -34,6 +34,7 @@ using namespace uda::authentication;
 using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::authentication;
 
 int serverSocket = 0;
 
@@ -114,19 +115,19 @@ int server_write(void* iohandle, char* buf, int count)
     return rc;
 }
 
-void uda::XdrProtocol::create()
+void uda::server::XdrProtocol::create()
 {
     create_streams();
 }
 
-uda::XdrProtocol::XdrProtocol()
+uda::server::XdrProtocol::XdrProtocol()
     : server_input_{}, server_output_{}, server_tot_block_time_{0}, server_timeout_{TIMEOUT}, io_data_{}
 {
     io_data_.server_tot_block_time = &server_tot_block_time_;
     io_data_.server_timeout = &server_timeout_;
 }
 
-void uda::XdrProtocol::create_streams()
+void uda::server::XdrProtocol::create_streams()
 {
     server_output_.x_ops = nullptr;
     server_input_.x_ops = nullptr;
@@ -197,8 +198,8 @@ void uda::XdrProtocol::create_streams()
     UDA_LOG(UDA_LOG_DEBUG, "XDR Streams Created\n");
 }
 
-int uda::XdrProtocol::read_client_block(ClientBlock* client_block, LogMallocList* log_malloc_list,
-                                        UserDefinedTypeList* user_defined_type_list)
+int uda::server::XdrProtocol::read_client_block(ClientBlock* client_block, LogMallocList* log_malloc_list,
+                                                UserDefinedTypeList* user_defined_type_list)
 {
     int err = 0;
 
@@ -229,8 +230,8 @@ int uda::XdrProtocol::read_client_block(ClientBlock* client_block, LogMallocList
     return err;
 }
 
-int uda::XdrProtocol::send_server_block(ServerBlock server_block, LogMallocList* log_malloc_list,
-                                        UserDefinedTypeList* user_defined_type_list)
+int uda::server::XdrProtocol::send_server_block(ServerBlock server_block, LogMallocList* log_malloc_list,
+                                                UserDefinedTypeList* user_defined_type_list)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Sending Server Block\n");
     print_server_block(server_block);
@@ -248,7 +249,7 @@ int uda::XdrProtocol::send_server_block(ServerBlock server_block, LogMallocList*
     return 0;
 }
 
-int uda::XdrProtocol::flush()
+int uda::server::XdrProtocol::flush()
 {
     if (!xdrrec_endofrecord(&server_output_, 1)) { // Send data now
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
@@ -257,8 +258,8 @@ int uda::XdrProtocol::flush()
     return 0;
 }
 
-int uda::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogMallocList* log_malloc_list,
-                                     UserDefinedTypeList* user_defined_type_list)
+int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogMallocList* log_malloc_list,
+                                             UserDefinedTypeList* user_defined_type_list)
 {
     //----------------------------------------------------------------------------
     // Send the Data System Structure
@@ -325,8 +326,9 @@ int uda::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogMallocLis
     return err;
 }
 
-int uda::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& data_blocks, LogMallocList* log_malloc_list,
-                                       UserDefinedTypeList* user_defined_type_list)
+int uda::server::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& data_blocks,
+                                               LogMallocList* log_malloc_list,
+                                               UserDefinedTypeList* user_defined_type_list)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client\n");
 
@@ -348,8 +350,8 @@ int uda::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& data_blocks
     return err;
 }
 
-int uda::XdrProtocol::send_hierachical_data(const DataBlock& data_block, LogMallocList* log_malloc_list,
-                                            UserDefinedTypeList* user_defined_type_list)
+int uda::server::XdrProtocol::send_hierachical_data(const DataBlock& data_block, LogMallocList* log_malloc_list,
+                                                    UserDefinedTypeList* user_defined_type_list)
 {
     if (protocol_version_ < 9 && data_block.data_type == UDA_TYPE_COMPOUND &&
         data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
@@ -382,9 +384,10 @@ int uda::XdrProtocol::send_hierachical_data(const DataBlock& data_block, LogMall
     return 0;
 }
 
-int uda::XdrProtocol::recv_client_block(ServerBlock& server_block, ClientBlock* client_block, bool* fatal,
-                                        int server_tot_block_time, const int* server_timeout,
-                                        LogMallocList* log_malloc_list, UserDefinedTypeList* user_defined_type_list)
+int uda::server::XdrProtocol::recv_client_block(ServerBlock& server_block, ClientBlock* client_block, bool* fatal,
+                                                int server_tot_block_time, const int* server_timeout,
+                                                LogMallocList* log_malloc_list,
+                                                UserDefinedTypeList* user_defined_type_list)
 {
     // Receive the Client Block, request block and putData block
 
@@ -416,13 +419,13 @@ int uda::XdrProtocol::recv_client_block(ServerBlock& server_block, ClientBlock* 
     return err;
 }
 
-void uda::XdrProtocol::set_version(int protocol_version)
+void uda::server::XdrProtocol::set_version(int protocol_version)
 {
     protocol_version_ = protocol_version;
 }
 
-int uda::XdrProtocol::recv_request_block(RequestBlock* request_block, LogMallocList* log_malloc_list,
-                                         UserDefinedTypeList* user_defined_type_list)
+int uda::server::XdrProtocol::recv_request_block(RequestBlock* request_block, LogMallocList* log_malloc_list,
+                                                 UserDefinedTypeList* user_defined_type_list)
 {
     int err = 0;
     if ((err = protocol2(&server_input_, UDA_PROTOCOL_REQUEST_BLOCK, XDR_RECEIVE, nullptr, log_malloc_list,
@@ -435,9 +438,9 @@ int uda::XdrProtocol::recv_request_block(RequestBlock* request_block, LogMallocL
     return err;
 }
 
-int uda::XdrProtocol::recv_putdata_block_list(uda::client_server::PutDataBlockList* putdata_block_list,
-                                              LogMallocList* log_malloc_list,
-                                              UserDefinedTypeList* user_defined_type_list)
+int uda::server::XdrProtocol::recv_putdata_block_list(uda::client_server::PutDataBlockList* putdata_block_list,
+                                                      LogMallocList* log_malloc_list,
+                                                      UserDefinedTypeList* user_defined_type_list)
 {
     int err = 0;
     if ((err = protocol2(&server_input_, UDA_PROTOCOL_PUTDATA_BLOCK_LIST, XDR_RECEIVE, nullptr, log_malloc_list,
@@ -451,7 +454,7 @@ int uda::XdrProtocol::recv_putdata_block_list(uda::client_server::PutDataBlockLi
     return err;
 }
 
-int uda::XdrProtocol::eof()
+int uda::server::XdrProtocol::eof()
 {
     // Flush (mark as at EOF) the input socket buffer: no more data should be read from this point
 
@@ -460,17 +463,18 @@ int uda::XdrProtocol::eof()
     return 0;
 }
 
-DataBlock* uda::XdrProtocol::read_from_cache(uda::cache::UdaCache* cache, RequestData* request,
-                                             server::Environment& environment, LogMallocList* log_malloc_list,
-                                             UserDefinedTypeList* user_defined_type_list)
+DataBlock* uda::server::XdrProtocol::read_from_cache(uda::cache::UdaCache* cache, RequestData* request,
+                                                     server::Environment& environment, LogMallocList* log_malloc_list,
+                                                     UserDefinedTypeList* user_defined_type_list)
 {
     return cache_read(cache, request, log_malloc_list, user_defined_type_list, *environment.p_env(), protocol_version_,
                       CLIENTFLAG_CACHE, &log_struct_list_, private_flags_, malloc_source_);
 }
 
-void uda::XdrProtocol::write_to_cache(uda::cache::UdaCache* cache, RequestData* request,
-                                      server::Environment& environment, DataBlock* data_block,
-                                      LogMallocList* log_malloc_list, UserDefinedTypeList* user_defined_type_list)
+void uda::server::XdrProtocol::write_to_cache(uda::cache::UdaCache* cache, RequestData* request,
+                                              server::Environment& environment, DataBlock* data_block,
+                                              LogMallocList* log_malloc_list,
+                                              UserDefinedTypeList* user_defined_type_list)
 {
     cache_write(cache, request, data_block, log_malloc_list, user_defined_type_list, *environment.p_env(), 8,
                 CLIENTFLAG_CACHE, &log_struct_list_, private_flags_, malloc_source_);
