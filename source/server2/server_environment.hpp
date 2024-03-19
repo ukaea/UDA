@@ -1,9 +1,6 @@
 #pragma once
 
-#ifndef UDA_SERVER_GETSERVERENVIRONMENT_HPP
-#  define UDA_SERVER_GETSERVERENVIRONMENT_HPP
-
-#  include "clientserver/udaStructs.h"
+#include "clientserver/udaStructs.h"
 
 namespace uda::server {
 
@@ -26,5 +23,3 @@ class Environment
 };
 
 } // uda::server
-
-#endif // UDA_SERVER_GETSERVERENVIRONMENT_HPP

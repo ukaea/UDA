@@ -19,10 +19,7 @@ using namespace uda::client_server;
 using namespace uda::plugins;
 using namespace uda::logging;
 
-namespace
-{
-
-int swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmetry)
+int uda::server::swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmetry)
 {
     // Check Rank and Array Block Size are equal
 
@@ -53,7 +50,7 @@ int swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmet
     return 0;
 }
 
-int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2)
+int uda::server::swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2)
 {
     void* cptr = nullptr;
 
@@ -147,7 +144,7 @@ int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock*
                 }
 
                 data_block->dims[dimcomposite.to_dim].dim =
-                    data_block2->dims[dimcomposite.from_dim].dim; // straight swap!
+                        data_block2->dims[dimcomposite.from_dim].dim; // straight swap!
                 data_block->dims[dimcomposite.to_dim].errhi = data_block2->dims[dimcomposite.from_dim].errhi;
                 data_block->dims[dimcomposite.to_dim].errlo = data_block2->dims[dimcomposite.from_dim].errlo;
                 data_block->dims[dimcomposite.to_dim].sams = data_block2->dims[dimcomposite.from_dim].sams;
@@ -155,7 +152,7 @@ int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock*
                 data_block->dims[dimcomposite.to_dim].ints = data_block2->dims[dimcomposite.from_dim].ints;
                 for (int i = 0; i < data_block2->dims[dimcomposite.from_dim].error_param_n; i++) {
                     data_block->dims[dimcomposite.to_dim].errparams[i] =
-                        data_block2->dims[dimcomposite.from_dim].errparams[i];
+                            data_block2->dims[dimcomposite.from_dim].errparams[i];
                 }
                 data_block2->dims[dimcomposite.from_dim].dim = nullptr; // Prevent Double Heap Free
                 data_block2->dims[dimcomposite.from_dim].errhi = nullptr;
@@ -174,11 +171,11 @@ int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock*
 
                 data_block->dims[dimcomposite.to_dim].error_model = data_block2->dims[dimcomposite.from_dim].error_type;
                 data_block->dims[dimcomposite.to_dim].error_model =
-                    data_block2->dims[dimcomposite.from_dim].errasymmetry;
+                        data_block2->dims[dimcomposite.from_dim].errasymmetry;
                 data_block->dims[dimcomposite.to_dim].error_model =
-                    data_block2->dims[dimcomposite.from_dim].error_model;
+                        data_block2->dims[dimcomposite.from_dim].error_model;
                 data_block->dims[dimcomposite.to_dim].error_param_n =
-                    data_block2->dims[dimcomposite.from_dim].error_param_n;
+                        data_block2->dims[dimcomposite.from_dim].error_param_n;
 
                 strcpy(data_block->dims[dimcomposite.to_dim].dim_units,
                        data_block2->dims[dimcomposite.from_dim].dim_units);
@@ -193,7 +190,7 @@ int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock*
     return 0;
 }
 
-int swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2, int asymmetry)
+int uda::server::swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2, int asymmetry)
 {
     void* cptr = nullptr;
 
@@ -226,8 +223,6 @@ int swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_block, Data
     }
     return 0;
 }
-
-} // namespace
 
 int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlock* data_block, int protocol_version)
 {
@@ -285,7 +280,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
-                if ((rc = serverParseServerSide(request_data, &actions_serverside, nullptr)) != 0) {
+                if ((rc = server_parse_server_side(request_data, &actions_serverside, nullptr)) != 0) {
                     return rc;
                 }
                 // Erase original Subset request
@@ -299,7 +294,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
-                if ((rc = serverParseServerSide(request_data, &actions_serverside, nullptr)) != 0) {
+                if ((rc = server_parse_server_side(request_data, &actions_serverside, nullptr)) != 0) {
                     return rc;
                 }
                 // Erase original Subset request
@@ -357,7 +352,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a COMPOSITE Signal\n");
 
-        rc = server_parse_signal_XML(*data_source, *signal_rec, *signal_desc, &actions_comp_desc, &actions_comp_sig);
+        rc = server_parse_signal_xml(*data_source, *signal_rec, *signal_desc, &actions_comp_desc, &actions_comp_sig);
 
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML RC? %d\n", rc);
 
@@ -536,7 +531,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
         if (!_client_block.get_asis) {
 
             // Regular Signal
-            rc = server_parse_signal_XML(*data_source, *signal_rec, *signal_desc, &_actions_desc, &_actions_sig);
+            rc = server_parse_signal_xml(*data_source, *signal_rec, *signal_desc, &_actions_desc, &_actions_sig);
 
             if (rc == -1) {
                 if (!serverside) {
@@ -868,10 +863,10 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
         // All Signal Actions have Precedence over Signal_Desc Actions: Deselect if there is a conflict
 
-        server_deselect_signal_XML(&_actions_desc, &_actions_sig);
+        server_deselect_signal_xml(&_actions_desc, &_actions_sig);
 
-        server_apply_signal_XML(_client_block, data_source, signal_rec, signal_desc, data_block, _actions_desc);
-        server_apply_signal_XML(_client_block, data_source, signal_rec, signal_desc, data_block, _actions_sig);
+        server_apply_signal_xml(_client_block, data_source, signal_rec, signal_desc, data_block, _actions_desc);
+        server_apply_signal_xml(_client_block, data_source, signal_rec, signal_desc, data_block, _actions_sig);
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "#Timing After XML\n");
@@ -881,10 +876,10 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
     // Subset Data or Map Data when all other actions have been applied
 
     if (isDerived && compId > -1) {
-        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Derived)  %d\n", *depth);
+        UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Derived)  %d\n", *depth);
         print_data_block(*data_block);
 
-        if ((rc = serverSubsetData(data_block, _actions_desc.action[compId], _log_malloc_list)) != 0) {
+        if ((rc = server_subset_data(data_block, _actions_desc.action[compId], _log_malloc_list)) != 0) {
             (*depth)--;
             return rc;
         }
@@ -896,10 +891,10 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
     if (!serverside && !isDerived && _metadata_block.signal_desc.type == 'S') {
         for (int i = 0; i < _actions_desc.nactions; i++) {
             if (_actions_desc.action[i].actionType == UDA_SUBSET_TYPE) {
-                UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Subset)   %d\n", *depth);
+                UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Subset)   %d\n", *depth);
                 print_data_block(*data_block);
 
-                if ((rc = serverSubsetData(data_block, _actions_desc.action[i], _log_malloc_list)) != 0) {
+                if ((rc = server_subset_data(data_block, _actions_desc.action[i], _log_malloc_list)) != 0) {
                     (*depth)--;
                     return rc;
                 }
@@ -914,10 +909,10 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
         for (int i = 0; i < actions_serverside.nactions; i++) {
             if (actions_serverside.action[i].actionType == UDA_SERVER_SIDE_TYPE) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Serverside)   %d\n", *depth);
+                    UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Serverside)   %d\n", *depth);
                     print_data_block(*data_block);
 
-                    if ((rc = serverSubsetData(data_block, actions_serverside.action[i], _log_malloc_list)) != 0) {
+                    if ((rc = server_subset_data(data_block, actions_serverside.action[i], _log_malloc_list)) != 0) {
                         (*depth)--;
                         return rc;
                     }
@@ -1031,7 +1026,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         if (_metadata_block.signal_desc.type == 'P') {
             strcpy(request->signal, _metadata_block.signal_desc.signal_name);
             strcpy(request->source, _metadata_block.data_source.path);
-            makeServerRequestData(request, _plugins, _environment);
+            make_server_request_data(request, _plugins, _environment);
         }
 
     } // end of REQUEST_READ_GENERIC

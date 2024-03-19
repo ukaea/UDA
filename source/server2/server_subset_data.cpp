@@ -57,8 +57,8 @@ int serverNewDataArray2(Dims* dims, int rank, int dimid, char* data, int ndata, 
 
 } // namespace
 
-int uda::serverSubsetData(uda::client_server::DataBlock* data_block, uda::client_server::Action action,
-                          LogMallocList* logmalloclist)
+int uda::server::server_subset_data(client_server::DataBlock* data_block, client_server::Action action,
+                                    structures::LogMallocList *logmalloclist)
 {
     Dims* dim;
     Dims newdim;
@@ -1193,7 +1193,7 @@ int uda::serverSubsetData(uda::client_server::DataBlock* data_block, uda::client
 // SS::Subset(\"xx\", [*, 3], member=\"name\", reform)
 // SS::Subset(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dimid=0)\" )
 
-int uda::serverParseServerSide(RequestData* request_block, Actions* actions_serverside, Environment* environment)
+int uda::server::server_parse_server_side(client_server::RequestData* request_block, client_server::Actions* actions_serverside, client_server::Environment* environment)
 {
 
     char qchar[2];

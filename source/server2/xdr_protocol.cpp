@@ -121,25 +121,25 @@ void uda::server::XdrProtocol::create()
 }
 
 uda::server::XdrProtocol::XdrProtocol()
-    : server_input_{}, server_output_{}, server_tot_block_time_{0}, server_timeout_{TIMEOUT}, io_data_{}
+    : _server_input{}, _server_output{}, _server_tot_block_time{0}, _server_timeout{TIMEOUT}, _io_data{}
 {
-    io_data_.server_tot_block_time = &server_tot_block_time_;
-    io_data_.server_timeout = &server_timeout_;
+    _io_data.server_tot_block_time = &_server_tot_block_time;
+    _io_data.server_timeout = &_server_timeout;
 }
 
 void uda::server::XdrProtocol::create_streams()
 {
-    server_output_.x_ops = nullptr;
-    server_input_.x_ops = nullptr;
+    _server_output.x_ops = nullptr;
+    _server_input.x_ops = nullptr;
 
 #if defined(SSLAUTHENTICATION)
     if (getUdaServerSSLDisabled()) {
 #  if defined(__APPLE__) || defined(__TIRPC__)
-        xdrrec_create(&server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+        xdrrec_create(&_server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                       reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 
-        xdrrec_create(&server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+        xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                       reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 #  else
@@ -153,11 +153,11 @@ void uda::server::XdrProtocol::create_streams()
 #  endif
     } else {
 #  if defined(__APPLE__) || defined(__TIRPC__)
-        xdrrec_create(&server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+        xdrrec_create(&_server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(void*, void*, int)>(writeUdaServerSSL));
 
-        xdrrec_create(&server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+        xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(void*, void*, int)>(writeUdaServerSSL));
 #  else
@@ -192,8 +192,8 @@ void uda::server::XdrProtocol::create_streams()
 
 #endif // SSLAUTHENTICATION
 
-    server_input_.x_op = XDR_DECODE;
-    server_output_.x_op = XDR_ENCODE;
+    _server_input.x_op = XDR_DECODE;
+    _server_output.x_op = XDR_ENCODE;
 
     UDA_LOG(UDA_LOG_DEBUG, "XDR Streams Created\n");
 }
@@ -205,7 +205,7 @@ int uda::server::XdrProtocol::read_client_block(ClientBlock* client_block, LogMa
 
     UDA_LOG(UDA_LOG_DEBUG, "Receiving Client Block\n");
 
-    if (!xdrrec_skiprecord(&server_input_)) {
+    if (!xdrrec_skiprecord(&_server_input)) {
         err = UDA_PROTOCOL_ERROR_5;
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Client Block)");
@@ -213,8 +213,8 @@ int uda::server::XdrProtocol::read_client_block(ClientBlock* client_block, LogMa
 
         int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK; // Recieve Client Block
 
-        if ((err = protocol2(&server_input_, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
-                             client_block, protocol_version_, &log_struct_list_, 0, malloc_source_)) != 0) {
+        if ((err = protocol2(&_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+                             client_block, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
@@ -239,8 +239,8 @@ int uda::server::XdrProtocol::send_server_block(ServerBlock server_block, LogMal
     int protocol_id = UDA_PROTOCOL_SERVER_BLOCK; // Receive Server Block: Server Aknowledgement
 
     int err;
-    if ((err = protocol2(&server_output_, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
-                         (void*)&server_block, protocol_version_, &log_struct_list_, 0, malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                         (void*)&server_block, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 11 Error (Server Block #1)");
     }
 
@@ -251,7 +251,7 @@ int uda::server::XdrProtocol::send_server_block(ServerBlock server_block, LogMal
 
 int uda::server::XdrProtocol::flush()
 {
-    if (!xdrrec_endofrecord(&server_output_, 1)) { // Send data now
+    if (!xdrrec_endofrecord(&_server_output, 1)) { // Send data now
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
 
@@ -267,8 +267,8 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
     int protocol_id = UDA_PROTOCOL_DATA_SYSTEM;
     int err = 0;
 
-    if ((err = protocol2(&server_output_, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.data_system, protocol_version_, &log_struct_list_, 0, malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                         &metadata_block.data_system, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
         return err;
@@ -279,8 +279,8 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
 
     protocol_id = UDA_PROTOCOL_SYSTEM_CONFIG;
 
-    if ((err = protocol2(&server_output_, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.system_config, protocol_version_, &log_struct_list_, 0, malloc_source_)) !=
+    if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                         &metadata_block.system_config, _protocol_version, &_log_struct_list, 0, _malloc_source)) !=
         0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
@@ -292,8 +292,8 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
 
     protocol_id = UDA_PROTOCOL_DATA_SOURCE;
 
-    if ((err = protocol2(&server_output_, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.data_source, protocol_version_, &log_struct_list_, 0, malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                         &metadata_block.data_source, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
         return err;
@@ -304,8 +304,8 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
 
     protocol_id = UDA_PROTOCOL_SIGNAL;
 
-    if ((err = protocol2(&server_output_, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.signal_rec, protocol_version_, &log_struct_list_, 0, malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                         &metadata_block.signal_rec, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
         return err;
@@ -316,8 +316,8 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
 
     protocol_id = UDA_PROTOCOL_SIGNAL_DESC;
 
-    if ((err = protocol2(&server_output_, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.signal_desc, protocol_version_, &log_struct_list_, 0, malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                         &metadata_block.signal_desc, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
         return err;
@@ -337,9 +337,9 @@ int uda::server::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& dat
     data_block_list.data = const_cast<DataBlock*>(data_blocks.data());
 
     int err = 0;
-    if ((err = protocol2(&server_output_, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, nullptr, log_malloc_list,
-                         user_defined_type_list, (void*)&data_block_list, protocol_version_, &log_struct_list_, 0,
-                         malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_output, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, nullptr, log_malloc_list,
+                         user_defined_type_list, (void*)&data_block_list, _protocol_version, &_log_struct_list, 0,
+                         _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
         return err;
@@ -353,7 +353,7 @@ int uda::server::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& dat
 int uda::server::XdrProtocol::send_hierachical_data(const DataBlock& data_block, LogMallocList* log_malloc_list,
                                                     UserDefinedTypeList* user_defined_type_list)
 {
-    if (protocol_version_ < 9 && data_block.data_type == UDA_TYPE_COMPOUND &&
+    if (_protocol_version < 9 && data_block.data_type == UDA_TYPE_COMPOUND &&
         data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
 
         int protocol_id;
@@ -372,8 +372,8 @@ int uda::server::XdrProtocol::send_hierachical_data(const DataBlock& data_block,
         UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
 
         int err = 0;
-        if ((err = protocol2(&server_output_, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
-                             (void*)&data_block, protocol_version_, &log_struct_list_, 0, malloc_source_)) != 0) {
+        if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                             (void*)&data_block, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
             return err;
         }
@@ -391,7 +391,7 @@ int uda::server::XdrProtocol::recv_client_block(ServerBlock& server_block, Clien
 {
     // Receive the Client Block, request block and putData block
 
-    if (!xdrrec_skiprecord(&server_input_)) {
+    if (!xdrrec_skiprecord(&_server_input)) {
         *fatal = true;
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block)");
     }
@@ -399,8 +399,8 @@ int uda::server::XdrProtocol::recv_client_block(ServerBlock& server_block, Clien
     int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
 
     int err = 0;
-    if ((err = protocol2(&server_input_, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
-                         client_block, protocol_version_, &log_struct_list_, 0, malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+                         client_block, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         if (server_tot_block_time >= 1000 * *server_timeout) {
             *fatal = true;
             UDA_THROW_ERROR(999, "Server Time Out");
@@ -421,16 +421,16 @@ int uda::server::XdrProtocol::recv_client_block(ServerBlock& server_block, Clien
 
 void uda::server::XdrProtocol::set_version(int protocol_version)
 {
-    protocol_version_ = protocol_version;
+    _protocol_version = protocol_version;
 }
 
 int uda::server::XdrProtocol::recv_request_block(RequestBlock* request_block, LogMallocList* log_malloc_list,
                                                  UserDefinedTypeList* user_defined_type_list)
 {
     int err = 0;
-    if ((err = protocol2(&server_input_, UDA_PROTOCOL_REQUEST_BLOCK, XDR_RECEIVE, nullptr, log_malloc_list,
-                         user_defined_type_list, request_block, protocol_version_, &log_struct_list_, private_flags_,
-                         malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_input, UDA_PROTOCOL_REQUEST_BLOCK, XDR_RECEIVE, nullptr, log_malloc_list,
+                         user_defined_type_list, request_block, _protocol_version, &_log_struct_list, _private_flags,
+                         _malloc_source)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 1 Error (Receiving Client Request)");
     }
 
@@ -443,9 +443,9 @@ int uda::server::XdrProtocol::recv_putdata_block_list(uda::client_server::PutDat
                                                       UserDefinedTypeList* user_defined_type_list)
 {
     int err = 0;
-    if ((err = protocol2(&server_input_, UDA_PROTOCOL_PUTDATA_BLOCK_LIST, XDR_RECEIVE, nullptr, log_malloc_list,
-                         user_defined_type_list, putdata_block_list, protocol_version_, &log_struct_list_,
-                         private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(&_server_input, UDA_PROTOCOL_PUTDATA_BLOCK_LIST, XDR_RECEIVE, nullptr, log_malloc_list,
+                         user_defined_type_list, putdata_block_list, _protocol_version, &_log_struct_list,
+                         _private_flags, _malloc_source)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 1 Error (Receiving Client putDataBlockList)");
     }
 
@@ -458,7 +458,7 @@ int uda::server::XdrProtocol::eof()
 {
     // Flush (mark as at EOF) the input socket buffer: no more data should be read from this point
 
-    xdrrec_eof(&server_input_);
+    xdrrec_eof(&_server_input);
 
     return 0;
 }
@@ -467,8 +467,8 @@ DataBlock* uda::server::XdrProtocol::read_from_cache(uda::cache::UdaCache* cache
                                                      server::Environment& environment, LogMallocList* log_malloc_list,
                                                      UserDefinedTypeList* user_defined_type_list)
 {
-    return cache_read(cache, request, log_malloc_list, user_defined_type_list, *environment.p_env(), protocol_version_,
-                      CLIENTFLAG_CACHE, &log_struct_list_, private_flags_, malloc_source_);
+    return cache_read(cache, request, log_malloc_list, user_defined_type_list, *environment.p_env(), _protocol_version,
+                      CLIENTFLAG_CACHE, &_log_struct_list, _private_flags, _malloc_source);
 }
 
 void uda::server::XdrProtocol::write_to_cache(uda::cache::UdaCache* cache, RequestData* request,
@@ -477,5 +477,5 @@ void uda::server::XdrProtocol::write_to_cache(uda::cache::UdaCache* cache, Reque
                                               UserDefinedTypeList* user_defined_type_list)
 {
     cache_write(cache, request, data_block, log_malloc_list, user_defined_type_list, *environment.p_env(), 8,
-                CLIENTFLAG_CACHE, &log_struct_list_, private_flags_, malloc_source_);
+                CLIENTFLAG_CACHE, &_log_struct_list, _private_flags, _malloc_source);
 }

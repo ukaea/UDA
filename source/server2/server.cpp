@@ -682,7 +682,7 @@ int uda::server::Server::handle_request()
 
     if (_client_block.get_dimdble || _client_block.get_timedble || _client_block.get_scalar) {
         for (auto& data_block : _data_blocks) {
-            if (uda::serverProcessing(_client_block, &data_block) != 0) {
+            if (server_processing(_client_block, &data_block) != 0) {
                 UDA_THROW_ERROR(779, "Server-Side Processing Error");
             }
         }

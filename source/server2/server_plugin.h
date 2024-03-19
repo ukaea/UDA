@@ -1,5 +1,4 @@
-#ifndef UDA_SERVER_SERVERPLUGIN_H
-#define UDA_SERVER_SERVERPLUGIN_H
+#pragma once
 
 #include "clientserver/udaStructs.h"
 #include "plugins.hpp"
@@ -35,5 +34,3 @@ boost::optional<uda::plugins::PluginData> find_metadata_plugin(const Config& con
                                                                const server::Environment& environment);
 
 } // namespace uda::server
-
-#endif // UDA_SERVER_SERVERPLUGIN_H

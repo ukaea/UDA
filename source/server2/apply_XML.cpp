@@ -23,7 +23,7 @@
 
 using namespace uda::logging;
 
-int uda::server_parse_signal_XML(uda::client_server::DataSource data_source, uda::client_server::Signal signal,
+int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda::client_server::Signal signal,
                                  uda::client_server::SignalDesc signal_desc, uda::client_server::Actions* actions_desc,
                                  uda::client_server::Actions* actions_sig)
 {
@@ -281,7 +281,7 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 
 } // namespace
 
-void uda::server_apply_signal_XML(uda::client_server::ClientBlock client_block,
+void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
                                   uda::client_server::DataSource* data_source, uda::client_server::Signal* signal,
                                   uda::client_server::SignalDesc* signal_desc,
                                   uda::client_server::DataBlock* data_block, uda::client_server::Actions actions)
@@ -1536,7 +1536,7 @@ void uda::server_apply_signal_XML(uda::client_server::ClientBlock client_block,
 
 // Combine the set of Actions from both sources with Signal XML having Priority of Signal_Desc XML
 
-void uda::server_deselect_signal_XML(uda::client_server::Actions* actions_desc,
+void uda::server_deselect_signal_xml(uda::client_server::Actions* actions_desc,
                                      uda::client_server::Actions* actions_sig)
 {
 

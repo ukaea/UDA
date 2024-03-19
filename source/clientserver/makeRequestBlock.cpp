@@ -248,7 +248,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
 
                 if ((p0 != nullptr || p1 != nullptr) && (p != nullptr || p2 != nullptr)) {
                     err = 999;
-                    add_error(UDA_CODE_ERROR_TYPE, "makeServerRequestBlock", err,
+                    add_error(UDA_CODE_ERROR_TYPE, "make_server_request_block", err,
                               "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }

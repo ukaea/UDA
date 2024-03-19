@@ -14,7 +14,7 @@ using namespace uda::logging;
  * @param data_block
  * @return 1 if an error occurred, otherwise 0
  */
-int uda::serverProcessing(uda::client_server::ClientBlock client_block, uda::client_server::DataBlock* data_block)
+int uda::server::server_processing(client_server::ClientBlock client_block, client_server::DataBlock* data_block)
 {
     uda::client_server::Dims* ddim = nullptr;
     double *newoffs = nullptr, *newints = nullptr;

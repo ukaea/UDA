@@ -1,9 +1,6 @@
 #pragma once
 
-#ifndef UDA_SOURCE_SERVER2_SERVER_EXCEPTIONS_H
-#  define UDA_SOURCE_SERVER2_SERVER_EXCEPTIONS_H
-
-#  include <exception>
+#include <exception>
 
 namespace uda
 {
@@ -49,5 +46,3 @@ class StartupException : public Exception
 
 } // namespace server
 } // namespace uda
-
-#endif // UDA_SOURCE_SERVER2_SERVER_EXCEPTIONS_H

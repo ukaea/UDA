@@ -1,17 +1,14 @@
 #pragma once
 
-#ifndef UDA_SERVER_XDR_UDA_PROTOCOL_HPP
-#  define UDA_SERVER_XDR_UDA_PROTOCOL_HPP
+#include <rpc/rpc.h>
+#include <vector>
 
-#  include <rpc/rpc.h>
-#  include <vector>
-
-#  include "cache/memcache.hpp"
-#  include "clientserver/protocol.h"
-#  include "clientserver/udaDefines.h"
-#  include "clientserver/udaStructs.h"
-#  include "server_environment.hpp"
-#  include "structures/genStructs.h"
+#include "cache/memcache.hpp"
+#include "clientserver/protocol.h"
+#include "clientserver/udaDefines.h"
+#include "clientserver/udaStructs.h"
+#include "server_environment.hpp"
+#include "structures/genStructs.h"
 
 namespace uda::server
 {
@@ -69,19 +66,17 @@ class XdrProtocol
                           uda::structures::UserDefinedTypeList* user_defined_type_list);
 
   private:
-    int protocol_version_ = 8;
-    XDR server_input_;
-    XDR server_output_;
-    int server_tot_block_time_;
-    int server_timeout_;
-    uda::server::IoData io_data_;
-    uda::structures::LogStructList log_struct_list_;
-    int malloc_source_;
-    int private_flags_;
+    int _protocol_version = 8;
+    XDR _server_input;
+    XDR _server_output;
+    int _server_tot_block_time;
+    int _server_timeout;
+    uda::server::IoData _io_data;
+    uda::structures::LogStructList _log_struct_list;
+    int _malloc_source;
+    int _private_flags;
 
     void create_streams();
 };
 
 } // namespace uda::server
-
-#endif // UDA_SERVER_XDR_UDA_PROTOCOL_HPP

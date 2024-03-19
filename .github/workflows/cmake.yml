@@ -105,6 +105,7 @@ jobs:
           openssl
           dlfcn-win32
           spdlog
+          tomlplusplus
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
