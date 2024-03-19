@@ -5,6 +5,14 @@
 #include <toml++/toml.hpp>
 #include <vector>
 
+#ifdef __GNUC__ // GCC 4.8+, Clang, Intel and other compilers compatible with GCC (-std=c++0x or above)
+[[noreturn]] inline __attribute__((always_inline)) void unreachable() { __builtin_unreachable(); }
+#elif defined(_MSC_VER) // MSVC
+[[noreturn]] __forceinline void unreachable() { __assume(false); }
+#else // ???
+inline void unreachable() {}
+#endif
+
 namespace
 {
 
@@ -30,6 +38,7 @@ std::string to_string(ValueType type)
         case ValueType::Char:
             return "char";
     }
+    unreachable();
 }
 
 toml::node_type as_toml_type(ValueType type)
@@ -46,6 +55,7 @@ toml::node_type as_toml_type(ValueType type)
         case ValueType::Char:
             return toml::node_type::string;
     }
+    unreachable();
 }
 
 std::string to_string(toml::node_type type)
@@ -63,6 +73,7 @@ std::string to_string(toml::node_type type)
         case node_type::time: return "time";
         case node_type::date_time: return "date_time";
     }
+    unreachable();
 }
 
 class ValueValidator
