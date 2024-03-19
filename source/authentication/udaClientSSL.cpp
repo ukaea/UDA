@@ -4,7 +4,7 @@
 
 #include <cstdio>
 #include <fcntl.h>
-#include <time.h>
+#include <ctime>
 #include <openssl/ssl.h>
 
 #include <client/updateSelectParms.h>
@@ -53,7 +53,9 @@ static void init_ssl_library()
         UDA_LOG(UDA_LOG_DEBUG, "Prior SSL initialisation\n");
         return;
     }
-    OPENSSL_init_ssl(OPENSSL_INIT_SSL_DEFAULT, nullptr);
+    SSL_library_init();
+    SSL_load_error_strings();
+    OpenSSL_add_ssl_algorithms();
 #ifdef _WIN32
     if (getenv("UDA_SSL_INITIALISED") == nullptr) {
         _putenv_s("UDA_SSL_INITIALISED", "1");
@@ -271,8 +273,8 @@ int configureUdaClientSSLContext(const HostData* host)
         UDA_THROW_ERROR(999, "Unable to parse client certificate [%s] to verify certificate validity");
     }
 
-    const ASN1_TIME* before = X509_getm_notBefore(clientCert);
-    const ASN1_TIME* after = X509_getm_notAfter(clientCert);
+    const ASN1_TIME* before = X509_get_notBefore(clientCert);
+    const ASN1_TIME* after = X509_get_notAfter(clientCert);
 
     char work[X509_STRING_SIZE];
     UDA_LOG(UDA_LOG_DEBUG, "Client X509 subject: %s\n",
@@ -383,7 +385,7 @@ int startUdaClientSSL()
     }
 
     // Get the Server certificate and verify
-    X509* peer = SSL_get1_peer_certificate(g_ssl);
+    X509* peer = SSL_get_peer_certificate(g_ssl);
 
     if (peer != nullptr) {
 
@@ -406,8 +408,8 @@ int startUdaClientSSL()
 
         // Verify Date validity
 
-        const ASN1_TIME* before = X509_getm_notBefore(peer);
-        const ASN1_TIME* after = X509_getm_notAfter(peer);
+        const ASN1_TIME* before = X509_get_notBefore(peer);
+        const ASN1_TIME* after = X509_get_notAfter(peer);
 
         time_t current_time = time(nullptr);
         char* c_time_string = ctime(&current_time);

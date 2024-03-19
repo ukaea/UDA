@@ -95,7 +95,9 @@ void initUdaServerSSL()
         UDA_LOG(UDA_LOG_DEBUG, "Prior SSL initialisation\n");
         return;
     }
-    OPENSSL_init_ssl(OPENSSL_INIT_SSL_DEFAULT, nullptr);
+    SSL_library_init();
+    SSL_load_error_strings();
+    OpenSSL_add_ssl_algorithms();
 #ifdef _WIN32
     _putenv_s("UDA_SSL_INITIALISED", "1");
 #else

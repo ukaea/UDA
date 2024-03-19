@@ -26,10 +26,10 @@ endif()
 
 add_library( authentication-client-objects OBJECT udaClientSSL.cpp udaClientSSL.h udaServerSSL.h utils.cpp )
 target_link_libraries( authentication-client-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )
-target_compile_definitions( authentication-client-objects PRIVATE -DOPENSSL_NO_DEPRECATED )
+target_compile_definitions( authentication-client-objects PRIVATE )
 
 if( NOT CLIENT_ONLY )
   add_library( authentication-server-objects OBJECT udaServerSSL.cpp udaClientSSL.h utils.cpp )
-  target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD -DOPENSSL_NO_DEPRECATED )
+  target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
   target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )
 endif()
