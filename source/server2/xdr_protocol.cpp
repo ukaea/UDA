@@ -8,7 +8,6 @@
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include "authentication/udaServerSSL.h"
-
 #endif
 
 #include <cerrno>
@@ -34,7 +33,9 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 using namespace uda::authentication;
+#endif
 
 int serverSocket = 0;
 
@@ -143,11 +144,11 @@ void uda::server::XdrProtocol::create_streams()
                       reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                       reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 #  else
-        xdrrec_create(&server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
+        xdrrec_create(&_server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(server_read),
                       reinterpret_cast<int (*)(char*, char*, int)>(server_write));
 
-        xdrrec_create(&server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
+        xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(server_read),
                       reinterpret_cast<int (*)(char*, char*, int)>(server_write));
 #  endif
@@ -161,11 +162,11 @@ void uda::server::XdrProtocol::create_streams()
                       reinterpret_cast<int (*)(void*, void*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(void*, void*, int)>(writeUdaServerSSL));
 #  else
-        xdrrec_create(&server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
+        xdrrec_create(&_server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(char*, char*, int)>(writeUdaServerSSL));
 
-        xdrrec_create(&server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
+        xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(char*, char*, int)>(writeUdaServerSSL));
 #  endif
@@ -173,19 +174,19 @@ void uda::server::XdrProtocol::create_streams()
 #else // SSLAUTHENTICATION
 
 #  if defined(__APPLE__) || defined(__TIRPC__)
-    xdrrec_create(&server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+    xdrrec_create(&_server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
                   reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                   reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 
-    xdrrec_create(&server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+    xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
                   reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                   reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 #  else
-    xdrrec_create(&server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
+    xdrrec_create(&server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
                   reinterpret_cast<int (*)(char*, char*, int)>(server_read),
                   reinterpret_cast<int (*)(char*, char*, int)>(server_write));
 
-    xdrrec_create(&server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
+    xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
                   reinterpret_cast<int (*)(char*, char*, int)>(server_read),
                   reinterpret_cast<int (*)(char*, char*, int)>(server_write));
 #  endif

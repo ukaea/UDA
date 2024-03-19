@@ -46,32 +46,6 @@ class Option
     boost::any _value;
 };
 
-template<>
-char Option::as<char>() const
-{
-    if (is<std::string>()) {
-        auto string = boost::any_cast<std::string>(_value);
-        if (string.size() != 1) {
-            throw ConfigError{ fmt::format("invalid char value {} for option {}", string, _name) };
-        }
-    }
-    throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
-}
-
-template <>
-char Option::as_or_default(char default_value) const
-{
-    if (is<std::string>()) {
-        auto string = boost::any_cast<std::string>(_value);
-        if (string.size() != 1) {
-            throw ConfigError{ fmt::format("invalid char value {} for option {}", string, _name) };
-        }
-    } else if (_value.empty()) {
-        return default_value;
-    }
-    throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
-}
-
 class ConfigImpl;
 
 class Config
