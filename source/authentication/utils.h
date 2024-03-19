@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <openssl/types.h>
+#include <openssl/asn1.h>
 
 #define X509_STRING_SIZE 256
 
