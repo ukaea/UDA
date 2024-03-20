@@ -40,7 +40,7 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 #ifndef _WIN32
     asctime_r(broken, accessdate);
 #else
-    asctime_s(accessdate, DATELENGTH, broken);
+    asctime_s(accessdate, UDA_DATE_LENGTH, broken);
 #endif
 
     convertNonPrintable2(accessdate);

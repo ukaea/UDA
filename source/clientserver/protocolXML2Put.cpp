@@ -18,8 +18,9 @@
 
 static int recursiveDepthPut = 0;    // Keep count of recursive calls
 
-int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                          USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,
+int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* log_struct_list,
+                          USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype,
+                          void** data, int datacount, int structRank,
                           int* structShape, int index, NTREE** NTree, int protocolVersion, int malloc_source)
 {
     // Grow the data tree recursively through pointer elements within individual structures
@@ -1330,19 +1331,19 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                             char* stype;
                             void* heap;
                             heap = p;
-                            id = findStructId(heap, &stype);
+                            id = findStructId(heap, &stype, log_struct_list);
                         }
 
                         if (id == 0) {                        // Only send/receive new structures
                             if (userdefinedtype->compoundfield[j].pointer) {
                                 rc = rc &&
-                                        xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype, (void**)p,
+                                        xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, utype, (void**)p,
                                                            count, structRank, structShape, i,
                                                            &subNTree,
                                                            protocolVersion, malloc_source);    // User Defined type // rc set to 0 somewhere => stops call
                             } else {
                                 rc = rc &&
-                                        xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype, (void**)&p,
+                                        xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, utype, (void**)&p,
                                                            count, structRank, structShape, i,
                                                            &subNTree,
                                                            protocolVersion, malloc_source);    // if rc is set to 0 somewhere => stops call
@@ -1432,7 +1433,7 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
                                        userdefinedtype);                // User Defined Type Definitions
 
         rc = rc &&
-                xdrUserDefinedDataPut(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
+                xdrUserDefinedDataPut(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
                                       &dataNTree, protocolVersion, malloc_source);    // Data within Structures
 
         udaSetFullNTree(dataNTree); // Copy to Global
@@ -1448,7 +1449,7 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
                                  userdefinedtype);                    // User Defined Type Definitions
 
         rc = rc &&
-                xdrUserDefinedDataPut(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
+                xdrUserDefinedDataPut(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
                                       nullptr, protocolVersion, malloc_source);        // Data within Structures
         /*
               if(!XDRstdioFlag) rc = rc && xdrrec_endofrecord(xdrs, 1);

@@ -29,7 +29,7 @@ include_directories(
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-  add_compile_options( -Wno-error=use-after-free )
+#  add_compile_options( -Wno-error=use-after-free )
 elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
 endif()

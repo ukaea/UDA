@@ -27,16 +27,16 @@ char source[]
 #include "fileCache.h"
 
 #ifdef _WIN32
-DATA_BLOCK* udaFileCacheRead(const REQUEST_BLOCK* request_block,
-                             LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                             int protocolVersion)
+DATA_BLOCK* udaFileCacheRead(const REQUEST_DATA* request, LOGMALLOCLIST* logmalloclist,
+                             USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
+                             LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return nullptr;
 }
 
-int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block,
-                      LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                      int protocolVersion)
+int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+                      USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+                      unsigned int private_flags, int malloc_source)
 {
     return 0;
 }

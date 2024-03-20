@@ -25,8 +25,10 @@ elseif( TIRPC_FOUND )
 endif()
 
 add_library( authentication-client-objects OBJECT udaClientSSL.cpp udaClientSSL.h udaServerSSL.h )
+target_link_libraries( authentication-client-objects OpenSSL::SSL LibXml2::LibXml2 )
 
 if( NOT CLIENT_ONLY )
   add_library( authentication-server-objects OBJECT udaServerSSL.cpp udaClientSSL.h )
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
+  target_link_libraries( authentication-server-objects OpenSSL::SSL LibXml2::LibXml2 )
 endif()

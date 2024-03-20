@@ -9,6 +9,7 @@
 #include <openssl/x509.h>
 #include <openssl/pem.h>
 #include <openssl/asn1.h>
+#include <fcntl.h>
 
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
@@ -426,12 +427,14 @@ int writeUdaServerSSL(void* iohandle, const char* buf, int count)
             return -1;
         }
 
+#ifndef _WIN32
         int fopts = 0;
         if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
             // Is the socket closed? Check status flags
             UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
             return -1;
         }
+#endif
 
         *io_data->server_tot_block_time += tv.tv_usec / 1000;
 
@@ -461,11 +464,13 @@ int writeUdaServerSSL(void* iohandle, const char* buf, int count)
             reportServerSSLErrorCode(rc);
             UDA_LOG(UDA_LOG_DEBUG, "Write to socket failed!\n");
             UDA_ADD_ERROR(999, "Write to socket failed!");
+#ifndef _WIN32
             int fopts = 0;
             if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
                 // Is the socket closed? Check status flags
                 UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
             }
+#endif
             return -1;
     }
 
@@ -508,12 +513,14 @@ int readUdaServerSSL(void* iohandle, char* buf, int count)
             return -1;
         }
 
+#ifndef _WIN32
         int fopts = 0;
         if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
             // Is the socket closed? Check status flags
             UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
             return -1;
         }
+#endif
 
         updateSelectParms(g_sslSocket, &rfds, &tv, *io_data->server_tot_block_time);        // Keep blocking and wait for data
         tvc = tv;
@@ -556,11 +563,13 @@ int readUdaServerSSL(void* iohandle, char* buf, int count)
                 reportServerSSLErrorCode(rc);
                 UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!\n");
                 UDA_ADD_ERROR(999, "Read from socket failed!");
+#ifndef _WIN32
                 int fopts = 0;
                 if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||
                     errno == EBADF) {    // Is the socket closed? Check status flags
                     UDA_LOG(UDA_LOG_DEBUG, "writeUdaServerSSL: Client Socket is closed! Closing server down.\n");
                 }
+#endif
                 return -1;
         }
 

@@ -31,7 +31,7 @@
 #  define strcasecmp _stricmp
 #  define sleep(DELAY) Sleep((DWORD)((DELAY)*1E3))
 #  define close(SOCK) closesocket(SOCK)
-#  ifndef MINGW
+#  ifndef __MINGW32__
 #    pragma comment(lib, "Ws2_32.lib")
 #  endif
 

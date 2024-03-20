@@ -13,8 +13,9 @@
 
 static int recursiveDepth = 0;    // Keep count of recursive calls
 
-int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                       USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank, int* structShape,
+int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* log_struct_list,
+                       USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype,
+                       void** data, int datacount, int structRank, int* structShape,
                        int index, NTREE** NTree, int protocolVersion, int malloc_source)
 {
     // Grow the data tree recursively through pointer elements within individual structures
@@ -1384,17 +1385,19 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                             char* stype;
                             void* heap;
                             heap = p;
-                            id = findStructId(heap, &stype);
+                            id = findStructId(heap, &stype, log_struct_list);
                         }
 
                         if (id == 0) {                        // Only send/receive new structures
                             if (userdefinedtype->compoundfield[j].pointer) {
-                                rc = rc && xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype,
+                                rc = rc && xdrUserDefinedData(xdrs, logmalloclist, log_struct_list,
+                                                              userdefinedtypelist, utype,
                                                               (void**)p, count,
                                                               structRank, structShape, i, &subNTree, protocolVersion,
                                                               malloc_source);
                             } else {
-                                rc = rc && xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype,
+                                rc = rc && xdrUserDefinedData(xdrs, logmalloclist, log_struct_list,
+                                                              userdefinedtypelist, utype,
                                                               (void**)&p, count,
                                                               structRank, structShape, i, &subNTree, protocolVersion,
                                                               malloc_source);

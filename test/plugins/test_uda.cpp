@@ -16,13 +16,13 @@ TEST_CASE( "Test UDA::help() function", "[UDA][plugins]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\nUDA: Add Functions Names, Syntax, and Descriptions\n\n";
 
@@ -42,13 +42,13 @@ TEST_CASE( "Test UDA::get() function", "[UDA][plugins]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(float).name() );
 
     uda::Array* arr = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE( arr != NULL );
+    REQUIRE( arr != nullptr );
 
     REQUIRE( arr->size() == 7500 );
     REQUIRE( arr->type().name() == typeid(float).name() );
