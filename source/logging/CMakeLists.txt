@@ -46,7 +46,9 @@ if( NOT CLIENT_ONLY )
 endif()
 
 target_link_libraries( logging-client-objects PUBLIC Boost::boost )
-target_link_libraries( logging-server-objects PUBLIC Boost::boost )
+if( NOT CLIENT_ONLY )
+  target_link_libraries( logging-server-objects PUBLIC Boost::boost )
+endif()
 
 file( GLOB HEADER_FILES "*.h" )
 
