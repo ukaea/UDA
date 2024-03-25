@@ -105,6 +105,8 @@ endif()
 set( LINK_DL )
 if( WIN32 OR MINGW )
   set( LINK_DL dlfcn-win32::dl )
+else()
+  set( LINK_DL dl )
 endif()
 
 set( LINK_M )
