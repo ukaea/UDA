@@ -51,25 +51,25 @@ int keyValue(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    REQUEST_BLOCK* request_block = plugin_interface->request_block;
+    REQUEST_DATA* request_data = plugin_interface->request_data;
 
     int rc = 0;
 
-    if (STR_IEQUALS(request_block->function, "help")) {
+    if (STR_IEQUALS(request_data->function, "help")) {
         rc = plugin.help(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request_data->function, "version")) {
         rc = plugin.version(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request_data->function, "builddate")) {
         rc = plugin.build_date(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request_data->function, "defaultmethod")) {
         rc = plugin.default_method(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request_data->function, "maxinterfaceversion")) {
         rc = plugin.max_interface_version(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "write")) {
+    } else if (STR_IEQUALS(request_data->function, "write")) {
         rc = plugin.write(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "read")) {
+    } else if (STR_IEQUALS(request_data->function, "read")) {
         rc = plugin.read(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "delete")) {
+    } else if (STR_IEQUALS(request_data->function, "delete")) {
         rc = plugin.del(plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
@@ -84,10 +84,10 @@ int uda::keyvalue::Plugin::init(IDAM_PLUGIN_INTERFACE* plugin_interface)
     initPlugin(plugin_interface);
 #endif
 
-    REQUEST_BLOCK* request_block = plugin_interface->request_block;
+    REQUEST_DATA* request_data = plugin_interface->request_data;
 
     if (!initialised_
-        || !strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+        || !strcasecmp(request_data->function, "init") || !strcasecmp(request_data->function, "initialise")) {
 
         options_ = leveldb_options_create();
         leveldb_options_set_create_if_missing(options_, 1);
@@ -109,9 +109,9 @@ int uda::keyvalue::Plugin::init(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
 void uda::keyvalue::Plugin::reset(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    REQUEST_BLOCK* request_block = plugin_interface->request_block;
+    REQUEST_DATA* request_data = plugin_interface->request_data;
 
-    if (plugin_interface->housekeeping || !strcasecmp(request_block->function, "reset")) {
+    if (plugin_interface->housekeeping || !strcasecmp(request_data->function, "reset")) {
         if (!initialised_) return;
 
         leveldb_close(db_);
@@ -248,8 +248,8 @@ int uda::keyvalue::Plugin::write(IDAM_PLUGIN_INTERFACE* plugin_interface)
     const char* key = nullptr;
     const char* value = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_block->nameValueList, key);
-    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_block->nameValueList, value);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_data->nameValueList, key);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_data->nameValueList, value);
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == nullptr) {
@@ -276,7 +276,7 @@ int uda::keyvalue::Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     const char* key = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_block->nameValueList, key);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_data->nameValueList, key);
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == nullptr) {
@@ -308,7 +308,7 @@ int uda::keyvalue::Plugin::del(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     const char* key = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_block->nameValueList, key);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_data->nameValueList, key);
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == nullptr) {

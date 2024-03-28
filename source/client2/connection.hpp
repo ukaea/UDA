@@ -29,7 +29,7 @@ public:
     int open();
     int reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start, int* user_timeout);
     int create(XDR* client_input, XDR* client_output, const HostList& host_list);
-    void close(ClosedownType type);
+    void close_down(ClosedownType type);
     IoData io_data() {
         return IoData{ &client_socket };
     }

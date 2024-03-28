@@ -13,6 +13,7 @@
 #include "clientserver/parseXML.h"
 #include "clientserver/socketStructs.h"
 #include "cache/memcache.hpp"
+#include "clientserver/export.h"
 
 namespace uda {
 
@@ -29,9 +30,9 @@ public:
     constexpr static int ServerVersion = 8;
     constexpr static int LegacyServerVersion = 6;
 
-    Server();
-    void run();
-    void close();
+    LIBRARY_API Server();
+    LIBRARY_API void run();
+    LIBRARY_API void close();
 
 private:
     void startup();

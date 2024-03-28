@@ -14,9 +14,7 @@ find_package( LibMemcached )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-  if( NOT MINGW )
-    find_package( dlfcn-win32 CONFIG REQUIRED )
-  endif()
+  find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
@@ -63,12 +61,8 @@ file( GLOB HELPER_FILES "test_helpers.*" )
 
 set( LIBRARIES )
 set( EXE_FLAG )
-set( EXE_EXT )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )
-  if( MINGW )
-    set( EXE_EXT ".exe" )
-  endif()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LIBRARIES ${XDR_LIBRARIES} ws2_32 )
 elseif( TIRPC_FOUND )
@@ -81,7 +75,7 @@ if( ENABLE_CAPNP )
 endif()
 
 set( LINK_DL )
-if( WIN32 AND NOT MINGW )
+if( WIN32 )
   set( LINK_DL dlfcn-win32::dl )
 else()
   set( LINK_DL dl )
@@ -116,7 +110,7 @@ macro( BUILD_TEST NAME SOURCE )
 
   set_target_properties( ${NAME}
     PROPERTIES
-      OUTPUT_NAME ${NAME}${EXE_EXT}
+      OUTPUT_NAME ${NAME}
   )
   
   if( WIN32 )
@@ -145,7 +139,7 @@ macro( BUILD_TEST NAME SOURCE )
 
   set_target_properties( fat_${NAME}
     PROPERTIES
-      OUTPUT_NAME fat_${NAME}${EXE_EXT}
+      OUTPUT_NAME fat_${NAME}
   )
 
   if( WIN32 )

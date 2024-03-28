@@ -543,8 +543,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
 #  if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         // Create the SSL binding and context, and verify the server certificate
-        if ((err = startUdaClientSSL()) != 0) {
-            break;
+        if (initServer) {
+            if ((err = startUdaClientSSL()) != 0) {
+                break;
+            }
         }
 #  endif
 

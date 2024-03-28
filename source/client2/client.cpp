@@ -583,7 +583,7 @@ int uda::client::Client::get(std::string_view data_signal, std::string_view data
 
     if (make_request_block(&environment_, &signal_ptr, &source_ptr, 1, &request_block) != 0) {
         if (udaNumErrors() == 0) {
-            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source.data());
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         throw uda::exceptions::ClientError("Error identifying the Data Source [%1%]", data_source);

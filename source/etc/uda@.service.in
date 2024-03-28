@@ -1,0 +1,16 @@
+[Unit]
+Description=@USER@-uda service
+
+[Service]
+ExecStart=@CMAKE_INSTALL_PREFIX@/etc/udaserver.sh
+Type=forking
+User=@USER@
+#Group=yes
+UMask=002
+StandardInput=socket
+LimitNOFILE=30
+
+StandardOutput=file:@CMAKE_INSTALL_PREFIX@/etc/uda.logfile
+StandardError=inherit
+SuccessExitStatus=0
+LogLevelMax=info

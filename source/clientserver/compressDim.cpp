@@ -35,12 +35,19 @@ int compress(DIMS* ddim)
         return 1;
     }
     T prev_diff = dim_data[1] - dim_data[0];
-    T mean_diff = (dim_data[ndata - 1] - dim_data[0]) / (ndata - 1);
+    double mean_diff = (dim_data[ndata - 1] - dim_data[0]) / (ndata - 1);
     T precision = Precision<T>::precision;
 
     bool constant = true;
     for (int i = 1; i < ndata; i++) {
         T diff = dim_data[i] - dim_data[i - 1];
+        // avoid trying to compress data where delta is very small
+        if (diff < 5 * precision)
+        {
+            constant = false;
+            break;
+        }
+
         T abs_diff = diff < prev_diff ? (prev_diff - diff) : (diff - prev_diff);
         if (abs_diff > precision) {
             constant = false;

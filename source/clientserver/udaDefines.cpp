@@ -7,7 +7,7 @@
 #include <io.h>
 #include <fcntl.h>
 
-#if !defined(MINGW)
+#if !defined(__MINGW32__)
 int gettimeofday(struct timeval* tp, struct timezone* tzp)
 {
     // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's

@@ -1883,7 +1883,7 @@ int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDT
         }
 
         rc = rc && xdr_userdefinedtype(xdrs, userdefinedtypelist, userdefinedtype);    // User Defined Type Definitions
-        rc = rc && xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
+        rc = rc && xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
                                       &dataNTree, protocolVersion, malloc_source); // Data within Structures
 
         udaSetFullNTree(dataNTree); // Copy to Global
@@ -1896,7 +1896,7 @@ int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDT
         }
 
         rc = xdr_userdefinedtype(xdrs, userdefinedtypelist, userdefinedtype);     // User Defined Type Definitions
-        rc = rc && xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
+        rc = rc && xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
                                       nullptr, protocolVersion, malloc_source);  // Data within Structures
 
         if (!xdr_stdio_flag) {

@@ -209,7 +209,7 @@ int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     FIND_REQUIRED_STRING_VALUE(nvl, required);
 
     double* array = nullptr;
-    size_t narray = -1;
+    size_t narray = 0;
     FIND_REQUIRED_DOUBLE_ARRAY(nvl, array);
 
     int optional = -1;

@@ -84,6 +84,14 @@ ENVIRONMENT* getIdamClientEnvironment()
         strcpy(udaEnviron.logdir, "");
 #endif
     }
+udaEnviron.loglevel = UDA_LOG_NONE;
+    if ((env = getenv("UDA_LOG_LEVEL")) != nullptr) {
+        if (strncmp(env, "ACCESS", 6) == 0)      udaEnviron.loglevel = UDA_LOG_ACCESS;
+        else if (strncmp(env, "ERROR", 5) == 0)  udaEnviron.loglevel = UDA_LOG_ERROR;
+        else if (strncmp(env, "WARN", 4) == 0)   udaEnviron.loglevel = UDA_LOG_WARN;
+        else if (strncmp(env, "DEBUG", 5) == 0)  udaEnviron.loglevel = UDA_LOG_DEBUG;
+        else if (strncmp(env, "INFO", 4) == 0)   udaEnviron.loglevel = UDA_LOG_INFO;
+    }
 
     if (udaEnviron.loglevel <= UDA_LOG_ACCESS) {
         std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", udaEnviron.logdir);
@@ -101,14 +109,6 @@ ENVIRONMENT* getIdamClientEnvironment()
         }
     }    // Append Mode
 
-    udaEnviron.loglevel = UDA_LOG_NONE;
-    if ((env = getenv("UDA_LOG_LEVEL")) != nullptr) {
-        if (strncmp(env, "ACCESS", 6) == 0)      udaEnviron.loglevel = UDA_LOG_ACCESS;
-        else if (strncmp(env, "ERROR", 5) == 0)  udaEnviron.loglevel = UDA_LOG_ERROR;
-        else if (strncmp(env, "WARN", 4) == 0)   udaEnviron.loglevel = UDA_LOG_WARN;
-        else if (strncmp(env, "DEBUG", 5) == 0)  udaEnviron.loglevel = UDA_LOG_DEBUG;
-        else if (strncmp(env, "INFO", 4) == 0)   udaEnviron.loglevel = UDA_LOG_INFO;
-    }
 
     // UDA Server Host Name
 
