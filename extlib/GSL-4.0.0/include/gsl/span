@@ -125,7 +125,7 @@ namespace details
             : begin_(begin), end_(end), current_(current)
         {}
 
-        constexpr operator span_iterator<const Type>() const noexcept
+        explicit constexpr operator span_iterator<const Type>() const noexcept
         {
             return {begin_, end_, current_};
         }
