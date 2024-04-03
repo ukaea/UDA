@@ -38,8 +38,7 @@ set( MDS_LIBS
 
 if( WIN32 )
   set( MDS_LIBS ${MDS_LIBS} MdsObjectsCppShr-VS )
-endif()
-if( MINGW )
+else()
   set( MDS_LIBS ${MDS_LIBS} MdsObjectsCppShr )
 endif()
 
