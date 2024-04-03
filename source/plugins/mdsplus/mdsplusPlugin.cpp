@@ -3,6 +3,10 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 
+#include <mdsobjects.h>
+
+using namespace MDSplus;
+
 class MDSplusPlugin
 {
 public:
@@ -153,15 +157,73 @@ int MDSplusPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     // Read arguments
 
+    const char* protocol = nullptr;
+    bool is_protocol = FIND_STRING_VALUE(nvl, protocol);
+    if (!is_protocol) {
+        protocol = "tcp";
+    }
+
+    const char* host = nullptr;
+    FIND_REQUIRED_STRING_VALUE(nvl, host);
+
+    int port = 0;
+    FIND_REQUIRED_INT_VALUE(nvl, port);
+
+    const char* tree = nullptr;
+    FIND_REQUIRED_STRING_VALUE(nvl, tree);
+
+    int shot = 0;
+    FIND_REQUIRED_INT_VALUE(nvl, shot);
+
     const char* signal = nullptr;
     FIND_REQUIRED_STRING_VALUE(nvl, signal);
 
-    // Read data from MDS+
-    // ...
+    const char* type = nullptr;
+    FIND_REQUIRED_STRING_VALUE(nvl, type);
 
-    // Return data via data_block
+    int rank = 0;
+    FIND_REQUIRED_INT_VALUE(nvl, rank);
 
-    setReturnDataString(data_block, "result", "result of MDSplusPlugin::read");
+    std::string address = std::string{ protocol } + "://" + host + std::to_string(port);
+
+    std::unique_ptr<Connection> connection;
+    try {
+        connection = std::make_unique<Connection>(const_cast<char *>(address.c_str()));
+    } catch (...) {
+        RAISE_PLUGIN_ERROR("failed to connect");
+    }
+
+    connection->openTree(const_cast<char*>(tree), shot);
+
+    auto data = std::unique_ptr<Data>(connection->get(signal));
+
+    std::string data_type = type;
+
+    if (rank == 0) {
+        if (data_type == "int") {
+            auto val = data->getInt();
+            setReturnDataIntScalar(data_block, val, nullptr);
+        } else if (data_type == "float") {
+            auto val = data->getFloat();
+            setReturnDataFloatScalar(data_block, val, nullptr);
+        } else {
+            RAISE_PLUGIN_ERROR("unknown data type")
+        }
+    } else {
+        if (data_type == "int") {
+            auto array = data->getIntArray();
+            std::vector<size_t> shape = {array.size()};
+            setReturnDataIntArray(data_block, array.data(), 1, shape.data(), nullptr);
+        } else if (data_type == "float") {
+            auto array = data->getFloatArray();
+            std::vector<size_t> shape = {array.size()};
+            setReturnDataFloatArray(data_block, array.data(), 1, shape.data(), nullptr);
+        } else {
+            RAISE_PLUGIN_ERROR("unknown data type")
+        }
+    }
+
+    connection->closeTree(const_cast<char*>(tree), shot);
 
     return 0;
 }

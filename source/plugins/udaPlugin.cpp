@@ -430,13 +430,13 @@ bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, con
     char** names = SplitString(name, "|");
     *value = nullptr;
 
-    bool found = 0;
+    bool found = false;
     for (int i = 0; i < namevaluelist->pairCount; i++) {
         size_t n;
         for (n = 0; names[n] != nullptr; ++n) {
             if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
                 *value = namevaluelist->nameValue[i].value;
-                found = 1;
+                found = true;
                 break;
             }
         }
