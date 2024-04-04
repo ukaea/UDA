@@ -102,7 +102,7 @@ else()
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
-    if( NOT APPLE )
+    if( NOT APPLE AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
       set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-use-after-free" )
     endif()
   endif()
