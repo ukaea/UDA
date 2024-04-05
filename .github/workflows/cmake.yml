@@ -68,14 +68,13 @@ jobs:
       - name: Install Intel compiler
         if: matrix.os == 'ubuntu-latest'
         run: >
-          apt install -y wget &&
-          cd /tmp &&
+          sudo apt install -y wget &&
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
-          apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
-          echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list &&
-          apt update &&
-          apt install -y intel-basekit &&
-          apt install -y intel-hpckit
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
+          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list &&
+          sudo apt update &&
+          sudo apt install -y intel-basekit &&
+          sudo apt install -y intel-hpckit
 
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
