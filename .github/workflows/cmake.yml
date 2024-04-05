@@ -48,7 +48,7 @@ jobs:
       - name: Install linux dependencies
         if: matrix.os == 'ubuntu-latest'
         run: >
-          sudo apt-get update && sudo apt-get install -y
+          sudo apt update && sudo apt install -y
           git
           libboost-dev
           libboost-program-options-dev
@@ -64,6 +64,18 @@ jobs:
           python3-dev
           python3-pip
           python3-venv
+
+      - name: Install Intel compiler
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          apt install -y wget &&
+          cd /tmp &&
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
+          apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
+          echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list &&
+          apt update &&
+          apt install -y intel-basekit &&
+          apt install -y intel-hpckit
 
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
@@ -112,6 +124,17 @@ jobs:
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
 
+      - name: Configure CMake (linux Intel)
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          source /opt/intel/oneapi/setvars.sh &&
+          CXX=icpx CC=icx cmake -G Ninja -B build-intel
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DSSLAUTHENTICATION=${{ matrix.ssl }}
+          -DCLIENT_ONLY=${{ matrix.client-only }}
+          -DENABLE_CAPNP=${{ matrix.capnp }}
+
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'
         run: >
@@ -150,6 +173,10 @@ jobs:
 
       - name: Build
         run: cmake --build build --config ${{ matrix.release }}
+
+      - name: Build Intel
+        if: matrix.os == 'ubuntu-latest'
+        run: cmake --build build-intel --config ${{ matrix.release }}
 
       - name: Install
         if: matrix.os != 'windows-latest'

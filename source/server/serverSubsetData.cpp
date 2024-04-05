@@ -1629,6 +1629,27 @@ double EpsilonSelector<double>::Epsilon = DBL_EPSILON;
 template <>
 float EpsilonSelector<float>::Epsilon = FLT_EPSILON;
 
+namespace uda {
+
+template<typename T, std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value, bool> = true>
+T abs(T in) {
+    return in < 0 ? -in : in;
+}
+
+template<typename T, std::enable_if_t<std::is_integral<T>::value && !std::is_signed<T>::value, bool> = true>
+T abs(T in) {
+    return in;
+}
+
+float abs(float in) {
+    return fabsf(in);
+}
+
+double abs(double in) {
+    return fabs(in);
+}
+
+}
 
 template <typename T>
 int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices)
@@ -1646,16 +1667,16 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
         }
         if (count == 0 && operation == "~=") {
             for (int k = 0; k < dim->dim_n; k++) {
-                if (fabs(p[k] - (T)value) <= EpsilonSelector<T>::Epsilon) {
+                if (uda::abs(p[k] - (T)value) <= EpsilonSelector<T>::Epsilon) {
                     subset_indices[count++] = k;
                 }
             }
             if (count == 0) {
                 int index = -1;
                 double delta;
-                double minvalue = fabs((T)value - p[0]);
+                double minvalue = uda::abs((T)value - p[0]);
                 for (int k = 0; k < dim->dim_n; k++) {
-                    delta = fabs((T)value - p[k]);
+                    delta = uda::abs((T)value - p[k]);
                     if (delta < minvalue) {                        // Look for the Single Nearest Value
                         minvalue = delta;
                         index = k;
@@ -1669,11 +1690,11 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                         index == dim->dim_n - 1) {                // Check not an end point by default
                         if (dim->dim_n > 1) {
                             if (index == 0) {
-                                delta = fabs(p[1] - p[0]);
+                                delta = uda::abs(p[1] - p[0]);
                             } else {
-                                delta = fabs(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
+                                delta = uda::abs(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
                             }
-                            if (fabs((T)value - p[index]) > delta) count = 0;    // Suspect match!
+                            if (uda::abs((T)value - p[index]) > delta) count = 0;    // Suspect match!
                         }
                     }
                 }
@@ -1713,9 +1734,9 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                 }
             } else {
                 int index = -1;
-                double delta, minvalue = fabs((T)value - p[0]);
+                double delta, minvalue = uda::abs((T)value - p[0]);
                 for (int k = 0; k < dim->dim_n; k++) {
-                    delta = fabs((T)value - p[k]);
+                    delta = uda::abs((T)value - p[k]);
                     if (delta <
                         minvalue) {                        // Look for the Single Nearest Value
                         minvalue = delta;
@@ -1732,11 +1753,11 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                         // Check not an end point by default
                         if (dim->dim_n > 1) {
                             if (index == 0) {
-                                delta = fabs(p[1] - p[0]);
+                                delta = uda::abs(p[1] - p[0]);
                             } else {
-                                delta = fabs(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
+                                delta = uda::abs(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
                             }
-                            if (fabs((T)value - p[index]) > delta) {
+                            if (uda::abs((T)value - p[index]) > delta) {
                                 count = 0;
                             }    // Suspect match!
                         }
