@@ -16,13 +16,13 @@ TEST_CASE( "Test VIEWPORT::help() function", "[VIEWPORT][plugins]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\nviewport: Add Functions Names, Syntax, and Descriptions\n\n";
 

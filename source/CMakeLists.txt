@@ -1,12 +1,13 @@
 if( NOT CLIENT_ONLY )
   include( LibXml2StrPrintfConfig )
 endif()
+set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
 find_package( Boost 1.60 REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
 # Hack to build on GCC/12.2.0
 if( NOT WIN32 OR MINGW )
-  if ( NOT APPLE )
+  if ( NOT APPLE AND NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "IntelLLVM") )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-use-after-free -Wno-mismatched-new-delete" )
   endif()
 endif()
@@ -19,7 +20,10 @@ if( WIN32 AND NOT MINGW )
 else()
   add_definitions( -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers )
   if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER 5.0 )
-    add_definitions( -Wno-format-truncation -Wno-format-overflow -Wno-use-after-free )
+    add_definitions( -Wno-format-truncation -Wno-format-overflow )
+    if( NOT MINGW AND NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "IntelLLVM") )
+      add_definitions( -Wno-use-after-free )
+    endif()
   endif()
 endif()
 
@@ -96,10 +100,15 @@ set( PKGCONFIG_FILES
   uda-plugins.pc
 )
 
-get_filename_component( LIBXML_LIB_DIR ${LIBXML2_LIBRARIES} DIRECTORY )
+get_filename_component( LIBXML_LIB_DIR "${LIBXML2_LIBRARIES}" DIRECTORY )
 set( PKGCONFIG_LIBRARIES "-L${LIBXML_LIB_DIR} -lxml2" )
 set( PKGCONFIG_INCLUDES "-I${LIBXML2_INCLUDE_DIR}" )
 set( PKGCONFIG_REQUIRES fmt )
+
+find_package( TIRPC QUIET )
+if( TIRPC_FOUND )
+    set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} libtirpc" )
+endif()
 
 if( ENABLE_CAPNP )
   set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} capnp" )
@@ -137,3 +146,23 @@ install(
   DESTINATION etc
   PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 )
+
+set( SERVICE_FILES
+  uda.socket
+  uda@.service
+)
+
+foreach( SERVICE_FILE ${SERVICE_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/source/etc/${SERVICE_FILE}.in"
+    "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+    @ONLY
+  )
+
+  install(
+    FILES "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+    DESTINATION etc
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+  )
+endforeach()
+

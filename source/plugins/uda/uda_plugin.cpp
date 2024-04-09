@@ -330,7 +330,7 @@ Notes: there are three pathways depending on the request pattern
 
     // Client Flags ...
 
-    resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
+    resetIdamClientFlag(client_flags, (unsigned int)CLIENTFLAG_FULLRESET);
     setIdamClientFlag(client_flags, client_block->clientFlags);
 
     // Client application provenance
@@ -575,7 +575,7 @@ Notes: there are three pathways depending on the request pattern
     }
 
     resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
-    resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
+    resetIdamClientFlag(client_flags, (unsigned int)CLIENTFLAG_FULLRESET);
 
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap

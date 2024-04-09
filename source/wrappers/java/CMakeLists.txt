@@ -18,7 +18,7 @@ endif()
 
 include( UseJava )
 
-set( CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6" )
+set( CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8" )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source

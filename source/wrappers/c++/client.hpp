@@ -5,6 +5,7 @@
 #include <vector>
 #include <exception>
 #include <unordered_map>
+#include <cstdint>
 
 #include <clientserver/export.h>
 
@@ -148,38 +149,44 @@ public:
     static std::string serverHostName();
     static int serverPort();
 
+    const char *getErrorMsg(int handle); 
+
     const uda::Result& get(const std::string& signalName, const std::string& dataSource);
 
     uda::ResultList get_batch(const std::vector<std::string>& signals, const std::string& source);
     uda::ResultList get_batch(const std::vector<std::pair<std::string, std::string>>& requests);
 
-    void put(const uda::Signal& putdata);
+    int getFileID(int handle);
 
-    void put(const std::string& instruction, char data);
-    void put(const std::string& instruction, int8_t data);
-    void put(const std::string& instruction, int16_t data);
-    void put(const std::string& instruction, int32_t data);
-    void put(const std::string& instruction, int64_t data);
-    void put(const std::string& instruction, uint8_t data);
-    void put(const std::string& instruction, uint16_t data);
-    void put(const std::string& instruction, uint32_t data);
-    void put(const std::string& instruction, uint64_t data);
-    void put(const std::string& instruction, float data);
-    void put(const std::string& instruction, double data);
+    int put(const uda::Signal& putdata);
+    
+    int put(const std::string& instruction);
 
-    void put(const std::string& instruction, const std::vector<char>& data);
-    void put(const std::string& instruction, const std::vector<int8_t>& data);
-    void put(const std::string& instruction, const std::vector<int16_t>& data);
-    void put(const std::string& instruction, const std::vector<int32_t>& data);
-    void put(const std::string& instruction, const std::vector<int64_t>& data);
-    void put(const std::string& instruction, const std::vector<uint8_t>& data);
-    void put(const std::string& instruction, const std::vector<uint16_t>& data);
-    void put(const std::string& instruction, const std::vector<uint32_t>& data);
-    void put(const std::string& instruction, const std::vector<uint64_t>& data);
-    void put(const std::string& instruction, const std::vector<float>& data);
-    void put(const std::string& instruction, const std::vector<double>& data);
+    int put(const std::string& instruction, char data);
+    int put(const std::string& instruction, int8_t data);
+    int put(const std::string& instruction, int16_t data);
+    int put(const std::string& instruction, int32_t data);
+    int put(const std::string& instruction, int64_t data);
+    int put(const std::string& instruction, uint8_t data);
+    int put(const std::string& instruction, uint16_t data);
+    int put(const std::string& instruction, uint32_t data);
+    int put(const std::string& instruction, uint64_t data);
+    int put(const std::string& instruction, float data);
+    int put(const std::string& instruction, double data);
 
-    void put(const std::string& instruction, const uda::Array& data);
+    int put(const std::string& instruction, const std::vector<char>& data);
+    int put(const std::string& instruction, const std::vector<int8_t>& data);
+    int put(const std::string& instruction, const std::vector<int16_t>& data);
+    int put(const std::string& instruction, const std::vector<int32_t>& data);
+    int put(const std::string& instruction, const std::vector<int64_t>& data);
+    int put(const std::string& instruction, const std::vector<uint8_t>& data);
+    int put(const std::string& instruction, const std::vector<uint16_t>& data);
+    int put(const std::string& instruction, const std::vector<uint32_t>& data);
+    int put(const std::string& instruction, const std::vector<uint64_t>& data);
+    int put(const std::string& instruction, const std::vector<float>& data);
+    int put(const std::string& instruction, const std::vector<double>& data);
+
+    int put(const std::string& instruction, const uda::Array& data);
 
     void close();
 

@@ -16,13 +16,13 @@ TEST_CASE( "Test HELP::help() function", "[HELP][plugins]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected =
             "\nHelp\tList of HELP plugin functions:\n"
@@ -47,13 +47,13 @@ TEST_CASE( "Test HELP::services() function", "[HELP][plugins]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\nTotal number of registered plugins available";
 

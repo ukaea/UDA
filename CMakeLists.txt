@@ -35,8 +35,9 @@ set( CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake/Modules
   ${CMAKE_SOURCE_DIR}/cmake/Config
 )
+set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
 
-include( ColourMessages )
+#include( ColourMessages )
 include_directories( /opt/local/include )
 
 set( Boost_USE_MULTITHREADED OFF )
@@ -85,7 +86,7 @@ if( "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" )
 endif()
 
 if( CMAKE_VERSION VERSION_GREATER 3.0.9 )
-  if( CMAKE_C_COMPILER_ID STREQUAL "Intel" )
+  if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "IntelLLVM" )
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17" )
   else()
@@ -101,7 +102,7 @@ else()
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
-    if( NOT APPLE )
+    if( NOT APPLE AND NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "IntelLLVM") )
       set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-use-after-free" )
     endif()
   endif()

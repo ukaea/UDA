@@ -43,7 +43,7 @@ find_library( LIBMEMCACHED_LIB NAMES memcached
   PATH_SUFFIXES lib lib64 )
 
 set( LIBMEMCACHED_LIBRARIES ${LIBMEMCACHED_LIB} ${CMAKE_THREAD_LIBS_INIT} )
-get_filename_component( LIBMEMCACHED_LIB_DIR ${LIBMEMCACHED_LIB} PATH CACHE )
+get_filename_component( LIBMEMCACHED_LIB_DIR "${LIBMEMCACHED_LIB}" PATH CACHE )
 
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( LibMemcached DEFAULT_MSG LIBMEMCACHED_LIBRARIES LIBMEMCACHED_INCLUDES )

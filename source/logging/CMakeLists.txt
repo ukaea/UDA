@@ -11,6 +11,7 @@ else()
 endif()
 
 find_package( LibXml2 REQUIRED )
+find_package( Boost REQUIRED )
 
 ########################################################################################################################
 # Sources
@@ -42,6 +43,11 @@ add_library( logging-client-objects OBJECT ${SRC_FILES} )
 if( NOT CLIENT_ONLY )
   add_library( logging-server-objects OBJECT accessLog.cpp ${SRC_FILES} )
   target_compile_definitions( logging-server-objects PRIVATE -DSERVERBUILD )
+endif()
+
+target_link_libraries( logging-client-objects PUBLIC Boost::boost )
+if( NOT CLIENT_ONLY )
+  target_link_libraries( logging-server-objects PUBLIC Boost::boost )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )

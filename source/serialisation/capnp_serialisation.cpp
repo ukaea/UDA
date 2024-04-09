@@ -23,7 +23,7 @@ public:
             : capnp::MessageReader{options},
               in_{kj::ArrayPtr<const kj::byte>{reinterpret_cast<const kj::byte *>(bytes), size}}, reader_{in_, options} {}
 
-    kj::ArrayPtr<const capnp::word> getSegment(uint id) override {
+    kj::ArrayPtr<const capnp::word> getSegment(capnp::uint id) override {
         return reader_.getSegment(id);
     }
 
