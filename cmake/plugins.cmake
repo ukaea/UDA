@@ -2,9 +2,7 @@ macro( filter_lib_list INPUT OUTPUT GOOD BAD )
   set( LIB_LST ${INPUT} )
   set( USE_LIB YES )
   foreach( ELEMENT IN LISTS LIB_LST )
-    # A library is defined as:
-    # * <build_type> <lib>
-    # * <lib>
+    # Expected sequence [<build_type>] <lib> [[<build_type>] <lib>] [...]
     if( "${ELEMENT}" STREQUAL "general" OR "${ELEMENT}" STREQUAL "${GOOD}" )
       set( USE_LIB YES )
     elseif( "${ELEMENT}" STREQUAL "${BAD}" )
