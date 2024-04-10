@@ -2,12 +2,17 @@ macro( filter_lib_list INPUT OUTPUT GOOD BAD )
   set( LIB_LST ${INPUT} )
   set( USE_LIB YES )
   foreach( ELEMENT IN LISTS LIB_LST )
+    # A library is defines as:
+    # * <build_type> <lib>
+    # * <lib>
     if( "${ELEMENT}" STREQUAL "general" OR "${ELEMENT}" STREQUAL "${GOOD}" )
       set( USE_LIB YES )
     elseif( "${ELEMENT}" STREQUAL "${BAD}" )
       set( USE_LIB NO )
     elseif( USE_LIB )
       list( APPEND ${OUTPUT} ${ELEMENT} )
+    else()
+      set( USE_LIB YES )
     endif()
   endforeach()
 endmacro( filter_lib_list )
@@ -81,7 +86,7 @@ macro( uda_plugin )
   foreach( DEF ${PLUGIN_EXTRA_DEFINITIONS} )
     add_definitions( ${DEF} )
   endforeach()
-  
+
   set( LIBRARIES client-shared plugins-shared ${OPENSSL_LIBRARIES} )
   if( ENABLE_CAPNP )
     set( LIBRARIES ${LIBRARIES} serialisation-static )
@@ -97,12 +102,12 @@ macro( uda_plugin )
   else()
     set( LIBRARIES ${LIBRARIES} dl stdc++ )
   endif()
-  
-  filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
+
+  filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized )
   set( LIBRARIES ${LIBRARIES} ${FILTERED_LINK_LIBS} )
-  
+
   target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} )
-  
+
   install(
     TARGETS ${PLUGIN_LIBNAME}
     DESTINATION lib/plugins
