@@ -37,3 +37,23 @@ uda_plugin(
 	  ${HDF5}
     fmt::fmt
 )
+
+set ( SOURCE_FILES
+    netcdf_reader.cpp netcdf_reader.hpp
+    capnp_reader.cpp capnp_reader.hpp
+    netcdfpp.h
+    test/capnp_json_reader.cpp test/capnp_json_reader.hpp
+    test/random_generator.hpp
+    test/write_testfile.cpp test/write_testfile.hpp
+    )
+
+find_package( nlohmann_json QUIET )
+
+if ( nlohmann_json_FOUND )
+    add_executable( test_netcdf_json test/simple_test.cpp ${SOURCE_FILES} ${NETCDF_INCLUDES} )
+    target_link_libraries( test_netcdf_json PRIVATE nlohmann_json::nlohmann_json serialisation-static ${NETCDF_LIBRARIES} fmt::fmt )
+    target_include_directories(test_netcdf_json PRIVATE ${uda_SOURCE_DIR}/source/plugins/netcdf ${uda_SOURCE_DIR}/source/plugins/netcdf/test )
+    set_property( TARGET test_netcdf_json PROPERTY CXX_STANDARD 17 )
+else()
+    message( WARNING "nlohmann_json package not found - skipping netcdf-capnp tests" )
+endif()
