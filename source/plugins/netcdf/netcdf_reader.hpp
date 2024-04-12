@@ -17,49 +17,16 @@
 // mangle the index label a bit so it's unlikely to clash with a real dimension label
 // alternatively can store as a different data type in capnp node.
 #define INDEX_ONLY_DIMENSION_LABEL  "__uda_nc_index_only_dimension__"
-#define CAPNP_TOP_LEVEL_ATTRIBUTES_NODE_NAME "file_attributes"
-#define CAPNP_REQUEST_NODE_NAME "request"
-#define CAPNP_DATA_NODE_NAME "data"
-#define CAPNP_DIM_NODE_NAME "dims"
-#define CAPNP_DATTRIBUTE_NODE_NAME "attributes"
+
+constexpr const char* capnp_top_level_attributes_node_name = "file_attributes";
+constexpr const char* capnp_root_node_name = "data";
+constexpr const char* capnp_data_node_name = "data";
+constexpr const char* capnp_dim_node_name = "dims";
 
 #include <fmt/format.h>
 #include <string_view>
 
 namespace uda::plugins::netcdf {
-
-// struct CapnpTreeNode
-// {
-//     TreeBuilder* tree;
-//     NodeBuilder* node;
-// };
-
-// struct Data
-// {
-//     char* data;
-//     size_t size;
-//     std::string type;
-// };
-
-// struct DimBlock
-// {
-//     char* data;
-//     int dim_n;
-//     std::string label;
-//     std::string units;
-//     std::string type;
-// };
-
-// struct DataBlock
-// {
-//     char* data;
-//     int data_n;
-//     int rank;
-//     std::vector<DimBlock> dims;
-//     std::string label;
-//     std::string units;
-//     std::string type;
-// };
 
 enum class RequestType {
     INVALID_PATH,
@@ -99,7 +66,7 @@ public:
 
     static std::string get_full_path(const netCDF::Variable& input_variable);
 
-    std::pair<bool, Buffer> handle_request(const std::string& request);
+    Buffer read_data(const std::string& data_path);
 
     void handle_atomic_variable(netCDF::Variable& variable, NodeBuilder* node, TreeBuilder* tree);
 
@@ -113,64 +80,50 @@ public:
 
     void store_all_nc_maps(netCDF::Group& group);
 
-    inline std::vector<std::string> get_variables() const {
+    [[nodiscard]] inline std::vector<std::string> get_variables() const {
         std::vector<std::string> result;
+        result.reserve(_variables.size());
         for (const auto& variable_pair: _variables) {
             result.emplace_back(variable_pair.first);
         }
         return result;
     }
 
-    inline std::vector<std::string> get_groups() const {
+    [[nodiscard]] inline std::vector<std::string> get_groups() const {
         std::vector<std::string> result;
+        result.reserve(_groups.size());
         for (const auto& variable_pair: _groups) {
             result.emplace_back(variable_pair.first);
         }
         return result;
     }
 
-    inline std::vector<std::string> get_coordinates() const {
+    [[nodiscard]] inline std::vector<std::string> get_coordinates() const {
         std::vector<std::string> result;
+        result.reserve(_coordinates.size());
         for (const auto& variable_pair: _coordinates) {
             result.emplace_back(variable_pair.first);
         }
         return result;
     }
 
-    inline std::vector<std::string> get_index_dimensions() const {
+    [[nodiscard]] inline std::vector<std::string> get_index_dimensions() const {
         std::vector<std::string> result;
+        result.reserve(_index_dimensions.size());
         for (const auto& variable_pair: _index_dimensions) {
             result.emplace_back(variable_pair.first);
         }
         return result;
     }
 
-    std::vector<std::string> get_attributes() const;
+    [[nodiscard]] std::vector<std::string> get_attributes() const;
 
     static bool request_is_variable(const netCDF::Group& input_node, const std::string& request);
 
-    inline bool request_is_variable(const std::string& request) {
-        return request_is_variable(_file, request);
-    }
-
-    static bool request_is_structured_data(const netCDF::Group& input_node, const std::string& request);
-
-    inline bool request_is_structured_data(const std::string& request) {
-        return request_is_structured_data(_file, request);
-    }
-
-    inline bool request_is_group(const std::string& request) const {
-        return _groups.find(request) != _groups.end();
-    }
-
-    inline bool request_string_is_valid_nc_path(const std::string& request) {
-        const std::regex r("^(\\/[0-9a-zA-Z_]+)+(\\.[0-9a-zA-Z_]+)?$|^\\/(\\.[0-9a-zA-Z_]+)?$");
+    static inline bool request_string_is_valid_nc_path(const std::string& request) {
+        const std::regex r(R"(^(\/[0-9a-zA-Z_]+)+(\.[0-9a-zA-Z_]+)?$|^\/(\.[0-9a-zA-Z_]+)?$)");
         return std::regex_match(request, r);
-        // return true;
     }
-
-    bool request_is_attribute(const std::string& request);
-    // std::vector<std::string> get_attributes();
 
     RequestType check_request_path(const std::string& request);
 

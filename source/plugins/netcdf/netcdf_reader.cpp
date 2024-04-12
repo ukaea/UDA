@@ -161,26 +161,6 @@ bool Reader::request_is_variable(const netCDF::Group& input_node, const std::str
     return current_group.variable(path_segments.back());
 }
 
-bool Reader::request_is_structured_data(const netCDF::Group& input_node, const std::string& request) {
-    std::vector<std::string> path_segments = split(request, std::string("/"));
-    netCDF::Group current_group = input_node;
-    for (const auto& segment: path_segments) {
-        if (segment != path_segments.back()) {
-            try {
-                current_group = current_group.group(segment).require();
-            }
-            catch (const netCDF::Exception& e) {
-                std::cout << "ERROR: invalid path, search stopped at token " << segment << "\n";
-                std::cout << e.what() << std::endl;
-                throw e;
-            }
-        }
-    }
-    return !current_group.variable(path_segments.back()) or
-           current_group.variable(path_segments.back()).require().user_type();
-}
-
-
 netCDF::Variable Reader::get_variable(const netCDF::Group& input_node, const std::string& request) {
     std::vector<std::string> path_segments = split(request, std::string("/"));
     netCDF::Group current_group = input_node;
@@ -239,50 +219,21 @@ netCDF::Group Reader::get_subtree(const std::string& request) {
 
 }
 
-bool Reader::request_is_attribute(const std::string& request) {
-    // will there be dot syntax for attributes? e.g. /path/to/group.attribute_name?
-
-    auto pos = request.rfind('.');
-    if (pos == std::string::npos) {
-        pos = request.rfind("/");
-    }
-    if (pos == std::string::npos) {
-        // path error of some kind
-        std::cout << "invalid request path" << std::endl;
-        return false;
-    }
-    std::string trunk = request.substr(0, pos);
-    auto attribute_name = request.substr(pos + 1);
-    auto group_it = _groups.find(trunk);
-    if (group_it != _groups.end()) {
-        // std::cout << "group " << trunk << " has no attribute named " << attribute_name << std::endl;
-        return group_it->second.attribute(attribute_name);
-    }
-
-    auto var_it = _variables.find(trunk);
-    if (var_it != _variables.end()) {
-        // std::cout << "variable " << trunk << " has no attribute named " << attribute_name << std::endl;
-        return var_it->second.attribute(attribute_name);
-    }
-
-    std::cout << "request subpath does not exist: " << std::endl;
-    return false;
-}
-
-RequestType Reader::check_request_path(const std::string& request) {
+RequestType Reader::check_request_path(const std::string& data_path) {
     // how are top-level attributes queried? "/.attribute_name" ? or "/attribute_name"
 
     // assuming attributes always use dot syntax then, after popping off anything after the last "/"
     // in the request string, the sub-request must be a NC group (if it exists)
-    if (request == "/") return RequestType::GROUP;
+    if (data_path == "/") {
+        return RequestType::GROUP;
+    }
 
-    if (!request_string_is_valid_nc_path(request)) {
-        // std::cout << "failed regex: " << request << std::endl;
+    if (!request_string_is_valid_nc_path(data_path)) {
         return RequestType::INVALID_PATH;
     }
 
-    auto pos = request.rfind('/');
-    std::string trunk_group_path = request.substr(0, pos);
+    auto pos = data_path.rfind('/');
+    std::string trunk_group_path = data_path.substr(0, pos);
     if (pos == 0) {
         trunk_group_path = "/";
     }
@@ -294,42 +245,52 @@ RequestType Reader::check_request_path(const std::string& request) {
 
     auto trunk_group = group_itr->second;
 
-    auto dot_pos = request.rfind('.');
+    auto dot_pos = data_path.rfind('.');
     bool attribute_syntax = dot_pos != std::string::npos;
 
     // special case for attributes where number of "/" is only one (top-level metadata)
     // cannot assume second level of nesting as below
     if (pos == 0 and attribute_syntax) {
-        std::string att_name = request.substr(dot_pos + 1);
+        std::string att_name = data_path.substr(dot_pos + 1);
         auto maybe_att = trunk_group.attribute(att_name);
 
         if (maybe_att) return RequestType::GROUP_ATTRIBUTE;
         else return RequestType::INVALID_PATH;
     }
 
-    auto name = request.substr(pos + 1);
+    auto name = data_path.substr(pos + 1);
     if (attribute_syntax) {
-        name = request.substr(pos + 1, dot_pos - pos - 1);
+        name = data_path.substr(pos + 1, dot_pos - pos - 1);
     }
 
     auto maybe_group = trunk_group.group(name);
     if (maybe_group) {
-        if (!attribute_syntax) return RequestType::GROUP;
-        std::string att_name = request.substr(dot_pos + 1);
+        if (!attribute_syntax) {
+            return RequestType::GROUP;
+        }
+        std::string att_name = data_path.substr(dot_pos + 1);
         auto maybe_att = maybe_group.require().attribute(att_name);
 
-        if (maybe_att) return RequestType::GROUP_ATTRIBUTE;
-        else return RequestType::INVALID_PATH;
+        if (maybe_att) {
+            return RequestType::GROUP_ATTRIBUTE;
+        } else {
+            return RequestType::INVALID_PATH;
+        }
     }
 
     auto maybe_var = trunk_group.variable(name);
     if (maybe_var) {
-        if (!attribute_syntax) return RequestType::VARIABLE;
-        std::string att_name = request.substr(dot_pos + 1);
+        if (!attribute_syntax) {
+            return RequestType::VARIABLE;
+        }
+        std::string att_name = data_path.substr(dot_pos + 1);
         auto maybe_att = maybe_var.require().attribute(att_name);
 
-        if (maybe_att) return RequestType::VARIABLE_ATTRIBUTE;
-        else return RequestType::INVALID_PATH;
+        if (maybe_att) {
+            return RequestType::VARIABLE_ATTRIBUTE;
+        } else {
+            return RequestType::INVALID_PATH;
+        }
     }
 
     return RequestType::INVALID_PATH;
@@ -732,7 +693,6 @@ void add_nc_atomic_variable(netCDF::Variable& variable, NodeBuilder* node) {
     }
 }
 
-
 void Reader::handle_atomic_variable(netCDF::Variable& variable, NodeBuilder* node, TreeBuilder* tree) {
     auto attributes = variable.attributes();
     auto dims = variable.dimensions();
@@ -745,11 +705,11 @@ void Reader::handle_atomic_variable(netCDF::Variable& variable, NodeBuilder* nod
     uda_capnp_add_children(node, n_children);
 
     auto data_node = uda_capnp_get_child(tree, node, 0);
-    uda_capnp_set_node_name(data_node, CAPNP_DATA_NODE_NAME);
+    uda_capnp_set_node_name(data_node, capnp_data_node_name);
     add_nc_atomic_variable(variable, data_node);
 
     auto dims_node = uda_capnp_get_child(tree, node, 1);
-    uda_capnp_set_node_name(dims_node, CAPNP_DIM_NODE_NAME);
+    uda_capnp_set_node_name(dims_node, capnp_dim_node_name);
 
     /*
         TODO but not pressing
@@ -813,7 +773,7 @@ void Reader::add_nc_coordinate_data(NodeBuilder* node, TreeBuilder* tree) {
             uda_capnp_add_children(dim_node, n_children);
 
             auto data_node = uda_capnp_get_child(tree, dim_node, 0);
-            uda_capnp_set_node_name(data_node, CAPNP_DATA_NODE_NAME);
+            uda_capnp_set_node_name(data_node, capnp_data_node_name);
             add_nc_atomic_variable(var, data_node);
 
             for (size_t k = offset, j = 0; k < attributes.size() + offset; ++k, ++j) {
@@ -827,18 +787,15 @@ void Reader::add_nc_coordinate_data(NodeBuilder* node, TreeBuilder* tree) {
     }
 }
 
-
-std::pair<bool, Buffer> Reader::handle_request(const std::string& request) {
+Buffer Reader::read_data(const std::string& data_path) {
     TreeBuilder* capnp_tree = uda_capnp_new_tree();
     NodeBuilder* capnp_root = uda_capnp_get_root(capnp_tree);
 
-    // if (request != "/" and request != "") // -- do for everything for consistency for now
     uda_capnp_add_children(capnp_root, 3);
 
     auto capnp_meta_node = uda_capnp_get_child(capnp_tree, capnp_root, 0);
-    uda_capnp_set_node_name(capnp_meta_node, CAPNP_TOP_LEVEL_ATTRIBUTES_NODE_NAME);
+    uda_capnp_set_node_name(capnp_meta_node, capnp_top_level_attributes_node_name);
 
-    // auto nc_root = get_subtree(_file, "/");
     auto nc_attributes = _file.attributes();
     if (!nc_attributes.empty()) {
         uda_capnp_add_children(capnp_meta_node, nc_attributes.size());
@@ -850,33 +807,36 @@ std::pair<bool, Buffer> Reader::handle_request(const std::string& request) {
     }
 
     auto capnp_data_node = uda_capnp_get_child(capnp_tree, capnp_root, 1);
-    uda_capnp_set_node_name(capnp_data_node, CAPNP_REQUEST_NODE_NAME);
+    uda_capnp_set_node_name(capnp_data_node, capnp_root_node_name);
 
     auto capnp_dim_node = uda_capnp_get_child(capnp_tree, capnp_root, 2);
-    uda_capnp_set_node_name(capnp_dim_node, CAPNP_DIM_NODE_NAME);
+    uda_capnp_set_node_name(capnp_dim_node, capnp_dim_node_name);
 
     _request_coords.clear();
 
-    RequestType request_type = check_request_path(request);
+    RequestType request_type = check_request_path(data_path);
 
     // TODO add handling for attributes and invalid paths
 
     switch (request_type) {
         case RequestType::VARIABLE: {
             // TODO use cache but first fix cache
-            auto variable = get_variable(_file, request);
-            if (variable.user_type()) handle_user_type_variable(variable, capnp_data_node, capnp_tree);
-            else handle_atomic_variable(variable, capnp_data_node, capnp_tree);
+            auto variable = get_variable(_file, data_path);
+            if (variable.user_type()) {
+                handle_user_type_variable(variable, capnp_data_node, capnp_tree);
+            } else {
+                handle_atomic_variable(variable, capnp_data_node, capnp_tree);
+            }
             break;
         }
         case RequestType::GROUP: {
-            auto nc_sub_tree = get_subtree(request);
+            auto nc_sub_tree = get_subtree(data_path);
             walk(nc_sub_tree, capnp_data_node, capnp_tree);
             break;
         }
         case RequestType::GROUP_ATTRIBUTE: {
-            auto pos = request.rfind('.');
-            auto parent_path = request.substr(0, pos);
+            auto pos = data_path.rfind('.');
+            auto parent_path = data_path.substr(0, pos);
             auto grp_itr = _groups.find(parent_path);
 
             if (grp_itr == _groups.end()) {
@@ -884,7 +844,7 @@ std::pair<bool, Buffer> Reader::handle_request(const std::string& request) {
                 throw std::runtime_error(err.c_str());
             }
 
-            std::string attribute_name = request.substr(pos + 1);
+            std::string attribute_name = data_path.substr(pos + 1);
             auto maybe_attribute = grp_itr->second.attribute(attribute_name);
             if (!maybe_attribute) {
                 std::string err = "No attribute named " + attribute_name + " found in group " + parent_path;
@@ -897,8 +857,8 @@ std::pair<bool, Buffer> Reader::handle_request(const std::string& request) {
             break;
         }
         case RequestType::VARIABLE_ATTRIBUTE: {
-            auto pos = request.rfind('.');
-            auto parent_path = request.substr(0, pos);
+            auto pos = data_path.rfind('.');
+            auto parent_path = data_path.substr(0, pos);
             auto var_itr = _variables.find(parent_path);
 
             if (var_itr == _variables.end()) {
@@ -906,7 +866,7 @@ std::pair<bool, Buffer> Reader::handle_request(const std::string& request) {
                 throw std::runtime_error(err.c_str());
             }
 
-            std::string attribute_name = request.substr(pos + 1);
+            std::string attribute_name = data_path.substr(pos + 1);
             auto maybe_attribute = var_itr->second.attribute(attribute_name);
             if (!maybe_attribute) {
                 std::string err = "No attribute named " + attribute_name + " found in variable " + parent_path;
@@ -919,7 +879,7 @@ std::pair<bool, Buffer> Reader::handle_request(const std::string& request) {
             break;
         }
         case RequestType::INVALID_PATH: {
-            throw std::runtime_error(std::string("Requested path ") + request + " does not exist");
+            throw std::runtime_error(std::string("Requested path ") + data_path + " does not exist");
         }
         default:
             throw std::runtime_error("unknown error");
@@ -929,8 +889,7 @@ std::pair<bool, Buffer> Reader::handle_request(const std::string& request) {
 
     _request_coords.clear();
 
-    auto buffer = uda_capnp_serialise(capnp_tree);
-    bool structured = request_is_structured_data(request);
-    return std::make_pair(structured, buffer);
+    return uda_capnp_serialise(capnp_tree);
 }
-}
+
+} // namespace uda::plugins::netcdf
