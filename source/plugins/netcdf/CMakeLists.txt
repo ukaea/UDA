@@ -28,9 +28,8 @@ uda_plugin(
   SOURCES
     netcdf_plugin.cpp netcdf_plugin.hpp
     netcdf_reader.cpp netcdf_reader.hpp
-    netcdfpp.h
     capnp_reader.cpp capnp_reader.hpp
-    uda_datablock_adaptor.hpp
+    netcdfpp.h
   EXTRA_INCLUDE_DIRS
     ${NETCDF_INCLUDES}
   EXTRA_LINK_LIBS
