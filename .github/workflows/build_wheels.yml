@@ -12,8 +12,8 @@ jobs:
     # runs-on: ${{matrix.os}}
     runs-on: ${{matrix.build-platform[0]}}
     strategy:
+      fail-fast: false
       matrix:
-        fail-fast: false
         build-platform:
           # - [ubuntu-latest, x86_64, manylinux2014_x86_64]
           # - [ubuntu-latest, aarch64, manylinux2014_aarch64]
