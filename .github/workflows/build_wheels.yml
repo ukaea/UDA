@@ -86,7 +86,6 @@ jobs:
             cd /project  &&
             cmake -B build -DBUILD_SHARED_LIBS=ON -DSSLAUTHENTICATION=OFF -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
             cmake --build build -j --config Release --target install
-          CIBW_BEFORE_BUILD: pip install cython six numpy
 
       - name: Build manylinux_2_28 wheels
         if: startswith(matrix.build-platform[2], 'manylinux_2_28')
@@ -111,8 +110,6 @@ jobs:
             cmake --build build -j --config Release --target install &&
             cp -r /usr/local/python_installer/* /project &&
             ls /project
-          CIBW_BEFORE_BUILD: pip install cython six numpy
-
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
