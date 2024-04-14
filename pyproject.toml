@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=42", "numpy>=1.7", "Cython>=0.29", "six"]
 build-backend = "setuptools.build_meta"
 
 
 [project]
 name = "ukaea-pyuda"
 version = "2.7.5"
-dependencies = ['numpy>=1.7', 'Cython>=0.29', 'six']
+dependencies = ["numpy>=1.7", "Cython>=0.29", "six"]
