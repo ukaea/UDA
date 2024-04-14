@@ -1,13 +1,13 @@
 file( GLOB CYTHON_FILES pyuda/cpyuda/*.pyx )
 
-install( FILES ${CYTHON_FILES} pyuda/cpyuda/uda.pxd DESTINATION python_installer/ukaea_pyuda/cpyuda )
+install( FILES ${CYTHON_FILES} pyuda/cpyuda/uda.pxd DESTINATION python_installer/ukaea_pyuda_test/cpyuda )
 
 file( GLOB INSTALL_FILES pyuda/*.py )
 
-install( FILES ${INSTALL_FILES} DESTINATION python_installer/ukaea_pyuda )
+install( FILES ${INSTALL_FILES} DESTINATION python_installer/ukaea_pyuda_test )
 
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/pyuda/_version.py.in ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py @ONLY )
-install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/ukaea_pyuda )
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/ukaea_pyuda_test )
 
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )

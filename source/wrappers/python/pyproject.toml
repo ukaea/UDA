@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "ukaea_pyuda"
+name = "ukaea_pyuda_test"
 # version = "2.7.5"
 dynamic = ["version"]
 readme = {file = 'README.md', content-type = "text/markdown"}

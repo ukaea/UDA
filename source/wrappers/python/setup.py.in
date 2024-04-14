@@ -47,7 +47,7 @@ else:
 
 ext = Extension(
     'cpyuda',
-    ['ukaea_pyuda/cpyuda/cpyuda.pyx'],
+    ['ukaea_pyuda_test/cpyuda/cpyuda.pyx'],
     include_dirs=list(filter(None, [
         '/usr/include/tirpc',
         '@TIRPC_PYUDA_INCLUDE_DIR@',
@@ -80,12 +80,12 @@ ext = Extension(
 
 # version='@PROJECT_VERSION@',
 setup(
-    name='ukaea_pyuda',
+    name='ukaea_pyuda_test',
     use_scm_version={'version_scheme': 'post-release', 'local_scheme': 'no-local-version'},
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
     url='https://github.com/stephen-dixon/uda',
-    packages=['ukaea_pyuda'],
+    packages=['ukaea_pyuda_test'],
     ext_modules=cythonize([ext]),
 )
