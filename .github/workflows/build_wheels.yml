@@ -47,7 +47,7 @@ jobs:
           platforms: x86_64 arm64
 
       - name: Build manylinux2014 wheels
-        if: startswith(matrix.build-platform[2], "manylinux2014")
+        if: startswith(matrix.build-platform[2], 'manylinux2014')
         uses: pypa/cibuildwheel@v2.17.0
         env:
           BIBW_ARCHS: ${{matrix.build-platform[1]}}
@@ -87,7 +87,7 @@ jobs:
           CIBW_BEFORE_BUILD: pip install cython six numpy
 
       - name: Build manylinux_2_28 wheels
-        if: startswith(matrix.build-platform[2], "manylinux_2_28")
+        if: startswith(matrix.build-platform[2], 'manylinux_2_28')
         uses: pypa/cibuildwheel@v2.17.0
         env:
           BIBW_ARCHS: ${{matrix.build-platform[1]}}
