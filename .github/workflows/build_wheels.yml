@@ -60,7 +60,7 @@ jobs:
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
-          CIBW_SKIP: "*-musllinux*"
+          CIBW_SKIP: cp36* cp37* *-musllinux*
           CIBW_BEFORE_ALL: >
             yum update -y &&
             yum install -y wget openssl-devel libxml2-devel libtirpc-devel  &&
