@@ -104,7 +104,7 @@ jobs:
             dnf install -y fmt fmt-devel spdlog spdlog-devel capnproto capnproto-devel
             cd /project 
             cmake -B build -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DSSLAUTHENTICATION=OFF -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON
-            cmake --build build -j --config Release --target install
+            make -C build -j install
             cp -r /usr/local/python_installer/* /project
             ls /project
           CIBW_BEFORE_BUILD: pip install cython six numpy
