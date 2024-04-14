@@ -87,6 +87,4 @@ setup(
     url='https://github.com/stephen-dixon/uda',
     packages=['ukaea_pyuda'],
     ext_modules=cythonize([ext]),
-    setup_requires=['numpy>=1.7', 'Cython>=0.29', 'six'],
-    install_requires=['numpy>=1.7', 'six'],
 )
