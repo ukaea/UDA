@@ -78,10 +78,16 @@ ext = Extension(
     define_macros=extra_macros,
 )
 
+
+# redefine here instead of using "no-local-version" in case we can get setuptools_scm to work for older python versions (3.6 and 3.7)
+def local_scheme(version):
+    return ""
+
+
 # version='@PROJECT_VERSION@',
 setup(
     name='ukaea_pyuda_test',
-    use_scm_version={'version_scheme': 'post-release', 'local_scheme': 'no-local-version'},
+    use_scm_version={'version_scheme': 'post-release', 'local_scheme': local_scheme},
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
