@@ -120,6 +120,7 @@ jobs:
             -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
             cmake --build build -j --config Release --target install &&
             cp -r /usr/local/python_installer/* /project/source/wrappers/python/
+            sed -i 's|\[tool\.setuptools_scm\]|\[tool\.setuptools_scm\]\nroot =\"\/project\"|g' /project/source/wrappers/python/pyproject.toml
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
