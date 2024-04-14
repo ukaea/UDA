@@ -52,9 +52,9 @@ jobs:
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
-          BIBW_ARCHS: ${{matrix.build-platform[1]}}
-          BIBW_BUILD: cp*-${{matrix.build-platform[2]}}
-          BIBW_SKIP: cp12-*
+          CIBW_ARCHS: ${{matrix.build-platform[1]}}
+          CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
+          CIBW_SKIP: cp12-*
           CIBW_BEFORE_ALL: >
             yum update -y &&
             yum install -y wget openssl-devel libxml2-devel libtirpc-devel  &&
@@ -93,9 +93,9 @@ jobs:
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
-          BIBW_ARCHS: ${{matrix.build-platform[1]}}
-          BIBW_BUILD: cp*-manylinux
-          BIBW_SKIP: cp12-* *-musllinux*
+          CIBW_ARCHS: ${{matrix.build-platform[1]}}
+          CIBW_BUILD: cp*-manylinux
+          CIBW_SKIP: cp12-* *-musllinux*
           CIBW_BEFORE_ALL: >
             dnf update -y &&
             dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &&
