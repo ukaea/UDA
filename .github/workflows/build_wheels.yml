@@ -133,4 +133,4 @@ jobs:
 
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://test.pypi.org/projects/ukaea-pyuda/
+          repository-url: https://test.pypi.org/projects/ukaea_pyuda/

@@ -4,6 +4,6 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "ukaea-pyuda"
+name = "ukaea_pyuda"
 version = "2.7.5"
 dependencies = ["numpy>=1.7", "Cython>=0.29", "six"]
