@@ -56,35 +56,35 @@ jobs:
           BIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           BIBW_SKIP: cp12-*
           CIBW_BEFORE_ALL: >
-            yum update -y 
-            yum install -y wget openssl-devel libxml2-devel libtirpc-devel 
-            cd /tmp 
-            wget https://github.com/fmtlib/fmt/archive/refs/tags/10.0.0.tar.gz 
-            tar xzf 10.0.0.tar.gz 
-            cd fmt-10.0.0 
-            cmake -Bbuild -H. -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON 
-            cmake --build build -j --config Release --target install
-            d /tmp 
-            wget https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.tar.gz 
-            tar xzf v1.11.0.tar.gz 
-            cd spdlog-1.11.0 
-            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON 
-            cmake --build build -j --config Release --target install
-            cd /tmp 
-            wget https://github.com/capnproto/capnproto/archive/refs/tags/v0.10.4.tar.gz 
-            tar xzf v0.10.4.tar.gz 
-            cd capnproto-0.10.4 
-            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON 
-            cmake --build build 
-            cmake --install build
-            cd /tmp 
-            wget https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
-            tar xzf boost_1_80_0.tar.gz 
-            cd boost_1_80_0 
-            ./bootstrap.sh --prefix=/usr/local 
-            ./b2 --without-python --prefix=/usr/local install
-            cd /project 
-            cmake -B build -DBUILD_SHARED_LIBS=ON -DSSLAUTHENTICATION=OFF -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON
+            yum update -y &&
+            yum install -y wget openssl-devel libxml2-devel libtirpc-devel  &&
+            cd /tmp  &&
+            wget https://github.com/fmtlib/fmt/archive/refs/tags/10.0.0.tar.gz  &&
+            tar xzf 10.0.0.tar.gz  &&
+            cd fmt-10.0.0  &&
+            cmake -Bbuild -H. -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
+            cmake --build build -j --config Release --target install &&
+            d /tmp  &&
+            wget https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.tar.gz  &&
+            tar xzf v1.11.0.tar.gz  &&
+            cd spdlog-1.11.0  &&
+            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
+            cmake --build build -j --config Release --target install &&
+            cd /tmp  &&
+            wget https://github.com/capnproto/capnproto/archive/refs/tags/v0.10.4.tar.gz  &&
+            tar xzf v0.10.4.tar.gz  &&
+            cd capnproto-0.10.4  &&
+            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
+            cmake --build build  &&
+            cmake --install build &&
+            cd /tmp  &&
+            wget https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz &&
+            tar xzf boost_1_80_0.tar.gz  &&
+            cd boost_1_80_0  &&
+            ./bootstrap.sh --prefix=/usr/local  &&
+            ./b2 --without-python --prefix=/usr/local install &&
+            cd /project  &&
+            cmake -B build -DBUILD_SHARED_LIBS=ON -DSSLAUTHENTICATION=OFF -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
             cmake --build build -j --config Release --target install
           CIBW_BEFORE_BUILD: pip install cython six numpy
 
@@ -98,14 +98,18 @@ jobs:
           BIBW_BUILD: cp*-manylinux
           BIBW_SKIP: cp12-* *-musllinux*
           CIBW_BEFORE_ALL: >
-            dnf update -y 
-            dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm 
+            dnf update -y &&
+            dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &&
             dnf install -y boost-devel openssl-devel libxml2-devel libtirpc-devel 
-            dnf install -y fmt fmt-devel spdlog spdlog-devel capnproto capnproto-devel
-            cd /project 
-            cmake -B build -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DSSLAUTHENTICATION=OFF -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON
-            make -C build -j install
-            cp -r /usr/local/python_installer/* /project
+            fmt fmt-devel spdlog spdlog-devel capnproto capnproto-devel &&
+            cd /project &&
+            cmake -B build 
+            -DBUILD_SHARED_LIBS=ON 
+            -DCMAKE_BUILD_TYPE=Release 
+            -DSSLAUTHENTICATION=OFF 
+            -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
+            cmake --build build -j --config Release --target install &&
+            cp -r /usr/local/python_installer/* /project &&
             ls /project
           CIBW_BEFORE_BUILD: pip install cython six numpy
 
