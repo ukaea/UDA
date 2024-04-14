@@ -90,6 +90,9 @@ jobs:
       - name: Build manylinux_2_28 wheels
         if: startswith(matrix.build-platform[2], 'manylinux_2_28')
         uses: pypa/cibuildwheel@v2.17.0
+        with:
+          package-dir: '/usr/local/python_installer'
+          config-file: '/project/source/wrappers/python/pyproject.toml'
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
@@ -112,8 +115,6 @@ jobs:
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
-          package-dir: '/usr/local/python_installer'
-          config-file: '/project/source/wrappers/python/pyproject.toml'
 
   upload_pypi:
     needs: build_wheels
