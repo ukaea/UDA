@@ -79,13 +79,13 @@ ext = Extension(
 )
 
 setup(
-    name='@PROJECT_NAME@',
+    name='ukaea-pyuda',
     version='@PROJECT_VERSION@',
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
-    url='https://github.com/ukaea/UDA',
-    packages=['pyuda'],
+    url='https://github.com/stephen-dixon/uda',
+    packages=['ukaea-pyuda'],
     ext_modules=cythonize([ext]),
     setup_requires=['numpy>=1.7', 'Cython>=0.29', 'six'],
     install_requires=['numpy>=1.7', 'six'],
