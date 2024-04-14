@@ -50,6 +50,8 @@ jobs:
         if: startswith(matrix.build-platform[2], 'manylinux2014')
         uses: pypa/cibuildwheel@v2.17.0
         env:
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           BIBW_ARCHS: ${{matrix.build-platform[1]}}
           BIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           BIBW_SKIP: cp12-*
@@ -90,9 +92,11 @@ jobs:
         if: startswith(matrix.build-platform[2], 'manylinux_2_28')
         uses: pypa/cibuildwheel@v2.17.0
         env:
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           BIBW_ARCHS: ${{matrix.build-platform[1]}}
-          BIBW_BUILD: cp*-${{matrix.build-platform[2]}}
-          BIBW_SKIP: cp12-* *-manylinux2014*
+          BIBW_BUILD: cp*-manylinux
+          BIBW_SKIP: cp12-* *-musllinux*
           CIBW_BEFORE_ALL: >
             dnf update -y 
             dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm 
