@@ -6,4 +6,5 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ukaea_pyuda"
 version = "2.7.5"
+long_description="""pyuda is the the python interface to the uda (uda data access) client, which provides remote access to scientific and experimental data from a number of international labs hosting uda data servers""",
 dependencies = ["numpy>=1.7", "Cython>=0.29", "six"]

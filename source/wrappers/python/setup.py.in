@@ -84,7 +84,6 @@ setup(
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
-    long_description="""pyuda is the the python interface to the uda (uda data access) client, which provides remote access to scientific and experimental data from a number of international labs hosting uda data servers""",
     url='https://github.com/stephen-dixon/uda',
     packages=['ukaea_pyuda'],
     ext_modules=cythonize([ext]),
