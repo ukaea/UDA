@@ -39,6 +39,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        # need git tags available for setuptools_scm to grab tags? will elad to slower checkout
+        with:
+        fetch-depth: 0
 
       - name: Set up QEMU
         if: runner.os == 'Linux'
