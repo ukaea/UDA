@@ -52,12 +52,15 @@ jobs:
       - name: Build manylinux2014 wheels
         if: startswith(matrix.build-platform[2], 'manylinux2014')
         uses: pypa/cibuildwheel@v2.17.0
+        with:
+          package-dir: ./source/wrappers/python
+          config-file: ./source/wrappers/python/pyproject.toml
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
-          CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
-          CIBW_SKIP: cp12-*
+          CIBW_BUILD: cp*-manylinux*
+          CIBW_SKIP: cp36* cp37* *-musllinux*
           CIBW_BEFORE_ALL: >
             yum update -y &&
             yum install -y wget openssl-devel libxml2-devel libtirpc-devel  &&
@@ -88,7 +91,8 @@ jobs:
             ./b2 --without-python --prefix=/usr/local install &&
             cd /project  &&
             cmake -B build -DBUILD_SHARED_LIBS=ON -DSSLAUTHENTICATION=OFF -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
-            cmake --build build -j --config Release --target install
+            cmake --build build -j --config Release --target install &&
+            cp -r /usr/local/python_installer/* /project/source/wrappers/python/
 
       - name: Build manylinux_2_28 wheels
         if: startswith(matrix.build-platform[2], 'manylinux_2_28')
