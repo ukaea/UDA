@@ -92,7 +92,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.17.0
         with:
           package-dir: /usr/local/python_installer
-          config-file: /project/source/wrappers/python/pyproject.toml
+          config-file: ./source/wrappers/python/pyproject.toml
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
