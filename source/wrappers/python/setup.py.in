@@ -78,9 +78,10 @@ ext = Extension(
     define_macros=extra_macros,
 )
 
+# version='@PROJECT_VERSION@',
 setup(
     name='ukaea_pyuda',
-    version='@PROJECT_VERSION@',
+    use_scm_version=True,
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
