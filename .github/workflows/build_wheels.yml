@@ -102,7 +102,7 @@ jobs:
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
-          CIBW_SKIP: cp12-* *-musllinux*
+          CIBW_SKIP: cp6* cp7* *-musllinux*
           CIBW_BEFORE_ALL: >
             dnf update -y &&
             dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &&
