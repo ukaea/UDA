@@ -91,7 +91,8 @@ jobs:
         if: startswith(matrix.build-platform[2], 'manylinux_2_28')
         uses: pypa/cibuildwheel@v2.17.0
         with:
-          package-dir: /usr/local/python_installer
+          # package-dir: /usr/local/python_installer
+          package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
@@ -111,6 +112,7 @@ jobs:
             -DSSLAUTHENTICATION=OFF 
             -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
             cmake --build build -j --config Release --target install &&
+            cp -r /usr/local/python_installer/* /project/source/wrappers/python/
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
