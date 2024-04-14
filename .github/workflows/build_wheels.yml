@@ -118,7 +118,9 @@ jobs:
   upload_pypi:
     needs: build_wheels
     runs-on: ubuntu-latest
-    environment: testpypi
+    environment: 
+      name: testpypi
+      url: https://test.pypi.org/project/ukaea_pyuda
     permissions:
       id-token: write
     # if: github.event_name == 'release' && github.event.action == 'published'
@@ -133,4 +135,4 @@ jobs:
 
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://test.pypi.org/projects/ukaea_pyuda/
+          repository-url: https://test.pypi.org/project/ukaea_pyuda
