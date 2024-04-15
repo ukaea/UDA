@@ -148,7 +148,7 @@ jobs:
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           CIBW_SKIP: cp36* cp37* 
           CIBW_BEFORE_ALL:
-            SETUPTOOLS_SCM_DEBUG=1 ./source/wrappers/python/setup.py --version
+            SETUPTOOLS_SCM_DEBUG=1 python3 ./source/wrappers/python/setup.py --version
 
 
       - uses: actions/upload-artifact@v4
