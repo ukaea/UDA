@@ -133,10 +133,11 @@ jobs:
           -DSSLAUTHENTICATION=OFF 
           -DENABLE_CAPNP=ON 
           -DNO_JAVA_WRAPPER=ON 
+          -DCMAKE_INSTALL_PREFIX=$PWD/install
           -DCLIENT_ONLY=ON &&
           cmake --build build -j --config Release --target install &&
-          cp -r /usr/local/python_installer/* ${{github.workspace}}/source/wrappers/python/ &&
-          sed -i temp.bak "s|\[tool\.setuptools_scm\]|\[tool\.setuptools_scm\]\nroot =\"${{github.workspace}}\"|g" ${{github.workspace}}/source/wrappers/python/pyproject.toml
+          cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/ &&
+          sed -i temp.bak 's|\[tool\.setuptools_scm\]|\[tool\.setuptools_scm\]\nroot =\"${{github.workspace}}\"|g' ${{github.workspace}}/source/wrappers/python/pyproject.toml
 
 
       - name: Build macos wheels
