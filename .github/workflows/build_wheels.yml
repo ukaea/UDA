@@ -134,7 +134,8 @@ jobs:
           cmake --build build -j --config Release --target install &&
           cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/ &&
           sed -i temp.bak 's|\[tool\.setuptools_scm\]|\[tool\.setuptools_scm\]\nroot =\"${{github.workspace}}\"|g' ${{github.workspace}}/source/wrappers/python/pyproject.toml &&
-          cat ${{github.workspace}}/source/wrappers/python/pyproject.toml 
+          cat ${{github.workspace}}/source/wrappers/python/pyproject.toml &&
+          cat ${{github.workspace}}/source/wrappers/python/setup.py
 
       - name: Build macos wheels
         if: runner.os == 'macOS'
@@ -148,12 +149,7 @@ jobs:
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           CIBW_SKIP: cp36* cp37* 
           CIBW_BEFORE_ALL:
-            python3 -m venv venv38 && source venv38/bin/activate &&
-            pip3 install --upgrade pip wheel &&
-            pip3 install setuptools setuptools_scm cython numpy && 
-            SETUPTOOLS_SCM_DEBUG=1 python3 ./source/wrappers/python/setup.py --version &&
-            deactivate && rm -r venv38
-
+            cat ./source/wrappers/python/setup.py 
 
       - uses: actions/upload-artifact@v4
         with:
