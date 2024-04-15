@@ -82,7 +82,7 @@ ext = Extension(
 def get_version():
     version = '@PROJECT_VERSION@'
     if version.count('.') > 2:
-        version = "Post.".join(s.rsplit('.', 1))
+        version = ".Post".join(version.rsplit('.', 1))
     print("setup version = %s" % version)
     return version
 
