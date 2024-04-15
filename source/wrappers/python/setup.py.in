@@ -78,10 +78,19 @@ ext = Extension(
     define_macros=extra_macros,
 )
 
-# version='@PROJECT_VERSION@',
+
+def get_version():
+    version = '@PROJECT_VERSION@'
+    if version.count('.') > 2:
+        version = "Post.".join(s.rsplit('.', 1))
+    print("setup version = %s" % version)
+    return version
+
+
+        # use_scm_version={'version_scheme': 'post-release', 'local_scheme': 'no-local-version'},
 setup(
     name='ukaea_pyuda_test',
-    use_scm_version={'version_scheme': 'post-release', 'local_scheme': 'no-local-version'},
+    version=get_version,
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',

@@ -79,8 +79,7 @@ jobs:
             cd /project  &&
             cmake -B build -DNO_JAVA_WRAPPER=ON -DBUILD_SHARED_LIBS=ON -DSSLAUTHENTICATION=OFF -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
             cmake --build build -j --config Release --target install &&
-            cp -r /usr/local/python_installer/* /project/source/wrappers/python/ &&
-            sed -i 's|\[tool\.setuptools_scm\]|\[tool\.setuptools_scm\]\nroot =\"\/project\"|g' /project/source/wrappers/python/pyproject.toml
+            cp -r /usr/local/python_installer/* /project/source/wrappers/python/ 
 
       - name: Build manylinux_2_28 wheels
         if: startswith(matrix.build-platform[2], 'manylinux_2_28')
@@ -108,8 +107,7 @@ jobs:
             -DNO_JAVA_WRAPPER=ON 
             -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
             cmake --build build -j --config Release --target install &&
-            cp -r /usr/local/python_installer/* /project/source/wrappers/python/ &&
-            sed -i 's|\[tool\.setuptools_scm\]|\[tool\.setuptools_scm\]\nroot =\"\/project\"|g' /project/source/wrappers/python/pyproject.toml
+            cp -r /usr/local/python_installer/* /project/source/wrappers/python/ 
 
       - name: build uda on macos
         if: runner.os == 'macOS'
@@ -132,10 +130,7 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=$PWD/install
           -DCLIENT_ONLY=ON &&
           cmake --build build -j --config Release --target install &&
-          cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/ &&
-          sed -i temp.bak 's|\[tool\.setuptools_scm\]|\[tool\.setuptools_scm\]\nroot =\"${{github.workspace}}\"|g' ${{github.workspace}}/source/wrappers/python/pyproject.toml &&
-          cat ${{github.workspace}}/source/wrappers/python/pyproject.toml &&
-          cat ${{github.workspace}}/source/wrappers/python/setup.py
+          cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/ 
 
       - name: Build macos wheels
         if: runner.os == 'macOS'
@@ -148,8 +143,8 @@ jobs:
           CIBW_PLATFORM: macos
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           CIBW_SKIP: cp36* cp37* 
-          CIBW_BEFORE_ALL:
-            cat ./source/wrappers/python/setup.py 
+          # CIBW_BEFORE_ALL:
+          #   cat ./source/wrappers/python/setup.py 
 
       - uses: actions/upload-artifact@v4
         with:

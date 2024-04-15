@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=60", "setuptools_scm>=8", "numpy>=1.7", "Cython>=0.29", "six"]
+requires = ["setuptools>=42", "numpy>=1.7", "Cython>=0.29", "six"]
 build-backend = "setuptools.build_meta"
 
 
@@ -15,5 +15,3 @@ requires-python = ">= 3.5"
 [project.optional-dependencies]
 plot = ["pyplot"]
 full = ["pyplot", "rich"]
-
-[tool.setuptools_scm]
