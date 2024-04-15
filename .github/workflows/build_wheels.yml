@@ -150,7 +150,7 @@ jobs:
           CIBW_BEFORE_ALL:
             python3 -m venv venv38 && source venv38/bin/activate &&
             pip3 install --upgrade pip wheel &&
-            pip3 install setuptools seruptools_scm cython numpy && 
+            pip3 install setuptools setuptools_scm cython numpy && 
             SETUPTOOLS_SCM_DEBUG=1 python3 ./source/wrappers/python/setup.py --version &&
             deactivate && rm -r venv38
 
