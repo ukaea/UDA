@@ -135,7 +135,6 @@ jobs:
           cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/ &&
           sed -i temp.bak 's|\[tool\.setuptools_scm\]|\[tool\.setuptools_scm\]\nroot =\"${{github.workspace}}\"|g' ${{github.workspace}}/source/wrappers/python/pyproject.toml
 
-
       - name: Build macos wheels
         if: runner.os == 'macOS'
         uses: pypa/cibuildwheel@v2.17.0
@@ -147,11 +146,11 @@ jobs:
           CIBW_PLATFORM: macos
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           CIBW_SKIP: cp36* cp37* 
+
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
-
 
   upload_pypi:
     needs: build_wheels
