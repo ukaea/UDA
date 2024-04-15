@@ -148,7 +148,7 @@ jobs:
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           CIBW_SKIP: cp36* cp37* 
           CIBW_BEFORE_ALL:
-            /opt/python/cp38-cp38/bin/python3 -m venv venv38 && source venv38/bin/activate &&
+            python3 -m venv venv38 && source venv38/bin/activate &&
             pip3 install --upgrade pip wheel &&
             pip3 install setuptools seruptools_scm cython numpy && 
             SETUPTOOLS_SCM_DEBUG=1 python3 ./source/wrappers/python/setup.py --version &&
