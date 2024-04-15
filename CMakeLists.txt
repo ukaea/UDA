@@ -65,6 +65,7 @@ project( uda VERSION ${GIT_VERSION} )
 
 set( USER $ENV{USER} )
 
+include( CTest )
 ########################################################################################################################
 # Compiler configuration
 

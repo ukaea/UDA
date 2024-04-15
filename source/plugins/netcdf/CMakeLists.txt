@@ -48,12 +48,59 @@ set ( SOURCE_FILES
     )
 
 find_package( nlohmann_json QUIET )
+find_package( Catch2 3 QUIET )
 
 if ( nlohmann_json_FOUND )
-    add_executable( test_netcdf_json test/simple_test.cpp ${SOURCE_FILES} ${NETCDF_INCLUDES} )
-    target_link_libraries( test_netcdf_json PRIVATE nlohmann_json::nlohmann_json serialisation-static ${NETCDF_LIBRARIES} fmt::fmt )
-    target_include_directories(test_netcdf_json PRIVATE ${uda_SOURCE_DIR}/source/plugins/netcdf ${uda_SOURCE_DIR}/source/plugins/netcdf/test )
+    add_executable( test_netcdf_json test/simple_test.cpp 
+        ${SOURCE_FILES} 
+        ${NETCDF_INCLUDES} 
+    )
+    target_link_libraries( test_netcdf_json PRIVATE 
+        nlohmann_json::nlohmann_json 
+        serialisation-static 
+        ${NETCDF_LIBRARIES} 
+        fmt::fmt 
+    )
+    target_include_directories(test_netcdf_json PRIVATE 
+        ${uda_SOURCE_DIR}/source/plugins/netcdf 
+        ${uda_SOURCE_DIR}/source/plugins/netcdf/test 
+    )
     set_property( TARGET test_netcdf_json PROPERTY CXX_STANDARD 17 )
+
+    # add_executable( test_epm test/epm_test.cpp ${SOURCE_FILES} ${NETCDF_INCLUDES} )
+    # target_link_libraries( test_epm PRIVATE nlohmann_json::nlohmann_json serialisation-static ${NETCDF_LIBRARIES} fmt::fmt )
+    # target_include_directories(test_epm PRIVATE ${uda_SOURCE_DIR}/source/plugins/netcdf ${uda_SOURCE_DIR}/source/plugins/netcdf/test )
+    # set_property( TARGET test_epm PROPERTY CXX_STANDARD 17 )
+
+    if ( Catch2_FOUND)
+        add_executable( test_netcdf_reader 
+            test/netcdf_reader.test.cpp 
+            ${SOURCE_FILES} 
+            ${NETCDF_INCLUDES} 
+        )
+        target_link_libraries( test_netcdf_reader PRIVATE 
+            nlohmann_json::nlohmann_json 
+            serialisation-static 
+            ${NETCDF_LIBRARIES} 
+            fmt::fmt 
+            Catch2::Catch2WithMain
+        )
+        target_include_directories( test_netcdf_reader PRIVATE 
+            ${uda_SOURCE_DIR}/source/plugins/netcdf 
+            ${uda_SOURCE_DIR}/source/plugins/netcdf/test 
+        )
+        set_property( TARGET test_netcdf_reader PROPERTY CXX_STANDARD 17 )
+
+        include(CTest)
+        include(Catch)
+        catch_discover_tests(test_netcdf_reader
+            TEST_PREFIX netcdf
+            )
+
+    else()
+        message( WARNING "Catch2 package not found - skipping automated netcdf-capnp tests" )
+    endif() 
+
 else()
     message( WARNING "nlohmann_json package not found - skipping netcdf-capnp tests" )
 endif()
