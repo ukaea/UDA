@@ -154,6 +154,9 @@ private:
 
     void handle_user_type_variable(netCDF::Variable& variable, NodeBuilder* node, TreeBuilder* tree);
 
+    void handle_user_type_variable_array(netCDF::Variable& variable, NodeBuilder* node, TreeBuilder* tree);
+
+
     void walk_compound_type(netCDF::UserType& var, char* bytes_data_array, NodeBuilder* node, TreeBuilder* tree);
 
     void add_nc_coordinate_data(NodeBuilder* node, TreeBuilder* tree);

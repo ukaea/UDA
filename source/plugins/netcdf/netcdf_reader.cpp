@@ -336,6 +336,9 @@ void add_nc_attribute(netCDF::Attribute& attribute, NodeBuilder* node) {
         case NC_DOUBLE:
             uda_capnp_add_array_f64(node, attribute.get<double>().data(), data_len);
             break;
+        case NC_BYTE:
+            uda_capnp_add_array_i8(node, attribute.get<int8_t>().data(), data_len);
+            break;
         case NC_CHAR:
             uda_capnp_add_array_char(node, attribute.get_string().data(), data_len);
             break;
@@ -352,7 +355,7 @@ void add_nc_attribute(netCDF::Attribute& attribute, NodeBuilder* node) {
             uda_capnp_add_array_u64(node, (uint64_t*) attribute.get<unsigned long long>().data(), data_len);
             break;
         default:
-            throw std::runtime_error("unknown type");
+            throw std::runtime_error("unknown nc attribute type: " + std::to_string(attribute.type()) );
     }
 }
 
@@ -367,6 +370,42 @@ void add_nc_variable(netCDF::Variable& variable, NodeBuilder* node) {
         auto attributes = variable.attributes();
         n_children = attributes.size();
         uda_capnp_add_children(node, n_children);
+    }
+}
+
+
+void Reader::handle_user_type_variable_array(netCDF::Variable& variable, NodeBuilder* node, TreeBuilder* tree)
+{
+    auto dimensions = variable.dimensions();
+
+    // some kind of warning for multidiemsnions arrays of structured data? that could be weird
+
+    size_t n_children = 1;
+    for (const auto& dim: dimensions)
+    {
+        n_children *= dim.size();
+    }
+
+    auto usertype_var = variable.user_type().require();
+    auto compound_fields = usertype_var.compound_fields();
+
+    size_t compound_obj_size = usertype_var.bytes_size();
+    char bytes_data_array[compound_obj_size * n_children];
+    // netcdfpp forbids read<char*> -- have to cast to void
+    variable.read<void>((void*) bytes_data_array);
+
+    size_t n_sub_children = compound_fields.size();
+
+    uda_capnp_add_children(node, n_children);
+    for (auto i=0; i<static_cast<int>(n_children); ++i)
+    {
+        auto instance_node = uda_capnp_get_child(tree, node, i);
+        std::string var_name = variable.name() + std::to_string(i);
+        uda_capnp_set_node_name(instance_node, var_name.c_str());
+
+        char* data_array_ptr = &(bytes_data_array[i * compound_obj_size]);
+        uda_capnp_add_children(instance_node, n_sub_children);
+        walk_compound_type(usertype_var, data_array_ptr, instance_node, tree);
     }
 }
 
@@ -485,6 +524,7 @@ void unpack_compound_field(netCDF::UserType::CompoundField& compound_field, Node
             case NC_DOUBLE:
                 uda_capnp_add_f64(node, *((double*) &data[offset]));
                 break;
+            case NC_BYTE:
             case NC_CHAR:
                 uda_capnp_add_i8(node, *((int8_t*) &data[offset]));
                 break;
@@ -501,7 +541,7 @@ void unpack_compound_field(netCDF::UserType::CompoundField& compound_field, Node
                 uda_capnp_add_u64(node, *((uint64_t*) &data[offset]));
                 break;
             default:
-                throw std::runtime_error("unknown type");
+                throw std::runtime_error("unknown nc compound field type: " + std::to_string(compound_field.type));
         }
     } else {
         //  cast data shape to vector of size_t vals from vector of ints
@@ -563,6 +603,7 @@ void unpack_compound_field(netCDF::UserType::CompoundField& compound_field, Node
             case NC_DOUBLE:
                 uda_capnp_add_md_array_f64(node, (double*) &data[offset], data_shape.data(), data_shape.size());
                 break;
+            case NC_BYTE:
             case NC_CHAR:
                 uda_capnp_add_md_array_i8(node, (int8_t*) &data[offset], data_shape.data(), data_shape.size());
                 break;
@@ -596,13 +637,24 @@ void unpack_compound_field(netCDF::UserType::CompoundField& compound_field, Node
                 uda_capnp_add_md_array_u64(node, (uint64_t*) &data[offset], data_shape.data(), data_shape.size());
                 break;
             default:
-                throw std::runtime_error("unknown type");
+                throw std::runtime_error("unknown nc compound field type: " + std::to_string(compound_field.type));
+                // throw std::runtime_error("unknown type");
         }
     }
 }
 
 void Reader::handle_user_type_variable(netCDF::Variable& variable, NodeBuilder* node, TreeBuilder* tree) {
-    // uda_capnp_set_node_name(node, variable.name().c_str());
+    // forward to other function if this is actually an array of user-defined structs
+    auto dims = variable.dimensions();
+    size_t array_len = 1;
+    for (const auto & dim: dims)
+    {
+        array_len *= dim.size();
+    }
+    if (array_len > 1)
+    {
+        return handle_user_type_variable_array(variable, node, tree);
+    }
 
     auto usertype_var = variable.user_type().require();
     auto compound_fields = usertype_var.compound_fields();
@@ -670,6 +722,9 @@ void add_nc_atomic_variable(netCDF::Variable& variable, NodeBuilder* node) {
         case NC_DOUBLE:
             uda_capnp_add_md_array_f64(node, variable.get<double>().data(), sizes.data(), sizes.size());
             break;
+        case NC_BYTE:
+            uda_capnp_add_md_array_i8(node, variable.get<int8_t>().data(), sizes.data(), sizes.size());
+            break;
         case NC_CHAR:
             uda_capnp_add_md_array_char(node, variable.get<char>().data(), sizes.data(), sizes.size());
             break;
@@ -689,7 +744,7 @@ void add_nc_atomic_variable(netCDF::Variable& variable, NodeBuilder* node) {
                                        sizes.size());
             break;
         default:
-            throw std::runtime_error("unknown type");
+            throw std::runtime_error("unknown nc variable type: " + std::to_string(variable.type()));
     }
 }
 

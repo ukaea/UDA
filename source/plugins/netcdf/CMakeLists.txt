@@ -49,6 +49,7 @@ set ( SOURCE_FILES
 
 find_package( nlohmann_json QUIET )
 find_package( Catch2 3 QUIET )
+find_package( Boost COMPONENTS program_options REQUIRED )
 
 if ( nlohmann_json_FOUND )
     add_executable( test_netcdf_json test/simple_test.cpp 
@@ -71,6 +72,23 @@ if ( nlohmann_json_FOUND )
     # target_link_libraries( test_epm PRIVATE nlohmann_json::nlohmann_json serialisation-static ${NETCDF_LIBRARIES} fmt::fmt )
     # target_include_directories(test_epm PRIVATE ${uda_SOURCE_DIR}/source/plugins/netcdf ${uda_SOURCE_DIR}/source/plugins/netcdf/test )
     # set_property( TARGET test_epm PROPERTY CXX_STANDARD 17 )
+
+    add_executable(nc2json test/nc2json.cpp
+        ${SOURCE_FILES}
+        ${NETCDF_INCLUDES}
+        )
+    target_include_directories(nc2json PRIVATE 
+        ${uda_SOURCE_DIR}/source/plugins/netcdf 
+        ${uda_SOURCE_DIR}/source/plugins/netcdf/test 
+    )
+    set_property( TARGET nc2json PROPERTY CXX_STANDARD 17 )
+    target_link_libraries( nc2json PRIVATE 
+        nlohmann_json::nlohmann_json 
+        serialisation-static 
+        ${NETCDF_LIBRARIES} 
+        fmt::fmt 
+        Boost::program_options
+    )
 
     if ( Catch2_FOUND)
         add_executable( test_netcdf_reader 
