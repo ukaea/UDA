@@ -60,6 +60,13 @@ target_include_directories( server-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
 )
+target_compile_definitions(
+  server-objects PRIVATE
+  -DUDA_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
+  -DUDA_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
+  -DUDA_VERSION_BUGFIX=${CMAKE_PROJECT_VERSION_PATCH}
+  -DUDA_VERSION_DELTA=${CMAKE_PROJECT_VERSION_TWEAK}
+)
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp

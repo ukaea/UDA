@@ -18,6 +18,7 @@
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
 #include "uda/client.h"
+#include "clientserver/version.h"
 
 using namespace uda::client_server;
 using namespace uda::logging;
@@ -787,7 +788,7 @@ int uda::client::Client::perform_handshake()
     // Protocol Version: Lower of the client and server version numbers
     // This defines the set of elements within data structures passed between client and server
     // Must be the same on both sides of the socket
-    protocol_version_ = std::min(client_block_.version, server_block_.version);
+    protocol_version_ = std::min(get_protocol_version(client_block_.version), get_protocol_version(server_block_.version));
 
     if (server_block_.idamerrorstack.nerrors > 0) {
         err = server_block_.idamerrorstack.idamerror[0].code; // Problem on the Server Side!

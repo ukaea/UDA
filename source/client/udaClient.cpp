@@ -18,6 +18,7 @@
 #include "structures/struct.h"
 #include "uda/client.h"
 #include "uda/structured.h"
+#include "clientserver/version.h"
 
 #include "closedown.h"
 
@@ -45,7 +46,8 @@ using namespace uda::structures;
 #if !defined(FATCLIENT) || !defined(NOLIBMEMCACHED)
 static int protocol_version = 9;
 #endif
-int client_version = 9; // previous version
+
+constexpr int ClientVersion = UDA_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
 
 //----------------------------------------------------------------------------------------------------------------------
 // FATCLIENT objects shared with server code
@@ -686,7 +688,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
 
         if (initServer && system_startup) {
             user_id(client_username);
-            init_client_block(&client_block, client_version, client_username);
+            init_client_block(&client_block, ClientVersion, client_username);
             system_startup = false; // Don't call again!
         }
 
@@ -855,7 +857,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
             // Protocol Version: Lower of the client and server version numbers
             // This defines the set of elements within data structures passed between client and server
             // Must be the same on both sides of the socket
-            protocol_version = std::min(client_block.version, server_block.version);
+            protocol_version = std::min(get_protocol_version(client_block.version), get_protocol_version(server_block.version));
 
             if (server_block.idamerrorstack.nerrors > 0) {
                 err = server_block.idamerrorstack.idamerror[0].code; // Problem on the Server Side!
@@ -1729,12 +1731,12 @@ const char* udaGetServerOSName()
  */
 int udaGetClientVersion()
 {
-    return client_version; // Client Library Version
+    return ClientVersion; // Client Library Version
 }
 
-//! the UDA server verion number
+//! the UDA server version number
 /**
- * @return the verion number
+ * @return the version number
  */
 int udaGetServerVersion()
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef UDA_LEGACY_H
-#  define UDA_LEGACY_H
+#define UDA_LEGACY_H
 
 // to delete just used for debugging...
 // #include "client.h"
@@ -13,7 +13,7 @@
 // #include "clientMDS.h"
 // #include "accessors.h"
 
-#  warning "using UDA legacy name mappings"
+#warning "using UDA legacy name mappings"
 
 // TODO: address embedded todos...
 // TODO: should these all be C functions instead of c++?
@@ -24,7 +24,7 @@
  * definitions from pluginStructs.h
  */
 
-#  define UDA_PLUGIN_INTERFACE UDA_PLUGIN_INTERFACE
+#define UDA_PLUGIN_INTERFACE UDA_PLUGIN_INTERFACE
 
 /*
  * definitions from udaGetAPI.h

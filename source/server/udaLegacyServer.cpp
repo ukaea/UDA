@@ -37,7 +37,7 @@ using namespace uda::server;
 using namespace uda::logging;
 using namespace uda::structures;
 
-constexpr int server_version = 8;
+constexpr int ServerVersion = 8;
 
 // Legacy Server Entry point
 
@@ -82,7 +82,7 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
 
     init_error_stack();
 
-    init_server_block(&server_block, server_version);
+    init_server_block(&server_block, ServerVersion);
     init_data_block(&data_block);
     init_actions(&actions_desc); // There may be a Sequence of Actions to Apply
     init_actions(&actions_sig);
@@ -151,8 +151,8 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
             // This defines the set of elements within data structures passed between client and server
             // Must be the same on both sides of the socket
 
-            protocolVersion = server_version;
-            if (client_block.version < server_version) {
+            protocolVersion = ServerVersion;
+            if (client_block.version < ServerVersion) {
                 protocolVersion = client_block.version;
             }
 
@@ -757,7 +757,7 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
         close_error();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        init_server_block(&server_block, server_version);
+        init_server_block(&server_block, ServerVersion);
 
         UDA_LOG(UDA_LOG_DEBUG, "At End of Error Trap\n");
 

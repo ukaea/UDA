@@ -326,7 +326,7 @@ struct ServerBlock {
     char OSName[STRING_LENGTH]; // Name of the Server's Operating System, e.g. OSX
     char DOI[STRING_LENGTH];    // Server version/implementation DOI - to be logged with all data consumers
     SecurityBlock
-        securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
+    securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
 
 struct NameValue {

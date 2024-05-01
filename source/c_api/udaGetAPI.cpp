@@ -112,7 +112,7 @@ void udaLockThread()
     // Identify the Current Thread
 
 #  ifdef __GNUC__
-    thread_t threadId = pthread_self();
+    thread_t thread_id = pthread_self();
 #  else
     thread_t threadId = GetCurrentThread();
 #  endif
@@ -134,11 +134,11 @@ void udaLockThread()
 
     // Retain unique thread IDs
 
-    int id = getThreadId(threadId);
+    int id = getThreadId(thread_id);
 
     if (thread_count < UDA_NUM_CLIENT_THREADS && id == -1) {
         // Preserve the thread ID if not registered
-        thread_list[++thread_count - 1] = threadId;
+        thread_list[++thread_count - 1] = thread_id;
     }
 
     // Assign State for the current thread if previously registered
@@ -162,11 +162,11 @@ void udaLockThread()
 void udaUnlockThread()
 {
 #  ifdef __GNUC__
-    thread_t threadId = pthread_self();
+    thread_t thread_id = pthread_self();
 #  else
     thread_t threadId = GetCurrentThread();
 #  endif
-    int id = getThreadId(threadId); // Must be registered
+    int id = getThreadId(thread_id); // Must be registered
     if (id >= 0) {
         uda_state[id].socket = udaGetServerSocket();
         // uda_state[id].environment = *getIdamClientEnvironment();
@@ -190,11 +190,11 @@ void udaFreeThread()
 {
     udaLockThread();
 #  ifdef __GNUC__
-    thread_t threadId = pthread_self();
+    thread_t thread_id = pthread_self();
 #  else
     thread_t threadId = GetCurrentThread();
 #  endif
-    int id = getThreadId(threadId);
+    int id = getThreadId(thread_id);
     thread_count--;
     if (id >= 0) {
         for (int i = id; i < thread_count; i++) {

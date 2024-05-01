@@ -58,6 +58,13 @@ target_include_directories( client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
 )
+target_compile_definitions(
+  client-objects PRIVATE
+  -DUDA_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
+  -DUDA_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
+  -DUDA_VERSION_BUGFIX=${CMAKE_PROJECT_VERSION_PATCH}
+  -DUDA_VERSION_DELTA=${CMAKE_PROJECT_VERSION_TWEAK}
+)
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-objects OBJECT ${SRC_FILES} )
@@ -65,6 +72,13 @@ if( NOT CLIENT_ONLY )
   target_include_directories( fatclient-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
+  )
+  target_compile_definitions(
+    fatclient-objects PRIVATE
+    -DUDA_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
+    -DUDA_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
+    -DUDA_VERSION_BUGFIX=${CMAKE_PROJECT_VERSION_PATCH}
+    -DUDA_VERSION_DELTA=${CMAKE_PROJECT_VERSION_TWEAK}
   )
 
   target_compile_definitions( fatclient-objects PUBLIC -DFATCLIENT )

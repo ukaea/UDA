@@ -32,6 +32,7 @@
 #include "serverProcessing.h"
 #include "serverStartup.h"
 #include "uda/structured.h"
+#include "clientserver/version.h"
 #include "udaLegacyServer.h"
 
 #ifdef SECURITYENABLED
@@ -52,20 +53,10 @@ using namespace uda::structures;
 //--------------------------------------------------------------------------------------
 // static globals
 
-// 0b FF    FF    FF  FF
-//    major minor bug dirty
+constexpr int ServerVersion = UDA_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
+constexpr int LegacyServerVersion = 6;
 
-// 3.0.1.15
-// 00000011 00000000 00000001 00000111
-
-#define UDA_MAJOR_VERSION(X) (int)((X >> 24) & 0x000F)
-#define UDA_MINOR_VERSION(X) (int)((X >> 16) & 0x000F)
-#define UDA_BUGFIX_VERSION(X) (int)((X >> 8) & 0x000F)
-#define UDA_DELTA_VERSION(X) (int)((X >> 0) & 0x000F)
-
-constexpr int server_version = 9;
-static int protocol_version = 9;
-static int legacy_server_version = 6;
+static int protocol_version = 0;
 
 static UserDefinedTypeList* user_defined_type_list = nullptr; // User Defined Structure Types from Data Files & Plugins
 static LogMallocList* log_malloc_list =
@@ -151,7 +142,7 @@ int uda::server::uda_server(uda::client_server::ClientBlock client_block)
     // Reinitialised after each logging action
 
     init_error_stack();
-    init_server_block(&server_block, server_version);
+    init_server_block(&server_block, ServerVersion);
     init_actions(&actions_desc); // There may be a Sequence of Actions to Apply
     init_actions(&actions_sig);
     init_request_block(&request_block);
@@ -434,16 +425,16 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
 
     *server_timeout = client_block->timeout;                 // User specified Server Lifetime
     unsigned int private_flags = client_block->privateFlags; // Server to Server flags
-    unsigned int clientFlags = client_block->clientFlags;    // Client set flags
-    int altRank = client_block->altRank;                     // Rank of Alternative source
+    unsigned int client_flags = client_block->clientFlags;    // Client set flags
+    int alt_rank = client_block->altRank;                     // Rank of Alternative source
 
     // Protocol Version: Lower of the client and server version numbers
     // This defines the set of elements within data structures passed between client and server
     // Must be the same on both sides of the socket
 
-    protocol_version = server_version;
-    if (client_block->version < server_version) {
-        protocol_version = client_block->version;
+    protocol_version = get_protocol_version(ServerVersion);
+    if (get_protocol_version(client_block->version) < protocol_version) {
+        protocol_version = get_protocol_version(client_block->version);
     }
 
     // The client request may originate from a server.
@@ -456,8 +447,8 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
 
     UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion %d\n", protocol_version);
     UDA_LOG(UDA_LOG_DEBUG, "private_flags %d\n", private_flags);
-    UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  %d\n", clientFlags);
-    UDA_LOG(UDA_LOG_DEBUG, "altRank      %d\n", altRank);
+    UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  %d\n", client_flags);
+    UDA_LOG(UDA_LOG_DEBUG, "altRank      %d\n", alt_rank);
     UDA_LOG(UDA_LOG_DEBUG, "external?    %d\n", environment.external_user);
 
     if (server_block->idamerrorstack.nerrors > 0) {
@@ -467,7 +458,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
 
     // Test the client version is compatible with this server version
 
-    if (protocol_version > server_version) {
+    if (protocol_version > ServerVersion) {
         UDA_THROW_ERROR(999, "Protocol Error: Client API Version is Newer than the Server Version");
     }
 
@@ -931,7 +922,7 @@ int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, 
         close_error();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        init_server_block(server_block, server_version);
+        init_server_block(server_block, ServerVersion);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -1127,7 +1118,7 @@ int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* 
 
     // If the protocol version is legacy (<=6), then divert full control to a legacy server
 
-    if (client_block->version <= legacy_server_version) {
+    if (client_block->version <= LegacyServerVersion) {
         UDA_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server\n");
         UDA_LOG(UDA_LOG_DEBUG, "Client protocol %d\n", client_block->version);
         return legacyServer(*client_block, &plugin_list, log_malloc_list, user_defined_type_list, &socket_list,

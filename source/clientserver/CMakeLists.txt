@@ -48,6 +48,7 @@ set( SRC_FILES
   nameValueSubstitution.cpp
   udaStructs.cpp
   make_request_block.cpp
+  version.cpp
   #  utils.c
 )
 

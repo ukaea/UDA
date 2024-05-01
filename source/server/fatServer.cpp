@@ -34,19 +34,19 @@ using namespace uda::server;
 using namespace uda::logging;
 using namespace uda::structures;
 
-static uda::plugins::PluginList pluginList; // List of all data reader plugins (internal and external shared libraries)
+static uda::plugins::PluginList plugin_list; // List of all data reader plugins (internal and external shared libraries)
 Environment environment;                    // Holds local environment variable values
 
 static UserDefinedTypeList* user_defined_type_list = nullptr;
 static LogMallocList* log_malloc_list = nullptr;
 
-int altRank = 0;
-unsigned int clientFlags = 0;
+int alt_rank = 0;
+unsigned int client_flags = 0;
 
 int malloc_source = UDA_MALLOC_SOURCE_NONE;
 unsigned int private_flags = 0;
 
-int server_version = 8;
+constexpr int ServerVersion = 8;
 static int protocol_version = 8;
 
 SOCKETLIST socket_list;
@@ -71,6 +71,7 @@ void setLogMallocList(LogMallocList* logmalloclist_in)
 {
     log_malloc_list = logmalloclist_in;
 }
+
 }
 #endif
 
@@ -120,7 +121,7 @@ int uda::server::fat_server(ClientBlock client_block, ServerBlock* server_block,
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    init_server_block(server_block, server_version);
+    init_server_block(server_block, ServerVersion);
     init_data_block_list(&data_blocks);
     init_actions(&actions_desc); // There may be a Sequence of Actions to Apply
     init_actions(&actions_sig);
@@ -310,11 +311,11 @@ int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0
     // Decode the API Arguments: determine appropriate data plug-in to use
     // Decide on Authentication procedure
 
-    protocol_version = server_version;
+    protocol_version = ServerVersion;
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
         if (protocol_version >= 6) {
-            if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc, &pluginList,
+            if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc, &plugin_list,
                                        getServerEnvironment())) != 0) {
                 return err;
             }
@@ -341,7 +342,7 @@ int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0
         init_data_block(data_block);
         err = get_data(&depth, request, *client_block, data_block, &metadata_block->data_source,
                        &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                       &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
+                       &plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
         ++data_blocks->count;
     }
 
@@ -463,13 +464,13 @@ int startup_fat_server(ServerBlock* server_block, UserDefinedTypeList& parseduse
     // Initialise the Data Reader Plugin list
 
     if (!plugin_list_initialised) {
-        pluginList.count = 0;
-        initPluginList(&pluginList, getServerEnvironment());
+        plugin_list.count = 0;
+        initPluginList(&plugin_list, getServerEnvironment());
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
-        for (int i = 0; i < pluginList.count; i++) {
-            UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, pluginList.plugin[i].request, pluginList.plugin[i].format);
+        for (int i = 0; i < plugin_list.count; i++) {
+            UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, plugin_list.plugin[i].request, plugin_list.plugin[i].format);
         }
     }
 
