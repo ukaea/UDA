@@ -1,8 +1,8 @@
 #ifndef UDA_PLUGIN_HDF5PLUGIN_H
 #define UDA_PLUGIN_HDF5PLUGIN_H
 
-#include <H5LTpublic.h>
 #include <hdf5.h>
+#include <H5LTpublic.h>
 #ifdef __GNUC__
 #  include <sys/time.h>
 #endif

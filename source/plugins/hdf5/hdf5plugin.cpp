@@ -1,25 +1,6 @@
 #include "hdf5plugin.h"
 
-#include "include/uda/uda_plugin_base.hpp"
-
 #include "readHDF58.h"
-
-class HDF5Plugin : public UDAPluginBase
-{
-  public:
-    HDF5Plugin();
-    int read(UDA_PLUGIN_INTERFACE* plugin_interface);
-    int hello(UDA_PLUGIN_INTERFACE* plugin_interface)
-    {
-        return setReturnDataString(plugin_interface->data_block, "hello!", nullptr);
-    }
-    static int foo(UDA_PLUGIN_INTERFACE* plugin_interface)
-    {
-        return setReturnDataString(plugin_interface->data_block, "foo!", nullptr);
-    }
-    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
-    void reset() override {}
-};
 
 HDF5Plugin::HDF5Plugin() : UDAPluginBase("HDF5", 1, "read", "")
 {
@@ -42,18 +23,11 @@ extern int hdf5Plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 
 int HDF5Plugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DataSource* data_source = plugin_interface->data_source;
-    SignalDesc* signal_desc = plugin_interface->signal_desc;
-    DataBlock* data_block = plugin_interface->data_block;
-
     auto file_path = find_required_arg<std::string>(plugin_interface, "file_path");
     auto cdf_path = find_required_arg<std::string>(plugin_interface, "cdf_path");
 
-    strcpy(data_source->path, file_path.c_str());
-    strcpy(signal_desc->signal_name, cdf_path.c_str());
-
     // Legacy data reader!
-    int err = readHDF5(*data_source, *signal_desc, data_block);
+    int err = read_hdf5(plugin_interface, file_path, cdf_path);
 
     return err;
 }

@@ -4,6 +4,7 @@
 #  include "server/createXDRStream.h"
 
 #  include <fcntl.h>
+#  include <string>
 #  include <openssl/asn1.h>
 #  include <openssl/crypto.h>
 #  include <openssl/err.h>
@@ -307,6 +308,22 @@ int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL) * crls)
     return 1;
 }
 
+std::string to_string(ASN1_TIME* time)
+{
+    std::string time_string;
+
+    BIO* bio = BIO_new(BIO_s_mem());
+
+    if (ASN1_TIME_print(bio, time)) {
+        BUF_MEM* ptr;
+        BIO_get_mem_ptr(bio, &ptr);
+        time_string = { ptr->data, ptr->length };
+    }
+    BIO_free_all(bio);
+
+    return time_string;
+}
+
 int uda::authentication::startUdaServerSSL()
 {
     int rc;
@@ -377,8 +394,15 @@ int uda::authentication::startUdaServerSSL()
         UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
                 X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
         UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n", X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", X509_get_notBefore(peer));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", X509_get_notAfter(peer));
+
+        ASN1_TIME* before = X509_get_notBefore(peer);
+        ASN1_TIME* after = X509_get_notAfter(peer);
+
+        std::string before_string = to_string(before);
+        std::string after_string = to_string(after);
+
+        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", before_string.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", after_string.c_str());
         X509_free(peer);
     } else {
         X509_free(peer);
