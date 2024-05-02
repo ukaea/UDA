@@ -15,6 +15,8 @@ using namespace uda::logging;
 
 int uda::server::startup()
 {
+    uda_init_logging();
+
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
 

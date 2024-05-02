@@ -2,47 +2,49 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 void uda::logging::uda_init_logging()
 {
-    auto debug_logger = std::make_shared<spdlog::logger>("debug");
-    auto error_logger = std::make_shared<spdlog::logger>("error");
-    auto access_logger = std::make_shared<spdlog::logger>("access");
-
-    spdlog::register_logger(debug_logger);
-    spdlog::register_logger(error_logger);
-    spdlog::register_logger(access_logger);
+    auto debug_logger = spdlog::stdout_logger_st("debug");
+    auto error_logger = spdlog::stdout_logger_st("error");
+    auto access_logger = spdlog::stdout_logger_st("access");
 }
 
 void uda::logging::uda_set_log_level(LogLevel level)
 {
-    auto logger = spdlog::default_logger();
+    spdlog::level::level_enum spdlog_level;
+
     switch (level) {
         case LogLevel::UDA_LOG_DEBUG:
-            logger->set_level(spdlog::level::debug);
+            spdlog_level = spdlog::level::debug;
             break;
         case LogLevel::UDA_LOG_INFO:
-            logger->set_level(spdlog::level::info);
+            spdlog_level = spdlog::level::info;
             break;
         case LogLevel::UDA_LOG_WARN:
-            logger->set_level(spdlog::level::warn);
+            spdlog_level = spdlog::level::warn;
             break;
         case LogLevel::UDA_LOG_ERROR:
-            logger->set_level(spdlog::level::err);
+            spdlog_level = spdlog::level::err;
             break;
         case LogLevel::UDA_LOG_ACCESS:
-            logger->set_level(spdlog::level::trace);
+            spdlog_level = spdlog::level::trace;
             break;
         case LogLevel::UDA_LOG_NONE:
-            logger->set_level(spdlog::level::off);
+            spdlog_level = spdlog::level::off;
             break;
     }
+
+    spdlog::set_level(spdlog_level);
+    spdlog::get("debug")->set_level(spdlog_level);
+    spdlog::get("error")->set_level(spdlog_level);
+    spdlog::get("access")->set_level(spdlog_level);
 }
 
 uda::logging::LogLevel uda::logging::uda_get_log_level()
 {
-    auto logger = spdlog::default_logger();
-    auto level = logger->level();
+    auto level = spdlog::get_level();
     switch (level) {
         case spdlog::level::debug:
             return LogLevel::UDA_LOG_DEBUG;
@@ -85,11 +87,19 @@ void uda::logging::uda_set_log_file(LogLevel mode, const std::string& file_name,
             return;
     }
 
-    auto sinks = logger->sinks();
+    auto& sinks = logger->sinks();
+
+    // remove existing stdout sink
+    auto to_remove = std::remove_if(sinks.begin(), sinks.end(), [](const auto& sink){
+        return dynamic_cast<spdlog::sinks::stdout_sink_st*>(sink.get()) != nullptr;
+    });
+    sinks.erase(to_remove, sinks.end());
+
+    // only add file sink if it doesn't exist
     bool found = false;
     for (const auto& sink : sinks) {
         auto file_sink = dynamic_cast<spdlog::sinks::basic_file_sink_st*>(sink.get());
-        if (file_sink->filename() == file_name) {
+        if (file_sink && file_sink->filename() == file_name) {
             found = true;
             break;
         }

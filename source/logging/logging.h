@@ -77,6 +77,7 @@ void uda_log(LogLevel mode, const char* file, int line, const std::string& fmt, 
     spdlog::source_loc loc{file, line, ""};
 
     logger->log(loc, level, fmt, args...);
+    logger->flush();
 }
 
 } // namespace uda::logging
