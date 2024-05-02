@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.0 )
+cmake_minimum_required( VERSION 3.14 )
 
 ########################################################################################################################
 # Macro used to convert Windows path to Unix
@@ -51,14 +51,14 @@ git_describe( GIT_TAG --tags )
 
 if( "${GIT_TAG}" MATCHES "^.*NOTFOUND$" )
   message( WARNING "Failed to get git revision: ${GIT_TAG}" )
-  set( GIT_VERSION "0.0.0" )
+  set( GIT_VERSION "0.0.0.0" )
 elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)$" )
-  set( GIT_VERSION "${GIT_TAG}" )
+  set( GIT_VERSION "${GIT_TAG}.0" )
 elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)-([0-9]+)-.*$" )
   set( GIT_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
 else()
   message( WARNING "invalid git tag for version parsing: ${GIT_TAG}" )
-  set( GIT_VERSION "0.0.0" )
+  set( GIT_VERSION "0.0.0.0" )
 endif()
 
 project( uda VERSION ${GIT_VERSION} )
