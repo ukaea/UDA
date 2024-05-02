@@ -140,27 +140,28 @@ void uda::server::Server::start_logs()
 
         errno = 0;
         std::string log_file = std::string{_environment->logdir} + "Access.log";
-        uda_set_log_file(UDA_LOG_ACCESS, log_file, _environment->logmode);
+        set_log_file(UDA_LOG_ACCESS, log_file, _environment->logmode);
     }
 
     if (_environment->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
         std::string log_file = std::string{_environment->logdir} + "Error.log";
-        uda_set_log_file(UDA_LOG_ERROR, log_file, _environment->logmode);
+        set_log_file(UDA_LOG_ERROR, log_file, _environment->logmode);
     }
 
     if (_environment->loglevel <= UDA_LOG_WARN) {
         errno = 0;
         std::string log_file = std::string{_environment->logdir} + "DebugServer.log";
-        uda_set_log_file(UDA_LOG_WARN, log_file, _environment->logmode);
-        uda_set_log_file(UDA_LOG_DEBUG, log_file, _environment->logmode);
-        uda_set_log_file(UDA_LOG_INFO, log_file, _environment->logmode);
+        set_log_file(UDA_LOG_WARN, log_file, _environment->logmode);
+        set_log_file(UDA_LOG_DEBUG, log_file, _environment->logmode);
+        set_log_file(UDA_LOG_INFO, log_file, _environment->logmode);
     }
 }
 
 void uda::server::Server::startup()
 {
-    uda_set_log_level((LogLevel)_environment->loglevel);
+    init_logging();
+    set_log_level((LogLevel) _environment->loglevel);
 
     start_logs();
 
@@ -238,7 +239,7 @@ void uda::server::Server::close()
 
     fflush(nullptr);
 
-    uda_close_logging();
+    close_logging();
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context

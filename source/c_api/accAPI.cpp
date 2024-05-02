@@ -222,10 +222,10 @@ void udaSetProperty(const char* property)
             }
         } else {
             if (STR_IEQUALS(property, "verbose")) {
-                uda_set_log_level(UDA_LOG_INFO);
+                set_log_level(UDA_LOG_INFO);
             }
             if (STR_IEQUALS(property, "debug")) {
-                uda_set_log_level(UDA_LOG_DEBUG);
+                set_log_level(UDA_LOG_DEBUG);
             }
             if (STR_IEQUALS(property, "altData")) {
                 client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
@@ -319,10 +319,10 @@ int udaGetProperty(const char* property)
             return (int)(client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE);
         }
         if (STR_IEQUALS(property, "verbose")) {
-            return uda_get_log_level() == UDA_LOG_INFO;
+            return get_log_level() == UDA_LOG_INFO;
         }
         if (STR_IEQUALS(property, "debug")) {
-            return uda_get_log_level() == UDA_LOG_DEBUG;
+            return get_log_level() == UDA_LOG_DEBUG;
         }
         if (STR_IEQUALS(property, "altData")) {
             return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
@@ -385,10 +385,10 @@ void udaResetProperty(const char* property)
         }
     } else {
         if (STR_IEQUALS(property, "verbose")) {
-            uda_set_log_level(UDA_LOG_NONE);
+            set_log_level(UDA_LOG_NONE);
         }
         if (STR_IEQUALS(property, "debug")) {
-            uda_set_log_level(UDA_LOG_NONE);
+            set_log_level(UDA_LOG_NONE);
         }
         if (STR_IEQUALS(property, "altData")) {
             client_flags->flags &= !CLIENTFLAG_ALTDATA;
@@ -430,7 +430,7 @@ void udaResetProperties()
     client_flags->get_scalar = 0;
     client_flags->get_bytes = 0;
     client_flags->get_nodimdata = 0;
-    uda_set_log_level(UDA_LOG_NONE);
+    set_log_level(UDA_LOG_NONE);
     client_flags->user_timeout = TIMEOUT;
     if (getenv("UDA_TIMEOUT")) {
         client_flags->user_timeout = atoi(getenv("UDA_TIMEOUT"));

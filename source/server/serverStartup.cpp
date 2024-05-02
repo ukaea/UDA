@@ -15,7 +15,7 @@ using namespace uda::logging;
 
 int uda::server::startup()
 {
-    uda_init_logging();
+    init_logging();
 
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
@@ -25,7 +25,7 @@ int uda::server::startup()
     //---------------------------------------------------------------
     // Open the Log Files
 
-    uda_set_log_level((LogLevel)environment->loglevel);
+    set_log_level((LogLevel) environment->loglevel);
 
     if (environment->loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
@@ -36,21 +36,21 @@ int uda::server::startup()
 
         errno = 0;
         std::string log_file = std::string{environment->logdir} + "Access.log";
-        uda_set_log_file(UDA_LOG_ACCESS, log_file, environment->logmode);
+        set_log_file(UDA_LOG_ACCESS, log_file, environment->logmode);
     }
 
     if (environment->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
         std::string log_file = std::string{environment->logdir} + "Error.log";
-        uda_set_log_file(UDA_LOG_ERROR, log_file, environment->logmode);
+        set_log_file(UDA_LOG_ERROR, log_file, environment->logmode);
     }
 
     if (environment->loglevel <= UDA_LOG_WARN) {
         errno = 0;
         std::string log_file = std::string{environment->logdir} + "DebugServer.log";
-        uda_set_log_file(UDA_LOG_WARN, log_file, environment->logmode);
-        uda_set_log_file(UDA_LOG_DEBUG, log_file, environment->logmode);
-        uda_set_log_file(UDA_LOG_INFO, log_file, environment->logmode);
+        set_log_file(UDA_LOG_WARN, log_file, environment->logmode);
+        set_log_file(UDA_LOG_DEBUG, log_file, environment->logmode);
+        set_log_file(UDA_LOG_INFO, log_file, environment->logmode);
     }
 
     printServerEnvironment(environment);

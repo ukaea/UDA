@@ -804,7 +804,7 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
 
     fflush(nullptr);
 
-    uda_close_logging();
+    close_logging();
 
     return 0;
 }

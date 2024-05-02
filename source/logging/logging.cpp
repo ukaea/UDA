@@ -4,14 +4,14 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
-void uda::logging::uda_init_logging()
+void uda::logging::init_logging()
 {
     auto debug_logger = spdlog::stdout_logger_st("debug");
     auto error_logger = spdlog::stdout_logger_st("error");
     auto access_logger = spdlog::stdout_logger_st("access");
 }
 
-void uda::logging::uda_set_log_level(LogLevel level)
+void uda::logging::set_log_level(LogLevel level)
 {
     spdlog::level::level_enum spdlog_level;
 
@@ -42,7 +42,7 @@ void uda::logging::uda_set_log_level(LogLevel level)
     spdlog::get("access")->set_level(spdlog_level);
 }
 
-uda::logging::LogLevel uda::logging::uda_get_log_level()
+uda::logging::LogLevel uda::logging::get_log_level()
 {
     auto level = spdlog::get_level();
     switch (level) {
@@ -61,12 +61,12 @@ uda::logging::LogLevel uda::logging::uda_get_log_level()
     }
 }
 
-void uda::logging::uda_close_logging()
+void uda::logging::close_logging()
 {
     spdlog::shutdown();
 }
 
-void uda::logging::uda_set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode)
+void uda::logging::set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode)
 {
     bool truncate = open_mode == "a";
 

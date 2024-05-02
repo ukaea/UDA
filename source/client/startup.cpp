@@ -73,8 +73,8 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
     //----------------------------------------------------------------
     // Check if Output Requested
 
-    uda_init_logging();
-    uda_set_log_level((LogLevel)environment->loglevel);
+    init_logging();
+    set_log_level((LogLevel) environment->loglevel);
 
     if (environment->loglevel == UDA_LOG_NONE) {
         return 0;
@@ -90,25 +90,25 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
 
     strcpy(log_file, environment->logdir);
     strcat(log_file, "Debug.dbg");
-    uda_set_log_file(UDA_LOG_WARN, log_file, environment->logmode);
-    uda_set_log_file(UDA_LOG_DEBUG, log_file, environment->logmode);
-    uda_set_log_file(UDA_LOG_INFO, log_file, environment->logmode);
+    set_log_file(UDA_LOG_WARN, log_file, environment->logmode);
+    set_log_file(UDA_LOG_DEBUG, log_file, environment->logmode);
+    set_log_file(UDA_LOG_INFO, log_file, environment->logmode);
 
     if (errno != 0) {
         add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open debug log");
-        uda_close_logging();
+        close_logging();
         return -1;
     }
 
-    if (uda_get_log_level() <= UDA_LOG_ERROR) {
+    if (get_log_level() <= UDA_LOG_ERROR) {
         strcpy(log_file, environment->logdir);
         strcat(log_file, "Error.err");
-        uda_set_log_file(UDA_LOG_ERROR, log_file, environment->logmode);
+        set_log_file(UDA_LOG_ERROR, log_file, environment->logmode);
     }
 
     if (errno != 0) {
         add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open error log");
-        uda_close_logging();
+        close_logging();
         return -1;
     }
 

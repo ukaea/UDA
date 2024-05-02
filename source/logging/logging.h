@@ -5,7 +5,7 @@
 #include <string>
 #include <spdlog/spdlog.h>
 
-#define UDA_LOG(LEVEL, FMT, ...) uda_log(LEVEL, __FILE__, __LINE__, FMT, ##__VA_ARGS__);
+#define UDA_LOG(LEVEL, FMT, ...) uda::logging::log(LEVEL, __FILE__, __LINE__, FMT, ##__VA_ARGS__);
 
 namespace uda::logging
 {
@@ -21,18 +21,18 @@ enum LogLevel {
 
 typedef void (*logFunc)(FILE*);
 
-void uda_init_logging();
+void init_logging();
 
-void uda_set_log_level(LogLevel level);
+void set_log_level(LogLevel level);
 
-LogLevel uda_get_log_level();
+LogLevel get_log_level();
 
-void uda_close_logging();
+void close_logging();
 
-void uda_set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode);
+void set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode);
 
 template<typename... Args>
-void uda_log(LogLevel mode, const char* file, int line, const std::string& fmt, Args &&...args)
+void log(LogLevel mode, const char* file, int line, const std::string& fmt, Args &&...args)
 {
     std::shared_ptr<spdlog::logger> logger;
 

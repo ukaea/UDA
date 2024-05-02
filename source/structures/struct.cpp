@@ -44,11 +44,11 @@
 
 #include <cstdlib>
 #include <stddef.h>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/core/span.hpp>
 
 #ifdef __GNUC__
-
 #  include <strings.h>
-
 #elif defined(_WIN32)
 #  include <string.h>
 #  define strcasecmp _stricmp
@@ -62,6 +62,7 @@
 
 #include "xdrUserDefinedData.h"
 #include <uda/structured.h>
+#include <boost/range/adaptor/transformed.hpp>
 
 #if defined(SERVERBUILD)
 #  include "server/udaServer.h"
@@ -396,29 +397,23 @@ void init_general_block(GeneralBlock* str)
  */
 void print_compound_field(CompoundField str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "CompoundField Contents");
-    UDA_LOG(UDA_LOG_DEBUG, "name     : {}", str.name);
-    UDA_LOG(UDA_LOG_DEBUG, "type     : {}", str.type);
-    UDA_LOG(UDA_LOG_DEBUG, "desc     : {}", str.desc);
-    UDA_LOG(UDA_LOG_DEBUG, "Atomic type id : {}", str.atomictype);
-    UDA_LOG(UDA_LOG_DEBUG, "pointer  : {}", str.pointer);
-    UDA_LOG(UDA_LOG_DEBUG, "size     : {}", str.size);
-    UDA_LOG(UDA_LOG_DEBUG, "offset   : {}", str.offset);
-    UDA_LOG(UDA_LOG_DEBUG, "offpad   : {}", str.offpad);
-    UDA_LOG(UDA_LOG_DEBUG, "alignment: {}", str.alignment);
-    UDA_LOG(UDA_LOG_DEBUG, "rank     : {}", str.rank);
-    UDA_LOG(UDA_LOG_DEBUG, "count    : {}", str.count);
-    if (str.rank > 0 && str.shape != nullptr) {
-        UDA_LOG(UDA_LOG_DEBUG, "shape    : [", str.shape[0]);
-        for (int i = 0; i < str.rank; i++) {
-            if (i < str.rank - 1) {
-                uda_log(UDA_LOG_DEBUG, __FILE__, __LINE__, "{},", str.shape[i]);
-            } else {
-                uda_log(UDA_LOG_DEBUG, __FILE__, __LINE__, "{}", str.shape[i]);
-            }
-        }
-        uda_log(UDA_LOG_DEBUG, __FILE__, __LINE__, "]\n");
-    }
+    UDA_LOG(UDA_LOG_DEBUG, "CompoundField Contents")
+    UDA_LOG(UDA_LOG_DEBUG, "name     : {}", str.name)
+    UDA_LOG(UDA_LOG_DEBUG, "type     : {}", str.type)
+    UDA_LOG(UDA_LOG_DEBUG, "desc     : {}", str.desc)
+    UDA_LOG(UDA_LOG_DEBUG, "Atomic type id : {}", str.atomictype)
+    UDA_LOG(UDA_LOG_DEBUG, "pointer  : {}", str.pointer)
+    UDA_LOG(UDA_LOG_DEBUG, "size     : {}", str.size)
+    UDA_LOG(UDA_LOG_DEBUG, "offset   : {}", str.offset)
+    UDA_LOG(UDA_LOG_DEBUG, "offpad   : {}", str.offpad)
+    UDA_LOG(UDA_LOG_DEBUG, "alignment: {}", str.alignment)
+    UDA_LOG(UDA_LOG_DEBUG, "rank     : {}", str.rank)
+    UDA_LOG(UDA_LOG_DEBUG, "count    : {}", str.count)
+
+    boost::span span{ str.shape, (size_t)str.rank };
+    std::string shape_string = boost::join(span
+            | boost::adaptors::transformed([](int i) { return std::to_string(i); }), ",");
+    UDA_LOG(UDA_LOG_DEBUG, "shape    : [{}]", shape_string)
 }
 
 /** Print the Tabulated Contents of a CompoundField data structure.

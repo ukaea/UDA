@@ -631,7 +631,7 @@ const char* udaPluginPluginExample(UDA_PLUGIN_INTERFACE* plugin_interface, int p
 void udaPluginLog(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* msg)
 {
     // TODO: pass logger on plugin_interface and call logger->log(...)
-    uda_log(UDA_LOG_DEBUG, file, line, msg);
+    log(UDA_LOG_DEBUG, file, line, msg);
 }
 
 void udaPluginLog_s(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* fmt, const char* arg)

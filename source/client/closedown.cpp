@@ -43,7 +43,7 @@ int uda::client::closedown(ClosedownType type, uda::client_server::SOCKETLIST* s
     }
 
     if (type == ClosedownType::CLOSE_ALL) {
-        uda_close_logging();
+        close_logging();
         *reopen_logs = true; // In case the User calls the IDAM API again!
     }
 

@@ -1036,7 +1036,7 @@ int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block, 
 
     fflush(nullptr);
 
-    uda_close_logging();
+    close_logging();
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
