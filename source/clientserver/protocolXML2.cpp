@@ -165,8 +165,8 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                 // These can be transformed into different opaque types to simplify sending
                 int packageType = 0;
 
-                UDA_LOG(UDA_LOG_DEBUG, "Compound Data Structure\n");
-                UDA_LOG(UDA_LOG_DEBUG, "direction  : %d [%d][%d]\n", (int)xdrs->x_op, XDR_ENCODE, XDR_DECODE);
+                UDA_LOG(UDA_LOG_DEBUG, "Compound Data Structure");
+                UDA_LOG(UDA_LOG_DEBUG, "direction  : {} [{}][{}]", (int)xdrs->x_op, (int)XDR_ENCODE, (int)XDR_DECODE);
 
                 if (xdrs->x_op == XDR_ENCODE) { // Send Data
 
@@ -178,18 +178,18 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                     UserDefinedType* u =
                         static_cast<UserDefinedType*>(udaFindUserDefinedType(userdefinedtypelist, "SArray", 0));
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Sending to Client\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Sending to Client");
 
                     if (udt == nullptr || u == nullptr) {
                         err = 999;
-                        UDA_LOG(UDA_LOG_DEBUG, "nullptr SArray User defined data Structure Definition\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "nullptr SArray User defined data Structure Definition");
                         print_user_defined_type_list_table(*userdefinedtypelist);
                         add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
                                   "nullptr User defined data Structure Definition");
                         break;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Creating SArray carrier structure\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Creating SArray carrier structure");
 
                     initSArray(&sarray);
                     sarray.count = data_block->data_n;     // Number of this structure
@@ -200,7 +200,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                     data = (void*)&psarray;                // Pointer to the SArray array pointer
                     udaAddNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
-                    UDA_LOG(UDA_LOG_DEBUG, "sending Structure Definitions\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "sending Structure Definitions");
 
                     rc = 1;
 
@@ -212,8 +212,8 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                     // properties flag: private_flags - passed from the originating client to all servers along the
                     // chain
 
-                    UDA_LOG(UDA_LOG_DEBUG, "private_flags   : %d \n", private_flags);
-                    UDA_LOG(UDA_LOG_DEBUG, "protocolVersion: %d \n", protocolVersion);
+                    UDA_LOG(UDA_LOG_DEBUG, "private_flags   : {} ", private_flags);
+                    UDA_LOG(UDA_LOG_DEBUG, "protocolVersion: {} ", protocolVersion);
 
                     if ((private_flags & PRIVATEFLAG_XDRFILE) &&
                         protocolVersion >= 5) { // Server calling another server
@@ -221,7 +221,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                         // Create a temporary or cached XDR file
                         // Record name and location in MEMCACHE
 
-                        UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cache XDR file\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cache XDR file");
 
                         errno = 0;
                         if (mkstemp(temp_file.data()) < 0 || errno != 0) {
@@ -240,7 +240,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                             break;
                         }
 
-                        UDA_LOG(UDA_LOG_DEBUG, "stdio XDR file: %s\n", temp_file.c_str());
+                        UDA_LOG(UDA_LOG_DEBUG, "stdio XDR file: {}", temp_file.c_str());
 
                         packageType = UDA_PACKAGE_XDRFILE; // The package is a file with XDR serialised data
                         rc = xdr_int(xdrs, &packageType);  // Send data package type
@@ -282,7 +282,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                         rc = xdr_int(xdrs, &packageType); // Send data package type
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
 
-                        UDA_LOG(UDA_LOG_DEBUG, "Sending Package Type: %d\n", packageType);
+                        UDA_LOG(UDA_LOG_DEBUG, "Sending Package Type: {}", packageType);
 
                         // Create a stdio file stream
 
@@ -304,7 +304,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
 
                         packageType = UDA_PACKAGE_STRUCTDATA; // The package is regular XDR
 
-                        UDA_LOG(UDA_LOG_DEBUG, "Sending Package Type: %d\n", packageType);
+                        UDA_LOG(UDA_LOG_DEBUG, "Sending Package Type: {}", packageType);
 
                         rc = xdr_int(xdrs, &packageType); // Send data package type
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
@@ -316,7 +316,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                     // send the full set of known named structures
                     rc = rc && xdr_user_defined_type_list(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
+                    UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = {}", rc);
 
                     if (!rc) {
                         err = 999;
@@ -337,7 +337,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                                                           protocolVersion, xdr_stdio_flag, log_struct_list,
                                                           malloc_source); // send the Data
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Data sent: rc = %d\n", rc);
+                    UDA_LOG(UDA_LOG_DEBUG, "Data sent: rc = {}", rc);
 
                     if (!rc) {
                         err = 999;
@@ -372,7 +372,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
 
                         // Send the Temporary File
 
-                        UDA_LOG(UDA_LOG_DEBUG, "sending temporary XDR file\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "sending temporary XDR file");
 
                         err = send_xdr_file(xdrs, temp_file.c_str()); // Read and send
 
@@ -414,7 +414,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                         sha1Block(object, objectSize, md);
 
                         // Send the Object
-                        UDA_LOG(UDA_LOG_DEBUG, "sending XDR object\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "sending XDR object");
 
                         // Send size, bytes, hash
                         count = (int)objectSize;
@@ -443,7 +443,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
 
                 } else { // Receive Data
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Receiving from Server\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Receiving from Server");
 
                     // 5 valid options:
                     //    1> unpack structures, no xdr file involved    => private_flags & PRIVATEFLAG_XDRFILE   == 0 &&
@@ -479,7 +479,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                     int option = 4;
 
 #ifndef FATCLIENT
-                    UDA_LOG(UDA_LOG_DEBUG, "Receiving Package Type\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Receiving Package Type");
 
                     rc = xdrrec_skiprecord(xdrs);
                     rc = rc && xdr_int(xdrs, &packageType); // Receive data package type
@@ -518,10 +518,10 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                         option = 6;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "%d  %d   %d\n", private_flags & PRIVATEFLAG_XDRFILE,
+                    UDA_LOG(UDA_LOG_DEBUG, "{}  {}   {}", private_flags & PRIVATEFLAG_XDRFILE,
                             packageType == UDA_PACKAGE_STRUCTDATA, private_flags & PRIVATEFLAG_XDROBJECT);
-                    UDA_LOG(UDA_LOG_DEBUG, "Receive data option : %d\n", option);
-                    UDA_LOG(UDA_LOG_DEBUG, "Receive package Type: %d\n", packageType);
+                    UDA_LOG(UDA_LOG_DEBUG, "Receive data option : {}", option);
+                    UDA_LOG(UDA_LOG_DEBUG, "Receive package Type: {}", packageType);
 
                     if (option == 4) {
                         err = 999;
@@ -546,7 +546,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                                       "Unable to Obtain a Temporary File Name [3]");
                             err = 998;
                             add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, temp_file.c_str());
-                            UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[%s]\n",
+                            UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[{}]",
                                     temp_file.c_str());
                             break;
                         }
@@ -615,18 +615,18 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
 
                         init_user_defined_type_list(userdefinedtypelist);
 
-                        UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist #A\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist #A");
 
 #ifndef FATCLIENT
 
-                        UDA_LOG(UDA_LOG_DEBUG, "private_flags   : %d \n", private_flags);
-                        UDA_LOG(UDA_LOG_DEBUG, "protocolVersion: %d \n", protocolVersion);
+                        UDA_LOG(UDA_LOG_DEBUG, "private_flags   : {} ", private_flags);
+                        UDA_LOG(UDA_LOG_DEBUG, "protocolVersion: {} ", protocolVersion);
 
                         if (option == 2) {
 
                             // Create a temporary XDR file and receive data
 
-                            UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cached XDR file\n");
+                            UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cached XDR file");
 
                             errno = 0;
                             if (mkstemp(temp_file.data()) < 0 || errno != 0) {
@@ -638,7 +638,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                                           " Unable to Obtain a Temporary File Name [2]");
                                 err = 997;
                                 add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, temp_file.c_str());
-                                UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[%s]\n",
+                                UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[{}]",
                                         temp_file.c_str());
                                 break;
                             }
@@ -696,7 +696,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                         // receive the full set of known named structures
                         rc = rc && xdr_user_defined_type_list(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
-                        UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist #B\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist #B");
 
                         if (!rc) {
                             err = 999;
@@ -713,14 +713,14 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                             break;
                         }
 
-                        UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #A\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #A");
                         init_user_defined_type(udt_received);
 
                         rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                               &data, protocolVersion, xdr_stdio_flag, log_struct_list,
                                                               malloc_source); // receive the Data
 
-                        UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #B\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #B");
                         if (!rc) {
                             err = 999;
                             add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
@@ -819,7 +819,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                 if (data_block->opaque_type == UDA_OPAQUE_TYPE_XDROBJECT) {
 
                     if (xdrs->x_op == XDR_ENCODE) {
-                        UDA_LOG(UDA_LOG_DEBUG, "Forwarding XDR Objects\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "Forwarding XDR Objects");
 
                         // Send size, bytes, hash
 
@@ -838,7 +838,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                             // ERROR
                         }
                     } else {
-                        UDA_LOG(UDA_LOG_DEBUG, "Receiving forwarded XDR File\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "Receiving forwarded XDR File");
 
                         // Receive size, bytes, hash
 
@@ -873,9 +873,9 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                             data_block->opaque_count = (int)objectSize;
                             data_block->opaque_type = UDA_OPAQUE_TYPE_XDROBJECT;
 
-                            UDA_LOG(UDA_LOG_DEBUG, "Forwarding Received forwarded XDR Object\n");
+                            UDA_LOG(UDA_LOG_DEBUG, "Forwarding Received forwarded XDR Object");
                         } else {
-                            UDA_LOG(UDA_LOG_DEBUG, "Unpacking forwarded XDR Object\n");
+                            UDA_LOG(UDA_LOG_DEBUG, "Unpacking forwarded XDR Object");
 
                             // Unpack the data Structures
 
@@ -968,10 +968,10 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
 
                 } else if (data_block->opaque_type == UDA_OPAQUE_TYPE_XDRFILE) {
                     if (xdrs->x_op == XDR_ENCODE) {
-                        UDA_LOG(UDA_LOG_DEBUG, "Forwarding XDR File %s\n", (char*)data_block->opaque_block);
+                        UDA_LOG(UDA_LOG_DEBUG, "Forwarding XDR File {}", (char*)data_block->opaque_block);
                         err = send_xdr_file(xdrs, (char*)data_block->opaque_block); // Forward the xdr file
                     } else {
-                        UDA_LOG(UDA_LOG_DEBUG, "Receiving forwarded XDR File\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "Receiving forwarded XDR File");
 
                         // Create a temporary XDR file, receive and write data to the file
 
@@ -985,7 +985,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                                       " Unable to Obtain a Temporary File Name");
                             err = 996;
                             add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, temp_file.c_str());
-                            UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[%s]\n",
+                            UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[{}]",
                                     temp_file.c_str());
                             break;
                         }
@@ -1001,9 +1001,9 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                             data_block->opaque_type =
                                 UDA_OPAQUE_TYPE_XDRFILE; // The data block is carrying the filename only
 
-                            UDA_LOG(UDA_LOG_DEBUG, "Forwarding Received forwarded XDR File\n");
+                            UDA_LOG(UDA_LOG_DEBUG, "Forwarding Received forwarded XDR File");
                         } else {
-                            UDA_LOG(UDA_LOG_DEBUG, "Unpacking forwarded XDR File\n");
+                            UDA_LOG(UDA_LOG_DEBUG, "Unpacking forwarded XDR File");
 
                             // Unpack the data Structures
 
@@ -1139,7 +1139,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                     case XDR_SEND:
 
                         if (!(rc = xdr_meta(xdrs, data_block))) {
-                            UDA_LOG(UDA_LOG_DEBUG, "Error sending Metadata XML Document: \n%s\n\n",
+                            UDA_LOG(UDA_LOG_DEBUG, "Error sending Metadata XML Document: \n{}\n",
                                     (char*)data_block->opaque_block);
                             err = 990;
                             break;
@@ -1190,7 +1190,7 @@ int unpackXDRFile(LogMallocList* logmalloclist, XDR* xdrs, unsigned char* filena
     FILE* xdrfile = nullptr;
     XDR* priorxdrs = xdrs; // Preserve the current stream object
 
-    UDA_LOG(UDA_LOG_DEBUG, "unpackXDRFile: Unpacking XDR Data Files\n");
+    UDA_LOG(UDA_LOG_DEBUG, "unpackXDRFile: Unpacking XDR Data Files");
 
     // Unpack the data Structures
 
@@ -1306,7 +1306,7 @@ int unpackXDRObject(LogMallocList* logmalloclist, XDR* xdrs, unsigned char* obje
     XDR XDRInput;
     XDR* priorxdrs = xdrs; // Preserve the current stream object
 
-    UDA_LOG(UDA_LOG_DEBUG, "unpackXDRObject: Unpacking XDR Data Object\n");
+    UDA_LOG(UDA_LOG_DEBUG, "unpackXDRObject: Unpacking XDR Data Object");
 
     // Unpack the data Structures
 

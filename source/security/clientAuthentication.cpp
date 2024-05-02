@@ -329,7 +329,7 @@ static int decryptServerToken(ServerBlock* server_block, ClientBlock* client_blo
     xdrrec_eof(clientInput);
 #endif
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Block Received");
     print_server_block(*server_block);
 
     // Protocol Version: Lower of the client and server version numbers

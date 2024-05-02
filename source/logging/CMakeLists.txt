@@ -17,20 +17,9 @@ else()
 endif()
 
 ########################################################################################################################
-# Sources
-
-if( "${LOGGING_BACKEND}" STREQUAL "FILE" )
-  set( SRC_FILES fileLogging.cpp )
-elseif( "${LOGGING_BACKEND}" STREQUAL "SYSLOG" )
-  set( SRC_FILES sysLogging.cpp )
-else()
-  message( FATAL_ERROR "Unknown logging backend ${LOGGING_BACKEND}" )
-endif()
-
-########################################################################################################################
 # Targets
 
-add_library( logging-client-objects OBJECT ${SRC_FILES} )
+add_library( logging-client-objects OBJECT logging.cpp )
 target_link_libraries( logging-client-objects PUBLIC ${LIBS} )
 
 target_include_directories( logging-client-objects PRIVATE
@@ -43,7 +32,7 @@ if( MINGW )
 endif()
 
 if( NOT CLIENT_ONLY )
-  add_library( logging-server-objects OBJECT accessLog.cpp ${SRC_FILES} )
+  add_library( logging-server-objects OBJECT logging.cpp access_log.cpp )
   target_compile_definitions( logging-server-objects PRIVATE -DSERVERBUILD )
   target_link_libraries( logging-server-objects PUBLIC ${LIBS} )
 

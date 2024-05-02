@@ -117,22 +117,22 @@ void uda::structures::initSArray(SArray* str)
  */
 void udaPrintSarray(SArray str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "SArray Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Type : %s\n", str.type);
-    UDA_LOG(UDA_LOG_DEBUG, "Rank : %d\n", str.rank);
-    UDA_LOG(UDA_LOG_DEBUG, "Count: %d\n", str.count);
+    UDA_LOG(UDA_LOG_DEBUG, "SArray Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "Type : {}", str.type);
+    UDA_LOG(UDA_LOG_DEBUG, "Rank : {}", str.rank);
+    UDA_LOG(UDA_LOG_DEBUG, "Count: {}", str.count);
     if (str.rank > 0 && str.shape != nullptr) {
-        UDA_LOG(UDA_LOG_DEBUG, "shape  : [%d", str.shape[0]);
+        UDA_LOG(UDA_LOG_DEBUG, "shape  : [{}", str.shape[0]);
         for (int i = 1; i < str.rank; i++) {
             if (i < str.rank - 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%d,", str.shape[i]);
+                UDA_LOG(UDA_LOG_DEBUG, "{},", str.shape[i]);
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%d", str.shape[i]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}", str.shape[i]);
             }
         }
-        UDA_LOG(UDA_LOG_DEBUG, "]\n");
+        UDA_LOG(UDA_LOG_DEBUG, "]");
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\n");
+    UDA_LOG(UDA_LOG_DEBUG, "");
 }
 
 /** Add an NTree List entry.
@@ -396,28 +396,28 @@ void init_general_block(GeneralBlock* str)
  */
 void print_compound_field(CompoundField str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "CompoundField Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "name     : %s\n", str.name);
-    UDA_LOG(UDA_LOG_DEBUG, "type     : %s\n", str.type);
-    UDA_LOG(UDA_LOG_DEBUG, "desc     : %s\n", str.desc);
-    UDA_LOG(UDA_LOG_DEBUG, "Atomic type id : %d\n", str.atomictype);
-    UDA_LOG(UDA_LOG_DEBUG, "pointer  : %d\n", str.pointer);
-    UDA_LOG(UDA_LOG_DEBUG, "size     : %d\n", str.size);
-    UDA_LOG(UDA_LOG_DEBUG, "offset   : %d\n", str.offset);
-    UDA_LOG(UDA_LOG_DEBUG, "offpad   : %d\n", str.offpad);
-    UDA_LOG(UDA_LOG_DEBUG, "alignment: %d\n", str.alignment);
-    UDA_LOG(UDA_LOG_DEBUG, "rank     : %d\n", str.rank);
-    UDA_LOG(UDA_LOG_DEBUG, "count    : %d\n", str.count);
+    UDA_LOG(UDA_LOG_DEBUG, "CompoundField Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "name     : {}", str.name);
+    UDA_LOG(UDA_LOG_DEBUG, "type     : {}", str.type);
+    UDA_LOG(UDA_LOG_DEBUG, "desc     : {}", str.desc);
+    UDA_LOG(UDA_LOG_DEBUG, "Atomic type id : {}", str.atomictype);
+    UDA_LOG(UDA_LOG_DEBUG, "pointer  : {}", str.pointer);
+    UDA_LOG(UDA_LOG_DEBUG, "size     : {}", str.size);
+    UDA_LOG(UDA_LOG_DEBUG, "offset   : {}", str.offset);
+    UDA_LOG(UDA_LOG_DEBUG, "offpad   : {}", str.offpad);
+    UDA_LOG(UDA_LOG_DEBUG, "alignment: {}", str.alignment);
+    UDA_LOG(UDA_LOG_DEBUG, "rank     : {}", str.rank);
+    UDA_LOG(UDA_LOG_DEBUG, "count    : {}", str.count);
     if (str.rank > 0 && str.shape != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "shape    : [", str.shape[0]);
         for (int i = 0; i < str.rank; i++) {
             if (i < str.rank - 1) {
-                udaLog(UDA_LOG_DEBUG, "%d,", str.shape[i]);
+                uda_log(UDA_LOG_DEBUG, __FILE__, __LINE__, "{},", str.shape[i]);
             } else {
-                udaLog(UDA_LOG_DEBUG, "%d", str.shape[i]);
+                uda_log(UDA_LOG_DEBUG, __FILE__, __LINE__, "{}", str.shape[i]);
             }
         }
-        udaLog(UDA_LOG_DEBUG, "]\n");
+        uda_log(UDA_LOG_DEBUG, __FILE__, __LINE__, "]\n");
     }
 }
 
@@ -429,7 +429,7 @@ void print_compound_field(CompoundField str)
  */
 void print_compound_field_table(CompoundField str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\t%20s\t%16s\t%d\t%d\t%d\t%d\t%d\t%d\n", str.name, str.type, str.pointer, str.size,
+    UDA_LOG(UDA_LOG_DEBUG, "\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}", str.name, str.type, str.pointer, str.size,
             str.count, str.offset, str.offpad, str.alignment);
 }
 
@@ -441,22 +441,22 @@ void print_compound_field_table(CompoundField str)
  */
 void print_user_defined_type(UserDefinedType str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "name        : %s\n", str.name);
-    UDA_LOG(UDA_LOG_DEBUG, "source      : %s\n", str.source);
-    UDA_LOG(UDA_LOG_DEBUG, "ID Reference: %d\n", str.ref_id);
-    UDA_LOG(UDA_LOG_DEBUG, "size        : %d\n", str.size);
-    UDA_LOG(UDA_LOG_DEBUG, "fieldcount  : %d\n", str.fieldcount);
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "name        : {}", str.name);
+    UDA_LOG(UDA_LOG_DEBUG, "source      : {}", str.source);
+    UDA_LOG(UDA_LOG_DEBUG, "ID Reference: {}", str.ref_id);
+    UDA_LOG(UDA_LOG_DEBUG, "size        : {}", str.size);
+    UDA_LOG(UDA_LOG_DEBUG, "fieldcount  : {}", str.fieldcount);
 
     printImage(str.image, str.imagecount);
-    UDA_LOG(UDA_LOG_DEBUG, "\n");
+    UDA_LOG(UDA_LOG_DEBUG, "");
 
     if (str.compoundfield != nullptr) {
         for (int i = 0; i < str.fieldcount; i++) {
             print_compound_field(str.compoundfield[i]);
         }
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\n");
+    UDA_LOG(UDA_LOG_DEBUG, "");
 }
 
 /** Print the Tabulated Contents of a UserDefinedType data structure.
@@ -467,7 +467,7 @@ void print_user_defined_type(UserDefinedType str)
  */
 void print_user_defined_type_table(UserDefinedTypeList* user_defined_type_list, UserDefinedType str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType name: %s size: %d [%d] fieldcount: %d ref_id: %d \n", str.name, str.size,
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType name: {} size: {} [{}] fieldcount: {} ref_id: {} ", str.name, str.size,
             udaGetStructureSize(user_defined_type_list, &str), str.fieldcount, str.ref_id);
     if (str.compoundfield != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG,
@@ -487,7 +487,7 @@ void print_user_defined_type_table(UserDefinedTypeList* user_defined_type_list, 
 void print_zero_sized_user_defined_type_table(UserDefinedType str)
 {
     int size1 = 0, size2 = 0;
-    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType name: %s size: %d fieldcount %d\n", str.name, str.size, str.fieldcount);
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedType name: {} size: {} fieldcount {}", str.name, str.size, str.fieldcount);
     if (str.compoundfield != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG,
                 "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
@@ -510,7 +510,7 @@ void print_zero_sized_user_defined_type_table(UserDefinedType str)
             size2 = size2 + str.compoundfield[str.fieldcount - 1].size * str.compoundfield[str.fieldcount - 1].count;
         }
     }
-    UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]\n", size1, size2);
+    UDA_LOG(UDA_LOG_DEBUG, "[{}][{}]", size1, size2);
 }
 
 /** Print the Contents of a UserDefinedTypeList data structure.
@@ -521,12 +521,12 @@ void print_zero_sized_user_defined_type_table(UserDefinedType str)
  */
 void print_user_defined_type_list(UserDefinedTypeList str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedTypeList Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedTypeList Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "listCount  : {}", str.listCount);
     for (int i = 0; i < str.listCount; i++) {
         print_user_defined_type(str.userdefinedtype[i]);
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\n");
+    UDA_LOG(UDA_LOG_DEBUG, "");
 }
 
 /** Print the Tabulated Contents of a UserDefinedTypeList data structure.
@@ -537,12 +537,12 @@ void print_user_defined_type_list(UserDefinedTypeList str)
  */
 void uda::structures::print_user_defined_type_list_table(UserDefinedTypeList str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedTypeList Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
+    UDA_LOG(UDA_LOG_DEBUG, "UserDefinedTypeList Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "listCount  : {}", str.listCount);
     for (int i = 0; i < str.listCount; i++) {
         print_user_defined_type_table(&str, str.userdefinedtype[i]);
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\n");
 }
 
 /** Print the Tabulated Contents of a UserDefinedTypeList data structure where the size is zero.
@@ -553,12 +553,12 @@ void uda::structures::print_user_defined_type_list_table(UserDefinedTypeList str
  */
 void print_zero_sized_user_defined_type_list_table(UserDefinedTypeList str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Zero Size UserDefinedTypeList Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", str.listCount);
+    UDA_LOG(UDA_LOG_DEBUG, "Zero Size UserDefinedTypeList Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "listCount  : {}", str.listCount);
     for (int i = 0; i < str.listCount; i++) {
         print_zero_sized_user_defined_type_table(str.userdefinedtype[i]);
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\n");
 }
 
 /** Print the Contents of a LogMalloc data structure.
@@ -569,13 +569,13 @@ void print_zero_sized_user_defined_type_list_table(UserDefinedTypeList str)
  */
 void print_malloc_log(LogMalloc str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "%p\t%d\t%d\t%d\t%s\n", (void*)str.heap, str.count, str.size, str.freed, str.type);
+    UDA_LOG(UDA_LOG_DEBUG, "{}\t{}\t{}\t{}\t{}", (void*)str.heap, str.count, str.size, str.freed, str.type);
     if (str.rank > 1 && str.shape != nullptr) {
-        UDA_LOG(UDA_LOG_DEBUG, "\trank %d shape [%d", str.rank, str.shape[0]);
+        UDA_LOG(UDA_LOG_DEBUG, "\trank {} shape [{}", str.rank, str.shape[0]);
         for (int i = 1; i < str.rank; i++) {
-            UDA_LOG(UDA_LOG_DEBUG, ",%d", str.shape[i]);
+            UDA_LOG(UDA_LOG_DEBUG, ",{}", str.shape[i]);
         }
-        UDA_LOG(UDA_LOG_DEBUG, "]\n");
+        UDA_LOG(UDA_LOG_DEBUG, "]");
     }
 }
 
@@ -586,14 +586,14 @@ void print_malloc_log(LogMalloc str)
  */
 void print_malloc_log_list(const LogMallocList* log_malloc_list)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "MALLOC LOG List Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "listCount  : %d\n", log_malloc_list->listcount);
-    UDA_LOG(UDA_LOG_DEBUG, "Address\t\tCount\tSize\tFreed\tType\n");
+    UDA_LOG(UDA_LOG_DEBUG, "MALLOC LOG List Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "listCount  : {}", log_malloc_list->listcount);
+    UDA_LOG(UDA_LOG_DEBUG, "Address\t\tCount\tSize\tFreed\tType");
     for (int i = 0; i < log_malloc_list->listcount; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%3d]  ", i);
+        UDA_LOG(UDA_LOG_DEBUG, "[{}]  ", i);
         print_malloc_log(log_malloc_list->logmalloc[i]);
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\n");
 }
 
 //==============================================================================================================
@@ -1223,7 +1223,7 @@ void uda::structures::copy_user_defined_type_list(UserDefinedTypeList** anew,
 void uda::structures::copy_user_defined_type_list(UserDefinedTypeList** anew,
                                                   const UserDefinedTypeList* parseduserdefinedtypelist)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - UserDefinedTypeList is not allocated\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - UserDefinedTypeList is not allocated");
 }
 
 #endif
@@ -2023,9 +2023,9 @@ size_t udaGetStructureSize(USERDEFINEDTYPELIST* c_user_defined_type_list, USERDE
 void udaPrintError(int warning, int line, char* file, char* msg)
 {
     if (warning) {
-        UDA_LOG(UDA_LOG_DEBUG, "WARNING: line %d, file %s\n%s\n", line, file, msg);
+        UDA_LOG(UDA_LOG_DEBUG, "WARNING: line {}, file {}\n{}", line, file, msg);
     } else {
-        UDA_LOG(UDA_LOG_ERROR, "ERROR: line %d, file %s\n%s\n", line, file, msg);
+        UDA_LOG(UDA_LOG_ERROR, "ERROR: line {}, file {}\n{}", line, file, msg);
     }
 }
 
@@ -2064,22 +2064,22 @@ int uda::structures::xdrAtomicData(LogMallocList* log_malloc_list, XDR* xdrs, co
         switch (type_id) {
             case (UDA_TYPE_FLOAT):
                 for (rc = 0; rc < count; rc++) {
-                    fprintf(stdout, "%f ", *((float*)d + rc));
+                    fprintf(stdout, "{} ", *((float*)d + rc));
                 }
                 break;
             case (UDA_TYPE_DOUBLE):
                 for (rc = 0; rc < count; rc++) {
-                    fprintf(stdout, "%f ", *((double*)d + rc));
+                    fprintf(stdout, "{} ", *((double*)d + rc));
                 }
                 break;
             case (UDA_TYPE_COMPLEX):
                 for (rc = 0; rc < 2 * count; rc++) {
-                    fprintf(stdout, "%f ", *((float*)d + rc));
+                    fprintf(stdout, "{} ", *((float*)d + rc));
                 }
                 break;
             case (UDA_TYPE_INT):
                 for (rc = 0; rc < count; rc++) {
-                    fprintf(stdout, "%d ", *((int*)d + rc));
+                    fprintf(stdout, "{} ", *((int*)d + rc));
                 }
                 break;
         }
@@ -2123,22 +2123,22 @@ int uda::structures::xdrAtomicData(LogMallocList* log_malloc_list, XDR* xdrs, co
         switch (type_id) {
             case (UDA_TYPE_FLOAT):
                 for (rc = 0; rc < count; rc++) {
-                    fprintf(stdout, "%f ", *((float*)d + rc));
+                    fprintf(stdout, "{} ", *((float*)d + rc));
                 }
                 break;
             case (UDA_TYPE_DOUBLE):
                 for (rc = 0; rc < count; rc++) {
-                    fprintf(stdout, "%f ", *((double*)d + rc));
+                    fprintf(stdout, "{} ", *((double*)d + rc));
                 }
                 break;
             case (UDA_TYPE_COMPLEX):
                 for (rc = 0; rc < 2 * count; rc++) {
-                    fprintf(stdout, "%f ", *((float*)d + rc));
+                    fprintf(stdout, "{} ", *((float*)d + rc));
                 }
                 break;
             case (UDA_TYPE_INT):
                 for (rc = 0; rc < count; rc++) {
-                    fprintf(stdout, "%d ", *((int*)d + rc));
+                    fprintf(stdout, "{} ", *((int*)d + rc));
                 }
                 break;
         }
@@ -2239,9 +2239,9 @@ USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* c_user_defined_type
 
     // Return the Structure Definition of a Named User Defined Structure
 
-    UDA_LOG(UDA_LOG_DEBUG, "udaFindUserDefinedType: [%s]\n", name);
-    UDA_LOG(UDA_LOG_DEBUG, "ref_id: %d\n", ref_id);
-    UDA_LOG(UDA_LOG_DEBUG, "listCount: %d\n", user_defined_type_list->listCount);
+    UDA_LOG(UDA_LOG_DEBUG, "udaFindUserDefinedType: [{}]", name);
+    UDA_LOG(UDA_LOG_DEBUG, "ref_id: {}", ref_id);
+    UDA_LOG(UDA_LOG_DEBUG, "listCount: {}", user_defined_type_list->listCount);
 
     if (name == nullptr) {
         return nullptr;
@@ -2260,7 +2260,7 @@ USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* c_user_defined_type
     if (ref_id == 0 && name[0] != '\0') {
 
         for (int i = 0; i < user_defined_type_list->listCount; i++) {
-            UDA_LOG(UDA_LOG_DEBUG, "[%2d]: [%s]\n", i, user_defined_type_list->userdefinedtype[i].name);
+            UDA_LOG(UDA_LOG_DEBUG, "[{}]: [{}]", i, user_defined_type_list->userdefinedtype[i].name);
             if (!strcmp(user_defined_type_list->userdefinedtype[i].name, name)) {
                 return (&user_defined_type_list->userdefinedtype[i]);
             }
@@ -2475,7 +2475,7 @@ bool_t uda::client_server::xdr_user_defined_type_list(XDR* xdrs, UserDefinedType
 
     rc = rc && xdr_int(xdrs, &str->listCount);
 
-    UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist: rc = %d, listCount = %d\n", rc, str->listCount);
+    UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist: rc = {}, listCount = {}", rc, str->listCount);
 
     if (!rc || str->listCount == 0) {
         return rc;
@@ -2517,43 +2517,43 @@ bool_t uda::client_server::xdr_user_defined_type_list(XDR* xdrs, UserDefinedType
 void udaPrintAtomicData(void* data, int atomictype, int count, const char* label)
 {
     if (data == nullptr || count == 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "%40s: null\n", label);
+        UDA_LOG(UDA_LOG_DEBUG, "{}: null", label);
         return;
     }
     switch (atomictype) {
         case UDA_TYPE_FLOAT: {
             float* d = (float*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %f\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %f\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
         case UDA_TYPE_DOUBLE: {
             double* d = (double*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %f\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %f\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
         case UDA_TYPE_SHORT: {
             short* d = (short*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %d\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
@@ -2561,48 +2561,48 @@ void udaPrintAtomicData(void* data, int atomictype, int count, const char* label
         case UDA_TYPE_LONG: {
             int* d = (int*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %d\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
         case UDA_TYPE_LONG64: {
             long long* d = (long long*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %lld\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %lld\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
         case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* d = (unsigned char*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
         case UDA_TYPE_UNSIGNED_SHORT: {
             unsigned short* d = (unsigned short*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
@@ -2610,35 +2610,35 @@ void udaPrintAtomicData(void* data, int atomictype, int count, const char* label
         case UDA_TYPE_UNSIGNED_LONG: {
             unsigned int* d = (unsigned int*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %u\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %d\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
         case UDA_TYPE_UNSIGNED_LONG64: {
             unsigned long long* d = (unsigned long long*)data;
             if (count > 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s:\n", label);
+                UDA_LOG(UDA_LOG_DEBUG, "{}:", label);
                 for (int i = 0; i < count; i++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   %llu\n", i, d[i]);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   {}", i, d[i]);
                 }
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: %llu\n", label, d[0]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d[0]);
             }
             return;
         }
         case UDA_TYPE_STRING: {
             char* d = (char*)data;
-            UDA_LOG(UDA_LOG_DEBUG, "%40s: %s\n", label, d);
+            UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d);
             return;
         }
         case UDA_TYPE_CHAR: {
             char* d = (char*)data;
-            UDA_LOG(UDA_LOG_DEBUG, "%40s: %s\n", label, d);
+            UDA_LOG(UDA_LOG_DEBUG, "{}: {}", label, d);
             return;
         }
     }
@@ -2672,7 +2672,7 @@ void udaPrintAtomicType(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const c
                     const char* type;
                     data = (void*)*((VOIDTYPE*)&p[user_defined_type->compoundfield[i].offset]);
                     if (data == nullptr) {
-                        UDA_LOG(UDA_LOG_DEBUG, "%40s: null\n", target);
+                        UDA_LOG(UDA_LOG_DEBUG, "{}: null", target);
                         return;
                     }
                     udaFindMalloc(c_log_malloc_list, &data, &count, &size, &type);
@@ -2685,12 +2685,12 @@ void udaPrintAtomicType(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree, const c
                                        user_defined_type->compoundfield[i].count, target);
                 }
             } else {
-                UDA_LOG(UDA_LOG_ERROR, "ERROR: %s is Not of Atomic Type\n", target);
+                UDA_LOG(UDA_LOG_ERROR, "ERROR: {} is Not of Atomic Type", target);
             }
             return;
         }
     }
-    UDA_LOG(UDA_LOG_ERROR, "ERROR: %s is Not located in the current Tree Node\n", target);
+    UDA_LOG(UDA_LOG_ERROR, "ERROR: {} is Not located in the current Tree Node", target);
 }
 
 /** Print the Count of elements of a named data array from a given tree node to a specified File Descriptor.
@@ -2709,7 +2709,7 @@ void udaPrintTypeCount(NTREE* c_tree, const char* target)
     for (int i = 0; i < fieldcount; i++) {
         if (!strcmp(user_defined_type->compoundfield[i].name, target)) {
             print_compound_field(user_defined_type->compoundfield[i]);
-            UDA_LOG(UDA_LOG_DEBUG, "%s[ %d ]\n", target, user_defined_type->compoundfield[i].count);
+            UDA_LOG(UDA_LOG_DEBUG, "{}[ {} ]", target, user_defined_type->compoundfield[i].count);
         }
     }
 }
@@ -2814,19 +2814,19 @@ void udaPrintNode(NTREE* c_tree)
     if (tree == nullptr) {
         tree = full_ntree;
     }
-    UDA_LOG(UDA_LOG_DEBUG, "NTree Node Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Name    : %s \n", tree->name);
-    UDA_LOG(UDA_LOG_DEBUG, "Branches: %d \n", tree->branches);
+    UDA_LOG(UDA_LOG_DEBUG, "NTree Node Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "Name    : {} ", tree->name);
+    UDA_LOG(UDA_LOG_DEBUG, "Branches: {} ", tree->branches);
 #ifdef A64
-    UDA_LOG(UDA_LOG_DEBUG, "Parent  : %p   (%llx) \n", (void*)tree->parent, (UVOIDTYPE)tree->parent);
+    UDA_LOG(UDA_LOG_DEBUG, "Parent  : {}   ({}) ", (void*)tree->parent, (UVOIDTYPE)tree->parent);
     for (int i = 0; i < tree->branches; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Children[%d]: %p   (%llx) \n", i, (void*)tree->children[i],
+        UDA_LOG(UDA_LOG_DEBUG, "Children[{}]: {}   ({}) ", i, (void*)tree->children[i],
                 (UVOIDTYPE)tree->children[i]);
     }
 #else
-    UDA_LOG(UDA_LOG_DEBUG, "Parent  : %p   (%x) \n", (void*)tree->parent, (UVOIDTYPE)tree->parent);
+    UDA_LOG(UDA_LOG_DEBUG, "Parent  : {}   ({}) ", (void*)tree->parent, (UVOIDTYPE)tree->parent);
     for (int i = 0; i < tree->branches; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Children[%d]: %p   (%x) \n", i, (void*)tree->children[i], (UVOIDTYPE)tree->children[i]);
+        UDA_LOG(UDA_LOG_DEBUG, "Children[{}]: {}   ({}) ", i, (void*)tree->children[i], (UVOIDTYPE)tree->children[i]);
     }
 #endif
     print_user_defined_type(*tree->userdefinedtype);
@@ -2844,7 +2844,7 @@ void udaPrintNodeStructureDefinition(const char* target)
     NTREE* tree = nullptr;
     if (target[0] != '\0') {
         if ((tree = udaFindNTreeStructureDefinition(tree, target)) == nullptr) {
-            UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
+            UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for {} could not be Found", target);
             return;
         }
     }
@@ -2863,13 +2863,13 @@ void udaPrintNodeStructureImage(const char* target)
     NTREE* c_tree = nullptr;
     if (target[0] != '\0') {
         if ((c_tree = udaFindNTreeStructureDefinition(c_tree, target)) == nullptr) {
-            UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
+            UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for {} could not be Found", target);
             return;
         }
         auto tree = static_cast<NTree*>(c_tree);
         printImage(tree->userdefinedtype->image, tree->userdefinedtype->imagecount);
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "no Structure Definition name was given!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "no Structure Definition name was given!");
     }
 }
 
@@ -3514,26 +3514,26 @@ void udaPrintNodeNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
         tree = full_ntree;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "\nData Node Structure Names and Types\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\nData Node Structure Names and Types");
     namecount = udaGetNodeStructureCount(tree);                   // Count of all local data structures
     namelist = udaGetNodeStructureNames(c_log_malloc_list, tree); // Names
     typelist = udaGetNodeStructureTypes(c_log_malloc_list, tree); // Types
-    UDA_LOG(UDA_LOG_DEBUG, "Structure Count %d\n", namecount);
+    UDA_LOG(UDA_LOG_DEBUG, "Structure Count {}", namecount);
     if (namecount > 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
+        UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType");
         for (int i = 0; i < namecount; i++) {
-            UDA_LOG(UDA_LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
+            UDA_LOG(UDA_LOG_DEBUG, "[{}]\t{}\t{}", i, namelist[i], typelist[i]);
         }
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\nData Node Atomic Names and Types\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\nData Node Atomic Names and Types");
     namecount = udaGetNodeAtomicCount(tree);                   // Count of all local atomic data
     namelist = udaGetNodeAtomicNames(c_log_malloc_list, tree); // Names
     typelist = udaGetNodeAtomicTypes(c_log_malloc_list, tree); // Types
-    UDA_LOG(UDA_LOG_DEBUG, "Atomic Count %d\n", namecount);
+    UDA_LOG(UDA_LOG_DEBUG, "Atomic Count {}", namecount);
     if (namecount > 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
+        UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType");
         for (int i = 0; i < namecount; i++) {
-            UDA_LOG(UDA_LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
+            UDA_LOG(UDA_LOG_DEBUG, "[{}]\t{}\t{}", i, namelist[i], typelist[i]);
         }
     }
 }
@@ -3980,25 +3980,25 @@ void udaPrintNodeStructureComponentData(NTREE* c_tree, LOGMALLOCLIST* c_log_mall
     type = udaGetNodeStructureComponentDataDataType(c_log_malloc_list, node, lastname); // Type
 
     if (count > 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%s] Data Count %d   Type %s\n", target, count, type);
-        UDA_LOG(UDA_LOG_DEBUG, "Data Values\n");
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] Data Count {}   Type {}", target, count, type);
+        UDA_LOG(UDA_LOG_DEBUG, "Data Values");
         if (!strcmp(type, "float")) {
             auto s = (float*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
             for (int i = 0; i < count; i++) {
-                UDA_LOG(UDA_LOG_DEBUG, "[%d] %f\n", i, s[i]);
+                UDA_LOG(UDA_LOG_DEBUG, "[{}] {}", i, s[i]);
             }
             return;
         }
         if (!strcmp(type, "int")) {
             auto s = (int*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
             for (int i = 0; i < count; i++) {
-                UDA_LOG(UDA_LOG_DEBUG, "[%d] %d\n", i, s[i]);
+                UDA_LOG(UDA_LOG_DEBUG, "[{}] {}", i, s[i]);
             }
             return;
         }
         if (!strcmp(type, "STRING")) {
             auto s = (char*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname);
-            UDA_LOG(UDA_LOG_DEBUG, "%s\n", s);
+            UDA_LOG(UDA_LOG_DEBUG, "{}", s);
             return;
         }
 
@@ -4016,14 +4016,14 @@ void udaPrintNodeStructureComponentData(NTREE* c_tree, LOGMALLOCLIST* c_log_mall
             char* p = (char*)udaGetNodeStructureComponentData(c_log_malloc_list, node, lastname); // Structure Array
             char* pp = nullptr;
             namecount = user_defined_type->fieldcount; // Count of sub-structure elements
-            UDA_LOG(UDA_LOG_DEBUG, "Data Count %d   Type %s\n", namecount, type);
+            UDA_LOG(UDA_LOG_DEBUG, "Data Count {}   Type {}", namecount, type);
             for (int j = 0; j < count; j++) {
                 str = (void*)&p[j * user_defined_type->size];
                 pp = (char*)str;
                 for (int i = 0; i < namecount; i++) {
                     offset = user_defined_type->compoundfield[i].offset;
                     type = user_defined_type->compoundfield[i].type;
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d]   Type %s   Name %s\n", i, type,
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}]   Type {}   Name {}", i, type,
                             user_defined_type->compoundfield[i].name);
 
                     if (user_defined_type->compoundfield[i].pointer) {
@@ -4054,7 +4054,7 @@ void udaPrintNodeStructureComponentData(NTREE* c_tree, LOGMALLOCLIST* c_log_mall
 
                         namecount2 = udaGetNodeStructureComponentCount(&temp); // Count of structure elements
                         namelist2 = udaGetNodeStructureComponentNames(&temp);  // List of structure element names
-                        UDA_LOG(UDA_LOG_DEBUG, "Data Count %d   Type %s\n", namecount2, type);
+                        UDA_LOG(UDA_LOG_DEBUG, "Data Count {}   Type {}", namecount2, type);
 
                         for (int k = 0; k < namecount2; k++) {
                             udaPrintNodeStructureComponentData(&temp, c_log_malloc_list, user_defined_type_list,
@@ -4095,7 +4095,7 @@ void udaPrintNodeStructure(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
 
     for (int j = 0; j < count; j++) {
 
-        UDA_LOG(UDA_LOG_DEBUG, "%s contents:\n", tree->userdefinedtype->name);
+        UDA_LOG(UDA_LOG_DEBUG, "{} contents:", tree->userdefinedtype->name);
 
         data = udaGetNodeStructureArrayData(c_log_malloc_list, tree, j); // Loop over Structure Array Elements
 
@@ -4128,7 +4128,7 @@ void udaPrintNodeStructure(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree)
             if ((node2 = udaFindNTreeStructure(c_log_malloc_list, node, snamelist[i])) != nullptr) {
                 udaPrintNodeStructure(c_log_malloc_list, node2);
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "%40s: null\n", snamelist[i]);
+                UDA_LOG(UDA_LOG_DEBUG, "{}: null", snamelist[i]);
             }
         }
     }
@@ -4277,22 +4277,22 @@ void udaPrintNTree2(NTREE* c_tree)
     if (tree == nullptr) {
         tree = full_ntree;
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node Contents\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Name    : %s\n", tree->name);
-    UDA_LOG(UDA_LOG_DEBUG, "Type    : %s\n", tree->userdefinedtype->name);
+    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node Contents");
+    UDA_LOG(UDA_LOG_DEBUG, "Name    : {}", tree->name);
+    UDA_LOG(UDA_LOG_DEBUG, "Type    : {}", tree->userdefinedtype->name);
 #ifdef A64
-    UDA_LOG(UDA_LOG_DEBUG, "Parent  : %llx\n", (UVOIDTYPE)tree->parent);
+    UDA_LOG(UDA_LOG_DEBUG, "Parent  : {}", (UVOIDTYPE)tree->parent);
 #else
-    UDA_LOG(UDA_LOG_DEBUG, "Parent  : %x\n", (UVOIDTYPE)tree->parent);
+    UDA_LOG(UDA_LOG_DEBUG, "Parent  : {}", (UVOIDTYPE)tree->parent);
 #endif
-    UDA_LOG(UDA_LOG_DEBUG, "Children: %d\n", tree->branches);
+    UDA_LOG(UDA_LOG_DEBUG, "Children: {}", tree->branches);
 #ifdef A64
     for (int i = 0; i < tree->branches; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%2d]: %llx\n", i, (UVOIDTYPE)tree->children[i]);
+        UDA_LOG(UDA_LOG_DEBUG, "[{}]: {}", i, (UVOIDTYPE)tree->children[i]);
     }
 #else
     for (int i = 0; i < tree->branches; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%2d]: %x\n", i, (UVOIDTYPE)tree->children[i]);
+        UDA_LOG(UDA_LOG_DEBUG, "[{}]: {}", i, (UVOIDTYPE)tree->children[i]);
     }
 #endif
     for (int i = 0; i < tree->branches; i++) {
@@ -4313,14 +4313,14 @@ void udaPrintNTree(NTREE* c_tree, USERDEFINEDTYPELIST* c_user_defined_type_list)
     if (tree == nullptr) {
         tree = full_ntree;
     }
-    UDA_LOG(UDA_LOG_DEBUG, "--------------------------------------------------------------------\n");
+    UDA_LOG(UDA_LOG_DEBUG, "--------------------------------------------------------------------");
 #ifdef A64
-    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node %llx (%lld) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
+    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node {} ({}) Contents", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
 #else
-    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node %x (%d) Contents\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
+    UDA_LOG(UDA_LOG_DEBUG, "\nNTree Node {} ({}) Contents", (UVOIDTYPE)tree, (UVOIDTYPE)tree);
 #endif
-    UDA_LOG(UDA_LOG_DEBUG, "Name: %s\n", tree->name);
-    UDA_LOG(UDA_LOG_DEBUG, "Children: %d\n", tree->branches);
+    UDA_LOG(UDA_LOG_DEBUG, "Name: {}", tree->name);
+    UDA_LOG(UDA_LOG_DEBUG, "Children: {}", tree->branches);
     auto user_defined_type_list = static_cast<UserDefinedTypeList*>(c_user_defined_type_list);
     print_user_defined_type_table(user_defined_type_list, *tree->userdefinedtype);
     for (int i = 0; i < tree->branches; i++) {
@@ -4342,10 +4342,10 @@ void udaPrintNTreeList(NTREE* c_tree)
         tree = full_ntree;
     }
 #ifdef A64
-    UDA_LOG(UDA_LOG_DEBUG, "%llx\t(%lld)\t%s\t%s\t%d\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,
+    UDA_LOG(UDA_LOG_DEBUG, "{}\t({})\t{}\t{}\t{}", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,
             tree->userdefinedtype->name, tree->branches);
 #else
-    UDA_LOG(UDA_LOG_DEBUG, "%x\t(%d)\t%s\t%s\t%d\n", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,
+    UDA_LOG(UDA_LOG_DEBUG, "{}\t({})\t{}\t{}\t{}", (UVOIDTYPE)tree, (UVOIDTYPE)tree, tree->name,
             tree->userdefinedtype->name, tree->branches);
 #endif
     for (int i = 0; i < tree->branches; i++) {
@@ -4472,17 +4472,17 @@ void udaPrintNTreeStructureNames(LOGMALLOCLIST* c_log_malloc_list, NTREE* c_tree
         tree = full_ntree;
     }
 #ifdef A64
-    UDA_LOG(UDA_LOG_DEBUG, "\nData Tree %llx Structure Names and Types\n", (UVOIDTYPE)tree);
+    UDA_LOG(UDA_LOG_DEBUG, "\nData Tree {} Structure Names and Types", (UVOIDTYPE)tree);
 #else
-    UDA_LOG(UDA_LOG_DEBUG, "\nData Tree %x Structure Names and Types\n", (UVOIDTYPE)tree);
+    UDA_LOG(UDA_LOG_DEBUG, "\nData Tree {} Structure Names and Types", (UVOIDTYPE)tree);
 #endif
     namecount = udaGetNTreeStructureCount(tree);                   // Count of all Tree Nodes
     namelist = udaGetNTreeStructureNames(c_log_malloc_list, tree); // Names of all user defined data structures
     typelist = udaGetNTreeStructureTypes(c_log_malloc_list, tree); // Types of all user defined data structures
-    UDA_LOG(UDA_LOG_DEBUG, "Total Structure Count %d\n", namecount);
-    UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Total Structure Count {}", namecount);
+    UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType");
     for (int i = 0; i < namecount; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%2d]\t%s\t%s\n", i, namelist[i], typelist[i]);
+        UDA_LOG(UDA_LOG_DEBUG, "[{}]\t{}\t{}", i, namelist[i], typelist[i]);
     }
 }
 
@@ -4637,16 +4637,16 @@ void udaPrintNTreeStructureComponentNames(LOGMALLOCLIST* c_log_malloc_list, NTRE
     if (tree == nullptr) {
         tree = full_ntree;
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\nData Tree Structure Component Names, Types and Descriptions\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\nData Tree Structure Component Names, Types and Descriptions");
     namecount = udaGetNTreeStructureComponentCount(tree);                   // Count of all Tree Nodes
     namelist = udaGetNTreeStructureComponentNames(c_log_malloc_list, tree); // Names of all structure elements
     typelist = udaGetNTreeStructureComponentTypes(c_log_malloc_list, tree); // Types of all structure elements
     desclist =
         udaGetNTreeStructureComponentDescriptions(c_log_malloc_list, tree); // Descriptions of all structure elements
-    UDA_LOG(UDA_LOG_DEBUG, "Total Structure Component Count %d\n", namecount);
-    UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\tDescription\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Total Structure Component Count {}", namecount);
+    UDA_LOG(UDA_LOG_DEBUG, "  #\tName\tType\tDescription");
     for (int i = 0; i < namecount; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%2d]\t%s\t%s\t%s\n", i, namelist[i], typelist[i], desclist[i]);
+        UDA_LOG(UDA_LOG_DEBUG, "[{}]\t{}\t{}\t{}", i, namelist[i], typelist[i], desclist[i]);
     }
 }
 

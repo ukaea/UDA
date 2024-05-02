@@ -154,11 +154,11 @@ void localhostInfo(int* ai_family)
     if (result->ai_family == AF_INET) {
         *ai_family = AF_INET;
         inet_ntop(AF_INET, &((struct sockaddr_in*)result->ai_addr)->sin_addr, addr_buf, sizeof(addr_buf));
-        UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv4 - %s\n", addr_buf);
+        UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv4 - {}", addr_buf);
     } else {
         *ai_family = AF_INET6;
         inet_ntop(AF_INET6, &((struct sockaddr_in6*)result->ai_addr)->sin6_addr, addr_buf, sizeof(addr_buf));
-        UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv6 - %s\n", addr_buf);
+        UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv6 - {}", addr_buf);
     }
     if (info) {
         freeaddrinfo(info);
@@ -330,9 +330,9 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
     }
 
     if (result->ai_family == AF_INET) {
-        UDA_LOG(UDA_LOG_DEBUG, "Socket Connection is IPv4\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Socket Connection is IPv4");
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "Socket Connection is IPv6\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Socket Connection is IPv6");
     }
 
     errno = 0;
@@ -384,9 +384,9 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
         }
 
         if (rc != 0 || errno != 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Connect errno = %d\n", errno);
-            UDA_LOG(UDA_LOG_DEBUG, "Connect rc = %d\n", rc);
-            UDA_LOG(UDA_LOG_DEBUG, "Unable to connect to primary host: %s on port %s\n", hostname, serviceport);
+            UDA_LOG(UDA_LOG_DEBUG, "Connect errno = {}", errno);
+            UDA_LOG(UDA_LOG_DEBUG, "Connect rc = {}", rc);
+            UDA_LOG(UDA_LOG_DEBUG, "Unable to connect to primary host: {} on port {}", hostname, serviceport);
         }
 
         // Abandon the principal Host - attempt to connect to the secondary host
@@ -609,17 +609,17 @@ int uda::client::clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int
 
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
-                UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!");
                 add_error(UDA_CODE_ERROR_TYPE, __func__, -2,
                           "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
-                    UDA_LOG(UDA_LOG_DEBUG, "ENETUNREACH error!\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "ENETUNREACH error!");
                     add_error(UDA_CODE_ERROR_TYPE, __func__, -3, "Server Unavailable: ENETUNREACH");
                     return -3;
                 } else {
-                    UDA_LOG(UDA_LOG_DEBUG, "ECONNREFUSED error!\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "ECONNREFUSED error!");
                     add_error(UDA_CODE_ERROR_TYPE, __func__, -4, "Server Unavailable: ECONNREFUSED");
                     return -4;
                 }

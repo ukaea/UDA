@@ -126,9 +126,9 @@ int addIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename,
 
 void* getOpenIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Open File Count %d\n", uda_files->count);
+    UDA_LOG(UDA_LOG_DEBUG, "Open File Count {}", uda_files->count);
     for (int i = 0; i < uda_files->count; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Status %d, Name %s [%s]\n", uda_files->files[i].status, uda_files->files[i].filename,
+        UDA_LOG(UDA_LOG_DEBUG, "Status {}, Name {} [{}]", uda_files->files[i].status, uda_files->files[i].filename,
                 filename);
 
         if (uda_files->files[i].status == 1) {
@@ -143,9 +143,9 @@ void* getOpenIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* file
 
 long getOpenIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Open File Count %d\n", uda_files->count);
+    UDA_LOG(UDA_LOG_DEBUG, "Open File Count {}", uda_files->count);
     for (int i = 0; i < uda_files->count; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Status %d, Name %s [%s]\n", uda_files->files[i].status, uda_files->files[i].filename,
+        UDA_LOG(UDA_LOG_DEBUG, "Status {}, Name {} [{}]", uda_files->files[i].status, uda_files->files[i].filename,
                 filename);
 
         if (uda_files->files[i].status == 1) {

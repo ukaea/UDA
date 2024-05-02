@@ -269,7 +269,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
     (*depth)++;
 
-    UDA_LOG(UDA_LOG_DEBUG, "GetData Recursive Depth = %d\n", *depth);
+    UDA_LOG(UDA_LOG_DEBUG, "GetData Recursive Depth = {}", *depth);
 
     // Can't use REQUEST_READ_SERVERSIDE because data must be read first using a 'real' data reader or
     // REQUEST_READ_GENERIC
@@ -311,8 +311,8 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
     int rc = read_data(request_data, data_block);
 
-    UDA_LOG(UDA_LOG_DEBUG, "After read_data rc = %d\n", rc);
-    UDA_LOG(UDA_LOG_DEBUG, "Is the Signal a Composite? %d\n", _metadata_block.signal_desc.type == 'C');
+    UDA_LOG(UDA_LOG_DEBUG, "After read_data rc = {}", rc);
+    UDA_LOG(UDA_LOG_DEBUG, "Is the Signal a Composite? {}", _metadata_block.signal_desc.type == 'C');
 
     if (rc > 0) {
         (*depth)--;
@@ -334,7 +334,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
     if (_metadata_block.signal_desc.type == 'C') {
         // The Signal is a Derived/Composite Type so Parse the XML for the data signal identity and read the data
 
-        UDA_LOG(UDA_LOG_DEBUG, "Derived/Composite Signal %s\n", request_data->signal);
+        UDA_LOG(UDA_LOG_DEBUG, "Derived/Composite Signal {}", request_data->signal);
 
         isDerived = 1; // is True
 
@@ -350,11 +350,11 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
         init_actions(&actions_comp_desc);
         init_actions(&actions_comp_sig);
 
-        UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a COMPOSITE Signal\n");
+        UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a COMPOSITE Signal");
 
         rc = server_parse_signal_xml(*data_source, *signal_rec, *signal_desc, &actions_comp_desc, &actions_comp_sig);
 
-        UDA_LOG(UDA_LOG_DEBUG, "parsing XML RC? %d\n", rc);
+        UDA_LOG(UDA_LOG_DEBUG, "parsing XML RC? {}", rc);
 
         if (rc > 0) {
             free_actions(&actions_comp_desc);
@@ -480,11 +480,11 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                         strcpy(request_block2.signal, &p[2]);
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA");
 
                     // Recursive Call for True Data with XML Transformations Applied and Associated Meta Data
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA");
 
                     rc = get_data(depth, &request_block2, data_block, 0);
 
@@ -526,7 +526,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
         copy_actions(&_actions_desc, &actions_comp_desc);
         copy_actions(&_actions_sig, &actions_comp_sig);
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a Regular Signal\n");
+        UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a Regular Signal");
 
         if (!_client_block.get_asis) {
 
@@ -560,7 +560,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
         if (strlen(_actions_desc.action[compId].composite.error_signal) > 0) {
 
-            UDA_LOG(UDA_LOG_DEBUG, "Substituting Error Data: %s\n",
+            UDA_LOG(UDA_LOG_DEBUG, "Substituting Error Data: {}",
                     _actions_desc.action[compId].composite.error_signal);
 
             request_block2 = *request_data;
@@ -607,7 +607,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
         if (strlen(_actions_desc.action[compId].composite.aserror_signal) > 0) {
 
-            UDA_LOG(UDA_LOG_DEBUG, "Substituting Asymmetric Error Data: %s\n",
+            UDA_LOG(UDA_LOG_DEBUG, "Substituting Asymmetric Error Data: {}",
                     _actions_desc.action[compId].composite.aserror_signal);
 
             request_block2 = *request_data;
@@ -658,7 +658,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
             if (_actions_desc.action[compId].composite.dimensions[i].dimType == UDA_DIM_COMPOSITE_TYPE) {
                 if (strlen(_actions_desc.action[compId].composite.dimensions[i].dimcomposite.dim_signal) > 0) {
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Data\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Data");
 
                     strcpy(request_block2.format,
                            "GENERIC"); // Database Lookup if not specified in XML or by Client
@@ -760,7 +760,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
                 if (strlen(_actions_desc.action[compId].composite.dimensions[i].dimcomposite.dim_error) > 0) {
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Error Data\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Error Data");
 
                     request_block2 = *request_data;
                     strcpy(request_block2.signal,
@@ -806,7 +806,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
                 if (strlen(_actions_desc.action[compId].composite.dimensions[i].dimcomposite.dim_aserror) > 0) {
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Asymmetric Error Data\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Asymmetric Error Data");
 
                     request_block2 = *request_data;
                     strcpy(request_block2.signal,
@@ -856,7 +856,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
     // Apply Any Labeling, Timing Offsets and Calibration Actions to Data and Dimension (no Data or Dimension
     // substituting)
 
-    UDA_LOG(UDA_LOG_DEBUG, "#Timing Before XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "#Timing Before XML");
     print_data_block(*data_block);
 
     if (!_client_block.get_asis) {
@@ -869,14 +869,14 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
         server_apply_signal_xml(_client_block, data_source, signal_rec, signal_desc, data_block, _actions_sig);
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "#Timing After XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "#Timing After XML");
     print_data_block(*data_block);
 
     //--------------------------------------------------------------------------------------------------------------------------
     // Subset Data or Map Data when all other actions have been applied
 
     if (isDerived && compId > -1) {
-        UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Derived)  %d\n", *depth);
+        UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Derived)  {}", *depth);
         print_data_block(*data_block);
 
         if ((rc = server_subset_data(data_block, _actions_desc.action[compId], _log_malloc_list)) != 0) {
@@ -891,7 +891,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
     if (!serverside && !isDerived && _metadata_block.signal_desc.type == 'S') {
         for (int i = 0; i < _actions_desc.nactions; i++) {
             if (_actions_desc.action[i].actionType == UDA_SUBSET_TYPE) {
-                UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Subset)   %d\n", *depth);
+                UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Subset)   {}", *depth);
                 print_data_block(*data_block);
 
                 if ((rc = server_subset_data(data_block, _actions_desc.action[i], _log_malloc_list)) != 0) {
@@ -909,7 +909,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
         for (int i = 0; i < actions_serverside.nactions; i++) {
             if (actions_serverside.action[i].actionType == UDA_SERVER_SIDE_TYPE) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Serverside)   %d\n", *depth);
+                    UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Serverside)   {}", *depth);
                     print_data_block(*data_block);
 
                     if ((rc = server_subset_data(data_block, actions_serverside.action[i], _log_malloc_list)) != 0) {
@@ -1019,7 +1019,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         if (err != 0) {
             UDA_THROW_ERROR(err, "No Record Found for this Generic Signal");
         }
-        UDA_LOG(UDA_LOG_DEBUG, "Metadata Plugin Executed\nSignal Type: %c\n", _metadata_block.signal_desc.type);
+        UDA_LOG(UDA_LOG_DEBUG, "Metadata Plugin Executed\nSignal Type: {}", _metadata_block.signal_desc.type);
 
         // Plugin? Create a new Request Block to identify the request_id
 
@@ -1086,7 +1086,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     {
         UdaPluginInterface plugin_interface;
 
-        UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
+        UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure");
 
         // Initialise the Data Block
 
@@ -1116,22 +1116,22 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         if (request->request != REQUEST_READ_GENERIC && request->request != REQUEST_READ_UNKNOWN) {
             plugin_request = request->request; // User has Specified a Plugin
-            UDA_LOG(UDA_LOG_DEBUG, "Plugin Request %d\n", plugin_request);
+            UDA_LOG(UDA_LOG_DEBUG, "Plugin Request {}", plugin_request);
         } else {
             auto maybe_plugin = _plugins.find_by_format(_metadata_block.data_source.format);
             if (maybe_plugin) {
                 plugin_request = maybe_plugin.get().request;
-                UDA_LOG(UDA_LOG_DEBUG, "findPluginRequestByFormat Plugin Request %d\n", plugin_request);
+                UDA_LOG(UDA_LOG_DEBUG, "findPluginRequestByFormat Plugin Request {}", plugin_request);
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request->putDataBlockList.blockCount);
+        UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request->putDataBlockList.blockCount);
 
         if (plugin_request != REQUEST_READ_UNKNOWN) {
 
             auto maybe_plugin = _plugins.find_by_request(plugin_request);
             if (!maybe_plugin) {
-                UDA_LOG(UDA_LOG_DEBUG, "Error locating data plugin %d\n", plugin_request);
+                UDA_LOG(UDA_LOG_DEBUG, "Error locating data plugin {}", plugin_request);
                 UDA_THROW_ERROR(999, "Error locating data plugin");
             }
 
@@ -1144,7 +1144,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                 maybe_plugin.get().status == UDA_PLUGIN_OPERATIONAL && maybe_plugin.get().pluginHandle != nullptr &&
                 maybe_plugin.get().idamPlugin != nullptr) {
 
-                UDA_LOG(UDA_LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_request, _metadata_block.data_source.format);
+                UDA_LOG(UDA_LOG_DEBUG, "[{}] {} Plugin Selected", plugin_request, _metadata_block.data_source.format);
 
 #ifndef FATCLIENT
                 // Redirect Output to temporary file if no file handles passed
@@ -1175,7 +1175,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                     return err;
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "returned from plugin called\n");
+                UDA_LOG(UDA_LOG_DEBUG, "returned from plugin called");
 
                 // Save Provenance with socket stream protection
 
@@ -1232,15 +1232,15 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     }
 
     if (plugin_request == REQUEST_READ_UNKNOWN) {
-        UDA_LOG(UDA_LOG_DEBUG, "No Plugin Selected\n");
+        UDA_LOG(UDA_LOG_DEBUG, "No Plugin Selected");
     }
-    UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", _metadata_block.data_source.archive);
-    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", _metadata_block.data_source.device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", _metadata_block.signal_desc.signal_name);
-    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", _metadata_block.data_source.path);
-    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", _metadata_block.data_source.filename);
-    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", _metadata_block.data_source.exp_number);
-    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", _metadata_block.data_source.pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", _metadata_block.data_source.archive);
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", _metadata_block.data_source.device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", _metadata_block.signal_desc.signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", _metadata_block.data_source.path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", _metadata_block.data_source.filename);
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", _metadata_block.data_source.exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", _metadata_block.data_source.pass);
 
     //----------------------------------------------------------------------------
     // Initialise the Data Block Structure

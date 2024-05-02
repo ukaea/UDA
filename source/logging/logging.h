@@ -2,60 +2,81 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
+#include <spdlog/spdlog.h>
 
-#ifdef _WIN32
-#  define FILENAME (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
-#  define UDA_LOG(LEVEL, FMT, ...) udaLog(LEVEL, "%s:%d >> " FMT, FILENAME, __LINE__, ##__VA_ARGS__)
-#else
-#  include <libgen.h>
-#  include <stdint.h>
-#  include <sys/time.h>
-#  include <time.h>
-#  define UIX_DEFINETIME                                                                                               \
-      struct timeval uix_tmnow = {};                                                                                   \
-      struct tm* uix_tm = NULL;                                                                                        \
-      char uix_buf[30];                                                                                                \
-      gettimeofday(&uix_tmnow, NULL);                                                                                  \
-      uix_tm = localtime(&uix_tmnow.tv_sec);                                                                           \
-      strftime(uix_buf, 30, "%Y:%m:%dT%H:%M:%S", uix_tm);
-#  define uix_printtime()                                                                                              \
-      {                                                                                                                \
-          UIX_DEFINETIME                                                                                               \
-          printf("%s.%dZ, ", uix_buf, (int32_t)uix_tmnow.tv_usec);                                                     \
-      }
-#  define UDA_LOG(LEVEL, FMT, ...)                                                                                     \
-      do {                                                                                                             \
-          if (LEVEL >= udaGetLogLevel()) {                                                                             \
-              UIX_DEFINETIME udaLog(LEVEL, "%s.%dZ, %s:%d >> " FMT, uix_buf, (int32_t)uix_tmnow.tv_usec,               \
-                                    basename((char*)__FILE__), __LINE__, ##__VA_ARGS__);                               \
-          }                                                                                                            \
-      } while (0)
-#endif
+#define UDA_LOG(LEVEL, FMT, ...) uda_log(LEVEL, __FILE__, __LINE__, FMT, ##__VA_ARGS__);
 
 namespace uda::logging
 {
 
-typedef enum LogLevel {
+enum LogLevel {
     UDA_LOG_DEBUG = 1,
     UDA_LOG_INFO = 2,
     UDA_LOG_WARN = 3,
     UDA_LOG_ERROR = 4,
     UDA_LOG_ACCESS = 5,
     UDA_LOG_NONE = 6
-} LOG_LEVEL;
+};
 
 typedef void (*logFunc)(FILE*);
 
-void udaSetLogLevel(LOG_LEVEL level);
+void uda_init_logging();
 
-LOG_LEVEL udaGetLogLevel();
+void uda_set_log_level(LogLevel level);
 
-void udaCloseLogging();
+LogLevel uda_get_log_level();
 
-void udaSetLogFile(LOG_LEVEL mode, FILE* file);
+void uda_close_logging();
 
-void udaLogWithFunc(LOG_LEVEL mode, logFunc func);
+void uda_set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode);
 
-void udaLog(LOG_LEVEL mode, const char* fmt, ...);
+template<typename... Args>
+void uda_log(LogLevel mode, const char* file, int line, const std::string& fmt, Args &&...args)
+{
+    std::shared_ptr<spdlog::logger> logger;
+
+    switch (mode) {
+        case LogLevel::UDA_LOG_DEBUG:
+        case LogLevel::UDA_LOG_INFO:
+        case LogLevel::UDA_LOG_WARN:
+            logger = spdlog::get("debug");
+            break;
+        case LogLevel::UDA_LOG_ERROR:
+            logger = spdlog::get("error");
+            break;
+        case LogLevel::UDA_LOG_ACCESS:
+            logger = spdlog::get("access");
+            break;
+        case LogLevel::UDA_LOG_NONE:
+            return;
+    }
+
+    spdlog::level::level_enum level;
+    switch (mode) {
+        case LogLevel::UDA_LOG_DEBUG:
+            level = spdlog::level::debug;
+            break;
+        case LogLevel::UDA_LOG_INFO:
+            level = spdlog::level::info;
+            break;
+        case LogLevel::UDA_LOG_WARN:
+            level = spdlog::level::warn;
+            break;
+        case LogLevel::UDA_LOG_ERROR:
+            level = spdlog::level::err;
+            break;
+        case LogLevel::UDA_LOG_ACCESS:
+            level = spdlog::level::trace;
+            break;
+        default:
+            level = spdlog::level::off;
+            break;
+    }
+
+    spdlog::source_loc loc{file, line, ""};
+
+    logger->log(loc, level, fmt, args...);
+}
 
 } // namespace uda::logging

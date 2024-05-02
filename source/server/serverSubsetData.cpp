@@ -97,11 +97,11 @@ int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LogMa
         std::string operation = subset.operation[j]; // a single operation
         int dim_id = subset.dimid[j];                // applied to this dimension (if -1 then to data only!)
 
-        UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n", ii, j, value,
+        UDA_LOG(UDA_LOG_DEBUG, "[{}][{}]Value = {}, Operation = {}, DIM id = {}, Reform = {}", ii, j, value,
                 operation.c_str(), dim_id, subset.reform);
 
         if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-            UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n", dim_id, data_block->rank,
+            UDA_LOG(UDA_LOG_ERROR, "DIM id = {},  Rank = {}, Test = {} ", dim_id, data_block->rank,
                     dim_id >= (int)data_block->rank);
             print_data_block(*data_block);
             UDA_THROW_ERROR(
@@ -529,9 +529,9 @@ int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LogMa
         // Build the New Sub-setted Dimension
 
         print_data_block(*data_block);
-        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: %d\n\n\n", dim->data_type);
-        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errhi != nullptr: %d\n\n\n", dim->errhi != nullptr);
-        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errlo != nullptr: %d\n\n\n", dim->errlo != nullptr);
+        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: {}\n\n", dim->data_type);
+        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errhi != nullptr: {}\n\n", dim->errhi != nullptr);
+        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errlo != nullptr: {}\n\n", dim->errlo != nullptr);
 
         int n;
         int ierr = 0;
@@ -625,7 +625,7 @@ int reform_data(DataBlock* data_block)
     int rank = data_block->rank;
     for (int j = 0; j < rank; j++) {
         if (data_block->dims[j].dim_n <= 1) {
-            UDA_LOG(UDA_LOG_DEBUG, "Reforming Dimension %d\n", j);
+            UDA_LOG(UDA_LOG_DEBUG, "Reforming Dimension {}", j);
 
             data_block->dims[j].compressed = 0;
             data_block->dims[j].method = 0;
@@ -689,7 +689,7 @@ int apply_minimum(Subset subset, DataBlock* data_block)
     }
 
     if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id, data_block->rank);
+        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = {},  Rank = {}", dim_id, data_block->rank);
         UDA_THROW_ERROR(999,
                         "The dimension ID identified via the subset function is outside the rank bounds of the array!");
     }
@@ -879,7 +879,7 @@ int apply_maximum(Subset subset, DataBlock* data_block)
     }
 
     if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id, data_block->rank);
+        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = {},  Rank = {}", dim_id, data_block->rank);
         UDA_THROW_ERROR(999,
                         "The dimension ID identified via the subset function is outside the rank bounds of the array!");
     }
@@ -1167,7 +1167,7 @@ int apply_const(Subset subset, DataBlock* data_block)
     char* p1 = strstr(subset.function, "value");
     strcpy(data_block->data_label, subset.function);
 
-    UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+    UDA_LOG(UDA_LOG_DEBUG, "{}", subset.function);
 
     if (p1 != nullptr) {
         char *p3, *p2 = strchr(&p1[5], '=');
@@ -1176,16 +1176,16 @@ int apply_const(Subset subset, DataBlock* data_block)
         p3[0] = '\0';
         trim_string(p2);
         left_trim_string(p2);
-        UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
+        UDA_LOG(UDA_LOG_DEBUG, "p2 = [{}]", p2);
         if (is_float(p2)) {
             value = atof(p2);
         } else {
-            UDA_LOG(UDA_LOG_DEBUG, "IsFloat FALSE!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "IsFloat FALSE!");
             // ERROR
         }
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "value = %f\n", value);
+    UDA_LOG(UDA_LOG_DEBUG, "value = {}", value);
 
     if (data_block->errhi != nullptr) {
         free(data_block->errhi);
@@ -1224,7 +1224,7 @@ int apply_const(Subset subset, DataBlock* data_block)
 int apply_order(Subset subset, DataBlock* data_block)
 {
     char* p1 = strstr(subset.function, "dim_id");
-    UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+    UDA_LOG(UDA_LOG_DEBUG, "{}", subset.function);
     if (p1 != nullptr) {
         char *p3, *p2 = strchr(&p1[5], '=');
         p2[0] = ' ';
@@ -1232,20 +1232,20 @@ int apply_order(Subset subset, DataBlock* data_block)
         p3[0] = '\0';
         trim_string(p2);
         left_trim_string(p2);
-        UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
+        UDA_LOG(UDA_LOG_DEBUG, "p2 = [{}]", p2);
         if (is_number(p2)) {
             data_block->order = (int)atof(p2);
         } else {
             // ERROR
         }
     }
-    UDA_LOG(UDA_LOG_DEBUG, "order = %d\n", data_block->order);
+    UDA_LOG(UDA_LOG_DEBUG, "order = {}", data_block->order);
     return 0;
 }
 
 int apply_rotate_rz(Subset subset, DataBlock* data_block)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+    UDA_LOG(UDA_LOG_DEBUG, "{}", subset.function);
     if (data_block->rank != 3) {
         UDA_THROW_ERROR(999, "The function rotateRZ only operates on rank 3 arrays");
     }
@@ -2021,7 +2021,7 @@ int apply_sub_setting_for_type(Dims* dims, int rank, int dim_id, const char* dat
 int apply_sub_setting(Dims* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
                       int start, int end, int start1, int end1, int stride, int* n, void** new_data)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Data Type: %d    Rank: %d\n", data_type, rank);
+    UDA_LOG(UDA_LOG_DEBUG, "Data Type: {}    Rank: {}", data_type, rank);
 
     *n = 0;
 
@@ -2067,8 +2067,8 @@ int apply_sub_setting(Dims* dims, int rank, int dim_id, char* data, int ndata, i
                                                         start, end, start1, end1, stride, n, new_data);
             break;
         default:
-            UDA_LOG(UDA_LOG_ERROR, "Invalid data type for sub-setting operation!\n");
-            UDA_LOG(UDA_LOG_ERROR, "Data Type: %d    Rank: %d\n", data_type, rank);
+            UDA_LOG(UDA_LOG_ERROR, "Invalid data type for sub-setting operation!");
+            UDA_LOG(UDA_LOG_ERROR, "Data Type: {}    Rank: {}", data_type, rank);
             UDA_THROW_ERROR(9999, "Invalid data type for sub-setting operation!");
     }
 

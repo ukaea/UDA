@@ -371,7 +371,7 @@ static int fetchHierarchicalData(XDR* client_input, DataBlock* data_block, LogSt
             protocol_id = UDA_PROTOCOL_EFIT;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Receiving Hierarchical Data Structure from Server\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Receiving Hierarchical Data Structure from Server");
 
         int err = 0;
         if ((err =
@@ -608,8 +608,8 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         time(&tv_server_end);
         long age = (long)tv_server_end - (long)tv_server_start;
 
-        UDA_LOG(UDA_LOG_DEBUG, "Start: %ld    End: %ld\n", (long)tv_server_start, (long)tv_server_end);
-        UDA_LOG(UDA_LOG_DEBUG, "Server Age: %ld\n", age);
+        UDA_LOG(UDA_LOG_DEBUG, "Start: {}    End: {}", (long)tv_server_start, (long)tv_server_end);
+        UDA_LOG(UDA_LOG_DEBUG, "Server Age: {}", age);
 
         //-------------------------------------------------------------------------
         // Server State: Is the Server Dead? (Age Dependent)
@@ -618,8 +618,8 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
 
         if (age >= client_flags->user_timeout - 2) {
             // Assume the Server has Self-Destructed so Instantiate a New Server
-            UDA_LOG(UDA_LOG_DEBUG, "Server Age Limit Reached %ld\n", (long)age);
-            UDA_LOG(UDA_LOG_DEBUG, "Server Closed and New Instance Started\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Server Age Limit Reached {}", (long)age);
+            UDA_LOG(UDA_LOG_DEBUG, "Server Closed and New Instance Started");
 
             // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
             closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs);
@@ -627,7 +627,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
             // Assume the Server is Still Alive
             if (client_output->x_ops == nullptr || client_input->x_ops == nullptr) {
                 add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "XDR Streams are Closed!");
-                UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!");
                 closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs);
                 initServer = true;
             } else {
@@ -811,14 +811,14 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
                                  g_user_defined_type_list, &client_block, protocol_version, &log_struct_list,
                                  *private_flags, malloc_source)) != 0) {
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
-                UDA_LOG(UDA_LOG_DEBUG, "Error Sending Client Block\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Error Sending Client Block");
                 break;
             }
 
             if (!(xdrrec_endofrecord(client_output, 1))) { // Send data now
                 err = UDA_PROTOCOL_ERROR_7;
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Client Block)");
-                UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_endofrecord after Client Block\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_endofrecord after Client Block");
                 break;
             }
 
@@ -828,7 +828,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
             if (!(xdrrec_skiprecord(client_input))) {
                 err = UDA_PROTOCOL_ERROR_5;
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Server Block)");
-                UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_skiprecord prior to Server Block\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_skiprecord prior to Server Block");
                 break;
             }
 
@@ -841,7 +841,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Server Block #1)");
                 // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
                 server_block.idamerrorstack.nerrors = 0;
-                UDA_LOG(UDA_LOG_DEBUG, "Error receiving Server Block\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Error receiving Server Block");
                 break;
             }
 
@@ -850,8 +850,8 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
 
             int rc = xdrrec_eof(client_input);
 
-            UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
-            UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = %d [1 => no more input]\n", rc);
+            UDA_LOG(UDA_LOG_DEBUG, "Server Block Received");
+            UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = {} [1 => no more input]", rc);
             print_server_block(server_block);
 
             // Protocol Version: Lower of the client and server version numbers
@@ -873,9 +873,9 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         //-------------------------------------------------------------------------
         // Check the Server version is not older than this client's version
 
-        UDA_LOG(UDA_LOG_DEBUG, "protocolVersion %d\n", protocol_version);
-        UDA_LOG(UDA_LOG_DEBUG, "Client Version  %d\n", client_block.version);
-        UDA_LOG(UDA_LOG_DEBUG, "Server Version  %d\n", server_block.version);
+        UDA_LOG(UDA_LOG_DEBUG, "protocolVersion {}", protocol_version);
+        UDA_LOG(UDA_LOG_DEBUG, "Client Version  {}", client_block.version);
+        UDA_LOG(UDA_LOG_DEBUG, "Server Version  {}", server_block.version);
 
         //-------------------------------------------------------------------------
         // Flush to EOF the input buffer (start of wait for new data) necessary when Zero data waiting but not an EOF!
@@ -883,7 +883,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         int rc = 0;
         if (!(rc = xdrrec_eof(client_input))) { // Test for an EOF
 
-            UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = %d => more input when none expected!\n", rc);
+            UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = {} => more input when none expected!", rc);
 
             int count = 0;
             char temp;
@@ -892,7 +892,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
                 rc = xdr_char(client_input, &temp); // Flush the input (limit to 64 bytes)
 
                 if (rc) {
-                    UDA_LOG(UDA_LOG_DEBUG, "[%d] [%c]\n", count++, temp);
+                    UDA_LOG(UDA_LOG_DEBUG, "[{}] [{}]", count++, temp);
                 }
             } while (rc && count < 64);
 
@@ -901,7 +901,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err,
                           "Data waiting in the input data buffer when none expected! Please contact the system "
                           "administrator.");
-                UDA_LOG(UDA_LOG_DEBUG, "[%d] excess data bytes waiting in input buffer!\n", count++);
+                UDA_LOG(UDA_LOG_DEBUG, "[{}] excess data bytes waiting in input buffer!", count++);
                 break;
             }
 
@@ -917,11 +917,11 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
                 err = 999;
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err,
                           "Corrupted input data stream! Please contact the system administrator.");
-                UDA_LOG(UDA_LOG_DEBUG, "Unable to flush input buffer!!!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Unable to flush input buffer!!!");
                 break;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = 1 => no more input, buffer flushed.\n");
+            UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = 1 => no more input, buffer flushed.");
         }
 
         //-------------------------------------------------------------------------
@@ -974,7 +974,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
             break;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "****** Outgoing tcp packet sent without error. Waiting for data.\n");
+        UDA_LOG(UDA_LOG_DEBUG, "****** Outgoing tcp packet sent without error. Waiting for data.");
 
         if (!xdrrec_skiprecord(client_input)) {
             err = UDA_PROTOCOL_ERROR_5;
@@ -982,33 +982,33 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
             break;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "****** Incoming tcp packet received without error. Reading...\n");
+        UDA_LOG(UDA_LOG_DEBUG, "****** Incoming tcp packet received without error. Reading...");
 
         //------------------------------------------------------------------------------
         // Receive the Server State/Aknowledgement that the Data has been Accessed
         // Just in case the Server has crashed!
 
-        UDA_LOG(UDA_LOG_DEBUG, "Waiting for Server Status Block\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Waiting for Server Status Block");
 
         if ((err = protocol2(client_input, UDA_PROTOCOL_SERVER_BLOCK, XDR_RECEIVE, nullptr, g_log_malloc_list,
                              g_user_defined_type_list, &server_block, protocol_version, &log_struct_list,
                              *private_flags, malloc_source)) != 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = %d\n", err);
+            UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = {}", err);
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, " Protocol 11 Error (Server Block #2)");
             // Assuming the server_block is corrupted, replace with a clean copy to avoid future concatonation problems
             server_block.idamerrorstack.nerrors = 0;
             break;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Server Block Received");
         print_server_block(server_block);
 
         serverside = 0;
 
         if (server_block.idamerrorstack.nerrors > 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State %d\n", err);
+            UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State {}", err);
             err = server_block.idamerrorstack.idamerror[0].code; // Problem on the Server Side!
-            UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State %d\n", err);
+            UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State {}", err);
             serverside = 1; // Most Server Side errors are benign so don't close the server
             break;
         }
@@ -1045,7 +1045,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         if ((err = protocol2(client_input, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, nullptr, g_log_malloc_list,
                              g_user_defined_type_list, &recv_data_block_list, protocol_version, &log_struct_list,
                              *private_flags, malloc_source)) != 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)");
 
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
             break;
@@ -1119,7 +1119,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         data_received = true;
         free(recv_data_block_list.data);
 
-        UDA_LOG(UDA_LOG_DEBUG, "Hierarchical Structure Block Received\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Hierarchical Structure Block Received");
 
 #else // <========================== End of Client Server Code Only (not FATCLIENT)
 
@@ -1142,7 +1142,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
                     err = SERVER_BLOCK_ERROR;
                 }
 
-                UDA_LOG(UDA_LOG_ERROR, "Error Returned from Data Server %d\n", err);
+                UDA_LOG(UDA_LOG_ERROR, "Error Returned from Data Server {}", err);
                 break;
             }
 
@@ -1169,8 +1169,8 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
     //  err != 0; newHandle = 0;   Close Server (unless it has occurred server side) & Return -err
     //  err != 0; newHandle = 1;   Close Server (unless it has occurred server side) & Return Handle (Contains Error)
 
-    UDA_LOG(UDA_LOG_DEBUG, "Error Code at end of Error Trap: %d\n", err);
-    UDA_LOG(UDA_LOG_DEBUG, "serverside                     : %d\n", serverside);
+    UDA_LOG(UDA_LOG_DEBUG, "Error Code at end of Error Trap: {}", err);
+    UDA_LOG(UDA_LOG_DEBUG, "serverside                     : {}", serverside);
     free(cached_data_block_list.data);
 
     cached_data_block_list.data = nullptr;
@@ -1238,7 +1238,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
             free(signal_desc);
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
+        UDA_LOG(UDA_LOG_DEBUG, "Returning Error {}", err);
 
         if (err != 0 && !serverside) {
             closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs);
@@ -1323,7 +1323,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
 
     } else {
 
-        UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
+        UDA_LOG(UDA_LOG_DEBUG, "Returning Error {}", err);
 
         if (err != 0) {
             closedown(ClosedownType::CLOSE_SOCKETS, &socket_list, client_input, client_output, &reopen_logs);
@@ -1816,8 +1816,8 @@ const char* udaGetServerErrorStackRecordLocation(int record)
  */
 const char* udaGetServerErrorStackRecordMsg(int record)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "record %d\n", record);
-    UDA_LOG(UDA_LOG_DEBUG, "count  %d\n", server_block.idamerrorstack.nerrors);
+    UDA_LOG(UDA_LOG_DEBUG, "record {}", record);
+    UDA_LOG(UDA_LOG_DEBUG, "count  {}", server_block.idamerrorstack.nerrors);
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return nullptr;
     }

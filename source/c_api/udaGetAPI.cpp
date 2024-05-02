@@ -359,7 +359,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup");
 
     static bool reopen_logs = true;
 
@@ -368,7 +368,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
         return PROBLEM_OPENING_LOGS;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Returned from udaStartup\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Returned from udaStartup");
 
     //-------------------------------------------------------------------------
     // Log all Arguments passed from Application
@@ -404,7 +404,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
 
     if ((err = makeClientRequestBlock(&data_object, &data_source, 1, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
-            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [{}]", data_source);
             add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         udaUnlockThread();
@@ -473,7 +473,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup");
 
     static bool reopen_logs = true;
 
@@ -482,7 +482,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
         return PROBLEM_OPENING_LOGS;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Returned from udaStartup\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Returned from udaStartup");
 
     //-------------------------------------------------------------------------
     // Log all Arguments passed from Application
@@ -525,7 +525,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
         return -err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Routine: udaGetBatchAPI\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Routine: udaGetBatchAPI");
     print_request_block(request_block);
 
     //-------------------------------------------------------------------------

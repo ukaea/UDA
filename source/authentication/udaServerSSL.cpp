@@ -92,9 +92,9 @@ void reportServerSSLErrorCode(int rc)
     }
     err = 999;
     add_error(UDA_CODE_ERROR_TYPE, "udaSSL", err, msg);
-    UDA_LOG(UDA_LOG_DEBUG, "Error - %s\n", msg);
-    UDA_LOG(UDA_LOG_DEBUG, "Error - %s\n", ERR_error_string(ERR_get_error(), nullptr));
-    UDA_LOG(UDA_LOG_DEBUG, "State - %s\n", SSL_state_string(g_ssl));
+    UDA_LOG(UDA_LOG_DEBUG, "Error - {}", msg);
+    UDA_LOG(UDA_LOG_DEBUG, "Error - {}", ERR_error_string(ERR_get_error(), nullptr));
+    UDA_LOG(UDA_LOG_DEBUG, "State - {}", SSL_state_string(g_ssl));
 }
 
 void initUdaServerSSL()
@@ -104,7 +104,7 @@ void initUdaServerSSL()
     }
     if (getenv("UDA_SSL_INITIALISED")) {
         g_sslInit = true;
-        UDA_LOG(UDA_LOG_DEBUG, "Prior SSL initialisation\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Prior SSL initialisation");
         return;
     }
     SSL_library_init();
@@ -117,7 +117,7 @@ void initUdaServerSSL()
     setenv("UDA_SSL_INITIALISED", "1", 0);
 #  endif
     g_sslInit = true;
-    UDA_LOG(UDA_LOG_DEBUG, "SSL initialised\n");
+    UDA_LOG(UDA_LOG_DEBUG, "SSL initialised");
 }
 
 void uda::authentication::closeUdaServerSSL()
@@ -145,7 +145,7 @@ void uda::authentication::closeUdaServerSSL()
     unsetenv("UDA_SSL_INITIALISED");
 #  endif
     g_sslInit = false;
-    UDA_LOG(UDA_LOG_DEBUG, "SSL closed\n");
+    UDA_LOG(UDA_LOG_DEBUG, "SSL closed");
 }
 
 SSL_CTX* createUdaServerSSLContext()
@@ -157,7 +157,7 @@ SSL_CTX* createUdaServerSSLContext()
     g_ctx = SSL_CTX_new(method);
 
     if (!g_ctx) {
-        UDA_LOG(UDA_LOG_DEBUG, "Unable to create SSL context!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Unable to create SSL context!");
         UDA_ADD_ERROR(999, "Unable to create SSL context");
         return nullptr;
     }
@@ -173,7 +173,7 @@ SSL_CTX* createUdaServerSSLContext()
        }
     */
 
-    UDA_LOG(UDA_LOG_DEBUG, "SSL Context created\n");
+    UDA_LOG(UDA_LOG_DEBUG, "SSL Context created");
 
     return g_ctx;
 }
@@ -198,7 +198,7 @@ int configureUdaServerSSLContext()
         //        if (!crlist) {
         //            UDA_ADD_ERROR(999, "No Certificate Revocation List!");
         //        }
-        UDA_LOG(UDA_LOG_DEBUG, "Certificate/Key/CRL environment variable problem!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Certificate/Key/CRL environment variable problem!");
         return 999;
     }
 
@@ -262,7 +262,7 @@ int configureUdaServerSSLContext()
       CA!\n");
     */
 
-    UDA_LOG(UDA_LOG_DEBUG, "SSL Context configured\n");
+    UDA_LOG(UDA_LOG_DEBUG, "SSL Context configured");
 
     return 0;
 }
@@ -293,7 +293,7 @@ X509_CRL* loadUdaServerSSLCrl(const char* crlist)
 
     BIO_free(in);
 
-    UDA_LOG(UDA_LOG_DEBUG, "CRL loaded\n");
+    UDA_LOG(UDA_LOG_DEBUG, "CRL loaded");
 
     return crl;
 }
@@ -341,7 +341,7 @@ int uda::authentication::startUdaServerSSL()
         g_sslDisabled = false;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "SSL Authentication is Enabled!\n");
+    UDA_LOG(UDA_LOG_DEBUG, "SSL Authentication is Enabled!");
 
     // Initialise
     initUdaServerSSL();
@@ -356,7 +356,7 @@ int uda::authentication::startUdaServerSSL()
     // Bind an SSL object with the socket
     g_ssl = SSL_new(g_ctx);
     if ((rc = SSL_set_fd(g_ssl, g_sslSocket)) < 1) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error - Unable to bind the socket to SSL!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Error - Unable to bind the socket to SSL!");
         UDA_THROW_ERROR(999, "Unable to bind the socket to SSL!");
     }
 
@@ -365,10 +365,10 @@ int uda::authentication::startUdaServerSSL()
         if (errno != 0) {
             UDA_ADD_SYS_ERROR("SSL Handshake failed!");
         }
-        UDA_LOG(UDA_LOG_DEBUG, "Error - SSL Handshake Failed!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Error - SSL Handshake Failed!");
         int err = SSL_get_error(g_ssl, rc);
         if (err == 5) {
-            UDA_LOG(UDA_LOG_DEBUG, "Error - Client application terminated?!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Error - Client application terminated?!");
             UDA_ADD_ERROR(err, "SSL error in SSL_accept, application terminated!");
         }
         reportServerSSLErrorCode(rc);
@@ -382,7 +382,7 @@ int uda::authentication::startUdaServerSSL()
         if ((rc = SSL_get_verify_result(g_ssl)) != X509_V_OK) {
             // returns X509_V_OK if the certificate was not obtained as no error occured!
             X509_free(peer);
-            UDA_LOG(UDA_LOG_DEBUG, "SSL Client certificate presented but verification error!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "SSL Client certificate presented but verification error!");
             UDA_ADD_ERROR(999, "SSL Client certificate  presented but verification error!");
             UDA_THROW_ERROR(999, X509_verify_cert_error_string(rc));
         }
@@ -390,10 +390,10 @@ int uda::authentication::startUdaServerSSL()
         // Client's details
 
         char work[X509STRINGSIZE];
-        UDA_LOG(UDA_LOG_DEBUG, "Client certificate verified\n");
-        UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
+        UDA_LOG(UDA_LOG_DEBUG, "Client certificate verified");
+        UDA_LOG(UDA_LOG_DEBUG, "X509 subject: {}",
                 X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n", X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
+        UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: {}", X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
 
         ASN1_TIME* before = X509_get_notBefore(peer);
         ASN1_TIME* after = X509_get_notAfter(peer);
@@ -401,19 +401,19 @@ int uda::authentication::startUdaServerSSL()
         std::string before_string = to_string(before);
         std::string after_string = to_string(after);
 
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", before_string.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", after_string.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: {}", before_string.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: {}", after_string.c_str());
         X509_free(peer);
     } else {
         X509_free(peer);
-        UDA_LOG(UDA_LOG_DEBUG, "Client certificate not presented for verification!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Client certificate not presented for verification!");
         UDA_THROW_ERROR(999, "Client certificate not presented for verification!");
     }
 
     // Print out connection details
 
-    UDA_LOG(UDA_LOG_DEBUG, "SSL version: %s\n", SSL_get_version(g_ssl));
-    UDA_LOG(UDA_LOG_DEBUG, "SSL cipher: %s\n", SSL_get_cipher(g_ssl));
+    UDA_LOG(UDA_LOG_DEBUG, "SSL version: {}s", SSL_get_version(g_ssl));
+    UDA_LOG(UDA_LOG_DEBUG, "SSL cipher: {}", SSL_get_cipher(g_ssl));
 
     // SSL/TLS authentication has been passed - do not repeat
 
@@ -452,10 +452,10 @@ int uda::authentication::writeUdaServerSSL(void* iohandle, const char* buf, int 
 
         if (rc < 0) { // Error
             if (errno == EBADF) {
-                UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.");
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "Read error - %s\n", strerror(errno));
-                UDA_LOG(UDA_LOG_DEBUG, "Closing server down.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Read error - {}", strerror(errno));
+                UDA_LOG(UDA_LOG_DEBUG, "Closing server down.");
             }
             return -1;
         }
@@ -464,7 +464,7 @@ int uda::authentication::writeUdaServerSSL(void* iohandle, const char* buf, int 
         int fopts = 0;
         if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
             // Is the socket closed? Check status flags
-            UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.");
             return -1;
         }
 #  endif
@@ -472,7 +472,7 @@ int uda::authentication::writeUdaServerSSL(void* iohandle, const char* buf, int 
         *io_data->server_tot_block_time += tv.tv_usec / 1000;
 
         if (*io_data->server_tot_block_time / 1000 > *io_data->server_timeout) {
-            UDA_LOG(UDA_LOG_DEBUG, "Total Blocking Time: %d (ms). Closing server down.\n",
+            UDA_LOG(UDA_LOG_DEBUG, "Total Blocking Time: {} (ms). Closing server down.",
                     *io_data->server_tot_block_time);
             return -1; // Timeout
         }
@@ -488,7 +488,7 @@ int uda::authentication::writeUdaServerSSL(void* iohandle, const char* buf, int 
         case SSL_ERROR_NONE:
             if (rc != count) {
                 // Check the write is complete
-                UDA_LOG(UDA_LOG_DEBUG, "Incomplete write to socket!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Incomplete write to socket!");
                 UDA_ADD_ERROR(999, "Incomplete write to socket!");
                 return -1;
             }
@@ -496,13 +496,13 @@ int uda::authentication::writeUdaServerSSL(void* iohandle, const char* buf, int 
 
         default:
             reportServerSSLErrorCode(rc);
-            UDA_LOG(UDA_LOG_DEBUG, "Write to socket failed!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Write to socket failed!");
             UDA_ADD_ERROR(999, "Write to socket failed!");
 #  ifndef _WIN32
             int fopts = 0;
             if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
                 // Is the socket closed? Check status flags
-                UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.");
             }
 #  endif
             return -1;
@@ -530,10 +530,10 @@ int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
 
         if (rc < 0) { // Error
             if (errno == EBADF) {
-                UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.");
             } else {
-                UDA_LOG(UDA_LOG_DEBUG, "Read error - %s\n", strerror(errno));
-                UDA_LOG(UDA_LOG_DEBUG, "Closing server down.\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Read error - {}", strerror(errno));
+                UDA_LOG(UDA_LOG_DEBUG, "Closing server down.");
             }
             return -1;
         }
@@ -541,7 +541,7 @@ int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
         *io_data->server_tot_block_time += (int)tv.tv_usec / 1000; // ms
 
         if (*io_data->server_tot_block_time > 1000 * *io_data->server_timeout) {
-            UDA_LOG(UDA_LOG_DEBUG, "Total Wait Time Exceeds Lifetime Limit = %d (ms). Closing server down.\n",
+            UDA_LOG(UDA_LOG_DEBUG, "Total Wait Time Exceeds Lifetime Limit = {} (ms). Closing server down.",
                     *io_data->server_timeout * 1000);
             return -1;
         }
@@ -550,7 +550,7 @@ int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
         int fopts = 0;
         if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
             // Is the socket closed? Check status flags
-            UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.");
             return -1;
         }
 #  endif
@@ -573,7 +573,7 @@ int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
 
             case SSL_ERROR_ZERO_RETURN: // connection closed by client     (not caught by select?)
                 reportServerSSLErrorCode(rc);
-                UDA_LOG(UDA_LOG_DEBUG, "Client socket connection closed!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Client socket connection closed!");
                 UDA_ADD_ERROR(999, "Client socket connection closed!");
                 return -1;
 
@@ -583,25 +583,25 @@ int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
 
             case SSL_ERROR_WANT_WRITE: // the operation did not complete, error
                 reportServerSSLErrorCode(rc);
-                UDA_LOG(UDA_LOG_DEBUG, "A read operation failed!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "A read operation failed!");
                 UDA_ADD_ERROR(999, "A read operation failed!");
                 return -1;
 
             case SSL_ERROR_SYSCALL: // some I/O error occured - disconnect?
                 reportServerSSLErrorCode(rc);
-                UDA_LOG(UDA_LOG_DEBUG, "Client socket read I/O error!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Client socket read I/O error!");
                 UDA_ADD_ERROR(999, "Client socket read I/O error!");
                 return -1;
 
             default: // some other error
                 reportServerSSLErrorCode(rc);
-                UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!");
                 UDA_ADD_ERROR(999, "Read from socket failed!");
 #  ifndef _WIN32
                 int fopts = 0;
                 if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||
                     errno == EBADF) { // Is the socket closed? Check status flags
-                    UDA_LOG(UDA_LOG_DEBUG, "writeUdaServerSSL: Client Socket is closed! Closing server down.\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "writeUdaServerSSL: Client Socket is closed! Closing server down.");
                 }
 #  endif
                 return -1;

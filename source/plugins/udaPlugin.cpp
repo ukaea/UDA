@@ -71,13 +71,6 @@ void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface)
     free(plugin_interface);
 }
 
-int initPlugin(const UDA_PLUGIN_INTERFACE* plugin_interface)
-{
-    auto interface = static_cast<const uda::plugins::UdaPluginInterface*>(plugin_interface);
-    udaSetLogLevel((LOG_LEVEL)interface->environment->loglevel);
-    return 0;
-}
-
 template <typename T> int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_interface, T value, const char* description)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
@@ -635,20 +628,28 @@ const char* udaPluginPluginExample(UDA_PLUGIN_INTERFACE* plugin_interface, int p
     return interface->pluginList->plugin[plugin_num].example;
 }
 
-void udaPluginLog(UDA_PLUGIN_INTERFACE* plugin_interface, const char* fmt, ...)
+void udaPluginLog(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* msg)
 {
-    va_list args;
-    va_start(args, fmt);
+    // TODO: pass logger on plugin_interface and call logger->log(...)
+    uda_log(UDA_LOG_DEBUG, file, line, msg);
+}
 
-    udaLog(UDA_LOG_DEBUG, fmt, args);
+void udaPluginLog_s(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* fmt, const char* arg)
+{
+    auto msg = fmt::format(fmt, arg);
+    udaPluginLog(plugin_interface, file, line, msg.c_str());
+}
 
-    va_end(args);
+void udaPluginLog_i(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* fmt, int arg)
+{
+    auto msg = fmt::format(fmt, arg);
+    udaPluginLog(plugin_interface, file, line, msg.c_str());
 }
 
 void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* location, int code, const char* msg)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    udaLog(UDA_LOG_ERROR, msg);
+    UDA_LOG(UDA_LOG_ERROR, msg);
     interface->error_stack.nerrors += 1;
     interface->error_stack.idamerror =
         (UdaError*)realloc(interface->error_stack.idamerror, interface->error_stack.nerrors * sizeof(UdaError));

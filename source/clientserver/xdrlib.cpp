@@ -31,7 +31,7 @@ int uda::client_server::protocol_version_type_test(int protocol_version, int typ
 {
     // If this client/server version cannot pass/receive a specific type, then return TRUE
 
-    UDA_LOG(UDA_LOG_DEBUG, "protocolVersionTypeTest Version: %d, Type: %d\n", protocol_version, type);
+    UDA_LOG(UDA_LOG_DEBUG, "protocolVersionTypeTest Version: {}, Type: {}", protocol_version, type);
 
     if (protocol_version < 3) {
         switch (type) {
@@ -199,7 +199,7 @@ bool_t uda::client_server::xdr_client(XDR* xdrs, ClientBlock* str, int protocolV
 #endif
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "protocolVersion %d\n", protocolVersion);
+    UDA_LOG(UDA_LOG_DEBUG, "protocolVersion {}", protocolVersion);
     print_client_block(*str);
 
     return rc;
@@ -222,25 +222,25 @@ bool_t uda::client_server::xdr_server1(XDR* xdrs, ServerBlock* str, int protocol
         } else if (serverVersion != str->version) { // Usually different if the server has crashed
             rc = 0;                                 // Force an error
             str->version = serverVersion;           // Replace the erroneous version number
-            UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
+            UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc = {}", rc);
             return rc;
         }
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[1] = %d, version = %d\n", rc, str->version);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[1] = {}, version = {}", rc, str->version);
 
     rc = rc && xdr_int(xdrs, &str->error);
-    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[2] = %d, error = %d\n", rc, str->error);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[2] = {}, error = {}", rc, str->error);
     rc = rc && xdr_u_int(xdrs, &str->idamerrorstack.nerrors);
-    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[3] = %d, error = %d\n", rc, str->idamerrorstack.nerrors);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[3] = {}, error = {}", rc, str->idamerrorstack.nerrors);
 
     rc = rc && wrap_xdr_string(xdrs, (char*)str->msg, STRING_LENGTH);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[4] = %d, strlen = %zd\n", rc, strlen(str->msg));
-    UDA_LOG(UDA_LOG_DEBUG, "str->msg = %p\n", str->msg);
-    UDA_LOG(UDA_LOG_DEBUG, "str->msg[0] = %d\n", str->msg[0]);
-    UDA_LOG(UDA_LOG_DEBUG, "maxsize = %d\n", STRING_LENGTH);
-    UDA_LOG(UDA_LOG_DEBUG, "Server #1 protocolVersion %d [rc = %d]\n", protocolVersion, rc);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[4] = {}, strlen = {}", rc, strlen(str->msg));
+    UDA_LOG(UDA_LOG_DEBUG, "str->msg = {}", str->msg);
+    UDA_LOG(UDA_LOG_DEBUG, "str->msg[0] = {}", str->msg[0]);
+    UDA_LOG(UDA_LOG_DEBUG, "maxsize = {}", STRING_LENGTH);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 protocolVersion {} [rc = {}]", protocolVersion, rc);
 
     if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 7) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 7)) {
         rc = rc && wrap_xdr_string(xdrs, (char*)str->OSName, STRING_LENGTH) &&
@@ -250,7 +250,7 @@ bool_t uda::client_server::xdr_server1(XDR* xdrs, ServerBlock* str, int protocol
 #endif
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc = {}", rc);
 
     return rc;
 }
@@ -264,10 +264,10 @@ bool_t uda::client_server::xdr_server2(XDR* xdrs, ServerBlock* str)
              wrap_xdr_string(xdrs, (char*)str->idamerrorstack.idamerror[i].location, STRING_LENGTH) &&
              wrap_xdr_string(xdrs, (char*)str->idamerrorstack.idamerror[i].msg, STRING_LENGTH);
 
-        UDA_LOG(UDA_LOG_DEBUG, "xdr_server2 [%d] %s\n", i, str->idamerrorstack.idamerror[i].msg);
+        UDA_LOG(UDA_LOG_DEBUG, "xdr_server2 [{}] {}", i, str->idamerrorstack.idamerror[i].msg);
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server #2 rc = %d\n", rc);
+    UDA_LOG(UDA_LOG_DEBUG, "Server #2 rc = {}", rc);
 
     return rc;
 }
@@ -320,7 +320,7 @@ bool_t uda::client_server::xdr_request(XDR* xdrs, RequestBlock* str, int protoco
         rc = rc && xdr_int(xdrs, &str->num_requests);
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "number of requests: %d\n", str->num_requests);
+    UDA_LOG(UDA_LOG_DEBUG, "number of requests: {}", str->num_requests);
     return rc;
 }
 
@@ -334,7 +334,7 @@ bool_t uda::client_server::xdr_data_block_list(XDR* xdrs, DataBlockList* str, in
         rc = rc && xdr_int(xdrs, &str->count);
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "number of data blocks: %d\n", str->count);
+    UDA_LOG(UDA_LOG_DEBUG, "number of data blocks: {}", str->count);
     return rc;
 }
 

@@ -210,7 +210,7 @@ std::string udaExpandEnvironmentalVariables(const std::string& path)
     char old_cwd[STRING_LENGTH];
     size_t old_cwd_sz = STRING_LENGTH - 1;
     if (getcwd(old_cwd, old_cwd_sz) == nullptr) { // Current Working Directory
-        UDA_LOG(UDA_LOG_DEBUG, "Unable to identify PWD!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Unable to identify PWD!");
         return new_path;
     }
 
@@ -221,19 +221,19 @@ std::string udaExpandEnvironmentalVariables(const std::string& path)
         size_t cwd_sz = STRING_LENGTH - 1;
         char* p_cwd = getcwd(cwd, cwd_sz);
 
-        UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:\n");
-        UDA_LOG(UDA_LOG_DEBUG, "from: %s\n", path.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "to: %s\n", cwd);
+        UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:");
+        UDA_LOG(UDA_LOG_DEBUG, "from: {}", path.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "to: {}", cwd);
 
         if (p_cwd != nullptr) {
             new_path = cwd; // The expanded path
         }
         if (chdir(old_cwd) != 0) {
             // Return to the Original WD
-            UDA_LOG(UDA_LOG_ERROR, "failed to reset working directory\n");
+            UDA_LOG(UDA_LOG_ERROR, "failed to reset working directory");
         }
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "Direct substitution! \n");
+        UDA_LOG(UDA_LOG_DEBUG, "Direct substitution!");
 
         boost::regex env_re{R"(\$\{([^}]+)\}|\$([^{}\/]+))"};
         boost::sregex_iterator begin{new_path.begin(), new_path.end(), env_re};
@@ -248,7 +248,7 @@ std::string udaExpandEnvironmentalVariables(const std::string& path)
             }
         });
 
-        UDA_LOG(UDA_LOG_DEBUG, "Expanding to: %s\n", new_path.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "Expanding to: {}", new_path.c_str());
     }
 
     return new_path;

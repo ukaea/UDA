@@ -32,7 +32,7 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
 
     int ndesc, rc = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "Parsing XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Parsing XML");
 
     //----------------------------------------------------------------------
     // Anything to Parse?
@@ -54,7 +54,7 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
         if ((rc = parse_doc(signal.xml, actions_sig)) != 0) {
             return 1;
         }
-        UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed");
         print_actions(*actions_sig);
     }
 
@@ -66,7 +66,7 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
             return 1;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal_Desc Record parsed\n");
+        UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal_Desc Record parsed");
         print_actions(*actions_desc);
     }
 
@@ -79,19 +79,19 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
 
     ndesc = 0;
     for (int i = 0; i < actions_desc->nactions; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Range Test on Record %d\n", i);
+        UDA_LOG(UDA_LOG_DEBUG, "Range Test on Record {}", i);
 
-        UDA_LOG(UDA_LOG_DEBUG, "#1 %d\n",
+        UDA_LOG(UDA_LOG_DEBUG, "#1 {}",
                 (actions_desc->action[i].exp_range[0] == 0 ||
                  (actions_desc->action[i].exp_range[0] > 0 &&
                   actions_desc->action[i].exp_range[0] <= data_source.exp_number)));
 
-        UDA_LOG(UDA_LOG_DEBUG, "#2 %d\n",
+        UDA_LOG(UDA_LOG_DEBUG, "#2 {}",
                 (actions_desc->action[i].exp_range[1] == 0 ||
                  (actions_desc->action[i].exp_range[1] > 0 &&
                   actions_desc->action[i].exp_range[1] >= data_source.exp_number)));
 
-        UDA_LOG(UDA_LOG_DEBUG, "#3 %d\n",
+        UDA_LOG(UDA_LOG_DEBUG, "#3 {}",
                 (data_source.pass = -1 || ((actions_desc->action[i].pass_range[0] == -1 ||
                                             (actions_desc->action[i].pass_range[0] > -1 &&
                                              actions_desc->action[i].pass_range[0] <= data_source.pass)) &&
@@ -121,7 +121,7 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
     print_actions(*actions_desc);
 
     if (actions_sig->nactions == 0 && ndesc == 0) { // No qualifying XML from either source
-        UDA_LOG(UDA_LOG_DEBUG, "No Applicable Actionable XML Found\n");
+        UDA_LOG(UDA_LOG_DEBUG, "No Applicable Actionable XML Found");
         return -1;
     }
 
@@ -301,7 +301,7 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
     unsigned int* up;
     unsigned long* ul;
 
-    UDA_LOG(UDA_LOG_DEBUG, "Applying XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Applying XML");
 
     if (client_block.get_asis) {
         return; // User specifies No Actions to be Applied
@@ -483,10 +483,10 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
 
                     if (data_block->dims[data_block->order].compressed) {
 
-                        UDA_LOG(UDA_LOG_DEBUG, "Time Dimension Compressed\n");
-                        UDA_LOG(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
-                        UDA_LOG(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float)actions.action[i].timeoffset.offset);
-                        UDA_LOG(UDA_LOG_DEBUG, "Method          = %d\n", data_block->dims[data_block->order].method);
+                        UDA_LOG(UDA_LOG_DEBUG, "Time Dimension Compressed");
+                        UDA_LOG(UDA_LOG_DEBUG, "Order           = {}", data_block->order);
+                        UDA_LOG(UDA_LOG_DEBUG, "Timing Offset   = {}", (float)actions.action[i].timeoffset.offset);
+                        UDA_LOG(UDA_LOG_DEBUG, "Method          = {}", data_block->dims[data_block->order].method);
 
                         switch (data_block->dims[data_block->order].method) {
 
@@ -687,16 +687,16 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
 
                         ndata = data_block->dims[data_block->order].dim_n;
 
-                        UDA_LOG(UDA_LOG_DEBUG, "Dimension Not Compressed\n");
-                        UDA_LOG(UDA_LOG_DEBUG, "No. Time Points = %d\n", ndata);
-                        UDA_LOG(UDA_LOG_DEBUG, "Order           = %d\n", data_block->order);
-                        UDA_LOG(UDA_LOG_DEBUG, "Timing Offset   = %f\n", (float)actions.action[i].timeoffset.offset);
+                        UDA_LOG(UDA_LOG_DEBUG, "Dimension Not Compressed");
+                        UDA_LOG(UDA_LOG_DEBUG, "No. Time Points = {}", ndata);
+                        UDA_LOG(UDA_LOG_DEBUG, "Order           = {}", data_block->order);
+                        UDA_LOG(UDA_LOG_DEBUG, "Timing Offset   = {}", (float)actions.action[i].timeoffset.offset);
 
                         switch (data_block->dims[data_block->order].data_type) {
                             int ii;
                             case UDA_TYPE_FLOAT:
-                                UDA_LOG(UDA_LOG_DEBUG, "Correcting Time Dimension\n");
-                                UDA_LOG(UDA_LOG_DEBUG, "Offset ? : %f\n", (float)actions.action[i].timeoffset.offset);
+                                UDA_LOG(UDA_LOG_DEBUG, "Correcting Time Dimension");
+                                UDA_LOG(UDA_LOG_DEBUG, "Offset ? : {}", (float)actions.action[i].timeoffset.offset);
                                 fp = (float*)data_block->dims[data_block->order].dim;
                                 for (ii = 0; ii < ndata; ii++) {
                                     fp[ii] = (float)actions.action[i].timeoffset.offset + fp[ii];
@@ -819,8 +819,8 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
                                 if (STR_EQUALS("data", actions.action[i].calibration.target) ||
                                     STR_EQUALS("all", actions.action[i].calibration.target)) {
                                     if (data_block->dims[dimid].compressed) {
-                                        UDA_LOG(UDA_LOG_DEBUG, "Dimension %d Compressed\n", i);
-                                        UDA_LOG(UDA_LOG_DEBUG, "Method = %d\n", data_block->dims[dimid].method);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Dimension {} Compressed", i);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Method = {}", data_block->dims[dimid].method);
 
                                         if (data_block->dims[dimid].method == 0) {
                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
@@ -1492,15 +1492,15 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
                                             actions.action[i].calibration.dimensions[j].dimcalibration.invert,
                                             data_block->dims[dimid].dim);
 
-                                        UDA_LOG(UDA_LOG_DEBUG, "Rescaling Dimension : %d\n", dimid);
-                                        UDA_LOG(UDA_LOG_DEBUG, "Time Dimension ?    : %d\n", data_block->order);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Rescaling Dimension : {}", dimid);
+                                        UDA_LOG(UDA_LOG_DEBUG, "Time Dimension ?    : {}", data_block->order);
                                         UDA_LOG(
-                                            UDA_LOG_DEBUG, "Scale ?             : %f\n",
+                                            UDA_LOG_DEBUG, "Scale ?             : {}\n",
                                             (float)actions.action[i].calibration.dimensions[j].dimcalibration.factor);
                                         UDA_LOG(
-                                            UDA_LOG_DEBUG, "Offset ?            : %f\n",
+                                            UDA_LOG_DEBUG, "Offset ?            : {}\n",
                                             (float)actions.action[i].calibration.dimensions[j].dimcalibration.offset);
-                                        UDA_LOG(UDA_LOG_DEBUG, "Invert ?            : %d\n",
+                                        UDA_LOG(UDA_LOG_DEBUG, "Invert ?            : {}",
                                                 (int)actions.action[i].calibration.dimensions[j].dimcalibration.invert);
                                     }
                                 }
@@ -1542,7 +1542,7 @@ void uda::server_deselect_signal_xml(uda::client_server::Actions* actions_desc,
 
     int type;
 
-    UDA_LOG(UDA_LOG_DEBUG, "Deselecting Conflicting XML\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Deselecting Conflicting XML");
 
     //----------------------------------------------------------------------------------------------
     // Loop over all Signal actions

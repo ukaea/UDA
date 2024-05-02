@@ -235,10 +235,10 @@ void uda::server::Plugins::init()
 
     process_config_file(conf_file);
 
-    UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
+    UDA_LOG(UDA_LOG_INFO, "List of Plugins available");
     int i = 0;
     for (const auto& plugin : _plugins) {
-        UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, plugin.request, plugin.format);
+        UDA_LOG(UDA_LOG_INFO, "[{}] {} {}", i, plugin.request, plugin.format);
         ++i;
     }
 

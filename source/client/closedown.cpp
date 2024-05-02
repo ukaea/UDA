@@ -35,15 +35,15 @@ int uda::client::closedown(ClosedownType type, uda::client_server::SOCKETLIST* s
 {
     int rc = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "idamCloseDown called (%d)\n", type);
+    UDA_LOG(UDA_LOG_DEBUG, "closedown called ({})", (int)type);
     if (type == ClosedownType::CLOSE_ALL) {
-        UDA_LOG(UDA_LOG_DEBUG, "Closing Log Files, Streams and Sockets\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Closing Log Files, Streams and Sockets");
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "Closing Streams and Sockets\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Closing Streams and Sockets");
     }
 
     if (type == ClosedownType::CLOSE_ALL) {
-        udaCloseLogging();
+        uda_close_logging();
         *reopen_logs = true; // In case the User calls the IDAM API again!
     }
 

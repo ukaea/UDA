@@ -46,11 +46,11 @@ void uda::client_server::freeDataBlock(DataBlock* data_block)
     Dims* ddims;
     unsigned int rank;
 
-    UDA_LOG(UDA_LOG_DEBUG, "Enter\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Enter");
 
     if (data_block != nullptr) {
 
-        UDA_LOG(UDA_LOG_DEBUG, "Opaque Data\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Opaque Data");
 
         switch (data_block->opaque_type) {
             case UDA_OPAQUE_TYPE_XML_DOCUMENT: {
@@ -108,7 +108,7 @@ void uda::client_server::freeDataBlock(DataBlock* data_block)
                 break;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeing Data\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeing Data");
 
         rank = data_block->rank;
         ddims = data_block->dims;
@@ -127,44 +127,44 @@ void uda::client_server::freeDataBlock(DataBlock* data_block)
         data_block->errhi = nullptr;
         data_block->errlo = nullptr;
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeing Dimensions - Rank = %d \n", rank);
-        UDA_LOG(UDA_LOG_DEBUG, "Dim Structure Location %p \n", ddims);
+        UDA_LOG(UDA_LOG_DEBUG, "freeing Dimensions - Rank = {} ", rank);
+        UDA_LOG(UDA_LOG_DEBUG, "Dim Structure Location {} ", (void*)ddims);
 
         if (ddims != nullptr) {
             for (unsigned int i = 0; i < rank; i++) {
 
-                UDA_LOG(UDA_LOG_DEBUG, "Dimension[%d] \n", i);
-                UDA_LOG(UDA_LOG_DEBUG, "Dimension Data \n");
+                UDA_LOG(UDA_LOG_DEBUG, "Dimension[{}] ", i);
+                UDA_LOG(UDA_LOG_DEBUG, "Dimension Data");
 
                 if ((cptr = (void*)ddims[i].dim) != nullptr) {
                     free(cptr);
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "Dimension Error Hi \n");
+                UDA_LOG(UDA_LOG_DEBUG, "Dimension Error Hi");
 
                 if ((cptr = (void*)ddims[i].errhi) != nullptr) {
                     free(cptr);
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "Dimension Error Lo \n");
+                UDA_LOG(UDA_LOG_DEBUG, "Dimension Error Lo");
 
                 if ((cptr = (void*)ddims[i].errlo) != nullptr) {
                     free(cptr);
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "Dimension Sams \n");
+                UDA_LOG(UDA_LOG_DEBUG, "Dimension Sams");
 
                 if ((cptr = (void*)ddims[i].sams) != nullptr) {
                     free(cptr);
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "Dimension offs \n");
+                UDA_LOG(UDA_LOG_DEBUG, "Dimension offs");
 
                 if ((cptr = (void*)ddims[i].offs) != nullptr) {
                     free(cptr);
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "Dimension ints \n");
+                UDA_LOG(UDA_LOG_DEBUG, "Dimension ints");
 
                 if ((cptr = (void*)ddims[i].ints) != nullptr) {
                     free(cptr);
@@ -178,7 +178,7 @@ void uda::client_server::freeDataBlock(DataBlock* data_block)
                 data_block->dims[i].ints = nullptr;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Dimension Array \n");
+            UDA_LOG(UDA_LOG_DEBUG, "Dimension Array");
 
             free(ddims);
             data_block->dims = nullptr;
@@ -194,7 +194,7 @@ void uda::client_server::freeDataBlock(DataBlock* data_block)
         data_block->error_param_n = 0;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Exit\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Exit");
 }
 
 void uda::client_server::freeDataBlockList(DataBlockList* data_block_list)

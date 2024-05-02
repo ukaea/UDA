@@ -85,7 +85,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
     if ((err = makeClientRequestBlock(&putInstruction, &source, 1, &request_block)) != 0) {
         close_error();
         if (udaNumErrors() == 0) {
-            UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+            UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [{}]", putInstruction);
             add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
@@ -138,7 +138,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 
     /* #ifndef FATCLIENT */
     /*     if (!udaGetAPICalledOnce) { */
-    /*         UDA_LOG(LOG_DEBUG, "!udaGetAPICalledOnce\n"); */
+    /*         UDA_LOG(LOG_DEBUG, "!udaGetAPICalledOnce"); */
     /*         LogMallocList* oldlogmalloclist = logmalloclist; */
     /*         UserDefinedTypeList* olduserdefinedtypelist = userdefinedtypelist; */
     /*         logmalloclist = nullptr; */
@@ -164,7 +164,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     if ((err = makeClientRequestBlock(&putInstruction, &source, 1, &request_block)) != 0) {
         close_error();
         if (udaNumErrors() == 0) {
-            UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
+            UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [{}]", putInstruction);
             add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;

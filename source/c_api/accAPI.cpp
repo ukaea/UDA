@@ -222,10 +222,10 @@ void udaSetProperty(const char* property)
             }
         } else {
             if (STR_IEQUALS(property, "verbose")) {
-                udaSetLogLevel(UDA_LOG_INFO);
+                uda_set_log_level(UDA_LOG_INFO);
             }
             if (STR_IEQUALS(property, "debug")) {
-                udaSetLogLevel(UDA_LOG_DEBUG);
+                uda_set_log_level(UDA_LOG_DEBUG);
             }
             if (STR_IEQUALS(property, "altData")) {
                 client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
@@ -319,10 +319,10 @@ int udaGetProperty(const char* property)
             return (int)(client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE);
         }
         if (STR_IEQUALS(property, "verbose")) {
-            return udaGetLogLevel() == UDA_LOG_INFO;
+            return uda_get_log_level() == UDA_LOG_INFO;
         }
         if (STR_IEQUALS(property, "debug")) {
-            return udaGetLogLevel() == UDA_LOG_DEBUG;
+            return uda_get_log_level() == UDA_LOG_DEBUG;
         }
         if (STR_IEQUALS(property, "altData")) {
             return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
@@ -385,10 +385,10 @@ void udaResetProperty(const char* property)
         }
     } else {
         if (STR_IEQUALS(property, "verbose")) {
-            udaSetLogLevel(UDA_LOG_NONE);
+            uda_set_log_level(UDA_LOG_NONE);
         }
         if (STR_IEQUALS(property, "debug")) {
-            udaSetLogLevel(UDA_LOG_NONE);
+            uda_set_log_level(UDA_LOG_NONE);
         }
         if (STR_IEQUALS(property, "altData")) {
             client_flags->flags &= !CLIENTFLAG_ALTDATA;
@@ -430,7 +430,7 @@ void udaResetProperties()
     client_flags->get_scalar = 0;
     client_flags->get_bytes = 0;
     client_flags->get_nodimdata = 0;
-    udaSetLogLevel(UDA_LOG_NONE);
+    uda_set_log_level(UDA_LOG_NONE);
     client_flags->user_timeout = TIMEOUT;
     if (getenv("UDA_TIMEOUT")) {
         client_flags->user_timeout = atoi(getenv("UDA_TIMEOUT"));
@@ -1326,7 +1326,7 @@ char* udaGetAsymmetricError(int handle, int above)
 
             if (alloc_array(data_block->error_type, ndata, &errhi) != 0) {
                 // Allocate Heap for Regular Error Data
-                UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
+                UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Data Errors");
                 data_block->errhi = nullptr;
             } else {
                 data_block->errhi = errhi;
@@ -1334,8 +1334,8 @@ char* udaGetAsymmetricError(int handle, int above)
 
             if (data_block->errasymmetry) { // Allocate Heap for the Asymmetric Error Data
                 if (alloc_array(data_block->error_type, ndata, &errlo) != 0) {
-                    UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
-                    UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
+                    UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors");
+                    UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!");
                     data_block->errlo = nullptr;
                     data_block->errasymmetry = 0;
                 } else {
@@ -2866,7 +2866,7 @@ char* udaGetDimAsymmetricError(int handle, int ndim, int above)
                 data_block->dims[ndim].data_type; // Error Type is Unknown so Assume Data's Data Type
 
             if (alloc_array(data_block->dims[ndim].error_type, ndata, &errhi) != 0) {
-                UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
+                UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors");
                 data_block->dims[ndim].errhi = nullptr;
             } else {
                 data_block->dims[ndim].errhi = errhi;
@@ -2874,8 +2874,8 @@ char* udaGetDimAsymmetricError(int handle, int ndim, int above)
 
             if (data_block->dims[ndim].errasymmetry) { // Allocate Heap for the Asymmetric Error Data
                 if (alloc_array(data_block->dims[ndim].error_type, ndata, &errlo) != 0) {
-                    UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
-                    UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
+                    UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors");
+                    UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!");
                     data_block->dims[ndim].errlo = errlo;
                     data_block->dims[ndim].errasymmetry = 0;
                 } else {

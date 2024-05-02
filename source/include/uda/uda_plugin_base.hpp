@@ -57,15 +57,15 @@ protected:
     void debug(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& message, Args... args)
     {
         auto msg = fmt::format(message, args...);
-        udaPluginLog(plugin_interface, "%s", msg.c_str());
+        UDA_PLUGIN_LOG(plugin_interface, msg.c_str());
     }
 
     template <typename... Args>
     void error(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& message, Args... args)
     {
         auto msg = fmt::format(message, args...);
-        udaPluginLog(plugin_interface, "%s", msg.c_str());
-        throw std::runtime_error{ msg.c_str() };
+        UDA_PLUGIN_LOG(plugin_interface, msg.c_str());
+        throw std::runtime_error{ msg };
     }
 
     LIBRARY_API bool has_arg(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& name);

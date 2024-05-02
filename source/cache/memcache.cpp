@@ -182,14 +182,14 @@ int memcache_put(uda::cache::UdaCache* cache, const char* key, const char* buffe
 
 std::pair<char*, size_t> get_cache_value(uda::cache::UdaCache* cache, const char* key)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
+    UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: {}", key);
     memcached_return rc;
     size_t len = 0;
     u_int32_t flags = 0;
     char* value = memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
 
     if (rc != MEMCACHED_SUCCESS) {
-        UDA_LOG(UDA_LOG_ERROR, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
+        UDA_LOG(UDA_LOG_ERROR, "Couldn't retrieve key: {}", memcached_strerror(&cache->memcache, rc));
         return {nullptr, 0};
     }
 
@@ -227,9 +227,9 @@ uda::cache::UdaCache* uda::cache::open_cache()
     rc = memcached_server_push(&cache->memcache, servers);
 
     if (rc == MEMCACHED_SUCCESS) {
-        UDA_LOG(UDA_LOG_DEBUG, "%s\n", "Added server successfully");
+        UDA_LOG(UDA_LOG_DEBUG, "{}", "Added server successfully");
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
+        UDA_LOG(UDA_LOG_DEBUG, "Couldn't add server: {}", memcached_strerror(&cache->memcache, rc));
         free(cache);
         init = true;
         return nullptr;
@@ -261,7 +261,7 @@ int uda::cache::cache_write(uda::cache::UdaCache* cache, const RequestData* requ
     int rc = 0;
 
     auto key = generate_cache_key(request_data, environment, flags, private_flags);
-    UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key.c_str());
+    UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: {}", key.c_str());
 
     if (key.empty()) {
         return -1;

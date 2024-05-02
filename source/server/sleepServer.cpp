@@ -27,14 +27,14 @@ int uda::server::sleepServer(XDR* server_input, XDR* server_output, LogMallocLis
     protocol_id = UDA_PROTOCOL_NEXT_PROTOCOL;
     next_protocol = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "Entering Server Sleep Loop\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Entering Server Sleep Loop");
 
-    UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Listening for Next Client Request\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Listening for Next Client Request");
 
     if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
                         nullptr, protocolVersion, log_struct_list, io_data, private_flags, malloc_source)) != 0) {
 
-        UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Error Listening for Wake-up %d\n", err);
+        UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Error Listening for Wake-up {}", err);
 
         if (server_tot_block_time <= 1000 * server_timeout) {
             add_error(UDA_CODE_ERROR_TYPE, "sleepServer", err, "Protocol 3 Error: Listening for Server Wake-up");
@@ -43,10 +43,10 @@ int uda::server::sleepServer(XDR* server_input, XDR* server_output, LogMallocLis
     }
 
     rc = xdrrec_eof(server_input);
-    UDA_LOG(UDA_LOG_DEBUG, "Next Client Request Heard\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Serve Awakes!\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
-    UDA_LOG(UDA_LOG_DEBUG, "XDR #G xdrrec_eof ? %d\n", rc);
+    UDA_LOG(UDA_LOG_DEBUG, "Next Client Request Heard");
+    UDA_LOG(UDA_LOG_DEBUG, "Serve Awakes!");
+    UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol);
+    UDA_LOG(UDA_LOG_DEBUG, "XDR #G xdrrec_eof ? {}", rc);
 
 #ifndef NOCHAT
     // Echo Next Protocol straight back to Client
@@ -58,17 +58,17 @@ int uda::server::sleepServer(XDR* server_input, XDR* server_output, LogMallocLis
 #endif
 
     if (next_protocol == UDA_PROTOCOL_CLOSEDOWN) {
-        UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Shutdown\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Shutdown");
         return 0;
     }
 
     if (next_protocol != UDA_PROTOCOL_WAKE_UP) {
-        UDA_LOG(UDA_LOG_DEBUG, "Unknown Wakeup Request -> Server Shutting down\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Unknown Wakeup Request -> Server Shutting down");
         add_error(UDA_CODE_ERROR_TYPE, "sleepServer", next_protocol, "Unknown Wakeup Request -> Server Shutdown");
         return 0;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Wake-Up\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Wake-Up");
 
     return 1; // No Time out and Non-Zero Next Protocol id => Next Client Request
 }

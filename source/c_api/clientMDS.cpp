@@ -47,11 +47,11 @@ int udaClientMDS(const char* server, const char* tree, const char* node, int tre
     strcpy(request->signal, node);
     strcpy(request->server, server);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientMDS\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Server          %s\n", request->server);
-    UDA_LOG(UDA_LOG_DEBUG, "Tree           %s\n", request->file);
-    UDA_LOG(UDA_LOG_DEBUG, "Node           %s\n", request->signal);
-    UDA_LOG(UDA_LOG_DEBUG, "Tree Number       %d\n", request->exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientMDS");
+    UDA_LOG(UDA_LOG_DEBUG, "Server          {}", request->server);
+    UDA_LOG(UDA_LOG_DEBUG, "Tree           {}", request->file);
+    UDA_LOG(UDA_LOG_DEBUG, "Node           {}", request->signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Tree Number       {}", request->exp_number);
 
     //-------------------------------------------------------------------------
     // Fetch Data

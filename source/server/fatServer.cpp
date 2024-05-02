@@ -154,7 +154,7 @@ int uda::server::fat_server(ClientBlock client_block, ServerBlock* server_block,
         return err;
     }
 
-    udaAccessLog(FALSE, client_block, request_block, *server_block, total_datablock_size);
+    uda_access_log(FALSE, client_block, request_block, *server_block, total_datablock_size);
 
     err = do_fat_server_closedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
 
@@ -290,7 +290,7 @@ int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0
                        ServerBlock* server_block, MetaDataBlock* metadata_block, DataBlockList* data_blocks,
                        Actions* actions_desc, Actions* actions_sig)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop");
 
     copy_request_block(request_block, *request_block0);
 
@@ -354,14 +354,14 @@ int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0
     SignalDesc* signal_desc = &metadata_block->signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
-    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
-    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", data_source->path);
-    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
-    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
-    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
-    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source->archive);
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", data_source->device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", data_source->path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", data_source->filename);
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", data_source->exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", data_source->pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : {} ", depth);
     print_request_block(*request_block);
     print_data_source(*data_source);
     print_signal(metadata_block->signal_rec);
@@ -453,7 +453,7 @@ int startup_fat_server(ServerBlock* server_block, UserDefinedTypeList& parseduse
             UDA_THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
+        UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: {}", token);
         parseIncludeFile(userdefinedtypelist, token); // file containing the SArray structure definition
         parseduserdefinedtypelist = *userdefinedtypelist; // Switch back
         print_user_defined_type_list(parseduserdefinedtypelist);
@@ -468,9 +468,9 @@ int startup_fat_server(ServerBlock* server_block, UserDefinedTypeList& parseduse
         initPluginList(&plugin_list, getServerEnvironment());
         plugin_list_initialised = 1;
 
-        UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
+        UDA_LOG(UDA_LOG_INFO, "List of Plugins available");
         for (int i = 0; i < plugin_list.count; i++) {
-            UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, plugin_list.plugin[i].request, plugin_list.plugin[i].format);
+            UDA_LOG(UDA_LOG_INFO, "[{}] {} {}", i, plugin_list.plugin[i].request, plugin_list.plugin[i].format);
         }
     }
 

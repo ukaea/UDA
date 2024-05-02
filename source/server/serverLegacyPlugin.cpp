@@ -23,7 +23,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
     char* token = nullptr;
     char work[STRING_LENGTH];
 
-    UDA_LOG(UDA_LOG_DEBUG, "Start\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Start");
 
     //----------------------------------------------------------------------------
     // Start of Error Trap
@@ -84,8 +84,8 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
         // Client Requests the Server to Choose Data Access plugin
 
         if (request->request == REQUEST_READ_FORMAT) {
-            UDA_LOG(UDA_LOG_DEBUG, "Request: REQUEST_READ_FORMAT \n");
-            UDA_LOG(UDA_LOG_DEBUG, "Format : %s \n", request->format);
+            UDA_LOG(UDA_LOG_DEBUG, "Request: REQUEST_READ_FORMAT");
+            UDA_LOG(UDA_LOG_DEBUG, "Format : {} ", request->format);
 
             if (STR_IEQUALS(request->format, "IDA") || STR_IEQUALS(request->format, "IDA3")) {
                 request->request = REQUEST_READ_IDA;
@@ -115,11 +115,11 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 request->request = REQUEST_READ_SQL;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Request Selected: %d\n", request->request);
-            UDA_LOG(UDA_LOG_DEBUG, "File: %s\n", request->file);
-            UDA_LOG(UDA_LOG_DEBUG, "Path: %s\n", request->path);
+            UDA_LOG(UDA_LOG_DEBUG, "Request Selected: {}", request->request);
+            UDA_LOG(UDA_LOG_DEBUG, "File: {}", request->file);
+            UDA_LOG(UDA_LOG_DEBUG, "Path: {}", request->path);
 #ifdef IDA_ENABLE
-            UDA_LOG(UDA_LOG_DEBUG, "IDA is Enabled!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "IDA is Enabled!");
 #endif
         }
 
@@ -139,12 +139,12 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 data_source->pass = request->pass;
                 data_source->type = ' ';
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: Read IDA \n");
-                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", request->file);
-                UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", request->path);
-                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", request->exp_number);
-                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", request->pass);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: Read IDA");
+                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : {} ", request->file);
+                UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", request->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", request->pass);
                 break;
 
             case REQUEST_READ_NEW_PLUGIN:
@@ -158,12 +158,12 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 data_source->pass = request->pass;
                 data_source->type = ' ';
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: Read IDA \n");
-                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", request->file);
-                UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", request->path);
-                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", request->exp_number);
-                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", request->pass);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: Read IDA");
+                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : {} ", request->file);
+                UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", request->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", request->pass);
                 break;
 
             case REQUEST_READ_MDS:
@@ -179,66 +179,66 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
 
                 data_source->exp_number = request->exp_number; // MDS+ Tree Number
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: Read MDS+ \n");
-                UDA_LOG(UDA_LOG_DEBUG, "Server       : %s \n", request->server);
-                UDA_LOG(UDA_LOG_DEBUG, "Tree         : %s \n", request->file);
-                UDA_LOG(UDA_LOG_DEBUG, "Data Node    : %s \n", request->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "Tree Number  : %d \n", request->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: Read MDS+");
+                UDA_LOG(UDA_LOG_DEBUG, "Server       : {} ", request->server);
+                UDA_LOG(UDA_LOG_DEBUG, "Tree         : {} ", request->file);
+                UDA_LOG(UDA_LOG_DEBUG, "Data Node    : {} ", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Tree Number  : {} ", request->exp_number);
                 break;
 
             case REQUEST_READ_IDAM:
-                UDA_LOG(UDA_LOG_DEBUG, "Request: Read Remote IDAM Source \n");
-                UDA_LOG(UDA_LOG_DEBUG, "Server       : %s \n", request->server);
-                UDA_LOG(UDA_LOG_DEBUG, "Source       : %s \n", request->file);
-                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: Read Remote IDAM Source");
+                UDA_LOG(UDA_LOG_DEBUG, "Server       : {} ", request->server);
+                UDA_LOG(UDA_LOG_DEBUG, "Source       : {} ", request->file);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
                 break;
 
             case REQUEST_READ_CDF:
                 strcpy(data_source->path, trim_string(request->path)); // netCDF File Location
                 copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: readnetCDF \n");
-                UDA_LOG(UDA_LOG_DEBUG, "netCDF File  : %s \n", request->path);
-                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: readnetCDF");
+                UDA_LOG(UDA_LOG_DEBUG, "netCDF File  : {} ", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
                 break;
 
             case REQUEST_READ_HDF5:
                 strcpy(data_source->path, trim_string(request->path)); // HDF5 File Location
                 copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHDF5 \n");
-                UDA_LOG(UDA_LOG_DEBUG, "HDF5 File    : %s \n", request->path);
-                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHDF5");
+                UDA_LOG(UDA_LOG_DEBUG, "HDF5 File    : {} ", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
                 break;
 
             case REQUEST_READ_XML:
                 data_source->exp_number = request->exp_number;
                 data_source->pass = request->pass;
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadXML \n");
-                UDA_LOG(UDA_LOG_DEBUG, "XML File     : %s \n", request->path);
-                UDA_LOG(UDA_LOG_DEBUG, "XML Document : %s \n", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadXML");
+                UDA_LOG(UDA_LOG_DEBUG, "XML File     : {} ", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "XML Document : {} ", request->signal);
                 break;
 
             case REQUEST_READ_UFILE:
                 strcpy(data_source->path, trim_string(request->path)); // UFile File Location
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadUFile \n");
-                UDA_LOG(UDA_LOG_DEBUG, "UFile File   : %s \n", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadUFile");
+                UDA_LOG(UDA_LOG_DEBUG, "UFile File   : {} ", request->path);
                 break;
 
             case REQUEST_READ_FILE:
                 strcpy(data_source->path, trim_string(request->path)); // File Location
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadBytes \n");
-                UDA_LOG(UDA_LOG_DEBUG, "File  : %s \n", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadBytes");
+                UDA_LOG(UDA_LOG_DEBUG, "File  : {} ", request->path);
                 break;
 
             case REQUEST_READ_HDATA:
                 strcpy(data_source->path, trim_string(request->path)); // File Location
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHData \n");
-                UDA_LOG(UDA_LOG_DEBUG, "File  : %s \n", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHData");
+                UDA_LOG(UDA_LOG_DEBUG, "File  : {} ", request->path);
                 break;
 
             case REQUEST_READ_SQL:
@@ -248,8 +248,8 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 strcpy(data_source->archive, trim_string(request->archive));
                 strcpy(data_source->device_name, trim_string(request->device_name));
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadSQL \n");
-                UDA_LOG(UDA_LOG_DEBUG, "SQL   : %s \n", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: ReadSQL");
+                UDA_LOG(UDA_LOG_DEBUG, "SQL   : {} ", request->signal);
                 break;
 
             case REQUEST_READ_NOTHING:
@@ -274,7 +274,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                     }
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: Read Nothing! (Returns Test Data)\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Request: Read Nothing! (Returns Test Data)");
                 break;
 
             case REQUEST_READ_PPF:
@@ -286,25 +286,25 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 data_source->pass = request->pass;
                 data_source->type = ' ';
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: Read PPF \n");
-                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", request->file);
-                UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", request->path);
-                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", request->exp_number);
-                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", request->pass);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: Read PPF");
+                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : {} ", request->file);
+                UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", request->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", request->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", request->pass);
                 break;
 
             case REQUEST_READ_JPF:
                 copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
                 data_source->exp_number = request->exp_number;
 
-                UDA_LOG(UDA_LOG_DEBUG, "Request: Read JPF \n");
-                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", request->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Request: Read JPF");
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", request->exp_number);
                 break;
 
             default:
-                UDA_LOG(UDA_LOG_DEBUG, "Unknown Requested Data Access Routine (%d) \n", request->request);
+                UDA_LOG(UDA_LOG_DEBUG, "Unknown Requested Data Access Routine ({}) ", request->request);
                 err = 9999;
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Requested Data Access Routine");
                 break;
@@ -319,7 +319,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
 
     } while (0);
 
-    UDA_LOG(UDA_LOG_DEBUG, "End\n");
+    UDA_LOG(UDA_LOG_DEBUG, "End");
 
     return err;
 }

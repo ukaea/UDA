@@ -441,7 +441,6 @@ int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* heade
                                     userdefinedtype->image = image;
                                 }
                             } else {
-                                // fprintf(stdout,"Names do Not Match: %s, %s, %s\n", name, name1, name2);
                                 err = 999;
                                 add_error(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
                                           "typedef statement does not conform to syntax model!");

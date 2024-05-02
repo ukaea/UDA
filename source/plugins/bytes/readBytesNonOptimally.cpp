@@ -115,7 +115,7 @@ int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
     if (udaPluginIsExternal(plugin_interface)) {
         err = 999;
         udaAddPluginError(plugin_interface, __func__, err, "This Service is Disabled");
-        udaPluginLog(plugin_interface, "Disabled Service - Requested File: %s \n", path.c_str());
+        UDA_PLUGIN_LOG_S(plugin_interface, "Disabled Service - Requested File: %s \n", path.c_str());
         return err;
     }
 
@@ -125,7 +125,7 @@ int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
     if (!is_legal_file_path(path.c_str())) {
         err = 999;
         udaAddPluginError(plugin_interface, __func__, err, "The directory path has incorrect syntax");
-        udaPluginLog(plugin_interface, "The directory path has incorrect syntax [%s] \n", path.c_str());
+        UDA_PLUGIN_LOG_S(plugin_interface, "The directory path has incorrect syntax [%s] \n", path.c_str());
         return err;
     }
 
@@ -134,7 +134,7 @@ int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
 
     err = 0;
 
-    udaPluginLog(plugin_interface, "File Name  : %s \n", path.c_str());
+    UDA_PLUGIN_LOG_S(plugin_interface, "File Name  : %s \n", path.c_str());
 
     //----------------------------------------------------------------------
     // File Attributes
@@ -196,9 +196,8 @@ int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
     //    std::string cmd = "sha3sum -a 256 -b " + path;
     //    auto file_hash = exec(cmd.c_str());
 
-    udaPluginLog(plugin_interface, "File Size          : %d \n", nchar);
-    //    udaPluginLog(plugin_interface, "File Checksum      : %s \n", file_hash.c_str());
-    udaPluginLog(plugin_interface, "Read Checksum      : %s \n", read_hash.c_str());
+    UDA_PLUGIN_LOG_I(plugin_interface, "File Size          : {} \n", (int)nchar);
+    UDA_PLUGIN_LOG_S(plugin_interface, "Read Checksum      : {} \n", read_hash.c_str());
 
     return err;
 }

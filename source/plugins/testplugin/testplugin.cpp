@@ -1521,7 +1521,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
     // For this test, all blocks must be of the same type: request_block->putDataBlockList.putDataBlock[0].data_type;
     // Repeat call with changing types may cause client side issues!
 
-    UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
+    UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request_block->putDataBlockList.blockCount);
 
     if (request_block->putDataBlockList.blockCount == 0) {
         err = 999;
@@ -1594,8 +1594,8 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
         blocks[i].dataCount = request_block->putDataBlockList.putDataBlock[i].count;
         blocks[i].data = (void*)request_block->putDataBlockList.putDataBlock[i].data;
 
-        UDA_LOG(UDA_LOG_DEBUG, "data type : %d\n", request_block->putDataBlockList.putDataBlock[0].data_type);
-        UDA_LOG(UDA_LOG_DEBUG, "data count: %d\n", request_block->putDataBlockList.putDataBlock[0].count);
+        UDA_LOG(UDA_LOG_DEBUG, "data type : {}", request_block->putDataBlockList.putDataBlock[0].data_type);
+        UDA_LOG(UDA_LOG_DEBUG, "data count: {}", request_block->putDataBlockList.putDataBlock[0].count);
 
         // Data blocks already allocated and will be freed by a separate process so use addNonMalloc instead of
         // addMalloc
@@ -2229,7 +2229,7 @@ int createUDTSocket(int* usock, int port, int rendezvous)
     udt_bind(*usock, res->ai_addr, res->ai_addrlen);
     /*
        if((err= udt_bind(*usock, res->ai_addr, res->ai_addrlen)) != UDT_SUCCESS){
-          fprintf(stderr, "UDT bind: [%s]\n",udt_getlasterror_desc());
+          fprintf(stderr, "UDT bind: [{}]\n",udt_getlasterror_desc());
           return -1;
        }
     */
@@ -2249,7 +2249,7 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
     hints.ai_socktype = g_Socket_Type;
 
     char service[16];
-    sprintf(service, "%d", port);
+    sprintf(service, "{}", port);
 
     if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 999;

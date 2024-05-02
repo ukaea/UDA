@@ -169,16 +169,16 @@ uda::client::HostList::HostList()
         }
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Number of named hosts %d\n", hosts_.size());
+    UDA_LOG(UDA_LOG_DEBUG, "Number of named hosts {}", hosts_.size());
     int i = 0;
     for (const auto& data : hosts_) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Host Alias     : %s\n", i, data.host_alias.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Host Name      : %s\n", i, data.host_name.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Host Port      : %d\n", i, data.port);
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Certificate    : %s\n", i, data.certificate.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Key            : %s\n", i, data.key.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] CA Certificate : %s\n", i, data.ca_certificate.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] isSSL          : %d\n", i, data.isSSL);
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] Host Alias     : {}", i, data.host_alias.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] Host Name      : {}", i, data.host_name.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] Host Port      : {}", i, data.port);
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] Certificate    : {}", i, data.certificate.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] Key            : {}", i, data.key.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] CA Certificate : {}", i, data.ca_certificate.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] isSSL          : {}", i, data.isSSL);
         ++i;
     }
 }

@@ -26,6 +26,69 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 
+unsigned int count_data_block_size(const DataBlock& data_block, ClientBlock* client_block) {
+    int factor;
+    Dims dim;
+    unsigned int count = sizeof(DataBlock);
+
+    count += (unsigned int) (getSizeOf((UDA_TYPE) data_block.data_type) * data_block.data_n);
+
+    if (data_block.error_type != UDA_TYPE_UNKNOWN) {
+        count += (unsigned int) (getSizeOf((UDA_TYPE) data_block.error_type) * data_block.data_n);
+    }
+    if (data_block.errasymmetry) {
+        count += (unsigned int) (getSizeOf((UDA_TYPE) data_block.error_type) * data_block.data_n);
+    }
+
+    if (data_block.rank > 0) {
+        for (unsigned int k = 0; k < data_block.rank; k++) {
+            count += sizeof(Dims);
+            dim = data_block.dims[k];
+            if (!dim.compressed) {
+                count += (unsigned int) (getSizeOf((UDA_TYPE) dim.data_type) * dim.dim_n);
+                factor = 1;
+                if (dim.errasymmetry) {
+                    factor = 2;
+                }
+                if (dim.error_type != UDA_TYPE_UNKNOWN) {
+                    count += (unsigned int) (factor * getSizeOf((UDA_TYPE) dim.error_type) * dim.dim_n);
+                }
+            } else {
+                switch (dim.method) {
+                    case 0:
+                        count += +2 * sizeof(double);
+                        break;
+                    case 1:
+                        for (unsigned int i = 0; i < dim.udoms; i++) {
+                            count += (unsigned int) (*((long*) dim.sams + i) * getSizeOf((UDA_TYPE) dim.data_type));
+                        }
+                        break;
+                    case 2:
+                        count += dim.udoms * getSizeOf((UDA_TYPE) dim.data_type);
+                        break;
+                    case 3:
+                        count += dim.udoms * getSizeOf((UDA_TYPE) dim.data_type);
+                        break;
+                }
+            }
+        }
+    }
+
+    if (client_block->get_meta) {
+        count += sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
+    }
+
+    return count;
+}
+
+unsigned int count_data_block_list_size(const std::vector<uda::client_server::DataBlock>& data_block_list, ClientBlock* client_block) {
+    unsigned int total = 0;
+    for (const auto& data_block : data_block_list) {
+        total += count_data_block_size(data_block, client_block);
+    }
+    return total;
+}
+
 void free_data_blocks(std::vector<DataBlock>& data_blocks)
 {
     for (auto& data_block : data_blocks) {
@@ -46,11 +109,11 @@ void close_sockets(std::vector<Sockets>& sockets)
 
 void print_data_block_list(const std::vector<DataBlock>& data_blocks)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Data Blocks\n");
-    UDA_LOG(UDA_LOG_DEBUG, "count        : %d\n", data_blocks.size());
+    UDA_LOG(UDA_LOG_DEBUG, "Data Blocks");
+    UDA_LOG(UDA_LOG_DEBUG, "count        : {}", data_blocks.size());
     int i = 0;
     for (auto& data_block : data_blocks) {
-        UDA_LOG(UDA_LOG_DEBUG, "block number : %d\n", i);
+        UDA_LOG(UDA_LOG_DEBUG, "block number : {}", i);
         print_data_block(data_block);
         ++i;
     }
@@ -77,62 +140,33 @@ void uda::server::Server::start_logs()
 
         errno = 0;
         std::string log_file = std::string{_environment->logdir} + "Access.log";
-        FILE* accout = fopen(log_file.c_str(), _environment->logmode);
-
-        if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
-            if (accout != nullptr) {
-                fclose(accout);
-            }
-        } else {
-            udaSetLogFile(UDA_LOG_ACCESS, accout);
-        }
+        uda_set_log_file(UDA_LOG_ACCESS, log_file, _environment->logmode);
     }
 
     if (_environment->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
         std::string log_file = std::string{_environment->logdir} + "Error.log";
-        FILE* errout = fopen(log_file.c_str(), _environment->logmode);
-
-        if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open error log");
-            if (errout != nullptr) {
-                fclose(errout);
-            }
-        } else {
-            udaSetLogFile(UDA_LOG_ERROR, errout);
-        }
+        uda_set_log_file(UDA_LOG_ERROR, log_file, _environment->logmode);
     }
 
     if (_environment->loglevel <= UDA_LOG_WARN) {
         errno = 0;
         std::string log_file = std::string{_environment->logdir} + "DebugServer.log";
-        FILE* dbgout = fopen(log_file.c_str(), _environment->logmode);
-
-        if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Debug Log: ");
-            if (dbgout != nullptr) {
-                fclose(dbgout);
-            }
-        } else {
-            udaSetLogFile(UDA_LOG_WARN, dbgout);
-            udaSetLogFile(UDA_LOG_DEBUG, dbgout);
-            udaSetLogFile(UDA_LOG_INFO, dbgout);
-        }
+        uda_set_log_file(UDA_LOG_WARN, log_file, _environment->logmode);
+        uda_set_log_file(UDA_LOG_DEBUG, log_file, _environment->logmode);
+        uda_set_log_file(UDA_LOG_INFO, log_file, _environment->logmode);
     }
 }
 
 void uda::server::Server::startup()
 {
-    udaSetLogLevel((LOG_LEVEL)_environment->loglevel);
+    uda_set_log_level((LogLevel)_environment->loglevel);
 
     start_logs();
 
     _environment.print();
 
-    UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
+    UDA_LOG(UDA_LOG_DEBUG, "New Server Instance");
 
     //-------------------------------------------------------------------------
     // Create the XDR Record Streams
@@ -173,9 +207,9 @@ void uda::server::Server::close()
     //----------------------------------------------------------------------------
     // Server Destruct.....
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server Shutting Down\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Shutting Down");
     if (_server_tot_block_time > 1000 * _server_timeout) {
-        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after %d secs\n", _server_timeout);
+        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after {} secs", _server_timeout);
     }
 
     //----------------------------------------------------------------------------
@@ -204,7 +238,7 @@ void uda::server::Server::close()
 
     fflush(nullptr);
 
-    udaCloseLogging();
+    uda_close_logging();
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
@@ -226,7 +260,7 @@ void uda::server::Server::loop()
     int next_protocol;
 
     do {
-        UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
         // copy_user_defined_type_list(&userdefinedtypelist);
@@ -246,23 +280,23 @@ void uda::server::Server::loop()
             break;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: %d [%d]\n", err, (int)_fatal_error);
+        UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: {} [{}]", err, (int)_fatal_error);
 
         err = report_to_client();
 
-        UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
-        UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, (int)_fatal_error);
+        UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client");
+        UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: {} [{}]", err, (int)_fatal_error);
 
-        udaAccessLog(FALSE, _client_block, _request_block, _server_block, _total_data_block_size);
+        uda_access_log(FALSE, _client_block, _request_block, _server_block, _total_data_block_size);
 
         err = 0;
         next_protocol = UDA_PROTOCOL_SLEEP;
-        UDA_LOG(UDA_LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
+        UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol);
 
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList\n");
+        UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList");
         udaFreeUserDefinedTypeList(_user_defined_type_list);
         _user_defined_type_list = nullptr;
 
@@ -270,13 +304,13 @@ void uda::server::Server::loop()
         ::free(_log_malloc_list);
         _log_malloc_list = nullptr;
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlockList\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlockList");
         free_data_blocks(_data_blocks);
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeActions");
         free_actions(&_actions_desc);
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeActions");
         free_actions(&_actions_sig);
 
         freeRequestBlock(&_request_block);
@@ -284,19 +318,19 @@ void uda::server::Server::loop()
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "concat_error\n");
+        UDA_LOG(UDA_LOG_DEBUG, "concat_error");
         concat_error(&_server_block.idamerrorstack); // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "close_error\n");
+        UDA_LOG(UDA_LOG_DEBUG, "close_error");
         close_error();
 
-        UDA_LOG(UDA_LOG_DEBUG, "error_log\n");
+        UDA_LOG(UDA_LOG_DEBUG, "error_log");
         error_log(_client_block, _request_block, &_server_block.idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "close_error\n");
+        UDA_LOG(UDA_LOG_DEBUG, "close_error");
         close_error();
 
-        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
+        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock");
         init_server_block(&_server_block, ServerVersion);
 
         //----------------------------------------------------------------------------
@@ -307,7 +341,7 @@ void uda::server::Server::loop()
 
 int uda::server::Server::handle_request()
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Beginning request handling\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Beginning request handling");
 
     //----------------------------------------------------------------------------
     // Client and Server States
@@ -348,11 +382,11 @@ int uda::server::Server::handle_request()
         _environment->external_user = 1;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "client version  %d\n", _client_block.version);
-    UDA_LOG(UDA_LOG_DEBUG, "private_flags   %d\n", private_flags);
-    UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  %d\n", clientFlags);
-    UDA_LOG(UDA_LOG_DEBUG, "altRank         %d\n", altRank);
-    UDA_LOG(UDA_LOG_DEBUG, "external?       %d\n", _environment->external_user);
+    UDA_LOG(UDA_LOG_DEBUG, "client version  {}", _client_block.version);
+    UDA_LOG(UDA_LOG_DEBUG, "private_flags   {}", private_flags);
+    UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  {}", clientFlags);
+    UDA_LOG(UDA_LOG_DEBUG, "altRank         {}", altRank);
+    UDA_LOG(UDA_LOG_DEBUG, "external?       {}", _environment->external_user);
 
     if (_server_block.idamerrorstack.nerrors > 0) {
         _server_block.error = _server_block.idamerrorstack.idamerror[0].code;
@@ -508,10 +542,10 @@ int uda::server::Server::handle_request()
             strcpy(request_block_.source, work);
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s avoiding %s\n", environment_->server_proxy,
+        UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to {} avoiding {}", environment_->server_proxy,
                 environment_->server_this);
-        UDA_LOG(UDA_LOG_DEBUG, "plugin: %s\n", proxy_name.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request_block_.source);
+        UDA_LOG(UDA_LOG_DEBUG, "plugin: {}", proxy_name.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "source: {}", request_block_.source);
     }
 
 #else
@@ -570,8 +604,8 @@ int uda::server::Server::handle_request()
 
             strcpy(request->source, work);
 
-            UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s\n", _environment->server_proxy);
-            UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request->source);
+            UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to {}", _environment->server_proxy);
+            UDA_LOG(UDA_LOG_DEBUG, "source: {}", request->source);
         }
     }
 #endif
@@ -579,7 +613,7 @@ int uda::server::Server::handle_request()
     //----------------------------------------------------------------------
     // Write to the Access Log
 
-    udaAccessLog(TRUE, _client_block, _request_block, _server_block, _total_data_block_size);
+    uda_access_log(TRUE, _client_block, _request_block, _server_block, _total_data_block_size);
 
     //----------------------------------------------------------------------
     // Initialise Data Structures
@@ -605,7 +639,7 @@ int uda::server::Server::handle_request()
         }
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "****** Incoming tcp packet received without error. Accessing data.\n");
+    UDA_LOG(UDA_LOG_DEBUG, "****** Incoming tcp packet received without error. Accessing data.");
 
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data plug-in to use
@@ -656,14 +690,14 @@ int uda::server::Server::handle_request()
     SignalDesc* signal_desc = &_metadata_block.signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
-    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
-    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", data_source->path);
-    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
-    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
-    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
-    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source->archive);
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", data_source->device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", data_source->path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", data_source->filename);
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", data_source->exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", data_source->pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : {} ", depth);
     print_request_block(_request_block);
     print_data_source(*data_source);
     print_signal(_metadata_block.signal_rec);
@@ -726,22 +760,13 @@ int uda::server::Server::handle_request()
     return err;
 }
 
-unsigned int count_data_block_list_size(const std::vector<DataBlock>& data_blocks, ClientBlock* client_block)
-{
-    unsigned int total = 0;
-    for (const auto& data_block : data_blocks) {
-        total += countDataBlockSize(&data_block, client_block);
-    }
-    return total;
-}
-
 void print_data_blocks(const std::vector<DataBlock>& data_blocks)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Data Blocks\n");
-    UDA_LOG(UDA_LOG_DEBUG, "count        : %d\n", data_blocks.size());
+    UDA_LOG(UDA_LOG_DEBUG, "Data Blocks");
+    UDA_LOG(UDA_LOG_DEBUG, "count        : {}", data_blocks.size());
     int i = 0;
     for (const auto& data_block : data_blocks) {
-        UDA_LOG(UDA_LOG_DEBUG, "block number : %d\n", i);
+        UDA_LOG(UDA_LOG_DEBUG, "block number : {}", i);
         print_data_block(data_block);
         ++i;
     }
@@ -780,7 +805,7 @@ int uda::server::Server::report_to_client()
     }
 
     if (err != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop");
 
         // Send the Server Block and bypass sending data (there are none!)
         int rc = _protocol.flush();
@@ -836,7 +861,7 @@ void uda::server::Server::handshake_client()
 
     // Receive the client block, respecting earlier protocol versions
 
-    UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block");
 
     int err = 0;
 

@@ -109,6 +109,69 @@ static int handshake_client(ClientBlock* client_block, ServerBlock* server_block
                             LogStructList* log_struct_list, XDR* server_input, XDR* server_output);
 #endif
 
+unsigned int count_data_block_size(const DataBlock* data_block, ClientBlock* client_block) {
+    int factor;
+    Dims dim;
+    unsigned int count = sizeof(DataBlock);
+
+    count += (unsigned int) (getSizeOf((UDA_TYPE) data_block->data_type) * data_block->data_n);
+
+    if (data_block->error_type != UDA_TYPE_UNKNOWN) {
+        count += (unsigned int) (getSizeOf((UDA_TYPE) data_block->error_type) * data_block->data_n);
+    }
+    if (data_block->errasymmetry) {
+        count += (unsigned int) (getSizeOf((UDA_TYPE) data_block->error_type) * data_block->data_n);
+    }
+
+    if (data_block->rank > 0) {
+        for (unsigned int k = 0; k < data_block->rank; k++) {
+            count += sizeof(Dims);
+            dim = data_block->dims[k];
+            if (!dim.compressed) {
+                count += (unsigned int) (getSizeOf((UDA_TYPE) dim.data_type) * dim.dim_n);
+                factor = 1;
+                if (dim.errasymmetry) {
+                    factor = 2;
+                }
+                if (dim.error_type != UDA_TYPE_UNKNOWN) {
+                    count += (unsigned int) (factor * getSizeOf((UDA_TYPE) dim.error_type) * dim.dim_n);
+                }
+            } else {
+                switch (dim.method) {
+                    case 0:
+                        count += +2 * sizeof(double);
+                        break;
+                    case 1:
+                        for (unsigned int i = 0; i < dim.udoms; i++) {
+                            count += (unsigned int) (*((long*) dim.sams + i) * getSizeOf((UDA_TYPE) dim.data_type));
+                        }
+                        break;
+                    case 2:
+                        count += dim.udoms * getSizeOf((UDA_TYPE) dim.data_type);
+                        break;
+                    case 3:
+                        count += dim.udoms * getSizeOf((UDA_TYPE) dim.data_type);
+                        break;
+                }
+            }
+        }
+    }
+
+    if (client_block->get_meta) {
+        count += sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
+    }
+
+    return count;
+}
+
+unsigned int count_data_block_list_size(const DataBlockList* data_block_list, ClientBlock* client_block) {
+    unsigned int total = 0;
+    for (int i = 0; i < data_block_list->count; ++i) {
+        total += count_data_block_size(&data_block_list->data[i], client_block);
+    }
+    return total;
+}
+
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
@@ -200,7 +263,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
     //------------------------------------------------------------------------------------------------
     // How much data to be sent?
 
-    *total_datablock_size = countDataBlockListSize(data_block_list, client_block);
+    *total_datablock_size = count_data_block_list_size(data_block_list, client_block);
 
     print_server_block(*server_block);
 
@@ -211,12 +274,12 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
 
     if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                          server_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
         return err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server Block Sent to Client without error\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Block Sent to Client without error");
 
     if (server_block->idamerrorstack.nerrors > 0) {
         err = server_block->idamerrorstack.idamerror[0].code;
@@ -225,13 +288,13 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
     }
 
     if (err != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop");
 
         // Send the Server Block and bypass sending data (there are none!)
 
         if (!xdrrec_endofrecord(server_output, 1)) {
             err = UDA_PROTOCOL_ERROR_7;
-            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2");
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Server Block)");
             return err;
         }
@@ -250,7 +313,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->data_system, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure");
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
             return err;
         }
@@ -263,7 +326,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->system_config, protocol_version, log_struct_list, 0, malloc_source)) !=
             0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure");
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
             return err;
         }
@@ -275,7 +338,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->data_source, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure");
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
             return err;
         }
@@ -287,7 +350,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->signal_rec, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure");
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
             return err;
         }
@@ -299,7 +362,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->signal_desc, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure");
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
             return err;
         }
@@ -310,7 +373,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
     // Send the Data
 
     print_data_block_list(*data_block_list);
-    UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client");
 
     if (protocol_version < 9) {
         for (int i = 0; i < data_block_list->count; ++i) {
@@ -325,12 +388,12 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
     if ((err = protocol2(server_output, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, nullptr, log_malloc_list,
                          user_defined_type_list, data_block_list, protocol_version, log_struct_list, 0,
                          malloc_source)) != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
         return err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Data Block Sent to Client\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Data Block Sent to Client");
 
     //----------------------------------------------------------------------------
     // Send the data in a single full TCP packet
@@ -362,7 +425,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
                 }
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client");
 
             if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                  data_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
@@ -370,7 +433,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
                 return err;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Hierarchical Data Structure sent to Client\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Hierarchical Data Structure sent to Client");
         }
     }
 
@@ -383,7 +446,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
                    LogStructList* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
                    int server_tot_block_time, int* server_timeout)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop");
 
     //----------------------------------------------------------------------------
     // Client and Server States
@@ -395,7 +458,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
 
     init_client_block(client_block, 0, "");
 
-    UDA_LOG(UDA_LOG_DEBUG, "Waiting to receive Client Block\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Waiting to receive Client Block");
 
     // Receive the Client Block, request block and putData block
 
@@ -413,7 +476,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
             UDA_THROW_ERROR(999, "Server Time Out");
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block");
 
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
         concat_error(&server_block->idamerrorstack); // Update Server State with Error Stack
@@ -445,11 +508,11 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
         environment.external_user = 1;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion %d\n", protocol_version);
-    UDA_LOG(UDA_LOG_DEBUG, "private_flags %d\n", private_flags);
-    UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  %d\n", client_flags);
-    UDA_LOG(UDA_LOG_DEBUG, "altRank      %d\n", alt_rank);
-    UDA_LOG(UDA_LOG_DEBUG, "external?    %d\n", environment.external_user);
+    UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion {}", protocol_version);
+    UDA_LOG(UDA_LOG_DEBUG, "private_flags {}", private_flags);
+    UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  {}", client_flags);
+    UDA_LOG(UDA_LOG_DEBUG, "altRank      {}", alt_rank);
+    UDA_LOG(UDA_LOG_DEBUG, "external?    {}", environment.external_user);
 
     if (server_block->idamerrorstack.nerrors > 0) {
         server_block->error = server_block->idamerrorstack.idamerror[0].code;
@@ -490,7 +553,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
         UDA_THROW_ERROR(err, "Protocol 1 Error (Receiving Client Request)");
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Request Block Received\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Request Block Received");
 
     print_client_block(*client_block);
     print_server_block(*server_block);
@@ -611,10 +674,10 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
             strcpy(request_block->source, work);
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s avoiding %s\n", environment.server_proxy,
+        UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to {} avoiding {}", environment.server_proxy,
                 environment.server_this);
-        UDA_LOG(UDA_LOG_DEBUG, "plugin: %s\n", proxyName);
-        UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request_block->source);
+        UDA_LOG(UDA_LOG_DEBUG, "plugin: {}", proxyName);
+        UDA_LOG(UDA_LOG_DEBUG, "source: {}", request_block->source);
     }
 
 #else
@@ -671,8 +734,8 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
 
             strcpy(request->source, work.c_str());
 
-            UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s\n", environment.server_proxy);
-            UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request->source);
+            UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to {}", environment.server_proxy);
+            UDA_LOG(UDA_LOG_DEBUG, "source: {}", request->source);
         }
     }
 #endif
@@ -680,7 +743,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
     //----------------------------------------------------------------------
     // Write to the Access Log
 
-    udaAccessLog(TRUE, *client_block, *request_block, *server_block, *total_datablock_size);
+    uda_access_log(TRUE, *client_block, *request_block, *server_block, *total_datablock_size);
 
     //----------------------------------------------------------------------
     // Initialise Data Structures
@@ -704,8 +767,8 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
                 UDA_THROW_ERROR(err, "Protocol 1 Error (Receiving Client putDataBlockList)");
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "putData Block List Received\n");
-            UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request->putDataBlockList.blockCount);
+            UDA_LOG(UDA_LOG_DEBUG, "putData Block List Received");
+            UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request->putDataBlockList.blockCount);
         }
     }
 
@@ -713,7 +776,7 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
 
     xdrrec_eof(server_input);
 
-    UDA_LOG(UDA_LOG_DEBUG, "****** Incoming tcp packet received without error. Accessing data.\n");
+    UDA_LOG(UDA_LOG_DEBUG, "****** Incoming tcp packet received without error. Accessing data.");
 
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data plug-in to use
@@ -767,14 +830,14 @@ int handle_request(RequestBlock* request_block, ClientBlock* client_block, Serve
     SignalDesc* signal_desc = &metadata_block->signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
-    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
-    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", data_source->path);
-    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
-    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
-    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
-    //    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source->archive);
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", data_source->device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", data_source->path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", data_source->filename);
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", data_source->exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", data_source->pass);
+    //    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : {} ", depth);
     print_request_block(*request_block);
     print_data_source(*data_source);
     print_signal(metadata_block->signal_rec);
@@ -850,7 +913,7 @@ int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, 
     int next_protocol;
 
     do {
-        UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
         // copy_user_defined_type_list(&userdefinedtypelist);
@@ -870,24 +933,24 @@ int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, 
             break;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: %d [%d]\n", err, *fatal);
+        UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: {} [{}]", err, *fatal);
 
         err = report_to_client(server_block, data_block_list, client_block, err, metadata_block, log_struct_list,
                                server_output, total_datablock_size);
 
-        UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
-        UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, *fatal);
+        UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client");
+        UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: {} [{}]", err, *fatal);
 
-        udaAccessLog(FALSE, *client_block, *request_block, *server_block, *total_datablock_size);
+        uda_access_log(FALSE, *client_block, *request_block, *server_block, *total_datablock_size);
 
         err = 0;
         next_protocol = UDA_PROTOCOL_SLEEP;
-        UDA_LOG(UDA_LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
+        UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol);
 
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList\n");
+        UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList");
         udaFreeUserDefinedTypeList(user_defined_type_list);
         user_defined_type_list = nullptr;
 
@@ -895,13 +958,13 @@ int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, 
         free(log_malloc_list);
         log_malloc_list = nullptr;
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlockList\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlockList");
         freeDataBlockList(data_block_list);
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeActions");
         free_actions(actions_desc);
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
+        UDA_LOG(UDA_LOG_DEBUG, "freeActions");
         free_actions(actions_sig);
 
         freeRequestBlock(request_block);
@@ -909,19 +972,19 @@ int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "concat_error\n");
+        UDA_LOG(UDA_LOG_DEBUG, "concat_error");
         concat_error(&server_block->idamerrorstack); // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "close_error\n");
+        UDA_LOG(UDA_LOG_DEBUG, "close_error");
         close_error();
 
-        UDA_LOG(UDA_LOG_DEBUG, "error_log\n");
+        UDA_LOG(UDA_LOG_DEBUG, "error_log");
         error_log(*client_block, *request_block, &server_block->idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "close_error\n");
+        UDA_LOG(UDA_LOG_DEBUG, "close_error");
         close_error();
 
-        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
+        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock");
         init_server_block(server_block, ServerVersion);
 
         //----------------------------------------------------------------------------
@@ -938,9 +1001,9 @@ int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block, 
     //----------------------------------------------------------------------------
     // Server Destruct.....
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server Shutting Down\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Shutting Down");
     if (server_tot_block_time > 1000 * server_timeout) {
-        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after %d secs\n", server_timeout);
+        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after {} secs", server_timeout);
     }
 
     //----------------------------------------------------------------------------
@@ -973,7 +1036,7 @@ int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block, 
 
     fflush(nullptr);
 
-    udaCloseLogging();
+    uda_close_logging();
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
@@ -1052,13 +1115,13 @@ int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* 
 
     // Receive the client block, respecting earlier protocol versions
 
-    UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block");
 
     int err = 0;
 
     if (!xdrrec_skiprecord(server_input)) {
         err = UDA_PROTOCOL_ERROR_5;
-        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Client Block)");
     } else {
 
@@ -1067,11 +1130,11 @@ int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* 
         if ((err = protocol2(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                              client_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
-            UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!");
         }
 
         if (err == 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Initial Client Block received");
             print_client_block(*client_block);
         }
 
@@ -1100,7 +1163,7 @@ int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* 
 
     // Send the server block
 
-    UDA_LOG(UDA_LOG_DEBUG, "Sending Initial Server Block \n");
+    UDA_LOG(UDA_LOG_DEBUG, "Sending Initial Server Block");
     print_server_block(*server_block);
 
     int protocol_id = UDA_PROTOCOL_SERVER_BLOCK; // Receive Server Block: Server Aknowledgement
@@ -1114,13 +1177,13 @@ int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* 
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Initial Server Block sent without error\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Initial Server Block sent without error");
 
     // If the protocol version is legacy (<=6), then divert full control to a legacy server
 
     if (client_block->version <= LegacyServerVersion) {
-        UDA_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server\n");
-        UDA_LOG(UDA_LOG_DEBUG, "Client protocol %d\n", client_block->version);
+        UDA_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server");
+        UDA_LOG(UDA_LOG_DEBUG, "Client protocol {}", client_block->version);
         return legacyServer(*client_block, &plugin_list, log_malloc_list, user_defined_type_list, &socket_list,
                             protocol_version, server_input, server_output, 0, malloc_source);
     }
@@ -1143,7 +1206,7 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
         init_error_stack();
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
+    UDA_LOG(UDA_LOG_DEBUG, "New Server Instance");
 
     //-------------------------------------------------------------------------
     // Connect to the client with SSL (X509) authentication
@@ -1167,7 +1230,7 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
 
     std::tie(server_input, server_output) = serverCreateXDRStream(io_data);
 
-    UDA_LOG(UDA_LOG_DEBUG, "XDR Streams Created\n");
+    UDA_LOG(UDA_LOG_DEBUG, "XDR Streams Created");
 
     //-------------------------------------------------------------------------
     // Open and Initialise the Socket List (Once Only)
@@ -1193,7 +1256,7 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
                 UDA_THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
+            UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: {}", token);
             parseIncludeFile(&parseduserdefinedtypelist, token); // file containing the SArray structure definition
             print_user_defined_type_list(parseduserdefinedtypelist);
         }
@@ -1209,9 +1272,9 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
         initPluginList(&plugin_list, getServerEnvironment());
         plugin_list_initialised = 1;
 
-        UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
+        UDA_LOG(UDA_LOG_INFO, "List of Plugins available");
         for (int i = 0; i < plugin_list.count; i++) {
-            UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, plugin_list.plugin[i].request, plugin_list.plugin[i].format);
+            UDA_LOG(UDA_LOG_INFO, "[{}] {} {}", i, plugin_list.plugin[i].request, plugin_list.plugin[i].format);
         }
     }
 

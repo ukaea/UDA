@@ -33,8 +33,6 @@ if( NOT WIN32 AND NOT MINGW )
   find_package( TIRPC QUIET )
 endif()
 
-set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
-
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/include )
 
 add_subdirectory( bin )

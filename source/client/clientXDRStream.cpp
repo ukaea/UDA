@@ -24,7 +24,7 @@ std::pair<XDR*, XDR*> uda::client::clientCreateXDRStream()
     client_output.x_ops = nullptr;
     client_input.x_ops = nullptr;
 
-    UDA_LOG(UDA_LOG_DEBUG, "Creating XDR Streams \n");
+    UDA_LOG(UDA_LOG_DEBUG, "Creating XDR Streams");
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     if (getUdaClientSSLDisabled()) {

@@ -63,7 +63,7 @@ int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
     if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
         close_error();
         if (udaNumErrors() == 0) {
-            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [{}]", data_source);
             add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
@@ -133,7 +133,7 @@ int udaClientFileAPI(const char* file, const char* signal, const char* format)
     if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
         close_error();
         if (udaNumErrors() == 0) {
-            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
+            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [{}]", data_source);
             add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
@@ -141,12 +141,12 @@ int udaClientFileAPI(const char* file, const char* signal, const char* format)
 
     //-------------------------------------------------------------------------
 
-    UDA_LOG(UDA_LOG_DEBUG, "Number of Requests: %d\n", request_block.num_requests);
+    UDA_LOG(UDA_LOG_DEBUG, "Number of Requests: {}", request_block.num_requests);
     for (int i = 0; i < request_block.num_requests; ++i) {
         auto req = &request_block.requests[i];
-        UDA_LOG(UDA_LOG_DEBUG, "Request %d: %d\n", i, req->request);
-        UDA_LOG(UDA_LOG_DEBUG, "File:       %d\n", i, req->path);
-        UDA_LOG(UDA_LOG_DEBUG, "Signal:     %d\n", i, req->signal);
+        UDA_LOG(UDA_LOG_DEBUG, "Request {}: {}", i, req->request);
+        UDA_LOG(UDA_LOG_DEBUG, "File:       {}", i, req->path);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal:     {}", i, req->signal);
     }
 
     //-------------------------------------------------------------------------

@@ -440,14 +440,14 @@ int uda::server::server_processing(client_server::ClientBlock client_block, clie
     // Cast the Time Dimension to Double Precision if the data are in a compressed format
     // or ALL Dimensions if the data are in compressed formats
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server Side Processing\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Side Processing");
 
     if (client_block.get_timedble || client_block.get_dimdble) {
         for (unsigned int k = 0; k < data_block->rank; k++) {
             if (client_block.get_timedble && k != (unsigned int)data_block->order) {
                 continue; // Only Process the Time Dimension
             }
-            UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension %d\n", k);
+            UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension {}", k);
             ddim = data_block->dims + k;
             if (ddim->compressed) {
                 if (ddim->method == 0) {
@@ -926,13 +926,13 @@ int uda::server::server_processing(client_server::ClientBlock client_block, clie
                                     }
 
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
-                                        UDA_LOG(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((float*)ddim->offs + i),
+                                        UDA_LOG(UDA_LOG_DEBUG, "{}  {}  {}", i, *((float*)ddim->offs + i),
                                                 *((float*)ddim->ints + i));
 
                                         *(newoffs + i) = (double)*((float*)ddim->offs + i);
                                         *(newints + i) = (double)*((float*)ddim->ints + i);
 
-                                        UDA_LOG(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *(newoffs + i), *(newints + i));
+                                        UDA_LOG(UDA_LOG_DEBUG, "{}  {}  {}", i, *(newoffs + i), *(newints + i));
                                     }
                                     if (ddim->offs != nullptr) {
                                         free(ddim->offs);
@@ -943,14 +943,14 @@ int uda::server::server_processing(client_server::ClientBlock client_block, clie
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
-                                        UDA_LOG(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*)ddim->offs + i),
+                                        UDA_LOG(UDA_LOG_DEBUG, "{}  {}  {}", i, *((double*)ddim->offs + i),
                                                 *((double*)ddim->ints + i));
                                     }
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
-                                    UDA_LOG(UDA_LOG_DEBUG, "Processing Float Method 2\n");
-                                    UDA_LOG(UDA_LOG_DEBUG, "udoms: %d\n", ddim->udoms);
+                                    UDA_LOG(UDA_LOG_DEBUG, "Processing Float Method 2");
+                                    UDA_LOG(UDA_LOG_DEBUG, "udoms: {}", ddim->udoms);
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((float*)ddim->offs + i);
@@ -962,12 +962,12 @@ int uda::server::server_processing(client_server::ClientBlock client_block, clie
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 3:
-                                    UDA_LOG(UDA_LOG_DEBUG, "Processing Float Method 3\n");
+                                    UDA_LOG(UDA_LOG_DEBUG, "Processing Float Method 3");
                                     newoffs = (double*)malloc(sizeof(double));
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((float*)ddim->offs);
                                     *newints = (double)*((float*)ddim->ints);
-                                    UDA_LOG(UDA_LOG_DEBUG, "%f  %f\n", *((double*)ddim->offs), *((double*)ddim->ints));
+                                    UDA_LOG(UDA_LOG_DEBUG, "{}  {}", *((double*)ddim->offs), *((double*)ddim->ints));
                                     if (ddim->offs != nullptr) {
                                         free(ddim->offs);
                                     }
@@ -976,7 +976,7 @@ int uda::server::server_processing(client_server::ClientBlock client_block, clie
                                     }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    UDA_LOG(UDA_LOG_DEBUG, "%f  %f\n", *((double*)ddim->offs), *((double*)ddim->ints));
+                                    UDA_LOG(UDA_LOG_DEBUG, "{}  {}", *((double*)ddim->offs), *((double*)ddim->ints));
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }

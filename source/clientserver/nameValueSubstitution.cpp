@@ -36,9 +36,9 @@ int uda::client_server::name_value_substitution(NameValueList* nameValueList, ch
         return 0; // nothing to substitute and no new NV pairs
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "nameValueSubstitution - Initial set of %d NV pairs\n", nameValueList->pairCount);
+    UDA_LOG(UDA_LOG_DEBUG, "nameValueSubstitution - Initial set of {} NV pairs", nameValueList->pairCount);
     for (int i = 0; i < nameValueList->pairCount; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Pair[%d] = %s, Name = %s, value = %s\n", i, nameValueList->nameValue[i].pair,
+        UDA_LOG(UDA_LOG_DEBUG, "Pair[{}] = {}, Name = {}, value = {}", i, nameValueList->nameValue[i].pair,
                 nameValueList->nameValue[i].name, nameValueList->nameValue[i].value);
     }
 
@@ -59,9 +59,9 @@ int uda::client_server::name_value_substitution(NameValueList* nameValueList, ch
         return 0;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "nameValueSubstitution - Additional set of %d NV pairs\n", newNameValueList.pairCount);
+    UDA_LOG(UDA_LOG_DEBUG, "nameValueSubstitution - Additional set of {} NV pairs", newNameValueList.pairCount);
     for (int i = 0; i < newNameValueList.pairCount; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Pair[%d] = %s, Name = %s, value = %s\n", i, newNameValueList.nameValue[i].pair,
+        UDA_LOG(UDA_LOG_DEBUG, "Pair[{}] = {}, Name = {}, value = {}", i, newNameValueList.nameValue[i].pair,
                 newNameValueList.nameValue[i].name, newNameValueList.nameValue[i].value);
     }
 
@@ -103,7 +103,7 @@ int uda::client_server::name_value_substitution(NameValueList* nameValueList, ch
                     }
                     placeholderCount++;
                     if (placeholderCount <= newNameValueList.pairCount) {
-                        UDA_LOG(UDA_LOG_DEBUG, "[%d] name: %s, substitution position %d, substitution value %s\n",
+                        UDA_LOG(UDA_LOG_DEBUG, "[{}] name: {}, substitution position {}, substitution value {}",
                                 placeholderCount, nameValueList->nameValue[i].name, tpassIndex[placeholderCount - 1],
                                 newNameValueList.nameValue[tpassIndex[placeholderCount - 1]].value);
                     }
@@ -114,17 +114,17 @@ int uda::client_server::name_value_substitution(NameValueList* nameValueList, ch
                 break; // There are no placeholders to process
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Name Value Pair Count = %d\n", nameValueList->pairCount);
-            UDA_LOG(UDA_LOG_DEBUG, "Placeholder Count     = %d\n", placeholderCount);
-            UDA_LOG(UDA_LOG_DEBUG, "Additional Name Value Pairs and Substitutions = %s\n", tpass);
-            UDA_LOG(UDA_LOG_DEBUG, "Additional Name Value Pairs and Substitutions Count = %d\n",
+            UDA_LOG(UDA_LOG_DEBUG, "Name Value Pair Count = {}", nameValueList->pairCount);
+            UDA_LOG(UDA_LOG_DEBUG, "Placeholder Count     = {}", placeholderCount);
+            UDA_LOG(UDA_LOG_DEBUG, "Additional Name Value Pairs and Substitutions = {}", tpass);
+            UDA_LOG(UDA_LOG_DEBUG, "Additional Name Value Pairs and Substitutions Count = {}",
                     newNameValueList.pairCount);
 
             // Placeholder substitutions (must be the specified first in tpass)
 
             if (placeholderCount > newNameValueList.pairCount) {
                 // Too many placeholders for the available substitutions
-                UDA_LOG(UDA_LOG_DEBUG, "Inconsistent count of placeholders and available substitutions!\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Inconsistent count of placeholders and available substitutions!");
                 err = 999;
                 add_error(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
                           "Inconsistent count of placeholders and available substitutions!");
@@ -136,8 +136,8 @@ int uda::client_server::name_value_substitution(NameValueList* nameValueList, ch
 
             for (int i = 0; i < placeholderCount; i++) {
                 if (tpassIndex[i] < 0 || tpassIndex[i] > newNameValueList.pairCount) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Placeholder numbering is Inconsistent with Placeholder Count!\n");
-                    UDA_LOG(UDA_LOG_DEBUG, "tpassIndex[%d] = %d  (%d)\n", i, tpassIndex[i], placeholderCount);
+                    UDA_LOG(UDA_LOG_DEBUG, "Placeholder numbering is Inconsistent with Placeholder Count!");
+                    UDA_LOG(UDA_LOG_DEBUG, "tpassIndex[{}] = {}  ({})", i, tpassIndex[i], placeholderCount);
                     err = 999;
                     add_error(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
                               "Placeholder numbering is Inconsistent with Placeholder Count!");
@@ -150,7 +150,7 @@ int uda::client_server::name_value_substitution(NameValueList* nameValueList, ch
                 nameValueList->nameValue[placeholderIndex[i]].value = newNameValueList.nameValue[tpassIndex[i]].value;
                 newNameValueList.nameValue[tpassIndex[i]].value = nullptr;
 
-                UDA_LOG(UDA_LOG_DEBUG, "Placeholder: [%d][%d] %s, Substitution Value [%d] %s\n", i, placeholderIndex[i],
+                UDA_LOG(UDA_LOG_DEBUG, "Placeholder: [{}][{}] {}, Substitution Value [{}] {}", i, placeholderIndex[i],
                         nameValueList->nameValue[placeholderIndex[i]].name, tpassIndex[i],
                         nameValueList->nameValue[placeholderIndex[i]].value);
             }
@@ -198,7 +198,7 @@ int uda::client_server::name_value_substitution(NameValueList* nameValueList, ch
             }
             nameValueList->nameValue[nameValueList->pairCount].name = newNameValueList.nameValue[i].name;
             nameValueList->nameValue[nameValueList->pairCount++].value = newNameValueList.nameValue[i].value;
-            UDA_LOG(UDA_LOG_DEBUG, "[%d] Name = %s, Value = %s\n", i, newNameValueList.nameValue[i].name,
+            UDA_LOG(UDA_LOG_DEBUG, "[{}] Name = {}, Value = {}", i, newNameValueList.nameValue[i].name,
                     newNameValueList.nameValue[i].value);
             newNameValueList.nameValue[i].pair = nullptr;
             newNameValueList.nameValue[i].name = nullptr;
@@ -229,9 +229,9 @@ void embedded_value_substitution(NameValueList* nameValueList)
         return;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "embeddedValueSubstitution\n");
+    UDA_LOG(UDA_LOG_DEBUG, "embeddedValueSubstitution");
     for (int i = 0; i < nameValueList->pairCount; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Pair[%d] = %s, Name = %s, value = %s\n", i, nameValueList->nameValue[i].pair,
+        UDA_LOG(UDA_LOG_DEBUG, "Pair[{}] = {}, Name = {}, value = {}", i, nameValueList->nameValue[i].pair,
                 nameValueList->nameValue[i].name, nameValueList->nameValue[i].value);
     }
 
@@ -246,11 +246,11 @@ void embedded_value_substitution(NameValueList* nameValueList)
 
         init_name_value_list(&newNameValueList);
 
-        UDA_LOG(UDA_LOG_DEBUG, "Extracting Name Value Pairs from [%d]: %s\n", i, nameValueList->nameValue[i].value);
+        UDA_LOG(UDA_LOG_DEBUG, "Extracting Name Value Pairs from [{}]: {}", i, nameValueList->nameValue[i].value);
 
         unsigned short strip = 1; // Remove enclosing quotes from name value pairs
         char* work = strdup(nameValueList->nameValue[i].value);
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] work = %s\n", i, work);
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] work = {}", i, work);
 
         // Extract NV pairs and keywords from the input placeholder value
 
@@ -260,9 +260,9 @@ void embedded_value_substitution(NameValueList* nameValueList)
             continue;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Embedded Pair Count = %d\n", newNameValueList.pairCount);
+        UDA_LOG(UDA_LOG_DEBUG, "Embedded Pair Count = {}", newNameValueList.pairCount);
         for (int j = 0; j < newNameValueList.pairCount; j++) {
-            UDA_LOG(UDA_LOG_DEBUG, "Pair[%d] %s, Name = %s, value = %s\n", j, newNameValueList.nameValue[j].pair,
+            UDA_LOG(UDA_LOG_DEBUG, "Pair[{}] {}, Name = {}, value = {}", j, newNameValueList.nameValue[j].pair,
                     newNameValueList.nameValue[j].name, newNameValueList.nameValue[j].value);
         }
 
@@ -278,7 +278,7 @@ void embedded_value_substitution(NameValueList* nameValueList)
                     // Match by name (case sensitive) only
                     if (!strcmp(&newNameValueList.nameValue[j].value[1], nameValueList->nameValue[k].name)) {
 
-                        UDA_LOG(UDA_LOG_DEBUG, "Substitution: embedded[%d] %s=%s with [%d] %s=%s\n", j,
+                        UDA_LOG(UDA_LOG_DEBUG, "Substitution: embedded[{}] {}={} with [{}] {}={}", j,
                                 newNameValueList.nameValue[j].name, newNameValueList.nameValue[j].value, k,
                                 nameValueList->nameValue[k].name, nameValueList->nameValue[k].value);
 
@@ -286,13 +286,13 @@ void embedded_value_substitution(NameValueList* nameValueList)
 
                         // Substitute here with nameValueList->nameValue[k].value
                         char* original = strdup(nameValueList->nameValue[i].value);
-                        UDA_LOG(UDA_LOG_DEBUG, "Original: %s\n", original);
+                        UDA_LOG(UDA_LOG_DEBUG, "Original: {}", original);
 
                         char* pp = strstr(original, newNameValueList.nameValue[j].value);
                         int lstr = strlen(newNameValueList.nameValue[j].value); // Target this
                         int ok = 1;
 
-                        UDA_LOG(UDA_LOG_DEBUG, "targeting %s [%d] from %s to %s\n", pp, lstr,
+                        UDA_LOG(UDA_LOG_DEBUG, "targeting {} [{}] from {} to {}", pp, lstr,
                                 newNameValueList.nameValue[j].value, nameValueList->nameValue[k].value);
 
                         for (m = 0; m < lstr; m++) {
@@ -300,17 +300,17 @@ void embedded_value_substitution(NameValueList* nameValueList)
                         }
 
                         if (ok) {
-                            UDA_LOG(UDA_LOG_DEBUG, "Substituting %s with %s\n", newNameValueList.nameValue[j].value,
+                            UDA_LOG(UDA_LOG_DEBUG, "Substituting {} with {}", newNameValueList.nameValue[j].value,
                                     nameValueList->nameValue[k].value);
 
                             pp[0] = '\0';
                             std::string replace =
                                 fmt::format("{}{}{}", original, nameValueList->nameValue[k].value, &pp[lstr]);
 
-                            UDA_LOG(UDA_LOG_DEBUG, "original %s\n", original);
-                            UDA_LOG(UDA_LOG_DEBUG, "value    %s\n", nameValueList->nameValue[k].value);
-                            UDA_LOG(UDA_LOG_DEBUG, "residual %s\n", &pp[lstr]);
-                            UDA_LOG(UDA_LOG_DEBUG, "Modified Original %s\n", replace.c_str());
+                            UDA_LOG(UDA_LOG_DEBUG, "original {}", original);
+                            UDA_LOG(UDA_LOG_DEBUG, "value    {}", nameValueList->nameValue[k].value);
+                            UDA_LOG(UDA_LOG_DEBUG, "residual {}", &pp[lstr]);
+                            UDA_LOG(UDA_LOG_DEBUG, "Modified Original {}", replace.c_str());
 
                             free(original);
                             free(nameValueList->nameValue[i].value);

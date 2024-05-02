@@ -174,8 +174,8 @@ int uda::client_server::path_replacement(char* path, const Environment* environm
     std::string work;
     work.resize(strlen(path));
 
-    UDA_LOG(UDA_LOG_DEBUG, "path_replacement: Testing for File Path Replacement\n");
-    UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
+    UDA_LOG(UDA_LOG_DEBUG, "path_replacement: Testing for File Path Replacement");
+    UDA_LOG(UDA_LOG_DEBUG, "{}", path);
 
     // Parse targets
     boost::split(targets, environment->private_path_target, boost::is_any_of(delimiters), boost::token_compress_on);
@@ -279,8 +279,8 @@ int uda::client_server::path_replacement(char* path, const Environment* environm
                         "Number of Path Targets and Substitutes is inconsistent. Correct the Environment Variables.");
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
-    UDA_LOG(UDA_LOG_DEBUG, "path_replacement: End\n");
+    UDA_LOG(UDA_LOG_DEBUG, "{}", path);
+    UDA_LOG(UDA_LOG_DEBUG, "path_replacement: End");
 
     return 0;
 }
@@ -642,7 +642,7 @@ int uda::client_server::expand_file_path(char* path, const Environment* environm
             };
             strcpy(path, opath); // Return to the Original path name
             UDA_LOG(UDA_LOG_DEBUG,
-                    "Unable to identify the Directory of the file: %s\n"
+                    "Unable to identify the Directory of the file: {}\n"
                     "The server will know if a true error exists: Plugin & Environment dependent",
                     path);
             return 0;

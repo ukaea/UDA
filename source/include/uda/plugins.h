@@ -18,6 +18,10 @@
 extern "C" {
 #endif
 
+#define UDA_PLUGIN_LOG(INTERFACE, MGS) udaPluginLog(INTERFACE, __FILE__, __LINE__, MGS);
+#define UDA_PLUGIN_LOG_S(INTERFACE, FMT, ARG) udaPluginLog_s(INTERFACE, __FILE__, __LINE__, FMT, ARG);
+#define UDA_PLUGIN_LOG_I(INTERFACE, FMT, ARG) udaPluginLog_i(INTERFACE, __FILE__, __LINE__, FMT, ARG);
+
 typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // Write to the Error Log
 
 // Prototypes
@@ -34,7 +38,9 @@ LIBRARY_API int udaPluginCheckInterfaceVersion(UDA_PLUGIN_INTERFACE* plugin_inte
 LIBRARY_API void udaPluginSetVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_version);
 LIBRARY_API const char* udaPluginFunction(UDA_PLUGIN_INTERFACE* plugin_interface);
 
-LIBRARY_API void udaPluginLog(UDA_PLUGIN_INTERFACE* plugin_interface, const char* fmt, ...);
+LIBRARY_API void udaPluginLog(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* msg);
+LIBRARY_API void udaPluginLog_s(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* fmt, const char* arg);
+LIBRARY_API void udaPluginLog_i(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* fmt, int arg);
 
 LIBRARY_API void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* location, int code,
                                    const char* msg);
@@ -155,7 +161,7 @@ UDA_DEF_FIND_FUNCS(String, const char*)
 #define UDA_RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, MSG)                                                                  \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
-        udaPluginLog(PLUGIN_INTERFACE, "%s\n", MSG);                                                                   \
+        UDA_PLUGIN_LOG(PLUGIN_INTERFACE, MSG);                                                                 \
         udaAddPluginError(PLUGIN_INTERFACE, __func__, UNIQUE_VAR(err), MSG);                                           \
         return UNIQUE_VAR(err);                                                                                        \
     }

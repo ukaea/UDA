@@ -73,7 +73,7 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
         originalErrFH = dup(fileno(stderr));
         mdsmsgFH = nullptr;
 
-        UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file");
 
         if (mksdir_template[0] == '\0') {
             auto redirect = config.get("plugins.redirect");
@@ -115,7 +115,7 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
         dup2(fileno(mdsmsgFH), fileno(stderr));
     } else {
         if (mdsmsgFH != nullptr) {
-            UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles and removing temporary file\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles and removing temporary file");
 
             if (!single_file) {
                 if (mdsmsgFH != nullptr) {
@@ -147,7 +147,7 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
 
         } else {
 
-            UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles");
 
             // Multi platform compliance
             // stdout = originalStdFH;
@@ -176,7 +176,7 @@ int uda::server::server_plugin(uda::client_server::RequestData *request, uda::cl
 {
     int err = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "Start\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Start");
 
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data reader plug-in
@@ -186,7 +186,7 @@ int uda::server::server_plugin(uda::client_server::RequestData *request, uda::cl
         return err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "request_block\n");
+    UDA_LOG(UDA_LOG_DEBUG, "request_block");
     print_request_data(*request);
 
     //----------------------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ int uda::server::server_plugin(uda::client_server::RequestData *request, uda::cl
     data_source->pass = request->pass;
     data_source->type = ' ';
 
-    UDA_LOG(UDA_LOG_DEBUG, "End\n");
+    UDA_LOG(UDA_LOG_DEBUG, "End");
 
     return err;
 }
@@ -267,17 +267,17 @@ int uda::server::provenance_plugin(const Config& config, uda::client_server::Cli
         if (provenance_plugin) {
             std::string plugin_name = provenance_plugin.as<std::string>();
             // Must be set in the server startup script
-            UDA_LOG(UDA_LOG_DEBUG, "Plugin name: %s\n", plugin_name.c_str());
+            UDA_LOG(UDA_LOG_DEBUG, "Plugin name: {}", plugin_name.c_str());
             auto maybe_plugin = plugins.find_by_format(plugin_name.c_str());
             if (maybe_plugin) {
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION = %d\n",
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION = {}",
                         maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
-                UDA_LOG(UDA_LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL = %d\n",
+                UDA_LOG(UDA_LOG_DEBUG, "!environment->external_user = {}", !environment->external_user);
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL = {}",
                         maybe_plugin->status == UDA_PLUGIN_OPERATIONAL);
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != nullptr = %d\n",
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != nullptr = {}",
                         maybe_plugin->pluginHandle != nullptr);
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != nullptr = %d\n",
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != nullptr = {}",
                         maybe_plugin->idamPlugin != nullptr);
             }
             if (maybe_plugin && maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
@@ -323,7 +323,7 @@ int uda::server::provenance_plugin(const Config& config, uda::client_server::Cli
 
     // Activate the plugin
 
-    UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: %s\n", request.signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: {}", request.signal);
 
     auto plugin_list = plugins.as_plugin_list();
     make_request_data(&request, &plugin_list, environment.p_env());
@@ -336,7 +336,7 @@ int uda::server::provenance_plugin(const Config& config, uda::client_server::Cli
 
     init_data_block(&data_block);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Creating plugin interface\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Creating plugin interface");
 
     // Check the Interface Compliance
 
@@ -375,22 +375,22 @@ int uda::server::provenance_plugin(const Config& config, uda::client_server::Cli
 
     // Call the plugin
 
-    UDA_LOG(UDA_LOG_DEBUG, "entering the provenance plugin\n");
+    UDA_LOG(UDA_LOG_DEBUG, "entering the provenance plugin");
 
     err = plugin->idamPlugin(static_cast<UDA_PLUGIN_INTERFACE*>(&plugin_interface));
 
-    UDA_LOG(UDA_LOG_DEBUG, "returned from the provenance plugin\n");
+    UDA_LOG(UDA_LOG_DEBUG, "returned from the provenance plugin");
 
     // No data are returned in this context so free everything
 
-    UDA_LOG(UDA_LOG_DEBUG, "housekeeping\n");
+    UDA_LOG(UDA_LOG_DEBUG, "housekeeping");
 
     free_name_value_list(&request.nameValueList);
 
-    UDA_LOG(UDA_LOG_DEBUG, "testing for bug!!!\n");
+    UDA_LOG(UDA_LOG_DEBUG, "testing for bug!!!");
     if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN || data_block.opaque_count != 0 ||
         data_block.opaque_block != nullptr) {
-        UDA_LOG(UDA_LOG_DEBUG, "bug detected: mitigation!!!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "bug detected: mitigation!!!");
         data_block.opaque_block = nullptr;
     }
 
@@ -412,8 +412,8 @@ int uda::server::provenance_plugin(const Config& config, uda::client_server::Cli
     gettimeofday(&tv_stop, nullptr);
     int msecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
 
-    UDA_LOG(UDA_LOG_DEBUG, "end of housekeeping\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Timing (ms) = %d\n", msecs);
+    UDA_LOG(UDA_LOG_DEBUG, "end of housekeeping");
+    UDA_LOG(UDA_LOG_DEBUG, "Timing (ms) = {}", msecs);
 
     return 0;
 }
@@ -427,7 +427,7 @@ boost::optional<PluginData> uda::server::find_metadata_plugin(const Config& conf
     static bool no_plugin_registered = false;
     static boost::optional<PluginData> plugin = {};
 
-    UDA_LOG(UDA_LOG_DEBUG, "Entered: no_plugin_registered state = %d\n", no_plugin_registered);
+    UDA_LOG(UDA_LOG_DEBUG, "Entered: no_plugin_registered state = {}", no_plugin_registered);
 
     if (plugin) {
         return plugin.get(); // Plugin previously identified
@@ -452,18 +452,18 @@ boost::optional<PluginData> uda::server::find_metadata_plugin(const Config& conf
             plugin = {};
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", metadata_plugin.as<std::string>().c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: %d\n",
+        UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: {}", metadata_plugin.as<std::string>().c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: {}",
                 maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: %d\n", maybe_plugin->is_private == UDA_PLUGIN_PRIVATE);
-        UDA_LOG(UDA_LOG_DEBUG, "External User?: %d\n", environment->external_user);
-        UDA_LOG(UDA_LOG_DEBUG, "Private?: %d\n",
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: {}", maybe_plugin->is_private == UDA_PLUGIN_PRIVATE);
+        UDA_LOG(UDA_LOG_DEBUG, "External User?: {}", environment->external_user);
+        UDA_LOG(UDA_LOG_DEBUG, "Private?: {}",
                 maybe_plugin->is_private == UDA_PLUGIN_PRIVATE && environment->external_user);
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_OPERATIONAL?: %d\n", maybe_plugin->status == UDA_PLUGIN_OPERATIONAL);
-        UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: %d\n",
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_OPERATIONAL?: {}", maybe_plugin->status == UDA_PLUGIN_OPERATIONAL);
+        UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: {}",
                 maybe_plugin->pluginHandle != nullptr && maybe_plugin->idamPlugin != nullptr);
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin identified\n");
+        UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin identified");
     }
 
     if (!plugin) {

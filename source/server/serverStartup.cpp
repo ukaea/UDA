@@ -23,7 +23,7 @@ int uda::server::startup()
     //---------------------------------------------------------------
     // Open the Log Files
 
-    udaSetLogLevel((LOG_LEVEL)environment->loglevel);
+    uda_set_log_level((LogLevel)environment->loglevel);
 
     if (environment->loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
@@ -34,48 +34,21 @@ int uda::server::startup()
 
         errno = 0;
         std::string log_file = std::string{environment->logdir} + "Access.log";
-        FILE* accout = fopen(log_file.c_str(), environment->logmode);
-
-        if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Access Log: ");
-            if (accout != nullptr) {
-                fclose(accout);
-            }
-        } else {
-            udaSetLogFile(UDA_LOG_ACCESS, accout);
-        }
+        uda_set_log_file(UDA_LOG_ACCESS, log_file, environment->logmode);
     }
 
     if (environment->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
         std::string log_file = std::string{environment->logdir} + "Error.log";
-        FILE* errout = fopen(log_file.c_str(), environment->logmode);
-
-        if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Error Log: ");
-            if (errout != nullptr) {
-                fclose(errout);
-            }
-        } else {
-            udaSetLogFile(UDA_LOG_ERROR, errout);
-        }
+        uda_set_log_file(UDA_LOG_ERROR, log_file, environment->logmode);
     }
 
     if (environment->loglevel <= UDA_LOG_WARN) {
         errno = 0;
         std::string log_file = std::string{environment->logdir} + "DebugServer.log";
-        FILE* dbgout = fopen(log_file.c_str(), environment->logmode);
-
-        if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Debug Log: ");
-            if (dbgout != nullptr) {
-                fclose(dbgout);
-            }
-        } else {
-            udaSetLogFile(UDA_LOG_WARN, dbgout);
-            udaSetLogFile(UDA_LOG_DEBUG, dbgout);
-            udaSetLogFile(UDA_LOG_INFO, dbgout);
-        }
+        uda_set_log_file(UDA_LOG_WARN, log_file, environment->logmode);
+        uda_set_log_file(UDA_LOG_DEBUG, log_file, environment->logmode);
+        uda_set_log_file(UDA_LOG_INFO, log_file, environment->logmode);
     }
 
     printServerEnvironment(environment);

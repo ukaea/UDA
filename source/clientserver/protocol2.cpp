@@ -554,7 +554,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMa
                 break;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: %d\n", blockCount);
+            UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: {}", blockCount);
 
             for (unsigned int i = 0; i < blockCount; i++) {
                 // Fetch multiple put blocks
@@ -564,7 +564,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMa
 
                 if (!xdr_putdata_block1(xdrs, &put_data)) {
                     err = UDA_PROTOCOL_ERROR_61;
-                    UDA_LOG(UDA_LOG_DEBUG, "xdr_putdata_block1 Error (61)\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "xdr_putdata_block1 Error (61)");
                     break;
                 }
 
@@ -623,7 +623,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMa
 
         case XDR_SEND:
 
-            UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: %d\n", putDataBlockList->blockCount);
+            UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: {}", putDataBlockList->blockCount);
 
             if (!xdr_u_int(xdrs, &(putDataBlockList->blockCount))) {
                 err = UDA_PROTOCOL_ERROR_61;
@@ -796,17 +796,17 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
             // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is
             // known)
 
-            UDA_LOG(UDA_LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block\n");
+            UDA_LOG(UDA_LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block");
             print_data_block(*data_block);
 
             if (protocol_version_type_test(protocolVersion, data_block->data_type) ||
                 protocol_version_type_test(protocolVersion, data_block->error_type)) {
                 err = UDA_PROTOCOL_ERROR_9999;
-                UDA_LOG(UDA_LOG_DEBUG, "PROTOCOL: protocolVersionTypeTest Failed\n");
+                UDA_LOG(UDA_LOG_DEBUG, "PROTOCOL: protocolVersionTypeTest Failed");
 
                 break;
             }
-            UDA_LOG(UDA_LOG_DEBUG, "#2 PROTOCOL: Send/Receive Data Block\n");
+            UDA_LOG(UDA_LOG_DEBUG, "#2 PROTOCOL: Send/Receive Data Block");
             if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_61;
                 break;

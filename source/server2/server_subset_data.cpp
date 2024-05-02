@@ -127,11 +127,11 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
             operation = subset.operation[j]; // a single operation
             dimid = subset.dimid[j];         // applied to this dimension (if -1 then to data only!)
 
-            UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n", i, j, value,
+            UDA_LOG(UDA_LOG_DEBUG, "[{}][{}]Value = {}, Operation = {}, DIM id = {}, Reform = {}", i, j, value,
                     operation, dimid, subset.reform);
 
             if (dimid < 0 || dimid >= (int)data_block->rank) {
-                UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n", dimid, data_block->rank,
+                UDA_LOG(UDA_LOG_ERROR, "DIM id = {},  Rank = {}, Test = {} ", dimid, data_block->rank,
                         dimid >= (int)data_block->rank);
                 print_data_block(*data_block);
                 UDA_THROW_ERROR(9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with "
@@ -565,9 +565,9 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
             // Build the New Subsetted Dimension
 
             print_data_block(*data_block);
-            UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: %d\n\n\n", dim->data_type);
-            UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errhi != nullptr: %d\n\n\n", dim->errhi != nullptr);
-            UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errlo != nullptr: %d\n\n\n", dim->errlo != nullptr);
+            UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: {}\n\n", dim->data_type);
+            UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errhi != nullptr: {}\n\n", dim->errhi != nullptr);
+            UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errlo != nullptr: {}\n\n", dim->errlo != nullptr);
 
             if ((ierr = serverNewDataArray2(dim, 1, dimid, dim->dim, dim_n, dim->data_type, notoperation, reverse,
                                             start, end, start1, end1, &n, (void**)&newdim.dim)) != 0) {
@@ -651,7 +651,7 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
         int rank = data_block->rank;
         for (int j = 0; j < rank; j++) {
             if (data_block->dims[j].dim_n <= 1) {
-                UDA_LOG(UDA_LOG_DEBUG, "Reforming Dimension %d\n", j);
+                UDA_LOG(UDA_LOG_DEBUG, "Reforming Dimension {}", j);
 
                 data_block->dims[j].compressed = 0;
                 data_block->dims[j].method = 0;
@@ -717,7 +717,7 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
             }
 
             if (dimid < 0 || dimid >= (int)data_block->rank) {
-                UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dimid = %d,  Rank = %d\n", dimid, data_block->rank);
+                UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dimid = {},  Rank = {}", dimid, data_block->rank);
                 UDA_THROW_ERROR(
                     999,
                     "The dimension ID identified via the subset function is outside the rank bounds of the array!");
@@ -998,7 +998,7 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
             char* p1 = strstr(subset.function, "value");
             strcpy(data_block->data_label, subset.function);
 
-            UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+            UDA_LOG(UDA_LOG_DEBUG, "{}", subset.function);
 
             if (p1 != nullptr) {
                 char *p3, *p2 = strchr(&p1[5], '=');
@@ -1007,16 +1007,16 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
                 p3[0] = '\0';
                 trim_string(p2);
                 left_trim_string(p2);
-                UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
+                UDA_LOG(UDA_LOG_DEBUG, "p2 = [{}]", p2);
                 if (is_float(p2)) {
                     value = atof(p2);
                 } else {
-                    UDA_LOG(UDA_LOG_DEBUG, "IsFloat FALSE!\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "IsFloat FALSE!");
                     // ERROR
                 }
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "value = %f\n", value);
+            UDA_LOG(UDA_LOG_DEBUG, "value = {}", value);
 
             if (data_block->errhi != nullptr) {
                 free(data_block->errhi);
@@ -1053,7 +1053,7 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
 
         if (!strncasecmp(subset.function, "order", 5)) { // Identify the Time dimension order
             char* p1 = strstr(subset.function, "dimid");
-            UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+            UDA_LOG(UDA_LOG_DEBUG, "{}", subset.function);
             if (p1 != nullptr) {
                 char *p3, *p2 = strchr(&p1[5], '=');
                 p2[0] = ' ';
@@ -1061,18 +1061,18 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
                 p3[0] = '\0';
                 trim_string(p2);
                 left_trim_string(p2);
-                UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
+                UDA_LOG(UDA_LOG_DEBUG, "p2 = [{}]", p2);
                 if (is_number(p2)) {
                     data_block->order = (int)atof(p2);
                 } else {
                     // ERROR
                 }
             }
-            UDA_LOG(UDA_LOG_DEBUG, "order = %d\n", data_block->order);
+            UDA_LOG(UDA_LOG_DEBUG, "order = {}", data_block->order);
         }
 
         if (!strncasecmp(subset.function, "rotateRZ", 8)) { // Rotate R,Z coordinates in rank 3 array
-            UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+            UDA_LOG(UDA_LOG_DEBUG, "{}", subset.function);
             if (data_block->rank != 3) {
                 UDA_THROW_ERROR(999, "The function rotateRZ only operates on rank 3 arrays");
             }
@@ -1829,7 +1829,7 @@ int serverNewDataArray2(Dims* dims, int rank, int dimid, char* data, int ndata, 
 
     int ierr = 0, rows, columns, newrows, newcols, count = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "Data Type: %d    Rank: %d\n", data_type, rank);
+    UDA_LOG(UDA_LOG_DEBUG, "Data Type: {}    Rank: {}", data_type, rank);
 
     *n = 0;
 
@@ -2282,7 +2282,7 @@ int serverNewDataArray2(Dims* dims, int rank, int dimid, char* data, int ndata, 
         default:
             UDA_LOG(UDA_LOG_ERROR,
                     "Only Float, Double and 32 bit Signed Integer Numerical Types can be Subset at this time!\n");
-            UDA_LOG(UDA_LOG_ERROR, "Data Type: %d    Rank: %d\n", data_type, rank);
+            UDA_LOG(UDA_LOG_ERROR, "Data Type: {}    Rank: {}", data_type, rank);
             UDA_THROW_ERROR(9999,
                             "Only Float, Double and 32 bit Signed Integer Numerical Types can be Subset at this time!");
     }

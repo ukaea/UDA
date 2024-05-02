@@ -212,30 +212,30 @@ uda::client_server::Environment uda::client::load_environment(bool* env_host, bo
 
 void uda::client::print_client_environment(const uda::client_server::Environment& environment)
 {
-    UDA_LOG(UDA_LOG_INFO, "Client Environment Variable values\n");
-    UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment.logdir);
-    UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : %s\n", environment.logmode);
-    UDA_LOG(UDA_LOG_INFO, "Log Level       : %d\n", environment.loglevel);
-    UDA_LOG(UDA_LOG_INFO, "Client Flags    : %u\n", environment.clientFlags);
-    UDA_LOG(UDA_LOG_INFO, "Alt Rank        : %d\n", environment.altRank);
+    UDA_LOG(UDA_LOG_INFO, "Client Environment Variable values");
+    UDA_LOG(UDA_LOG_INFO, "Log Location    : {}", environment.logdir);
+    UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : {}", environment.logmode);
+    UDA_LOG(UDA_LOG_INFO, "Log Level       : {}", environment.loglevel);
+    UDA_LOG(UDA_LOG_INFO, "Client Flags    : {}", environment.clientFlags);
+    UDA_LOG(UDA_LOG_INFO, "Alt Rank        : {}", environment.altRank);
 #ifdef FATCLIENT
-    UDA_LOG(UDA_LOG_INFO, "External User?  : %d\n", environment.external_user);
+    UDA_LOG(UDA_LOG_INFO, "External User?  : {}", environment.external_user);
 #  ifdef PROXYSERVER
-    UDA_LOG(UDA_LOG_INFO, "UDA Proxy Host : %s\n", environment.server_proxy);
-    UDA_LOG(UDA_LOG_INFO, "UDA This Host  : %s\n", environment.server_this);
+    UDA_LOG(UDA_LOG_INFO, "UDA Proxy Host : {}", environment.server_proxy);
+    UDA_LOG(UDA_LOG_INFO, "UDA This Host  : {}", environment.server_this);
 #  endif
 #endif
-    UDA_LOG(UDA_LOG_INFO, "UDA Server Host: %s\n", environment.server_host);
-    UDA_LOG(UDA_LOG_INFO, "UDA Server Port: %d\n", environment.server_port);
-    UDA_LOG(UDA_LOG_INFO, "UDA Server Host2: %s\n", environment.server_host2);
-    UDA_LOG(UDA_LOG_INFO, "UDA Server Port2: %d\n", environment.server_port2);
-    UDA_LOG(UDA_LOG_INFO, "Server Reconnect: %d\n", environment.server_reconnect);
-    UDA_LOG(UDA_LOG_INFO, "Server Change Socket: %d\n", environment.server_change_socket);
-    UDA_LOG(UDA_LOG_INFO, "Server Socket ID: %d\n", environment.server_socket);
-    UDA_LOG(UDA_LOG_INFO, "API Delimiter   : %s\n", environment.api_delim);
-    UDA_LOG(UDA_LOG_INFO, "Default Device  : %s\n", environment.api_device);
-    UDA_LOG(UDA_LOG_INFO, "Default Archive : %s\n", environment.api_archive);
-    UDA_LOG(UDA_LOG_INFO, "Default Format  : %s\n", environment.api_format);
-    UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", environment.private_path_target);
-    UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment.private_path_substitute);
+    UDA_LOG(UDA_LOG_INFO, "UDA Server Host: {}", environment.server_host);
+    UDA_LOG(UDA_LOG_INFO, "UDA Server Port: {}", environment.server_port);
+    UDA_LOG(UDA_LOG_INFO, "UDA Server Host2: {}", environment.server_host2);
+    UDA_LOG(UDA_LOG_INFO, "UDA Server Port2: {}", environment.server_port2);
+    UDA_LOG(UDA_LOG_INFO, "Server Reconnect: {}", environment.server_reconnect);
+    UDA_LOG(UDA_LOG_INFO, "Server Change Socket: {}", environment.server_change_socket);
+    UDA_LOG(UDA_LOG_INFO, "Server Socket ID: {}", environment.server_socket);
+    UDA_LOG(UDA_LOG_INFO, "API Delimiter   : {}", environment.api_delim);
+    UDA_LOG(UDA_LOG_INFO, "Default Device  : {}", environment.api_device);
+    UDA_LOG(UDA_LOG_INFO, "Default Archive : {}", environment.api_archive);
+    UDA_LOG(UDA_LOG_INFO, "Default Format  : {}", environment.api_format);
+    UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : {}", environment.private_path_target);
+    UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: {}", environment.private_path_substitute);
 }

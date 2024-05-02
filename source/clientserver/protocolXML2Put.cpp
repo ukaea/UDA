@@ -74,7 +74,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
         return 0;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "xdrUserDefinedData Depth: %d\n", recursiveDepthPut);
+    UDA_LOG(UDA_LOG_DEBUG, "xdrUserDefinedData Depth: {}", recursiveDepthPut);
 
     // Allocate HEAP if receiving Data:
     // Size of Structure or atomic type array or scalar is provided by the structure definition (corrected for alignment
@@ -88,7 +88,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
 
     if (xdrs->x_op == XDR_DECODE) {
 
-        UDA_LOG(UDA_LOG_DEBUG, "index: %d   datacount: %d\n", index, datacount);
+        UDA_LOG(UDA_LOG_DEBUG, "index: {}   datacount: {}", index, datacount);
 
         if (index == 0 && datacount > 0) {
             *data = malloc(datacount * userdefinedtype->size);
@@ -148,7 +148,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
 
             case UDA_TYPE_FLOAT: {
 
-                UDA_LOG(UDA_LOG_DEBUG, "Type: FLOAT\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: FLOAT");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to Float Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data Received
@@ -245,7 +245,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
             }
 
             case UDA_TYPE_DOUBLE: {
-                UDA_LOG(UDA_LOG_DEBUG, "Type: DOUBLE\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: DOUBLE");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to Double Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data Received
@@ -331,7 +331,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
             }
 
             case UDA_TYPE_SHORT: {
-                UDA_LOG(UDA_LOG_DEBUG, "Type: SHORT\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: SHORT");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to Short Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data
@@ -414,7 +414,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
             }
 
             case UDA_TYPE_UNSIGNED_SHORT: {
-                UDA_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED_SHORT");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data
@@ -499,7 +499,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
             }
 
             case UDA_TYPE_INT: {
-                UDA_LOG(UDA_LOG_DEBUG, "Type: INT\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: INT");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to Integer Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data
@@ -583,7 +583,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
             }
 
             case UDA_TYPE_UNSIGNED_INT: {
-                UDA_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED INT\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED INT");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data
@@ -665,7 +665,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
             }
 
             case UDA_TYPE_LONG64: {
-                UDA_LOG(UDA_LOG_DEBUG, "Type: LONG LONG\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: LONG LONG");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to long long Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data
@@ -747,7 +747,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
             }
 
             case UDA_TYPE_UNSIGNED_LONG64: {
-                UDA_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED LONG LONG\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED LONG LONG");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data
@@ -831,7 +831,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
             }
 
             case UDA_TYPE_CHAR: {
-                UDA_LOG(UDA_LOG_DEBUG, "Type: CHAR\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: CHAR");
 
                 if (userdefinedtype->compoundfield[j].pointer) { // Pointer to Float Data array
                     if (xdrs->x_op == XDR_DECODE) {              // Allocate Heap for Data
@@ -1043,7 +1043,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                 //    type STRING
 
             case UDA_TYPE_STRING: { // Array of char terminated by \0
-                UDA_LOG(UDA_LOG_DEBUG, "Type: STRING\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: STRING");
 
                 char** strarr;
                 int nstr = 0, istr;
@@ -1257,7 +1257,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                 // Send or Receive the Count, Size and Type of the sub-structure (All atomic types except void are
                 // trapped before this point)
 
-                UDA_LOG(UDA_LOG_DEBUG, "Type: OTHER - Void Type or Structure\n");
+                UDA_LOG(UDA_LOG_DEBUG, "Type: OTHER - Void Type or Structure");
 
                 if (userdefinedtype->compoundfield[j].pointer) {
                     if (xdrs->x_op != XDR_DECODE) {
@@ -1337,7 +1337,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         }
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n", count, size,
+                    UDA_LOG(UDA_LOG_DEBUG, "Pointer: Send or Receive Count: {}, Size: {}, Type: {}", count, size,
                             type);
 
                 } else {
@@ -1352,7 +1352,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                     count = 0;
                     type = userdefinedtype->compoundfield[j].type;
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Pointer: Send or Receive Count: %d, Size: %d, Type: %s\n",
+                    UDA_LOG(UDA_LOG_DEBUG, "Pointer: Send or Receive Count: {}, Size: {}, Type: {}",
                             userdefinedtype->compoundfield[j].count, userdefinedtype->compoundfield[j].size,
                             userdefinedtype->compoundfield[j].type);
                 }
@@ -1363,13 +1363,13 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         nullptr &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
-                    UDA_LOG(UDA_LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
+                    UDA_LOG(UDA_LOG_DEBUG, "**** Error #1: User Defined Type {} not known!",
                             userdefinedtype->compoundfield[j].type);
-                    UDA_LOG(UDA_LOG_DEBUG, "structure Name: %s\n", userdefinedtype->name);
-                    UDA_LOG(UDA_LOG_DEBUG, "Element Type  : %s\n", userdefinedtype->compoundfield[j].type);
-                    UDA_LOG(UDA_LOG_DEBUG, "        Offset: %d\n", userdefinedtype->compoundfield[j].offset);
-                    UDA_LOG(UDA_LOG_DEBUG, "        Count : %d\n", userdefinedtype->compoundfield[j].count);
-                    UDA_LOG(UDA_LOG_DEBUG, "        Size  : %d\n", userdefinedtype->compoundfield[j].size);
+                    UDA_LOG(UDA_LOG_DEBUG, "structure Name: {}", userdefinedtype->name);
+                    UDA_LOG(UDA_LOG_DEBUG, "Element Type  : {}", userdefinedtype->compoundfield[j].type);
+                    UDA_LOG(UDA_LOG_DEBUG, "        Offset: {}", userdefinedtype->compoundfield[j].offset);
+                    UDA_LOG(UDA_LOG_DEBUG, "        Count : {}", userdefinedtype->compoundfield[j].count);
+                    UDA_LOG(UDA_LOG_DEBUG, "        Size  : {}", userdefinedtype->compoundfield[j].size);
 
                     break;
                 }
@@ -1529,7 +1529,7 @@ bool_t uda::client_server::xdr_user_defined_type_list_put(XDR* xdrs, UserDefined
 
     rc = rc && xdr_int(xdrs, &str->listCount);
 
-    UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist: rc = %d, listCount = %d\n", rc, str->listCount);
+    UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist: rc = {}, listCount = {}", rc, str->listCount);
 
     if (!rc || str->listCount == 0) {
         return rc;
@@ -1587,14 +1587,14 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
 
                     if (udt == nullptr || u == nullptr) {
                         err = 999;
-                        UDA_LOG(UDA_LOG_DEBUG, "nullptr SArray User defined data Structure Definition\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "nullptr SArray User defined data Structure Definition");
                         print_user_defined_type_list_table(*userdefinedtypelist);
                         add_error(UDA_CODE_ERROR_TYPE, "protocolXML2Put", err,
                                   "nullptr User defined data Structure Definition");
                         break;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Creating SArray carrier structure to Send\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Creating SArray carrier structure to Send");
 
                     initSArray(&sarray);
                     sarray.count = data_block->data_n;     // Number of this structure
@@ -1609,7 +1609,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
 
                     packageType = UDA_PACKAGE_STRUCTDATA; // The package is regular XDR
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Sending Package Type: %d\n", packageType);
+                    UDA_LOG(UDA_LOG_DEBUG, "Sending Package Type: {}", packageType);
 
                     rc = xdr_int(xdrs, &packageType); // Send data package type
                     // **** the original protocolXML2 marks this as the end of a record and dispatches. This causes an
@@ -1619,13 +1619,13 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                                    xdrs,
                                    userdefinedtypelist); // send the full set of known named structures
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
+                    UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = {}", rc);
 
                     rc = rc && udaXDRUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
                                                             protocolVersion, log_struct_list,
                                                             malloc_source); // send the Data
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Structured Data sent: rc = %d\n", rc);
+                    UDA_LOG(UDA_LOG_DEBUG, "Structured Data sent: rc = {}", rc);
 
                     if (!rc) {
                         err = 999;
@@ -1640,7 +1640,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
 
                     int option = 4;
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Receiving Package Type\n");
+                    UDA_LOG(UDA_LOG_DEBUG, "Receiving Package Type");
 
                     // **** the original protocolXML2 reads the next record. This causes an error - unknown root cause
 
@@ -1650,8 +1650,8 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                         option = 1;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "Receive data option : %d\n", option);
-                    UDA_LOG(UDA_LOG_DEBUG, "Receive package Type: %d\n", packageType);
+                    UDA_LOG(UDA_LOG_DEBUG, "Receive data option : {}", option);
+                    UDA_LOG(UDA_LOG_DEBUG, "Receive package Type: {}", packageType);
 
                     if (option == 4) {
                         err = 999;
@@ -1675,7 +1675,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                                        xdrs,
                                        userdefinedtypelist); // receive the full set of known named structures
 
-                        UDA_LOG(UDA_LOG_DEBUG, "userdefinedtypelist received\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "userdefinedtypelist received");
 
                         if (!rc) {
                             err = 999;
@@ -1691,7 +1691,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                                                                 malloc_source); // receive the Data
                         // rc = rc && xdr_user_defined_type_data(xdrs, udt_received, &data);        // receive the Data
 
-                        UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData received\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData received");
 
                         if (!rc) {
                             err = 999;

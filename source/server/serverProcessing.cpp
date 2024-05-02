@@ -173,7 +173,7 @@ int cast_data(uda::client_server::DataBlock* data_block, const uda::client_serve
         if (client_block->get_timedble && k != (unsigned int)data_block->order) {
             continue; // Only Process the Time Dimension
         }
-        UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension %d\n", k);
+        UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension {}", k);
         uda::client_server::Dims* ddim = &data_block->dims[k];
         if (ddim->compressed) {
             if (ddim->method == 0) {
@@ -232,7 +232,7 @@ int uda::server::serverProcessing(uda::client_server::ClientBlock client_block,
         reduce_data(data_block);
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server Side Processing\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Side Processing");
 
     if (client_block.get_timedble || client_block.get_dimdble) {
         rc = cast_data(data_block, &client_block);

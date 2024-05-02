@@ -40,7 +40,7 @@ int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
         return err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "reading temporary XDR file %s\n", xdrfile);
+    UDA_LOG(UDA_LOG_DEBUG, "reading temporary XDR file {}", xdrfile);
 
     //----------------------------------------------------------------------
     // Error Trap Loop
@@ -65,13 +65,13 @@ int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
 
         rc = xdr_int(xdrs, &bufsize); // Send Server buffer size, e.g., 100k bytes
 
-        UDA_LOG(UDA_LOG_DEBUG, "Buffer size %d\n", bufsize);
+        UDA_LOG(UDA_LOG_DEBUG, "Buffer size {}", bufsize);
 
         while (!feof(fh)) {
             nchar = (int)fread(bp, sizeof(char), bufsize, fh);
             rc = rc && xdr_int(xdrs, &nchar); // Number of Bytes to send
 
-            UDA_LOG(UDA_LOG_DEBUG, "File block size %d\n", nchar);
+            UDA_LOG(UDA_LOG_DEBUG, "File block size {}", nchar);
 
             if (nchar > 0) { // Send the bytes
                 rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char);
@@ -82,7 +82,7 @@ int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
             count = count + nchar;
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Total File size %d\n", count);
+        UDA_LOG(UDA_LOG_DEBUG, "Total File size {}", count);
 
     } while (0);
 
@@ -127,7 +127,7 @@ int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
         return err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: writing temporary XDR file %s\n", xdrfile);
+    UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: writing temporary XDR file {}", xdrfile);
 
     //----------------------------------------------------------------------
     // Error Trap Loop
@@ -142,7 +142,7 @@ int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
         rc = xdrrec_skiprecord(xdrs);
         rc = xdr_int(xdrs, &bufsize); // Server buffer size, e.g., 100k bytes
 
-        UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Buffer size %d\n", bufsize);
+        UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Buffer size {}", bufsize);
 
         if (bufsize <= 0 || bufsize > 100 * 1024) {
             err = 999;
@@ -167,7 +167,7 @@ int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
 
             rc = rc && xdr_int(xdrs, &nchar); // How many bytes to receive?
 
-            UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: [%d] File block size %d\n", doLoopLimit, nchar);
+            UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: [{}] File block size {}", doLoopLimit, nchar);
 
             if (nchar > bufsize) {
                 err = 999;
@@ -191,7 +191,7 @@ int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
         // *** Read hash sum from server to test data is accurate - another reason to use files and cache rather than
         // a data stream
 
-        UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Total File size %d\n", count);
+        UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Total File size {}", count);
 
         if (errno != 0) {
             err = 999;

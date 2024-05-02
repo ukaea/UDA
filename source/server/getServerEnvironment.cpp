@@ -11,15 +11,15 @@ static uda::client_server::Environment g_environ;
 
 void uda::server::printServerEnvironment(const uda::client_server::Environment* environment)
 {
-    UDA_LOG(UDA_LOG_INFO, "Server Environment Variable values\n");
-    UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment->logdir);
-    UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : %s\n", environment->logmode);
-    UDA_LOG(UDA_LOG_INFO, "Log Level       : %d\n", environment->loglevel);
-    UDA_LOG(UDA_LOG_INFO, "External User?  : %d\n", environment->external_user);
-    UDA_LOG(UDA_LOG_INFO, "UDA Proxy Host  : %s\n", environment->server_proxy);
-    UDA_LOG(UDA_LOG_INFO, "UDA This Host   : %s\n", environment->server_this);
-    UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", environment->private_path_target);
-    UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
+    UDA_LOG(UDA_LOG_INFO, "Server Environment Variable values");
+    UDA_LOG(UDA_LOG_INFO, "Log Location    : {}", environment->logdir);
+    UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : {}", environment->logmode);
+    UDA_LOG(UDA_LOG_INFO, "Log Level       : {}", environment->loglevel);
+    UDA_LOG(UDA_LOG_INFO, "External User?  : {}", environment->external_user);
+    UDA_LOG(UDA_LOG_INFO, "UDA Proxy Host  : {}", environment->server_proxy);
+    UDA_LOG(UDA_LOG_INFO, "UDA This Host   : {}", environment->server_this);
+    UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : {}", environment->private_path_target);
+    UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: {}", environment->private_path_substitute);
 }
 
 uda::client_server::Environment* uda::server::getServerEnvironment()

@@ -67,13 +67,15 @@ void uda::client_server::error_log(ClientBlock client_block, RequestBlock reques
 
     for (int i = 0; i < request_block.num_requests; ++i) {
         auto request = &request_block.requests[i];
-        udaLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n", client_block.uid, accessdate,
+        uda_log(UDA_LOG_ERROR, __FILE__, __LINE__,
+                "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n", client_block.uid, accessdate,
                request->request, request->signal, request->exp_number, request->pass, request->tpass, request->path,
                request->file, request->format, request->archive, request->device_name, request->server);
     }
 
     for (unsigned int i = 0; i < nerrors; i++) {
-        udaLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate, errors[i].type,
+        uda_log(UDA_LOG_ERROR, __FILE__, __LINE__,
+                "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate, errors[i].type,
                errors[i].code, errors[i].location, errors[i].msg);
     }
 }
@@ -98,12 +100,12 @@ void uda::client_server::init_error_records(const ErrorStack* errorstack)
 void uda::client_server::print_error_stack()
 {
     if (udaerrorstack.empty()) {
-        UDA_LOG(UDA_LOG_DEBUG, "Empty Error Stack\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Empty Error Stack");
         return;
     }
     int i = 1;
     for (const auto& error : udaerrorstack) {
-        UDA_LOG(UDA_LOG_DEBUG, "%d %d %d %s %s\n", i, error.type, error.code, error.location, error.msg);
+        UDA_LOG(UDA_LOG_DEBUG, "{} {} {} {} {}", i, error.type, error.code, error.location, error.msg);
         ++i;
     }
 }

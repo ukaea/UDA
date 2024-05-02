@@ -24,7 +24,7 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     udaAddUserType(plugin_interface, test9_type);
 
-    udaPluginLog(plugin_interface, "Type TEST9 defined\n");
+    UDA_PLUGIN_LOG(plugin_interface, "Type TEST9 defined\n");
 
     COMPOUNDFIELD* test9a_fields[6] = {};
     test9a_fields[0] = fields[0];
@@ -40,5 +40,5 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     udaAddUserType(plugin_interface, test9a_user_type);
 
-    udaPluginLog(plugin_interface, "Type TEST9A defined\n");
+    UDA_PLUGIN_LOG(plugin_interface, "Type TEST9A defined\n");
 }

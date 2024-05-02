@@ -170,11 +170,11 @@ static int initialiseKeys(ClientBlock* client_block, gcry_sexp_t* publickey_out,
 static SECURITY_BLOCK* receiveSecurityBlock(ClientBlock* client_block, LogMallocList* logmalloclist,
                                             UserDefinedTypeList* userdefinedtypelist)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Waiting for Initial Client Block");
 
 #  ifndef TESTIDAMSECURITY
     if (!xdrrec_skiprecord(serverInput)) {
-        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
         add_error(UDA_CODE_ERROR_TYPE, __func__, UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
     } else {
         int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK; // Recieve Client Block
@@ -183,11 +183,11 @@ static SECURITY_BLOCK* receiveSecurityBlock(ClientBlock* client_block, LogMalloc
         if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                              client_block)) != 0) {
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block #2)");
-            UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
+            UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!");
         }
 
         if (err == 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Initial Client Block received");
             print_client_block(*client_block);
         }
     }
@@ -343,7 +343,7 @@ static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, Log
     int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
 
     if (!xdrrec_skiprecord(serverInput)) {
-        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
+        UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
     }
 

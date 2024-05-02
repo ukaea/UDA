@@ -72,7 +72,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 {
     int err = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "\nPROTOCOL: protocolVersion = %d\n\n", protocolVersion);
+    UDA_LOG(UDA_LOG_DEBUG, "\nPROTOCOL: protocolVersion = {}\n", protocolVersion);
 
     //----------------------------------------------------------------------------
     // Error Management Loop
@@ -350,7 +350,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                         break;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: %d\n", blockCount);
+                    UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: {}", blockCount);
 
                     for (unsigned int i = 0; i < blockCount; i++) { // Fetch multiple put blocks
 
@@ -358,7 +358,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
                         if (!xdr_putdata_block1(xdrs, &put_data)) {
                             err = UDA_PROTOCOL_ERROR_61;
-                            UDA_LOG(UDA_LOG_DEBUG, "xdr_putdata_block1 Error (61)\n");
+                            UDA_LOG(UDA_LOG_DEBUG, "xdr_putdata_block1 Error (61)");
                             break;
                         }
 
@@ -387,7 +387,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
                 case XDR_SEND: {
 
-                    UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: %d\n", put_data_block_list->blockCount);
+                    UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: {}", put_data_block_list->blockCount);
 
                     int rc = xdr_u_int(xdrs, &(put_data_block_list->blockCount));
 

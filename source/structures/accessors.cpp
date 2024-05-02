@@ -859,7 +859,7 @@ void printImage(const char* image, int imagecount)
         return;
     }
     while (next < imagecount) {
-        UDA_LOG(UDA_LOG_DEBUG, "%s", &image[next]);
+        UDA_LOG(UDA_LOG_DEBUG, "{}", &image[next]);
         next = next + (int)strlen(&image[next]) + 1;
     }
 }
