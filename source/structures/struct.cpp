@@ -45,7 +45,7 @@
 #include <cstdlib>
 #include <stddef.h>
 #include <boost/algorithm/string/join.hpp>
-#include <boost/core/span.hpp>
+#include <gsl/span>
 
 #ifdef __GNUC__
 #  include <strings.h>
@@ -62,7 +62,6 @@
 
 #include "xdrUserDefinedData.h"
 #include <uda/structured.h>
-#include <boost/range/adaptor/transformed.hpp>
 
 #if defined(SERVERBUILD)
 #  include "server/udaServer.h"
@@ -410,9 +409,10 @@ void print_compound_field(CompoundField str)
     UDA_LOG(UDA_LOG_DEBUG, "rank     : {}", str.rank)
     UDA_LOG(UDA_LOG_DEBUG, "count    : {}", str.count)
 
-    boost::span span{ str.shape, (size_t)str.rank };
-    std::string shape_string = boost::join(span
-            | boost::adaptors::transformed([](int i) { return std::to_string(i); }), ",");
+    gsl::span span{ str.shape, (size_t)str.rank };
+    std::vector<std::string> shape_strings{ span.size() };
+    std::transform(span.begin(), span.end(), shape_strings.begin(), [](int i) { return std::to_string(i); });
+    std::string shape_string = boost::join(shape_strings, ",");
     UDA_LOG(UDA_LOG_DEBUG, "shape    : [{}]", shape_string)
 }
 

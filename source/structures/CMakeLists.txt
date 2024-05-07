@@ -33,6 +33,7 @@ target_include_directories( structures-client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
   ${CMAKE_BINARY_DIR}/include
+  ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
 )
 target_link_libraries( structures-client-objects PRIVATE ${LIBS} )
 
@@ -43,6 +44,7 @@ if( NOT CLIENT_ONLY )
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
     ${CMAKE_BINARY_DIR}/include
+    ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
   )
   target_link_libraries( structures-server-objects PRIVATE ${LIBS} )
 endif()
