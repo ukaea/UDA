@@ -439,7 +439,7 @@ int uda::server::XdrProtocol::recv_request_block(RequestBlock* request_block, Lo
     return err;
 }
 
-int uda::server::XdrProtocol::recv_putdata_block_list(uda::client_server::PutDataBlockList* putdata_block_list,
+int uda::server::XdrProtocol::recv_putdata_block_list(client_server::PutDataBlockList* putdata_block_list,
                                                       LogMallocList* log_malloc_list,
                                                       UserDefinedTypeList* user_defined_type_list)
 {
@@ -464,19 +464,19 @@ int uda::server::XdrProtocol::eof()
     return 0;
 }
 
-DataBlock* uda::server::XdrProtocol::read_from_cache(uda::cache::UdaCache* cache, RequestData* request,
-                                                     server::Environment& environment, LogMallocList* log_malloc_list,
+DataBlock* uda::server::XdrProtocol::read_from_cache(config::Config& config, cache::UdaCache* cache, RequestData* request,
+                                                     LogMallocList* log_malloc_list,
                                                      UserDefinedTypeList* user_defined_type_list)
 {
-    return cache_read(cache, request, log_malloc_list, user_defined_type_list, *environment.p_env(), _protocol_version,
+    return cache_read(config, cache, request, log_malloc_list, user_defined_type_list, _protocol_version,
                       CLIENTFLAG_CACHE, &_log_struct_list, _private_flags, _malloc_source);
 }
 
-void uda::server::XdrProtocol::write_to_cache(uda::cache::UdaCache* cache, RequestData* request,
-                                              server::Environment& environment, DataBlock* data_block,
+void uda::server::XdrProtocol::write_to_cache(config::Config& config, cache::UdaCache* cache, RequestData* request,
+                                              DataBlock* data_block,
                                               LogMallocList* log_malloc_list,
                                               UserDefinedTypeList* user_defined_type_list)
 {
-    cache_write(cache, request, data_block, log_malloc_list, user_defined_type_list, *environment.p_env(), 8,
+    cache_write(config, cache, request, data_block, log_malloc_list, user_defined_type_list, 8,
                 CLIENTFLAG_CACHE, &_log_struct_list, _private_flags, _malloc_source);
 }

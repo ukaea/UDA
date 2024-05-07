@@ -41,7 +41,7 @@ constexpr int ServerVersion = 8;
 
 // Legacy Server Entry point
 
-int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::PluginList* pluginlist,
+int uda::server::legacyServer(const config::Config& config, ClientBlock client_block, const uda::plugins::PluginList* pluginlist,
                               LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                               SOCKETLIST* socket_list, int protocolVersion, XDR* server_input, XDR* server_output,
                               unsigned int private_flags, int malloc_source)
@@ -355,8 +355,7 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
             for (int i = 0; i < request_block.num_requests; ++i) {
                 auto request = &request_block.requests[i];
                 if (protocolVersion >= 6) {
-                    if ((err = uda::server::udaServerPlugin(request, &data_source, &signal_desc, pluginlist,
-                                                            getServerEnvironment())) != 0) {
+                    if ((err = uda::server::udaServerPlugin(config, request, &data_source, &signal_desc, pluginlist)) != 0) {
                         break;
                     }
                 } else {
@@ -375,7 +374,7 @@ int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::Plug
 
             for (int i = 0; i < request_block.num_requests; ++i) {
                 auto request = &request_block.requests[i];
-                err = get_data(&depth, request, client_block, &data_block, &data_source, &signal_rec, &signal_desc,
+                err = get_data(config, &depth, request, client_block, &data_block, &data_source, &signal_rec, &signal_desc,
                                &actions_desc, &actions_sig, pluginlist, logmalloclist, userdefinedtypelist, socket_list,
                                protocolVersion);
             }

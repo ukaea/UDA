@@ -11,17 +11,21 @@ using namespace uda::structures;
 using namespace uda::client_server;
 using namespace uda::cache;
 
-namespace uda
+namespace uda::config
 {
-namespace cache
+class Config;
+}
+
+using namespace uda::config;
+
+namespace uda::cache
 {
 
 struct UdaCache {
     int dummy_;
 };
 
-} // namespace cache
-} // namespace uda
+} // namespace uda::cache
 
 uda::cache::UdaCache* uda::cache::open_cache()
 {
@@ -30,17 +34,16 @@ uda::cache::UdaCache* uda::cache::open_cache()
 
 void uda::cache::free_cache() {}
 
-int uda::cache::cache_write(UdaCache* cache, const RequestData* request_data, DataBlock* data_block,
+int uda::cache::cache_write(const config::Config& config, UdaCache* cache, const RequestData* request_data, DataBlock* data_block,
                             LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
-                            Environment environment, int protocolVersion, uint32_t flags,
-                            LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
+                            int protocolVersion, uint32_t flags, LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return 0;
 }
 
 uda::client_server::DataBlock*
-uda::cache::cache_read(UdaCache* cache, const RequestData* request_data, LogMallocList* logmalloclist,
-                       UserDefinedTypeList* userdefinedtypelist, Environment environment, int protocolVersion,
+uda::cache::cache_read(const config::Config& config, UdaCache* cache, const RequestData* request_data, LogMallocList* logmalloclist,
+                       UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
                        uint32_t flags, LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return nullptr;

@@ -1,20 +1,17 @@
 #pragma once
 
-#ifndef UDA_SERVER_SERVER_HPP
-#  define UDA_SERVER_SERVER_HPP
+#include <vector>
 
-#  include <vector>
+#include "get_data.hpp"
+#include "plugins.hpp"
+#include "server_environment.hpp"
+#include "xdr_protocol.hpp"
 
-#  include "get_data.hpp"
-#  include "plugins.hpp"
-#  include "server_environment.hpp"
-#  include "xdr_protocol.hpp"
-
-#  include "cache/memcache.hpp"
-#  include "clientserver/parseXML.h"
-#  include "clientserver/socketStructs.h"
-#  include "include/uda/export.h"
-#  include "server_config.h"
+#include "cache/memcache.hpp"
+#include "clientserver/parseXML.h"
+#include "clientserver/socketStructs.h"
+#include "include/uda/export.h"
+#include "config/config.h"
 
 namespace uda::server
 {
@@ -33,7 +30,7 @@ class Server
     constexpr static int ServerVersion = 8;
     constexpr static int LegacyServerVersion = 6;
 
-    LIBRARY_API Server(const Config& config);
+    LIBRARY_API Server(config::Config config);
     LIBRARY_API void run();
     LIBRARY_API void close();
 
@@ -48,7 +45,7 @@ class Server
                  int protocol_version);
     int read_data(uda::client_server::RequestData* request, uda::client_server::DataBlock* data_block);
 
-    const Config& _config;
+    config::Config _config;
     std::vector<uda::client_server::UdaError> _error_stack;
     client_server::RequestBlock _request_block;
     client_server::ServerBlock _server_block;
@@ -56,7 +53,6 @@ class Server
     client_server::Actions _actions_desc;
     client_server::Actions _actions_sig;
     cache::UdaCache* _cache;
-    server::Environment _environment;
     XdrProtocol _protocol;
     std::vector<uda::client_server::Sockets> _sockets;
     Plugins _plugins;
@@ -74,5 +70,3 @@ class Server
 };
 
 } // namespace uda::server
-
-#endif // UDA_SERVER_SERVER_HPP

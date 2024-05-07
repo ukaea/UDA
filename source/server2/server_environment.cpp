@@ -4,10 +4,11 @@
 #include <cstdlib>
 #include <string>
 
-#include "server_config.h"
+#include "config/config.h"
 #include "logging/logging.h"
 
 using namespace uda::logging;
+using namespace uda::config;
 
 void uda::server::Environment::print()
 {

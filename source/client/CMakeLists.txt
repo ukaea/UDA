@@ -92,6 +92,7 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:logging-client-objects>
   $<TARGET_OBJECTS:structures-client-objects>
   $<TARGET_OBJECTS:authentication-client-objects>
+  $<TARGET_OBJECTS:config-objects>
 )
 
 set( FATCLIENT_OBJS
@@ -103,6 +104,7 @@ set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:authentication-client-objects>
+  $<TARGET_OBJECTS:config-objects>
 )
 
 add_library( client-static STATIC ${CLIENT_OBJS} )

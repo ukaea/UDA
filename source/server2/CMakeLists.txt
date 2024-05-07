@@ -34,7 +34,6 @@ set( SRC_FILES
   make_server_request_block.cpp
   plugins.cpp
   server.cpp
-  server_config.cpp
   server_environment.cpp
   server_exceptions.cpp
   server_plugin.cpp
@@ -55,7 +54,6 @@ target_link_libraries( server2-objects PRIVATE ${LIBS} )
 target_include_directories( server2-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
-  ${CMAKE_SOURCE_DIR}/extlib
 )
 
 set( OBJECT_LIBS

@@ -25,6 +25,7 @@
 #ifdef FATCLIENT
 #  include "clientserver/compressDim.h"
 #  include "server/udaServer.h"
+#  include "config/config.h"
 #else
 #  include "clientXDRStream.h"
 #  include "clientserver/xdrlib.h"
@@ -1128,7 +1129,8 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
 
         DataBlockList data_block_list0;
         init_data_block_list(&data_block_list0);
-        err = uda::server::fat_server(client_block, &server_block, request_block, &data_block_list0);
+        uda::config::Config config = {};
+        err = uda::server::fat_server(config, client_block, &server_block, request_block, &data_block_list0);
 
         for (int i = 0; i < data_block_list0.count; ++i) {
             DataBlock* data_block0 = &data_block_list0.data[i];

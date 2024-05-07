@@ -2,11 +2,14 @@
 
 #include "clientserver/udaStructs.h"
 
-namespace uda {
-namespace client {
-
-int make_request_block(const uda::client_server::Environment* environment, const char** signals, const char** sources, int count,
-                       uda::client_server::RequestBlock* request_block);
-
+namespace uda::config
+{
+class Config;
 }
-} // namespace uda
+
+namespace uda::client {
+
+int make_request_block(const config::Config& config, const char** signals, const char** sources, int count,
+                       client_server::RequestBlock* request_block);
+
+} // namespace uda::client

@@ -2,14 +2,16 @@
 
 #include "clientserver/udaStructs.h"
 
-namespace uda::server {
-
+namespace uda::config {
 class Config;
+}
+
+namespace uda::server {
 
 class Environment
 {
   public:
-    Environment(const Config& config);
+    Environment(const config::Config& config);
 
     void print();
     [[nodiscard]] uda::client_server::Environment* p_env() { return &_environment; }
@@ -18,7 +20,7 @@ class Environment
     const uda::client_server::Environment* operator->() const { return &_environment; }
 
   private:
-    const Config& _config;
+    const config::Config& _config;
     uda::client_server::Environment _environment = {};
 };
 

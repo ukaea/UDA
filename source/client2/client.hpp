@@ -11,6 +11,7 @@
 
 #include "clientserver/udaStructs.h"
 #include "cache/memcache.hpp"
+#include "config/config.h"
 
 #include "connection.hpp"
 #include "host_list.hpp"
@@ -93,34 +94,34 @@ private:
     const char* get_server_error_stack_record_msg(int record);
     int get_server_error_stack_record_code(int record);
 
-    std::string host_ = {};
-    int port_ = 0;
-    uint32_t flags_ = 0;
-    int alt_rank_ = 0;
-    uda::client_server::Environment environment_ = {};
-    ClientFlags client_flags_ = {};
-    uint32_t private_flags_ = 0;
-    uda::client_server::ClientBlock client_block_ = {};
-    uda::client_server::ServerBlock server_block_ = {};
-    std::vector<uda::client_server::DataBlock> data_blocks_ = {};
-    uda::cache::UdaCache* cache_ = nullptr;
-    std::vector<uda::client_server::UdaError> error_stack_ = {};
-    XDR* client_input_ = nullptr;
-    XDR* client_output_ = nullptr;
-    Connection connection_;
-    HostList host_list_ = {};
-    IoData io_data_ = {};
-    bool env_host_ = false;
-    bool env_port_ = false;
-    bool reopen_logs_ = false;
-    std::string client_username_ = "client";
-    int protocol_version_ = ClientVersion;
-    uda::structures::UserDefinedTypeList* userdefinedtypelist_ = nullptr; // List of all known User Defined Structure Types
-    uda::structures::LogMallocList* logmalloclist_ = nullptr;             // List of all Heap Allocations for Data
-    uda::structures::NTree* full_ntree_ = nullptr;
-    uda::structures::LogStructList log_struct_list_ = {};
-    int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
-    MetadataBlock metadata_ = {};
+    std::string _host = {};
+    int _port = 0;
+    uint32_t _flags = 0;
+    int _alt_rank = 0;
+    ClientFlags _client_flags = {};
+    uint32_t _private_flags = 0;
+    uda::client_server::ClientBlock _client_block = {};
+    uda::client_server::ServerBlock _server_block = {};
+    std::vector<uda::client_server::DataBlock> _data_blocks = {};
+    uda::cache::UdaCache* _cache = nullptr;
+    std::vector<uda::client_server::UdaError> _error_stack = {};
+    XDR* _client_input = nullptr;
+    XDR* _client_output = nullptr;
+    Connection _connection;
+    HostList _host_list = {};
+    IoData _io_data = {};
+    bool _env_host = false;
+    bool _env_port = false;
+    bool _reopen_logs = false;
+    std::string _client_username = "client";
+    int _protocol_version = ClientVersion;
+    uda::structures::UserDefinedTypeList* _userdefinedtypelist = nullptr; // List of all known User Defined Structure Types
+    uda::structures::LogMallocList* _logmalloclist = nullptr;             // List of all Heap Allocations for Data
+    uda::structures::NTree* _full_ntree = nullptr;
+    uda::structures::LogStructList _log_struct_list = {};
+    int _malloc_source = UDA_MALLOC_SOURCE_NONE;
+    MetadataBlock _metadata = {};
+    config::Config _config;
 
     int send_putdata(const uda::client_server::RequestBlock& request_block);
     int send_request_block(uda::client_server::RequestBlock& request_block);

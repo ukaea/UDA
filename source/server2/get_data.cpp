@@ -1001,7 +1001,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         // Identify the required Plugin
 
-        auto maybe_plugin = find_metadata_plugin(_config, _plugins, _environment);
+        auto maybe_plugin = find_metadata_plugin(_config, _plugins);
         if (!maybe_plugin) {
             // No plugin so not possible to identify the requested data item
             UDA_THROW_ERROR(778, "Unable to identify requested data item");
@@ -1014,7 +1014,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = call_metadata_plugin(_config, maybe_plugin.get(), request, _environment, _plugins, _metadata_block);
+        int err = call_metadata_plugin(_config, maybe_plugin.get(), request, _plugins, _metadata_block);
 
         if (err != 0) {
             UDA_THROW_ERROR(err, "No Record Found for this Generic Signal");
@@ -1026,7 +1026,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         if (_metadata_block.signal_desc.type == 'P') {
             strcpy(request->signal, _metadata_block.signal_desc.signal_name);
             strcpy(request->source, _metadata_block.data_source.path);
-            make_server_request_data(request, _plugins, _environment);
+            make_server_request_data(_config, request, _plugins);
         }
 
     } // end of REQUEST_READ_GENERIC
@@ -1101,7 +1101,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         plugin_interface.request_data = request;
         plugin_interface.data_source = &_metadata_block.data_source;
         plugin_interface.signal_desc = &_metadata_block.signal_desc;
-        plugin_interface.environment = _environment.p_env();
+        plugin_interface.environment = nullptr;
         plugin_interface.sqlConnection = nullptr;
         plugin_interface.verbose = 0;
         plugin_interface.housekeeping = 0;
@@ -1136,7 +1136,8 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
             }
 
 #ifndef ITERSERVER
-            if (maybe_plugin.get().is_private == UDA_PLUGIN_PRIVATE && _environment->external_user) {
+            auto external_user = _config.get("server.external_user");
+            if (maybe_plugin.get().is_private == UDA_PLUGIN_PRIVATE && external_user) {
                 UDA_THROW_ERROR(999, "Access to this data class is not available.");
             }
 #endif
@@ -1180,7 +1181,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                 // Save Provenance with socket stream protection
 
                 server_redirect_std_streams(_config, 0);
-                provenance_plugin(_config, &_client_block, request, _plugins, nullptr, _environment, _metadata_block);
+                provenance_plugin(_config, &_client_block, request, _plugins, nullptr, _metadata_block);
                 server_redirect_std_streams(_config, 1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
@@ -1211,7 +1212,8 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         auto maybe_plugin = _plugins.find_by_format(_metadata_block.data_source.format);
 
-        if (maybe_plugin && maybe_plugin.get().is_private == UDA_PLUGIN_PRIVATE && _environment->external_user) {
+        auto external_user = _config.get("server.external_user");
+        if (maybe_plugin && maybe_plugin.get().is_private == UDA_PLUGIN_PRIVATE && external_user) {
             UDA_THROW_ERROR(999, "Access to this data class is not available.");
         }
 
@@ -1264,7 +1266,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     // Save Provenance with socket stream protection
 
     server_redirect_std_streams(_config, 0);
-    provenance_plugin(_config, &_client_block, request, _plugins, nullptr, _environment, _metadata_block);
+    provenance_plugin(_config, &_client_block, request, _plugins, nullptr, _metadata_block);
     server_redirect_std_streams(_config, 1);
 
     return 0;

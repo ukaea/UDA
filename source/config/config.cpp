@@ -1,4 +1,5 @@
-#include "server_config.h"
+#include "config.h"
+#include "logging/logging.h"
 
 #include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
@@ -84,16 +85,16 @@ class ValueValidator
     void validate(const toml::node& value) const
     {
         if (!value.is_value()) {
-            throw uda::server::ConfigError{fmt::format("option {} must a value", _name)};
+            throw uda::config::ConfigError{fmt::format("option {} must a value", _name)};
         }
         if (value.type() != as_toml_type(_type)) {
-            throw uda::server::ConfigError{
+            throw uda::config::ConfigError{
                 fmt::format("invalid type for option {}, should be {}", _name, to_string(_type))};
         }
         if (_type == ValueType::Char) {
             auto string = value.as<std::string>()->get();
             if (string.size() != 1) {
-                throw uda::server::ConfigError{fmt::format("invalid char value '{}' for option {}", string, _name)};
+                throw uda::config::ConfigError{fmt::format("invalid char value '{}' for option {}", string, _name)};
             }
         }
     }
@@ -122,7 +123,7 @@ class SectionValidator
                 }
             }
             if (!found) {
-                throw uda::server::ConfigError{fmt::format("invalid option {} in section {}", name.data(), _name)};
+                throw uda::config::ConfigError{fmt::format("invalid option {} in section {}", name.data(), _name)};
             }
         }
     }
@@ -153,7 +154,7 @@ void validate(toml::table& table)
         const auto& name = entry.first;
         const auto& value = entry.second;
         if (!value.is_table()) {
-            throw uda::server::ConfigError{"top level entries must be sections"};
+            throw uda::config::ConfigError{"top level entries must be sections"};
         }
         bool found = false;
         for (const auto& validator : Validators) {
@@ -163,14 +164,14 @@ void validate(toml::table& table)
             }
         }
         if (!found) {
-            throw uda::server::ConfigError{fmt::format("invalid section name {}", name.data())};
+            throw uda::config::ConfigError{fmt::format("invalid section name {}", name.data())};
         }
     }
 }
 
 } // namespace
 
-namespace uda::server
+namespace uda::config
 {
 
 template<>
@@ -203,7 +204,8 @@ class ConfigImpl
 {
   public:
     ConfigImpl(std::string_view file_name) : _table{} { load(file_name); };
-    Option get(std::string_view name)
+
+    Option get(std::string_view name) const
     {
         std::vector<std::string> tokens;
         boost::split(tokens, name, boost::is_any_of("."), boost::token_compress_on);
@@ -215,7 +217,6 @@ class ConfigImpl
         toml::node_view option = _table[section_name][option_name];
         if (!option) {
             return {name.data()};
-            //            throw ConfigError{ fmt::format("config option not found {}", name.data()) };
         }
         switch (option.type()) {
             case toml::node_type::string:
@@ -231,8 +232,40 @@ class ConfigImpl
         }
     }
 
+    template<typename ValueType>
+    void set(std::string_view name, ValueType value)
+    {
+        std::vector<std::string> tokens;
+        boost::split(tokens, name, boost::is_any_of("."), boost::token_compress_on);
+        if (tokens.size() != 2) {
+            throw ConfigError{fmt::format("invalid config option name {}", name.data())};
+        }
+        auto& section_name = tokens[0];
+        auto& option_name = tokens[1];
+        auto section = _table[section_name];
+        if (section) {
+            auto sec = section.as_table();
+            sec->insert(option_name, value);
+        } else {
+            auto new_sec = toml::table{};
+            new_sec.insert(option_name, value);
+            _table.insert(section_name, new_sec);
+        }
+    }
+
+    void print() const
+    {
+        UDA_LOG(logging::UDA_LOG_DEBUG, "Config:")
+        for (auto& row : _table) {
+            auto key = row.first.str();
+            auto value = row.second.as_string()->get();
+            UDA_LOG(logging::UDA_LOG_DEBUG, "{} = {}", key, value)
+        }
+    }
+
   private:
     toml::table _table;
+
     void load(std::string_view file_name)
     {
         try {
@@ -257,8 +290,42 @@ Option Config::get(std::string_view name) const
     return _impl->get(name);
 }
 
-Config::Config() : _impl{nullptr} {}
+void Config::set(std::string_view name, bool value)
+{
+    if (!_impl) {
+        throw ConfigError{"config has not been loaded"};
+    }
+    return _impl->set(name, value);
+}
 
-Config::~Config() {}
+void Config::set(std::string_view name, const std::string& value)
+{
+    if (!_impl) {
+        throw ConfigError{"config has not been loaded"};
+    }
+    return _impl->set(name, value);
+}
 
-} // namespace uda::server
+void Config::set(std::string_view name, int value)
+{
+    if (!_impl) {
+        throw ConfigError{"config has not been loaded"};
+    }
+    return _impl->set(name, value);
+}
+
+void Config::print() const
+{
+    if (!_impl) {
+        throw ConfigError{"config has not been loaded"};
+    }
+    return _impl->print();
+}
+
+Config::Config() = default;
+
+Config::Config(uda::config::Config&& other) = default;
+
+Config::~Config() = default;
+
+} // namespace uda::config

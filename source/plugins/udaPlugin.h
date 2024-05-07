@@ -2,6 +2,8 @@
 
 #include "clientserver/udaStructs.h"
 #include "structures/genStructs.h"
+#include "config/config.h"
+
 #include <cstdio>
 
 typedef struct CUdaPluginInterface {
@@ -71,6 +73,7 @@ struct UdaPluginInterface : UDA_PLUGIN_INTERFACE { // Standard Plugin interface
     void* sqlConnection;          // Opaque structure
     const PluginList* pluginList; // List of data readers, filters, models, and servers
     uda::client_server::ErrorStack error_stack;
+    const uda::config::Config* config;
 };
 
 } // namespace uda::plugins

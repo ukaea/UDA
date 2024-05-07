@@ -1,16 +1,16 @@
 #include "get_plugin_address.hpp"
 
-#include <cstdlib>
 #include <dlfcn.h>
 #include <fmt/format.h>
 
 #include "clientserver/errorLog.h"
 #include "logging/logging.h"
-#include "server_config.h"
+#include "config/config.h"
 
 using namespace uda::client_server;
 using namespace uda::plugins;
 using namespace uda::logging;
+using namespace uda::config;
 
 /**
  * Return the function address for plugin data readers located in external shared libraries

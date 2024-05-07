@@ -67,6 +67,7 @@ set( OBJECT_LIBS
   logging-client-objects
   structures-client-objects
   authentication-client-objects
+  config-objects
 )
 
 add_library( ${LIB_NAME}-static STATIC )
@@ -97,6 +98,7 @@ if( NOT CLIENT_ONLY )
     logging-server-objects
     plugins-objects
     authentication-client-objects
+    config-objects
   )
 
   add_library( fat${LIB_NAME}-static STATIC )

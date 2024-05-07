@@ -20,14 +20,16 @@
 #include "server/serverSubsetData.h"
 #include "structures/accessors.h"
 #include "structures/struct.h"
+#include "config/config.h"
 
 using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::plugins;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::config;
 
-UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
+UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const Config& config, const char* request)
 {
     auto plugin_interface = (uda::plugins::UdaPluginInterface*)calloc(1, sizeof(uda::plugins::UdaPluginInterface));
     auto environment = getServerEnvironment();
@@ -36,7 +38,7 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
     initPluginList(plugin_list, environment);
 
     auto request_data = (RequestData*)calloc(1, sizeof(RequestData));
-    make_request_data(request_data, plugin_list, environment);
+    make_request_data(config, request_data, plugin_list);
 
     auto user_defined_type_list = (UserDefinedTypeList*)calloc(1, sizeof(UserDefinedTypeList));
     auto log_malloc_list = (LogMallocList*)calloc(1, sizeof(LogMallocList));
@@ -369,7 +371,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
     strcpy(request_data.signal, request);
     strcpy(request_data.source, source);
 
-    make_request_data(&request_data, interface->pluginList, interface->environment);
+    make_request_data(*interface->config, &request_data, interface->pluginList);
 
     request_data.request = findPluginRequestByFormat(request_data.format, interface->pluginList);
     if (request_data.request == REQUEST_READ_UNKNOWN) {

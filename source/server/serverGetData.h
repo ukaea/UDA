@@ -6,15 +6,20 @@
 #include "serverPlugin.h"
 #include "structures/genStructs.h"
 
+namespace uda::config
+{
+class Config;
+}
+
 namespace uda::server
 {
 
-int get_data(int* depth, uda::client_server::RequestData* request_data, uda::client_server::ClientBlock client_block,
-             uda::client_server::DataBlock* data_block, uda::client_server::DataSource* data_source,
-             uda::client_server::Signal* signal_rec, uda::client_server::SignalDesc* signal_desc,
-             uda::client_server::Actions* actions_desc, uda::client_server::Actions* actions_sig,
-             const uda::plugins::PluginList* pluginlist, uda::structures::LogMallocList* logmalloclist,
-             uda::structures::UserDefinedTypeList* userdefinedtypelist, uda::client_server::SOCKETLIST* socket_list,
-             int protocolVersion);
+int get_data(const config::Config& config, int* depth, client_server::RequestData* request_data,
+             client_server::ClientBlock client_block, client_server::DataBlock* data_block,
+             client_server::DataSource* data_source, client_server::Signal* signal_rec,
+             client_server::SignalDesc* signal_desc, client_server::Actions* actions_desc,
+             client_server::Actions* actions_sig, const plugins::PluginList* pluginlist,
+             structures::LogMallocList* logmalloclist, structures::UserDefinedTypeList* userdefinedtypelist,
+             client_server::SOCKETLIST* socket_list, int protocolVersion);
 
 }

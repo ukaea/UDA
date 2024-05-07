@@ -29,6 +29,7 @@ Interprets the API arguments and assembles a Request data structure.
 #include "clientserver/stringUtils.h"
 #include "clientserver/udaErrors.h"
 #include "logging/logging.h"
+#include "config/config.h"
 #include <fmt/format.h>
 
 using namespace uda::client_server;
@@ -121,19 +122,20 @@ int make_request_data(const char* data_object, const char* data_source, RequestD
     // XXXX::a=b,c=d
     // XXXX::/path/to/data/resource
 
+    uda::config::Config config = {};
     char* test = nullptr;
     if ((test = strstr(request->source, request->api_delim)) == nullptr) {
         if (strchr(request->source, '(') == nullptr && strchr(request->source, ')') == nullptr) {
             // source is not a function call
             strcpy(request->path, request->source);
-            expand_file_path(request->path, getIdamClientEnvironment());
+            expand_file_path(config, request->path);
         }
     } else {
         if (strchr(test, '(') == nullptr && strchr(test, ')') == nullptr) {
             // Prefixed and not a function call
             int ldelim = (int)strlen(request->api_delim);
             strcpy(request->path, &test[ldelim]);
-            expand_file_path(request->path, getIdamClientEnvironment());
+            expand_file_path(config, request->path);
         }
     }
 

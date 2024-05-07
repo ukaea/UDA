@@ -10,7 +10,7 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
-#include "server_config.h"
+#include "config/config.h"
 #include "uda/plugins.h"
 
 #define REQUEST_READ_START 1000
@@ -18,6 +18,7 @@
 using namespace uda::client_server;
 using namespace uda::plugins;
 using namespace uda::logging;
+using namespace uda::config;
 
 namespace
 {
@@ -187,7 +188,7 @@ int process_line(const std::string& line, uda::plugins::PluginData& plugin)
     return 0;
 }
 
-std::ifstream open_config_file(const uda::server::Config& config)
+std::ifstream open_config_file(const Config& config)
 {
     auto plugin_config = config.get("plugins.config");
     const char* default_file = "udaPlugins.conf"; // Default name

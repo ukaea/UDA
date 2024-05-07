@@ -6,17 +6,16 @@
 #include "server_environment.hpp"
 
 using namespace uda::client_server;
+using namespace uda::config;
 
-int uda::server::make_server_request_block(uda::client_server::RequestBlock *request_block, const Plugins& plugins,
-                                           const server::Environment& environment)
+int uda::server::make_server_request_block(const Config& config, RequestBlock *request_block, const Plugins& plugins)
 {
     auto plugin_list = plugins.as_plugin_list();
-    return make_request_block(request_block, &plugin_list, environment.p_env());
+    return make_request_block(config, request_block, &plugin_list);
 }
 
-int uda::server::make_server_request_data(uda::client_server::RequestData *request, const Plugins& plugins,
-                                          const uda::server::Environment &environment)
+int uda::server::make_server_request_data(const Config& config, RequestData *request, const Plugins& plugins)
 {
     auto plugin_list = plugins.as_plugin_list();
-    return make_request_data(request, &plugin_list, environment.p_env());
+    return make_request_data(config, request, &plugin_list);
 }

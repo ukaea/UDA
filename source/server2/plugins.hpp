@@ -1,24 +1,23 @@
 #pragma once
 
-#ifndef UDA_SERVER_PLUGINS_HPP
-#  define UDA_SERVER_PLUGINS_HPP
+#include <boost/optional.hpp>
+#include <vector>
 
-#  include <boost/optional.hpp>
-#  include <vector>
+#include "clientserver/udaDefines.h"
+#include "clientserver/udaStructs.h"
+#include "plugins/udaPlugin.h"
 
-#  include "clientserver/udaDefines.h"
-#  include "clientserver/udaStructs.h"
-#  include "plugins/udaPlugin.h"
+namespace uda::config {
+class Config;
+}
 
 namespace uda::server
 {
 
-class Config;
-
 class Plugins
 {
   public:
-    Plugins(const Config& config) : _config{config} {}
+    Plugins(const config::Config& config) : _config{config} {}
 
     void init();
 
@@ -30,7 +29,7 @@ class Plugins
     [[nodiscard]] boost::optional<const uda::plugins::PluginData&> find_by_request(int request) const;
 
   private:
-    const Config& _config;
+    const config::Config& _config;
     std::vector<uda::plugins::PluginData> _plugins;
 
     void init_serverside_functions();
@@ -43,5 +42,3 @@ class Plugins
 };
 
 } // namespace uda::server
-
-#endif // UDA_SERVER_PLUGINS_HPP

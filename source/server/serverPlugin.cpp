@@ -25,6 +25,7 @@
 #include "logging/logging.h"
 #include "structures/struct.h"
 #include "uda/plugins.h"
+#include "config/config.h"
 
 #define REQUEST_READ_START 1000
 #define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered
@@ -339,8 +340,8 @@ int uda::server::udaServerRedirectStdStreams(int reset)
 // 5. open the library
 // 6. get plugin function address
 // 7. close the file
-int uda::server::udaServerPlugin(RequestData* request, DataSource* data_source, SignalDesc* signal_desc,
-                                 const uda::plugins::PluginList* plugin_list, const Environment* environment)
+int uda::server::udaServerPlugin(const uda::config::Config& config, RequestData* request, DataSource* data_source,
+                                 SignalDesc* signal_desc, const uda::plugins::PluginList* plugin_list)
 {
     int err = 0;
 
@@ -349,7 +350,7 @@ int uda::server::udaServerPlugin(RequestData* request, DataSource* data_source, 
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data reader plug-in
 
-    if ((err = make_request_data(request, plugin_list, environment)) != 0) {
+    if ((err = make_request_data(config, request, plugin_list)) != 0) {
         return err;
     }
 
@@ -362,7 +363,7 @@ int uda::server::udaServerPlugin(RequestData* request, DataSource* data_source, 
 
     if (strlen(request->server) == 0 && request->request != REQUEST_READ_SERVERSIDE) {
         // Must be a File plugin
-        if ((err = path_replacement(request->path, environment)) != 0) {
+        if ((err = path_replacement(config, request->path)) != 0) {
             return err;
         }
     }
@@ -407,9 +408,10 @@ int uda::server::udaServerPlugin(RequestData* request, DataSource* data_source, 
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* original_request, DataSource* data_source,
+int uda::server::udaProvenancePlugin(const uda::config::Config& config, ClientBlock* client_block,
+                                     RequestData* original_request, DataSource* data_source,
                                      SignalDesc* signal_desc, const uda::plugins::PluginList* plugin_list,
-                                     const char* logRecord, const Environment* environment)
+                                     const char* logRecord)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {
@@ -428,6 +430,8 @@ int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* ori
 
     gettimeofday(&tv_start, nullptr);
 
+    auto external_user = bool(config.get("server.external_user"));
+
     if (plugin_id == -2) { // On initialisation
         plugin_id = -1;
         if ((env = getenv("UDA_PROVENANCE_PLUGIN")) != nullptr) {
@@ -438,7 +442,7 @@ int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* ori
             if (id >= 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION = {}",
                         plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
-                UDA_LOG(UDA_LOG_DEBUG, "!environment->external_user = {}", !environment->external_user);
+                UDA_LOG(UDA_LOG_DEBUG, "!environment->external_user = {}", !external_user);
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL = {}",
                         plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL);
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != nullptr = {}",
@@ -447,7 +451,7 @@ int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* ori
                         plugin_list->plugin[id].idamPlugin != nullptr);
             }
             if (id >= 0 && plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
-                !environment->external_user && plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
+                !external_user && plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
                 plugin_list->plugin[id].pluginHandle != nullptr && plugin_list->plugin[id].idamPlugin != nullptr) {
                 plugin_id = id;
             }
@@ -491,7 +495,7 @@ int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* ori
 
     UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: {}", request.signal);
 
-    make_request_data(&request, plugin_list, environment);
+    make_request_data(config, &request, plugin_list);
 
     int err, rc, reset;
     DataBlock data_block;
@@ -522,7 +526,7 @@ int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* ori
     plugin_interface.request_data = &request;
     plugin_interface.data_source = data_source;
     plugin_interface.signal_desc = signal_desc;
-    plugin_interface.environment = environment;
+    plugin_interface.environment = nullptr;
     plugin_interface.housekeeping = 0;
     plugin_interface.changePlugin = 0;
     plugin_interface.pluginList = plugin_list;
@@ -586,7 +590,7 @@ int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* ori
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID
 
-int uda::server::udaServerMetaDataPluginId(const uda::plugins::PluginList* plugin_list, const Environment* environment)
+int uda::server::udaServerMetaDataPluginId(const uda::config::Config& config, const uda::plugins::PluginList* plugin_list)
 {
     static unsigned short noPluginRegistered = 0;
     static int plugin_id = -1;
@@ -612,7 +616,8 @@ int uda::server::udaServerMetaDataPluginId(const uda::plugins::PluginList* plugi
             plugin_id = (short)id;
         }
 
-        if (id >= 0 && plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user) {
+        auto external_user = config.get("server.external_user");
+        if (id >= 0 && plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE && external_user) {
             // Not available to external users
             plugin_id = -1;
         }
@@ -621,9 +626,9 @@ int uda::server::udaServerMetaDataPluginId(const uda::plugins::PluginList* plugi
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: {}",
                 plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: {}", plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE);
-        UDA_LOG(UDA_LOG_DEBUG, "External User?: {}", environment->external_user);
+        UDA_LOG(UDA_LOG_DEBUG, "External User?: {}", bool(external_user));
         UDA_LOG(UDA_LOG_DEBUG, "Private?: {}",
-                plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user);
+                plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE && external_user);
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_OPERATIONAL?: {}",
                 plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL);
         UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: {}",
@@ -644,9 +649,9 @@ int uda::server::udaServerMetaDataPluginId(const uda::plugins::PluginList* plugi
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int uda::server::udaServerMetaDataPlugin(const uda::plugins::PluginList* plugin_list, int plugin_id,
-                                         RequestData* request_block, SignalDesc* signal_desc, Signal* signal_rec,
-                                         DataSource* data_source, const Environment* environment)
+int uda::server::udaServerMetaDataPlugin(const uda::config::Config& config, const uda::plugins::PluginList* plugin_list,
+                                         int plugin_id, RequestData* request_block, SignalDesc* signal_desc,
+                                         Signal* signal_rec, DataSource* data_source)
 {
     int err, reset, rc;
     UdaPluginInterface plugin_interface;
@@ -674,7 +679,7 @@ int uda::server::udaServerMetaDataPlugin(const uda::plugins::PluginList* plugin_
     plugin_interface.request_data = request_block;
     plugin_interface.data_source = data_source;
     plugin_interface.signal_desc = signal_desc;
-    plugin_interface.environment = environment;
+    plugin_interface.environment = nullptr;
     plugin_interface.housekeeping = 0;
     plugin_interface.changePlugin = 0;
     plugin_interface.pluginList = plugin_list;

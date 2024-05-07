@@ -4,7 +4,7 @@
 #include <string_view>
 #include <fmt/format.h>
 
-namespace uda::server
+namespace uda::config
 {
 
 class ConfigError : std::runtime_error
@@ -52,12 +52,17 @@ class Config
 {
   public:
     Config();
+    Config(Config&& other);
     ~Config();
     void load(std::string_view file_name);
     Option get(std::string_view name) const;
+    void set(std::string_view name, bool value);
+    void set(std::string_view name, const std::string& value);
+    void set(std::string_view name, int value);
+    void print() const;
 
   private:
     std::unique_ptr<ConfigImpl> _impl;
 };
 
-} // namespace uda::server
+} // namespace uda::config

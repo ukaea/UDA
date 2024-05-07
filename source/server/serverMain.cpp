@@ -7,6 +7,9 @@
 #endif
 
 #include "udaServer.h"
+#include "config/config.h"
+
+using namespace uda::config;
 
 int main(int argc, char** argv)
 {
@@ -17,11 +20,18 @@ int main(int argc, char** argv)
         sleep((unsigned int)atoi(env));
     }
 
+    Config config;
+    try {
+        config.load("uda_server.toml");
+    } catch (ConfigError& error) {
+        return -1;
+    }
+
     // Run server
 
     uda::client_server::ClientBlock client_block = {0};
 
-    int rc = uda::server::uda_server(client_block);
+    int rc = uda::server::uda_server(config, client_block);
 
     return rc;
 }

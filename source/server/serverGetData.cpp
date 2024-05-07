@@ -26,18 +26,24 @@ using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::config;
 
 static int swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmetry);
+
 static int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2);
+
 static int swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2,
                                  int asymmetry);
-static int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_block, DataSource* data_source,
+
+static int read_data(const Config& config, RequestData* request, ClientBlock client_block, DataBlock* data_block, DataSource* data_source,
                      Signal* signal_rec, SignalDesc* signal_desc, const uda::plugins::PluginList* pluginlist,
                      LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist);
 
-int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock client_block, DataBlock* data_block,
-                          DataSource* data_source, Signal* signal_rec, SignalDesc* signal_desc, Actions* actions_desc,
-                          Actions* actions_sig, const uda::plugins::PluginList* pluginlist,
+int uda::server::get_data(const Config& config, int* depth, RequestData* request_data,
+                          ClientBlock client_block, DataBlock* data_block,
+                          DataSource* data_source, Signal* signal_rec,
+                          SignalDesc* signal_desc, Actions* actions_desc,
+                          Actions* actions_sig, const plugins::PluginList* pluginlist,
                           LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                           SOCKETLIST* socket_list, int protocolVersion)
 {
@@ -119,7 +125,7 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
     //--------------------------------------------------------------------------------------------------------------------------
     // Read the Data (Returns rc < 0 if the signal is a derived type or is defined in an XML document)
 
-    int rc = read_data(request_data, client_block, data_block, data_source, signal_rec, signal_desc, pluginlist,
+    int rc = read_data(config, request_data, client_block, data_block, data_source, signal_rec, signal_desc, pluginlist,
                        logmalloclist, userdefinedtypelist);
 
     UDA_LOG(UDA_LOG_DEBUG, "After read_data rc = {}", rc);
@@ -302,7 +308,7 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
 
                     UDA_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA");
 
-                    rc = get_data(depth, &request_block2, client_block, data_block, data_source, signal_rec,
+                    rc = get_data(config, depth, &request_block2, client_block, data_block, data_source, signal_rec,
                                   signal_desc, actions_desc, actions_sig, pluginlist, logmalloclist,
                                   userdefinedtypelist, socket_list, protocolVersion);
 
@@ -401,7 +407,7 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
                 strcpy(data_source2.filename, request_data->file);
             }
 
-            rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+            rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
                           &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
                           userdefinedtypelist, socket_list, protocolVersion);
 
@@ -447,7 +453,7 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
                 strcpy(data_source2.filename, request_data->file);
             }
 
-            rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+            rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
                           &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
                           userdefinedtypelist, socket_list, protocolVersion);
 
@@ -551,7 +557,7 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
 
                     // Recursive call
 
-                    rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+                    rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
                                   &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
                                   userdefinedtypelist, socket_list, protocolVersion);
 
@@ -599,7 +605,7 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
                         strcpy(data_source2.filename, request_data->file);
                     }
 
-                    rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+                    rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
                                   &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
                                   userdefinedtypelist, socket_list, protocolVersion);
 
@@ -647,7 +653,7 @@ int uda::server::get_data(int* depth, RequestData* request_data, ClientBlock cli
                         strcpy(data_source2.filename, request_data->file);
                     }
 
-                    rc = get_data(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+                    rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
                                   &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
                                   userdefinedtypelist, socket_list, protocolVersion);
 
@@ -956,7 +962,7 @@ int swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_block, Data
     return 0;
 }
 
-int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_block, DataSource* data_source,
+int read_data(const Config& config, RequestData* request, ClientBlock client_block, DataBlock* data_block, DataSource* data_source,
               Signal* signal_rec, SignalDesc* signal_desc, const uda::plugins::PluginList* pluginlist,
               LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist)
 {
@@ -1030,7 +1036,7 @@ int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_bl
 
         // Identify the required Plugin
 
-        int plugin_id = udaServerMetaDataPluginId(pluginlist, getServerEnvironment());
+        int plugin_id = udaServerMetaDataPluginId(config, pluginlist);
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
             UDA_THROW_ERROR(778, "Unable to identify requested data item");
@@ -1045,8 +1051,7 @@ int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_bl
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = udaServerMetaDataPlugin(pluginlist, plugin_id, request, signal_desc, signal_rec, data_source,
-                                          getServerEnvironment());
+        int err = udaServerMetaDataPlugin(config, pluginlist, plugin_id, request, signal_desc, signal_rec, data_source);
 
         if (err != 0) {
             UDA_THROW_ERROR(err, "No Record Found for this Generic Signal");
@@ -1058,7 +1063,7 @@ int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_bl
         if (signal_desc->type == 'P') {
             strcpy(request->signal, signal_desc->signal_name);
             strcpy(request->source, data_source->path);
-            makeServerRequestData(request, *pluginlist);
+            makeServerRequestData(config, request, *pluginlist);
         }
 
     } // end of REQUEST_READ_GENERIC
@@ -1210,8 +1215,7 @@ int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_bl
                 // Save Provenance with socket stream protection
 
                 udaServerRedirectStdStreams(0);
-                udaProvenancePlugin(&client_block, request, data_source, signal_desc, pluginlist, nullptr,
-                                    getServerEnvironment());
+                udaProvenancePlugin(config, &client_block, request, data_source, signal_desc, pluginlist, nullptr);
                 udaServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
@@ -1299,7 +1303,7 @@ int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_bl
     // Save Provenance with socket stream protection
 
     udaServerRedirectStdStreams(0);
-    udaProvenancePlugin(&client_block, request, data_source, signal_desc, pluginlist, nullptr, getServerEnvironment());
+    udaProvenancePlugin(config, &client_block, request, data_source, signal_desc, pluginlist, nullptr);
     udaServerRedirectStdStreams(1);
 
     return 0;

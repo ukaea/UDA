@@ -7,17 +7,18 @@
 #endif
 
 #include "server.hpp"
-#include "server_config.h"
+#include "config/config.h"
 #include "server_exceptions.h"
 
 using namespace uda::server;
+using namespace uda::config;
 
 int main()
 {
     Config config;
     try {
         config.load("uda_server.toml");
-    } catch (uda::server::ConfigError& error) {
+    } catch (ConfigError& error) {
         return -1;
     }
 
@@ -31,7 +32,7 @@ int main()
     // Run server
 
     try {
-        Server server{config};
+        Server server{std::move(config)};
         server.run();
     } catch (uda::server::Exception& ex) {
         return ex.code();

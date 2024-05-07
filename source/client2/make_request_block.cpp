@@ -9,13 +9,14 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/udaErrors.h"
 #include "logging/logging.h"
+#include "config/config.h"
 
 using namespace uda::client_server;
+using namespace uda::config;
 
 namespace
 {
-int make_request_data(const Environment* environment, const char* data_object, const char* data_source,
-                      RequestData* request)
+int make_request_data(const Config& config, const char* data_object, const char* data_source, RequestData* request)
 {
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
@@ -40,7 +41,9 @@ int make_request_data(const Environment* environment, const char* data_object, c
      * interpret the data access request.
      */
 
-    strcpy(request->api_delim, environment->api_delim); // Server needs to know how to parse the arguments
+    auto api_delim = config.get("server.delim").as_or_default<std::string>({});
+
+    strcpy(request->api_delim, api_delim.c_str()); // Server needs to know how to parse the arguments
 
     //------------------------------------------------------------------------------------------------------------------
     /* If the default ARCHIVE and/or DEVICE is overridden by local environment variables and the arguments do not
@@ -49,9 +52,11 @@ int make_request_data(const Environment* environment, const char* data_object, c
      * These environment variables are legacy and not used by the server
      */
 
-    if (environment->api_device[0] != '\0' && strstr(request->source, request->api_delim) == nullptr) {
-        auto source =
-            (boost::format("%1%%2%%3%") % environment->api_device % request->api_delim % request->source).str();
+    auto device = config.get("server.default_device").as_or_default<std::string>({});
+    auto archive = config.get("server.default_archive").as_or_default<std::string>({});
+
+    if (!device.empty() && strstr(request->source, request->api_delim) == nullptr) {
+        auto source = fmt::format("{}{}{}", device, request->api_delim, request->source);
         if (source.length() >= STRING_LENGTH) {
             UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG,
                             "The Data Source Argument, prefixed with the Device Name, is too long!");
@@ -59,9 +64,8 @@ int make_request_data(const Environment* environment, const char* data_object, c
         strcpy(request->source, source.c_str());
     }
 
-    if (environment->api_archive[0] != '\0' && strstr(request->signal, request->api_delim) == nullptr) {
-        auto signal =
-            (boost::format("%1%%2%%3%") % environment->api_archive % request->api_delim % request->signal).str();
+    if (!archive.empty() && strstr(request->signal, request->api_delim) == nullptr) {
+        auto signal = fmt::format("{}{}{}", archive, request->api_delim, request->signal);
         if (signal.length() >= STRING_LENGTH) {
             UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG,
                             "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
@@ -103,14 +107,14 @@ int make_request_data(const Environment* environment, const char* data_object, c
         if (strchr(request->source, '(') == nullptr && strchr(request->source, ')') == nullptr) {
             // source is not a function call
             strcpy(request->path, request->source);
-            expand_file_path(request->path, environment);
+            expand_file_path(config, request->path);
         }
     } else {
         if (strchr(test, '(') == nullptr && strchr(test, ')') == nullptr) {
             // Prefixed and not a function call
             int ldelim = (int)strlen(request->api_delim);
             strcpy(request->path, &test[ldelim]);
-            expand_file_path(request->path, environment);
+            expand_file_path(config, request->path);
         }
     }
 
@@ -118,7 +122,7 @@ int make_request_data(const Environment* environment, const char* data_object, c
 }
 } // namespace
 
-int uda::client::make_request_block(const Environment* environment, const char** signals, const char** sources,
+int uda::client::make_request_block(const config::Config& config, const char** signals, const char** sources,
                                     int count, RequestBlock* request_block)
 {
     request_block->num_requests = (int)count;
@@ -128,7 +132,7 @@ int uda::client::make_request_block(const Environment* environment, const char**
     for (int i = 0; i < count; ++i) {
         RequestData* request = &request_block->requests[i];
         init_request_data(request);
-        if ((err = make_request_data(environment, signals[i], sources[i], request))) {
+        if ((err = make_request_data(config, signals[i], sources[i], request))) {
             return err;
         }
     }

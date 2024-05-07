@@ -10,6 +10,10 @@
 
 #include "closedown.hpp"
 
+namespace uda::config {
+class Config;
+}
+
 namespace uda {
 namespace client {
 
@@ -21,20 +25,20 @@ struct IoData {
 
 class Connection {
 public:
-    explicit Connection(uda::client_server::Environment& environment)
-        : environment(environment)
-        , socket_list()
+    explicit Connection(config::Config& config)
+        : _config{config}
+        , _socket_list{}
     {}
     int open();
     int reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start, int* user_timeout);
     int create(XDR* client_input, XDR* client_output, const HostList& host_list);
     void close_down(ClosedownType type);
-    IoData io_data() { return IoData{&client_socket}; }
+    IoData io_data() { return IoData{&_client_socket}; }
 
 private:
-    int client_socket = -1;
-    uda::client_server::Environment& environment;
-    std::vector<uda::client_server::Sockets> socket_list; // List of open sockets
+    int _client_socket = -1;
+    config::Config& _config;
+    std::vector<uda::client_server::Sockets> _socket_list; // List of open sockets
 
     int find_socket(int fh);
     void close_socket(int fh);

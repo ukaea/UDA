@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "logging/logging.h"
+#include "config/config.h"
 #include "udaErrors.h"
 
 #include "errorLog.h"
@@ -142,7 +143,7 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occurred.
 */
-int uda::client_server::path_replacement(char* path, const Environment* environment)
+int uda::client_server::path_replacement(const uda::config::Config& config, char* path)
 {
     //----------------------------------------------------------------------------------------------
     // Does the Path contain hierarchical components not seen by the server? If so make a substitution.
@@ -167,7 +168,11 @@ int uda::client_server::path_replacement(char* path, const Environment* environm
     if (path[0] == '\0') {
         return 0; // No replacement
     }
-    if (environment->private_path_target[0] == '\0') {
+
+    auto private_path_target = config.get("server.private_path_target").as_or_default<std::string>({});
+    auto private_path_substitute = config.get("server.private_path_substitute").as_or_default<std::string>({});
+
+    if (private_path_target.empty()) {
         return 0; // No replacement
     }
 
@@ -178,11 +183,10 @@ int uda::client_server::path_replacement(char* path, const Environment* environm
     UDA_LOG(UDA_LOG_DEBUG, "{}", path);
 
     // Parse targets
-    boost::split(targets, environment->private_path_target, boost::is_any_of(delimiters), boost::token_compress_on);
+    boost::split(targets, private_path_target, boost::is_any_of(delimiters), boost::token_compress_on);
 
     // Parse substitutes
-    boost::split(substitutes, environment->private_path_substitute, boost::is_any_of(delimiters),
-                 boost::token_compress_on);
+    boost::split(substitutes, private_path_substitute, boost::is_any_of(delimiters), boost::token_compress_on);
 
     if (targets.size() == substitutes.size()) {
         for (size_t i = 0; i < targets.size(); i++) {
@@ -379,7 +383,7 @@ int uda::client_server::link_replacement(char* path)
 @returns An integer Error Code: If non zero, a problem occured.
 */
 
-int uda::client_server::expand_file_path(char* path, const Environment* environment)
+int uda::client_server::expand_file_path(const uda::config::Config& config, char* path)
 {
 
 #  ifdef _WIN32
@@ -558,7 +562,7 @@ int uda::client_server::expand_file_path(char* path, const Environment* environm
             if ((err = link_replacement(path)) != 0) {
                 return err;
             }
-            if ((err = path_replacement(path, environment)) != 0) {
+            if ((err = path_replacement(config, path)) != 0) {
                 return err;
             }
 
@@ -734,7 +738,7 @@ int uda::client_server::expand_file_path(char* path, const Environment* environm
     /*! Does the Path to a user's Private Files contain network components not seen by the server?
     If so, target these and make a suitable substitution to resolve path problems.
     */
-    err = path_replacement(path, environment);
+    err = path_replacement(config, path);
 
     return err;
 

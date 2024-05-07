@@ -21,6 +21,7 @@
 #include "stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"
+#include "config/config.h"
 
 // TODO: remove this!
 #include "server/serverPlugin.h"
@@ -41,10 +42,10 @@ using namespace uda::logging;
 
 static void extract_function_name(const char* str, RequestData* request);
 
-static int source_file_format_test(const char* source, RequestData* request, const uda::plugins::PluginList* pluginList,
-                                   const Environment* environment);
+static int source_file_format_test(const uda::config::Config& config, const char* source, RequestData* request,
+                                   const uda::plugins::PluginList* pluginList);
 
-static int extract_archive(RequestData* request, int reduceSignal, const Environment* environment);
+static int extract_archive(const uda::config::Config& config, RequestData* request, int reduceSignal);
 
 static int generic_request_test(const char* source, RequestData* request);
 
@@ -71,8 +72,7 @@ static int find_plugin_id_by_format(const char* format, const uda::plugins::Plug
     return -1;
 }
 
-int uda::client_server::make_request_data(RequestData* request, const uda::plugins::PluginList* pluginList,
-                                          const Environment* environment)
+int uda::client_server::make_request_data(const config::Config& config, RequestData* request, const uda::plugins::PluginList* pluginList)
 {
     int ldelim;
     int err = 0;
@@ -85,8 +85,9 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
     //------------------------------------------------------------------------------
     // Always use the client's delimiting string if provided, otherwise use the default delimiter
 
+    auto delim = config.get("server.delim").as_or_default<std::string>({});
     if ((ldelim = (int)strlen(request->api_delim)) == 0) {
-        strcpy(request->api_delim, environment->api_delim);
+        strcpy(request->api_delim, delim.c_str());
         ldelim = (int)strlen(request->api_delim);
     }
 
@@ -98,8 +99,11 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
     //------------------------------------------------------------------------------
     // Check there is something to work with!
 
-    snprintf(work, MAXMETA, "%s%s", environment->api_archive, environment->api_delim); // default archive
-    snprintf(work2, MAXMETA, "%s%s", environment->api_device, environment->api_delim); // default device
+    auto archive = config.get("server.default_archive").as_or_default<std::string>({});
+    auto device = config.get("server.default_device").as_or_default<std::string>({});
+
+    snprintf(work, MAXMETA, "%s%s", archive.c_str(), delim.c_str()); // default archive
+    snprintf(work2, MAXMETA, "%s%s", device.c_str(), delim.c_str()); // default device
 
     left_trim_string(request->signal);
     trim_string(request->signal);
@@ -107,7 +111,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
     trim_string(request->source);
 
     bool noSource = (request->source[0] == '\0' ||                            // no source
-                     STR_IEQUALS(request->source, environment->api_device) || // default device name
+                     STR_IEQUALS(request->source, device.c_str()) || // default device name
                      STR_IEQUALS(request->source, work2));                    // default device name + delimiting string
 
     if ((request->signal[0] == '\0' || STR_IEQUALS(request->signal, work)) && noSource) {
@@ -129,9 +133,9 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
     // Is this server acting as an UDA Proxy? If all access requests are being re-directed then do nothing to the
     // arguments. They are just passed onwards without interpretation.
 
-    bool isProxy = environment->server_proxy[0] != '\0';
+    bool is_proxy = bool(config.get("server.proxy_target"));
 
-    if (isProxy) {
+    if (is_proxy) {
         request->request = REQUEST_READ_IDAM;
     }
 
@@ -201,7 +205,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
     // Test for DEVICE::LIBRARY::function(argument)     - More delimiter characters present?
 
     char* p;
-    if (test != nullptr && STR_IEQUALS(work2, environment->api_device) &&
+    if (test != nullptr && STR_IEQUALS(work2, device.c_str()) &&
         (p = strstr(work, request->api_delim)) != nullptr) {
         lstr = (p - work);
         strncpy(work2, work, lstr); // Ignore the default device name - force a pass to Scenario 2
@@ -220,15 +224,15 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
 
         if (noSource) {
             // No Source
-            strcpy(request->device_name, environment->api_device); // Default Device Name
+            strcpy(request->device_name, device.c_str()); // Default Device Name
             break;
         }
 
-        if (test == nullptr || STR_IEQUALS(work2, environment->api_device)) { // No delimiter present or default device?
+        if (test == nullptr || STR_IEQUALS(work2, device.c_str())) { // No delimiter present or default device?
 
             UDA_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present");
 
-            strcpy(request->device_name, environment->api_device); // Default Device Name
+            strcpy(request->device_name, device.c_str()); // Default Device Name
 
             // Regular request: pulse or pulse/pass ==> Generic request
 
@@ -257,7 +261,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
 
                 UDA_LOG(UDA_LOG_DEBUG, "No File Format has been specified. Selecting ....");
 
-                int rc = source_file_format_test(request->source, request, pluginList, environment);
+                int rc = source_file_format_test(config, request->source, request, pluginList);
 
 #ifdef JETSERVER
                 if (rc < 0) {
@@ -310,7 +314,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
                     // Test for external library functions using the Archive name as the library name identifier
 
                     reduceSignal = false;
-                    extract_archive(request, reduceSignal, environment);
+                    extract_archive(config, request, reduceSignal);
 
                     for (int i = 0; i < pluginList->count; i++) {
                         if (STR_IEQUALS(request->archive, pluginList->plugin[i].format)) {
@@ -400,7 +404,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
                                 UDA_THROW_ERROR(999,
                                                 "Too many chained Device Name to Server Protocol Host subtitutions!");
                             }
-                            err = make_request_data(request, pluginList, environment);
+                            err = make_request_data(config, request, pluginList);
                             depth--;
                             return err;
                         }
@@ -423,7 +427,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
 
             // A match was found: The Source must be a format or a protocol or a library
 
-            strcpy(request->device_name, environment->api_device); // Default Device Name
+            strcpy(request->device_name, device.c_str()); // Default Device Name
 
             if (isFile) { // Resolve any Serverside environment variables
                 UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.");
@@ -534,13 +538,13 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
 
     if (request->request == REQUEST_READ_IDAM) {
         reduceSignal = false;
-        err = extract_archive(request, reduceSignal, environment);
+        err = extract_archive(config, request, reduceSignal);
     } else {
         reduceSignal = !isForeign; // Don't detach if a foreign device
-        err = extract_archive(request, reduceSignal, environment);
+        err = extract_archive(config, request, reduceSignal);
     }
     if (request->archive[0] == '\0') {
-        strcpy(request->archive, environment->api_archive);
+        strcpy(request->archive, archive.c_str());
     }
 
     //------------------------------------------------------------------------------
@@ -553,7 +557,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
     isFunction = false;
 
     if (!isServer && (p = strchr(request->signal, '(')) != nullptr && strchr(p, ')') != nullptr &&
-        strcasecmp(request->archive, environment->api_archive) != 0) {
+        strcasecmp(request->archive, archive.c_str()) != 0) {
         strcpy(work, &p[1]);
         if ((p = strrchr(work, ')')) != nullptr) {
             p[0] = '\0';
@@ -619,7 +623,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
         // Does the data object (Signal) have the form: LIBRARY::function?
         // Exception is Serverside function
 
-        if (isFunction && strcasecmp(request->archive, environment->api_archive) != 0) {
+        if (isFunction && strcasecmp(request->archive, archive.c_str()) != 0) {
             int id = find_plugin_id_by_format(request->archive, pluginList);
             if (id >= 0 && pluginList->plugin[id].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FUNCTION &&
                 strcasecmp(pluginList->plugin[id].symbol, "serverside") != 0) {
@@ -652,7 +656,7 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
     //                MDS+::server
     //                MDS+::
 
-    if (request->request == REQUEST_READ_MDS && !isProxy) {
+    if (request->request == REQUEST_READ_MDS && !is_proxy) {
 
         reverse_string(test + ldelim, work); // Drop the delimiters and Reverse the Source String
 
@@ -742,14 +746,14 @@ int uda::client_server::make_request_data(RequestData* request, const uda::plugi
     return 0;
 }
 
-int uda::client_server::make_request_block(RequestBlock* request_block, const uda::plugins::PluginList* pluginList,
-                                           const Environment* environment)
+int uda::client_server::make_request_block(const config::Config& config, RequestBlock* request_block,
+                                           const uda::plugins::PluginList* pluginList)
 {
     int rc = 0;
 
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[0];
-        rc = make_request_data(request, pluginList, environment);
+        rc = make_request_data(config, request, pluginList);
         if (rc != 0) {
             break;
         }
@@ -789,8 +793,7 @@ void extract_function_name(const char* str, RequestData* request)
 /**
  * returns true if a format was identified, false otherwise.
  */
-int source_file_format_test(const char* source, RequestData* request, const uda::plugins::PluginList* pluginList,
-                            const Environment* environment)
+int source_file_format_test(const uda::config::Config& config, const char* source, RequestData* request, const uda::plugins::PluginList* pluginList)
 {
     int rc = 0;
     const char* test;
@@ -1010,10 +1013,11 @@ int source_file_format_test(const char* source, RequestData* request, const uda:
             break;
         }
 
+        auto format = config.get("server.default_format").as_or_default<std::string>({});
         if (source[0] == '/' && source[1] != '\0' && isdigit(source[1])) { // Default File Format?
             if (generic_request_test(&source[1], request)) {               // Matches 99999/999
                 request->request = REQUEST_READ_UNKNOWN;
-                strcpy(request->format, environment->api_format); // the default Server File Format
+                strcpy(request->format, format.c_str()); // the default Server File Format
                 break;
             }
         }
@@ -1118,7 +1122,7 @@ int generic_request_test(const char* source, RequestData* request)
 // Input Argument: reduceSignal - If TRUE (1) then extract the archive name and return the data object name
 //                                without the prefixed archive name.
 
-int extract_archive(RequestData* request, int reduceSignal, const Environment* environment)
+int extract_archive(const uda::config::Config& config, RequestData* request, int reduceSignal)
 {
     int err = 0, test1, test2;
     int ldelim = (int)strlen(request->api_delim);
@@ -1126,7 +1130,7 @@ int extract_archive(RequestData* request, int reduceSignal, const Environment* e
 
     trim_string(request->signal);
 
-    if (request->signal[0] != '\0' && environment->server_proxy[0] == '\0') {
+    if (request->signal[0] != '\0' && !config.get("server.proxy_target")) {
 
         UDA_LOG(UDA_LOG_DEBUG, "Testing for ARCHIVE::Signal");
 
@@ -1140,11 +1144,13 @@ int extract_archive(RequestData* request, int reduceSignal, const Environment* e
             request->archive[test - request->signal] = '\0';
             trim_string(request->archive);
 
+            auto archive = config.get("server.default_archive").as_or_default<std::string>({});
+
             // If a plugin is prefixed by the local archive name then discard the archive name
-            if (reduceSignal && !strcasecmp(request->archive, environment->api_archive)) {
+            if (reduceSignal && !strcasecmp(request->archive, archive.c_str())) {
                 request->archive[0] = '\0';
                 strcpy(request->signal, &test[ldelim]);
-                return extract_archive(request, reduceSignal, environment);
+                return extract_archive(config, request, reduceSignal);
             }
 
             if (!is_legal_file_path(request->archive)) {

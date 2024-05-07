@@ -16,6 +16,7 @@
 #include "logging/logging.h"
 #include "server/serverPlugin.h"
 #include "structures/struct.h"
+#include "config/config.h"
 
 #include "createXDRStream.h"
 #include "getServerEnvironment.h"
@@ -33,6 +34,7 @@ using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::config;
 
 static uda::plugins::PluginList plugin_list; // List of all data reader plugins (internal and external shared libraries)
 Environment environment;                    // Holds local environment variable values
@@ -80,7 +82,7 @@ static int startup_fat_server(ServerBlock* server_block, UserDefinedTypeList& pa
 static int do_fat_server_closedown(ServerBlock* server_block, DataBlockList* data_blocks, Actions* actions_desc,
                                    Actions* actions_sig, DataBlockList* data_blocks0);
 
-static int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0, ClientBlock* client_block,
+static int handle_request_fat(const Config& config, RequestBlock* request_block, RequestBlock* request_block0, ClientBlock* client_block,
                               ServerBlock* server_block, MetaDataBlock* metadata_block, DataBlockList* data_block,
                               Actions* actions_desc, Actions* actions_sig);
 
@@ -91,8 +93,8 @@ static int fat_client_return(ServerBlock* server_block, DataBlockList* data_bloc
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int uda::server::fat_server(ClientBlock client_block, ServerBlock* server_block, RequestBlock* request_block0,
-                            DataBlockList* data_blocks0)
+int uda::server::fat_server(const Config& config, ClientBlock client_block, ServerBlock* server_block,
+                            RequestBlock* request_block0, DataBlockList* data_blocks0)
 {
     assert(data_blocks0 != nullptr);
 
@@ -142,7 +144,7 @@ int uda::server::fat_server(ClientBlock client_block, ServerBlock* server_block,
 
     copy_user_defined_type_list(&user_defined_type_list, &parseduserdefinedtypelist);
 
-    err = handle_request_fat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
+    err = handle_request_fat(config, &request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                              &actions_desc, &actions_sig);
     if (err != 0) {
         return err;
@@ -286,7 +288,7 @@ int fat_client_return(ServerBlock* server_block, DataBlockList* data_blocks, Dat
     return err;
 }
 
-int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0, ClientBlock* client_block,
+int handle_request_fat(const Config& config, RequestBlock* request_block, RequestBlock* request_block0, ClientBlock* client_block,
                        ServerBlock* server_block, MetaDataBlock* metadata_block, DataBlockList* data_blocks,
                        Actions* actions_desc, Actions* actions_sig)
 {
@@ -315,8 +317,7 @@ int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
         if (protocol_version >= 6) {
-            if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc, &plugin_list,
-                                       getServerEnvironment())) != 0) {
+            if ((err = udaServerPlugin(config, request, &metadata_block->data_source, &metadata_block->signal_desc, &plugin_list)) != 0) {
                 return err;
             }
         } else {
@@ -340,7 +341,7 @@ int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0
         data_blocks->data = (DataBlock*)realloc(data_blocks->data, (data_blocks->count + 1) * sizeof(DataBlock));
         auto data_block = &data_blocks->data[i];
         init_data_block(data_block);
-        err = get_data(&depth, request, *client_block, data_block, &metadata_block->data_source,
+        err = get_data(config, &depth, request, *client_block, data_block, &metadata_block->data_source,
                        &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                        &plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
         ++data_blocks->count;
