@@ -106,6 +106,7 @@ macro( BUILD_TEST NAME SOURCE )
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/wrappers
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
   )
 
   set_target_properties( ${NAME}
@@ -136,6 +137,7 @@ macro( BUILD_TEST NAME SOURCE )
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/wrappers
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
   )
 
   if( NOT WIN32 AND NOT MINGW )

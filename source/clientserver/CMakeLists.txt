@@ -69,6 +69,7 @@ target_link_libraries( clientserver-client-objects PUBLIC ${LIBS} )
 target_include_directories( clientserver-client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 
 if( NOT CLIENT_ONLY )
@@ -78,6 +79,7 @@ if( NOT CLIENT_ONLY )
   target_include_directories( clientserver-server-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
   )
 
 
@@ -87,5 +89,6 @@ if( NOT CLIENT_ONLY )
   target_include_directories( fatclientserver-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
   )
 endif()

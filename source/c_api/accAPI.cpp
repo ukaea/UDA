@@ -14,7 +14,6 @@
 #endif
 
 #include "client/generateErrors.h"
-#include "client/getEnvironment.h"
 #include "client/udaClient.h"
 #include "clientserver/allocData.h"
 #include "clientserver/initStructs.h"
@@ -23,7 +22,9 @@
 #include "clientserver/stringUtils.h"
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
-#include "version.h"
+#include "client/client_config.h"
+
+#include <uda/version.h>
 
 #ifdef __APPLE__
 #  include <cstdlib>
@@ -35,6 +36,8 @@ using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::logging;
 using namespace uda::structures;
+
+using namespace std::string_literals;
 
 USERDEFINEDTYPE* udaGetUserDefinedType(int handle);
 USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);
@@ -547,12 +550,17 @@ void udaPutDimErrorModel(int handle, int ndim, int model, int param_n, const flo
  */
 void udaPutServer(const char* host, int port)
 {
-    Environment* environment = getIdamClientEnvironment();
-    environment->server_port = port;        // UDA server service port number
-    strcpy(environment->server_host, host); // UDA server's host name or IP address
-    environment->server_reconnect = 1;      // Create a new Server instance
-    udaSetEnvHost(false);                   // Skip initialisation at Startup if these are called first
-    udaSetEnvPort(false);
+    auto config = uda::client::client_config();
+
+    auto old_port = config->get("client.port").as_or_default(56565);
+    auto old_host = config->get("client.host").as_or_default("localhost"s);
+
+    config->set("client.port", port);
+    config->set("client.host", host);
+
+    if (old_host != host || old_port != port) {
+        config->set("client.reconnect", true);
+    }
 }
 
 //! Set the UDA data server host name
@@ -562,13 +570,15 @@ void udaPutServer(const char* host, int port)
  */
 void udaPutServerHost(const char* host)
 {
-    Environment* environment = getIdamClientEnvironment();
-    std::string old_host = host;
-    strcpy(environment->server_host, host); // UDA server's host name or IP address
+    auto config = uda::client::client_config();
+
+    auto old_host = config->get("client.host").as_or_default("localhost"s);
+
+    config->set("client.host", host);
+
     if (old_host != host) {
-        environment->server_reconnect = 1; // Create a new Server instance
+        config->set("client.reconnect", true);
     }
-    udaSetEnvHost(false);
 }
 
 //! Set the UDA data server port number
@@ -578,46 +588,15 @@ void udaPutServerHost(const char* host)
  */
 void udaPutServerPort(int port)
 {
-    Environment* environment = getIdamClientEnvironment();
-    int old_port = port;
-    environment->server_port = port; // UDA server service port number
+    auto config = uda::client::client_config();
+
+    auto old_port = config->get("client.port").as_or_default(56565);
+
+    config->set("client.port", port);
+
     if (old_port != port) {
-        environment->server_reconnect = 1; // Create a new Server instance
+        config->set("client.reconnect", true);
     }
-    udaSetEnvPort(false);
-}
-
-//! Specify a specific UDA server socket connection to use
-/** The client can be connected to multiple servers, distinguished by their socket id.
-Select the server connection required.
-* @param socket The socket ID of the server connection required.
-* @return void
-*/
-void udaPutServerSocket(int socket)
-{
-    Environment* environment = getIdamClientEnvironment();
-    if (environment->server_socket != socket) { // Change to a different socket
-        environment->server_socket = socket;    // UDA server service socket number (Must be Open)
-        environment->server_change_socket = 1;  // Connect to an Existing Server
-    }
-}
-
-//--------------------------------------------------------------
-// Standard C GET Accessor Routines
-
-//! Return the UDA data server host name, port number and socket connection id
-/**
- * @param host A preallocated string that will contain the name of the server host computer.
- * @param port Returned port number.
- * @param socket Returned socket id number.
- * @return void
- */
-void udaGetServer(const char** host, int* port, int* socket)
-{ // Active ...
-    Environment* environment = getIdamClientEnvironment();
-    *socket = environment->server_socket; // UDA server service socket number
-    *port = environment->server_port;     // UDA server service port number
-    *host = environment->server_host;     // UDA server's host name or IP address
 }
 
 //! the UDA server connection host name
@@ -626,8 +605,8 @@ void udaGetServer(const char** host, int* port, int* socket)
  */
 const char* udaGetServerHost()
 {
-    Environment* environment = getIdamClientEnvironment();
-    return environment->server_host; // Active UDA server's host name or IP address
+    auto config = uda::client::client_config();
+    return config->get("client.host").as_or_default<const char*>("localhost");
 }
 
 //! the UDA server connection port number
@@ -636,28 +615,13 @@ const char* udaGetServerHost()
  */
 int udaGetServerPort()
 {
-    Environment* environment = getIdamClientEnvironment();
-    return environment->server_port; // Active UDA server service port number
-}
-
-const char* udaGetBuildVersion()
-{
-    return UDA_BUILD_VERSION;
+    auto config = uda::client::client_config();
+    return config->get("client.port").as_or_default(56565);
 }
 
 const char* udaGetBuildDate()
 {
     return UDA_BUILD_DATE;
-}
-
-//! the UDA server connection socket ID
-/**
- * @return the connection socket ID
- */
-int udaGetServerSocket()
-{
-    Environment* environment = getIdamClientEnvironment();
-    return environment->server_socket; // Active UDA server service socket number
 }
 
 //!  returns the data access error code
@@ -1164,21 +1128,6 @@ char* udaGetData(int handle)
     } else {
         return udaGetSyntheticData(handle);
     }
-}
-
-//! Copy the requested data block to a data buffer for use in MDS+ TDI functions
-/**
-\param   handle   The data object handle
-\param   char  A preallocated memory block to receive a copy of the data
-\return  void
-*/
-void udaGetDataTdi(int handle, char* data)
-{
-    auto data_block = getDataBlock(handle);
-    if (data_block == nullptr) {
-        return;
-    }
-    memcpy(data, (void*)data_block->data, (int)data_block->data_n);
 }
 
 char* udaGetDataErrLo(int handle)

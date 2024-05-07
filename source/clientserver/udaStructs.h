@@ -418,41 +418,6 @@ struct RequestBlock {
     RequestData* requests;
 };
 
-//---------------------------------------------------------------------------------------------------
-// System Environment Variables
-
-struct Environment {
-    int server_port;  // Principal UDA server port
-    int server_port2; // Backup UDA server port
-    int sql_port;
-    int server_reconnect;     // If the client changes to a different UDA server then open a new socket
-    int server_change_socket; // Connect to a Running Server
-    int server_socket;        // Clients must keep track of the sockets they open
-    int data_path_id;         // Identifies the algorithm that defines the default path to the standard data source.
-    int external_user; // Flags this service as accessible by external users: Disable some access formats for security.
-    unsigned int clientFlags; // Use legacy Name substitution
-    int altRank;              // Use specific set of legacy name substitutes
-    char logdir[MAXPATH];
-    char logmode[2];
-    int loglevel;
-    char server_host[MAXNAME];  // Principal UDA server host
-    char server_host2[MAXNAME]; // Backup UDA server host
-    char server_proxy[MAXNAME]; // host:port - Running as a Proxy UDA server: Prefix 'UDA::host:port/' to redirect
-    // request
-    char server_this[MAXNAME]; // host:port - The current server. Used to trap potential infinite redirects
-    char sql_host[MAXNAME];
-    char sql_dbname[MAXNAME];
-    char sql_user[MAXNAME];
-    char api_delim[MAXNAME];                     // Default API Signal and Source Delimiter Sub-String
-    char api_device[STRING_LENGTH];              // API Default Device name
-    char api_archive[STRING_LENGTH];             // API Default Archive name
-    char api_format[STRING_LENGTH];              // API Default Client File Format
-    char private_path_target[STRING_LENGTH];     // Target this path to private files
-    char private_path_substitute[STRING_LENGTH]; // and substitute with this path (so the server can locate them!)
-    unsigned char initialised;                            // Environment already initialised.
-    char _padding[1];
-};
-
 void freeClientPutDataBlockList(PutDataBlockList* putDataBlockList);
 
 void freeDataBlock(DataBlock* data_block);

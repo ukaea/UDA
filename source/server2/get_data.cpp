@@ -280,7 +280,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
-                if ((rc = server_parse_server_side(request_data, &actions_serverside, nullptr)) != 0) {
+                if ((rc = server_parse_server_side(_config, request_data, &actions_serverside)) != 0) {
                     return rc;
                 }
                 // Erase original Subset request
@@ -294,7 +294,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
-                if ((rc = server_parse_server_side(request_data, &actions_serverside, nullptr)) != 0) {
+                if ((rc = server_parse_server_side(_config, request_data, &actions_serverside)) != 0) {
                     return rc;
                 }
                 // Erase original Subset request

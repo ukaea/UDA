@@ -25,7 +25,6 @@
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
-#include "getServerEnvironment.h"
 #include "initPluginList.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
@@ -35,6 +34,8 @@
 #include "clientserver/version.h"
 #include "udaLegacyServer.h"
 #include "config/config.h"
+
+#include <uda/version.h>
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -52,10 +53,12 @@ using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::config;
 
+using namespace std::string_literals;
+
 //--------------------------------------------------------------------------------------
 // static globals
 
-constexpr int ServerVersion = UDA_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
+constexpr int ServerVersion = UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
 constexpr int LegacyServerVersion = 6;
 
 static int protocol_version = 0;
@@ -70,7 +73,6 @@ UserDefinedTypeList parsed_user_defined_type_list; // Initial set of User Define
 // Total amount sent for the last data request
 
 static uda::plugins::PluginList plugin_list; // List of all data reader plugins (internal and external shared libraries)
-Environment environment;                     // Holds local environment variable values
 
 static SOCKETLIST socket_list;
 
@@ -85,13 +87,13 @@ typedef struct MetadataBlock {
 static int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_output,
                           uda::server::IoData* io_data);
 
-static int handle_request(const Config& config, RequestBlock* request_block, ClientBlock* client_block, ServerBlock* server_block,
+static int handle_request(Config& config, RequestBlock* request_block, ClientBlock* client_block, ServerBlock* server_block,
                           MetaDataBlock* metadata_block, Actions* actions_desc, Actions* actions_sig,
                           DataBlockList* data_block_list, int* fatal, int* server_closedown,
                           uda::cache::UdaCache* cache, LogStructList* log_struct_list, XDR* server_input,
                           const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout);
 
-static int do_server_loop(const Config& config, RequestBlock* request_block, DataBlockList* data_block_list, ClientBlock* client_block,
+static int do_server_loop(Config& config, RequestBlock* request_block, DataBlockList* data_block_list, ClientBlock* client_block,
                           ServerBlock* server_block, MetaDataBlock* metadata_block, Actions* actions_desc,
                           Actions* actions_sig, int* fatal, uda::cache::UdaCache* cache, LogStructList* log_struct_list,
                           XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
@@ -107,7 +109,7 @@ static int do_server_closedown(ClientBlock* client_block, RequestBlock* request_
 #ifdef SECURITYENABLED
 static int authenticateClient(ClientBlock* client_block, ServerBlock* server_block);
 #else
-static int handshake_client(const Config& config, ClientBlock* client_block, ServerBlock* server_block, int* server_closedown,
+static int handshake_client(Config& config, ClientBlock* client_block, ServerBlock* server_block, int* server_closedown,
                             LogStructList* log_struct_list, XDR* server_input, XDR* server_output);
 #endif
 
@@ -177,7 +179,7 @@ unsigned int count_data_block_list_size(const DataBlockList* data_block_list, Cl
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int uda::server::uda_server(const uda::config::Config& config, uda::client_server::ClientBlock client_block)
+int uda::server::uda_server(uda::config::Config& config, uda::client_server::ClientBlock client_block)
 {
     int err = 0;
     MetaDataBlock metadata_block;
@@ -442,7 +444,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
     return err;
 }
 
-int handle_request(const Config& config, RequestBlock* request_block, ClientBlock* client_block, ServerBlock* server_block,
+int handle_request(Config& config, RequestBlock* request_block, ClientBlock* client_block, ServerBlock* server_block,
                    MetaDataBlock* metadata_block, Actions* actions_desc, Actions* actions_sig,
                    DataBlockList* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
                    LogStructList* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
@@ -506,15 +508,17 @@ int handle_request(const Config& config, RequestBlock* request_block, ClientBloc
     // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access
     // policy
 
-    if (!environment.external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
-        environment.external_user = 1;
+    auto external_user = config.get("server.external_user").as_or_default(false);
+
+    if (!external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
+        config.set("server.external_user", true);
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion {}", protocol_version);
     UDA_LOG(UDA_LOG_DEBUG, "private_flags {}", private_flags);
     UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  {}", client_flags);
     UDA_LOG(UDA_LOG_DEBUG, "altRank      {}", alt_rank);
-    UDA_LOG(UDA_LOG_DEBUG, "external?    {}", environment.external_user);
+    UDA_LOG(UDA_LOG_DEBUG, "external?    {}", external_user);
 
     if (server_block->idamerrorstack.nerrors > 0) {
         server_block->error = server_block->idamerrorstack.idamerror[0].code;
@@ -684,6 +688,9 @@ int handle_request(const Config& config, RequestBlock* request_block, ClientBloc
 
 #else
 
+    auto server_proxy = config.get("server.proxy").as_or_default(""s);
+    auto delim = config.get("server.delim").as_or_default("::"s);
+
     for (int i = 0; i < request_block->num_requests; ++i) {
         RequestData* request = &request_block->requests[i];
 
@@ -691,10 +698,10 @@ int handle_request(const Config& config, RequestBlock* request_block, ClientBloc
         if (request->api_delim[0] != '\0') {
             work = fmt::format("UDA{}", request->api_delim);
         } else {
-            work = fmt::format("UDA{}", environment.api_delim);
+            work = fmt::format("UDA{}", delim);
         }
 
-        if (environment.server_proxy[0] != '\0' && strncasecmp(request->source, work.c_str(), work.size()) != 0) {
+        if (!server_proxy.empty() && strncasecmp(request->source, work.c_str(), work.size()) != 0) {
 
             // Check the Server Version is Compatible with the Originating client version ?
 
@@ -708,10 +715,12 @@ int handle_request(const Config& config, RequestBlock* request_block, ClientBloc
             // The UDA Plugin strips out the host and port data from the source so the originating server details are
             // never passed.
 
+            auto address = config.get("server.address").as_or_default("localhost"s);
+
             if (request->api_delim[0] != '\0') {
-                work = fmt::format("UDA{}{}", request->api_delim, environment.server_this);
+                work = fmt::format("UDA{}{}", request->api_delim, address);
             } else {
-                work = fmt::format("UDA{}{}", environment.api_delim, environment.server_this);
+                work = fmt::format("UDA{}{}", delim, address);
             }
 
             if (strstr(request->source, work.c_str()) != nullptr) {
@@ -722,21 +731,21 @@ int handle_request(const Config& config, RequestBlock* request_block, ClientBloc
             // Check string length compatibility
 
             if (strlen(request->source) >=
-                (STRING_LENGTH - 1 - strlen(environment.server_proxy) - 4 + strlen(request->api_delim))) {
+                (STRING_LENGTH - 1 - server_proxy.size() - 4 + strlen(request->api_delim))) {
                 UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
             }
 
             // Prepend the redirection UDA server details
 
             if (request->api_delim[0] != '\0') {
-                work = fmt::format("UDA{}{}/{}", request->api_delim, environment.server_proxy, request->source);
+                work = fmt::format("UDA{}{}/{}", request->api_delim, server_proxy, request->source);
             } else {
-                work = fmt::format("UDA{}{}/{}", environment.api_delim, environment.server_proxy, request->source);
+                work = fmt::format("UDA{}{}/{}", delim, server_proxy, request->source);
             }
 
             strcpy(request->source, work.c_str());
 
-            UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to {}", environment.server_proxy);
+            UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to {}", server_proxy);
             UDA_LOG(UDA_LOG_DEBUG, "source: {}", request->source);
         }
     }
@@ -904,7 +913,7 @@ int handle_request(const Config& config, RequestBlock* request_block, ClientBloc
     return err;
 }
 
-int do_server_loop(const Config& config, RequestBlock* request_block, DataBlockList* data_block_list, ClientBlock* client_block,
+int do_server_loop(Config& config, RequestBlock* request_block, DataBlockList* data_block_list, ClientBlock* client_block,
                    ServerBlock* server_block, MetaDataBlock* metadata_block, Actions* actions_desc,
                    Actions* actions_sig, int* fatal, uda::cache::UdaCache* cache, LogStructList* log_struct_list,
                    XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int server_tot_block_time,
@@ -1108,7 +1117,7 @@ int authenticateClient(ClientBlock* client_block, ServerBlock* server_block)
 }
 #endif
 
-int handshake_client(const Config& config, ClientBlock* client_block, ServerBlock* server_block, int* server_closedown,
+int handshake_client(Config& config, ClientBlock* client_block, ServerBlock* server_block, int* server_closedown,
                      LogStructList* log_struct_list, XDR* server_input, XDR* server_output)
 {
     // Exchange version details - once only
@@ -1271,7 +1280,7 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
 
     if (!plugin_list_initialised) {
         plugin_list.count = 0;
-        initPluginList(&plugin_list, getServerEnvironment());
+        initPluginList(&plugin_list);
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available");

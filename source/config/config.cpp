@@ -324,7 +324,7 @@ void Config::print() const
 
 Config::Config() = default;
 
-Config::Config(uda::config::Config&& other) = default;
+Config::Config(Config&& other) = default;
 
 Config::~Config() = default;
 

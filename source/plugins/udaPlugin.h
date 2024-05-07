@@ -9,6 +9,10 @@
 typedef struct CUdaPluginInterface {
 } UDA_PLUGIN_INTERFACE;
 
+namespace uda::client_server {
+struct Environment;
+}
+
 namespace uda::plugins
 {
 

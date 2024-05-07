@@ -21,6 +21,7 @@ target_link_libraries( authentication-client-objects ${LIBS} )
 target_include_directories( authentication-client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 
 if( NOT CLIENT_ONLY )
@@ -30,5 +31,6 @@ if( NOT CLIENT_ONLY )
   target_include_directories( authentication-server-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
   )
 endif()

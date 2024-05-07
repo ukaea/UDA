@@ -32,6 +32,7 @@ add_library( structures-client-objects OBJECT ${SRC_FILES} )
 target_include_directories( structures-client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 target_link_libraries( structures-client-objects PRIVATE ${LIBS} )
 
@@ -41,6 +42,7 @@ if( NOT CLIENT_ONLY )
   target_include_directories( structures-server-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
   )
   target_link_libraries( structures-server-objects PRIVATE ${LIBS} )
 endif()

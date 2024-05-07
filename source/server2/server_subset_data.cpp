@@ -6,7 +6,6 @@
 //--------------------------------------------------------------------------------------------------------------------
 
 #include "server_subset_data.h"
-#include "server_environment.hpp"
 
 #include <cerrno>
 #include <float.h>
@@ -46,6 +45,8 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
+
+using namespace std::string_literals;
 
 namespace
 {
@@ -1193,7 +1194,7 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
 // SS::Subset(\"xx\", [*, 3], member=\"name\", reform)
 // SS::Subset(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dimid=0)\" )
 
-int uda::server::server_parse_server_side(client_server::RequestData* request_block, client_server::Actions* actions_serverside, client_server::Environment* environment)
+int uda::server::server_parse_server_side(config::Config& config, client_server::RequestData* request_block, client_server::Actions* actions_serverside)
 {
 
     char qchar[2];
@@ -1271,9 +1272,11 @@ int uda::server::server_parse_server_side(client_server::RequestData* request_bl
     //-------------------------------------------------------------------------------------------------------------
     // Overwrite the Request Block to enable the correct access to signal data before the subset operations are applied
 
+    auto default_archive = config.get("server.default_archive").as_or_default(""s);
+
     strcpy(request_block->archive, archive);
     if (request_block->archive[0] == '\0') {
-        strcpy(request_block->archive, environment->api_archive);
+        strcpy(request_block->archive, default_archive.c_str());
     }
 
     strcpy(request_block->signal, signal);

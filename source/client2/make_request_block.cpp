@@ -1,5 +1,4 @@
 #include "make_request_block.hpp"
-#include "client_environment.hpp"
 
 #include <boost/format.hpp>
 #include <string>
@@ -8,7 +7,6 @@
 #include "clientserver/expand_path.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/udaErrors.h"
-#include "logging/logging.h"
 #include "config/config.h"
 
 using namespace uda::client_server;

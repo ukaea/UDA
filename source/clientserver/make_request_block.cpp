@@ -1,6 +1,7 @@
 #include "logging/logging.h"
 #include "server/serverPlugin.h"
 #include "udaStructs.h"
+#include "config/config.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range/adaptors.hpp>
@@ -11,6 +12,9 @@
 using namespace uda::client_server;
 using namespace uda::plugins;
 using namespace uda::logging;
+using namespace uda::config;
+
+using namespace std::string_literals;
 
 static const boost::regex SOURCE_RE(
     R"(^(?<device>(?:[a-z]+::)*)(((?<pulse>[0-9]+)(\/(?<pass>[0-9a-z]+))?)|(?<path>\/[a-z0-9\/\.]+)|((?<function>[a-z]+)\((?<args>.*)\)))$)",
@@ -389,21 +393,20 @@ void uda::write_string(char* out, std::string in, size_t len)
     std::strcpy(out, in.c_str());
 }
 
-RequestData make_request_data(const RequestData& request_data, const PluginList& plugin_list,
-                              const Environment& environment)
+RequestData make_request_data(const Config& config, const RequestData& request_data, const PluginList& plugin_list)
 {
-    std::string delim;
-
     RequestData result = {0};
 
+    std::string delim;
+
     if (request_data.api_delim[0] == '\0') {
-        delim = environment.api_delim;
+        delim = config.get("request.delim").as_or_default("::"s);
     } else {
         delim = request_data.api_delim;
     }
 
-    std::string api_archive = environment.api_archive;
-    std::string api_device = environment.api_device;
+    std::string api_archive = config.get("request.default_archive").as_or_default(""s);
+    std::string api_device = config.get("request.default_device").as_or_default(""s);
 
     boost::to_lower(api_archive);
     boost::to_lower(api_device);
@@ -431,7 +434,7 @@ RequestData make_request_data(const RequestData& request_data, const PluginList&
         boost::trim_left(source);
     }
 
-    bool is_proxy = environment.server_proxy[0] == '\0';
+    bool is_proxy = config.get("server.is_proxy").as_or_default(false);
 
     if (is_proxy) {
         result.request = REQUEST_READ_IDAM;

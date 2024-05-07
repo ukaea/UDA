@@ -14,7 +14,7 @@
 using namespace uda::client_server;
 using namespace uda::plugins;
 
-void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, Environment* environment)
+void uda::server::initPluginList(uda::plugins::PluginList* plugin_list)
 {
     // initialise the Plugin List and Allocate heap for the list
 
@@ -52,7 +52,7 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, Environm
     //----------------------------------------------------------------------------------------------------------------------
     // Server-Side Functions
 
-    int pluginCount = plugin_list->count; // Number of internal plugins before adding server-side
+    int plugin_count = plugin_list->count; // Number of internal plugins before adding server-side
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "SERVERSIDE");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -63,7 +63,7 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, Environm
     strcpy(plugin_list->plugin[plugin_list->count].format, "SS");
     allocPluginList(plugin_list->count++, plugin_list);
 
-    for (int i = pluginCount; i < plugin_list->count; i++) {
+    for (int i = plugin_count; i < plugin_list->count; i++) {
         plugin_list->plugin[i].request = REQUEST_READ_GENERIC;
         plugin_list->plugin[i].plugin_class = UDA_PLUGIN_CLASS_FUNCTION;
         strcpy(plugin_list->plugin[i].symbol, "SERVERSIDE");
@@ -315,7 +315,7 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, Environm
                 // 2. library opened, symbol not located: locate symbol
                 // 3. library opened, symbol located: re-use
 
-                for (int j = pluginCount; j < plugin_list->count - 1; j++) { // External sources only
+                for (int j = plugin_count; j < plugin_list->count - 1; j++) { // External sources only
                     if (plugin_list->plugin[j].external == UDA_PLUGIN_EXTERNAL &&
                         plugin_list->plugin[j].status == UDA_PLUGIN_OPERATIONAL &&
                         plugin_list->plugin[j].pluginHandle != nullptr &&

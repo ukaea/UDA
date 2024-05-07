@@ -273,7 +273,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
             if (maybe_plugin) {
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION = {}",
                         maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION)
-                UDA_LOG(UDA_LOG_DEBUG, "!environment->external_user = {}", !external_user)
+                UDA_LOG(UDA_LOG_DEBUG, "!external_user = {}", !external_user)
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL = {}",
                         maybe_plugin->status == UDA_PLUGIN_OPERATIONAL)
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != nullptr = {}",

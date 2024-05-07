@@ -80,7 +80,6 @@ public:
     const uda::client_server::ClientBlock* client_block(int handle);
     const CLIENT_FLAGS* client_flags();
     const uda::client_server::ServerBlock* server_block();
-    uda::client_server::Environment* environment();
     void set_user_defined_type_list(uda::structures::UserDefinedTypeList* userdefinedtypelist);
     void set_log_malloc_list(uda::structures::LogMallocList* logmalloclist);
     void set_full_ntree(NTREE* full_ntree);

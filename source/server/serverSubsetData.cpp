@@ -8,7 +8,6 @@
 #include "serverSubsetData.h"
 #include "clientserver/makeRequestBlock.h"
 #include "clientserver/parseOperation.h"
-#include "getServerEnvironment.h"
 
 #include <cerrno>
 #include <cfloat>
@@ -28,6 +27,7 @@
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
 #include "uda/structured.h"
+#include "server_config.h"
 #include <boost/algorithm/string.hpp>
 #include <uda/types.h>
 
@@ -35,6 +35,8 @@ using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
 using namespace uda::structures;
+
+using namespace std::string_literals;
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------
@@ -1521,9 +1523,14 @@ int uda::server::serverParseServerSide(RequestData* request_block, Actions* acti
     // Overwrite the Request Block to enable the correct access to signal data before the subset operations are applied
 
     strcpy(request_block->archive, archive.c_str());
+
+    auto config = server_config();
+    auto default_archive = config->get("server.default_archive").as_or_default(""s);
+
     if (request_block->archive[0] == '\0') {
-        strcpy(request_block->archive, getServerEnvironment()->api_archive);
+        strcpy(request_block->archive, default_archive.c_str());
     }
+
     if (is_function) {
         strcpy(request_block->format, archive.c_str());
         request_block->request = findPluginRequestByFormat(archive.c_str(), plugin_list);

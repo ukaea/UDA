@@ -39,6 +39,7 @@ target_link_libraries( cache-objects PRIVATE ${LIBS} )
 target_include_directories( cache-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 
 if( MINGW )

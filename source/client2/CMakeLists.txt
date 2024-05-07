@@ -39,7 +39,6 @@ endif()
 set( SRC_FILES
   client.cpp
   thread_client.cpp
-  client_environment.cpp
   make_request_block.cpp
   client_xdr_stream.cpp
   connection.cpp

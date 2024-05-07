@@ -18,6 +18,7 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "logging/logging.h"
+#include "config/config.h"
 
 #include "client/makeClientRequestBlock.h"
 #include "client/startup.h"
@@ -37,12 +38,13 @@
 using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::logging;
+using namespace uda::config;
 
 typedef struct {
     int id;     // Thread identifier assigned by the application
     int socket; // Either a shared or private server socket connection
     int lastHandle;
-    Environment environment; // State
+//    Config config;
     ClientBlock client_block;
     ServerBlock server_block;
 } UDA_STATE;
@@ -61,7 +63,7 @@ static HANDLE lock;
 
 // STATE management
 
-static UDA_STATE uda_state[UDA_NUM_CLIENT_THREADS]; // Threads are managed by the application, not IDAM
+static UDA_STATE uda_state[UDA_NUM_CLIENT_THREADS]; // Threads are managed by the application, not UDA
 static thread_t thread_list[UDA_NUM_CLIENT_THREADS];
 static int thread_count = 0;
 

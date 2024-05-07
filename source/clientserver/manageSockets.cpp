@@ -29,7 +29,7 @@ void uda::client_server::init_socket_list(SOCKETLIST* socks)
 
 // Add a New Socket to the Socket List
 
-int uda::client_server::add_socket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh)
+int uda::client_server::add_socket(SOCKETLIST* socks, int type, int status, const std::string& host, int port, int fh)
 {
     int old_fh = -1;
     if (!get_socket(socks, type, &status, host, port, &old_fh)) { // Is an Open Socket already listed?
@@ -44,7 +44,7 @@ int uda::client_server::add_socket(SOCKETLIST* socks, int type, int status, char
     socks->sockets[socks->nsocks].fh = fh;
     socks->sockets[socks->nsocks].port = port;
 
-    strcpy(socks->sockets[socks->nsocks].host, host);
+    strcpy(socks->sockets[socks->nsocks].host, host.c_str());
     socks->sockets[socks->nsocks].tv_server_start = 0;
     socks->sockets[socks->nsocks].user_timeout = 0;
 
@@ -54,10 +54,10 @@ int uda::client_server::add_socket(SOCKETLIST* socks, int type, int status, char
 
 // Search for an Open Socket in the Socket List
 
-int uda::client_server::get_socket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh)
+int uda::client_server::get_socket(SOCKETLIST* socks, int type, int* status, const std::string& host, int port, int* fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
-        if (STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].type == type &&
+        if (STR_IEQUALS(host.c_str(), socks->sockets[i].host) && socks->sockets[i].type == type &&
             socks->sockets[i].port == port) {
             if ((*status = socks->sockets[i].status) == 1) {
                 *fh = socks->sockets[i].fh;

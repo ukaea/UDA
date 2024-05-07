@@ -34,6 +34,10 @@ void udaPutThreadServerBlock(uda::client_server::ServerBlock* str);
 
 void udaPutThreadClientBlock(uda::client_server::ClientBlock* str);
 
+void udaPutServerSocket(int socket);
+
+int udaGetServerSocket();
+
 uda::client_server::ServerBlock udaGetThreadServerBlock();
 
 uda::client_server::ClientBlock udaGetThreadClientBlock();

@@ -2,6 +2,7 @@
 
 #include "clientserver/socketStructs.h"
 #include "clientserver/udaStructs.h"
+#include "config/config.h"
 
 #include "closedown.h"
 
@@ -10,8 +11,7 @@ namespace uda::client
 
 int connectionOpen();
 
-int reconnect(uda::client_server::Environment* environment, XDR** client_input, XDR** client_output,
-              time_t* tv_server_start, int* user_timeout);
+int reconnect(config::Config& config, XDR** client_input, XDR** client_output, time_t* tv_server_start, int* user_timeout);
 
 int createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_start, int user_timeout);
 

@@ -9,14 +9,12 @@
 
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
-#include "clientserver/makeRequestBlock.h"
 #include "clientserver/nameValueSubstitution.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
 
 #include "applyXML.h"
-#include "getServerEnvironment.h"
 #include "makeServerRequestBlock.h"
 #include "serverPlugin.h"
 #include "serverSubsetData.h"
@@ -1114,8 +1112,6 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         return -1;
     }
 
-    Environment* environment = getServerEnvironment();
-
     //------------------------------------------------------------------------------
     // Read Data via a Suitable Registered Plugin using a standard interface
     //------------------------------------------------------------------------------
@@ -1139,7 +1135,8 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         plugin_interface.request_data = request;
         plugin_interface.data_source = data_source;
         plugin_interface.signal_desc = signal_desc;
-        plugin_interface.environment = environment;
+        plugin_interface.environment = nullptr;
+        plugin_interface.config = &config;
         plugin_interface.sqlConnection = nullptr;
         plugin_interface.verbose = 0;
         plugin_interface.housekeeping = 0;
@@ -1171,7 +1168,8 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
             }
 
 #ifndef ITERSERVER
-            if (pluginlist->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user) {
+            bool external_user = config.get("server.external_user").as_or_default(false);
+            if (pluginlist->plugin[id].is_private == UDA_PLUGIN_PRIVATE && external_user) {
                 UDA_THROW_ERROR(999, "Access to this data class is not available.");
             }
 #endif
@@ -1258,7 +1256,8 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
             }
         }
 
-        if (id >= 0 && pluginlist->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user) {
+        bool external_user = config.get("server.external_user").as_or_default(false);
+        if (id >= 0 && pluginlist->plugin[id].is_private == UDA_PLUGIN_PRIVATE && external_user) {
             UDA_THROW_ERROR(999, "Access to this data class is not available.");
         }
 

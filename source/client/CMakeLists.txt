@@ -45,11 +45,11 @@ set( SRC_FILES
   closedown.cpp
   connection.cpp
   clientXDRStream.cpp
-  getEnvironment.cpp
   generateErrors.cpp
   makeClientRequestBlock.cpp
   udaClient.cpp
   udaClientHostList.cpp
+  client_config.cpp
 )
 
 add_library( client-objects OBJECT ${SRC_FILES} )
@@ -57,13 +57,10 @@ target_link_libraries( client-objects PUBLIC ${LIBS} )
 target_include_directories( client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 target_compile_definitions(
   client-objects PRIVATE
-  -DUDA_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
-  -DUDA_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
-  -DUDA_VERSION_BUGFIX=${CMAKE_PROJECT_VERSION_PATCH}
-  -DUDA_VERSION_DELTA=${CMAKE_PROJECT_VERSION_TWEAK}
 )
 
 if( NOT CLIENT_ONLY )
@@ -72,13 +69,10 @@ if( NOT CLIENT_ONLY )
   target_include_directories( fatclient-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
   )
   target_compile_definitions(
     fatclient-objects PRIVATE
-    -DUDA_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
-    -DUDA_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
-    -DUDA_VERSION_BUGFIX=${CMAKE_PROJECT_VERSION_PATCH}
-    -DUDA_VERSION_DELTA=${CMAKE_PROJECT_VERSION_TWEAK}
   )
 
   target_compile_definitions( fatclient-objects PUBLIC -DFATCLIENT )

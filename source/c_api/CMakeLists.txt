@@ -20,8 +20,6 @@ endif()
 
 set( SRC_FILES
   udaGetAPI.cpp
-  clientAPI.cpp
-  clientMDS.cpp
   accAPI.cpp
   udaPutAPI.cpp
 )
@@ -38,9 +36,11 @@ target_include_directories(
   c_api-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 target_include_directories(
   fatc_api-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )

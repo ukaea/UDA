@@ -7,7 +7,6 @@
 #include "clientserver/protocol.h"
 #include "clientserver/udaDefines.h"
 #include "clientserver/udaStructs.h"
-#include "server_environment.hpp"
 #include "structures/genStructs.h"
 
 namespace uda::server

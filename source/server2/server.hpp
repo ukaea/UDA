@@ -4,7 +4,6 @@
 
 #include "get_data.hpp"
 #include "plugins.hpp"
-#include "server_environment.hpp"
 #include "xdr_protocol.hpp"
 
 #include "cache/memcache.hpp"

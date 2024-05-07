@@ -25,20 +25,38 @@ class Option
 
     template <class T> T as() const
     {
-        if (is<T>()) {
-            return boost::any_cast<T>(_value);
+        if constexpr (std::is_same_v<T, const char*>) {
+            if (is<std::string>()) {
+                auto& string = boost::any_cast<std::string&>(_value);
+                return string.c_str();
+            }
+            throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
+        } else {
+            if (is<T>()) {
+                return boost::any_cast<T>(_value);
+            }
+            throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
         }
-        throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
     }
 
     template <class T> T as_or_default(T default_value) const
     {
-        if (is<T>()) {
-            return boost::any_cast<T>(_value);
-        } else if (_value.empty()) {
-            return default_value;
+        if constexpr (std::is_same_v<T, const char*>) {
+            if (is<std::string>()) {
+                const auto& string = boost::any_cast<const std::string&>(_value);
+                return string.c_str();
+            } else if (_value.empty()) {
+                return default_value;
+            }
+            throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
+        } else {
+            if (is<T>()) {
+                return boost::any_cast<T>(_value);
+            } else if (_value.empty()) {
+                return default_value;
+            }
+            throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
         }
-        throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
     }
 
   private:

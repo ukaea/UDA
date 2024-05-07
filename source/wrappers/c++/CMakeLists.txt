@@ -55,6 +55,7 @@ endif()
 target_include_directories( cpp-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 target_link_libraries( cpp-objects PRIVATE ${LIBS} )
 
@@ -84,6 +85,7 @@ if( NOT CLIENT_ONLY )
   target_include_directories( fatcpp-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
   )
   target_link_libraries( fatcpp-objects PRIVATE ${LIBS} )
 

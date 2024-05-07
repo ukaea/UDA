@@ -19,7 +19,6 @@
 #include "config/config.h"
 
 #include "createXDRStream.h"
-#include "getServerEnvironment.h"
 #include "initPluginList.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
@@ -37,7 +36,6 @@ using namespace uda::structures;
 using namespace uda::config;
 
 static uda::plugins::PluginList plugin_list; // List of all data reader plugins (internal and external shared libraries)
-Environment environment;                    // Holds local environment variable values
 
 static UserDefinedTypeList* user_defined_type_list = nullptr;
 static LogMallocList* log_malloc_list = nullptr;
@@ -466,7 +464,7 @@ int startup_fat_server(ServerBlock* server_block, UserDefinedTypeList& parseduse
 
     if (!plugin_list_initialised) {
         plugin_list.count = 0;
-        initPluginList(&plugin_list, getServerEnvironment());
+        initPluginList(&plugin_list);
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available");

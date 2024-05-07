@@ -18,7 +18,6 @@
 using namespace uda::server;
 #else
 #  include "connection.h"
-#  include "getEnvironment.h"
 #endif
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
@@ -65,8 +64,6 @@ int uda::client::closedown(ClosedownType type, uda::client_server::SOCKETLIST* s
     closeConnection(type);
 
     // Initialise at Startup
-    udaSetEnvHost(true);
-    udaSetEnvPort(true);
 
 #else // <========================== Fat Client Code Only
     if (type == ClosedownType::CLOSE_ALL) {

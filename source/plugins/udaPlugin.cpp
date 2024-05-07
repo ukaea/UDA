@@ -14,7 +14,6 @@
 #include "clientserver/stringUtils.h"
 #include "clientserver/type_convertor.hpp"
 #include "logging/logging.h"
-#include "server/getServerEnvironment.h"
 #include "server/initPluginList.h"
 #include "server/serverPlugin.h"
 #include "server/serverSubsetData.h"
@@ -32,10 +31,9 @@ using namespace uda::config;
 UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const Config& config, const char* request)
 {
     auto plugin_interface = (uda::plugins::UdaPluginInterface*)calloc(1, sizeof(uda::plugins::UdaPluginInterface));
-    auto environment = getServerEnvironment();
     auto plugin_list = (uda::plugins::PluginList*)calloc(1, sizeof(uda::plugins::PluginList));
 
-    initPluginList(plugin_list, environment);
+    initPluginList(plugin_list);
 
     auto request_data = (RequestData*)calloc(1, sizeof(RequestData));
     make_request_data(config, request_data, plugin_list);
@@ -45,7 +43,7 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const Config& config, const char*
 
     plugin_interface->request_data = request_data;
     plugin_interface->pluginList = plugin_list;
-    plugin_interface->environment = environment;
+    plugin_interface->config = &config;
     plugin_interface->userdefinedtypelist = user_defined_type_list;
     plugin_interface->logmalloclist = log_malloc_list;
 
@@ -570,12 +568,14 @@ int check_plugin_class(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num, i
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
     auto plugin_list = interface->pluginList;
-    auto environment = interface->environment;
+    auto config = interface->config;
+
+    bool external_user = config->get("server.external_user").as_or_default(false);
 
     bool is_valid = plugin_list->plugin[plugin_num].plugin_class == plugin_class &&
                     plugin_list->plugin[plugin_num].status == UDA_PLUGIN_OPERATIONAL &&
                     (plugin_list->plugin[plugin_num].is_private == UDA_PLUGIN_PUBLIC ||
-                     (plugin_list->plugin[plugin_num].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user));
+                     (plugin_list->plugin[plugin_num].is_private == UDA_PLUGIN_PRIVATE && !external_user));
 
     if (plugin_class == UDA_PLUGIN_CLASS_FILE) {
         is_valid |=
@@ -662,7 +662,9 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
 int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    return interface->environment->external_user;
+    auto config = interface->config;
+    bool external_user = config->get("server.external_user").as_or_default(false);
+    return external_user;
 }
 
 int udaPluginCheckInterfaceVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int interface_version)

@@ -14,6 +14,7 @@ target_include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_BINARY_DIR}/include
     ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
 )
 

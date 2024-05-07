@@ -65,8 +65,8 @@ endif()
 
 string( TIMESTAMP BUILD_TIMESTAMP UTC )
 configure_file(
-  ${CMAKE_SOURCE_DIR}/source/version.h.in
-  ${CMAKE_BINARY_DIR}/source/version.h
+  ${CMAKE_SOURCE_DIR}/source/include/uda/version.h.in
+  ${CMAKE_BINARY_DIR}/include/uda/version.h
   @ONLY
 )
 
@@ -81,7 +81,7 @@ set( HEADERS
   include/uda/portability.h
 )
 install( FILES include/uda.h DESTINATION include )
-install( FILES ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
+install( FILES ${CMAKE_BINARY_DIR}/include/uda/version.h DESTINATION include/uda )
 install( FILES ${HEADERS} DESTINATION include/uda )
 
 set( ENV_PATH )

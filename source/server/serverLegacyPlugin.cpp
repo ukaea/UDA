@@ -9,10 +9,6 @@
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
 
-#ifndef FATCLIENT
-#  include "server/getServerEnvironment.h"
-#endif
-
 using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
@@ -29,56 +25,6 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
     // Start of Error Trap
 
     do {
-
-        //----------------------------------------------------------------------------
-        // Does the Path to Private Files contain hierarchical components not seen by the server? If so make a
-        // substitution.
-
-#ifndef FATCLIENT
-
-        Environment* environment = getServerEnvironment();
-
-        if (request->request == REQUEST_READ_FORMAT) {
-            if (environment->private_path_target[0] != '\0') {
-
-                const char* delimiters = ",:";
-                char targets[10][256];
-                char substitutes[10][256];
-                int lpath, tcount = 0, scount = 0;
-
-                strcpy(work, environment->private_path_target);
-                token = strtok(work, delimiters);
-                strcpy(targets[tcount++], token);
-                while ((token = strtok(nullptr, delimiters)) != nullptr) {
-                    strcpy(targets[tcount++], token);
-                }
-
-                strcpy(work, environment->private_path_substitute);
-                token = strtok(work, delimiters);
-                strcpy(substitutes[scount++], token);
-                while ((token = strtok(nullptr, delimiters)) != nullptr) {
-                    strcpy(substitutes[scount++], token);
-                }
-
-                if (tcount == scount) {
-                    for (int i = 0; i < tcount; i++) {
-                        lpath = (int)strlen(targets[i]);
-                        if (!strncmp(request->path, targets[i], lpath)) {
-                            strcpy(work, &request->path[lpath]);
-                            strcpy(request->path, substitutes[i]);
-                            strcat(request->path, work);
-                        }
-                    }
-                } else {
-                    err = 999;
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err,
-                              "Unmatched count of Target and Substitute File Paths.");
-                    break;
-                }
-            }
-        }
-
-#endif
 
         //----------------------------------------------------------------------
         // Client Requests the Server to Choose Data Access plugin

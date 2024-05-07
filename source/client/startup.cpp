@@ -16,17 +16,20 @@
 #include "startup.h"
 
 #include <cerrno>
+#include <filesystem>
 
 #include "clientserver/errorLog.h"
 #include "clientserver/udaErrors.h"
 #include "logging/logging.h"
 
-#include "getEnvironment.h"
 #include "udaClient.h"
+#include "client_config.h"
 
 using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::logging;
+
+using namespace std::string_literals;
 
 int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
 {
@@ -42,25 +45,15 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
 
-    const Environment* environment = nullptr;
-
-    if (!start_status || environment == nullptr) {
-        environment = getIdamClientEnvironment();
-    }
-
-    printIdamClientEnvironment(environment);
+    auto config = client_config();
+    config->print();
 
     //----------------------------------------------------------------
     // Client set Property Flags (can be changed via property accessor functions)
     // Coded user properties changes have priority
 
-    if (environment->clientFlags != 0) {
-        client_flags->flags |= environment->clientFlags;
-    }
-
-    if (environment->altRank != 0 && client_flags->alt_rank == 0) {
-        client_flags->alt_rank = environment->altRank;
-    }
+    client_flags->flags = config->get("client.flags").as_or_default(0);
+    client_flags->alt_rank = config->get("client.alt_rank").as_or_default(0);
 
     //----------------------------------------------------------------
     // X.509 Security Certification
@@ -74,9 +67,10 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
     // Check if Output Requested
 
     init_logging();
-    set_log_level((LogLevel) environment->loglevel);
+    auto log_level = (LogLevel)config->get("client.log_level").as_or_default((int)UDA_LOG_NONE);
+    set_log_level(log_level);
 
-    if (environment->loglevel == UDA_LOG_NONE) {
+    if (log_level == UDA_LOG_NONE) {
         return 0;
     }
 
@@ -86,13 +80,14 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
     start_status = 1;
     errno = 0;
 
-    char log_file[STRING_LENGTH];
+    auto log_dir = config->get("client.log_dir").as_or_default(""s);
+    auto log_mode = config->get("client.log_dir").as_or_default("w"s);
 
-    strcpy(log_file, environment->logdir);
-    strcat(log_file, "Debug.dbg");
-    set_log_file(UDA_LOG_WARN, log_file, environment->logmode);
-    set_log_file(UDA_LOG_DEBUG, log_file, environment->logmode);
-    set_log_file(UDA_LOG_INFO, log_file, environment->logmode);
+    std::filesystem::path log_file{log_dir};
+    log_file /= "Debug.dbg";
+    set_log_file(UDA_LOG_WARN, log_file, log_mode);
+    set_log_file(UDA_LOG_DEBUG, log_file, log_mode);
+    set_log_file(UDA_LOG_INFO, log_file, log_mode);
 
     if (errno != 0) {
         add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open debug log");
@@ -101,9 +96,8 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
     }
 
     if (get_log_level() <= UDA_LOG_ERROR) {
-        strcpy(log_file, environment->logdir);
-        strcat(log_file, "Error.err");
-        set_log_file(UDA_LOG_ERROR, log_file, environment->logmode);
+        log_file = std::filesystem::path{log_dir} / "Error.err";
+        set_log_file(UDA_LOG_ERROR, log_file, log_mode);
     }
 
     if (errno != 0) {

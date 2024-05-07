@@ -3,8 +3,6 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/makeRequestBlock.h"
 
-#include "getServerEnvironment.h"
-
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
 using namespace uda::client_server;

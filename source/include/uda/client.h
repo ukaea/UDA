@@ -40,25 +40,9 @@ LIBRARY_API int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* in
 
 LIBRARY_API int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
 
-LIBRARY_API int udaClientAPI(const char* file, const char* signal, int pass, int exp_number);
-
-LIBRARY_API int udaClientFileAPI(const char* file, const char* signal, const char* format);
-
-LIBRARY_API int udaClientFileAPI2(const char* file, const char* format, const char* owner, const char* signal,
-                                  int exp_number, int pass);
-
-LIBRARY_API int udaClientTestAPI(const char* file, const char* signal, int pass, int exp_number);
-
-LIBRARY_API int udaClientMDS(const char* server, const char* tree, const char* node, int treenum);
-
 LIBRARY_API void udaFree(int handle);
 
 LIBRARY_API void udaFreeAll();
-
-/**
- * Get the version of the client c-library.
- */
-LIBRARY_API const char* udaGetBuildVersion();
 
 /**
  * Get the date that the client c-library was built.
@@ -69,19 +53,17 @@ LIBRARY_API const char* udaGetServerHost();
 
 LIBRARY_API int udaGetServerPort();
 
-LIBRARY_API int udaGetServerSocket();
-
-LIBRARY_API const char* udaGetClientDOI();
-
-LIBRARY_API const char* udaGetServerDOI();
-
-LIBRARY_API const char* udaGetClientOSName();
-
-LIBRARY_API const char* udaGetServerOSName();
-
 LIBRARY_API int udaGetClientVersion();
+LIBRARY_API int udaGetClientVersionMajor();
+LIBRARY_API int udaGetClientVersionMinor();
+LIBRARY_API int udaGetClientVersionBugfix();
+LIBRARY_API int udaGetClientVersionDelta();
 
 LIBRARY_API int udaGetServerVersion();
+LIBRARY_API int udaGetServerVersionMajor();
+LIBRARY_API int udaGetServerVersionMinor();
+LIBRARY_API int udaGetServerVersionBugfix();
+LIBRARY_API int udaGetServerVersionDelta();
 
 LIBRARY_API int udaGetServerErrorCode();
 
@@ -146,10 +128,6 @@ LIBRARY_API void udaPutServerHost(const char* host);
 
 LIBRARY_API void udaPutServerPort(int port);
 
-LIBRARY_API void udaPutServerSocket(int socket);
-
-LIBRARY_API void udaGetServer(const char** host, int* port, int* socket);
-
 LIBRARY_API int udaGetErrorCode(int handle);
 
 LIBRARY_API const char* udaGetErrorMsg(int handle);
@@ -203,8 +181,6 @@ LIBRARY_API void udaSetSyntheticDimData(int handle, int ndim, char* data);
 LIBRARY_API char* udaGetSyntheticData(int handle);
 
 LIBRARY_API char* udaGetData(int handle);
-
-LIBRARY_API void udaGetDataTdi(int handle, char* data);
 
 LIBRARY_API char* udaGetAsymmetricError(int handle, int above);
 

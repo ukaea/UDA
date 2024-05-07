@@ -72,6 +72,7 @@ target_compile_definitions( plugins-objects PRIVATE -DSERVERBUILD )
 target_include_directories( plugins-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 target_link_libraries( plugins-objects PRIVATE ${LIBS} )
 

@@ -7,7 +7,6 @@
 
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
-#include "clientserver/makeRequestBlock.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
@@ -19,7 +18,6 @@
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
-#include "getServerEnvironment.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
@@ -41,7 +39,7 @@ constexpr int ServerVersion = 8;
 
 // Legacy Server Entry point
 
-int uda::server::legacyServer(const config::Config& config, ClientBlock client_block, const uda::plugins::PluginList* pluginlist,
+int uda::server::legacyServer(config::Config& config, ClientBlock client_block, const uda::plugins::PluginList* pluginlist,
                               LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                               SOCKETLIST* socket_list, int protocolVersion, XDR* server_input, XDR* server_output,
                               unsigned int private_flags, int malloc_source)
@@ -50,7 +48,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
     int rc, err = 0, depth, fatal = 0;
     int protocol_id, next_protocol;
 
-    static unsigned short normalLegacyWait = 0;
+    static unsigned short normal_legacy_wait = 0;
     static unsigned int total_datablock_size = 0;
 
     SystemConfig system_config;
@@ -93,18 +91,18 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
     // Start of Server Wait Loop
 
     do {
-        UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop");
+        UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop")
 
         //----------------------------------------------------------------------------
         // Start of Error Trap Loop #1
 
         do {
-            UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop");
+            UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop")
 
             //----------------------------------------------------------------------------
             // Initialise the Client Structure - only if this is not the first time in the wait loop
 
-            if (normalLegacyWait) {
+            if (normal_legacy_wait) {
                 init_client_block(&client_block, 0, "");
             }
 
@@ -121,23 +119,23 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             // Errors: Fatal to Data Access: Return the Error Stack before stopping - at top of error trap #2
             //       Pass Back Server Block and Await Client Instruction
 
-            if (normalLegacyWait) {
+            if (normal_legacy_wait) {
                 rc = xdrrec_eof(server_input);
-                UDA_LOG(UDA_LOG_DEBUG, "Receiving Client Block");
-                UDA_LOG(UDA_LOG_DEBUG, "XDR #AB xdrrec_eof ? {}", rc);
+                UDA_LOG(UDA_LOG_DEBUG, "Receiving Client Block")
+                UDA_LOG(UDA_LOG_DEBUG, "XDR #AB xdrrec_eof ? {}", rc)
 
                 protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                                     &client_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
                     concat_error(&server_block.idamerrorstack);
                     close_error();
 
                     fatal = 1;
-                    normalLegacyWait = 1;
+                    normal_legacy_wait = 1;
                     break;
                 }
             }
@@ -160,32 +158,32 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             // Is the Originating server an externally facing server? If so then switch to this mode: preserve local
             // access policy
 
-            Environment* environment = getServerEnvironment();
+            bool external_user = config.get("server.external_user").as_or_default(false);
 
-            if (!environment->external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
-                environment->external_user = 1;
+            if (!external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
+                config.set("server.external_user", true);
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion {}", protocolVersion);
-            UDA_LOG(UDA_LOG_DEBUG, "private_flags {}", private_flags);
-            UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  {}", client_flags);
-            UDA_LOG(UDA_LOG_DEBUG, "altRank      {}", alt_rank);
-            UDA_LOG(UDA_LOG_DEBUG, "external?    {}", environment->external_user);
+            UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion {}", protocolVersion)
+            UDA_LOG(UDA_LOG_DEBUG, "private_flags {}", private_flags)
+            UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  {}", client_flags)
+            UDA_LOG(UDA_LOG_DEBUG, "altRank      {}", alt_rank)
+            UDA_LOG(UDA_LOG_DEBUG, "external?    {}", external_user)
 
-            if (normalLegacyWait) {
+            if (normal_legacy_wait) {
 
                 protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
 
-                UDA_LOG(UDA_LOG_DEBUG, "Sending Server Block");
+                UDA_LOG(UDA_LOG_DEBUG, "Sending Server Block")
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                     &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #1)");
                     concat_error(&server_block.idamerrorstack); // Update Server State with Error Stack
                     close_error();
-                    normalLegacyWait = 1;
+                    normal_legacy_wait = 1;
                     fatal = 1;
                 }
 
@@ -199,7 +197,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 }
             }
 
-            normalLegacyWait = 1; // Enable client & server state block legacy exchange
+            normal_legacy_wait = 1; // Enable client & server state block legacy exchange
 
             //-------------------------------------------------------------------------
             // Client Request
@@ -212,14 +210,14 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                                 &request_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
-                UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Request Block");
+                UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Request Block")
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 1 Error (Receiving Client Request)");
                 break;
             }
 
             rc = xdrrec_eof(server_input);
-            UDA_LOG(UDA_LOG_DEBUG, "Request Block Received");
-            UDA_LOG(UDA_LOG_DEBUG, "XDR #C xdrrec_eof ? {}", rc);
+            UDA_LOG(UDA_LOG_DEBUG, "Request Block Received")
+            UDA_LOG(UDA_LOG_DEBUG, "XDR #C xdrrec_eof ? {}", rc)
 
             print_client_block(client_block);
             print_server_block(server_block);
@@ -336,16 +334,16 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                                     &(request_data->putDataBlockList), protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err,
                               "Protocol 1 Error (Receiving Client putDataBlockList)");
                     break;
                 }
 
                 rc = (int)xdrrec_eof(server_input);
-                UDA_LOG(UDA_LOG_DEBUG, "putData Block List Received");
-                UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request_data->putDataBlockList.blockCount);
-                UDA_LOG(UDA_LOG_DEBUG, "XDR #C xdrrec_eof ? {}", rc);
+                UDA_LOG(UDA_LOG_DEBUG, "putData Block List Received")
+                UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request_data->putDataBlockList.blockCount)
+                UDA_LOG(UDA_LOG_DEBUG, "XDR #C xdrrec_eof ? {}", rc)
             }
 
             //----------------------------------------------------------------------------------------------
@@ -380,15 +378,15 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             }
 
             UDA_LOG(UDA_LOG_DEBUG,
-                    "======================== ******************** ==========================================\n");
-            UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source.archive);
-            UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", data_source.device_name);
-            UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", signal_desc.signal_name);
-            UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", data_source.path);
-            UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", data_source.filename);
-            UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", data_source.exp_number);
-            UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", data_source.pass);
-            UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : {} ", depth);
+                    "======================== ******************** ==========================================\n")
+            UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source.archive)
+            UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", data_source.device_name)
+            UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", signal_desc.signal_name)
+            UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", data_source.path)
+            UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", data_source.filename)
+            UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", data_source.exp_number)
+            UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", data_source.pass)
+            UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : {} ", depth)
             print_request_block(request_block);
             print_data_source(data_source);
             print_signal(signal_rec);
@@ -396,7 +394,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             print_data_block(data_block);
             print_error_stack();
             UDA_LOG(UDA_LOG_DEBUG,
-                    "======================== ******************** ==========================================\n");
+                    "======================== ******************** ==========================================\n")
 
             if (err != 0) {
                 break;
@@ -450,13 +448,13 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
 
         } while (0);
 
-        UDA_LOG(UDA_LOG_DEBUG, "Leaving Error Trap #1 Loop: {}", err);
+        UDA_LOG(UDA_LOG_DEBUG, "Leaving Error Trap #1 Loop: {}", err)
 
         //----------------------------------------------------------------------------
         // Start of Error Trap Loop #2
 
         do {
-            UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #2 Loop");
+            UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #2 Loop")
 
             //----------------------------------------------------------------------------
             // Send Server Error State
@@ -476,7 +474,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                 &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
-                UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2");
+                UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2")
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
                 break;
             }
@@ -488,14 +486,14 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             }
 
             if (err != 0) {
-                UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop");
+                UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop")
                 break;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Server Block Sent to Client");
+            UDA_LOG(UDA_LOG_DEBUG, "Server Block Sent to Client")
 
             //----------------------------------------------------------------------------
-            // Return Database Meta Data if User Requests it
+            // Return Database Metadata if User Requests it
 
             if (client_block.get_meta) {
 
@@ -506,14 +504,14 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist,
                                     userdefinedtypelist, nullptr, protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem #1 Receiving Next Protocol ID");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem #1 Receiving Next Protocol ID")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #1) Error");
                     break;
                 }
 
                 rc = xdrrec_eof(server_input);
-                UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol);
-                UDA_LOG(UDA_LOG_DEBUG, "XDR #D xdrrec_eof ? {}", rc);
+                UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol)
+                UDA_LOG(UDA_LOG_DEBUG, "XDR #D xdrrec_eof ? {}", rc)
 
                 if (next_protocol != UDA_PROTOCOL_DATA_SYSTEM) {
                     err = 998;
@@ -529,7 +527,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                     &data_system, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
                     break;
                 }
@@ -542,7 +540,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                     &system_config, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
                     break;
                 }
@@ -555,7 +553,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                     &data_source, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
                     break;
                 }
@@ -568,7 +566,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                     &signal_rec, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
                     break;
                 }
@@ -581,7 +579,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                     &signal_desc, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
                     break;
                 }
@@ -596,14 +594,14 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist,
                                 userdefinedtypelist, nullptr, protocolVersion, &log_struct_list, &io_data,
                                 private_flags, malloc_source)) != 0) {
-                UDA_LOG(UDA_LOG_DEBUG, "Problem #2 Receiving Next Protocol ID");
+                UDA_LOG(UDA_LOG_DEBUG, "Problem #2 Receiving Next Protocol ID")
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
                 break;
             }
 
             rc = xdrrec_eof(server_input);
-            UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol);
-            UDA_LOG(UDA_LOG_DEBUG, "XDR #E xdrrec_eof ? {}", rc);
+            UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol)
+            UDA_LOG(UDA_LOG_DEBUG, "XDR #E xdrrec_eof ? {}", rc)
 
             //----------------------------------------------------------------------------
             // Send the Data
@@ -615,19 +613,19 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
             }
 
             print_data_block(data_block);
-            UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client");
+            UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client")
 
             protocol_id = UDA_PROTOCOL_DATA_BLOCK_LIST;
 
             if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                 &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
-                UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure");
+                UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure")
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
                 break;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Data Block Sent to Client");
+            UDA_LOG(UDA_LOG_DEBUG, "Data Block Sent to Client")
 
             //------------------------------------------------------------------------------
             // Clear Output Buffer (check - it should be empty!) and receive Next Protocol
@@ -639,7 +637,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist,
                                     userdefinedtypelist, nullptr, protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Problem #2a Receiving Next Protocol ID");
+                    UDA_LOG(UDA_LOG_DEBUG, "Problem #2a Receiving Next Protocol ID")
                     add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
                     break;
                 }
@@ -666,7 +664,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                     }
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client");
+                UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client")
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                     &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -675,7 +673,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
                     break;
                 }
 
-                UDA_LOG(UDA_LOG_DEBUG, "Hierarchical Data Structure sent to Client");
+                UDA_LOG(UDA_LOG_DEBUG, "Hierarchical Data Structure sent to Client")
             }
 
             //----------------------------------------------------------------------------
@@ -683,7 +681,7 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
 
         } while (0);
 
-        UDA_LOG(UDA_LOG_DEBUG, "Leaving Error Trap #2 Loop: {}", err);
+        UDA_LOG(UDA_LOG_DEBUG, "Leaving Error Trap #2 Loop: {}", err)
 
         //----------------------------------------------------------------------
         // Complete & Write the Access Log Record
@@ -704,61 +702,61 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
 
         if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
                             nullptr, protocolVersion, &log_struct_list, &io_data, private_flags, malloc_source)) != 0) {
-            UDA_LOG(UDA_LOG_DEBUG, "Problem #3 Receiving Next Protocol ID");
+            UDA_LOG(UDA_LOG_DEBUG, "Problem #3 Receiving Next Protocol ID")
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Server Shutdown) Error");
             break;
         }
 
         rc = xdrrec_eof(server_input);
-        UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol);
-        UDA_LOG(UDA_LOG_DEBUG, "XDR #F xdrrec_eof ? {}", rc);
-        UDA_LOG(UDA_LOG_DEBUG, "Current Error Value {}", err);
+        UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol)
+        UDA_LOG(UDA_LOG_DEBUG, "XDR #F xdrrec_eof ? {}", rc)
+        UDA_LOG(UDA_LOG_DEBUG, "Current Error Value {}", err)
 
-        UDA_LOG(UDA_LOG_DEBUG, "Client Request {}", next_protocol);
+        UDA_LOG(UDA_LOG_DEBUG, "Client Request {}", next_protocol)
         if (next_protocol == UDA_PROTOCOL_CLOSEDOWN) {
-            UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Die");
+            UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Die")
         }
         if (next_protocol == UDA_PROTOCOL_SLEEP) {
-            UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Sleep");
+            UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Sleep")
         }
         if (next_protocol == UDA_PROTOCOL_WAKE_UP) {
-            UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Wake-up");
+            UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Wake-up")
         }
 
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock");
+        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock")
         freeDataBlock(&data_block);
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeActions");
+        UDA_LOG(UDA_LOG_DEBUG, "freeActions")
         free_actions(&actions_desc);
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeActions");
+        UDA_LOG(UDA_LOG_DEBUG, "freeActions")
         free_actions(&actions_sig);
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeRequestBlock");
+        UDA_LOG(UDA_LOG_DEBUG, "freeRequestBlock")
         freeRequestBlock(&request_block);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "concat_error");
+        UDA_LOG(UDA_LOG_DEBUG, "concat_error")
         concat_error(&server_block.idamerrorstack); // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "close_error");
+        UDA_LOG(UDA_LOG_DEBUG, "close_error")
         close_error();
 
-        UDA_LOG(UDA_LOG_DEBUG, "error_log");
+        UDA_LOG(UDA_LOG_DEBUG, "error_log")
         error_log(client_block, request_block, &server_block.idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "close_error");
+        UDA_LOG(UDA_LOG_DEBUG, "close_error")
         close_error();
 
-        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock");
+        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock")
         init_server_block(&server_block, ServerVersion);
 
-        UDA_LOG(UDA_LOG_DEBUG, "At End of Error Trap");
+        UDA_LOG(UDA_LOG_DEBUG, "At End of Error Trap")
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -771,10 +769,10 @@ int uda::server::legacyServer(const config::Config& config, ClientBlock client_b
     //----------------------------------------------------------------------------
     // Server Destruct.....
 
-    UDA_LOG(UDA_LOG_DEBUG, "Server Shuting Down");
+    UDA_LOG(UDA_LOG_DEBUG, "Server Shutting Down")
 
     if (server_tot_block_time > 1000 * server_timeout) {
-        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after {} secs", server_timeout);
+        UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after {} secs", server_timeout)
     }
 
     //----------------------------------------------------------------------------

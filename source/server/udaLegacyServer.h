@@ -17,7 +17,7 @@ namespace uda::server
 /**
  * UDA Legacy Data Server (protocol versions <= 6)
  */
-int legacyServer(const config::Config& config, client_server::ClientBlock client_block, const plugins::PluginList* pluginlist,
+int legacyServer(config::Config& config, client_server::ClientBlock client_block, const plugins::PluginList* pluginlist,
                  structures::LogMallocList* logmalloclist,
                  structures::UserDefinedTypeList* userdefinedtypelist, client_server::SOCKETLIST* socket_list,
                  int protocolVersion, XDR* server_input, XDR* server_output, unsigned int private_flags,

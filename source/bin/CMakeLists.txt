@@ -11,6 +11,7 @@ find_package( Boost COMPONENTS program_options REQUIRED )
 target_include_directories( uda_cli PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
   ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
 )
 

@@ -3,7 +3,6 @@
 #include "clientserver/makeRequestBlock.h"
 
 #include "plugins.hpp"
-#include "server_environment.hpp"
 
 using namespace uda::client_server;
 using namespace uda::config;

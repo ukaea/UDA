@@ -34,7 +34,6 @@ set( SRC_FILES
   make_server_request_block.cpp
   plugins.cpp
   server.cpp
-  server_environment.cpp
   server_exceptions.cpp
   server_plugin.cpp
   server_processing.cpp
@@ -54,6 +53,7 @@ target_link_libraries( server2-objects PRIVATE ${LIBS} )
 target_include_directories( server2-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 
 set( OBJECT_LIBS
@@ -120,6 +120,7 @@ target_link_libraries( server2-exe PRIVATE
 target_include_directories( server2-exe PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
 )
 
 if( NOT WIN32 AND NOT MINGW )

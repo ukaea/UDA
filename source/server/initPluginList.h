@@ -7,6 +7,6 @@
 namespace uda::server
 {
 
-void initPluginList(uda::plugins::PluginList* plugin_list, uda::client_server::Environment* environment);
+void initPluginList(uda::plugins::PluginList* plugin_list);
 
 }

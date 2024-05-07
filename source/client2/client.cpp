@@ -1,6 +1,5 @@
 #include "client.hpp"
 
-#include "client_environment.hpp"
 #include "client_xdr_stream.hpp"
 #include "exceptions.hpp"
 #include "make_request_block.hpp"

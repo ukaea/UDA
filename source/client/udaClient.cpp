@@ -6,8 +6,6 @@
 #include <vector>
 
 #include "cache/fileCache.h"
-#include "client/connection.h"
-#include "client/getEnvironment.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
@@ -19,6 +17,11 @@
 #include "uda/client.h"
 #include "uda/structured.h"
 #include "clientserver/version.h"
+
+#include "connection.h"
+#include "client_config.h"
+
+#include <uda/version.h>
 
 #include "closedown.h"
 
@@ -48,7 +51,7 @@ using namespace uda::structures;
 static int protocol_version = 9;
 #endif
 
-constexpr int ClientVersion = UDA_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
+constexpr int ClientVersion = UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
 
 //----------------------------------------------------------------------------------------------------------------------
 // FATCLIENT objects shared with server code
@@ -594,10 +597,12 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         //
         // Instance a new server on the same Host/Port or on a different Host/port
 
-        Environment* environment = getIdamClientEnvironment();
+        auto config = client_config();
+        auto reconnect = config->get("connection.reconnect").as_or_default(false);
+        auto change_socket = config->get("connection.change_socket").as_or_default(false);
 
-        if (environment->server_reconnect || environment->server_change_socket) {
-            err = reconnect(environment, &client_input, &client_output, &tv_server_start, &client_flags->user_timeout);
+        if (reconnect || change_socket) {
+            err = ::reconnect(*config, &client_input, &client_output, &tv_server_start, &client_flags->user_timeout);
             if (err) {
                 break;
             }
@@ -1623,117 +1628,25 @@ void uda::client::udaPutThreadClientBlock(ClientBlock* str)
     client_block = *str;
 }
 
-ClientBlock udaSaveProperties(const CLIENT_FLAGS* client_flags)
-{                                  // save current state of properties for future rollback
-    ClientBlock cb = client_block; // Copy of Global Structure (maybe not initialised! i.e. idam API not called)
-    cb.get_datadble = client_flags->get_datadble; // Copy individual properties only
-    cb.get_dimdble = client_flags->get_dimdble;
-    cb.get_timedble = client_flags->get_timedble;
-    cb.get_bad = client_flags->get_bad;
-    cb.get_meta = client_flags->get_meta;
-    cb.get_asis = client_flags->get_asis;
-    cb.get_uncal = client_flags->get_uncal;
-    cb.get_notoff = client_flags->get_notoff;
-    cb.get_scalar = client_flags->get_scalar;
-    cb.get_bytes = client_flags->get_bytes;
-    cb.get_nodimdata = client_flags->get_nodimdata;
-    cb.clientFlags = client_flags->flags;
-    cb.timeout = client_flags->user_timeout;
-    cb.altRank = client_flags->alt_rank;
-    return cb;
-}
-
-void udaRestoreProperties(ClientBlock cb, CLIENT_FLAGS* client_flags)
-{                                                // Restore Properties to a prior saved state
-    client_block.get_datadble = cb.get_datadble; // Overwrite Individual Global Structure Components
-    client_block.get_dimdble = cb.get_dimdble;
-    client_block.get_timedble = cb.get_timedble;
-    client_block.get_bad = cb.get_bad;
-    client_block.get_meta = cb.get_meta;
-    client_block.get_asis = cb.get_asis;
-    client_block.get_uncal = cb.get_uncal;
-    client_block.get_notoff = cb.get_notoff;
-    client_block.get_scalar = cb.get_scalar;
-    client_block.get_bytes = cb.get_bytes;
-    client_block.clientFlags = cb.clientFlags;
-    client_block.altRank = cb.altRank;
-
-    client_flags->get_datadble = client_block.get_datadble;
-    client_flags->get_dimdble = client_block.get_dimdble;
-    client_flags->get_timedble = client_block.get_timedble;
-    client_flags->get_bad = client_block.get_bad;
-    client_flags->get_meta = client_block.get_meta;
-    client_flags->get_asis = client_block.get_asis;
-    client_flags->get_uncal = client_block.get_uncal;
-    client_flags->get_notoff = client_block.get_notoff;
-    client_flags->get_scalar = client_block.get_scalar;
-    client_flags->get_bytes = client_block.get_bytes;
-    client_flags->get_nodimdata = client_block.get_nodimdata;
-    client_flags->flags = client_block.clientFlags;
-    client_flags->alt_rank = client_block.altRank;
-}
-
-//! get the UDA client study DOI
-/**
- * @return the DOI
- */
-const char* udaGetClientDOI()
+void uda::client::udaPutServerSocket(int socket)
 {
-    return client_block.DOI;
+    auto config = client_config();
+    config->set("client.socket", socket);
 }
 
-//! put the UDA client study DOI
-/**
- * @assign the DOI
- */
-void udaPutClientDOI(char* doi)
+int uda::client::udaGetServerSocket()
 {
-    strcpy(client_block.DOI, doi);
-}
-
-//! get the UDA server configuration DOI
-/**
- * @return the DOI
- */
-const char* udaGetServerDOI()
-{
-    return server_block.DOI;
-}
-
-//! get the UDA client OS Name
-/**
- * @return the OS name
- */
-const char* udaGetClientOSName()
-{
-    return client_block.OSName;
-}
-
-//! put the UDA client OS Name
-/**
- * @assign the OS name
- */
-void udaPutClientOSName(char* os)
-{
-    strcpy(client_block.OSName, os);
-}
-
-//! get the UDA server environment OS Name
-/**
- * @return the OS name
- */
-const char* udaGetServerOSName()
-{
-    return server_block.OSName;
+    auto config = client_config();
+    return config->get("client.socket");
 }
 
 //! the UDA client library verion number
 /**
- * @return the verion number
+ * @return the version number
  */
 int udaGetClientVersion()
 {
-    return ClientVersion; // Client Library Version
+    return UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
 }
 
 //! the UDA server version number
@@ -1744,6 +1657,16 @@ int udaGetServerVersion()
 {
     return server_block.version; // Server Version
 }
+
+int udaGetClientVersionMajor() { return UDA_VERSION_MAJOR; }
+int udaGetClientVersionMinor() { return UDA_VERSION_MINOR; }
+int udaGetClientVersionBugfix() { return UDA_VERSION_BUGFIX; }
+int udaGetClientVersionDelta() { return UDA_VERSION_DELTA; }
+
+int udaGetServerVersionMajor() { return UDA_GET_MAJOR_VERSION(server_block.version); }
+int udaGetServerVersionMinor() { return UDA_GET_MINOR_VERSION(server_block.version); }
+int udaGetServerVersionBugfix() { return UDA_GET_BUGFIX_VERSION(server_block.version); }
+int udaGetServerVersionDelta() { return UDA_GET_DELTA_VERSION(server_block.version); }
 
 //! the UDA server error code returned
 /**
