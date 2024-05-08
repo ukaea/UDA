@@ -211,8 +211,7 @@ void udaSetProperty(const char* property)
         }
     } else {
         if (property[0] == 't') {
-            strncpy(name, property, 55);
-            name[55] = '\0';
+            strlcpy(name, property, 56);
             trim_string(name);
             left_trim_string(name);
             mid_trim_string(name);
@@ -234,8 +233,7 @@ void udaSetProperty(const char* property)
                 client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
             }
             if (!strncasecmp(property, "altRank", 7)) {
-                strncpy(name, property, 55);
-                name[55] = '\0';
+                strlcpy(name, property, 56);
                 trim_string(name);
                 left_trim_string(name);
                 mid_trim_string(name);

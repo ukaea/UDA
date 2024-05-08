@@ -7,6 +7,8 @@
 #  define strncasecmp _strnicmp
 #endif
 
+#include <filesystem>
+
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/nameValueSubstitution.h"
@@ -1263,9 +1265,11 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
 
         // Don't append the file name to the path - if it's already present!
 
-        if (strstr(data_source->path, data_source->filename) == nullptr) {
-            strcat(data_source->path, "/");
-            strcat(data_source->path, data_source->filename);
+        std::filesystem::path path = data_source->path;
+
+        if (path.string().find(data_source->filename) == std::string::npos) {
+            path /= data_source->filename;
+            strlcpy(data_source->path, path.c_str(), MAXPATH);
         }
     }
 

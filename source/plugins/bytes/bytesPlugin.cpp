@@ -33,8 +33,7 @@ int BytesPlugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
     auto path = find_required_arg<std::string>(plugin_interface, "path");
 
     char c_path[UDA_MAX_PATH];
-    strncpy(c_path, path.c_str(), UDA_MAX_PATH);
-    c_path[UDA_MAX_PATH - 1] = '\0';
+    strlcpy(c_path, path.c_str(), UDA_MAX_PATH);
     debug(plugin_interface, "udaExpandEnvironmentalVariables!");
     udaExpandEnvironmentalVariables(c_path);
 

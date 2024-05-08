@@ -193,8 +193,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
     char* test = strstr(request->source, request->api_delim); // Delimiter present?
     if (test != nullptr) {
-        strncpy(work2, request->source, test - request->source);
-        work2[test - request->source] = '\0';
+        strlcpy(work2, request->source, test - request->source);
         trim_string(work2);
         strcpy(work, test + ldelim);
     } else {
@@ -208,8 +207,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     if (test != nullptr && STR_IEQUALS(work2, device.c_str()) &&
         (p = strstr(work, request->api_delim)) != nullptr) {
         lstr = (p - work);
-        strncpy(work2, work, lstr); // Ignore the default device name - force a pass to Scenario 2
-        work2[lstr] = '\0';
+        strlcpy(work2, work, lstr); // Ignore the default device name - force a pass to Scenario 2
         trim_string(work2);
         lstr = lstr + ldelim;
         for (size_t i = 0; i < lstr; i++) {
@@ -1140,8 +1138,7 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
                 UDA_ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
                 return err;
             }
-            strncpy(request->archive, request->signal, test - request->signal);
-            request->archive[test - request->signal] = '\0';
+            strlcpy(request->archive, request->signal, test - request->signal);
             trim_string(request->archive);
 
             auto archive = config.get("server.default_archive").as_or_default<std::string>({});
@@ -1239,12 +1236,10 @@ void udaExpandEnvironmentalVariables(char* path)
         if (path[0] == '$' || (fp = strchr(&path[1], '$')) != nullptr) { // Search for a $ character
 
             if (fp != nullptr) {
-                strncpy(work, path, fp - path);
-                work[fp - path] = '\0';
+                strlcpy(work, path, fp - path);
 
                 if ((fp1 = strchr(fp, '/')) != nullptr) {
-                    strncpy(work1, fp + 1, fp1 - fp - 1);
-                    work1[fp1 - fp - 1] = '\0';
+                    strlcpy(work1, fp + 1, fp1 - fp - 1);
                 } else {
                     strcpy(work1, fp + 1);
                 }
@@ -1265,8 +1260,7 @@ void udaExpandEnvironmentalVariables(char* path)
             if (path[0] == '$') {
                 work1[0] = '\0';
                 if ((fp = strchr(path, '/')) != nullptr) {
-                    strncpy(work, path + 1, fp - path - 1);
-                    work[fp - path - 1] = '\0';
+                    strlcpy(work, path + 1, fp - path - 1);
                     strcpy(work1, fp);
                 } else {
                     strcpy(work, path + 1);
@@ -1647,8 +1641,7 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
                     p3 = strchr(&p[9], delimiter); // change delimiter to avert incorrect parse
                     *p3 = '#';
                 } else {
-                    strncpy(buffer, copy, lstr); // check 'delimiter' is not part of another name value pair
-                    buffer[lstr] = '\0';
+                    strlcpy(buffer, copy, lstr); // check 'delimiter' is not part of another name value pair
                     trim_string(buffer);
                     lstr = (int)strlen(buffer);
                     if (buffer[lstr - 1] == proposal) { // must be an immediately preceeding delimiter character
