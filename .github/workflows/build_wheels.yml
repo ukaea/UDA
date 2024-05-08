@@ -77,12 +77,13 @@ jobs:
           && cmake --build build -j --config Release
           && cmake --install build --prefix install --config Release
           && ls install/lib
+          && cp -r install/python_installer ${{github.workspace}}/python_installer
 
       - name: test pyuda on windows
         if: runner.os == 'Windows'
         run: >
-          cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
           python3 -m venv ${{github.workspace}}/venv &&
+          ls ${{github.workspace}}/venv &&
           source ${{github.workspace}}/venv/bin/activate &&
           pip3 install Cython numpy six &&
           pip3 install install/python_installer

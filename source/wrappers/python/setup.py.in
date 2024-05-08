@@ -29,8 +29,9 @@ elif sys.platform.lower() == 'darwin':
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
 else:
+    # windows build with gcc/mingw still gives .a file outputs for static libs
     stalib_ext = 'a'
-    dynlib_ext = 'so'
+    dynlib_ext = '.dll'
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
