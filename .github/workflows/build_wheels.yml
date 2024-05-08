@@ -85,6 +85,7 @@ jobs:
         env:
           UDA_DIR: ${{github.workspace}}\install
         run: >
+          gcm python3 &&
           python3 -m venv ${{github.workspace}}/venv &&
           ls ${{github.workspace}}/venv &&
           ${{github.workspace}}/venv/Scripts/Activate.ps1 &&

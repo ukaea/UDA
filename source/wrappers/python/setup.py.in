@@ -34,7 +34,7 @@ else:
     dynlib_ext = '.dll'
     extra_compile_args = ['/-std:c++17']
     extlib = os.environ.get("EXTLIB_DIR")
-    extra_includes = [os.path.join(extlib, install, include)]
+    extra_includes = [os.path.join(extlib, "install", "include")]
 
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
