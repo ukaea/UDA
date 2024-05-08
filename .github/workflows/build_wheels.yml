@@ -48,7 +48,7 @@ jobs:
         env:
           XDR_ROOT: extlib/install
         run: >
-          vcpkg install --triplet x64-mingw-static+VCPKG_RELEASE_ONLY --binarysource="clear;x-gha,readwrite"
+          vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
           libxml2
           capnproto
           boost-program-options
