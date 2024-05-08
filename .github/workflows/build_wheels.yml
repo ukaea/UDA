@@ -75,7 +75,7 @@ jobs:
           -DNO_JAVA_WRAPPER=ON
           -DCMAKE_INSTALL_PREFIX=$PWD/install
           && cmake --build build -j --config Release
-          && cmake --install --prefix install --config Release
+          && cmake --install build --prefix install --config Release
           && ls install/lib
 
       - name: test pyuda on windows
