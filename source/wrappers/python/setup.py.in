@@ -28,6 +28,9 @@ elif sys.platform.lower() == 'darwin':
     dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
+else:
+    stalib_ext = 'a'
+    dynlib_ext = 'so'
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
@@ -47,7 +50,7 @@ else:
 
 ext = Extension(
     'cpyuda',
-    ['pyuda/cpyuda/cpyuda.pyx'],
+    ['ukaea_pyuda_test/cpyuda/cpyuda.pyx'],
     include_dirs=list(filter(None, [
         '/usr/include/tirpc',
         '@TIRPC_PYUDA_INCLUDE_DIR@',

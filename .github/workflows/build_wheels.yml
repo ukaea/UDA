@@ -18,6 +18,7 @@ jobs:
           - [ubuntu-latest,aarch64,manylinux_2_28_aarch64]
           - [macos-13, x86_64, macosx_x86_64]
           - [macos-14, arm64, macosx_arm64]
+          - [windows-latest, AMD64, win_amd64]
 
     steps:
       - uses: actions/checkout@v3
@@ -30,6 +31,58 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
+
+
+      - name: build uda on windows
+        if: runner.os == 'Windows'
+        run: >
+          vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
+          libxml2
+          capnproto
+          boost-program-options
+          boost-format
+          boost-algorithm
+          boost-multi-array
+          openssl
+          dlfcn-win32
+          spdlog 
+          && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B extlib/build -G "MinGW Makefiles" ./extlib
+          && cmake --build extlib/build
+          && cmake --install extlib/build --prefix extlib/install
+          && XDR_ROOT=extlib/install cmake -G "MinGW Makefiles" -B build
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=Release
+          -DSSLAUTHENTICATION=OFF
+          -DCLIENT_ONLY=ON
+          -DENABLE_CAPNP=ON
+          -DCMAKE_INSTALL_PREFIX=$PWD/install
+          && cmake --build build -j --config Release
+          && cmake --install --prefix install --config Release
+          && ls install/lib
+
+      - name: test pyuda on windows
+        if: runner.os == 'Windows'
+        run: >
+          cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
+          python3 -m venv ${{github.workspace}}/venv &&
+          source ${{github.workspace}}/venv/bin/activate &&
+          pip3 install Cython numpy six &&
+          pip3 install install/python_installer
+
+
+
+      - name: build windows wheels
+        if: runner.OS == 'Windows'
+        uses: pypa/cibuildwheel@v2.17.0
+        with:
+          package-dir: ./source/wrappers/python
+          config-file: ./source/wrappers/python/pyproject.toml
+        env:
+          CIBW_ARCHS: ${{matrix.build-platform[1]}}
+          CIBW_PLATFORM: windows
+          CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
+
 
       - name: Build manylinux2014 wheels
         if: startswith(matrix.build-platform[2], 'manylinux2014')
