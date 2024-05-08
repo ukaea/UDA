@@ -927,7 +927,7 @@ void uda::client::Client::set_property(const char* property)
         }
     } else {
         if (property[0] == 't') {
-            strlcpy(name, property, 56);
+            copy_string(property, name, 56);
             trim_string(name);
             left_trim_string(name);
             mid_trim_string(name);
@@ -949,7 +949,7 @@ void uda::client::Client::set_property(const char* property)
                 _client_flags.flags = _client_flags.flags | CLIENTFLAG_ALTDATA;
             }
             if (!strncasecmp(property, "altRank", 7)) {
-                strlcpy(name, property, 56);
+                copy_string(property, name, 56);
                 trim_string(name);
                 left_trim_string(name);
                 mid_trim_string(name);

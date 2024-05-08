@@ -122,8 +122,8 @@ uda::client_server::UdaError uda::client_server::create_error(int type, const ch
 
     error.type = type;
     error.code = code;
-    strlcpy(error.location, location, STRING_LENGTH);
-    strlcpy(error.msg, msg, STRING_LENGTH);
+    copy_string(location, error.location, STRING_LENGTH);
+    copy_string(msg, error.msg, STRING_LENGTH);
 
     size_t lmsg0 = strlen(error.msg);
 
@@ -131,7 +131,7 @@ uda::client_server::UdaError uda::client_server::create_error(int type, const ch
         const char* errmsg = strerror(code);
         size_t lmsg1 = strlen(errmsg);
         if (lmsg0 == 0) {
-            strlcpy(error.msg, errmsg, STRING_LENGTH);
+            copy_string(errmsg, error.msg, STRING_LENGTH);
         } else {
             if ((lmsg0 + 2) < STRING_LENGTH) {
                 strcat(error.msg, "; ");

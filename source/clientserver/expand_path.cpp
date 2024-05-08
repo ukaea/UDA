@@ -587,10 +587,10 @@ int uda::client_server::expand_file_path(const uda::config::Config& config, char
         if (path[0] == '$' || fp != nullptr) { // Search for a $ character
 
             if (fp != nullptr) {
-                strlcpy(work, path, fp - path);
+                copy_string(path, work, fp - path);
 
                 if ((fp1 = strchr(fp, '/')) != nullptr) {
-                    strlcpy(work1, fp + 1, fp1 - fp - 1);
+                    copy_string(fp + 1, work1, fp1 - fp - 1);
                 } else {
                     strcpy(work1, fp + 1);
                 }
@@ -610,7 +610,7 @@ int uda::client_server::expand_file_path(const uda::config::Config& config, char
             } else {
                 work1[0] = '\0';
                 if ((fp = strchr(path, '/')) != nullptr) {
-                    strlcpy(work, path + 1, fp - path - 1);
+                    copy_string(path + 1, work, fp - path - 1);
                     strcpy(work1, fp);
                 } else {
                     strcpy(work, path + 1);

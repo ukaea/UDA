@@ -1269,7 +1269,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
 
         if (path.string().find(data_source->filename) == std::string::npos) {
             path /= data_source->filename;
-            strlcpy(data_source->path, path.c_str(), MAXPATH);
+            copy_string(path.c_str(), data_source->path, MAXPATH);
         }
     }
 

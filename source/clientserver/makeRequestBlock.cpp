@@ -186,14 +186,14 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     //------------------------------------------------------------------------------
     // Scenario #1: Format or protocol or library is present - there are no delimiters in the source string
 
-    bool isFunction = false;
-    bool isFile = false;
-    bool isServer = false;
-    bool isForeign = false;
+    bool is_function = false;
+    bool is_file = false;
+    bool is_server = false;
+    bool is_foreign = false;
 
     char* test = strstr(request->source, request->api_delim); // Delimiter present?
     if (test != nullptr) {
-        strlcpy(work2, request->source, test - request->source);
+        copy_string(request->source, work2, test - request->source);
         trim_string(work2);
         strcpy(work, test + ldelim);
     } else {
@@ -207,7 +207,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     if (test != nullptr && STR_IEQUALS(work2, device.c_str()) &&
         (p = strstr(work, request->api_delim)) != nullptr) {
         lstr = (p - work);
-        strlcpy(work2, work, lstr); // Ignore the default device name - force a pass to Scenario 2
+        copy_string(work, work2, lstr); // Ignore the default device name - force a pass to Scenario 2
         trim_string(work2);
         lstr = lstr + ldelim;
         for (size_t i = 0; i < lstr; i++) {
@@ -348,7 +348,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                                    test + ldelim);     // Complete String following :: delimiter
                             strcpy(request->file, ""); // Clean the filename
                             if (pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FUNCTION) {
-                                isFunction = true;
+                                is_function = true;
                                 extract_function_name(work, request);
                             }
                         } else {
@@ -360,8 +360,8 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 #endif
                             strcpy(request->file, base); // Final token
                         }
-                        isFile = pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FILE;
-                        isServer = pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_SERVER;
+                        is_file = pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FILE;
+                        is_server = pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_SERVER;
                         break;
                     } else {
 
@@ -416,7 +416,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
             if (request->request == REQUEST_READ_UNKNOWN) {
                 UDA_LOG(UDA_LOG_DEBUG, "No plugin was identified for the format: {}", work2);
-                isForeign = true;
+                is_foreign = true;
                 strcpy(request->device_name, work2);     // Copy the DEVICE prefix
                 request->request = REQUEST_READ_GENERIC; // The database will identify the target
 
@@ -427,13 +427,13 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
             strcpy(request->device_name, device.c_str()); // Default Device Name
 
-            if (isFile) { // Resolve any Serverside environment variables
+            if (is_file) { // Resolve any Serverside environment variables
                 UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.");
                 udaExpandEnvironmentalVariables(request->path);
                 break;
             }
 
-            if (!isFile && !isFunction) { // Server Protocol
+            if (!is_file && !is_function) { // Server Protocol
                 UDA_LOG(UDA_LOG_DEBUG, "Server Protocol");
                 break;
             }
@@ -538,7 +538,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
         reduceSignal = false;
         err = extract_archive(config, request, reduceSignal);
     } else {
-        reduceSignal = !isForeign; // Don't detach if a foreign device
+        reduceSignal = !is_foreign; // Don't detach if a foreign device
         err = extract_archive(config, request, reduceSignal);
     }
     if (request->archive[0] == '\0') {
@@ -552,16 +552,16 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     // with function requests. However, for all these cases a source term would be specified. No library
     // would be part of this specification so there would be no ambiguity.
 
-    isFunction = false;
+    is_function = false;
 
-    if (!isServer && (p = strchr(request->signal, '(')) != nullptr && strchr(p, ')') != nullptr &&
+    if (!is_server && (p = strchr(request->signal, '(')) != nullptr && strchr(p, ')') != nullptr &&
         strcasecmp(request->archive, archive.c_str()) != 0) {
         strcpy(work, &p[1]);
         if ((p = strrchr(work, ')')) != nullptr) {
             p[0] = '\0';
             left_trim_string(work);
             trim_string(work);
-            isFunction = true;
+            is_function = true;
             if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
                 UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
             }
@@ -578,32 +578,32 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
         // If the signal could be a function call, check the archive name against the function library plugins
 
-        if (isFunction && err == 0) { // Test for known Function Libraries
-            isFunction = false;
+        if (is_function && err == 0) { // Test for known Function Libraries
+            is_function = false;
             for (int i = 0; i < pluginList->count; i++) {
                 if (STR_IEQUALS(request->archive, pluginList->plugin[i].format)) {
                     request->request = pluginList->plugin[i].request; // Found
                     strcpy(request->format, pluginList->plugin[i].format);
-                    isFunction = (pluginList->plugin[i].plugin_class ==
+                    is_function = (pluginList->plugin[i].plugin_class ==
                                   uda::plugins::UDA_PLUGIN_CLASS_FUNCTION); // Must be a known Library
                     break;
                 }
             }
 
             UDA_LOG(UDA_LOG_DEBUG, "A request: {}", request->request);
-            UDA_LOG(UDA_LOG_DEBUG, "isFunction: {}", isFunction);
+            UDA_LOG(UDA_LOG_DEBUG, "isFunction: {}", is_function);
 
-            if (!isFunction) { // Must be a default server-side function
+            if (!is_function) { // Must be a default server-side function
                 for (int i = 0; i < pluginList->count; i++) {
                     if (STR_IEQUALS(pluginList->plugin[i].symbol, "ServerSide") &&
                         pluginList->plugin[i].library[0] == '\0') {
                         request->request = REQUEST_READ_SERVERSIDE; // Found
                         strcpy(request->format, pluginList->plugin[i].format);
-                        isFunction = true;
+                        is_function = true;
                         break;
                     }
                 }
-                if (!isFunction) {
+                if (!is_function) {
                     request->function[0] = '\0';
                 }
             }
@@ -621,7 +621,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
         // Does the data object (Signal) have the form: LIBRARY::function?
         // Exception is Serverside function
 
-        if (isFunction && strcasecmp(request->archive, archive.c_str()) != 0) {
+        if (is_function && strcasecmp(request->archive, archive.c_str()) != 0) {
             int id = find_plugin_id_by_format(request->archive, pluginList);
             if (id >= 0 && pluginList->plugin[id].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FUNCTION &&
                 strcasecmp(pluginList->plugin[id].symbol, "serverside") != 0) {
@@ -1138,7 +1138,7 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
                 UDA_ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
                 return err;
             }
-            strlcpy(request->archive, request->signal, test - request->signal);
+            copy_string(request->signal, request->archive, test - request->signal);
             trim_string(request->archive);
 
             auto archive = config.get("server.default_archive").as_or_default<std::string>({});
@@ -1236,10 +1236,10 @@ void udaExpandEnvironmentalVariables(char* path)
         if (path[0] == '$' || (fp = strchr(&path[1], '$')) != nullptr) { // Search for a $ character
 
             if (fp != nullptr) {
-                strlcpy(work, path, fp - path);
+                copy_string(path, work, fp - path);
 
                 if ((fp1 = strchr(fp, '/')) != nullptr) {
-                    strlcpy(work1, fp + 1, fp1 - fp - 1);
+                    copy_string(fp + 1, work1, fp1 - fp - 1);
                 } else {
                     strcpy(work1, fp + 1);
                 }
@@ -1260,7 +1260,7 @@ void udaExpandEnvironmentalVariables(char* path)
             if (path[0] == '$') {
                 work1[0] = '\0';
                 if ((fp = strchr(path, '/')) != nullptr) {
-                    strlcpy(work, path + 1, fp - path - 1);
+                    copy_string(path + 1, work, fp - path - 1);
                     strcpy(work1, fp);
                 } else {
                     strcpy(work, path + 1);
@@ -1641,7 +1641,7 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
                     p3 = strchr(&p[9], delimiter); // change delimiter to avert incorrect parse
                     *p3 = '#';
                 } else {
-                    strlcpy(buffer, copy, lstr); // check 'delimiter' is not part of another name value pair
+                    copy_string(copy, buffer, lstr); // check 'delimiter' is not part of another name value pair
                     trim_string(buffer);
                     lstr = (int)strlen(buffer);
                     if (buffer[lstr - 1] == proposal) { // must be an immediately preceeding delimiter character
