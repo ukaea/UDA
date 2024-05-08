@@ -84,7 +84,7 @@ jobs:
         run: >
           python3 -m venv ${{github.workspace}}/venv &&
           ls ${{github.workspace}}/venv &&
-          source ${{github.workspace}}/venv/bin/activate &&
+          ${{github.workspace}}/venv/Scripts/Activate.ps1 &&
           pip3 install Cython numpy six &&
           pip3 install install/python_installer
 
