@@ -1640,6 +1640,13 @@ int uda::client::udaGetServerSocket()
     return config->get("client.socket");
 }
 
+#define UDA_VERSION_STRING_LENGTH 256
+
+void udaGetClientVersionString(char* version_string)
+{
+    snprintf(version_string, UDA_VERSION_STRING_LENGTH, "%s", UDA_BUILD_VERSION);
+}
+
 //! the UDA client library verion number
 /**
  * @return the version number
@@ -1656,6 +1663,15 @@ int udaGetClientVersion()
 int udaGetServerVersion()
 {
     return server_block.version; // Server Version
+}
+
+void udaGetServerVersionString(char* version_string)
+{
+    int major_version = UDA_GET_MAJOR_VERSION(server_block.version);
+    int minor_version = UDA_GET_MINOR_VERSION(server_block.version);
+    int bugfix_version = UDA_GET_BUGFIX_VERSION(server_block.version);
+    int delta_version = UDA_GET_DELTA_VERSION(server_block.version);
+    snprintf(version_string, UDA_VERSION_STRING_LENGTH, "%d.%d.%d.%d", major_version, minor_version, bugfix_version, delta_version);
 }
 
 int udaGetClientVersionMajor() { return UDA_VERSION_MAJOR; }

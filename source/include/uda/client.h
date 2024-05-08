@@ -53,12 +53,14 @@ LIBRARY_API const char* udaGetServerHost();
 
 LIBRARY_API int udaGetServerPort();
 
+LIBRARY_API void udaGetClientVersionString(char* version_string);
 LIBRARY_API int udaGetClientVersion();
 LIBRARY_API int udaGetClientVersionMajor();
 LIBRARY_API int udaGetClientVersionMinor();
 LIBRARY_API int udaGetClientVersionBugfix();
 LIBRARY_API int udaGetClientVersionDelta();
 
+LIBRARY_API void udaGetServerVersionString(char* version_string);
 LIBRARY_API int udaGetServerVersion();
 LIBRARY_API int udaGetServerVersionMajor();
 LIBRARY_API int udaGetServerVersionMinor();

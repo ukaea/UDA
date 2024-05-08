@@ -67,8 +67,16 @@ def get_server_port():
     return uda.udaGetServerPort()
 
 
-def get_build_version():
-    return uda.udaGetBuildVersion()
+def get_client_version():
+    cdef char version_string[256]
+    uda.udaGetClientVersionString(version_string)
+    return version_string
+
+
+def get_server_version():
+    cdef char version_string[256]
+    uda.udaGetServerVersionString(version_string)
+    return version_string
 
 
 def get_build_date():

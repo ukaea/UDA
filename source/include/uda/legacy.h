@@ -78,11 +78,6 @@ inline void idamFreeAll()
     return udaFreeAll();
 }
 
-inline const char* idamGetBuildVersion()
-{
-    return udaGetBuildVersion();
-}
-
 inline const char* idamGetBuildDate()
 {
     return udaGetBuildDate();

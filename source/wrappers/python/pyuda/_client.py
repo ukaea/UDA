@@ -55,7 +55,7 @@ class Client(with_metaclass(ClientMeta, object)):
 
     def __init__(self, debug_level=logging.ERROR):
         self.version = __version__
-        assert self.version == cpyuda.get_build_version().decode(), "mismatching pyuda and c-library versions"
+        assert self.version == cpyuda.get_client_version().decode(), "mismatching pyuda and c-library versions"
 
         logging.basicConfig(level=debug_level)
         self.logger = logging.getLogger(__name__)
@@ -84,6 +84,10 @@ class Client(with_metaclass(ClientMeta, object)):
             self._registered_subclients['list_shots'] = MastClient(self)
         except ImportError:
             pass
+
+    def get_server_version(self):
+        result = cpyuda.get_data("help::ping()", "")
+        return cpyuda.get_server_version()
 
     def get_file(self, source_file, output_file=None):
         """
