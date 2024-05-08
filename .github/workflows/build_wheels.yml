@@ -73,20 +73,23 @@ jobs:
           -DCLIENT_ONLY=ON
           -DENABLE_CAPNP=ON
           -DNO_JAVA_WRAPPER=ON
-          -DCMAKE_INSTALL_PREFIX=$PWD/install
+          -DCMAKE_INSTALL_PREFIX=install
           && cmake --build build -j --config Release
           && cmake --install build --prefix install --config Release
           && ls install/lib
-          && cp -r install/python_installer ${{github.workspace}}/python_installer
+          && cp -r install ${{github.workspace}}\python_installer
+          && ls ${{github.workspace}}
 
       - name: test pyuda on windows
         if: runner.os == 'Windows'
+        env:
+          UDA_DIR: ${{github.workspace}}\install
         run: >
           python3 -m venv ${{github.workspace}}/venv &&
           ls ${{github.workspace}}/venv &&
           ${{github.workspace}}/venv/Scripts/Activate.ps1 &&
           pip3 install Cython numpy six &&
-          pip3 install install/python_installer
+          pip3 install ${{github.workspace}}\install\python_installer
 
 
 

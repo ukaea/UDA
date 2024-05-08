@@ -32,6 +32,8 @@ else:
     # windows build with gcc/mingw still gives .a file outputs for static libs
     stalib_ext = 'a'
     dynlib_ext = '.dll'
+    extra_compile_args = ['-std:c++11']
+
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
