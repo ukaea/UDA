@@ -45,6 +45,8 @@ jobs:
 
       - name: build uda on windows
         if: runner.os == 'Windows'
+        env:
+          XDR_ROOT: extlib/install
         run: >
           vcpkg install --triplet x64-mingw-static+VCPKG_RELEASE_ONLY --binarysource="clear;x-gha,readwrite"
           libxml2
@@ -59,8 +61,7 @@ jobs:
           && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B extlib/build -G "MinGW Makefiles" ./extlib
           && cmake --build extlib/build
           && cmake --install extlib/build --prefix extlib/install
-          && $Env:XDR_ROOT="$PWD/extlib/install"
-          && cmake -G "MinGW Makefiles" -B build
+          && cmake -G "MinGW Makefiles" -B build .
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=Release
