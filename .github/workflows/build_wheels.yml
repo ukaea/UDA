@@ -43,10 +43,8 @@ jobs:
           platforms: all
 
 
-      - name: build uda on windows
+      - name: install windows deps
         if: runner.os == 'Windows'
-        env:
-          XDR_ROOT: extlib/install
         run: >
           vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
           libxml2
@@ -58,7 +56,13 @@ jobs:
           openssl
           dlfcn-win32
           spdlog 
-          && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B extlib/build -G "MinGW Makefiles" ./extlib
+
+      - name: build uda on windows
+        if: runner.os == 'Windows'
+        env:
+          XDR_ROOT: extlib/install
+        run: >
+          cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B extlib/build -G "MinGW Makefiles" ./extlib
           && cmake --build extlib/build
           && cmake --install extlib/build --prefix extlib/install
           && cmake -G "MinGW Makefiles" -B build .
@@ -68,6 +72,7 @@ jobs:
           -DSSLAUTHENTICATION=OFF
           -DCLIENT_ONLY=ON
           -DENABLE_CAPNP=ON
+          -DNO_JAVA_WRAPPER=ON
           -DCMAKE_INSTALL_PREFIX=$PWD/install
           && cmake --build build -j --config Release
           && cmake --install --prefix install --config Release
