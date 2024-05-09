@@ -36,14 +36,14 @@ static int swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_bloc
                                  int asymmetry);
 
 static int read_data(const Config& config, RequestData* request, ClientBlock client_block, DataBlock* data_block, DataSource* data_source,
-                     Signal* signal_rec, SignalDesc* signal_desc, const uda::plugins::PluginList* pluginlist,
+                     Signal* signal_rec, SignalDesc* signal_desc, const std::vector<PluginData>& plugin_list,
                      LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist);
 
 int uda::server::get_data(const Config& config, int* depth, RequestData* request_data,
                           ClientBlock client_block, DataBlock* data_block,
                           DataSource* data_source, Signal* signal_rec,
                           SignalDesc* signal_desc, Actions* actions_desc,
-                          Actions* actions_sig, const plugins::PluginList* pluginlist,
+                          Actions* actions_sig, const std::vector<PluginData>& plugin_list,
                           LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                           SOCKETLIST* socket_list, int protocolVersion)
 {
@@ -99,7 +99,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
-                if ((rc = serverParseServerSide(request_data, &actions_serverside, pluginlist)) != 0) {
+                if ((rc = serverParseServerSide(request_data, &actions_serverside, plugin_list)) != 0) {
                     return rc;
                 }
                 // Erase original Subset request
@@ -108,12 +108,12 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
         }
     } else if (STR_IEQUALS(request_data->function, "subset")) {
         int id;
-        if ((id = findPluginIdByFormat(request_data->archive, pluginlist)) >= 0) {
-            if (STR_IEQUALS(pluginlist->plugin[id].symbol, "serverside")) {
+        if ((id = findPluginIdByFormat(request_data->archive, plugin_list)) >= 0) {
+            if (plugin_list[id].entry_func_name == "serverside") {
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
-                if ((rc = serverParseServerSide(request_data, &actions_serverside, pluginlist)) != 0) {
+                if ((rc = serverParseServerSide(request_data, &actions_serverside, plugin_list)) != 0) {
                     return rc;
                 }
                 // Erase original Subset request
@@ -125,7 +125,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
     //--------------------------------------------------------------------------------------------------------------------------
     // Read the Data (Returns rc < 0 if the signal is a derived type or is defined in an XML document)
 
-    int rc = read_data(config, request_data, client_block, data_block, data_source, signal_rec, signal_desc, pluginlist,
+    int rc = read_data(config, request_data, client_block, data_block, data_source, signal_rec, signal_desc, plugin_list,
                        logmalloclist, userdefinedtypelist);
 
     UDA_LOG(UDA_LOG_DEBUG, "After read_data rc = {}", rc);
@@ -267,7 +267,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                         strcpy(request_block2.path, actions_comp_desc.action[compId].composite.file);
 
                         request_block2.request =
-                            findPluginRequestByFormat(actions_comp_desc.action[compId].composite.format, pluginlist);
+                            findPluginIdByFormat(actions_comp_desc.action[compId].composite.format, plugin_list);
 
                         if (request_block2.request == REQUEST_READ_UNKNOWN) {
                             if (actions_comp_desc.action[compId].composite.format[0] == '\0' &&
@@ -309,7 +309,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     UDA_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA");
 
                     rc = get_data(config, depth, &request_block2, client_block, data_block, data_source, signal_rec,
-                                  signal_desc, actions_desc, actions_sig, pluginlist, logmalloclist,
+                                  signal_desc, actions_desc, actions_sig, plugin_list, logmalloclist,
                                   userdefinedtypelist, socket_list, protocolVersion);
 
                     free_actions(actions_desc); // Added 06Nov2008
@@ -408,7 +408,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
             }
 
             rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                          &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                          &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, plugin_list, logmalloclist,
                           userdefinedtypelist, socket_list, protocolVersion);
 
             free_actions(&actions_comp_desc2);
@@ -454,7 +454,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
             }
 
             rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                          &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                          &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, plugin_list, logmalloclist,
                           userdefinedtypelist, socket_list, protocolVersion);
 
             free_actions(&actions_comp_desc2);
@@ -536,7 +536,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     strcpy(data_source2.path, request_block2.path);
                     strcpy(signal_desc2.signal_name, trim_string(request_block2.signal));
 
-                    request_block2.request = findPluginRequestByFormat(request_block2.format, pluginlist);
+                    request_block2.request = findPluginIdByFormat(request_block2.format, plugin_list);
 
                     if (request_block2.request == REQUEST_READ_UNKNOWN) {
                         free_actions(&actions_comp_desc2);
@@ -558,7 +558,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     // Recursive call
 
                     rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, plugin_list, logmalloclist,
                                   userdefinedtypelist, socket_list, protocolVersion);
 
                     free_actions(&actions_comp_desc2);
@@ -606,7 +606,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     }
 
                     rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, plugin_list, logmalloclist,
                                   userdefinedtypelist, socket_list, protocolVersion);
 
                     free_actions(&actions_comp_desc2);
@@ -654,7 +654,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     }
 
                     rc = get_data(config, depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
-                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                  &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, plugin_list, logmalloclist,
                                   userdefinedtypelist, socket_list, protocolVersion);
 
                     free_actions(&actions_comp_desc2);
@@ -963,7 +963,7 @@ int swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_block, Data
 }
 
 int read_data(const Config& config, RequestData* request, ClientBlock client_block, DataBlock* data_block, DataSource* data_source,
-              Signal* signal_rec, SignalDesc* signal_desc, const uda::plugins::PluginList* pluginlist,
+              Signal* signal_rec, SignalDesc* signal_desc, const std::vector<PluginData>& plugin_list,
               LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist)
 {
     // If err = 0 then standard signal data read
@@ -1036,7 +1036,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
 
         // Identify the required Plugin
 
-        int plugin_id = udaServerMetaDataPluginId(config, pluginlist);
+        int plugin_id = udaServerMetaDataPluginId(config, plugin_list);
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
             UDA_THROW_ERROR(778, "Unable to identify requested data item");
@@ -1047,11 +1047,11 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have
         // been specified
 
-        strcpy(request->function, pluginlist->plugin[plugin_id].method);
+        copy_string(plugin_list[plugin_id].default_method, request->function, STRING_LENGTH);
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = udaServerMetaDataPlugin(config, pluginlist, plugin_id, request, signal_desc, signal_rec, data_source);
+        int err = udaServerMetaDataPlugin(config, plugin_list, plugin_id, request, signal_desc, signal_rec, data_source);
 
         if (err != 0) {
             UDA_THROW_ERROR(err, "No Record Found for this Generic Signal");
@@ -1063,7 +1063,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         if (signal_desc->type == 'P') {
             strcpy(request->signal, signal_desc->signal_name);
             strcpy(request->source, data_source->path);
-            makeServerRequestData(config, request, *pluginlist);
+            makeServerRequestData(config, request, plugin_list);
         }
 
     } // end of REQUEST_READ_GENERIC
@@ -1121,7 +1121,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // Test for known File formats and Server protocols
 
     {
-        uda::plugins::UdaPluginInterface plugin_interface;
+        UdaPluginInterface plugin_interface;
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure");
 
@@ -1137,13 +1137,13 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         plugin_interface.request_data = request;
         plugin_interface.data_source = data_source;
         plugin_interface.signal_desc = signal_desc;
-        plugin_interface.environment = nullptr;
+        plugin_interface.config = &config;
         plugin_interface.config = &config;
         plugin_interface.sqlConnection = nullptr;
         plugin_interface.verbose = 0;
         plugin_interface.housekeeping = 0;
         plugin_interface.changePlugin = 0;
-        plugin_interface.pluginList = pluginlist;
+        plugin_interface.pluginList = &plugin_list;
         plugin_interface.userdefinedtypelist = userdefinedtypelist;
         plugin_interface.logmalloclist = logmalloclist;
         plugin_interface.error_stack.nerrors = 0;
@@ -1155,29 +1155,23 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
             plugin_id = request->request; // User has Specified a Plugin
             UDA_LOG(UDA_LOG_DEBUG, "Plugin Request ID {}", plugin_id);
         } else {
-            plugin_id = findPluginRequestByFormat(data_source->format, pluginlist); // via Generic database query
-            UDA_LOG(UDA_LOG_DEBUG, "findPluginRequestByFormat Plugin Request ID {}", plugin_id);
+            plugin_id = findPluginIdByFormat(data_source->format, plugin_list); // via Generic database query
+            UDA_LOG(UDA_LOG_DEBUG, "findPluginIdByFormat Plugin Request ID {}", plugin_id);
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request->putDataBlockList.blockCount);
 
         if (plugin_id != REQUEST_READ_UNKNOWN) {
 
-            int id;
-            if ((id = findPluginIdByRequest(plugin_id, pluginlist)) == -1) {
-                UDA_LOG(UDA_LOG_DEBUG, "Error locating data plugin {}", plugin_id);
-                UDA_THROW_ERROR(999, "Error locating data plugin");
-            }
+            int id = plugin_id;
 
 #ifndef ITERSERVER
             bool external_user = config.get("server.external_user").as_or_default(false);
-            if (pluginlist->plugin[id].is_private == UDA_PLUGIN_PRIVATE && external_user) {
+            if (plugin_list[id].is_private == UDA_PLUGIN_PRIVATE && external_user) {
                 UDA_THROW_ERROR(999, "Access to this data class is not available.");
             }
 #endif
-            if (pluginlist->plugin[id].external == UDA_PLUGIN_EXTERNAL &&
-                pluginlist->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
-                pluginlist->plugin[id].pluginHandle != nullptr && pluginlist->plugin[id].idamPlugin != nullptr) {
+            if (plugin_list[id].handle != nullptr && plugin_list[id].entry_func != nullptr) {
 
                 UDA_LOG(UDA_LOG_DEBUG, "[{}] {} Plugin Selected", plugin_id, data_source->format);
 
@@ -1191,7 +1185,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
 #endif
 
                 // Call the plugin
-                int err = pluginlist->plugin[id].idamPlugin(&plugin_interface);
+                int err = plugin_list[id].entry_func(&plugin_interface);
                 for (unsigned int i = 0; i < plugin_interface.error_stack.nerrors; ++i) {
                     auto error = &plugin_interface.error_stack.idamerror[i];
                     add_error(error->type, error->location, error->code, error->msg);
@@ -1215,7 +1209,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
                 // Save Provenance with socket stream protection
 
                 udaServerRedirectStdStreams(0);
-                udaProvenancePlugin(config, &client_block, request, data_source, signal_desc, pluginlist, nullptr);
+                udaProvenancePlugin(config, &client_block, request, data_source, signal_desc, plugin_list, nullptr);
                 udaServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
@@ -1249,9 +1243,10 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         // Test for known File formats and Server protocols
 
         int id = -1;
-        for (int i = 0; i < pluginlist->count; i++) {
-            if (STR_IEQUALS(data_source->format, pluginlist->plugin[i].format)) {
-                plugin_id = pluginlist->plugin[i].request; // Found
+        size_t i = 0;
+        for (const auto& plugin : plugin_list) {
+            if (plugin.name == data_source->format) {
+                plugin_id = i; // Found
                 id = i;
                 UDA_LOG(UDA_LOG_DEBUG, "[{}] {} Plugin Selected", plugin_id, data_source->format);
                 break;
@@ -1259,7 +1254,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         }
 
         bool external_user = config.get("server.external_user").as_or_default(false);
-        if (id >= 0 && pluginlist->plugin[id].is_private == UDA_PLUGIN_PRIVATE && external_user) {
+        if (id >= 0 && plugin_list[id].is_private == UDA_PLUGIN_PRIVATE && external_user) {
             UDA_THROW_ERROR(999, "Access to this data class is not available.");
         }
 
@@ -1306,7 +1301,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // Save Provenance with socket stream protection
 
     udaServerRedirectStdStreams(0);
-    udaProvenancePlugin(config, &client_block, request, data_source, signal_desc, pluginlist, nullptr);
+    udaProvenancePlugin(config, &client_block, request, data_source, signal_desc, plugin_list, nullptr);
     udaServerRedirectStdStreams(1);
 
     return 0;

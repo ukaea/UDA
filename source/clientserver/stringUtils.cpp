@@ -49,13 +49,24 @@ void uda::client_server::reverse_string(const char* in, char* out)
 
 // Copy a String subject to a Maximum length constraint
 
-void uda::client_server::copy_string(const char* in, char* out, int maxlength)
+void uda::client_server::copy_string(const char* in, char* out, size_t maxlength)
 {
-    int lstr = (int)strlen(in);
+    size_t lstr = strlen(in);
     if (lstr < maxlength) {
         strcpy(out, in);
     } else {
         strncpy(out, in, maxlength - 1);
+        out[maxlength - 1] = '\0';
+    }
+}
+
+void uda::client_server::copy_string(const std::string& in, char* out, size_t maxlength)
+{
+    size_t lstr = in.size();
+    if (lstr < maxlength) {
+        strcpy(out, in.c_str());
+    } else {
+        strncpy(out, in.c_str(), maxlength - 1);
         out[maxlength - 1] = '\0';
     }
 }
@@ -117,12 +128,6 @@ char* uda::client_server::left_trim_string(char* str)
         str[lstr] = '\0';
     }
     return str;
-}
-
-void uda::client_server::string_copy(char* dest, const char* src, size_t len)
-{
-    strncpy(dest, src, len);
-    dest[len - 1] = '\0';
 }
 
 #ifdef __GNUC__

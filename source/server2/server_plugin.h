@@ -22,15 +22,15 @@ class Environment;
 
 int server_redirect_std_streams(const config::Config& config, int reset);
 
-int server_plugin(const config::Config& config, uda::client_server::RequestData *request, uda::client_server::DataSource *data_source,
-                  uda::client_server::SignalDesc *signal_desc, const Plugins& plugins);
+int server_plugin(const config::Config& config, client_server::RequestData *request, client_server::DataSource *data_source,
+                  client_server::SignalDesc *signal_desc, const Plugins& plugins);
 
-int provenance_plugin(const config::Config& config, uda::client_server::ClientBlock *client_block, uda::client_server::RequestData *original_request,
+int provenance_plugin(const config::Config& config, client_server::ClientBlock *client_block, client_server::RequestData *original_request,
                       const Plugins& plugins, const char* logRecord, MetadataBlock& metadata);
 
-int call_metadata_plugin(const config::Config& config, const uda::plugins::PluginData& plugin,
-                         uda::client_server::RequestData* request_block, const Plugins& plugins, MetadataBlock& metadata);
+int call_metadata_plugin(const config::Config& config, const client_server::PluginData& plugin,
+                         client_server::RequestData* request_block, const Plugins& plugins, MetadataBlock& metadata);
 
-boost::optional<uda::plugins::PluginData> find_metadata_plugin(const config::Config& config, const Plugins& plugins);
+boost::optional<const client_server::PluginData&> find_metadata_plugin(const config::Config& config, const Plugins& plugins);
 
 } // namespace uda::server

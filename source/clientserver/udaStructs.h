@@ -342,7 +342,7 @@ struct NameValueList {
 };
 
 enum REQUEST {
-    REQUEST_SHUTDOWN = 1,
+    REQUEST_SHUTDOWN = -30,
     REQUEST_READ_GENERIC, // Generic Signal via the UDA Database
     REQUEST_READ_IDA,     // an IDA File
     REQUEST_READ_MDS,     // an MDSPlus Server

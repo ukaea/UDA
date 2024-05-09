@@ -288,9 +288,9 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
             }
         }
     } else if (STR_IEQUALS(request_data->function, "subset")) {
-        auto maybe_plugin = _plugins.find_by_format(request_data->archive);
+        auto [_, maybe_plugin] = _plugins.find_by_name(request_data->archive);
         if (maybe_plugin) {
-            if (STR_IEQUALS(maybe_plugin.get().symbol, "serverside")) {
+            if (maybe_plugin.get().entry_func_name == "serverside") {
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
@@ -438,9 +438,9 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                         }
                         strcpy(request_block2.path, actions_comp_desc.action[compId].composite.file);
 
-                        auto maybe_plugin = _plugins.find_by_format(actions_comp_desc.action[compId].composite.format);
+                        auto [id, maybe_plugin] = _plugins.find_by_name(actions_comp_desc.action[compId].composite.format);
                         if (maybe_plugin) {
-                            request_block2.request = maybe_plugin.get().request;
+                            request_block2.request = id;
                         } else {
                             request_block2.request = REQUEST_READ_UNKNOWN;
                         }
@@ -708,9 +708,9 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                     strcpy(data_source2.path, request_block2.path);
                     strcpy(signal_desc2.signal_name, trim_string(request_block2.signal));
 
-                    auto maybe_plugin = _plugins.find_by_format(request_block2.format);
+                    auto [id, maybe_plugin] = _plugins.find_by_name(request_block2.format);
                     if (maybe_plugin) {
-                        request_block2.request = maybe_plugin.get().request;
+                        request_block2.request = id;
                     } else {
                         request_block2.request = REQUEST_READ_UNKNOWN;
                     }
@@ -1010,7 +1010,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have
         // been specified
 
-        strcpy(request->function, maybe_plugin->method);
+        copy_string(maybe_plugin->default_method, request->function, STRING_LENGTH);
 
         // Execute the plugin to resolve the identity of the data requested
 
@@ -1092,23 +1092,18 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         init_data_block(data_block);
 
-        auto plugin_list = _plugins.as_plugin_list();
-        plugin_interface.interfaceVersion = 1;
-        plugin_interface.pluginVersion = 0;
-        plugin_interface.sqlConnectionType = 0;
+        auto& plugin_list = _plugins.plugin_list();
+        plugin_interface.interface_version = 1;
         plugin_interface.data_block = data_block;
         plugin_interface.client_block = &_client_block;
         plugin_interface.request_data = request;
         plugin_interface.data_source = &_metadata_block.data_source;
         plugin_interface.signal_desc = &_metadata_block.signal_desc;
-        plugin_interface.environment = nullptr;
-        plugin_interface.sqlConnection = nullptr;
-        plugin_interface.verbose = 0;
-        plugin_interface.housekeeping = 0;
-        plugin_interface.changePlugin = 0;
+        plugin_interface.house_keeping = 0;
+        plugin_interface.change_plugin = 0;
         plugin_interface.pluginList = &plugin_list;
-        plugin_interface.userdefinedtypelist = _user_defined_type_list;
-        plugin_interface.logmalloclist = _log_malloc_list;
+        plugin_interface.user_defined_type_list = _user_defined_type_list;
+        plugin_interface.log_malloc_list = _log_malloc_list;
         plugin_interface.error_stack.nerrors = 0;
         plugin_interface.error_stack.idamerror = nullptr;
 
@@ -1118,9 +1113,9 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
             plugin_request = request->request; // User has Specified a Plugin
             UDA_LOG(UDA_LOG_DEBUG, "Plugin Request {}", plugin_request);
         } else {
-            auto maybe_plugin = _plugins.find_by_format(_metadata_block.data_source.format);
+            auto [id, maybe_plugin] = _plugins.find_by_name(_metadata_block.data_source.format);
             if (maybe_plugin) {
-                plugin_request = maybe_plugin.get().request;
+                plugin_request = id;
                 UDA_LOG(UDA_LOG_DEBUG, "findPluginRequestByFormat Plugin Request {}", plugin_request);
             }
         }
@@ -1129,7 +1124,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         if (plugin_request != REQUEST_READ_UNKNOWN) {
 
-            auto maybe_plugin = _plugins.find_by_request(plugin_request);
+            auto maybe_plugin = _plugins.find_by_id(plugin_request);
             if (!maybe_plugin) {
                 UDA_LOG(UDA_LOG_DEBUG, "Error locating data plugin {}", plugin_request);
                 UDA_THROW_ERROR(999, "Error locating data plugin");
@@ -1141,9 +1136,8 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                 UDA_THROW_ERROR(999, "Access to this data class is not available.");
             }
 #endif
-            if (maybe_plugin.get().external == UDA_PLUGIN_EXTERNAL &&
-                maybe_plugin.get().status == UDA_PLUGIN_OPERATIONAL && maybe_plugin.get().pluginHandle != nullptr &&
-                maybe_plugin.get().idamPlugin != nullptr) {
+            if (maybe_plugin->handle != nullptr &&
+                maybe_plugin->entry_func != nullptr) {
 
                 UDA_LOG(UDA_LOG_DEBUG, "[{}] {} Plugin Selected", plugin_request, _metadata_block.data_source.format);
 
@@ -1157,7 +1151,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 #endif
 
                 // Call the plugin
-                int err = maybe_plugin.get().idamPlugin(&plugin_interface);
+                int err = maybe_plugin->entry_func(&plugin_interface);
                 for (unsigned int i = 0; i < plugin_interface.error_stack.nerrors; ++i) {
                     auto error = &plugin_interface.error_stack.idamerror[i];
                     add_error(error->type, error->location, error->code, error->msg);
@@ -1192,7 +1186,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                     }
                 }
 
-                if (!plugin_interface.changePlugin) {
+                if (!plugin_interface.change_plugin) {
                     // job done!
                     return 0;
                 }
@@ -1210,10 +1204,10 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         // Test for known File formats and Server protocols
 
-        auto maybe_plugin = _plugins.find_by_format(_metadata_block.data_source.format);
+        auto [id, maybe_plugin] = _plugins.find_by_name(_metadata_block.data_source.format);
 
         auto external_user = _config.get("server.external_user");
-        if (maybe_plugin && maybe_plugin.get().is_private == UDA_PLUGIN_PRIVATE && external_user) {
+        if (maybe_plugin && maybe_plugin->is_private == UDA_PLUGIN_PRIVATE && external_user) {
             UDA_THROW_ERROR(999, "Access to this data class is not available.");
         }
 
@@ -1229,7 +1223,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         }
 
         if (maybe_plugin) {
-            plugin_request = maybe_plugin.get().request;
+            plugin_request = id;
         }
     }
 

@@ -180,8 +180,8 @@ int uda::server::server_plugin(const Config& config, RequestData *request, DataS
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data reader plug-in
 
-    auto plugin_list = plugins.as_plugin_list();
-    if ((err = make_request_data(config, request, &plugin_list)) != 0) {
+    auto& plugin_list = plugins.plugin_list();
+    if ((err = make_request_data(config, request, plugin_list)) != 0) {
         return err;
     }
 
@@ -252,7 +252,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
     // Identify the Provenance Gathering plugin (must be a function library type plugin)
 
     static bool initialised = false;
-    static boost::optional<PluginData> plugin = {};
+    static boost::optional<const uda::client_server::PluginData&> plugin = {};
     static int exec_method = 1; // The default method used to write efficiently to the backend SQL server
 
     struct timeval tv_start = {};
@@ -269,22 +269,20 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
             std::string plugin_name = provenance_plugin.as<std::string>();
             // Must be set in the server startup script
             UDA_LOG(UDA_LOG_DEBUG, "Plugin name: {}", plugin_name.c_str())
-            auto maybe_plugin = plugins.find_by_format(plugin_name.c_str());
+            auto [id, maybe_plugin] = plugins.find_by_name(plugin_name.c_str());
             if (maybe_plugin) {
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION = {}",
-                        maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION)
+                        maybe_plugin->type == UDA_PLUGIN_CLASS_FUNCTION)
                 UDA_LOG(UDA_LOG_DEBUG, "!external_user = {}", !external_user)
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL = {}",
-                        maybe_plugin->status == UDA_PLUGIN_OPERATIONAL)
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != nullptr = {}",
-                        maybe_plugin->pluginHandle != nullptr)
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != nullptr = {}",
-                        maybe_plugin->idamPlugin != nullptr)
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].handle != nullptr = {}",
+                        maybe_plugin->handle != nullptr)
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].entry_func   != nullptr = {}",
+                        maybe_plugin->entry_func != nullptr)
             }
-            if (maybe_plugin && maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
-                !external_user && maybe_plugin->status == UDA_PLUGIN_OPERATIONAL &&
-                maybe_plugin->pluginHandle != nullptr && maybe_plugin->idamPlugin != nullptr) {
-                plugin = maybe_plugin.get();
+            if (maybe_plugin && maybe_plugin->type == UDA_PLUGIN_CLASS_FUNCTION
+                && !external_user
+                && maybe_plugin->handle != nullptr && maybe_plugin->entry_func != nullptr) {
+                plugin = maybe_plugin;
             }
         }
         auto provenance_exec_method = config.get("plugins.provenance_exec_method");
@@ -312,22 +310,22 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
         snprintf(request.signal, MAXMETA,
                  "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
                  "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
-                 plugin->format, client_block->DOI, original_request->signal, original_request->source,
+                 plugin->name.c_str(), client_block->DOI, original_request->signal, original_request->source,
                  metadata.signal_desc.signal_name, metadata.data_source.path, "", exec_method);
     } else {
 
         // need 2> record the server log record
 
         snprintf(request.signal, MAXMETA, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
-                 plugin->format, client_block->DOI, logRecord, exec_method);
+                 plugin->name.c_str(), client_block->DOI, logRecord, exec_method);
     }
 
     // Activate the plugin
 
     UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: {}", request.signal)
 
-    auto plugin_list = plugins.as_plugin_list();
-    make_request_data(config, &request, &plugin_list);
+    auto& plugin_list = plugins.plugin_list();
+    make_request_data(config, &request, plugin_list);
 
     int err, rc, reset;
     DataBlock data_block = {};
@@ -341,29 +339,28 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
 
     // Check the Interface Compliance
 
-    if (plugin->interfaceVersion > 1) {
+    if (plugin->interface_version > 1) {
         UDA_THROW_ERROR(999, "The Provenance Plugin's Interface Version is not Implemented.")
     }
 
-    UserDefinedTypeList userdefinedtypelist;
-    init_user_defined_type_list(&userdefinedtypelist);
+    UserDefinedTypeList user_defined_type_list;
+    init_user_defined_type_list(&user_defined_type_list);
 
-    LogMallocList logmalloclist;
-    init_log_malloc_list(&logmalloclist);
+    LogMallocList log_malloc_list;
+    init_log_malloc_list(&log_malloc_list);
 
-    plugin_interface.interfaceVersion = 1;
-    plugin_interface.pluginVersion = 0;
+    plugin_interface.interface_version = 1;
     plugin_interface.data_block = &data_block;
     plugin_interface.client_block = client_block;
     plugin_interface.request_data = &request;
     plugin_interface.data_source = &metadata.data_source;
     plugin_interface.signal_desc = &metadata.signal_desc;
-    plugin_interface.environment = nullptr;
-    plugin_interface.housekeeping = 0;
-    plugin_interface.changePlugin = 0;
+    plugin_interface.config = &config;
+    plugin_interface.house_keeping = 0;
+    plugin_interface.change_plugin = 0;
     plugin_interface.pluginList = &plugin_list;
-    plugin_interface.userdefinedtypelist = &userdefinedtypelist;
-    plugin_interface.logmalloclist = &logmalloclist;
+    plugin_interface.user_defined_type_list = &user_defined_type_list;
+    plugin_interface.log_malloc_list = &log_malloc_list;
     plugin_interface.error_stack.nerrors = 0;
     plugin_interface.error_stack.idamerror = nullptr;
 
@@ -378,7 +375,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
 
     UDA_LOG(UDA_LOG_DEBUG, "entering the provenance plugin")
 
-    err = plugin->idamPlugin(static_cast<UDA_PLUGIN_INTERFACE*>(&plugin_interface));
+    err = plugin->entry_func(static_cast<UDA_PLUGIN_INTERFACE*>(&plugin_interface));
 
     UDA_LOG(UDA_LOG_DEBUG, "returned from the provenance plugin")
 
@@ -422,18 +419,18 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID
 
-boost::optional<PluginData> uda::server::find_metadata_plugin(const Config& config, const Plugins& plugins)
+boost::optional<const PluginData&> uda::server::find_metadata_plugin(const Config& config, const Plugins& plugins)
 {
     static bool no_plugin_registered = false;
-    static boost::optional<PluginData> plugin = {};
+    static boost::optional<const PluginData&> plugin = {};
 
     UDA_LOG(UDA_LOG_DEBUG, "Entered: no_plugin_registered state = {}", no_plugin_registered)
 
-    if (plugin) {
-        return plugin.get(); // Plugin previously identified
-    }
     if (no_plugin_registered) {
         return {}; // No Plugin for the MetaData Catalog to resolve Generic Name mappings
+    }
+    if (plugin) {
+        return plugin; // Plugin previously identified
     }
 
     // Identify the MetaData Catalog plugin (must be a function library type plugin)
@@ -442,10 +439,10 @@ boost::optional<PluginData> uda::server::find_metadata_plugin(const Config& conf
 
     auto metadata_plugin = config.get("plugins.metadata_plugin");
     if (metadata_plugin) { // Must be set in the server startup script
-        auto maybe_plugin = plugins.find_by_format(metadata_plugin.as<std::string>().c_str());
-        if (maybe_plugin && maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
-            maybe_plugin->status == UDA_PLUGIN_OPERATIONAL && maybe_plugin->pluginHandle != nullptr &&
-            maybe_plugin->idamPlugin != nullptr) {
+        auto [_, maybe_plugin] = plugins.find_by_name(metadata_plugin.as<std::string>().c_str());
+        if (maybe_plugin && maybe_plugin->type == UDA_PLUGIN_CLASS_FUNCTION
+            && maybe_plugin->handle != nullptr
+            && maybe_plugin->entry_func != nullptr) {
             plugin = maybe_plugin.get();
         }
 
@@ -456,14 +453,13 @@ boost::optional<PluginData> uda::server::find_metadata_plugin(const Config& conf
 
         UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: {}", metadata_plugin.as<std::string>().c_str())
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: {}",
-                maybe_plugin->plugin_class == UDA_PLUGIN_CLASS_FUNCTION)
+                maybe_plugin->type == UDA_PLUGIN_CLASS_FUNCTION)
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: {}", maybe_plugin->is_private == UDA_PLUGIN_PRIVATE)
         UDA_LOG(UDA_LOG_DEBUG, "External User?: {}", external_user)
         UDA_LOG(UDA_LOG_DEBUG, "Private?: {}",
                 maybe_plugin->is_private == UDA_PLUGIN_PRIVATE && external_user)
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_OPERATIONAL?: {}", maybe_plugin->status == UDA_PLUGIN_OPERATIONAL)
         UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: {}",
-                maybe_plugin->pluginHandle != nullptr && maybe_plugin->idamPlugin != nullptr)
+                maybe_plugin->handle != nullptr && maybe_plugin->entry_func != nullptr)
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin identified")
     }
@@ -478,7 +474,7 @@ boost::optional<PluginData> uda::server::find_metadata_plugin(const Config& conf
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int uda::server::call_metadata_plugin(const Config& config, const uda::plugins::PluginData& plugin,
+int uda::server::call_metadata_plugin(const Config& config, const uda::client_server::PluginData& plugin,
                                       RequestData* request_block, const Plugins& plugins,
                                       MetadataBlock& metadata)
 {
@@ -487,7 +483,7 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::plugins::
 
     // Check the Interface Compliance
 
-    if (plugin.interfaceVersion > 1) {
+    if (plugin.interface_version > 1) {
         UDA_THROW_ERROR(999, "The Plugin's Interface Version is not Implemented.")
     }
 
@@ -501,20 +497,19 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::plugins::
     LogMallocList logmalloclist = {};
     init_log_malloc_list(&logmalloclist);
 
-    auto plugin_list = plugins.as_plugin_list();
-    plugin_interface.interfaceVersion = 1;
-    plugin_interface.pluginVersion = 0;
+    auto& plugin_list = plugins.plugin_list();
+    plugin_interface.interface_version = 1;
     plugin_interface.data_block = &data_block;
     plugin_interface.client_block = nullptr;
     plugin_interface.request_data = request_block;
     plugin_interface.data_source = &metadata.data_source;
     plugin_interface.signal_desc = &metadata.signal_desc;
-    plugin_interface.environment = nullptr;
-    plugin_interface.housekeeping = 0;
-    plugin_interface.changePlugin = 0;
+    plugin_interface.config = &config;
+    plugin_interface.house_keeping = 0;
+    plugin_interface.change_plugin = 0;
     plugin_interface.pluginList = &plugin_list;
-    plugin_interface.userdefinedtypelist = &userdefinedtypelist;
-    plugin_interface.logmalloclist = &logmalloclist;
+    plugin_interface.user_defined_type_list = &userdefinedtypelist;
+    plugin_interface.log_malloc_list = &logmalloclist;
     plugin_interface.error_stack.nerrors = 0;
     plugin_interface.error_stack.idamerror = nullptr;
 
@@ -527,7 +522,7 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::plugins::
 
     // Call the plugin (Error handling is managed within)
 
-    err = plugin.idamPlugin(&plugin_interface);
+    err = plugin.entry_func(static_cast<UDA_PLUGIN_INTERFACE*>(&plugin_interface));
 
     // Reset Redirected Output
 

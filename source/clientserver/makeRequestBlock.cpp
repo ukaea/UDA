@@ -21,6 +21,7 @@
 #include "stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"
+#include "plugins.h"
 #include "config/config.h"
 
 // TODO: remove this!
@@ -43,7 +44,7 @@ using namespace uda::logging;
 static void extract_function_name(const char* str, RequestData* request);
 
 static int source_file_format_test(const uda::config::Config& config, const char* source, RequestData* request,
-                                   const uda::plugins::PluginList* pluginList);
+                                   const std::vector<PluginData>& pluginList);
 
 static int extract_archive(const uda::config::Config& config, RequestData* request, int reduceSignal);
 
@@ -62,17 +63,20 @@ struct NameValue {
 std::vector<uda::NameValue> name_value_pairs(std::string_view input, bool strip);
 } // namespace uda
 
-static int find_plugin_id_by_format(const char* format, const uda::plugins::PluginList* plugin_list)
+static int find_plugin_id_by_format(const std::string& name, const std::vector<PluginData>& plugin_list)
 {
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
-            return i;
+    auto lower_name = boost::to_lower_copy(name);
+    size_t id = 0;
+    for (const auto& plugin : plugin_list) {
+        if (plugin.name == lower_name) {
+            return id;
         }
+        ++id;
     }
     return -1;
 }
 
-int uda::client_server::make_request_data(const config::Config& config, RequestData* request, const uda::plugins::PluginList* pluginList)
+int uda::client_server::make_request_data(const config::Config& config, RequestData* request, const std::vector<PluginData>& pluginList)
 {
     int ldelim;
     int err = 0;
@@ -80,7 +84,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     char work2[MAXMETA];
     unsigned short strip = 1; // Remove enclosing quotes from name value pairs
 
-    UDA_LOG(UDA_LOG_DEBUG, "Source Argument");
+    UDA_LOG(UDA_LOG_DEBUG, "Source Argument")
 
     //------------------------------------------------------------------------------
     // Always use the client's delimiting string if provided, otherwise use the default delimiter
@@ -110,19 +114,19 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     left_trim_string(request->source);
     trim_string(request->source);
 
-    bool noSource = (request->source[0] == '\0' ||                            // no source
+    bool no_source = (request->source[0] == '\0' ||                            // no source
                      STR_IEQUALS(request->source, device.c_str()) || // default device name
                      STR_IEQUALS(request->source, work2));                    // default device name + delimiting string
 
-    if ((request->signal[0] == '\0' || STR_IEQUALS(request->signal, work)) && noSource) {
-        UDA_THROW_ERROR(999, "Neither Data Object nor Source specified!");
+    if ((request->signal[0] == '\0' || STR_IEQUALS(request->signal, work)) && no_source) {
+        UDA_THROW_ERROR(999, "Neither Data Object nor Source specified!")
     }
 
     //------------------------------------------------------------------------------
     // Strip default device from the source if present and leading
 
     size_t lstr = strlen(work2);
-    if (!noSource && !strncasecmp(request->source, work2, lstr)) {
+    if (!no_source && !strncasecmp(request->source, work2, lstr)) {
         for (size_t i = 0; i < lstr; i++) {
             request->source[i] = ' ';
         }
@@ -216,11 +220,11 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
         left_trim_string(work);
     }
 
-    bool reduceSignal;
+    bool reduce_signal;
 
     do {
 
-        if (noSource) {
+        if (no_source) {
             // No Source
             strcpy(request->device_name, device.c_str()); // Default Device Name
             break;
@@ -228,7 +232,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
         if (test == nullptr || STR_IEQUALS(work2, device.c_str())) { // No delimiter present or default device?
 
-            UDA_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present");
+            UDA_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present")
 
             strcpy(request->device_name, device.c_str()); // Default Device Name
 
@@ -257,7 +261,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
                 // Request must be a private file format. It cannot be a local/remote server protocol.
 
-                UDA_LOG(UDA_LOG_DEBUG, "No File Format has been specified. Selecting ....");
+                UDA_LOG(UDA_LOG_DEBUG, "No File Format has been specified. Selecting ....")
 
                 int rc = source_file_format_test(config, request->source, request, pluginList);
 
@@ -277,14 +281,14 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 #endif
 
                 if (rc <= 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!");
-                    UDA_THROW_ERROR(999, "No File Format identified: Please specify.");
+                    UDA_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!")
+                    UDA_THROW_ERROR(999, "No File Format identified: Please specify.")
                 }
 
                 // Resolve any Serverside environment variables
                 udaExpandEnvironmentalVariables(request->path);
 
-                UDA_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!");
+                UDA_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!")
                 break;
 
             } else {
@@ -301,30 +305,31 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                     request->request = REQUEST_READ_SERVERSIDE;
                     extract_function_name(work, request);
 
-                    UDA_LOG(UDA_LOG_DEBUG, "**** Server Side Function ??? ****");
+                    UDA_LOG(UDA_LOG_DEBUG, "**** Server Side Function ??? ****")
 
                     // Extract Name Value pairs
 
                     if (name_value_pairs(work2, &request->nameValueList, strip) == -1) {
-                        UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                        UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!")
                     }
 
                     // Test for external library functions using the Archive name as the library name identifier
 
-                    reduceSignal = false;
-                    extract_archive(config, request, reduceSignal);
+                    reduce_signal = false;
+                    extract_archive(config, request, reduce_signal);
 
-                    for (int i = 0; i < pluginList->count; i++) {
-                        if (STR_IEQUALS(request->archive, pluginList->plugin[i].format)) {
-                            request->request = pluginList->plugin[i].request; // Found!
-                            strcpy(request->format, pluginList->plugin[i].format);
-                            break;
+                    size_t id = 0;
+                    for (const auto& plugin : pluginList) {
+                        if (plugin.name == request->archive) {
+                            request->request = id;
+                            copy_string(plugin.name, request->format, STRING_LENGTH);
                         }
+                        ++id;
                     }
                     break;
 
                 } else {
-                    UDA_THROW_ERROR(999, "No Data Access Plugin Identified!");
+                    UDA_THROW_ERROR(999, "No Data Access Plugin Identified!")
                 }
             }
 
@@ -333,21 +338,21 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             //---------------------------------------------------------------------------------------------------------------------
             // Scenario #2: A foreign device name or format or protocol or library is present
 
-            UDA_LOG(UDA_LOG_DEBUG, "A device name or format or protocol or library is present.");
+            UDA_LOG(UDA_LOG_DEBUG, "A device name or format or protocol or library is present.")
 
             // Test for known File formats, Server protocols or Libraries or Devices
 
-            for (int i = 0; i < pluginList->count; i++) {
-                if (STR_IEQUALS(work2, pluginList->plugin[i].format)) {
-                    if (pluginList->plugin[i].plugin_class != uda::plugins::UDA_PLUGIN_CLASS_DEVICE) {
-                        request->request = pluginList->plugin[i].request; // Found
-                        strcpy(request->format, pluginList->plugin[i].format);
-                        if (pluginList->plugin[i].plugin_class !=
-                            uda::plugins::UDA_PLUGIN_CLASS_FILE) { // The full file path fully resolved by the client
+            size_t id = 0;
+            for (const auto& plugin : pluginList) {
+                if (plugin.name == work2) {
+                    if (plugin.type != UDA_PLUGIN_CLASS_DEVICE) {
+                        request->request = id; // Found
+                        copy_string(plugin.name, request->format, STRING_LENGTH);
+                        if (plugin.type != UDA_PLUGIN_CLASS_FILE) { // The full file path fully resolved by the client
                             strcpy(request->path,
                                    test + ldelim);     // Complete String following :: delimiter
                             strcpy(request->file, ""); // Clean the filename
-                            if (pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FUNCTION) {
+                            if (plugin.type == UDA_PLUGIN_CLASS_FUNCTION) {
                                 is_function = true;
                                 extract_function_name(work, request);
                             }
@@ -360,54 +365,12 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 #endif
                             strcpy(request->file, base); // Final token
                         }
-                        is_file = pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FILE;
-                        is_server = pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_SERVER;
+                        is_file = plugin.type == UDA_PLUGIN_CLASS_FILE;
+                        is_server = plugin.type == UDA_PLUGIN_CLASS_SERVER;
                         break;
-                    } else {
-
-                        // Registered Devices and their access Server Protocols
-                        // Identify the server protocol - it must be a server protocol!
-                        // Substitute the Device name with the protocol and server details
-
-                        static int depth = 0;
-                        // int id = findPluginRequestByFormat(pluginList->plugin[i].deviceProtocol, &pluginList);
-                        int id = find_plugin_id_by_format(pluginList->plugin[i].deviceProtocol, pluginList);
-                        if (id >= 0 && pluginList->plugin[id].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_SERVER) {
-
-                            snprintf(work, MAXMETA, "%s%s%s", pluginList->plugin[i].deviceProtocol, request->api_delim,
-                                     pluginList->plugin[i].deviceHost);
-                            UDA_LOG(UDA_LOG_DEBUG, "work#1: {}", work);
-
-                            if (pluginList->plugin[i].devicePort[0] != '\0') {
-                                strcat(work, ":");
-                                strcat(work, pluginList->plugin[i].devicePort);
-                            }
-                            UDA_LOG(UDA_LOG_DEBUG, "work#2: {}", work);
-                            UDA_LOG(UDA_LOG_DEBUG, "test: {}", test);
-                            UDA_LOG(UDA_LOG_DEBUG, "test+ldelim: {}", test + ldelim);
-
-                            if ((test + ldelim)[0] != '/') {
-                                if ((test + ldelim)[0] != '\0') {
-                                    strcat(work, "/");
-                                    strcat(work, test + ldelim);
-                                }
-                                UDA_LOG(UDA_LOG_DEBUG, "work#3: {}", work);
-                            } else {
-                                strcat(work, test + ldelim);
-                            }
-                            UDA_LOG(UDA_LOG_DEBUG, "work#4: {}", work);
-
-                            strcpy(request->source, work);
-                            if (depth++ > MAXREQDEPTH) {
-                                UDA_THROW_ERROR(999,
-                                                "Too many chained Device Name to Server Protocol Host subtitutions!");
-                            }
-                            err = make_request_data(config, request, pluginList);
-                            depth--;
-                            return err;
-                        }
                     }
                 }
+                ++id;
             }
 
             // If no match was found then the prefix must be a foreign Device Name not entered into the server
@@ -415,7 +378,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             // device. The external server providing access to the foreign device's data will interpret the arguments
 
             if (request->request == REQUEST_READ_UNKNOWN) {
-                UDA_LOG(UDA_LOG_DEBUG, "No plugin was identified for the format: {}", work2);
+                UDA_LOG(UDA_LOG_DEBUG, "No plugin was identified for the format: {}", work2)
                 is_foreign = true;
                 strcpy(request->device_name, work2);     // Copy the DEVICE prefix
                 request->request = REQUEST_READ_GENERIC; // The database will identify the target
@@ -428,13 +391,13 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             strcpy(request->device_name, device.c_str()); // Default Device Name
 
             if (is_file) { // Resolve any Serverside environment variables
-                UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.");
+                UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.")
                 udaExpandEnvironmentalVariables(request->path);
                 break;
             }
 
             if (!is_file && !is_function) { // Server Protocol
-                UDA_LOG(UDA_LOG_DEBUG, "Server Protocol");
+                UDA_LOG(UDA_LOG_DEBUG, "Server Protocol")
                 break;
             }
 
@@ -448,7 +411,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
             if (p == nullptr || p2 == nullptr || (p != nullptr && p2 == nullptr) || (p == nullptr && p2 != nullptr) ||
                 (p0 != nullptr && p != nullptr && p0 < p) || (p1 != nullptr && p2 != nullptr && p1 > p2)) {
-                UDA_THROW_ERROR(999, "Not a function when one is expected! - A Library plugin has been specified.");
+                UDA_THROW_ERROR(999, "Not a function when one is expected! - A Library plugin has been specified.")
             }
 
             // ToDo: Extract Data subset operations specified within the source argument
@@ -465,18 +428,18 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                 // Extract Name Value pairs
 
                 if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
-                    UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                    UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!")
                 }
 
                 // ToDo: Extract Data subset operations specified as a named value pair, tagged 'subset'
 
             } else {
-                UDA_THROW_ERROR(999, "Function syntax error - please correct");
+                UDA_THROW_ERROR(999, "Function syntax error - please correct")
             }
         }
     } while (0);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Argument");
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Argument")
 
     //==============================================================================
     // Check the data object (Signal) has one of these forms:
@@ -512,7 +475,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
     int rc = 0;
     if ((rc = extract_subset(request)) == -1) {
-        UDA_THROW_ERROR(999, "Subset operation is incorrect!");
+        UDA_THROW_ERROR(999, "Subset operation is incorrect!")
     }
 
     // as at 19Apr2011 no signals recorded in the UDA database use either [ or { characters
@@ -535,11 +498,11 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     // unimportant)
 
     if (request->request == REQUEST_READ_IDAM) {
-        reduceSignal = false;
-        err = extract_archive(config, request, reduceSignal);
+        reduce_signal = false;
+        err = extract_archive(config, request, reduce_signal);
     } else {
-        reduceSignal = !is_foreign; // Don't detach if a foreign device
-        err = extract_archive(config, request, reduceSignal);
+        reduce_signal = !is_foreign; // Don't detach if a foreign device
+        err = extract_archive(config, request, reduce_signal);
     }
     if (request->archive[0] == '\0') {
         strcpy(request->archive, archive.c_str());
@@ -563,7 +526,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             trim_string(work);
             is_function = true;
             if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
-                UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!")
             }
             extract_function_name(request->signal, request);
         }
@@ -572,33 +535,34 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     //------------------------------------------------------------------------------
     // If No Source was Specified: All requirements are contained in the signal string
 
-    if (noSource) {
-        UDA_LOG(UDA_LOG_DEBUG, "Signal Argument - No Source");
-        UDA_LOG(UDA_LOG_DEBUG, "request: {}", request->request);
+    if (no_source) {
+        UDA_LOG(UDA_LOG_DEBUG, "Signal Argument - No Source")
+        UDA_LOG(UDA_LOG_DEBUG, "request: {}", request->request)
 
         // If the signal could be a function call, check the archive name against the function library plugins
 
         if (is_function && err == 0) { // Test for known Function Libraries
             is_function = false;
-            for (int i = 0; i < pluginList->count; i++) {
-                if (STR_IEQUALS(request->archive, pluginList->plugin[i].format)) {
-                    request->request = pluginList->plugin[i].request; // Found
-                    strcpy(request->format, pluginList->plugin[i].format);
-                    is_function = (pluginList->plugin[i].plugin_class ==
-                                  uda::plugins::UDA_PLUGIN_CLASS_FUNCTION); // Must be a known Library
+
+            size_t id = 0;
+            for (const auto& plugin : pluginList) {
+                if (plugin.name == request->archive) {
+                    request->request = id;
+                    copy_string(plugin.name, request->format, STRING_LENGTH);
+                    is_function = plugin.type == UDA_PLUGIN_CLASS_FUNCTION;
                     break;
                 }
+                ++id;
             }
 
             UDA_LOG(UDA_LOG_DEBUG, "A request: {}", request->request);
             UDA_LOG(UDA_LOG_DEBUG, "isFunction: {}", is_function);
 
             if (!is_function) { // Must be a default server-side function
-                for (int i = 0; i < pluginList->count; i++) {
-                    if (STR_IEQUALS(pluginList->plugin[i].symbol, "ServerSide") &&
-                        pluginList->plugin[i].library[0] == '\0') {
+                for (const auto& plugin : pluginList) {
+                    if (plugin.entry_func_name == "ServerSide" && plugin.library_name.empty()) {
                         request->request = REQUEST_READ_SERVERSIDE; // Found
-                        strcpy(request->format, pluginList->plugin[i].format);
+                        copy_string(plugin.name, request->format, STRING_LENGTH);
                         is_function = true;
                         break;
                     }
@@ -608,12 +572,12 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                 }
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "B request: {}", request->request);
+            UDA_LOG(UDA_LOG_DEBUG, "B request: {}", request->request)
 
         } else {
             // Select the Generic plugin: No source => no format or protocol or library was specified.
             request->request = REQUEST_READ_GENERIC;
-            UDA_LOG(UDA_LOG_DEBUG, "C request: {}", request->request);
+            UDA_LOG(UDA_LOG_DEBUG, "C request: {}", request->request)
         }
 
     } else {
@@ -623,22 +587,21 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
         if (is_function && strcasecmp(request->archive, archive.c_str()) != 0) {
             int id = find_plugin_id_by_format(request->archive, pluginList);
-            if (id >= 0 && pluginList->plugin[id].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FUNCTION &&
-                strcasecmp(pluginList->plugin[id].symbol, "serverside") != 0) {
+            if (id >= 0
+                    && pluginList[id].type == UDA_PLUGIN_CLASS_FUNCTION
+                    && pluginList[id].entry_func_name != "serverside") {
                 if (request->request == REQUEST_READ_GENERIC || request->request == REQUEST_READ_UNKNOWN) {
-                    request->request = pluginList->plugin[id].request; // Found
-                    strcpy(request->format, pluginList->plugin[id].format);
+                    request->request = id; // Found
+                    copy_string(pluginList[id].name, request->format, STRING_LENGTH);
                     UDA_LOG(UDA_LOG_DEBUG, "D request: {}", request->request);
-                } else {
-                    if (request->request != pluginList->plugin[id].request) { // Inconsistent
-                        // Let Source have priority over the Signal?
-                        UDA_LOG(UDA_LOG_DEBUG, "Inconsistent Plugin Libraries: Source selected over Signal");
-                    }
+                } else if (request->request != id) { // Inconsistent
+                    // Let Source have priority over the Signal?
+                    UDA_LOG(UDA_LOG_DEBUG, "Inconsistent Plugin Libraries: Source selected over Signal")
                 }
             }
         }
     }
-    UDA_LOG(UDA_LOG_DEBUG, "E request: {}", request->request);
+    UDA_LOG(UDA_LOG_DEBUG, "E request: {}", request->request)
 
     //---------------------------------------------------------------------------------------------------------------------
     // MDS+ Servers ...
@@ -693,7 +656,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
         if (err != 0) {
             UDA_THROW_ERROR(NO_SERVER_SPECIFIED, "The MDSPlus Data Source does not comply with the naming models: "
-                                                 "server/tree/number or server/path/to/data/tree/number");
+                                                 "server/tree/number or server/path/to/data/tree/number")
         }
     }
 
@@ -724,8 +687,8 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Server: {}", request->server);
-        UDA_LOG(UDA_LOG_DEBUG, "Source: {}", request->file);
+        UDA_LOG(UDA_LOG_DEBUG, "Server: {}", request->server)
+        UDA_LOG(UDA_LOG_DEBUG, "Source: {}", request->file)
     }
 
     //---------------------------------------------------------------------------------------------------------------------
@@ -745,7 +708,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 }
 
 int uda::client_server::make_request_block(const config::Config& config, RequestBlock* request_block,
-                                           const uda::plugins::PluginList* pluginList)
+                                           const std::vector<PluginData>& pluginList)
 {
     int rc = 0;
 
@@ -791,7 +754,8 @@ void extract_function_name(const char* str, RequestData* request)
 /**
  * returns true if a format was identified, false otherwise.
  */
-int source_file_format_test(const uda::config::Config& config, const char* source, RequestData* request, const uda::plugins::PluginList* pluginList)
+int source_file_format_test(const uda::config::Config& config, const char* source, RequestData* request,
+                            const std::vector<PluginData>& pluginList)
 {
     int rc = 0;
     const char* test;
@@ -851,7 +815,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
         char buffer[STRING_LENGTH];
         if (!feof(ph)) {
             if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                UDA_THROW_ERROR(-999, "failed to read command");
+                UDA_THROW_ERROR(-999, "failed to read command")
             }
         }
         pclose(ph);
@@ -881,7 +845,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
                     buffer[0] = '\0';
                     if (!feof(ph)) {
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command");
+                            UDA_THROW_ERROR(-999, "failed to read command")
                         }
                     }
                     pclose(ph);
@@ -914,31 +878,31 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
                     if (!feof(ph)) {
                         // IDA3 interface version V3.13 with file structure IDA3.1
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output")
                         }
                     }
                     if (!feof(ph)) {
                         // Build JW Jan 25 2007 09:08:47
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output")
                         }
                     }
                     if (!feof(ph)) {
                         // Compiled without high level read/write CUTS
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output")
                         }
                     }
                     if (!feof(ph)) {
                         // Opening ida file
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output")
                         }
                     }
                     if (!feof(ph)) {
                         // ida_open error ?
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output")
                         }
                     }
                     pclose(ph);
@@ -964,15 +928,15 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
         // Test against Registered File Extensions
         // TO DO: make extensions a list of valid extensions to minimise plugin duplication
 
-        int breakAgain = 0;
-        for (int i = 0; i < pluginList->count; i++) {
-            if (STR_IEQUALS(&test[1], pluginList->plugin[i].extension)) {
-                strcpy(request->format, pluginList->plugin[i].format);
-                breakAgain = 1;
+        bool break_again = false;
+        for (const auto& plugin : pluginList) {
+            if (plugin.extension == &test[1]) {
+                copy_string(plugin.name, request->format, STRING_LENGTH);
+                break_again = true;
                 break;
             }
         }
-        if (breakAgain) {
+        if (break_again) {
             break;
         }
 
@@ -1026,13 +990,14 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
 
     // Test for known registered plugins for the File's format
 
-    for (int i = 0; i < pluginList->count; i++) {
-        if (STR_IEQUALS(request->format, pluginList->plugin[i].format)) {
+    size_t id = 0;
+    for (const auto& plugin : pluginList) {
+        if (plugin.name == request->format) {
             rc = 1;
             UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for {}", request->format);
-            request->request = pluginList->plugin[i].request; // Found
-            if (pluginList->plugin[i].plugin_class !=
-                uda::plugins::UDA_PLUGIN_CLASS_FILE) { // The full file path fully resolved by the client
+            request->request = id;
+            if (plugin.type != UDA_PLUGIN_CLASS_FILE) {
+                // The full file path fully resolved by the client
                 strcpy(request->file, "");             // Clean the filename
             } else {
 #ifndef __GNUC__
@@ -1041,10 +1006,11 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
 #else
                 char* base = basename(request->source);
 #endif
-                strcpy(request->file, base); // Final token
+                copy_string(base, request->file, STRING_LENGTH);
             }
             break;
         }
+        ++id;
     }
 
     return rc;
@@ -1185,8 +1151,8 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
                 request->archive[0] = '\0'; // Reset Archive
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Archive {}", request->archive);
-            UDA_LOG(UDA_LOG_DEBUG, "Signal  {}", request->signal);
+            UDA_LOG(UDA_LOG_DEBUG, "Archive {}", request->archive)
+            UDA_LOG(UDA_LOG_DEBUG, "Signal  {}", request->signal)
         }
     }
     return err;
@@ -1203,7 +1169,7 @@ void udaExpandEnvironmentalVariables(char* path)
     char ocwd[STRING_LENGTH];
 
     if (strchr(path, '$') == nullptr) {
-        UDA_LOG(UDA_LOG_DEBUG, "No embedded environment variables detected");
+        UDA_LOG(UDA_LOG_DEBUG, "No embedded environment variables detected")
         return;
     }
 
@@ -1216,7 +1182,7 @@ void udaExpandEnvironmentalVariables(char* path)
         // The Current Working Directory is now the resolved directory name
         char* pcwd = getcwd(cwd, lcwd);
 
-        UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:");
+        UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:")
         UDA_LOG(UDA_LOG_DEBUG, "from: {}", path);
         UDA_LOG(UDA_LOG_DEBUG, "to: {}", cwd);
 
@@ -1225,10 +1191,10 @@ void udaExpandEnvironmentalVariables(char* path)
         }
         if (chdir(ocwd) != 0) {
             // Return to the Original WD
-            UDA_LOG(UDA_LOG_ERROR, "failed to reset working directory");
+            UDA_LOG(UDA_LOG_ERROR, "failed to reset working directory")
         }
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution!");
+        UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution!")
 
         char *fp = nullptr, *env, *fp1;
         char work1[STRING_LENGTH];
@@ -1494,7 +1460,7 @@ void parse_name_value(const char* pair, NameValue* nameValue, unsigned short str
             lstr = 5;
             nameValue->value = (char*)malloc(lstr * sizeof(char));
             strcpy(nameValue->value, "true");
-            UDA_LOG(UDA_LOG_DEBUG, "Placeholder name: {}, value: {}", nameValue->name, nameValue->value);
+            UDA_LOG(UDA_LOG_DEBUG, "Placeholder name: {}, value: {}", nameValue->name, nameValue->value)
         } else {
             strcpy(nameValue->name, copy);
             nameValue->value = (char*)malloc(lstr * sizeof(char));
@@ -1506,7 +1472,7 @@ void parse_name_value(const char* pair, NameValue* nameValue, unsigned short str
     left_trim_string(nameValue->value);
     trim_string(nameValue->name);
     trim_string(nameValue->value);
-    UDA_LOG(UDA_LOG_DEBUG, "Name: {}     Value: {}", nameValue->name, nameValue->value);
+    UDA_LOG(UDA_LOG_DEBUG, "Name: {}     Value: {}", nameValue->name, nameValue->value)
 
     // Regardless of whether or not the Value is not enclosed in quotes, strip out a possible closing parenthesis
     // character (seen in placeholder value substitution) This would not be a valid value unless at the end of a string
@@ -1515,7 +1481,7 @@ void parse_name_value(const char* pair, NameValue* nameValue, unsigned short str
     if (nameValue->value[lstr - 1] == ')' && strchr(nameValue->value, '(') == nullptr) {
         nameValue->value[lstr - 1] = '\0';
     }
-    UDA_LOG(UDA_LOG_DEBUG, "Name: {}     Value: {}", nameValue->name, nameValue->value);
+    UDA_LOG(UDA_LOG_DEBUG, "Name: {}     Value: {}", nameValue->name, nameValue->value)
 
     if (strip) { // remove enclosing single or double quotes
         lstr = (int)strlen(nameValue->name);
@@ -1595,14 +1561,14 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
     // Recognise /name as name=TRUE
     // if strip then remove all enclosing quotes (single or double)
 
-    int lstr, pairCount = 0;
+    int lstr, pair_count = 0;
     char proposal, delimiter = ',', substitute = 1;
     char *p, *p2, *p3 = nullptr, *buffer, *copy;
-    NameValue nameValue;
+    NameValue name_value;
     lstr = (int)strlen(pairList);
 
     if (lstr == 0) {
-        return pairCount; // Nothing to Parse
+        return pair_count; // Nothing to Parse
     }
 
     // Placeholder substitution is neither a name-value pair nor a keyword so bypass this test
@@ -1666,18 +1632,18 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
     // separated using the delimiter character, replace them with a temporary character
 
     lstr = lstr - 1;
-    int isList = 0;
-    int isListDelim = 0;
+    int is_list = 0;
+    int is_list_delim = 0;
     for (int i = 0; i < lstr; i++) {
         if (copy[i] == '\'' || copy[i] == '"') {
-            if (isList) {
-                isList = 0; // Switch substitution off
+            if (is_list) {
+                is_list = 0; // Switch substitution off
             } else {
-                isList = 1;
+                is_list = 1;
             } // Switch substitution on
         } else {
-            if (isList && copy[i] == delimiter) {
-                isListDelim = 1;
+            if (is_list && copy[i] == delimiter) {
+                is_list_delim = 1;
                 copy[i] = substitute;
             }
         }
@@ -1696,19 +1662,19 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Parsing name value: {}", buffer);
-        parse_name_value(buffer, &nameValue, strip);
-        UDA_LOG(UDA_LOG_DEBUG, "Name {}, Value: {}", nameValue.name, nameValue.value);
+        parse_name_value(buffer, &name_value, strip);
+        UDA_LOG(UDA_LOG_DEBUG, "Name {}, Value: {}", name_value.name, name_value.value);
 
         // if (nameValue.name != nullptr && nameValue.value != nullptr) {
-        if (nameValue.name != nullptr) { // Values may be nullptr for use case where placeholder substitution is used
-            pairCount++;
-            if (pairCount > nameValueList->listSize) {
+        if (name_value.name != nullptr) { // Values may be nullptr for use case where placeholder substitution is used
+            pair_count++;
+            if (pair_count > nameValueList->listSize) {
                 nameValueList->nameValue = (NameValue*)realloc((void*)nameValueList->nameValue,
                                                                (nameValueList->listSize + 10) * sizeof(NameValue));
                 nameValueList->listSize = nameValueList->listSize + 10;
             }
-            nameValueList->pairCount = pairCount;
-            nameValueList->nameValue[pairCount - 1] = nameValue;
+            nameValueList->pairCount = pair_count;
+            nameValueList->nameValue[pair_count - 1] = name_value;
         }
     } while (p2 != nullptr);
 
@@ -1729,7 +1695,7 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
 
     // Replace substituted delimiters in lists
 
-    if (isListDelim) {
+    if (is_list_delim) {
         for (int i = 0; i < nameValueList->pairCount; i++) {
             if ((p = strchr(nameValueList->nameValue[i].value, substitute)) != nullptr) {
                 do {
@@ -1744,5 +1710,5 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
         }
     }
 
-    return pairCount;
+    return pair_count;
 }

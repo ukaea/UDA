@@ -2,17 +2,42 @@
 
 #include <boost/optional.hpp>
 #include <vector>
+#include <filesystem>
 
 #include "clientserver/udaDefines.h"
 #include "clientserver/udaStructs.h"
-#include "plugins/udaPlugin.h"
+#include "structures/genStructs.h"
+#include "clientserver/plugins.h"
+#include <uda/plugins.h>
 
 namespace uda::config {
 class Config;
 }
 
+typedef struct CUdaPluginInterface {
+} UDA_PLUGIN_INTERFACE;
+
 namespace uda::server
 {
+
+// Standard Plugin interface
+struct UdaPluginInterface : UDA_PLUGIN_INTERFACE {
+    unsigned short interface_version;               // Interface Version
+    unsigned short house_keeping;                   // Housekeeping Directive
+    unsigned short change_plugin;                   // Use a different Plugin to access the data
+    uda::client_server::DataBlock* data_block;
+    uda::client_server::RequestData* request_data;
+    uda::client_server::ClientBlock* client_block;
+    uda::client_server::DataSource* data_source;
+    uda::client_server::SignalDesc* signal_desc;
+    uda::structures::LogMallocList* log_malloc_list;
+    uda::structures::UserDefinedTypeList* user_defined_type_list;
+    const std::vector<client_server::PluginData>* pluginList; // List of data readers, filters, models, and servers
+    uda::client_server::ErrorStack error_stack;
+    const uda::config::Config* config;
+};
+
+struct PluginList {};
 
 class Plugins
 {
@@ -20,25 +45,23 @@ class Plugins
     Plugins(const config::Config& config) : _config{config} {}
 
     void init();
-
     void close();
+    const std::vector<client_server::PluginData>& plugin_list() const {
+        return _plugins;
+    }
 
-    [[nodiscard]] uda::plugins::PluginList as_plugin_list() const;
-
-    [[nodiscard]] boost::optional<const uda::plugins::PluginData&> find_by_format(const char* format) const;
-    [[nodiscard]] boost::optional<const uda::plugins::PluginData&> find_by_request(int request) const;
+    [[nodiscard]] std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> find_by_name(const std::string& name) const;
+    [[nodiscard]] boost::optional<const uda::client_server::PluginData&> find_by_id(size_t id) const;
 
   private:
     const config::Config& _config;
-    std::vector<uda::plugins::PluginData> _plugins;
-
-    void init_serverside_functions();
-
-    void init_generic_plugin();
+    std::vector<client_server::PluginData> _plugins;
 
     bool _initialised = false;
 
-    void process_config_file(std::ifstream& conf_file);
+    void discover_plugins();
+    void discover_plugins_in_directory(const std::filesystem::path& directory);
+    void load_plugin(const std::filesystem::path& directory);
 };
 
 } // namespace uda::server

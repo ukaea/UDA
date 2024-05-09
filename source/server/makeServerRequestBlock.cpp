@@ -7,14 +7,14 @@
 
 using namespace uda::client_server;
 
-int uda::server::makeServerRequestBlock(const config::Config& config, RequestBlock* request_block, uda::plugins::PluginList pluginList)
+int uda::server::makeServerRequestBlock(const config::Config& config, RequestBlock* request_block, const std::vector<PluginData>& pluginList)
 {
-    return make_request_block(config, request_block, &pluginList);
+    return make_request_block(config, request_block, pluginList);
 }
 
-int uda::server::makeServerRequestData(const config::Config& config, RequestData* request, uda::plugins::PluginList pluginList)
+int uda::server::makeServerRequestData(const config::Config& config, RequestData* request, const std::vector<PluginData>& pluginList)
 {
-    return make_request_data(config, request, &pluginList);
+    return make_request_data(config, request, pluginList);
 }
 
 #endif

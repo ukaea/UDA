@@ -27,7 +27,6 @@ Interprets the API arguments and assembles a Request data structure.
 #include "clientserver/makeRequestBlock.h"
 #include "clientserver/stringUtils.h"
 #include "clientserver/udaErrors.h"
-#include "logging/logging.h"
 #include "config/config.h"
 #include <fmt/format.h>
 

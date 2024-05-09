@@ -56,7 +56,7 @@ else()
   add_subdirectory( keyvalue )
   add_subdirectory( template )
   add_subdirectory( testplugin )
-  add_subdirectory( uda )
+#  add_subdirectory( uda )
   add_subdirectory( viewport )
 endif( DEFINED BUILD_PLUGINS )
 

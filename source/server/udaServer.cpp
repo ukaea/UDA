@@ -9,6 +9,7 @@
 #endif
 
 #include <tuple>
+#include <boost/range/adaptor/indexed.hpp>
 
 #include "cache/memcache.hpp"
 #include "clientserver/errorLog.h"
@@ -72,7 +73,7 @@ UserDefinedTypeList parsed_user_defined_type_list; // Initial set of User Define
 
 // Total amount sent for the last data request
 
-static uda::plugins::PluginList plugin_list; // List of all data reader plugins (internal and external shared libraries)
+static std::vector<PluginData> plugin_list; // List of all data reader plugins (internal and external shared libraries)
 
 static SOCKETLIST socket_list;
 
@@ -797,7 +798,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
         auto request = &request_block->requests[i];
         if (protocol_version >= 6) {
             if ((err = udaServerPlugin(config, request, &metadata_block->data_source, &metadata_block->signal_desc,
-                                       &plugin_list)) != 0) {
+                                       plugin_list)) != 0) {
                 return err;
             }
         } else {
@@ -827,7 +828,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
         int depth = 0;
         err = get_data(config, &depth, request, *client_block, data_block, &metadata_block->data_source,
                        &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                       &plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
+                       plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
 
         cache_write(config, cache, request, data_block, log_malloc_list, user_defined_type_list, protocol_version,
                     CLIENTFLAG_CACHE, log_struct_list, private_flags, malloc_source);
@@ -1036,7 +1037,7 @@ int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block, 
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
 
-    freePluginList(&plugin_list);
+    freePluginList(plugin_list);
 
     udaFreeMallocLogList(log_malloc_list);
     free(log_malloc_list);
@@ -1195,7 +1196,7 @@ int handshake_client(Config& config, ClientBlock* client_block, ServerBlock* ser
     if (client_block->version <= LegacyServerVersion) {
         UDA_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server");
         UDA_LOG(UDA_LOG_DEBUG, "Client protocol {}", client_block->version);
-        return legacyServer(config, *client_block, &plugin_list, log_malloc_list, user_defined_type_list, &socket_list,
+        return legacyServer(config, *client_block, plugin_list, log_malloc_list, user_defined_type_list, &socket_list,
                             protocol_version, server_input, server_output, 0, malloc_source);
     }
 
@@ -1279,13 +1280,13 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
     // Initialise the Data Reader Plugin list
 
     if (!plugin_list_initialised) {
-        plugin_list.count = 0;
-        initPluginList(&plugin_list);
+        plugin_list.clear();
+        initPluginList(plugin_list);
         plugin_list_initialised = 1;
 
-        UDA_LOG(UDA_LOG_INFO, "List of Plugins available");
-        for (int i = 0; i < plugin_list.count; i++) {
-            UDA_LOG(UDA_LOG_INFO, "[{}] {} {}", i, plugin_list.plugin[i].request, plugin_list.plugin[i].format);
+        UDA_LOG(UDA_LOG_INFO, "List of Plugins available")
+        for (const auto [i, plugin] : plugin_list | boost::adaptors::indexed(0)) {
+            UDA_LOG(UDA_LOG_INFO, "[{}] {}", i, plugin.name)
         }
     }
 

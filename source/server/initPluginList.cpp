@@ -2,6 +2,7 @@
 
 #include <cerrno>
 #include <fmt/format.h>
+#include <dlfcn.h>
 
 #include "cache/memcache.hpp"
 #include "clientserver/errorLog.h"
@@ -14,75 +15,38 @@
 using namespace uda::client_server;
 using namespace uda::plugins;
 
-void uda::server::initPluginList(uda::plugins::PluginList* plugin_list)
+void uda::server::initPluginList(std::vector<PluginData>& plugin_list)
 {
-    // initialise the Plugin List and Allocate heap for the list
-
-    plugin_list->count = 0;
-    plugin_list->plugin = (uda::plugins::PluginData*)malloc(REQUEST_PLUGIN_MCOUNT * sizeof(uda::plugins::PluginData));
-    plugin_list->mcount = REQUEST_PLUGIN_MCOUNT;
-
-    for (int i = 0; i < plugin_list->mcount; i++) {
-        initPluginData(&plugin_list->plugin[i]);
-    }
-
     //----------------------------------------------------------------------------------------------------------------------
     // Data Access Server Protocols
 
     // Generic
 
-    strcpy(plugin_list->plugin[plugin_list->count].format, "GENERIC");
-    plugin_list->plugin[plugin_list->count].request = REQUEST_READ_GENERIC;
-    plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_OTHER;
-    plugin_list->plugin[plugin_list->count].is_private = UDA_PLUGIN_PUBLIC;
-    strcpy(plugin_list->plugin[plugin_list->count].desc,
-           "Generic Data Access request - no file format or server name specified, only the shot number");
-    strcpy(plugin_list->plugin[plugin_list->count].example, R"(udaGetAPI("signal name", "12345"))");
-    allocPluginList(plugin_list->count++, plugin_list);
-
-    //----------------------------------------------------------------------------------------------------------------------
-    // Complete Common Registration
-
-    for (int i = 0; i < plugin_list->count; i++) {
-        plugin_list->plugin[i].external = UDA_PLUGIN_INTERNAL;             // These are all linked as internal functions
-        plugin_list->plugin[i].status = UDA_PLUGIN_OPERATIONAL;            // By default all these are available
-        plugin_list->plugin[i].cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // OK or not for Client and Server to Cache
-    }
+    PluginData plugin_data = {};
+    plugin_data.name = "GENERIC";
+    plugin_data.type = UDA_PLUGIN_CLASS_OTHER;
+    plugin_data.is_private = UDA_PLUGIN_PUBLIC;
+    plugin_data.description = "Generic Data Access request - no file format or server name specified, only the shot number";
+    plugin_list.emplace_back(std::move(plugin_data));
 
     //----------------------------------------------------------------------------------------------------------------------
     // Server-Side Functions
 
-    int plugin_count = plugin_list->count; // Number of internal plugins before adding server-side
-
-    strcpy(plugin_list->plugin[plugin_list->count].format, "SERVERSIDE");
-    allocPluginList(plugin_list->count++, plugin_list);
-
-    strcpy(plugin_list->plugin[plugin_list->count].format, "SSIDE");
-    allocPluginList(plugin_list->count++, plugin_list);
-
-    strcpy(plugin_list->plugin[plugin_list->count].format, "SS");
-    allocPluginList(plugin_list->count++, plugin_list);
-
-    for (int i = plugin_count; i < plugin_list->count; i++) {
-        plugin_list->plugin[i].request = REQUEST_READ_GENERIC;
-        plugin_list->plugin[i].plugin_class = UDA_PLUGIN_CLASS_FUNCTION;
-        strcpy(plugin_list->plugin[i].symbol, "SERVERSIDE");
-        strcpy(plugin_list->plugin[i].desc, "Inbuilt Serverside functions");
-        plugin_list->plugin[i].is_private = UDA_PLUGIN_PUBLIC;
-        plugin_list->plugin[i].library[0] = '\0';
-        plugin_list->plugin[i].pluginHandle = nullptr;
-        plugin_list->plugin[i].external = UDA_PLUGIN_INTERNAL;             // These are all linked as internal functions
-        plugin_list->plugin[i].status = UDA_PLUGIN_OPERATIONAL;            // By default all these are available
-        plugin_list->plugin[i].cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // OK or not for Client and Server to Cache
-    }
+    plugin_data = {};
+    plugin_data.name = "SERVERSIDE";
+    plugin_data.type = UDA_PLUGIN_CLASS_FUNCTION;
+    plugin_data.entry_func_name = "SERVERSIDE";
+    plugin_data.is_private = UDA_PLUGIN_PUBLIC;
+    plugin_data.description = "Inbuilt Serverside functions";
+    plugin_data.cache_mode = UDA_PLUGIN_CACHE_MODE_NONE;
+    plugin_list.emplace_back(std::move(plugin_data));
 
     //----------------------------------------------------------------------------------------------------------------------
     // Read all other plugins registered via the server configuration file.
 
     {
         int rc = 0;
-        static int offset = 0;
-        char csvChar = ',';
+        char csv_char = ',';
         char buffer[STRING_LENGTH];
         char* root;
         char* config = getenv("UDA_PLUGIN_CONFIG"); // Server plugin configuration file
@@ -147,9 +111,9 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list)
                     break;
                 }
                 char* next = buffer;
-                initPluginData(&plugin_list->plugin[plugin_list->count]);
+                plugin_data = {};
                 for (int i = 0; i < 10; i++) {
-                    char* csv = strchr(next, csvChar); // Split the string
+                    char* csv = strchr(next, csv_char); // Split the string
                     if (csv != nullptr && i <= 8) {
                         csv[0] = '\0'; // Extract the sub-string ignoring the example - has a comma within text
                     }
@@ -158,125 +122,103 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list)
 
                         case 0:
                             // File Format or Server Protocol or Library name or Device name etc.
-                            strcpy(plugin_list->plugin[plugin_list->count].format, left_trim_string(next));
+                            plugin_data.name = left_trim_string(next);
                             // If the Format or Protocol is Not unique, the plugin that is selected will be the first
                             // one registered: others will be ignored.
                             break;
 
                         case 1: // Plugin class: File, Server, Function or Device
-                            plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_FILE;
+                            plugin_data.type = UDA_PLUGIN_CLASS_FILE;
                             if (STR_IEQUALS(left_trim_string(next), "server")) {
-                                plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_SERVER;
+                                plugin_data.type = UDA_PLUGIN_CLASS_SERVER;
                             } else if (STR_IEQUALS(left_trim_string(next), "function")) {
-                                plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_FUNCTION;
+                                plugin_data.type = UDA_PLUGIN_CLASS_FUNCTION;
                             } else if (STR_IEQUALS(left_trim_string(next), "file")) {
-                                plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_FILE;
+                                plugin_data.type = UDA_PLUGIN_CLASS_FILE;
                             } else if (STR_IEQUALS(left_trim_string(next), "device")) {
-                                plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_DEVICE;
+                                plugin_data.type = UDA_PLUGIN_CLASS_DEVICE;
                             }
                             break;
 
                         case 2:
                             // Allow the same symbol (name of data access reader function or plugin entrypoint symbol)
                             // but from different libraries!
-                            if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                                strcpy(plugin_list->plugin[plugin_list->count].symbol, left_trim_string(next));
-                                plugin_list->plugin[plugin_list->count].external =
-                                    UDA_PLUGIN_EXTERNAL; // External (not linked) shared library
+                            if (plugin_data.type != UDA_PLUGIN_CLASS_DEVICE) {
+                                plugin_data.entry_func_name = left_trim_string(next);
 
-                                if (plugin_list->plugin[plugin_list->count].plugin_class == UDA_PLUGIN_CLASS_FILE) {
+                                if (plugin_data.type == UDA_PLUGIN_CLASS_FILE) {
                                     // Plugin method name using a dot syntax
-                                    char* p;
-                                    if ((p = strchr(plugin_list->plugin[plugin_list->count].symbol, '.')) != nullptr) {
-                                        p[0] = '\0'; // Remove the method name from the symbol text
-                                        strcpy(plugin_list->plugin[plugin_list->count].method,
-                                               &p[1]); // Save the method name
+                                    auto pos = plugin_data.entry_func_name.find('.');
+                                    if (pos != std::string::npos) {
+                                        plugin_data.default_method = plugin_data.entry_func_name.substr(pos + 1);
+                                        plugin_data.entry_func_name = plugin_data.entry_func_name.substr(0, pos);
                                     }
                                 }
 
-                            } else {
-                                // Device name Substitution protocol
-                                strcpy(plugin_list->plugin[plugin_list->count].deviceProtocol, left_trim_string(next));
                             }
                             break;
 
                         case 3: // Server Host or Name of the shared library - can contain multiple plugin symbols so
                                 // may not be unique
-                            if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                                strcpy(plugin_list->plugin[plugin_list->count].library, left_trim_string(next));
-                            } else {
-                                strcpy(plugin_list->plugin[plugin_list->count].deviceHost, left_trim_string(next));
+                            if (plugin_data.type != UDA_PLUGIN_CLASS_DEVICE) {
+                                plugin_data.library_name = left_trim_string(next);
                             }
                             break;
 
                         case 4: // File extension or Method Name or Port number
                             // TODO: make extensions a list of valid extensions to minimise plugin duplication
-                            if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                                if (plugin_list->plugin[plugin_list->count].plugin_class == UDA_PLUGIN_CLASS_FILE) {
-                                    strcpy(plugin_list->plugin[plugin_list->count].extension, next);
+                            if (plugin_data.type != UDA_PLUGIN_CLASS_DEVICE) {
+                                if (plugin_data.type == UDA_PLUGIN_CLASS_FILE) {
+                                    plugin_data.extension = next;
                                 } else if (next[0] != '*') {
                                     // Ignore the placeholder character *
-                                    strcpy(plugin_list->plugin[plugin_list->count].method, next);
+                                    plugin_data.default_method = next;
                                 }
-                            } else {
-                                strcpy(plugin_list->plugin[plugin_list->count].devicePort, left_trim_string(next));
                             }
                             break;
 
                         case 5: // Minimum Plugin Interface Version
                             if (strlen(next) > 0) {
-                                plugin_list->plugin[plugin_list->count].interfaceVersion = (unsigned short)atoi(next);
+                                plugin_data.interface_version = (unsigned short)atoi(next);
                             }
                             break;
 
                         case 6: // Permission to Cache returned values
-
-                            strcpy(plugin_list->plugin[plugin_list->count].desc, left_trim_string(next));
-                            if (plugin_list->plugin[plugin_list->count].desc[0] != '\0' &&
-                                (plugin_list->plugin[plugin_list->count].desc[0] == 'Y' ||
-                                 plugin_list->plugin[plugin_list->count].desc[0] == 'y' ||
-                                 plugin_list->plugin[plugin_list->count].desc[0] == 'T' ||
-                                 plugin_list->plugin[plugin_list->count].desc[0] == 't' ||
-                                 plugin_list->plugin[plugin_list->count].desc[0] == '1')) {
-                                plugin_list->plugin[plugin_list->count].cachePermission =
-                                    UDA_PLUGIN_OK_TO_CACHE; // True
-                                plugin_list->plugin[plugin_list->count].desc[0] = '\0';
+                        {
+                            std::string val = left_trim_string(next);
+                            if (!val.empty()
+                                    && (val[0] == 'Y' || val[0] == 'y' || val[0] == 'T' || val[0] == 't' || val[0] == '1')) {
+                                plugin_data.cache_mode = UDA_PLUGIN_CACHE_MODE_OK;
                             } else {
-                                plugin_list->plugin[plugin_list->count].cachePermission =
-                                    UDA_PLUGIN_NOT_OK_TO_CACHE; // False
+                                plugin_data.cache_mode = UDA_PLUGIN_CACHE_MODE_NONE;
                             }
-
+                        }
                             break;
 
                         case 7: // Private or Public plugin - i.e. available to external users
-
-                            strcpy(plugin_list->plugin[plugin_list->count].desc, left_trim_string(next));
-                            if (plugin_list->plugin[plugin_list->count].desc[0] != '\0' &&
-                                (plugin_list->plugin[plugin_list->count].desc[0] == 'Y' ||
-                                 plugin_list->plugin[plugin_list->count].desc[0] == 'y' ||
-                                 plugin_list->plugin[plugin_list->count].desc[0] == 'T' ||
-                                 plugin_list->plugin[plugin_list->count].desc[0] == 't' ||
-                                 plugin_list->plugin[plugin_list->count].desc[0] == '1')) {
-                                plugin_list->plugin[plugin_list->count].is_private = UDA_PLUGIN_PUBLIC;
-                                plugin_list->plugin[plugin_list->count].desc[0] = '\0';
+                        {
+                            std::string val = left_trim_string(next);
+                            if (!val.empty()
+                                && (val[0] == 'Y' || val[0] == 'y' || val[0] == 'T' || val[0] == 't' || val[0] == '1')) {
+                                plugin_data.is_private = UDA_PLUGIN_PUBLIC;
+                            } else {
+                                plugin_data.is_private = UDA_PLUGIN_PRIVATE;
                             }
-
+                        }
                             break;
 
                         case 8: // Description
-
-                            strcpy(plugin_list->plugin[plugin_list->count].desc, left_trim_string(next));
+                            plugin_data.description = left_trim_string(next);
                             break;
 
                         case 9: {
                             // Example
-
                             left_trim_string(next);
                             char* p = strchr(next, '\n');
                             if (p != nullptr) {
                                 p[0] = '\0';
                             }
-                            strcpy(plugin_list->plugin[plugin_list->count].example, left_trim_string(next));
+                            plugin_data.example = left_trim_string(next);
                             break;
                         }
 
@@ -288,26 +230,10 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list)
                     }
                 }
 
-                // Issue Unique request ID
-                plugin_list->plugin[plugin_list->count].request = REQUEST_READ_START + offset++;
-                plugin_list->plugin[plugin_list->count].pluginHandle = nullptr; // Library handle: Not opened
-                plugin_list->plugin[plugin_list->count].status = UDA_PLUGIN_NOT_OPERATIONAL; // Not yet available
-
-                // Internal Serverside function ?
-
-                if (plugin_list->plugin[plugin_list->count].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
-                    STR_IEQUALS(plugin_list->plugin[plugin_list->count].symbol, "serverside") &&
-                    plugin_list->plugin[plugin_list->count].library[0] == '\0') {
-                    strcpy(plugin_list->plugin[plugin_list->count].symbol, "SERVERSIDE");
-                    plugin_list->plugin[plugin_list->count].request = REQUEST_READ_GENERIC;
-                    plugin_list->plugin[plugin_list->count].external = UDA_PLUGIN_INTERNAL;
-                    plugin_list->plugin[plugin_list->count].status = UDA_PLUGIN_OPERATIONAL;
-                }
-
                 // Check this library has not already been opened: Preserve the library handle for use if already
                 // opened.
 
-                int pluginID = -1;
+                int plugin_id = -1;
 
                 // States:
                 // 1. library not opened: open library and locate symbol (Only if the Class is SERVER or FUNCTION or
@@ -315,53 +241,44 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list)
                 // 2. library opened, symbol not located: locate symbol
                 // 3. library opened, symbol located: re-use
 
-                for (int j = plugin_count; j < plugin_list->count - 1; j++) { // External sources only
-                    if (plugin_list->plugin[j].external == UDA_PLUGIN_EXTERNAL &&
-                        plugin_list->plugin[j].status == UDA_PLUGIN_OPERATIONAL &&
-                        plugin_list->plugin[j].pluginHandle != nullptr &&
-                        STR_IEQUALS(plugin_list->plugin[j].library, plugin_list->plugin[plugin_list->count].library)) {
+                for (const auto& plugin : plugin_list) {
+                    if (plugin.handle != nullptr && plugin.library_name == plugin_data.library_name) {
 
                         // Library may contain different symbols
-
-                        if (STR_IEQUALS(plugin_list->plugin[j].symbol,
-                                        plugin_list->plugin[plugin_list->count].symbol) &&
-                            plugin_list->plugin[j].idamPlugin != nullptr) {
+                        if (plugin.entry_func_name == plugin_data.entry_func_name && plugin.entry_func != nullptr) {
                             rc = 0;
-                            plugin_list->plugin[plugin_list->count].idamPlugin =
-                                plugin_list->plugin[j].idamPlugin; // re-use
+                            plugin_data.entry_func = plugin.entry_func; // re-use
                         } else {
 
                             // New symbol in opened library
 
-                            if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                                rc = getPluginAddress(&plugin_list->plugin[j].pluginHandle, // locate symbol
-                                                      plugin_list->plugin[j].library,
-                                                      plugin_list->plugin[plugin_list->count].symbol,
-                                                      &plugin_list->plugin[plugin_list->count].idamPlugin);
+                            if (plugin_data.type != UDA_PLUGIN_CLASS_DEVICE) {
+                                auto handle = plugin.handle.get();
+                                rc = getPluginAddress(&handle, // locate symbol
+                                                      plugin.library_name.c_str(),
+                                                      plugin_data.entry_func_name.c_str(),
+                                                      &plugin_data.entry_func);
                             }
                         }
 
-                        plugin_list->plugin[plugin_list->count].pluginHandle = plugin_list->plugin[j].pluginHandle;
-                        pluginID = j;
                         break;
                     }
                 }
 
-                if (pluginID == -1) { // open library and locate symbol
-                    if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                        rc = getPluginAddress(&plugin_list->plugin[plugin_list->count].pluginHandle,
-                                              plugin_list->plugin[plugin_list->count].library,
-                                              plugin_list->plugin[plugin_list->count].symbol,
-                                              &plugin_list->plugin[plugin_list->count].idamPlugin);
+                if (plugin_id == -1) { // open library and locate symbol
+                    if (plugin_data.type != UDA_PLUGIN_CLASS_DEVICE) {
+                        void* handle = nullptr;
+                        rc = getPluginAddress(&handle,
+                                              plugin_data.library_name.c_str(),
+                                              plugin_data.entry_func_name.c_str(),
+                                              &plugin_data.entry_func);
+                        plugin_data.handle = std::unique_ptr<void, int(*)(void*)>{ handle, dlclose };
                     }
                 }
 
                 if (rc == 0) {
-                    plugin_list->plugin[plugin_list->count].status = UDA_PLUGIN_OPERATIONAL;
+                    plugin_list.emplace_back(std::move(plugin_data));
                 }
-
-                allocPluginList(plugin_list->count++, plugin_list);
-
             } while (0);
         }
 

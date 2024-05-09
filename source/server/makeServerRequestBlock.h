@@ -2,6 +2,8 @@
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
+#include <vector>
+
 #include "clientserver/udaStructs.h"
 #include "serverPlugin.h"
 #include "config/config.h"
@@ -9,9 +11,9 @@
 namespace uda::server
 {
 
-int makeServerRequestBlock(const config::Config& config, client_server::RequestBlock* request_block, plugins::PluginList pluginList);
+int makeServerRequestBlock(const config::Config& config, client_server::RequestBlock* request_block, const std::vector<client_server::PluginData>& pluginList);
 
-int makeServerRequestData(const config::Config& config, client_server::RequestData* request, plugins::PluginList pluginList);
+int makeServerRequestData(const config::Config& config, client_server::RequestData* request, const std::vector<client_server::PluginData>& pluginList);
 
 } // namespace uda::server
 

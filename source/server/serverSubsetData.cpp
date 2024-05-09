@@ -1453,7 +1453,7 @@ int uda::server::serverSubsetData(DataBlock* data_block, const Action& action, L
 // SS::Subset(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dim_id=0)\" )
 
 int uda::server::serverParseServerSide(RequestData* request_block, Actions* actions_serverside,
-                                       const uda::plugins::PluginList* plugin_list)
+                                       const std::vector<PluginData>& plugin_list)
 {
     Action* action = nullptr;
     Subset* subsets = nullptr;
@@ -1533,7 +1533,7 @@ int uda::server::serverParseServerSide(RequestData* request_block, Actions* acti
 
     if (is_function) {
         strcpy(request_block->format, archive.c_str());
-        request_block->request = findPluginRequestByFormat(archive.c_str(), plugin_list);
+        request_block->request = findPluginIdByFormat(archive.c_str(), plugin_list);
         size_t l_pos = signal.find('(');
         size_t r_pos = signal.find(')', l_pos);
         std::string func = signal.substr(0, l_pos);

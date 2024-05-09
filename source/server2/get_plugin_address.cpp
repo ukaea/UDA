@@ -8,7 +8,6 @@
 #include "config/config.h"
 
 using namespace uda::client_server;
-using namespace uda::plugins;
 using namespace uda::logging;
 using namespace uda::config;
 
@@ -22,9 +21,9 @@ using namespace uda::config;
  * @return
  */
 int uda::server::get_plugin_address(const Config& config, void** pluginHandle, const char* library, const char* symbol,
-                                    PLUGINFUNP* pluginfunp)
+                                    UDA_PLUGIN_ENTRY_FUNC* pluginfunp)
 {
-    *pluginfunp = (PLUGINFUNP) nullptr;
+    *pluginfunp = (UDA_PLUGIN_ENTRY_FUNC)nullptr;
 
     if (library[0] == '\0' || symbol[0] == '\0') {
         // Nothing to 'point' to! Is this an Error?
@@ -66,7 +65,7 @@ int uda::server::get_plugin_address(const Config& config, void** pluginHandle, c
     char* errstr = dlerror();
 
     if (errstr == nullptr) {
-        *pluginfunp = (PLUGINFUNP)fptr;
+        *pluginfunp = (UDA_PLUGIN_ENTRY_FUNC)fptr;
     } else {
         UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library {}: {}", library, errstr);
         if (fail_on_load) {

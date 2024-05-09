@@ -152,7 +152,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int pathway = 0;
 
-    auto interface = static_cast<::uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<uda::client_server::UdaPluginInterface*>(plugin_interface);
     DataSource* data_source = interface->data_source;
     SignalDesc* signal_desc = interface->signal_desc;
     RequestData* request = interface->request_data;

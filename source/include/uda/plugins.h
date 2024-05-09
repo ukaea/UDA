@@ -18,6 +18,36 @@
 extern "C" {
 #endif
 
+typedef enum UdaPluginClass {
+    UDA_PLUGIN_CLASS_UNKNOWN,
+    UDA_PLUGIN_CLASS_FILE,     // File format access
+    UDA_PLUGIN_CLASS_SERVER,   // Server protocol access
+    UDA_PLUGIN_CLASS_FUNCTION, // Server-side function transformation
+    UDA_PLUGIN_CLASS_DEVICE,   // Server to Server chaining, i.e. Pass the request to an external server
+    UDA_PLUGIN_CLASS_OTHER
+} UDA_PLUGIN_CLASS;
+
+typedef enum UdaPluginCacheMode {
+    UDA_PLUGIN_CACHE_MODE_NONE,
+    UDA_PLUGIN_CACHE_MODE_OK,
+    UDA_PLUGIN_CACHE_MODE_REQUEST,
+} UDA_PLUGIN_CACHE_MODE;
+
+typedef struct UdaPluginInfo {
+    const char* name;
+    const char* version;
+    const char* entry_function;
+    UDA_PLUGIN_CLASS type;
+    const char* extension;
+    const char* default_method;
+    const char* description;
+    UDA_PLUGIN_CACHE_MODE cache_mode;
+    bool is_private;
+    int interface_version;
+} UDA_PLUGIN_INFO;
+
+typedef int (*UDA_PLUGIN_ENTRY_FUNC)(UDA_PLUGIN_INTERFACE*); // Plugin function type
+
 #define UDA_PLUGIN_LOG(INTERFACE, MGS) udaPluginLog(INTERFACE, __FILE__, __LINE__, MGS);
 #define UDA_PLUGIN_LOG_S(INTERFACE, FMT, ARG) udaPluginLog_s(INTERFACE, __FILE__, __LINE__, FMT, ARG);
 #define UDA_PLUGIN_LOG_I(INTERFACE, FMT, ARG) udaPluginLog_i(INTERFACE, __FILE__, __LINE__, FMT, ARG);

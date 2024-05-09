@@ -17,7 +17,9 @@ namespace uda::client_server
 void reverse_string(const char* in, char* out);
 
 // Copy a String subject to a Maximum length constraint
-void copy_string(const char* in, char* out, int maxlength);
+void copy_string(const char* in, char* out, size_t maxlength);
+
+void copy_string(const std::string& in, char* out, size_t maxlength);
 
 /**
  * Allocate and return a string built using the given format and arguments.
@@ -32,8 +34,6 @@ char* trim_string(char* szSource);
 
 // Trim Leading Space Characters from a String
 char* left_trim_string(char* str);
-
-void string_copy(char* dest, const char* src, size_t len);
 
 #ifdef __GNUC__
 

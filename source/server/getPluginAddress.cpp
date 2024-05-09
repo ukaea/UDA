@@ -20,9 +20,9 @@ using namespace uda::logging;
  * @param pluginfunp the address of the library function
  * @return
  */
-int uda::server::getPluginAddress(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* pluginfunp)
+int uda::server::getPluginAddress(void** pluginHandle, const char* library, const char* symbol, UDA_PLUGIN_ENTRY_FUNC* pluginfunp)
 {
-    *pluginfunp = (PLUGINFUNP) nullptr;
+    *pluginfunp = (UDA_PLUGIN_ENTRY_FUNC)nullptr;
 
     if (library[0] == '\0' || symbol[0] == '\0') {
         // Nothing to 'point' to! Is this an Error?

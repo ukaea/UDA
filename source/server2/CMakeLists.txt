@@ -55,6 +55,7 @@ target_include_directories( server2-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source/include
   ${CMAKE_BINARY_DIR}/include
 )
+target_compile_definitions( server2-objects PRIVATE -DSHARED_LIBRARY_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}" )
 
 set( OBJECT_LIBS
   server2-objects

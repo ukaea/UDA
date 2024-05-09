@@ -35,7 +35,7 @@ using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::config;
 
-static uda::plugins::PluginList plugin_list; // List of all data reader plugins (internal and external shared libraries)
+static std::vector<PluginData> plugin_list; // List of all data reader plugins (internal and external shared libraries)
 
 static UserDefinedTypeList* user_defined_type_list = nullptr;
 static LogMallocList* log_malloc_list = nullptr;
@@ -315,7 +315,7 @@ int handle_request_fat(const Config& config, RequestBlock* request_block, Reques
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
         if (protocol_version >= 6) {
-            if ((err = udaServerPlugin(config, request, &metadata_block->data_source, &metadata_block->signal_desc, &plugin_list)) != 0) {
+            if ((err = udaServerPlugin(config, request, &metadata_block->data_source, &metadata_block->signal_desc, plugin_list)) != 0) {
                 return err;
             }
         } else {
@@ -341,7 +341,7 @@ int handle_request_fat(const Config& config, RequestBlock* request_block, Reques
         init_data_block(data_block);
         err = get_data(config, &depth, request, *client_block, data_block, &metadata_block->data_source,
                        &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                       &plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
+                       plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
         ++data_blocks->count;
     }
 
@@ -353,13 +353,13 @@ int handle_request_fat(const Config& config, RequestBlock* request_block, Reques
     SignalDesc* signal_desc = &metadata_block->signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source->archive);
-    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", data_source->device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", signal_desc->signal_name);
-    UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", data_source->path);
-    UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", data_source->filename);
-    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", data_source->exp_number);
-    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", data_source->pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source->archive)
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", data_source->device_name)
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", signal_desc->signal_name)
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", data_source->path)
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", data_source->filename)
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", data_source->exp_number)
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", data_source->pass)
     UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : {} ", depth);
     print_request_block(*request_block);
     print_data_source(*data_source);
@@ -377,7 +377,7 @@ int handle_request_fat(const Config& config, RequestBlock* request_block, Reques
         for (int i = 0; i < data_blocks->count; ++i) {
             auto data_block = &data_blocks->data[i];
             if (serverProcessing(*client_block, data_block) != 0) {
-                UDA_THROW_ERROR(779, "Server-Side Processing Error");
+                UDA_THROW_ERROR(779, "Server-Side Processing Error")
             }
         }
     }
@@ -463,13 +463,15 @@ int startup_fat_server(ServerBlock* server_block, UserDefinedTypeList& parseduse
     // Initialise the Data Reader Plugin list
 
     if (!plugin_list_initialised) {
-        plugin_list.count = 0;
-        initPluginList(&plugin_list);
+        plugin_list.clear();
+        initPluginList(plugin_list);
         plugin_list_initialised = 1;
 
-        UDA_LOG(UDA_LOG_INFO, "List of Plugins available");
-        for (int i = 0; i < plugin_list.count; i++) {
-            UDA_LOG(UDA_LOG_INFO, "[{}] {} {}", i, plugin_list.plugin[i].request, plugin_list.plugin[i].format);
+        UDA_LOG(UDA_LOG_INFO, "List of Plugins available")
+        size_t i = 0;
+        for (const auto& plugin : plugin_list) {
+            UDA_LOG(UDA_LOG_INFO, "[{}] {}", i, plugin.name)
+            ++i;
         }
     }
 

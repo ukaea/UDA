@@ -30,8 +30,8 @@ using namespace uda::config;
 
 UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const Config& config, const char* request)
 {
-    auto plugin_interface = (uda::plugins::UdaPluginInterface*)calloc(1, sizeof(uda::plugins::UdaPluginInterface));
-    auto plugin_list = (uda::plugins::PluginList*)calloc(1, sizeof(uda::plugins::PluginList));
+    auto plugin_interface = (UdaPluginInterface*)calloc(1, sizeof(UdaPluginInterface));
+    auto plugin_list = std::vector<PluginData>{};
 
     initPluginList(plugin_list);
 
@@ -42,7 +42,7 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const Config& config, const char*
     auto log_malloc_list = (LogMallocList*)calloc(1, sizeof(LogMallocList));
 
     plugin_interface->request_data = request_data;
-    plugin_interface->pluginList = plugin_list;
+    plugin_interface->pluginList = &plugin_list;
     plugin_interface->config = &config;
     plugin_interface->userdefinedtypelist = user_defined_type_list;
     plugin_interface->logmalloclist = log_malloc_list;
@@ -59,21 +59,18 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const Config& config, const char*
 
 void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     free(interface->request_data);
     udaFreeUserDefinedTypeList(interface->userdefinedtypelist);
     free(interface->userdefinedtypelist);
     udaFreeMallocLogList(interface->logmalloclist);
     free(interface->logmalloclist);
-    freePluginList((uda::plugins::PluginList*)interface->pluginList);
-    free((PLUGINLIST*)interface->pluginList);
-    free((Environment*)interface->environment);
     free(plugin_interface);
 }
 
 template <typename T> int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_interface, T value, const char* description)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
@@ -97,7 +94,7 @@ template <typename T>
 int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, size_t rank, const size_t* shape,
                        const char* description)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
@@ -161,7 +158,7 @@ UDA_IMPL_SET_RETURN_FUNCS(ULong, unsigned long)
 
 int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, const char* value, const char* description)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
@@ -195,7 +192,7 @@ int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, cons
 int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank,
                         const int* shape, const char* description)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
@@ -232,13 +229,13 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
 
 int udaPluginArgumentCount(const UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    auto interface = static_cast<const uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
     return interface->request_data->nameValueList.listSize;
 }
 
 const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int num)
 {
-    auto interface = static_cast<const uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
     if (num > 0 && num < interface->request_data->nameValueList.pairCount) {
         return interface->request_data->nameValueList.nameValue[num].name;
     }
@@ -257,7 +254,7 @@ const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int 
  */
 bool udaPluginFindStringArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name)
 {
-    auto interface = static_cast<const uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
     auto namevaluelist = &interface->request_data->nameValueList;
 
     char** names = split_string(name, "|");
@@ -334,7 +331,7 @@ UDA_IMPL_FIND_FUNCS(ULong, unsigned long)
 
 bool udaPluginFindArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name)
 {
-    auto interface = static_cast<const uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
     auto namevaluelist = &interface->request_data->nameValueList;
     char** names = split_string(name, "|");
 
@@ -361,26 +358,27 @@ int udaCallPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request)
 
 int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    uda::plugins::UdaPluginInterface new_plugin_interface = *interface;
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    UdaPluginInterface new_plugin_interface = *interface;
     RequestData request_data = *interface->request_data;
     new_plugin_interface.request_data = &request_data;
 
     strcpy(request_data.signal, request);
     strcpy(request_data.source, source);
 
-    make_request_data(*interface->config, &request_data, interface->pluginList);
+    make_request_data(*interface->config, &request_data, *interface->pluginList);
 
-    request_data.request = findPluginRequestByFormat(request_data.format, interface->pluginList);
-    if (request_data.request == REQUEST_READ_UNKNOWN) {
+    request_data.request = findPluginIdByFormat(request_data.format, *interface->pluginList);
+    if (request_data.request == -1) {
         UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found!");
     }
 
     int err = 0;
-    int id = findPluginIdByRequest(request_data.request, interface->pluginList);
-    uda::plugins::PluginData* plugin = &(interface->pluginList->plugin[id]);
-    if (id >= 0 && plugin->idamPlugin != nullptr) {
-        err = plugin->idamPlugin(&new_plugin_interface); // Call the data reader
+    int id = request_data.request;
+    if (id >= 0) {
+        auto& plugin = (*interface->pluginList)[request_data.request];
+        if (plugin.handle && plugin.entry_func)
+        err = plugin.entry_func(&new_plugin_interface); // Call the data reader
     } else {
         UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Data Access is not available for this data request!");
     }
@@ -400,7 +398,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
 int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* data, const char* user_type,
                                 const char* description)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
@@ -428,7 +426,7 @@ int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* da
 int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, char* data, const char* user_type,
                                      const char* description, int rank, int* shape)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
@@ -532,7 +530,7 @@ USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id
 
 int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user_type)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     UserDefinedTypeList* userdefinedtypelist = interface->userdefinedtypelist;
     add_user_defined_type(userdefinedtypelist, *static_cast<UserDefinedType*>(user_type));
 
@@ -541,7 +539,7 @@ int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user
 
 int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     udaAddMalloc(interface->logmalloclist, data, count, size, type);
 
     return 0;
@@ -550,7 +548,7 @@ int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int co
 int udaRegisterMallocArray(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type,
                            int rank, int* shape)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     udaAddMalloc2(interface->logmalloclist, data, count, size, type, rank, shape);
 
     return 0;
@@ -558,28 +556,27 @@ int udaRegisterMallocArray(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, i
 
 int udaPluginPluginsCount(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    return interface->pluginList->count;
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    return interface->pluginList->size();
 }
 
 namespace
 {
 int check_plugin_class(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num, int plugin_class)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    auto plugin_list = interface->pluginList;
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    auto& plugin_list = *interface->pluginList;
     auto config = interface->config;
 
     bool external_user = config->get("server.external_user").as_or_default(false);
 
-    bool is_valid = plugin_list->plugin[plugin_num].plugin_class == plugin_class &&
-                    plugin_list->plugin[plugin_num].status == UDA_PLUGIN_OPERATIONAL &&
-                    (plugin_list->plugin[plugin_num].is_private == UDA_PLUGIN_PUBLIC ||
-                     (plugin_list->plugin[plugin_num].is_private == UDA_PLUGIN_PRIVATE && !external_user));
+    bool is_valid = plugin_list[plugin_num].type == plugin_class &&
+                    (plugin_list[plugin_num].is_private == UDA_PLUGIN_PUBLIC ||
+                     (plugin_list[plugin_num].is_private == UDA_PLUGIN_PRIVATE && !external_user));
 
     if (plugin_class == UDA_PLUGIN_CLASS_FILE) {
         is_valid |=
-            (plugin_list->plugin[plugin_num].format[0] != '\0' && plugin_list->plugin[plugin_num].extension[0] != '\0');
+            (!plugin_list[plugin_num].default_method.empty() && !plugin_list[plugin_num].extension.empty());
     }
 
     return is_valid;
@@ -608,26 +605,26 @@ int udaPluginCheckPluginClass(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin
 
 const char* udaPluginPluginFormat(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    return interface->pluginList->plugin[plugin_num].format;
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    return interface->pluginList->at(plugin_num).name.c_str();
 }
 
 const char* udaPluginPluginExtension(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    return interface->pluginList->plugin[plugin_num].extension;
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    return interface->pluginList->at(plugin_num).extension.c_str();
 }
 
 const char* udaPluginPluginDescription(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    return interface->pluginList->plugin[plugin_num].desc;
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    return interface->pluginList->at(plugin_num).description.c_str();
 }
 
 const char* udaPluginPluginExample(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    return interface->pluginList->plugin[plugin_num].example;
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    return interface->pluginList->at(plugin_num).example.c_str();
 }
 
 void udaPluginLog(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, int line, const char* msg)
@@ -650,7 +647,7 @@ void udaPluginLog_i(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, in
 
 void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* location, int code, const char* msg)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     UDA_LOG(UDA_LOG_ERROR, msg);
     interface->error_stack.nerrors += 1;
     interface->error_stack.idamerror =
@@ -661,7 +658,7 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
 
 int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     auto config = interface->config;
     bool external_user = config->get("server.external_user").as_or_default(false);
     return external_user;
@@ -669,25 +666,25 @@ int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)
 
 int udaPluginCheckInterfaceVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int interface_version)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     return interface->interfaceVersion > interface_version;
 }
 
 void udaPluginSetVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_version)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     interface->pluginVersion = plugin_version;
 }
 
 const char* udaPluginFunction(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     return interface->request_data->function;
 }
 
 int udaPluginReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char* label)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     strcpy(data_block->data_label, label);
     return 0;
@@ -695,7 +692,7 @@ int udaPluginReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char*
 
 int udaPluginReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char* units)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     strcpy(data_block->data_units, units);
     return 0;
@@ -703,7 +700,7 @@ int udaPluginReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char*
 
 int udaPluginReturnErrorAsymmetry(UDA_PLUGIN_INTERFACE* plugin_interface, bool flag)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     data_block->errasymmetry = flag;
     return 0;
@@ -722,7 +719,7 @@ char* memdup(const void* mem, size_t size)
 
 int udaPluginReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     data_block->errlo = memdup(data, size);
     return 0;
@@ -730,7 +727,7 @@ int udaPluginReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data,
 
 int udaPluginReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     data_block->errhi = memdup(data, size);
     return 0;
@@ -738,7 +735,7 @@ int udaPluginReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data
 
 int udaPluginReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
     data_block->order = order;
     return 0;
@@ -747,7 +744,7 @@ int udaPluginReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order)
 int udaPluginReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, int dim_n, float* data, size_t size,
                                        const char* label, const char* units)
 {
-    auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     DataBlock* data_block = interface->data_block;
 
     data_block->dims[0].data_type = UDA_TYPE_FLOAT;

@@ -5,7 +5,6 @@
 namespace uda::server
 {
 
-int getPluginAddress(void** pluginHandle, const char* library, const char* symbol,
-                     uda::plugins::PLUGINFUNP* pluginfunp);
+int getPluginAddress(void** pluginHandle, const char* library, const char* symbol, UDA_PLUGIN_ENTRY_FUNC* pluginfunp);
 
 }

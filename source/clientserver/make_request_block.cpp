@@ -33,17 +33,18 @@ struct NameValue {
 
 std::vector<uda::NameValue> parse_args(std::string_view input, bool strip);
 
-void parse_signal(RequestData& result, const std::string& signal, const PluginList& plugin_list);
+void parse_signal(RequestData& result, const std::string& signal, const std::vector<PluginData>& plugin_list);
 
 void parse_source(RequestData& result, const std::string& source);
 
 void write_string(char* out, std::string in, size_t len);
 
-static int find_plugin_id_by_format(std::string_view format, const PluginList& plugin_list)
+static int find_plugin_id_by_format(std::string_view format, const std::vector<PluginData>& plugin_list)
 {
-    for (int i = 0; i < plugin_list.count; i++) {
-        if (format == plugin_list.plugin[i].format) {
-            return i;
+    size_t id = 0;
+    for (const auto& plugin : plugin_list) {
+        if (plugin.name == format) {
+            return id;
         }
     }
     return -1;
@@ -275,7 +276,7 @@ std::vector<uda::NameValue> uda::parse_args(std::string_view input, bool strip)
     return name_values;
 }
 
-void uda::parse_signal(RequestData& result, const std::string& signal, const PluginList& plugin_list)
+void uda::parse_signal(RequestData& result, const std::string& signal, const std::vector<PluginData>& plugin_list)
 {
     boost::smatch signal_match;
     if (!boost::regex_search(signal, signal_match, SIGNAL_RE)) {
@@ -393,7 +394,7 @@ void uda::write_string(char* out, std::string in, size_t len)
     std::strcpy(out, in.c_str());
 }
 
-RequestData make_request_data(const Config& config, const RequestData& request_data, const PluginList& plugin_list)
+RequestData make_request_data(const Config& config, const RequestData& request_data, const std::vector<PluginData>& plugin_list)
 {
     RequestData result = {0};
 
