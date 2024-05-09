@@ -87,7 +87,7 @@ jobs:
           EXTLIB_INSTALL_DIR: ${{github.workspace}}\extlib\install
         run: >
           (gcm python3).Path &&
-          Set-Content -Path "C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\distutils\distutils.cfg" -Value "[build]`ncompiler = mingw32"
+          Set-Content -Path "C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\distutils\distutils.cfg" -Value "[build]`ncompiler = mingw32" &&
           python3 -m venv ${{github.workspace}}/venv &&
           ls ${{github.workspace}}/venv &&
           ${{github.workspace}}/venv/Scripts/Activate.ps1 &&
