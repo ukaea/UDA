@@ -93,7 +93,7 @@ jobs:
           ${{github.workspace}}/venv/Scripts/Activate.ps1 &&
           pip3 install --upgrade pip wheel &&
           pip3 install Cython numpy six wheel &&
-          CXX=mingw32 CC=mingw32 python3 ${{github.workspace}}\install\python_installer\setup.py bdist_wheel
+          CXX=g++ CC=gcc python3 ${{github.workspace}}\install\python_installer\setup.py bdist_wheel
 
 
 
