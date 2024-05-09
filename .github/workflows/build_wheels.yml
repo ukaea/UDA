@@ -84,8 +84,9 @@ jobs:
         if: runner.os == 'Windows'
         env:
           UDA_DIR: ${{github.workspace}}\install
+          EXTLIB_INSTALL_DIR: ${{github.workspace}}\extlib\install
         run: >
-          gcm python3 &&
+          (gcm python3).Path &&
           python3 -m venv ${{github.workspace}}/venv &&
           ls ${{github.workspace}}/venv &&
           ${{github.workspace}}/venv/Scripts/Activate.ps1 &&
