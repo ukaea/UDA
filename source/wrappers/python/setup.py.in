@@ -32,7 +32,7 @@ else:
     # windows build with gcc/mingw still gives .a file outputs for static libs
     stalib_ext = 'a'
     dynlib_ext = '.dll'
-    extra_compile_args = ['/-std:c++17']
+    extra_compile_args = ['/std:c++17']
     extlib = os.environ.get("EXTLIB_INSTALL_DIR")
     extra_includes = [os.path.join(extlib, "include")]
 
