@@ -35,6 +35,11 @@ else:
     extra_compile_args = ['/std:c++17']
     extlib = os.environ.get("EXTLIB_INSTALL_DIR")
     extra_includes = [os.path.join(extlib, "include")]
+    extra_link_args += ['-static-libgcc',
+                        '-static-libstdc++',
+                        '-Wl,-Bstatic,--whole-archive',
+                        '-lwinpthread',
+                        '-Wl,--no-whole-archive']
 
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
