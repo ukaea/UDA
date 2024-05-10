@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include <uda/plugins.h>
 
 namespace uda::client_server {
