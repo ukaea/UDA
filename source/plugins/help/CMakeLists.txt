@@ -25,6 +25,7 @@ include( plugins )
 uda_plugin(
   NAME HELP
   ENTRY_FUNC helpPlugin
+  VERSION 1.0.0
   DESCRIPTION "Service Discovery: list the details on all registered services"
   EXAMPLE "HELP::services()"
   LIBNAME help_plugin

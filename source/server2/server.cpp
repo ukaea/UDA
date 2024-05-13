@@ -4,6 +4,7 @@
 #include <string>
 #include <uda/structured.h>
 #include <unistd.h>
+#include <filesystem>
 
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
@@ -124,7 +125,7 @@ void print_data_block_list(const std::vector<DataBlock>& data_blocks)
 }
 
 uda::server::Server::Server(Config config)
-    : _config{std::move(config)}, _error_stack{}, _sockets{}, _plugins{config}
+    : _config{std::move(config)}, _error_stack{}, _sockets{}, _plugins{_config}
 {
     init_server_block(&_server_block, ServerVersion);
     init_actions(&_actions_desc); // There may be a Sequence of Actions to Apply
@@ -135,9 +136,9 @@ uda::server::Server::Server(Config config)
 
 void uda::server::Server::start_logs()
 {
-    auto log_level = (LogLevel)_config.get("server.log_level").as_or_default((int)UDA_LOG_NONE);
-    auto log_dir = _config.get("server.log_dir").as_or_default<std::string>({});
-    auto log_mode = _config.get("server.log_mode").as_or_default<std::string>("a");
+    auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
+    auto log_dir = _config.get("logging.path").as_or_default(""s);
+    auto log_mode = _config.get("logging.mode").as_or_default("a"s);
 
     if (log_level <= UDA_LOG_ACCESS) {
         if (!log_dir.empty()) {
@@ -149,19 +150,19 @@ void uda::server::Server::start_logs()
         }
 
         errno = 0;
-        std::string log_file = std::string{log_dir} + "Access.log";
+        auto log_file = std::filesystem::path{log_dir} / "Access.log";
         set_log_file(UDA_LOG_ACCESS, log_file, log_mode);
     }
 
     if (log_level <= UDA_LOG_ERROR) {
         errno = 0;
-        std::string log_file = std::string{log_dir} + "Error.log";
+        auto log_file = std::filesystem::path{log_dir} / "Error.log";
         set_log_file(UDA_LOG_ERROR, log_file, log_mode);
     }
 
     if (log_level <= UDA_LOG_WARN) {
         errno = 0;
-        std::string log_file = std::string{log_dir} + "DebugServer.log";
+        auto log_file = std::filesystem::path{log_dir} / "DebugServer.log";
         set_log_file(UDA_LOG_WARN, log_file, log_mode);
         set_log_file(UDA_LOG_DEBUG, log_file, log_mode);
         set_log_file(UDA_LOG_INFO, log_file, log_mode);
@@ -170,7 +171,7 @@ void uda::server::Server::start_logs()
 
 void uda::server::Server::startup()
 {
-    auto log_level = (LogLevel)_config.get("server.log_level").as_or_default((int)UDA_LOG_NONE);
+    auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
 
     init_logging();
     set_log_level((LogLevel) log_level);
@@ -565,7 +566,7 @@ int uda::server::Server::handle_request()
 
 #else
 
-    auto delim = _config.get("server.delim").as_or_default(""s);
+    auto delim = _config.get("request.delim").as_or_default(""s);
     auto proxy_target = _config.get("server.proxy_target").as_or_default(""s);
     auto server = _config.get("server.address").as_or_default(""s);
 

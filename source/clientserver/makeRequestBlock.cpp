@@ -18,7 +18,7 @@
 
 #include "errorLog.h"
 #include "parseXML.h"
-#include "stringUtils.h"
+#include "common/stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"
 #include "plugins.h"
@@ -40,6 +40,8 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+
+using namespace std::string_literals;
 
 static void extract_function_name(const char* str, RequestData* request);
 
@@ -89,7 +91,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     //------------------------------------------------------------------------------
     // Always use the client's delimiting string if provided, otherwise use the default delimiter
 
-    auto delim = config.get("server.delim").as_or_default<std::string>({});
+    auto delim = config.get("request.delim").as_or_default<std::string>({});
     if ((ldelim = (int)strlen(request->api_delim)) == 0) {
         strcpy(request->api_delim, delim.c_str());
         ldelim = (int)strlen(request->api_delim);
@@ -103,8 +105,8 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     //------------------------------------------------------------------------------
     // Check there is something to work with!
 
-    auto archive = config.get("server.default_archive").as_or_default<std::string>({});
-    auto device = config.get("server.default_device").as_or_default<std::string>({});
+    auto archive = config.get("request.default_archive").as_or_default(""s);
+    auto device = config.get("request.default_device").as_or_default(""s);
 
     snprintf(work, MAXMETA, "%s%s", archive.c_str(), delim.c_str()); // default archive
     snprintf(work2, MAXMETA, "%s%s", device.c_str(), delim.c_str()); // default device
@@ -975,7 +977,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
             break;
         }
 
-        auto format = config.get("server.default_format").as_or_default<std::string>({});
+        auto format = config.get("server.default_format").as_or_default(""s);
         if (source[0] == '/' && source[1] != '\0' && isdigit(source[1])) { // Default File Format?
             if (generic_request_test(&source[1], request)) {               // Matches 99999/999
                 request->request = REQUEST_READ_UNKNOWN;
@@ -994,7 +996,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
     for (const auto& plugin : pluginList) {
         if (plugin.name == request->format) {
             rc = 1;
-            UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for {}", request->format);
+            UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for {}", request->format)
             request->request = id;
             if (plugin.type != UDA_PLUGIN_CLASS_FILE) {
                 // The full file path fully resolved by the client
@@ -1107,7 +1109,7 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
             copy_string(request->signal, request->archive, test - request->signal);
             trim_string(request->archive);
 
-            auto archive = config.get("server.default_archive").as_or_default<std::string>({});
+            auto archive = config.get("request.default_archive").as_or_default<std::string>({});
 
             // If a plugin is prefixed by the local archive name then discard the archive name
             if (reduceSignal && !strcasecmp(request->archive, archive.c_str())) {
@@ -1442,7 +1444,7 @@ void parse_name_value(const char* pair, NameValue* nameValue, unsigned short str
     nameValue->pair = (char*)malloc(lstr * sizeof(char));
     strcpy(nameValue->pair, copy);
     left_trim_string(nameValue->pair);
-    UDA_LOG(UDA_LOG_DEBUG, "Pair: {}", pair);
+    UDA_LOG(UDA_LOG_DEBUG, "Pair: {}", pair)
     if ((p = strchr(copy, '=')) != nullptr) {
         *p = '\0';
         lstr = (int)strlen(copy) + 1;
@@ -1452,7 +1454,7 @@ void parse_name_value(const char* pair, NameValue* nameValue, unsigned short str
         nameValue->value = (char*)malloc(lstr * sizeof(char));
         strcpy(nameValue->value, &p[1]);
     } else { // Mimic IDL keyword passing or stand alone values for placeholder substitution
-        UDA_LOG(UDA_LOG_DEBUG, "Keyword or placeholder value: {}", copy);
+        UDA_LOG(UDA_LOG_DEBUG, "Keyword or placeholder value: {}", copy)
         lstr = (int)strlen(copy) + 1;
         nameValue->name = (char*)malloc(lstr * sizeof(char));
         if (copy[0] == '/') {
@@ -1588,7 +1590,7 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
 
     strcpy(copy, pairList); // working copy
 
-    UDA_LOG(UDA_LOG_DEBUG, "Parsing name values from argument: {}", pairList);
+    UDA_LOG(UDA_LOG_DEBUG, "Parsing name values from argument: {}", pairList)
 
     // Locate the delimiter name value pair if present - use default character ',' if not
 
@@ -1661,9 +1663,9 @@ int uda::client_server::name_value_pairs(const char* pairList, NameValueList* na
             strcpy(buffer, p);
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Parsing name value: {}", buffer);
+        UDA_LOG(UDA_LOG_DEBUG, "Parsing name value: {}", buffer)
         parse_name_value(buffer, &name_value, strip);
-        UDA_LOG(UDA_LOG_DEBUG, "Name {}, Value: {}", name_value.name, name_value.value);
+        UDA_LOG(UDA_LOG_DEBUG, "Name {}, Value: {}", name_value.name, name_value.value)
 
         // if (nameValue.name != nullptr && nameValue.value != nullptr) {
         if (name_value.name != nullptr) { // Values may be nullptr for use case where placeholder substitution is used

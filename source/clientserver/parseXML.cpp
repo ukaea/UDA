@@ -28,7 +28,7 @@ using namespace uda::logging;
 
 #  include "clientserver/errorLog.h"
 #  include "clientserver/parseOperation.h"
-#  include "clientserver/stringUtils.h"
+#  include "common/stringUtils.h"
 
 static double deScale(char* scale);
 static void parse_target_value(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value);

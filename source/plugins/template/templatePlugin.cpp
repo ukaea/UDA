@@ -21,10 +21,26 @@
 #include "templatePlugin.h"
 
 #include "clientserver/initStructs.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "include/uda/uda_plugin_base.hpp"
 
 #include <boost/filesystem.hpp>
+
+UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME()
+{
+    UDA_PLUGIN_INFO info;
+    info.name = "TEMPLATEPLUGIN";
+    info.version = "1.0";
+    info.entry_function = "templatePlugin";
+    info.type = UDA_PLUGIN_CLASS_FUNCTION;
+    info.extension = "";
+    info.default_method = "help";
+    info.description = "Standardised Plugin Template";
+    info.cache_mode = UDA_PLUGIN_CACHE_MODE_OK;
+    info.is_private = false;
+    info.interface_version = 1;
+    return info;
+}
 
 class TemplatePlugin : public UDAPluginBase
 {
@@ -42,7 +58,7 @@ TemplatePlugin::TemplatePlugin()
     register_method("function", static_cast<UDAPluginBase::plugin_member_type>(&TemplatePlugin::function));
 }
 
-int templatePlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
+extern "C" int templatePlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static TemplatePlugin plugin = {};
     return plugin.call(plugin_interface);

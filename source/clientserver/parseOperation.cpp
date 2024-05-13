@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "errorLog.h"
-#include "stringUtils.h"
+#include "common/stringUtils.h"
 
 using namespace uda::client_server;
 

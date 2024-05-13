@@ -9,7 +9,7 @@
 #  include <strings.h>
 #endif
 
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "logging/logging.h"
 
 #define UDA_PLUGIN_FILE_ALLOC 10

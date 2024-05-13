@@ -6,6 +6,8 @@
 #  define sleep Sleep
 #endif
 
+#include <iostream>
+
 #include "server.hpp"
 #include "config/config.h"
 #include "server_exceptions.h"
@@ -19,6 +21,7 @@ int main()
     try {
         config.load("uda_server.toml");
     } catch (ConfigError& error) {
+        std::cerr << error.what() << std::endl;
         return -1;
     }
 

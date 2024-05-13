@@ -6,7 +6,7 @@
 
 #include "cache/memcache.hpp"
 #include "clientserver/errorLog.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "server/serverPlugin.h"
 #include "uda/plugins.h"
 
@@ -272,7 +272,7 @@ void uda::server::initPluginList(std::vector<PluginData>& plugin_list)
                                               plugin_data.library_name.c_str(),
                                               plugin_data.entry_func_name.c_str(),
                                               &plugin_data.entry_func);
-                        plugin_data.handle = std::unique_ptr<void, int(*)(void*)>{ handle, dlclose };
+                        plugin_data.handle = {handle, dl_close};
                     }
                 }
 

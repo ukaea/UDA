@@ -24,7 +24,7 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "logging/logging.h"
 #include "uda/structured.h"
 #include "server_config.h"
@@ -1525,7 +1525,7 @@ int uda::server::serverParseServerSide(RequestData* request_block, Actions* acti
     strcpy(request_block->archive, archive.c_str());
 
     auto config = server_config();
-    auto default_archive = config->get("server.default_archive").as_or_default(""s);
+    auto default_archive = config->get("request.default_archive").as_or_default(""s);
 
     if (request_block->archive[0] == '\0') {
         strcpy(request_block->archive, default_archive.c_str());

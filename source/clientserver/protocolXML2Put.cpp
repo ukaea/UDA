@@ -8,7 +8,7 @@
 
 #include "errorLog.h"
 #include "protocol.h"
-#include "stringUtils.h"
+#include "common/stringUtils.h"
 #include "structures/struct.h"
 #include "xdrlib.h"
 

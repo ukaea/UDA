@@ -4,10 +4,7 @@
 #include <uda/export.h>
 #include <uda/types.h>
 
-#define UDA_PLUGIN_INTERNAL 0
-#define UDA_PLUGIN_EXTERNAL 1 // The plugin resides in an external shared library
-#define UDA_PLUGIN_NOT_OPERATIONAL 0
-#define UDA_PLUGIN_OPERATIONAL 1
+#define UDA_PLUGIN_INFO_FUNCTION_NAME udaPluginInfo
 
 // privacy
 

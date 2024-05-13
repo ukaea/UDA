@@ -31,7 +31,7 @@
 #include "udaErrors.h"
 
 #include "errorLog.h"
-#include "stringUtils.h"
+#include "common/stringUtils.h"
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"
 #endif

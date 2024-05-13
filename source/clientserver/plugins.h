@@ -3,10 +3,11 @@
 #include <string>
 #include <memory>
 #include <uda/plugins.h>
+#include <dlfcn.h>
 
 namespace uda::client_server {
 
-inline int noop(void*) { return 0; }
+inline int dl_close(void* ptr) { return (ptr != nullptr) ? dlclose(ptr) : 0; }
 
 struct PluginData {
     std::string name;
@@ -24,7 +25,12 @@ struct PluginData {
     std::unique_ptr<void, int (*)(void*)> handle;
     UDA_PLUGIN_ENTRY_FUNC entry_func;
 
-    PluginData() : handle{nullptr, noop} {};
+    PluginData() : handle{nullptr, dl_close} {};
+    explicit PluginData(void* _handle) : handle{_handle, dl_close} {};
+    PluginData(const PluginData&) = delete;
+    PluginData& operator=(const PluginData&) = delete;
+    PluginData(PluginData&&) = default;
+    PluginData& operator=(PluginData&&) = default;
 };
 
 } // namespace uda::client_server

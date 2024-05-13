@@ -79,7 +79,7 @@ else()
   set( EX_PLATFORM_NAME "x86" )
 endif()
 
-if( "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" )
+if( "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang" )
   set( CMAKE_MACOSX_RPATH ON )
   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Qunused-arguments -undefined dynamic_lookup" )
   set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Qunused-arguments" )

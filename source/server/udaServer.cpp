@@ -690,7 +690,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
 #else
 
     auto server_proxy = config.get("server.proxy").as_or_default(""s);
-    auto delim = config.get("server.delim").as_or_default("::"s);
+    auto delim = config.get("request.delim").as_or_default("::"s);
 
     for (int i = 0; i < request_block->num_requests; ++i) {
         RequestData* request = &request_block->requests[i];

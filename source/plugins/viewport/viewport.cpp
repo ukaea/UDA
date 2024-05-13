@@ -18,13 +18,28 @@
 #  include <strings.h>
 #endif
 
-#include "clientserver/initStructs.h"
-#include "clientserver/stringUtils.h"
-#include "include/uda/uda_plugin_base.hpp"
-#include "uda/client.h"
+#include "common/stringUtils.h"
+#include <uda/uda_plugin_base.hpp>
+#include <uda/client.h>
 
 #include <boost/filesystem.hpp>
 #include <vector>
+
+UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME()
+{
+    UDA_PLUGIN_INFO info;
+    info.name = "VIEWPORT";
+    info.version = "1.0";
+    info.entry_function = "viewport";
+    info.type = UDA_PLUGIN_CLASS_FUNCTION;
+    info.extension = "";
+    info.default_method = "help";
+    info.description = "Reduce data to viewport pixel size";
+    info.cache_mode = UDA_PLUGIN_CACHE_MODE_OK;
+    info.is_private = false;
+    info.interface_version = 1;
+    return info;
+}
 
 struct CacheEntry {
     int handle;
@@ -68,7 +83,7 @@ int ViewportPlugin::find_handle(const std::string& signal, const std::string& so
     return -1;
 }
 
-extern int viewport(UDA_PLUGIN_INTERFACE* plugin_interface)
+extern "C" int viewport(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static ViewportPlugin plugin = {};
     return plugin.call(plugin_interface);

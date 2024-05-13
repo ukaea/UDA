@@ -20,7 +20,7 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "logging/logging.h"
 #include "uda/structured.h"
 #include <uda/types.h>
@@ -1272,7 +1272,7 @@ int uda::server::server_parse_server_side(config::Config& config, client_server:
     //-------------------------------------------------------------------------------------------------------------
     // Overwrite the Request Block to enable the correct access to signal data before the subset operations are applied
 
-    auto default_archive = config.get("server.default_archive").as_or_default(""s);
+    auto default_archive = config.get("request.default_archive").as_or_default(""s);
 
     strcpy(request_block->archive, archive);
     if (request_block->archive[0] == '\0') {

@@ -6,6 +6,22 @@
 #include <uda/portability.h>
 #include <uda/uda_plugin_base.hpp>
 
+UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME()
+{
+    UDA_PLUGIN_INFO info;
+    info.name = "HELP";
+    info.version = "1.0";
+    info.entry_function = "helpPlugin";
+    info.type = UDA_PLUGIN_CLASS_FUNCTION;
+    info.extension = "";
+    info.default_method = "help";
+    info.description = "Service Discovery: list the details on all registered services";
+    info.cache_mode = UDA_PLUGIN_CACHE_MODE_OK;
+    info.is_private = false;
+    info.interface_version = 1;
+    return info;
+}
+
 class HelpPlugin : public UDAPluginBase
 {
   public:
@@ -23,7 +39,7 @@ HelpPlugin::HelpPlugin()
     register_method("services", static_cast<UDAPluginBase::plugin_member_type>(&HelpPlugin::services));
 }
 
-int helpPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
+extern "C" int helpPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static HelpPlugin plugin = {};
     return plugin.call(plugin_interface);

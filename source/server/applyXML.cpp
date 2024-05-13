@@ -17,7 +17,7 @@
 #include <cmath>
 #include <memory.h>
 
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "logging/logging.h"
 #include <uda/types.h>
 

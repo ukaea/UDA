@@ -4,13 +4,22 @@
 #include <string_view>
 #include <fmt/format.h>
 
+#include "common/stringUtils.h"
+
 namespace uda::config
 {
 
-class ConfigError : std::runtime_error
+class ConfigError : public std::runtime_error
 {
   public:
     ConfigError(std::string_view description) : std::runtime_error(description.data()) {}
+
+    template <typename T>
+    static ConfigError cast_error(const std::string& name, const boost::any& value) {
+        auto arg_type_name = client_server::demangle(typeid(T).name());
+        auto value_type_name = client_server::demangle(value.type().name());
+        return ConfigError{ fmt::format("invalid cast for option '{}' - requested '{}' but actual type is '{}'", name, arg_type_name, value_type_name) };
+    }
 };
 
 class Option
@@ -30,12 +39,18 @@ class Option
                 auto& string = boost::any_cast<std::string&>(_value);
                 return string.c_str();
             }
-            throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
+            throw ConfigError::cast_error<std::string>(_name, _value);
+        } else if constexpr (std::is_integral_v<T>) {
+            if (is<long long>()) {
+                auto value = boost::any_cast<long long>(_value);
+                return static_cast<T>(value);
+            }
+            throw ConfigError::cast_error<long long>(_name, _value);
         } else {
             if (is<T>()) {
                 return boost::any_cast<T>(_value);
             }
-            throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
+            throw ConfigError::cast_error<T>(_name, _value);
         }
     }
 
@@ -48,14 +63,22 @@ class Option
             } else if (_value.empty()) {
                 return default_value;
             }
-            throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
+            throw ConfigError::cast_error<std::string>(_name, _value);
+        } else if constexpr (std::is_integral_v<T>) {
+            if (is<long long>()) {
+                auto value = boost::any_cast<long long>(_value);
+                return static_cast<T>(value);
+            } else if (_value.empty()) {
+                return default_value;
+            }
+            throw ConfigError::cast_error<long long>(_name, _value);
         } else {
             if (is<T>()) {
                 return boost::any_cast<T>(_value);
             } else if (_value.empty()) {
                 return default_value;
             }
-            throw ConfigError{ fmt::format("invalid cast for option {}", _name) };
+            throw ConfigError::cast_error<T>(_name, _value);
         }
     }
 

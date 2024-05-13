@@ -68,7 +68,7 @@ void uda::logging::close_logging()
 
 void uda::logging::set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode)
 {
-    bool truncate = open_mode == "a";
+    bool truncate = open_mode != "a";
 
     std::shared_ptr<spdlog::logger> logger;
     switch (mode) {

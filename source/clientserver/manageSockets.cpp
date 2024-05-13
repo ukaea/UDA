@@ -17,7 +17,7 @@
 #endif
 
 #include "manageSockets.h"
-#include "stringUtils.h"
+#include "common/stringUtils.h"
 
 // Initialise
 

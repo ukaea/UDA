@@ -30,7 +30,6 @@ endif()
 set( SRC_FILES
   apply_XML.cpp
   get_data.cpp
-  get_plugin_address.cpp
   make_server_request_block.cpp
   plugins.cpp
   server.cpp

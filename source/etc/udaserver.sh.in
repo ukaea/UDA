@@ -40,6 +40,6 @@ done
 #------------------------------------------------------------------------------------------------------
 # Run the Server Program
 
-@CMAKE_INSTALL_PREFIX@/bin/@PROJECT_NAME@_server >>@CMAKE_INSTALL_PREFIX@/etc/server.log 2>&1
+@CMAKE_INSTALL_PREFIX@/bin/@PROJECT_NAME@_server2 >>@CMAKE_INSTALL_PREFIX@/etc/server.log 2>&1
 
 exit $?

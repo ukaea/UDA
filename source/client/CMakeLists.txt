@@ -5,7 +5,7 @@ find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 find_package( LibXml2 REQUIRED )
 
-set( LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt LibXml2::LibXml2 )
+set( LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt LibXml2::LibXml2 common-objects )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -53,7 +53,7 @@ set( SRC_FILES
 )
 
 add_library( client-objects OBJECT ${SRC_FILES} )
-target_link_libraries( client-objects PUBLIC ${LIBS} )
+target_link_libraries( client-objects PUBLIC ${LIBS} PRIVATE common-objects )
 target_include_directories( client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
@@ -65,7 +65,7 @@ target_compile_definitions(
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-objects OBJECT ${SRC_FILES} )
-  target_link_libraries( fatclient-objects PUBLIC ${LIBS} )
+  target_link_libraries( fatclient-objects PUBLIC ${LIBS} PRIVATE common-objects )
   target_include_directories( fatclient-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include

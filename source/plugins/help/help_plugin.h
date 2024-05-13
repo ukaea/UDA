@@ -7,11 +7,7 @@
 extern "C" {
 #endif
 
-#define THISPLUGIN_VERSION 1
-#define THISPLUGIN_MAX_INTERFACE_VERSION 1
-#define THISPLUGIN_DEFAULT_METHOD "help"
-
-int helpPlugin(UDA_PLUGIN_INTERFACE* plugin_interface);
+UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME();
 
 #ifdef __cplusplus
 }

@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "logging/logging.h"
 #include "uda/client.h"
 

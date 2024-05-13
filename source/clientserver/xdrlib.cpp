@@ -17,7 +17,7 @@
 
 #include "errorLog.h"
 #include "printStructs.h"
-#include "stringUtils.h"
+#include "common/stringUtils.h"
 #include "structures/struct.h"
 
 using namespace uda::client_server;

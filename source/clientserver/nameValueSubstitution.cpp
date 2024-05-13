@@ -10,7 +10,7 @@
 
 #include "clientserver/errorLog.h"
 #include "clientserver/makeRequestBlock.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "initStructs.h"
 #include "logging/logging.h"
 #include "udaErrors.h"

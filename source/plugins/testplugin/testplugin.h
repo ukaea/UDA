@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-int testPlugin(UDA_PLUGIN_INTERFACE* plugin_interface);
+UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME();
 
 #ifdef __cplusplus
 }

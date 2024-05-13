@@ -2,12 +2,27 @@
 
 #include <leveldb/c.h>
 
-#include "include/uda/uda_plugin_base.hpp"
 #include <boost/filesystem.hpp>
 
-#include "clientserver/initStructs.h"
-#include "clientserver/stringUtils.h"
+//#include "common/stringUtils.h"
 #include <uda/types.h>
+#include <uda/uda_plugin_base.hpp>
+
+UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME()
+{
+    UDA_PLUGIN_INFO info;
+    info.name = "KEYVALUE";
+    info.version = "1.0";
+    info.entry_function = "keyValue";
+    info.type = UDA_PLUGIN_CLASS_FUNCTION;
+    info.extension = "";
+    info.default_method = "read";
+    info.description = "Plugin for saving and loading from a key value store";
+    info.cache_mode = UDA_PLUGIN_CACHE_MODE_OK;
+    info.is_private = false;
+    info.interface_version = 1;
+    return info;
+}
 
 namespace uda
 {
@@ -42,7 +57,7 @@ Plugin::Plugin()
 } // namespace keyvalue
 } // namespace uda
 
-int keyValue(UDA_PLUGIN_INTERFACE* plugin_interface)
+extern "C" int keyValue(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static uda::keyvalue::Plugin plugin = {};
     return plugin.call(plugin_interface);
@@ -88,10 +103,11 @@ int uda::keyvalue::Plugin::write(UDA_PLUGIN_INTERFACE* plugin_interface)
         error(plugin_interface, "Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
-    if (STR_EQUALS(env, "LEVELDB")) {
+    std::string store = env;
+    if (store == "LEVELDB") {
         debug(plugin_interface, "Writing key {} to LevelDB keystore", key);
     } else {
-        error(plugin_interface, "Unknown keyvalue store requested");
+        error(plugin_interface, "Unknown key-value store requested");
     }
 
     char* err = nullptr;
@@ -115,10 +131,11 @@ int uda::keyvalue::Plugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
         error(plugin_interface, "Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
-    if (STR_EQUALS(env, "LEVELDB")) {
+    std::string store = env;
+    if (store == "LEVELDB") {
         debug(plugin_interface, "Writing key {} to LevelDB keystore", key);
     } else {
-        error(plugin_interface, "Unknown keyvalue store requested");
+        error(plugin_interface, "Unknown key-value store requested");
     }
 
     char* err = nullptr;
@@ -146,7 +163,8 @@ int uda::keyvalue::Plugin::del(UDA_PLUGIN_INTERFACE* plugin_interface)
         error(plugin_interface, "Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
-    if (STR_EQUALS(env, "LEVELDB")) {
+    std::string store = env;
+    if (store == "LEVELDB") {
         debug(plugin_interface, "Writing key {} to LevelDB keystore", key);
     } else {
         error(plugin_interface, "Unknown keyvalue store requested");

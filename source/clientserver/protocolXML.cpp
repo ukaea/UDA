@@ -66,7 +66,7 @@
 #include "protocol.h"
 #include "protocolXML2.h"
 #include "readXDRFile.h"
-#include "stringUtils.h"
+#include "common/stringUtils.h"
 #include "structures/struct.h"
 #include "udaErrors.h"
 #include "xdrlib.h"

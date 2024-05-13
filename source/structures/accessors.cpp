@@ -50,7 +50,7 @@
 
 #include <uda/structured.h>
 
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "logging/logging.h"
 #include "struct.h"
 

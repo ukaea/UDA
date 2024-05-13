@@ -81,7 +81,9 @@ class ValueValidator
 {
   public:
     ValueValidator(std::string name, ValueType type) : _name{name}, _type{type} {}
+
     std::string_view name() const { return _name; }
+
     void validate(const toml::node& value) const
     {
         if (!value.is_value()) {
@@ -111,6 +113,7 @@ class SectionValidator
         : _name{name}, _value_validators{value_validators}
     {
     }
+
     void validate(const toml::table& table) const
     {
         for (const auto& entry : table) {
@@ -127,6 +130,7 @@ class SectionValidator
             }
         }
     }
+
     std::string_view name() const { return _name; }
 
   private:
@@ -138,13 +142,27 @@ const std::vector<SectionValidator> Validators = {
     SectionValidator{"logging",
                      {
                          {"path", ValueType::String},
-                         {"mode", ValueType::String},
-                         {"level", ValueType::String},
+                         {"mode", ValueType::Char},
+                         {"level", ValueType::Integer},
                      }},
     SectionValidator{"plugins",
                      {
-                         {"config", ValueType::String},
                          {"debug_single_file", ValueType::Boolean},
+                         {"directories", ValueType::String},
+                         {"metadata_plugin", ValueType::String},
+                         {"provenance_plugin", ValueType::String},
+                     }},
+    SectionValidator{"request",
+                     {
+                             {"delim", ValueType::String},
+                             {"default_device", ValueType::String},
+                             {"default_archive", ValueType::String},
+                     }},
+    SectionValidator{"server",
+                     {
+                             {"is_proxy", ValueType::Boolean},
+                             {"proxy_target", ValueType::String},
+                             {"address", ValueType::String},
                      }},
 };
 
@@ -253,13 +271,34 @@ class ConfigImpl
         }
     }
 
+    void print_section(std::string_view name, const toml::table* table) const
+    {
+        for (auto& row : *table) {
+            auto key = row.first.str();
+            auto& value = row.second;
+            if (value.is_string()) {
+                auto val = value.as_string()->get();
+                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key, val)
+            } else if (value.is_integer()) {
+                auto val = value.as_integer()->get();
+                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key, val)
+            } else if (value.is_boolean()) {
+                auto val = value.as_boolean()->get();
+                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key, val)
+            }
+        }
+    }
+
     void print() const
     {
         UDA_LOG(logging::UDA_LOG_DEBUG, "Config:")
         for (auto& row : _table) {
             auto key = row.first.str();
-            auto value = row.second.as_string()->get();
-            UDA_LOG(logging::UDA_LOG_DEBUG, "{} = {}", key, value)
+            auto& value = row.second;
+            if (value.is_table()) {
+                auto table = value.as_table();
+                print_section(key, table);
+            }
         }
     }
 

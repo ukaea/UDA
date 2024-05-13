@@ -9,7 +9,6 @@
 #include <uda/client.h>
 #include <uda/plugins.h>
 #include <uda/uda_plugin_base.hpp>
-
 #include <serialisation/capnp_serialisation.h>
 
 #include "teststructs.h"
@@ -36,6 +35,22 @@ int c_connect(UDTSOCKET* usock, int port);
 int createUDTSocket(int* usock, int port, int rendezvous);
 int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous);
 #endif
+
+UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME()
+{
+    UDA_PLUGIN_INFO info;
+    info.name = "TESTPLUGIN";
+    info.version = "1.0";
+    info.entry_function = "testPlugin";
+    info.type = UDA_PLUGIN_CLASS_FUNCTION;
+    info.extension = "";
+    info.default_method = "help";
+    info.description = "Generate Test Data";
+    info.cache_mode = UDA_PLUGIN_CACHE_MODE_OK;
+    info.is_private = false;
+    info.interface_version = 1;
+    return info;
+}
 
 class TestPlugin : public UDAPluginBase
 {
@@ -170,7 +185,7 @@ TestPlugin::TestPlugin()
 #endif // TESTUDT
 }
 
-extern int testPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
+extern "C" int testPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static TestPlugin plugin = {};
     return plugin.call(plugin_interface);

@@ -27,10 +27,10 @@ void uda::server::Plugins::init()
 
     discover_plugins();
 
-    UDA_LOG(UDA_LOG_INFO, "List of Plugins available");
+    UDA_LOG(UDA_LOG_INFO, "List of Plugins available")
     int i = 0;
     for (const auto& plugin : _plugins) {
-        UDA_LOG(UDA_LOG_INFO, "[{}] {}", i, plugin.name);
+        UDA_LOG(UDA_LOG_INFO, "[{}] {}", i, plugin.name)
         ++i;
     }
 
@@ -39,13 +39,11 @@ void uda::server::Plugins::init()
 
 void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
 {
-    // Open library
-    // Try and get 'udaPluginInfo' struct
-    //
+    UDA_LOG(UDA_LOG_DEBUG, "Loading library {}", library.string())
 
-    constexpr const char* info_function_name = "udaPluginInfo";
+    constexpr const char* info_function_name = QUOTE(UDA_PLUGIN_INFO_FUNCTION_NAME);
 
-    std::unique_ptr<void, int(*)(void*)> handle{ dlopen(library.c_str(), RTLD_LOCAL | RTLD_LAZY), dlclose };
+    void* handle = dlopen(library.c_str(), RTLD_LOCAL | RTLD_LAZY);
     if (handle == nullptr) {
         const char* err_str = dlerror();
         UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library {}: {}", library.string(), err_str)
@@ -53,16 +51,16 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
     }
 
     using info_function_t = UdaPluginInfo(*)();
-    auto info_function = (info_function_t)dlsym(handle.get(), info_function_name);
+    auto info_function = (info_function_t)dlsym(handle, info_function_name);
 
-    char* err_str = dlerror();
+    const char* err_str = dlerror();
 
     PluginData plugin = {};
 
     if (err_str == nullptr) {
         auto plugin_info = info_function();
 
-        auto entry_func = (UDA_PLUGIN_ENTRY_FUNC)dlsym(handle.get(), plugin_info.entry_function);
+        auto entry_func = (UDA_PLUGIN_ENTRY_FUNC)dlsym(handle, plugin_info.entry_function);
 
         err_str = dlerror();
         if (err_str != nullptr) {
@@ -73,6 +71,7 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
         plugin.name = plugin_info.name;
         boost::to_lower(plugin.name);
 
+        plugin.handle = {handle, dl_close};
         plugin.library_name = library;
         plugin.entry_func_name = plugin_info.entry_function;
         plugin.entry_func = entry_func;
@@ -92,13 +91,14 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
         return;
     }
 
+    UDA_LOG(UDA_LOG_DEBUG, "Plugin {} successfully loaded", plugin.name)
     _plugins.emplace_back(std::move(plugin));
 }
 
 void uda::server::Plugins::discover_plugins_in_directory(const std::filesystem::path& directory)
 {
     for (const auto& entry : std::filesystem::directory_iterator{directory}) {
-        if (entry.is_regular_file()) {
+        if (entry.is_regular_file() && !std::filesystem::is_symlink(entry)) {
             if (entry.path().extension() == SHARED_LIBRARY_SUFFIX) {
                 load_plugin(entry.path());
             }
@@ -108,7 +108,7 @@ void uda::server::Plugins::discover_plugins_in_directory(const std::filesystem::
 
 void uda::server::Plugins::discover_plugins()
 {
-    auto directories_string = _config.get("server.plugin_directories").as_or_default(""s);
+    auto directories_string = _config.get("plugins.directories").as_or_default(""s);
     std::vector<std::filesystem::path> directories;
     boost::split(directories, directories_string, boost::is_any_of(";"), boost::token_compress_on);
 
@@ -131,13 +131,15 @@ void uda::server::Plugins::close()
     _plugins.clear();
 }
 
+constexpr int IdOffset = 100;
+
 std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> uda::server::Plugins::find_by_name(const std::string& name) const
 {
     std::string name_lower = boost::to_lower_copy(name);
     size_t i = 0;
     for (auto& plugin : _plugins) {
         if (plugin.name == name_lower) {
-            return std::make_pair(i + 100, boost::optional<const uda::client_server::PluginData&>{plugin});
+            return std::make_pair(i + IdOffset, boost::optional<const uda::client_server::PluginData&>{plugin});
         }
         ++i;
     }
@@ -146,10 +148,10 @@ std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> uda::s
 
 [[nodiscard]] boost::optional<const uda::client_server::PluginData&> uda::server::Plugins::find_by_id(size_t id) const
 {
-    if (id < 100) {
+    if (id < IdOffset) {
         return {};
     }
-    id -= 100;
+    id -= IdOffset;
     if (_plugins.empty() || id > _plugins.size() - 1) {
         return {};
     }

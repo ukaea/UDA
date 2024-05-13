@@ -25,7 +25,7 @@
 #include <sstream>
 
 #include "clientserver/errorLog.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "logging.h"
 
 using namespace uda::client_server;

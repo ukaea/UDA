@@ -27,11 +27,11 @@ int uda::server::startup()
     //---------------------------------------------------------------
     // Open the Log Files
 
-    auto log_level = (LogLevel)config->get("server.log_level").as_or_default((int)UDA_LOG_NONE);
+    auto log_level = (LogLevel)config->get("logging.level").as_or_default((int)UDA_LOG_NONE);
     set_log_level(log_level);
 
-    auto log_dir = config->get("server.log_dir").as_or_default(""s);
-    auto log_mode = config->get("server.log_mode").as_or_default("w"s);
+    auto log_dir = config->get("logging.path").as_or_default(""s);
+    auto log_mode = config->get("logging.mode").as_or_default("w"s);
 
     if (log_level <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];

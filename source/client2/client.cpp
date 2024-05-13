@@ -10,7 +10,7 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "clientserver/udaDefines.h"
 #include "clientserver/udaErrors.h"
 #include "clientserver/userid.h"
@@ -167,7 +167,7 @@ uda::client::Client::Client() : _connection{_config}, _protocol_version{ClientVe
     //----------------------------------------------------------------
     // Check if Output Requested
 
-    auto log_level = (LogLevel)_config.get("client.log_level").as_or_default((int)UDA_LOG_NONE);
+    auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
 
     set_log_level(log_level);
     if (log_level == UDA_LOG_NONE) {
@@ -179,8 +179,8 @@ uda::client::Client::Client() : _connection{_config}, _protocol_version{ClientVe
 
     errno = 0;
 
-    auto log_dir = _config.get("client.log_dir").as_or_default(""s);
-    auto log_mode = _config.get("client.log_mode").as_or_default("a"s);
+    auto log_dir = _config.get("logging.path").as_or_default(""s);
+    auto log_mode = _config.get("logging.mode").as_or_default("a"s);
 
     std::string file_name = log_dir + "Debug.dbg";
 

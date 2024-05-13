@@ -2,6 +2,22 @@
 
 #include "readHDF58.h"
 
+UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME()
+{
+    UDA_PLUGIN_INFO info;
+    info.name = "HDF5";
+    info.version = "1.0";
+    info.entry_function = "hdf5Plugin";
+    info.type = UDA_PLUGIN_CLASS_FILE;
+    info.extension = "h5";
+    info.default_method = "read";
+    info.description = "HDF5 Data Reader";
+    info.cache_mode = UDA_PLUGIN_CACHE_MODE_OK;
+    info.is_private = false;
+    info.interface_version = 1;
+    return info;
+}
+
 HDF5Plugin::HDF5Plugin() : UDAPluginBase("HDF5", 1, "read", "")
 {
     register_method("read", static_cast<UDAPluginBase::plugin_member_type>(&HDF5Plugin::read));
@@ -12,7 +28,7 @@ HDF5Plugin::HDF5Plugin() : UDAPluginBase("HDF5", 1, "read", "")
 /**
  * Entry function
  */
-extern int hdf5Plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
+extern "C" int hdf5Plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static HDF5Plugin plugin = {};
     return plugin.call(plugin_interface);

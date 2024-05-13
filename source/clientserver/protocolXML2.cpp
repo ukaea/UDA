@@ -64,7 +64,7 @@
 #include "errorLog.h"
 #include "protocol.h"
 #include "readXDRFile.h"
-#include "stringUtils.h"
+#include "common/stringUtils.h"
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD

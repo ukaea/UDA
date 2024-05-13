@@ -67,7 +67,7 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
     // Check if Output Requested
 
     init_logging();
-    auto log_level = (LogLevel)config->get("client.log_level").as_or_default((int)UDA_LOG_NONE);
+    auto log_level = (LogLevel)config->get("logging.level").as_or_default((int)UDA_LOG_NONE);
     set_log_level(log_level);
 
     if (log_level == UDA_LOG_NONE) {
@@ -80,8 +80,8 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
     start_status = 1;
     errno = 0;
 
-    auto log_dir = config->get("client.log_dir").as_or_default(""s);
-    auto log_mode = config->get("client.log_dir").as_or_default("w"s);
+    auto log_dir = config->get("logging.path").as_or_default(""s);
+    auto log_mode = config->get("logging.path").as_or_default("w"s);
 
     std::filesystem::path log_file{log_dir};
     log_file /= "Debug.dbg";

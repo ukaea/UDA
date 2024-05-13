@@ -5,7 +5,7 @@
 
 #include "clientserver/errorLog.h"
 #include "clientserver/protocol.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "clientserver/xdrlib.h"
 #include "genStructs.h"
 #include "logging/logging.h"

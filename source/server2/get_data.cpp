@@ -5,7 +5,7 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/nameValueSubstitution.h"
 #include "clientserver/printStructs.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "logging/logging.h"
 #include "make_server_request_block.hpp"
 #include "plugins.hpp"

@@ -8,10 +8,10 @@ set( LIBS Boost::boost )
 ########################################################################################################################
 # Targets
 
-add_library( config-objects OBJECT config.cpp )
-target_link_libraries( config-objects PUBLIC ${LIBS} PRIVATE common-objects )
+add_library( common-objects OBJECT stringUtils.cpp )
+target_link_libraries( common-objects PUBLIC ${LIBS} )
 
-target_include_directories( config-objects PRIVATE
+target_include_directories( common-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
   ${CMAKE_BINARY_DIR}/include

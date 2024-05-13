@@ -13,6 +13,8 @@
 namespace uda::client_server
 {
 
+std::string demangle(const char* name);
+
 // Reverse a String
 void reverse_string(const char* in, char* out);
 

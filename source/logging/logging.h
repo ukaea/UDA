@@ -35,48 +35,39 @@ template<typename... Args>
 void log(LogLevel mode, const char* file, int line, const std::string& fmt, Args &&...args)
 {
     std::shared_ptr<spdlog::logger> logger;
+    spdlog::level::level_enum level;
 
     switch (mode) {
         case LogLevel::UDA_LOG_DEBUG:
+            level = spdlog::level::debug;
+            logger = spdlog::get("debug");
+            break;
         case LogLevel::UDA_LOG_INFO:
+            level = spdlog::level::info;
+            logger = spdlog::get("debug");
+            break;
         case LogLevel::UDA_LOG_WARN:
+            level = spdlog::level::warn;
             logger = spdlog::get("debug");
             break;
         case LogLevel::UDA_LOG_ERROR:
+            level = spdlog::level::err;
             logger = spdlog::get("error");
             break;
         case LogLevel::UDA_LOG_ACCESS:
+            level = spdlog::level::trace;
             logger = spdlog::get("access");
             break;
         case LogLevel::UDA_LOG_NONE:
             return;
     }
 
-    spdlog::level::level_enum level;
-    switch (mode) {
-        case LogLevel::UDA_LOG_DEBUG:
-            level = spdlog::level::debug;
-            break;
-        case LogLevel::UDA_LOG_INFO:
-            level = spdlog::level::info;
-            break;
-        case LogLevel::UDA_LOG_WARN:
-            level = spdlog::level::warn;
-            break;
-        case LogLevel::UDA_LOG_ERROR:
-            level = spdlog::level::err;
-            break;
-        case LogLevel::UDA_LOG_ACCESS:
-            level = spdlog::level::trace;
-            break;
-        default:
-            level = spdlog::level::off;
-            break;
-    }
-
     spdlog::source_loc loc{file, line, ""};
 
     logger->log(loc, level, fmt, args...);
+    if (mode == LogLevel::UDA_LOG_ERROR) {
+        spdlog::get("debug")->log(loc, level, fmt, args...);
+    }
     logger->flush();
 }
 

@@ -11,7 +11,7 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/makeRequestBlock.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "clientserver/type_convertor.hpp"
 #include "logging/logging.h"
 #include "server/initPluginList.h"

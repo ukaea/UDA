@@ -40,7 +40,6 @@ set( SRC_FILES
   protocolXML2.cpp
   protocolXML2Put.cpp
   readXDRFile.cpp
-  stringUtils.cpp
   udaTypes.cpp
   udaDefines.cpp
   userid.cpp
@@ -49,7 +48,6 @@ set( SRC_FILES
   udaStructs.cpp
   make_request_block.cpp
   version.cpp
-  #  utils.c
 )
 
 if( APPLE )
@@ -65,7 +63,7 @@ if( CLIENT_ONLY )
 endif()
 
 add_library( clientserver-client-objects OBJECT ${SRC_FILES} )
-target_link_libraries( clientserver-client-objects PUBLIC ${LIBS} )
+target_link_libraries( clientserver-client-objects PUBLIC ${LIBS} PRIVATE common-objects )
 target_include_directories( clientserver-client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
@@ -75,7 +73,7 @@ target_include_directories( clientserver-client-objects PRIVATE
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
-  target_link_libraries( clientserver-server-objects PUBLIC ${LIBS} )
+  target_link_libraries( clientserver-server-objects PUBLIC ${LIBS} PRIVATE common-objects )
   target_include_directories( clientserver-server-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
@@ -85,7 +83,7 @@ if( NOT CLIENT_ONLY )
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
-  target_link_libraries( fatclientserver-objects PUBLIC ${LIBS} )
+  target_link_libraries( fatclientserver-objects PUBLIC ${LIBS} PRIVATE common-objects )
   target_include_directories( fatclientserver-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include

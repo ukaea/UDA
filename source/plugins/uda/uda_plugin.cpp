@@ -4,7 +4,7 @@
 
 #include "client/udaClient.h"
 #include "clientserver/initStructs.h"
-#include "clientserver/stringUtils.h"
+#include "common/stringUtils.h"
 #include "include/uda/uda_plugin_base.hpp"
 #include "logging/logging.h"
 #include "server/serverPlugin.h"

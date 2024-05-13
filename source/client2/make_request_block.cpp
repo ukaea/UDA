@@ -39,7 +39,7 @@ int make_request_data(const Config& config, const char* data_object, const char*
      * interpret the data access request.
      */
 
-    auto api_delim = config.get("server.delim").as_or_default<std::string>({});
+    auto api_delim = config.get("request.delim").as_or_default<std::string>({});
 
     strcpy(request->api_delim, api_delim.c_str()); // Server needs to know how to parse the arguments
 
@@ -50,8 +50,8 @@ int make_request_data(const Config& config, const char* data_object, const char*
      * These environment variables are legacy and not used by the server
      */
 
-    auto device = config.get("server.default_device").as_or_default<std::string>({});
-    auto archive = config.get("server.default_archive").as_or_default<std::string>({});
+    auto device = config.get("request.default_device").as_or_default<std::string>({});
+    auto archive = config.get("request.default_archive").as_or_default<std::string>({});
 
     if (!device.empty() && strstr(request->source, request->api_delim) == nullptr) {
         auto source = fmt::format("{}{}{}", device, request->api_delim, request->source);
