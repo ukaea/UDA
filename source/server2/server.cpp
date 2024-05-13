@@ -5,6 +5,7 @@
 #include <uda/structured.h>
 #include <unistd.h>
 #include <filesystem>
+#include <boost/asio.hpp>
 
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
@@ -30,6 +31,8 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::config;
+
+using boost::asio::ip::tcp;
 
 unsigned int count_data_block_size(const DataBlock& data_block, ClientBlock* client_block) {
     int factor;
@@ -125,7 +128,13 @@ void print_data_block_list(const std::vector<DataBlock>& data_blocks)
 }
 
 uda::server::Server::Server(Config config)
-    : _config{std::move(config)}, _error_stack{}, _sockets{}, _plugins{_config}
+    : _config{std::move(config)}
+    , _error_stack{}
+    , _protocol{}
+    , _sockets{}
+    , _plugins{_config}
+    , _io_context{}
+    , _socket{_io_context}
 {
     init_server_block(&_server_block, ServerVersion);
     init_actions(&_actions_desc); // There may be a Sequence of Actions to Apply
@@ -183,12 +192,21 @@ void uda::server::Server::startup()
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance");
 
     //-------------------------------------------------------------------------
-    // Create the XDR Record Streams
-    _protocol.create();
-
-    //-------------------------------------------------------------------------
     // Initialise the plugins
     _plugins.init();
+
+    unsigned short port = _config.get("server.port").as_or_default(0);
+    int socket_fd = 0;
+
+    if (port > 0) {
+        tcp::acceptor acceptor{_io_context, tcp::endpoint{tcp::v4(), port}};
+        acceptor.accept(_socket);
+        socket_fd = _socket.native_handle();
+    }
+
+    //-------------------------------------------------------------------------
+    // Create the XDR Record Streams
+    _protocol.create(socket_fd);
 
     //----------------------------------------------------------------------------
     // Server Information: Operating System Name - may limit types of data that can be received by the Client

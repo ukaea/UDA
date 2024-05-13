@@ -37,10 +37,9 @@ using namespace uda::structures;
 using namespace uda::authentication;
 #endif
 
-int serverSocket = 0;
+namespace uda::server {
 
-int server_read(void* iohandle, char* buf, int count)
-{
+int read(void* iohandle, char* buf, int count) {
     int rc = 0;
     fd_set rfds; // File Descriptor Set for Reading from the Socket
     timeval tv = {};
@@ -50,24 +49,24 @@ int server_read(void* iohandle, char* buf, int count)
 
     // Wait until there are data to be read from the socket
 
-    set_select_params(serverSocket, &rfds, &tv, io_data->server_tot_block_time);
+    set_select_params(io_data->server_socket, &rfds, &tv, io_data->server_tot_block_time);
     tvc = tv;
 
-    while (select(serverSocket + 1, &rfds, nullptr, nullptr, &tvc) <= 0) {
-        *io_data->server_tot_block_time += (int)tv.tv_usec / 1000;
+    while (select(io_data->server_socket + 1, &rfds, nullptr, nullptr, &tvc) <= 0) {
+        *io_data->server_tot_block_time += (int) tv.tv_usec / 1000;
         if (*io_data->server_tot_block_time > 1000 * *io_data->server_timeout) {
             UDA_LOG(UDA_LOG_DEBUG, "Total Wait Time Exceeds Lifetime Limit = {} (ms)",
                     *io_data->server_timeout * 1000);
             return -1;
         }
 
-        update_select_params(serverSocket, &rfds, &tv, *io_data->server_tot_block_time); // Keep trying ...
+        update_select_params(io_data->server_socket, &rfds, &tv, *io_data->server_tot_block_time); // Keep trying ...
         tvc = tv;
     }
 
     // Read from it, checking for EINTR, as happens if called from IDL
 
-    while (((rc = (int)read(serverSocket, buf, count)) == -1) && (errno == EINTR)) {}
+    while (((rc = (int)::read(io_data->server_socket, buf, count)) == -1) && (errno == EINTR)) {}
 
     // As we have waited to be told that there is data to be read, if nothing
     // arrives, then there must be an error
@@ -79,13 +78,12 @@ int server_read(void* iohandle, char* buf, int count)
     return rc;
 }
 
-int server_write(void* iohandle, char* buf, int count)
-{
+int write(void* iohandle, char* buf, int count) {
 
     // This routine is only called when there is something to write back to the Client
 
     int rc = 0;
-    int BytesSent = 0;
+    int bytes_sent = 0;
 
     fd_set wfds; // File Descriptor Set for Writing to the Socket
     timeval tv = {};
@@ -94,36 +92,44 @@ int server_write(void* iohandle, char* buf, int count)
 
     // Block IO until the Socket is ready to write to Client
 
-    set_select_params(serverSocket, &wfds, &tv, io_data->server_tot_block_time);
+    set_select_params(io_data->server_socket, &wfds, &tv, io_data->server_tot_block_time);
 
-    while (select(serverSocket + 1, nullptr, &wfds, nullptr, &tv) <= 0) {
+    while (select(io_data->server_socket + 1, nullptr, &wfds, nullptr, &tv) <= 0) {
         *io_data->server_tot_block_time += tv.tv_usec / 1000;
         if (*io_data->server_tot_block_time / 1000 > *io_data->server_timeout) {
             UDA_LOG(UDA_LOG_DEBUG, "Total Blocking Time: {} (ms)", *io_data->server_tot_block_time);
             return -1;
         }
-        update_select_params(serverSocket, &wfds, &tv, *io_data->server_tot_block_time);
+        update_select_params(io_data->server_socket, &wfds, &tv, *io_data->server_tot_block_time);
     }
 
     // Write to socket, checking for EINTR, as happens if called from IDL
 
-    while (BytesSent < count) {
-        while (((rc = (int)write(serverSocket, buf, count)) == -1) && (errno == EINTR)) {}
-        BytesSent += rc;
+    while (bytes_sent < count) {
+        while (((rc = (int) ::write(io_data->server_socket, buf, count)) == -1) && (errno == EINTR)) {}
+        bytes_sent += rc;
         buf += rc;
     }
 
     return rc;
 }
 
-void uda::server::XdrProtocol::create()
+}
+
+void uda::server::XdrProtocol::create(int socket)
 {
+    _io_data.server_socket = socket;
     create_streams();
 }
 
 uda::server::XdrProtocol::XdrProtocol()
-    : _server_input{}, _server_output{}, _server_tot_block_time{0}, _server_timeout{TIMEOUT}, _io_data{}
+    : _server_input{}
+    , _server_output{}
+    , _server_tot_block_time{0}
+    , _server_timeout{TIMEOUT}
+    , _io_data{}
 {
+    _io_data.server_socket = 0;
     _io_data.server_tot_block_time = &_server_tot_block_time;
     _io_data.server_timeout = &_server_timeout;
 }
@@ -137,20 +143,20 @@ void uda::server::XdrProtocol::create_streams()
     if (getUdaServerSSLDisabled()) {
 #  if defined(__APPLE__) || defined(__TIRPC__)
         xdrrec_create(&_server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
-                      reinterpret_cast<int (*)(void*, void*, int)>(server_read),
-                      reinterpret_cast<int (*)(void*, void*, int)>(server_write));
+                      reinterpret_cast<int (*)(void*, void*, int)>(uda::server::read),
+                      reinterpret_cast<int (*)(void*, void*, int)>(uda::server::write));
 
         xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
-                      reinterpret_cast<int (*)(void*, void*, int)>(server_read),
-                      reinterpret_cast<int (*)(void*, void*, int)>(server_write));
+                      reinterpret_cast<int (*)(void*, void*, int)>(uda::server::read),
+                      reinterpret_cast<int (*)(void*, void*, int)>(uda::server::write));
 #  else
         xdrrec_create(&_server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
-                      reinterpret_cast<int (*)(char*, char*, int)>(server_read),
-                      reinterpret_cast<int (*)(char*, char*, int)>(server_write));
+                      reinterpret_cast<int (*)(char*, char*, int)>(uda::server::read),
+                      reinterpret_cast<int (*)(char*, char*, int)>(uda::server::write));
 
         xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
-                      reinterpret_cast<int (*)(char*, char*, int)>(server_read),
-                      reinterpret_cast<int (*)(char*, char*, int)>(server_write));
+                      reinterpret_cast<int (*)(char*, char*, int)>(uda::server::read),
+                      reinterpret_cast<int (*)(char*, char*, int)>(uda::server::write));
 #  endif
     } else {
 #  if defined(__APPLE__) || defined(__TIRPC__)
@@ -175,20 +181,20 @@ void uda::server::XdrProtocol::create_streams()
 
 #  if defined(__APPLE__) || defined(__TIRPC__)
     xdrrec_create(&_server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
-                  reinterpret_cast<int (*)(void*, void*, int)>(server_read),
-                  reinterpret_cast<int (*)(void*, void*, int)>(server_write));
+                  reinterpret_cast<int (*)(void*, void*, int)>(uda::server::read),
+                  reinterpret_cast<int (*)(void*, void*, int)>(uda::server::write));
 
     xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &_io_data,
-                  reinterpret_cast<int (*)(void*, void*, int)>(server_read),
-                  reinterpret_cast<int (*)(void*, void*, int)>(server_write));
+                  reinterpret_cast<int (*)(void*, void*, int)>(uda::server::read),
+                  reinterpret_cast<int (*)(void*, void*, int)>(uda::server::write));
 #  else
     xdrrec_create(&server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
-                  reinterpret_cast<int (*)(char*, char*, int)>(server_read),
-                  reinterpret_cast<int (*)(char*, char*, int)>(server_write));
+                  reinterpret_cast<int (*)(char*, char*, int)>(uda::server::read),
+                  reinterpret_cast<int (*)(char*, char*, int)>(uda::server::write));
 
     xdrrec_create(&_server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&_io_data,
-                  reinterpret_cast<int (*)(char*, char*, int)>(server_read),
-                  reinterpret_cast<int (*)(char*, char*, int)>(server_write));
+                  reinterpret_cast<int (*)(char*, char*, int)>(uda::server::read),
+                  reinterpret_cast<int (*)(char*, char*, int)>(uda::server::write));
 #  endif
 
 #endif // SSLAUTHENTICATION

@@ -5,9 +5,15 @@
 #include <uda/plugins.h>
 #include <dlfcn.h>
 
+#include "logging/logging.h"
+
 namespace uda::client_server {
 
-inline int dl_close(void* ptr) { return (ptr != nullptr) ? dlclose(ptr) : 0; }
+inline int dl_close(void* ptr)
+{
+    return 0;
+//    return (ptr != nullptr) ? dlclose(ptr) : 0;
+}
 
 struct PluginData {
     std::string name;

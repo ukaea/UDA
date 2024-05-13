@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <boost/asio.hpp>
 
 #include "get_data.hpp"
 #include "plugins.hpp"
@@ -66,6 +67,8 @@ class Server
     structures::LogMallocList* _log_malloc_list = nullptr;
     structures::UserDefinedTypeList* _user_defined_type_list = nullptr;
     structures::UserDefinedTypeList _parsed_user_defined_type_list;
+    boost::asio::io_context _io_context;
+    boost::asio::ip::tcp::socket _socket;
 };
 
 } // namespace uda::server

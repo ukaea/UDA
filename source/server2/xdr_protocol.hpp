@@ -13,6 +13,7 @@ namespace uda::server
 {
 
 struct IoData : client_server::IoData {
+    int server_socket;
     int* server_tot_block_time;
     int* server_timeout;
 };
@@ -23,7 +24,7 @@ class XdrProtocol
 {
   public:
     XdrProtocol();
-    void create();
+    void create(int socket);
     void set_version(int protocol_version);
 
     int read_client_block(client_server::ClientBlock* client_block,

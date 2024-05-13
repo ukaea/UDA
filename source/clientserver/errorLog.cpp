@@ -68,14 +68,14 @@ void uda::client_server::error_log(ClientBlock client_block, RequestBlock reques
     for (int i = 0; i < request_block.num_requests; ++i) {
         auto request = &request_block.requests[i];
         log(UDA_LOG_ERROR, __FILE__, __LINE__,
-                "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n", client_block.uid, accessdate,
+                "0 {} [{}] [{} {} {} {} {} {} {} {} {} {} {}]", client_block.uid, accessdate,
                request->request, request->signal, request->exp_number, request->pass, request->tpass, request->path,
                request->file, request->format, request->archive, request->device_name, request->server);
     }
 
     for (unsigned int i = 0; i < nerrors; i++) {
         log(UDA_LOG_ERROR, __FILE__, __LINE__,
-                "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate, errors[i].type,
+                "1 {} [{}] {} {} [{}] [{}]", client_block.uid, accessdate, errors[i].type,
                errors[i].code, errors[i].location, errors[i].msg);
     }
 }

@@ -64,6 +64,7 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
 
         err_str = dlerror();
         if (err_str != nullptr) {
+            dlclose(handle);
             UDA_LOG(UDA_LOG_ERROR, "Failed to find entry function {} from library {}: {}", plugin_info.entry_function, library.string(), err_str)
             return;
         }
@@ -87,6 +88,7 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
         plugin.description = plugin_info.description;
         plugin.is_private = plugin_info.is_private;
     } else {
+        dlclose(handle);
         UDA_LOG(UDA_LOG_ERROR, "Failed to find plugin info function {} from library {}: {}", info_function_name, library.string(), err_str)
         return;
     }

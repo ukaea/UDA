@@ -163,6 +163,7 @@ const std::vector<SectionValidator> Validators = {
                              {"is_proxy", ValueType::Boolean},
                              {"proxy_target", ValueType::String},
                              {"address", ValueType::String},
+                             {"port", ValueType::Integer},
                      }},
 };
 

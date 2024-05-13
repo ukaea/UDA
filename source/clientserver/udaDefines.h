@@ -77,7 +77,7 @@
 //--------------------------------------------------------
 // Client Specified Properties
 
-#define TIMEOUT 600    // Server Shutdown after this time (Secs)
+#define TIMEOUT 1    // Server Shutdown after this time (Secs)
 #define COMPRESS_DIM 1 // Compress regular dimensional data
 
 //--------------------------------------------------------
