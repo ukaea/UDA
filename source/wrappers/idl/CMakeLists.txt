@@ -49,7 +49,6 @@ if( FAT_IDL )
     $<TARGET_OBJECTS:fatmodules-objects>
     $<TARGET_OBJECTS:cache-objects>
     $<TARGET_OBJECTS:logging-server-objects>
-    $<TARGET_OBJECTS:plugins-objects>
   )
 
   add_library( ${LIB_NAME} SHARED ${SRC_FILES} ${FATCLIENT_OBJS} )

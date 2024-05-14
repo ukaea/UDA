@@ -5,7 +5,7 @@ find_package( LibXml2 REQUIRED )
 find_package( fmt REQUIRED )
 find_package( Boost COMPONENTS filesystem REQUIRED )
 
-set( LIBS LibXml2::LibXml2 fmt::fmt )
+set( LIBS LibXml2::LibXml2 fmt::fmt Boost::filesystem server2-shared )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -65,28 +65,14 @@ set( SOURCE_FILES
   uda_plugin_base.cpp
 )
 
-add_library( plugins-objects OBJECT ${SOURCE_FILES} )
+add_library( plugins-static STATIC ${SOURCE_FILES} )
 
-target_compile_definitions( plugins-objects PRIVATE -DSERVERBUILD )
-target_include_directories( plugins-objects PRIVATE
+target_include_directories( plugins-static PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
   ${CMAKE_BINARY_DIR}/include
 )
-target_link_libraries( plugins-objects PRIVATE ${LIBS} )
-
-add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
-target_link_libraries( plugins-static PUBLIC Boost::filesystem )
-#if( BUILD_SHARED_LIBS )
-#  add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
-#  target_link_libraries( plugins-shared PUBLIC Boost::filesystem )
-#endif()
-
 target_link_libraries( plugins-static PRIVATE ${LIBS} )
-
-#if( BUILD_SHARED_LIBS )
-#  target_link_libraries( plugins-shared PRIVATE server2-shared ${LINK_LIB} )
-#endif()
 
 set_target_properties( plugins-static
   PROPERTIES
@@ -97,24 +83,3 @@ install(
   TARGETS plugins-static
   DESTINATION lib
 )
-
-#if( BUILD_SHARED_LIBS )
-#  set_target_properties( plugins-shared
-#    PROPERTIES
-#      OUTPUT_NAME ${PROJECT_NAME}_plugins
-#      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-#      SOVERSION ${PROJECT_VERSION_MAJOR}
-#  )
-#  if( WIN32 )
-#    set_target_properties( plugins-shared
-#      PROPERTIES
-#        COMPILE_FLAGS -DLIBRARY_EXPORTS
-#        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-#    )
-#  endif()
-#
-#  install(
-#    TARGETS plugins-shared
-#    DESTINATION lib
-#  )
-#endif()

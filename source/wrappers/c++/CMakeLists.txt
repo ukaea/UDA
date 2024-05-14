@@ -98,7 +98,6 @@ if( NOT CLIENT_ONLY )
     structures-server-objects
     cache-objects
     logging-server-objects
-    plugins-objects
     authentication-client-objects
     config-objects
   )
