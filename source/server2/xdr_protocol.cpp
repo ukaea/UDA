@@ -116,10 +116,15 @@ int write(void* iohandle, char* buf, int count) {
 
 }
 
-void uda::server::XdrProtocol::create(int socket)
+void uda::server::XdrProtocol::create()
 {
-    _io_data.server_socket = socket;
+    _io_data.server_socket = 0;
     create_streams();
+}
+
+void uda::server::XdrProtocol::set_socket(int socket_fd)
+{
+    _io_data.server_socket = socket_fd;
 }
 
 uda::server::XdrProtocol::XdrProtocol()

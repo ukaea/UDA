@@ -24,8 +24,9 @@ class XdrProtocol
 {
   public:
     XdrProtocol();
-    void create(int socket);
+    void create();
     void set_version(int protocol_version);
+    void set_socket(int socket_fd);
 
     int read_client_block(client_server::ClientBlock* client_block,
                           structures::LogMallocList* log_malloc_list,

@@ -133,8 +133,6 @@ uda::server::Server::Server(Config config)
     , _protocol{}
     , _sockets{}
     , _plugins{_config}
-    , _io_context{}
-    , _socket{_io_context}
 {
     init_server_block(&_server_block, ServerVersion);
     init_actions(&_actions_desc); // There may be a Sequence of Actions to Apply
@@ -178,7 +176,7 @@ void uda::server::Server::start_logs()
     }
 }
 
-void uda::server::Server::startup()
+void uda::server::Server::initalise()
 {
     auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
 
@@ -195,18 +193,9 @@ void uda::server::Server::startup()
     // Initialise the plugins
     _plugins.init();
 
-    unsigned short port = _config.get("server.port").as_or_default(0);
-    int socket_fd = 0;
-
-    if (port > 0) {
-        tcp::acceptor acceptor{_io_context, tcp::endpoint{tcp::v4(), port}};
-        acceptor.accept(_socket);
-        socket_fd = _socket.native_handle();
-    }
-
     //-------------------------------------------------------------------------
     // Create the XDR Record Streams
-    _protocol.create(socket_fd);
+    _protocol.create();
 
     //----------------------------------------------------------------------------
     // Server Information: Operating System Name - may limit types of data that can be received by the Client
@@ -226,15 +215,40 @@ void uda::server::Server::startup()
 
 void uda::server::Server::run()
 {
-    startup();
+    initalise();
+
+    unsigned short port = _config.get("server.port").as_or_default(0);
+    int socket_fd = 0;
+
+    if (port > 0) {
+        // simple tcp server
+        boost::asio::io_context io_context;
+        tcp::acceptor acceptor{io_context, tcp::endpoint{tcp::v4(), port}};
+        for (;;) {
+            boost::asio::ip::tcp::socket socket{io_context};
+            acceptor.accept(socket);
+            socket_fd = socket.native_handle();
+            connect(socket_fd);
+            socket.close();
+        }
+    } else {
+        // running under systemd - reading/writing to stdin/stdout
+        connect(0);
+    }
+    shutdown();
+}
+
+void uda::server::Server::connect(int socket_fd)
+{
+    _server_closedown = false;
+    _protocol.set_socket(socket_fd);
     handshake_client();
     if (!_server_closedown) {
         loop();
     }
-    close();
 }
 
-void uda::server::Server::close()
+void uda::server::Server::shutdown()
 {
     //----------------------------------------------------------------------------
     // Server Destruct.....
