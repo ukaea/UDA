@@ -108,7 +108,7 @@ if( NOT CLIENT_ONLY )
   
   if( BUILD_SHARED_LIBS )
     add_library( fat${LIB_NAME}-shared SHARED ${FATCLIENT_OBJS} )
-    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LIBS} plugins-shared ${FATOBJECT_LIBS} )
+    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LIBS} plugins-static ${FATOBJECT_LIBS} )
   endif()
 endif()
 

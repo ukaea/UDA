@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "clientserver/udaStructs.h"
-#include "plugins/udaPlugin.h"
 #include "serverPlugin.h"
 
 namespace uda::server

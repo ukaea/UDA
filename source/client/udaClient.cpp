@@ -475,7 +475,7 @@ unsigned int* uda::client::udaPrivateFlags()
     return &private_flags;
 }
 
-int uda::client::idamClient(RequestBlock* request_block, int* indices)
+int uda::client::udaClient(RequestBlock* request_block, int* indices)
 {
     // Efficient reduced (filled) tcp packet protocol for efficiency over large RTT fat pipes
     // This client version will only be able to communicate with a version 7+ server
@@ -620,7 +620,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         //-------------------------------------------------------------------------
         // Server State: Is the Server Dead? (Age Dependent)
 
-        bool initServer = true;
+        bool init_server = true;
 
         if (age >= client_flags->user_timeout - 2) {
             // Assume the Server has Self-Destructed so Instantiate a New Server
@@ -635,9 +635,9 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
                 add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "XDR Streams are Closed!");
                 UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!");
                 closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs);
-                initServer = true;
+                init_server = true;
             } else {
-                initServer = false;
+                init_server = false;
                 xdrrec_eof(client_input); // Flush input socket
             }
         }
@@ -645,7 +645,7 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         //-------------------------------------------------------------------------
         // Open a Socket and Connect to the UDA Data Server (Multiple Servers?)
 
-        if (initServer) {
+        if (init_server) {
             authentication_needed = 1;
 #  if !defined(FATCLIENT) && !defined(SECURITYENABLED)
             startupStates = 0;
@@ -686,13 +686,13 @@ int uda::client::idamClient(RequestBlock* request_block, int* indices)
         //-------------------------------------------------------------------------
 
 #else  // <========================== End of Client Server Code Only
-        bool initServer = true;
+        bool init_server = true;
 #endif // <========================== End of FatClient Code Only
 
         //-------------------------------------------------------------------------
         // Initialise the Client/Server Structures
 
-        if (initServer && system_startup) {
+        if (init_server && system_startup) {
             user_id(client_username);
             init_client_block(&client_block, ClientVersion, client_username);
             system_startup = false; // Don't call again!

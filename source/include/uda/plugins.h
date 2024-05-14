@@ -72,7 +72,7 @@ LIBRARY_API void udaPluginLog_i(UDA_PLUGIN_INTERFACE* plugin_interface, const ch
 LIBRARY_API void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* location, int code,
                                    const char* msg);
 
-LIBRARY_API UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request);
+LIBRARY_API UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request);
 
 LIBRARY_API void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface);
 

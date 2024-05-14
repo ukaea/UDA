@@ -32,7 +32,7 @@ int UDAPluginBase::call(UDA_PLUGIN_INTERFACE* plugin_interface)
             auto fn = method_map_.at(function);
             rc = (this->*fn)(plugin_interface);
         } else {
-            error(plugin_interface, "Unknown function requested");
+            error(plugin_interface, "Unknown function '{}' requested", function);
         }
         return rc;
     } catch (std::exception& ex) {

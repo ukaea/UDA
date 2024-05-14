@@ -10,8 +10,11 @@
 #include "cache/memcache.hpp"
 #include "clientserver/parseXML.h"
 #include "clientserver/socketStructs.h"
+#include "clientserver/version.h"
 #include "include/uda/export.h"
 #include "config/config.h"
+
+#include <uda/version.h>
 
 namespace uda::server
 {
@@ -27,7 +30,7 @@ struct MetadataBlock {
 class Server
 {
   public:
-    constexpr static int ServerVersion = 8;
+    constexpr static int ServerVersion = UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
     constexpr static int LegacyServerVersion = 6;
 
     LIBRARY_API Server(config::Config config);

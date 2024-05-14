@@ -30,8 +30,9 @@ public:
             : what_(std::move(what))
             , backtrace_(std::move(backtrace))
     {
+        backtrace_msg_ = what_ + "\nBacktrace:\n";
         for (const auto& str : backtrace_) {
-            backtrace_msg_ += str + "\n";
+            backtrace_msg_ += " - " + str + "\n";
         }
     };
 

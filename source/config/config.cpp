@@ -338,6 +338,14 @@ void Config::set(std::string_view name, bool value)
     return _impl->set(name, value);
 }
 
+void Config::set(std::string_view name, const char* value)
+{
+    if (!_impl) {
+        throw ConfigError{"config has not been loaded"};
+    }
+    return _impl->set(name, value);
+}
+
 void Config::set(std::string_view name, const std::string& value)
 {
     if (!_impl) {

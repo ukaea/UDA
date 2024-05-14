@@ -32,7 +32,6 @@
 #define REQUEST_PLUGIN_MSTEP 10   // Increase heap by 10 records once the maximum is exceeded
 
 using namespace uda::client_server;
-using namespace uda::plugins;
 using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::config;
@@ -361,8 +360,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
     plugin_interface.pluginList = &plugin_list;
     plugin_interface.user_defined_type_list = &user_defined_type_list;
     plugin_interface.log_malloc_list = &log_malloc_list;
-    plugin_interface.error_stack.nerrors = 0;
-    plugin_interface.error_stack.idamerror = nullptr;
+    plugin_interface.error_stack = {};
 
     // Redirect Output to temporary file if no file handles passed
 
@@ -438,28 +436,36 @@ boost::optional<const PluginData&> uda::server::find_metadata_plugin(const Confi
     auto external_user = bool(config.get("server.external_user"));
 
     auto metadata_plugin = config.get("plugins.metadata_plugin");
-    if (metadata_plugin) { // Must be set in the server startup script
-        auto [_, maybe_plugin] = plugins.find_by_name(metadata_plugin.as<std::string>().c_str());
-        if (maybe_plugin && maybe_plugin->type == UDA_PLUGIN_CLASS_FUNCTION
-            && maybe_plugin->handle != nullptr
-            && maybe_plugin->entry_func != nullptr) {
-            plugin = maybe_plugin.get();
-        }
 
-        if (plugin && plugin->is_private == UDA_PLUGIN_PRIVATE && external_user) {
-            // Not available to external users
+    if (metadata_plugin) {
+        size_t _;
+        std::tie(_, plugin) = plugins.find_by_name(metadata_plugin.as<std::string>().c_str());
+    } else {
+        UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin specified")
+    }
+
+    if (plugin) { // Must be set in the server startup script
+
+        if (plugin->type != UDA_PLUGIN_CLASS_FUNCTION
+            || plugin->handle == nullptr
+            || plugin->entry_func == nullptr) {
+            UDA_LOG(UDA_LOG_DEBUG, "Invalid generic plugin")
             plugin = {};
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: {}", metadata_plugin.as<std::string>().c_str())
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: {}",
-                maybe_plugin->type == UDA_PLUGIN_CLASS_FUNCTION)
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: {}", maybe_plugin->is_private == UDA_PLUGIN_PRIVATE)
-        UDA_LOG(UDA_LOG_DEBUG, "External User?: {}", external_user)
-        UDA_LOG(UDA_LOG_DEBUG, "Private?: {}",
-                maybe_plugin->is_private == UDA_PLUGIN_PRIVATE && external_user)
-        UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: {}",
-                maybe_plugin->handle != nullptr && maybe_plugin->entry_func != nullptr)
+        if (plugin->is_private == UDA_PLUGIN_PRIVATE && external_user) {
+            UDA_LOG(UDA_LOG_DEBUG, "Generic plugin not available to external users")
+            plugin = {};
+        }
+
+        if (plugin) {
+            UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: {}", metadata_plugin.as<std::string>().c_str())
+            UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: {}", plugin->type == UDA_PLUGIN_CLASS_FUNCTION)
+            UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: {}", plugin->is_private == UDA_PLUGIN_PRIVATE)
+            UDA_LOG(UDA_LOG_DEBUG, "External User?: {}", external_user)
+            UDA_LOG(UDA_LOG_DEBUG, "Private?: {}", plugin->is_private == UDA_PLUGIN_PRIVATE && external_user)
+            UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: {}", plugin->handle != nullptr && plugin->entry_func != nullptr)
+        }
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin identified")
     }
@@ -510,8 +516,7 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::client_se
     plugin_interface.pluginList = &plugin_list;
     plugin_interface.user_defined_type_list = &userdefinedtypelist;
     plugin_interface.log_malloc_list = &logmalloclist;
-    plugin_interface.error_stack.nerrors = 0;
-    plugin_interface.error_stack.idamerror = nullptr;
+    plugin_interface.error_stack = {};
 
     // Redirect Output to temporary file if no file handles passed
 

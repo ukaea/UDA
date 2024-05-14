@@ -183,12 +183,13 @@ int uda::Client::serverPort()
 {
     int num_errors = udaGetServerErrorStackSize();
     std::vector<std::string> backtrace;
-    int code = num_errors > 0 ? udaGetErrorCode(0) : 0;
-    std::string msg = num_errors > 0 ? udaGetErrorMessage(0) : "";
+    int code = num_errors > 0 ? udaGetServerErrorStackRecordCode(0) : 0;
+    std::string msg = num_errors > 0 ? udaGetServerErrorStackRecordMsg(0) : "";
 
     backtrace.reserve(num_errors);
     for (int i = 0; i < num_errors; ++i) {
-        backtrace.push_back(std::string("[") + udaGetErrorLocation(i) + "]: " + udaGetErrorMessage(i));
+        backtrace.push_back(std::string("[") + udaGetServerErrorStackRecordLocation(i) + "]: "
+        + udaGetServerErrorStackRecordMsg(i));
     }
 
     if ((code > 0 && code < 25) || (code > 60 && code < 66)) {

@@ -2,7 +2,6 @@
 
 #include <vector>
 
-#include "plugins/udaPlugin.h"
 #include "udaStructs.h"
 
 namespace uda::config {

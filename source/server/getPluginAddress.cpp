@@ -8,7 +8,6 @@
 #include "logging/logging.h"
 
 using namespace uda::client_server;
-using namespace uda::plugins;
 using namespace uda::logging;
 
 /**

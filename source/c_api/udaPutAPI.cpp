@@ -103,7 +103,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
     request_block.requests[0].putDataBlockList = *putDataBlockList;
 
     int handle;
-    err = idamClient(&request_block, &handle);
+    err = udaClient(&request_block, &handle);
     if (err < 0) {
         handle = err;
     }
@@ -180,7 +180,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     add_put_data_block_list(putData, &request_block.requests[0].putDataBlockList);
 
     int handle;
-    err = idamClient(&request_block, &handle);
+    err = udaClient(&request_block, &handle);
     if (err < 0) {
         handle = err;
     }

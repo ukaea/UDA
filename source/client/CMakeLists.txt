@@ -50,6 +50,7 @@ set( SRC_FILES
   udaClient.cpp
   udaClientHostList.cpp
   client_config.cpp
+  client_logging.cpp
 )
 
 add_library( client-objects OBJECT ${SRC_FILES} )
@@ -117,7 +118,7 @@ if( NOT CLIENT_ONLY )
   
   if( BUILD_SHARED_LIBS )
     add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
-    target_link_libraries( fatclient-shared PUBLIC plugins-shared ${LIBS} )
+    target_link_libraries( fatclient-shared PUBLIC plugins-static ${LIBS} )
   endif()
 endif()
 

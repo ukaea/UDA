@@ -40,7 +40,7 @@ class Option
                 return string.c_str();
             }
             throw ConfigError::cast_error<std::string>(_name, _value);
-        } else if constexpr (std::is_integral_v<T>) {
+        } else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
             if (is<long long>()) {
                 auto value = boost::any_cast<long long>(_value);
                 return static_cast<T>(value);
@@ -64,7 +64,7 @@ class Option
                 return default_value;
             }
             throw ConfigError::cast_error<std::string>(_name, _value);
-        } else if constexpr (std::is_integral_v<T>) {
+        } else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
             if (is<long long>()) {
                 auto value = boost::any_cast<long long>(_value);
                 return static_cast<T>(value);
@@ -97,8 +97,9 @@ class Config
     ~Config();
     void load(std::string_view file_name);
     Option get(std::string_view name) const;
-    void set(std::string_view name, bool value);
     void set(std::string_view name, const std::string& value);
+    void set(std::string_view name, const char* value);
+    void set(std::string_view name, bool value);
     void set(std::string_view name, int value);
     void print() const;
 

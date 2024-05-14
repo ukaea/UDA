@@ -18,8 +18,8 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "logging/logging.h"
-#include "config/config.h"
 
+#include "client/client_logging.h"
 #include "client/makeClientRequestBlock.h"
 #include "client/startup.h"
 
@@ -38,7 +38,6 @@
 using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::logging;
-using namespace uda::config;
 
 typedef struct {
     int id;     // Thread identifier assigned by the application
@@ -335,6 +334,8 @@ int udaGetAPI(const char* data_object, const char* data_source)
 
 int udaGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
 {
+    uda::client::init_logging();
+
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
@@ -363,9 +364,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
 
     UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup");
 
-    static bool reopen_logs = true;
-
-    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
+    if (udaStartup(0, client_flags) != 0) {
         udaUnlockThread();
         return PROBLEM_OPENING_LOGS;
     }
@@ -424,7 +423,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
 #endif
 
     int handle;
-    err = idamClient(&request_block, &handle);
+    err = udaClient(&request_block, &handle);
     if (err < 0) {
         handle = err;
     }
@@ -450,6 +449,8 @@ int udaGetBatchAPI(const char** signals, const char** sources, int count, int* h
 int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host,
                            int port)
 {
+    uda::client::init_logging();
+
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
@@ -477,9 +478,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
 
     UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup");
 
-    static bool reopen_logs = true;
-
-    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
+    if (udaStartup(0, client_flags) != 0) {
         udaUnlockThread();
         return PROBLEM_OPENING_LOGS;
     }
@@ -538,7 +537,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
     return -1;
 #endif
 
-    err = idamClient(&request_block, handles);
+    err = udaClient(&request_block, handles);
 
     //-------------------------------------------------------------------------
     // Memory Debugger Exit

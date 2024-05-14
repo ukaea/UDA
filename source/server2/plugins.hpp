@@ -22,9 +22,10 @@ namespace uda::server
 
 // Standard Plugin interface
 struct UdaPluginInterface : UDA_PLUGIN_INTERFACE {
-    unsigned short interface_version;               // Interface Version
-    unsigned short house_keeping;                   // Housekeeping Directive
-    unsigned short change_plugin;                   // Use a different Plugin to access the data
+    int interface_version;               // Interface Version
+    int plugin_version;
+    bool house_keeping;                   // Housekeeping Directive
+    bool change_plugin;                   // Use a different Plugin to access the data
     uda::client_server::DataBlock* data_block;
     uda::client_server::RequestData* request_data;
     uda::client_server::ClientBlock* client_block;
@@ -33,7 +34,7 @@ struct UdaPluginInterface : UDA_PLUGIN_INTERFACE {
     uda::structures::LogMallocList* log_malloc_list;
     uda::structures::UserDefinedTypeList* user_defined_type_list;
     const std::vector<client_server::PluginData>* pluginList; // List of data readers, filters, models, and servers
-    uda::client_server::ErrorStack error_stack;
+    std::vector<client_server::UdaError> error_stack;
     const uda::config::Config* config;
 };
 

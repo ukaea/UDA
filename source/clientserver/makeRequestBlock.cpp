@@ -139,7 +139,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     // Is this server acting as an UDA Proxy? If all access requests are being re-directed then do nothing to the
     // arguments. They are just passed onwards without interpretation.
 
-    bool is_proxy = bool(config.get("server.proxy_target"));
+    bool is_proxy = config.get("server.is_proxy").as_or_default(false);
 
     if (is_proxy) {
         request->request = REQUEST_READ_IDAM;
@@ -1096,7 +1096,9 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
 
     trim_string(request->signal);
 
-    if (request->signal[0] != '\0' && !config.get("server.proxy_target")) {
+    auto proxy_target = config.get("server.proxy_target").as_or_default(""s);
+
+    if (request->signal[0] != '\0' && proxy_target.empty()) {
 
         UDA_LOG(UDA_LOG_DEBUG, "Testing for ARCHIVE::Signal");
 
@@ -1106,10 +1108,10 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
                 UDA_ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
                 return err;
             }
-            copy_string(request->signal, request->archive, test - request->signal);
+            copy_string(request->signal, request->archive, test - request->signal + 1);
             trim_string(request->archive);
 
-            auto archive = config.get("request.default_archive").as_or_default<std::string>({});
+            auto archive = config.get("request.default_archive").as_or_default(""s);
 
             // If a plugin is prefixed by the local archive name then discard the archive name
             if (reduceSignal && !strcasecmp(request->archive, archive.c_str())) {

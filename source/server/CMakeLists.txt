@@ -41,6 +41,7 @@ set( SRC_FILES
   writer.cpp
   createXDRStream.cpp
   server_config.cpp
+  plugin_api.cpp
 )
 
 add_definitions( -DSERVERBUILD )
@@ -123,7 +124,6 @@ target_link_libraries( server-static PRIVATE
 if( BUILD_SHARED_LIBS )
   target_link_libraries( server-shared PRIVATE
     client-shared
-    plugins-shared
     ${CACHE_LIBRARIES}
   )
 endif()
@@ -131,9 +131,9 @@ endif()
 # Executable
 set( SERVER_LINKING )
 if( BUILD_SHARED_LIBS )
-  set( SERVER_LINKING client-shared server-shared plugins-shared )
+  set( SERVER_LINKING client-shared server-shared )
 else()
-  set( SERVER_LINKING client-static server-static plugins-static )
+  set( SERVER_LINKING client-static server-static )
 endif()
 
 target_link_libraries( server-exe PRIVATE

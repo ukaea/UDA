@@ -133,15 +133,13 @@ void uda::server::Plugins::close()
     _plugins.clear();
 }
 
-constexpr int IdOffset = 100;
-
 std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> uda::server::Plugins::find_by_name(const std::string& name) const
 {
     std::string name_lower = boost::to_lower_copy(name);
     size_t i = 0;
     for (auto& plugin : _plugins) {
         if (plugin.name == name_lower) {
-            return std::make_pair(i + IdOffset, boost::optional<const uda::client_server::PluginData&>{plugin});
+            return std::make_pair(i, boost::optional<const uda::client_server::PluginData&>{plugin});
         }
         ++i;
     }
@@ -150,10 +148,6 @@ std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> uda::s
 
 [[nodiscard]] boost::optional<const uda::client_server::PluginData&> uda::server::Plugins::find_by_id(size_t id) const
 {
-    if (id < IdOffset) {
-        return {};
-    }
-    id -= IdOffset;
     if (_plugins.empty() || id > _plugins.size() - 1) {
         return {};
     }

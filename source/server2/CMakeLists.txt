@@ -38,6 +38,7 @@ set( SRC_FILES
   server_processing.cpp
   server_subset_data.cpp
   xdr_protocol.cpp
+  plugin_api.cpp
 )
 
 add_definitions( -DSERVERBUILD )
@@ -100,7 +101,6 @@ target_link_libraries( server2-static PRIVATE
 if( BUILD_SHARED_LIBS )
   target_link_libraries( server2-shared PRIVATE
     client-shared
-    plugins-shared
     ${CACHE_LIBRARIES}
   )
 endif()
@@ -108,9 +108,9 @@ endif()
 # Executable
 set( SERVER_LINKING )
 if( BUILD_SHARED_LIBS )
-  set( SERVER_LINKING client-shared server2-shared plugins-shared )
+  set( SERVER_LINKING client-shared server2-shared )
 else()
-  set( SERVER_LINKING client-static server2-static plugins-static )
+  set( SERVER_LINKING client-static server2-static )
 endif()
 
 target_link_libraries( server2-exe PRIVATE

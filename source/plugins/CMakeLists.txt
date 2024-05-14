@@ -62,7 +62,6 @@ endif( DEFINED BUILD_PLUGINS )
 
 set( SOURCE_FILES
   managePluginFiles.cpp
-  udaPlugin.cpp
   uda_plugin_base.cpp
 )
 
@@ -78,16 +77,16 @@ target_link_libraries( plugins-objects PRIVATE ${LIBS} )
 
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
 target_link_libraries( plugins-static PUBLIC Boost::filesystem )
-if( BUILD_SHARED_LIBS )
-  add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
-  target_link_libraries( plugins-shared PUBLIC Boost::filesystem )
-endif()
+#if( BUILD_SHARED_LIBS )
+#  add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
+#  target_link_libraries( plugins-shared PUBLIC Boost::filesystem )
+#endif()
 
 target_link_libraries( plugins-static PRIVATE ${LIBS} )
 
-if( BUILD_SHARED_LIBS )
-  target_link_libraries( plugins-shared PRIVATE server-static ${LINK_LIB} )
-endif()
+#if( BUILD_SHARED_LIBS )
+#  target_link_libraries( plugins-shared PRIVATE server2-shared ${LINK_LIB} )
+#endif()
 
 set_target_properties( plugins-static
   PROPERTIES
@@ -99,23 +98,23 @@ install(
   DESTINATION lib
 )
 
-if( BUILD_SHARED_LIBS )
-  set_target_properties( plugins-shared
-    PROPERTIES
-      OUTPUT_NAME ${PROJECT_NAME}_plugins
-      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-      SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( plugins-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install(
-    TARGETS plugins-shared
-    DESTINATION lib
-  )
-endif()
+#if( BUILD_SHARED_LIBS )
+#  set_target_properties( plugins-shared
+#    PROPERTIES
+#      OUTPUT_NAME ${PROJECT_NAME}_plugins
+#      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+#      SOVERSION ${PROJECT_VERSION_MAJOR}
+#  )
+#  if( WIN32 )
+#    set_target_properties( plugins-shared
+#      PROPERTIES
+#        COMPILE_FLAGS -DLIBRARY_EXPORTS
+#        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+#    )
+#  endif()
+#
+#  install(
+#    TARGETS plugins-shared
+#    DESTINATION lib
+#  )
+#endif()

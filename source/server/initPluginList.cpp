@@ -13,7 +13,6 @@
 #include "getPluginAddress.h"
 
 using namespace uda::client_server;
-using namespace uda::plugins;
 
 void uda::server::initPluginList(std::vector<PluginData>& plugin_list)
 {

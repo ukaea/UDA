@@ -11,6 +11,7 @@ Interprets the API arguments and assembles a Request data structure.
 //------------------------------------------------------------------------------------------------------------------
 
 #include "makeClientRequestBlock.h"
+#include "client_config.h"
 
 #include <cstdlib>
 #ifdef __GNUC__
@@ -35,8 +36,9 @@ using namespace uda::client;
 
 using namespace std::string_literals;
 
-int make_request_data(const char* data_object, const char* data_source, RequestData* request)
-{
+namespace uda::client {
+
+int make_request_data(const char* data_object, const char* data_source, RequestData* request) {
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
 
@@ -60,12 +62,12 @@ int make_request_data(const char* data_object, const char* data_source, RequestD
      * interpret the data access request.
      */
 
-    uda::config::Config config = {};
+    uda::config::Config* config = client_config();
     // TODO: load client config
 
-    auto delim = config.get("client.delim").as_or_default("::"s);
-    auto device = config.get("client.default_device").as_or_default(""s);
-    auto archive = config.get("client.default_archive").as_or_default(""s);
+    auto delim = config->get("client.delim").as_or_default("::"s);
+    auto device = config->get("client.default_device").as_or_default(""s);
+    auto archive = config->get("client.default_archive").as_or_default(""s);
 
     strcpy(request->api_delim, delim.c_str()); // Server needs to know how to parse the arguments
 
@@ -78,7 +80,7 @@ int make_request_data(const char* data_object, const char* data_source, RequestD
 
     if (!device.empty() && strstr(request->source, request->api_delim) == nullptr) {
         int lstr =
-            (int)strlen(request->source) + (int)device.size() + (int)strlen(request->api_delim);
+                (int) strlen(request->source) + (int) device.size() + (int) strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
             UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG,
                             "The Data Source Argument, prefixed with the Device Name, is too long!");
@@ -89,7 +91,7 @@ int make_request_data(const char* data_object, const char* data_source, RequestD
 
     if (!archive.empty() && strstr(request->signal, request->api_delim) == nullptr) {
         int lstr =
-            (int)strlen(request->signal) + (int)archive.size() + (int)strlen(request->api_delim);
+                (int) strlen(request->signal) + (int) archive.size() + (int) strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
             UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG,
                             "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
@@ -132,18 +134,20 @@ int make_request_data(const char* data_object, const char* data_source, RequestD
         if (strchr(request->source, '(') == nullptr && strchr(request->source, ')') == nullptr) {
             // source is not a function call
             strcpy(request->path, request->source);
-            expand_file_path(config, request->path);
+            expand_file_path(*config, request->path);
         }
     } else {
         if (strchr(test, '(') == nullptr && strchr(test, ')') == nullptr) {
             // Prefixed and not a function call
-            int ldelim = (int)strlen(request->api_delim);
+            int ldelim = (int) strlen(request->api_delim);
             strcpy(request->path, &test[ldelim]);
-            expand_file_path(config, request->path);
+            expand_file_path(*config, request->path);
         }
     }
 
     return 0;
+}
+
 }
 
 int uda::client::makeClientRequestBlock(const char** signals, const char** sources, int count,

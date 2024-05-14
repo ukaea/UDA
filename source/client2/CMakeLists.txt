@@ -103,7 +103,7 @@ if( NOT CLIENT_ONLY )
   
   if( BUILD_SHARED_LIBS )
     add_library( fatclient2-shared SHARED ${FATCLIENT_OBJS} )
-    target_link_libraries( fatclient2-shared PRIVATE plugins-shared ${LIBS} )
+    target_link_libraries( fatclient2-shared PRIVATE plugins-static ${LIBS} )
   endif()
 endif()
 

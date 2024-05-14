@@ -1,11 +1,9 @@
-#include "udaPlugin.h"
-
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <string>
-#include <uda/plugins.h>
-#include <uda/structured.h>
-#include <uda/types.h>
+#include "include/uda/plugins.h"
+#include "include/uda/structured.h"
+#include "include/uda/types.h"
 #include <vector>
 
 #include "clientserver/errorLog.h"
@@ -14,57 +12,68 @@
 #include "common/stringUtils.h"
 #include "clientserver/type_convertor.hpp"
 #include "logging/logging.h"
-#include "server/initPluginList.h"
-#include "server/serverPlugin.h"
-#include "server/serverSubsetData.h"
 #include "structures/accessors.h"
 #include "structures/struct.h"
 #include "config/config.h"
 
+#include "plugins.hpp"
+#include "clientserver/parseXML.h"
+#include "server_subset_data.h"
+
 using namespace uda::client_server;
 using namespace uda::server;
-using namespace uda::plugins;
 using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::config;
 
-UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const Config& config, const char* request)
+static int find_plugin_id_by_format(std::string_view format, const std::vector<PluginData>& plugin_list)
 {
-    auto plugin_interface = (UdaPluginInterface*)calloc(1, sizeof(UdaPluginInterface));
-    auto plugin_list = std::vector<PluginData>{};
+    size_t id = 0;
+    for (const auto& plugin : plugin_list) {
+        if (plugin.name == format) {
+            return id;
+        }
+    }
+    return -1;
+}
 
-    initPluginList(plugin_list);
+UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request)
+{
+    auto old_plugin_interface = (UdaPluginInterface*)plugin_interface;
+    auto new_plugin_interface = (UdaPluginInterface*)calloc(1, sizeof(UdaPluginInterface));
+
+    auto config = old_plugin_interface->config;
+    auto plugin_list = old_plugin_interface->pluginList;
 
     auto request_data = (RequestData*)calloc(1, sizeof(RequestData));
-    make_request_data(config, request_data, plugin_list);
+    copy_string(request, request_data->signal, MAXMETA);
+    make_request_data(*config, request_data, *plugin_list);
 
     auto user_defined_type_list = (UserDefinedTypeList*)calloc(1, sizeof(UserDefinedTypeList));
     auto log_malloc_list = (LogMallocList*)calloc(1, sizeof(LogMallocList));
 
-    plugin_interface->request_data = request_data;
-    plugin_interface->pluginList = &plugin_list;
-    plugin_interface->config = &config;
-    plugin_interface->userdefinedtypelist = user_defined_type_list;
-    plugin_interface->logmalloclist = log_malloc_list;
+    new_plugin_interface->request_data = request_data;
+    new_plugin_interface->pluginList = plugin_list;
+    new_plugin_interface->config = config;
+    new_plugin_interface->user_defined_type_list = user_defined_type_list;
+    new_plugin_interface->log_malloc_list = log_malloc_list;
 
-    plugin_interface->interfaceVersion = 1;
-    plugin_interface->pluginVersion = 0;
-    plugin_interface->housekeeping = 0;
-    plugin_interface->changePlugin = 0;
-    plugin_interface->error_stack.nerrors = 0;
-    plugin_interface->error_stack.idamerror = nullptr;
+    new_plugin_interface->interface_version = 1;
+    new_plugin_interface->house_keeping = false;
+    new_plugin_interface->change_plugin = false;
+    new_plugin_interface->error_stack = {};
 
-    return plugin_interface;
+    return new_plugin_interface;
 }
 
 void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     free(interface->request_data);
-    udaFreeUserDefinedTypeList(interface->userdefinedtypelist);
-    free(interface->userdefinedtypelist);
-    udaFreeMallocLogList(interface->logmalloclist);
-    free(interface->logmalloclist);
+    udaFreeUserDefinedTypeList(interface->user_defined_type_list);
+    free(interface->user_defined_type_list);
+    udaFreeMallocLogList(interface->log_malloc_list);
+    free(interface->log_malloc_list);
     free(plugin_interface);
 }
 
@@ -368,7 +377,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
 
     make_request_data(*interface->config, &request_data, *interface->pluginList);
 
-    request_data.request = findPluginIdByFormat(request_data.format, *interface->pluginList);
+    request_data.request = find_plugin_id_by_format(request_data.format, *interface->pluginList);
     if (request_data.request == -1) {
         UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found!");
     }
@@ -389,7 +398,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
         init_action(&action);
         action.actionType = UDA_SUBSET_TYPE;
         action.subset = request_data.datasubset;
-        err = serverSubsetData(new_plugin_interface.data_block, action, new_plugin_interface.logmalloclist);
+        err = server_subset_data(new_plugin_interface.data_block, action, new_plugin_interface.log_malloc_list);
     }
 
     return err;
@@ -413,7 +422,7 @@ int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* da
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)udaFindUserDefinedType(interface->userdefinedtypelist, user_type, 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(interface->user_defined_type_list, user_type, 0);
 
     if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
@@ -458,7 +467,7 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)udaFindUserDefinedType(interface->userdefinedtypelist, user_type, 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(interface->user_defined_type_list, user_type, 0);
 
     if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
@@ -531,7 +540,7 @@ USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id
 int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user_type)
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
-    UserDefinedTypeList* userdefinedtypelist = interface->userdefinedtypelist;
+    UserDefinedTypeList* userdefinedtypelist = interface->user_defined_type_list;
     add_user_defined_type(userdefinedtypelist, *static_cast<UserDefinedType*>(user_type));
 
     return 0;
@@ -540,7 +549,7 @@ int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user
 int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type)
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
-    udaAddMalloc(interface->logmalloclist, data, count, size, type);
+    udaAddMalloc(interface->log_malloc_list, data, count, size, type);
 
     return 0;
 }
@@ -549,7 +558,7 @@ int udaRegisterMallocArray(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, i
                            int rank, int* shape)
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
-    udaAddMalloc2(interface->logmalloclist, data, count, size, type, rank, shape);
+    udaAddMalloc2(interface->log_malloc_list, data, count, size, type, rank, shape);
 
     return 0;
 }
@@ -649,11 +658,8 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     UDA_LOG(UDA_LOG_ERROR, msg);
-    interface->error_stack.nerrors += 1;
-    interface->error_stack.idamerror =
-        (UdaError*)realloc(interface->error_stack.idamerror, interface->error_stack.nerrors * sizeof(UdaError));
-    interface->error_stack.idamerror[interface->error_stack.nerrors - 1] =
-        create_error(UDA_CODE_ERROR_TYPE, location, code, msg);
+    auto error = create_error(UDA_CODE_ERROR_TYPE, location, code, msg);
+    interface->error_stack.push_back(error);
 }
 
 int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)
@@ -667,18 +673,18 @@ int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)
 int udaPluginCheckInterfaceVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int interface_version)
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
-    return interface->interfaceVersion > interface_version;
+    return interface->interface_version > interface_version;
 }
 
 void udaPluginSetVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_version)
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
-    interface->pluginVersion = plugin_version;
+    interface->plugin_version = plugin_version;
 }
 
 const char* udaPluginFunction(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    auto interface = reinterpret_cast<UdaPluginInterface*>(plugin_interface);
     return interface->request_data->function;
 }
 

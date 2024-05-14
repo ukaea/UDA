@@ -16,7 +16,6 @@
 #include <uda/types.h>
 
 using namespace uda::client_server;
-using namespace uda::plugins;
 using namespace uda::logging;
 
 int uda::server::swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmetry)
@@ -1104,8 +1103,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         plugin_interface.pluginList = &plugin_list;
         plugin_interface.user_defined_type_list = _user_defined_type_list;
         plugin_interface.log_malloc_list = _log_malloc_list;
-        plugin_interface.error_stack.nerrors = 0;
-        plugin_interface.error_stack.idamerror = nullptr;
+        plugin_interface.error_stack = {};
 
         int plugin_request = REQUEST_READ_UNKNOWN;
 
@@ -1131,7 +1129,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
             }
 
 #ifndef ITERSERVER
-            auto external_user = _config.get("server.external_user");
+            auto external_user = _config.get("server.external_user").as_or_default(false);
             if (maybe_plugin.get().is_private == UDA_PLUGIN_PRIVATE && external_user) {
                 UDA_THROW_ERROR(999, "Access to this data class is not available.");
             }
@@ -1152,11 +1150,9 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
                 // Call the plugin
                 int err = maybe_plugin->entry_func(&plugin_interface);
-                for (unsigned int i = 0; i < plugin_interface.error_stack.nerrors; ++i) {
-                    auto error = &plugin_interface.error_stack.idamerror[i];
-                    add_error(error->type, error->location, error->code, error->msg);
+                for (const auto& error : plugin_interface.error_stack) {
+                    add_error(error.type, error.location, error.code, error.msg);
                 }
-                free_error_stack(&plugin_interface.error_stack);
 
 #ifndef FATCLIENT
                 // Reset Redirected Output

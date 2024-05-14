@@ -6,6 +6,7 @@ uda::config::Config* uda::client::client_config() {
 
     if (!initialised) {
         config.load("uda_client.toml");
+        initialised = true;
     }
 
     return &config;

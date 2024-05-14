@@ -550,14 +550,14 @@ void udaPutServer(const char* host, int port)
 {
     auto config = uda::client::client_config();
 
-    auto old_port = config->get("client.port").as_or_default(56565);
-    auto old_host = config->get("client.host").as_or_default("localhost"s);
+    auto old_port = config->get("connection.port").as_or_default(56565);
+    auto old_host = config->get("connection.host").as_or_default("localhost"s);
 
-    config->set("client.port", port);
-    config->set("client.host", host);
+    config->set("connection.port", port);
+    config->set("connection.host", host);
 
     if (old_host != host || old_port != port) {
-        config->set("client.reconnect", true);
+        config->set("connection.reconnect", true);
     }
 }
 
@@ -570,12 +570,12 @@ void udaPutServerHost(const char* host)
 {
     auto config = uda::client::client_config();
 
-    auto old_host = config->get("client.host").as_or_default("localhost"s);
+    auto old_host = config->get("connection.host").as_or_default("localhost"s);
 
-    config->set("client.host", host);
+    config->set("connection.host", host);
 
     if (old_host != host) {
-        config->set("client.reconnect", true);
+        config->set("connection.reconnect", true);
     }
 }
 
@@ -588,12 +588,12 @@ void udaPutServerPort(int port)
 {
     auto config = uda::client::client_config();
 
-    auto old_port = config->get("client.port").as_or_default(56565);
+    auto old_port = config->get("connection.port").as_or_default(56565);
 
-    config->set("client.port", port);
+    config->set("connection.port", port);
 
     if (old_port != port) {
-        config->set("client.reconnect", true);
+        config->set("connection.reconnect", true);
     }
 }
 
@@ -604,7 +604,7 @@ void udaPutServerPort(int port)
 const char* udaGetServerHost()
 {
     auto config = uda::client::client_config();
-    return config->get("client.host").as_or_default<const char*>("localhost");
+    return config->get("connection.host").as_or_default<const char*>("localhost");
 }
 
 //! the UDA server connection port number
@@ -614,7 +614,7 @@ const char* udaGetServerHost()
 int udaGetServerPort()
 {
     auto config = uda::client::client_config();
-    return config->get("client.port").as_or_default(56565);
+    return config->get("connection.port").as_or_default(56565);
 }
 
 const char* udaGetBuildDate()

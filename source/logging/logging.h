@@ -64,6 +64,10 @@ void log(LogLevel mode, const char* file, int line, const std::string& fmt, Args
 
     spdlog::source_loc loc{file, line, ""};
 
+    if (!logger) {
+        throw std::runtime_error{ "logging not configured" };
+    }
+
     logger->log(loc, level, fmt, args...);
     if (mode == LogLevel::UDA_LOG_ERROR) {
         spdlog::get("debug")->log(loc, level, fmt, args...);

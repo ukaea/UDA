@@ -46,7 +46,7 @@ CLIENT_FLAGS* udaClientFlags();
 
 unsigned int* udaPrivateFlags();
 
-int idamClient(uda::client_server::RequestBlock* request_block, int* indices);
+int udaClient(uda::client_server::RequestBlock* request_block, int* indices);
 
 void updateClientBlock(uda::client_server::ClientBlock* str, const CLIENT_FLAGS* client_flags,
                        unsigned int private_flags);
