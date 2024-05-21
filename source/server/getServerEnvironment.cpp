@@ -63,25 +63,25 @@ ENVIRONMENT* getServerEnvironment()
     if ((env = getenv("UDA_DEVICE")) != nullptr) {
         strcpy(g_environ.api_device, env);
     } else {
-        UDA_LOG(UDA_LOG_WARN, "UDA_DEVICE environment variable not set");
+        UDA_LOG(UDA_LOG_WARN, "UDA_DEVICE environment variable not set\n");
     }
 
     if ((env = getenv("UDA_ARCHIVE")) != nullptr) {
         strcpy(g_environ.api_archive, env);
     } else {
-        UDA_LOG(UDA_LOG_WARN, "UDA_ARCHIVE environment variable not set");
+        UDA_LOG(UDA_LOG_WARN, "UDA_ARCHIVE environment variable not set\n");
     }
 
     if ((env = getenv("UDA_API_DELIM")) != nullptr) {
         strcpy(g_environ.api_delim, env);
     } else {
-        UDA_LOG(UDA_LOG_WARN, "UDA_API_DELIM environment variable not set");
+        UDA_LOG(UDA_LOG_WARN, "UDA_API_DELIM environment variable not set\n");
     }
 
     if ((env = getenv("UDA_FILE_FORMAT")) != nullptr) {
         strcpy(g_environ.api_format, env);
     } else {
-        UDA_LOG(UDA_LOG_WARN, "UDA_FILE_FORMAT environment variable not set");
+        UDA_LOG(UDA_LOG_WARN, "UDA_FILE_FORMAT environment variable not set\n");
     }
 
     //-------------------------------------------------------------------------------------------
