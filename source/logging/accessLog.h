@@ -2,9 +2,6 @@
 
 #include "clientserver/udaStructs.h"
 
-#define HOSTNAMELENGTH 20
-#define DATELENGTH 27
-
 namespace uda::logging
 {
 

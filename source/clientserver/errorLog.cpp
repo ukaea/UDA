@@ -54,29 +54,29 @@ void uda::client_server::error_log(ClientBlock client_block, RequestBlock reques
 
     struct tm* broken = gmtime(&calendar);
 
-    static char accessdate[UDA_DATE_LENGTH]; // The Calendar Time as a formatted String
+    static char access_date[UDA_DATE_LENGTH]; // The Calendar Time as a formatted String
 
 #ifndef _WIN32
-    asctime_r(broken, accessdate);
+    asctime_r(broken, access_date);
 #else
     asctime_s(accessdate, UDA_DATE_LENGTH, broken);
 #endif
 
-    convert_non_printable2(accessdate);
-    trim_string(accessdate);
+    convert_non_printable2(access_date);
+    trim_string(access_date);
 
     for (int i = 0; i < request_block.num_requests; ++i) {
         auto request = &request_block.requests[i];
         log(UDA_LOG_ERROR, __FILE__, __LINE__,
-                "0 {} [{}] [{} {} {} {} {} {} {} {} {} {} {}]", client_block.uid, accessdate,
-               request->request, request->signal, request->exp_number, request->pass, request->tpass, request->path,
-               request->file, request->format, request->archive, request->device_name, request->server);
+            "0 {} [{}] [{} {} {} {} {} {} {} {} {} {} {}]", client_block.uid, access_date,
+            request->request, request->signal, request->exp_number, request->pass, request->tpass, request->path,
+            request->file, request->format, request->archive, request->device_name, request->server);
     }
 
     for (unsigned int i = 0; i < nerrors; i++) {
         log(UDA_LOG_ERROR, __FILE__, __LINE__,
-                "1 {} [{}] {} {} [{}] [{}]", client_block.uid, accessdate, errors[i].type,
-               errors[i].code, errors[i].location, errors[i].msg);
+            "1 {} [{}] {} {} [{}] [{}]", client_block.uid, access_date, errors[i].type,
+            errors[i].code, errors[i].location, errors[i].msg);
     }
 }
 

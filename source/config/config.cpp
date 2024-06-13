@@ -165,6 +165,11 @@ const std::vector<SectionValidator> Validators = {
                              {"address", ValueType::String},
                              {"port", ValueType::Integer},
                      }},
+    SectionValidator{"connection",
+                     {
+                             {"host", ValueType::String},
+                             {"port", ValueType::Integer},
+                     }},
 };
 
 void validate(toml::table& table)

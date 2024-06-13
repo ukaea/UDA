@@ -131,6 +131,7 @@ void uda::server::Plugins::discover_plugins()
 void uda::server::Plugins::close()
 {
     _plugins.clear();
+    _initialised = false;
 }
 
 std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> uda::server::Plugins::find_by_name(const std::string& name) const

@@ -145,6 +145,22 @@ void uda::server::Server::start_logs()
 {
     auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
     auto log_dir = _config.get("logging.path").as_or_default(""s);
+
+    if (log_dir == "-") {
+        if (log_level <= UDA_LOG_ACCESS) {
+            set_log_stdout(UDA_LOG_ACCESS);
+        }
+        if (log_level <= UDA_LOG_ERROR) {
+            set_log_stdout(UDA_LOG_ERROR);
+        }
+        if (log_level <= UDA_LOG_WARN) {
+            set_log_stdout(UDA_LOG_WARN);
+            set_log_stdout(UDA_LOG_DEBUG);
+            set_log_stdout(UDA_LOG_INFO);
+        }
+        return;
+    }
+
     auto log_mode = _config.get("logging.mode").as_or_default("a"s);
 
     if (log_level <= UDA_LOG_ACCESS) {
@@ -176,12 +192,15 @@ void uda::server::Server::start_logs()
     }
 }
 
-void uda::server::Server::initalise()
+void uda::server::Server::initialise()
 {
+    _server_timeout = TIMEOUT;
+    _fatal_error = false;
+
     auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
 
     init_logging();
-    set_log_level((LogLevel) log_level);
+    set_log_level((LogLevel)log_level);
 
     start_logs();
 
@@ -215,26 +234,29 @@ void uda::server::Server::initalise()
 
 void uda::server::Server::run()
 {
-    initalise();
-
     unsigned short port = _config.get("server.port").as_or_default(0);
     int socket_fd = 0;
 
     if (port > 0) {
         // simple tcp server
-        boost::asio::io_context io_context;
-        tcp::acceptor acceptor{io_context, tcp::endpoint{tcp::v4(), port}};
         for (;;) {
+            boost::asio::io_context io_context;
+            tcp::acceptor acceptor{io_context, tcp::endpoint{tcp::v4(), port}};
             boost::asio::ip::tcp::socket socket{io_context};
             acceptor.accept(socket);
             socket_fd = socket.native_handle();
+
+            initialise();
             connect(socket_fd);
+
             socket.close();
         }
     } else {
+        initialise();
         // running under systemd - reading/writing to stdin/stdout
         connect(0);
     }
+
     shutdown();
 }
 
@@ -312,7 +334,7 @@ void uda::server::Server::loop()
         // copy_user_defined_type_list(&userdefinedtypelist);
 
         get_initial_user_defined_type_list(&_user_defined_type_list);
-        _parsed_user_defined_type_list = *_user_defined_type_list;
+//        _parsed_user_defined_type_list = *_user_defined_type_list;
         //        print_user_defined_type_list(*user_defined_type_list_);
 
         _log_malloc_list = (LogMallocList*)malloc(sizeof(LogMallocList));
@@ -343,12 +365,18 @@ void uda::server::Server::loop()
         // Free Data Block Heap Memory
 
         UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList");
-        udaFreeUserDefinedTypeList(_user_defined_type_list);
+//        udaFreeUserDefinedTypeList(_user_defined_type_list);
+        ::free(_user_defined_type_list);
         _user_defined_type_list = nullptr;
 
-        udaFreeMallocLogList(_log_malloc_list);
+//        udaFreeMallocLogList(_log_malloc_list);
         ::free(_log_malloc_list);
         _log_malloc_list = nullptr;
+
+        _protocol.reset();
+
+        udaSetFullNTree(nullptr);
+        udaResetLastMallocIndex();
 
         UDA_LOG(UDA_LOG_DEBUG, "freeDataBlockList");
         free_data_blocks(_data_blocks);
@@ -424,7 +452,7 @@ int uda::server::Server::handle_request()
     // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access
     // policy
 
-    auto external_user = bool(_config.get("server.external_user"));
+    auto external_user = _config.get("server.external_user").as_or_default(false);
     if (!external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
         _config.set("server.external_user", true);
         external_user = true;

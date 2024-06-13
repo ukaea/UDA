@@ -21,6 +21,7 @@ LIBRARY_API NTREE* udaGetFullNTree();
 LIBRARY_API void udaSetFullNTree(NTREE* ntree);
 
 LIBRARY_API void udaSetLastMallocIndexValue(unsigned int* lastMallocIndexValue_in);
+LIBRARY_API void udaResetLastMallocIndex();
 
 /** Add an NTREE List entry.
  *

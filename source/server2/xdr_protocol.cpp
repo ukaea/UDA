@@ -270,6 +270,12 @@ int uda::server::XdrProtocol::flush()
     return 0;
 }
 
+void uda::server::XdrProtocol::reset()
+{
+    _malloc_source = UDA_MALLOC_SOURCE_NONE;
+    _log_struct_list = {};
+}
+
 int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogMallocList* log_malloc_list,
                                              UserDefinedTypeList* user_defined_type_list)
 {
@@ -365,8 +371,7 @@ int uda::server::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& dat
 int uda::server::XdrProtocol::send_hierachical_data(const DataBlock& data_block, LogMallocList* log_malloc_list,
                                                     UserDefinedTypeList* user_defined_type_list)
 {
-    if (_protocol_version < 9 && data_block.data_type == UDA_TYPE_COMPOUND &&
-        data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
+    if (data_block.data_type == UDA_TYPE_COMPOUND && data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
 
         int protocol_id;
 

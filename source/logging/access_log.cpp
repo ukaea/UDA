@@ -21,12 +21,14 @@
 #  include <ws2tcpip.h>
 #endif
 
-#include <boost/format.hpp>
 #include <sstream>
+#include <fmt/format.h>
 
 #include "clientserver/errorLog.h"
 #include "common/stringUtils.h"
 #include "logging.h"
+
+constexpr size_t HostNameLength = 20;
 
 using namespace uda::client_server;
 
@@ -52,7 +54,7 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
 #  endif
     static struct timeval et_start;
     static struct timeval et_end;
-    static char accessdate[UDA_DATE_LENGTH]; // The Calendar Time as a formatted String
+    static char access_date[UDA_DATE_LENGTH]; // The Calendar Time as a formatted String
 
     errno = 0;
 
@@ -70,12 +72,12 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
         if ((getpeername(socket, (struct sockaddr*)&addr, &addrlen)) == -1) { // Socket Address
             strcpy(host, "-");
         } else {
-            if (addrlen <= HOSTNAMELENGTH - 1) {
+            if (addrlen <= HostNameLength - 1) {
                 strncpy(host, inet_ntoa(addr.sin_addr), addrlen);
                 host[addrlen] = '\0';
             } else {
-                strncpy(host, inet_ntoa(addr.sin_addr), HOSTNAMELENGTH - 1);
-                host[HOSTNAMELENGTH - 1] = '\0';
+                strncpy(host, inet_ntoa(addr.sin_addr), HostNameLength - 1);
+                host[HostNameLength - 1] = '\0';
             }
 #    endif
             convert_non_printable2(host);
@@ -99,13 +101,13 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
         time(&calendar);
         struct tm* broken = gmtime(&calendar);
 #  ifndef _WIN32
-        asctime_r(broken, accessdate);
+        asctime_r(broken, access_date);
 #  else
         asctime_s(accessdate, DATELENGTH, broken);
 #  endif
 
-        convert_non_printable2(accessdate);
-        trim_string(accessdate);
+        convert_non_printable2(access_date);
+        trim_string(access_date);
 
         // Client Request: From the request_block structure
 
@@ -127,17 +129,17 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
 
     // Error Message: from data_block
 
-    // Amount of Data Returned (Excluding Meta Data) from global: totalDataBlockSize;
+    // Amount of Data Returned (Excluding Metadata) from global: totalDataBlockSize;
 
-    // Request Completed Time: Elasped & CPU
+    // Request Completed Time: Elapsed & CPU
 
     gettimeofday(&et_end, nullptr);
-    auto elapsedtime = (double)((et_end.tv_sec - et_start.tv_sec) * 1000); // millisecs
+    auto elapsed_time = (double)((et_end.tv_sec - et_start.tv_sec) * 1000); // milliseconds
 
     if (et_end.tv_usec < et_start.tv_usec) {
-        elapsedtime = elapsedtime - 1.0 + (double)(1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
+        elapsed_time = elapsed_time - 1.0 + (double)(1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
     } else {
-        elapsedtime = elapsedtime + (double)(et_end.tv_usec - et_start.tv_usec) / 1000.0;
+        elapsed_time = elapsed_time + (double)(et_end.tv_usec - et_start.tv_usec) / 1000.0;
     }
 
     // Write the Log Record & Flush the fd
@@ -146,38 +148,35 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
         auto request = request_block.requests[i];
         std::stringstream ss;
         ss << host << " - " << client_block.uid << " "
-           << "[" << accessdate << "] "
+           << "[" << access_date << "] "
            << "[" << request.request << " "
            << "";
 
-        auto fmt = boost::format("%1% - %2% [%3%] [%4% %5% %6% %7% %8% %9% %10% %11% %12% %13% %14%] %15% %16% [%17%] "
-                                 "%18% %19% %20% [%21% %22%] [%23%]") %
-                   host                   // 1
-                   % client_block.uid     // 2
-                   % accessdate           // 3
-                   % request.request      // 4
-                   % request.signal       // 5
-                   % request.exp_number   // 6
-                   % request.pass         // 7
-                   % request.tpass        // 8
-                   % request.path         // 9
-                   % request.file         // 10
-                   % request.format       // 11
-                   % request.archive      // 12
-                   % request.device_name  // 13
-                   % request.server       // 14
-                   % err                  // 15
-                   % total_datablock_size // 16
-                   % msg                  // 17
-                   % elapsedtime          // 18
-                   % client_block.version // 19
-                   % server_block.version // 20
-                   % client_block.pid     // 21
-                   % server_block.pid     // 22
-                   % client_block.DOI;    // 23
-        auto str = fmt.str();
-
-        UDA_LOG(UDA_LOG_ACCESS, "%s", str);
+        UDA_LOG(UDA_LOG_ACCESS, "{} - {} [{}] [{} {} {} {} {} {} {} {} {} {} {}] {} {} [{}] {} {} {} [{} {}] [{}]",
+                host                   // 1
+                , client_block.uid     // 2
+                , access_date           // 3
+                , request.request      // 4
+                , request.signal       // 5
+                , request.exp_number   // 6
+                , request.pass         // 7
+                , request.tpass        // 8
+                , request.path         // 9
+                , request.file         // 10
+                , request.format       // 11
+                , request.archive      // 12
+                , request.device_name  // 13
+                , request.server       // 14
+                , err                  // 15
+                , total_datablock_size // 16
+                , msg                  // 17
+                , elapsed_time          // 18
+                , client_block.version // 19
+                , server_block.version // 20
+                , client_block.pid     // 21
+                , server_block.pid     // 22
+                , client_block.DOI     // 23
+                )
 
         //        udaServerRedirectStdStreams(0);
         //        udaProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, str.c_str(), environment);

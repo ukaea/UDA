@@ -29,6 +29,8 @@ LogLevel get_log_level();
 
 void close_logging();
 
+void set_log_stdout(LogLevel mode);
+
 void set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode);
 
 template<typename... Args>
@@ -55,7 +57,7 @@ void log(LogLevel mode, const char* file, int line, const std::string& fmt, Args
             logger = spdlog::get("error");
             break;
         case LogLevel::UDA_LOG_ACCESS:
-            level = spdlog::level::trace;
+            level = spdlog::level::critical;
             logger = spdlog::get("access");
             break;
         case LogLevel::UDA_LOG_NONE:

@@ -2,7 +2,10 @@
 #include "catch.hpp"
 
 #include <c++/UDA.hpp>
+#include <uda/client.h>
 #include <serialisation/capnp_serialisation.h>
+
+using Catch::Matchers::StartsWith;
 
 TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 {
@@ -1575,12 +1578,14 @@ TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 
     REQUIRE( str != nullptr );
 
-    std::string expected = "\n"
-            "Help\tList of HELP plugin functions:\n"
+    std::string expected =
+            "HELP: Plugin to provide server help and available services\n"
             "\n"
-            "services()\tReturns a list of available services with descriptions\n"
-            "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
-            "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
+            "Functions:\n"
+            "\n"
+            "services()      Returns a list of available services with descriptions\n"
+            "ping()          Return the Local Server Time in seconds and microseonds\n"
+            "servertime()    Return the Local Server Time in seconds and microseonds\n";
 
     REQUIRE( str->str() == expected );
 }
@@ -1591,11 +1596,12 @@ TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 
     uda::Client client;
 
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "[testplugin]: Test #1 of Error State Management\n[testplugin]: Test #1 of Error State Management\n" );
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n[testplugin]: Test #2 of Error State Management\n" );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), StartsWith("Test #1 of Error State Management") );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), StartsWith("Test #2 of Error State Management") );
+
 #ifndef FATCLIENT
     // This test hard crashes the server code so can't be run in fat-client mode
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), "[idamClient]:  Protocol 11 Error (Server Block #2)\n" );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), StartsWith("No Data waiting at Socket when Data Expected!") );
 #endif
 }
 
@@ -1979,23 +1985,23 @@ TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
 {
 #include "setup.inc"
 
-    int handle = idamGetAPI("TESTPLUGIN::capnp()", "");
+    int handle = udaGetAPI("TESTPLUGIN::capnp_test()", "");
     REQUIRE( handle >= 0 );
 
-    int ec = getIdamErrorCode(handle);
+    int ec = udaGetErrorCode(handle);
     REQUIRE( ec == 0 );
 
-    const char* error = getIdamErrorMsg(handle);
+    const char* error = udaGetErrorMsg(handle);
     std::string error_string = error == nullptr ? "" : error;
     REQUIRE( error_string.empty() );
 
-    auto data_type = getIdamDataType(handle);
+    auto data_type = udaGetDataType(handle);
     REQUIRE( data_type == UDA_TYPE_CAPNP );
 
-    auto data = getIdamData(handle);
+    auto data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    auto data_n = getIdamDataNum(handle);
+    auto data_n = udaGetDataNum(handle);
     REQUIRE( data_n >= 0 );
 
     auto tree = uda_capnp_deserialise(data, data_n);
@@ -2017,8 +2023,11 @@ TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
     REQUIRE( ok );
     REQUIRE( shape[0] == 30 );
 
+    size_t num_slices = uda_capnp_read_num_slices(node);
+    REQUIRE( num_slices == 1 );
+
     double array[30];
-    ok = uda_capnp_read_data(node, reinterpret_cast<char*>(&array));
+    ok = uda_capnp_read_data(node, 0, reinterpret_cast<char*>(&array));
     REQUIRE( ok );
 
     REQUIRE( array[0] == Approx(0.0) );

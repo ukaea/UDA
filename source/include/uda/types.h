@@ -71,32 +71,6 @@ typedef enum UdaOpaqueTypes {
 LIBRARY_API size_t getSizeOf(UDA_TYPE data_type);
 LIBRARY_API size_t getPtrSizeOf(UDA_TYPE data_type);
 
-#define SCALARDOUBLE 1
-#define ARRAYDOUBLE 2
-#define SCALARFLOAT 3
-#define ARRAYFLOAT 4
-#define SCALARLONG64 5
-#define ARRAYLONG64 6
-#define SCALARULONG64 7
-#define ARRAYULONG64 8
-#define SCALARINT 9
-#define ARRAYINT 10
-#define SCALARUINT 11
-#define ARRAYUINT 12
-#define SCALARSHORT 13
-#define ARRAYSHORT 14
-#define SCALARUSHORT 15
-#define ARRAYUSHORT 16
-#define SCALARCHAR 17
-#define ARRAYCHAR 18
-#define SCALARSTRING 19
-#define ARRAYSTRING 20
-#define ARRAYVOID 21
-#define SCALARUCHAR 22
-#define ARRAYUCHAR 23
-#define SCALARCOMPOUND 24
-#define ARRAYCOMPOUND 25
-
 typedef struct CNTree NTREE;
 typedef struct CNTreeList NTREELIST;
 typedef struct CLogMallocList LOGMALLOCLIST;

@@ -4,11 +4,17 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
+static bool g_initialised = false;
+
 void uda::logging::init_logging()
 {
+    if (g_initialised) {
+        return;
+    }
     auto debug_logger = spdlog::stdout_logger_st("debug");
     auto error_logger = spdlog::stdout_logger_st("error");
     auto access_logger = spdlog::stdout_logger_st("access");
+    g_initialised = true;
 }
 
 void uda::logging::set_log_level(LogLevel level)
@@ -29,7 +35,7 @@ void uda::logging::set_log_level(LogLevel level)
             spdlog_level = spdlog::level::err;
             break;
         case LogLevel::UDA_LOG_ACCESS:
-            spdlog_level = spdlog::level::trace;
+            spdlog_level = spdlog::level::critical;
             break;
         case LogLevel::UDA_LOG_NONE:
             spdlog_level = spdlog::level::off;
@@ -54,10 +60,10 @@ uda::logging::LogLevel uda::logging::get_log_level()
             return LogLevel::UDA_LOG_WARN;
         case spdlog::level::err:
             return LogLevel::UDA_LOG_ERROR;
-        case spdlog::level::off:
-            return LogLevel::UDA_LOG_NONE;
-        default:
+        case spdlog::level::critical:
             return LogLevel::UDA_LOG_ACCESS;
+        default:
+            return LogLevel::UDA_LOG_NONE;
     }
 }
 
@@ -66,11 +72,12 @@ void uda::logging::close_logging()
     spdlog::shutdown();
 }
 
-void uda::logging::set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode)
-{
-    bool truncate = open_mode != "a";
+namespace {
 
+std::shared_ptr<spdlog::logger> get_logger(uda::logging::LogLevel mode)
+{
     std::shared_ptr<spdlog::logger> logger;
+    using uda::logging::LogLevel;
     switch (mode) {
         case LogLevel::UDA_LOG_DEBUG:
         case LogLevel::UDA_LOG_INFO:
@@ -84,7 +91,43 @@ void uda::logging::set_log_file(LogLevel mode, const std::string& file_name, con
             logger = spdlog::get("access");
             break;
         case LogLevel::UDA_LOG_NONE:
-            return;
+            break;
+    }
+    return logger;
+}
+
+}
+
+void uda::logging::set_log_stdout(LogLevel mode)
+{
+    std::shared_ptr<spdlog::logger> logger = get_logger(mode);
+    if (!logger) {
+        return;
+    }
+
+    auto& sinks = logger->sinks();
+
+    // only add file sink if it doesn't exist
+    bool found = false;
+    for (const auto& sink : sinks) {
+        auto stdout_sink = dynamic_cast<spdlog::sinks::stdout_sink_st*>(sink.get());
+        if (stdout_sink) {
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+    }
+}
+
+void uda::logging::set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode)
+{
+    bool truncate = open_mode != "a";
+
+    std::shared_ptr<spdlog::logger> logger = get_logger(mode);
+    if (!logger) {
+        return;
     }
 
     auto& sinks = logger->sinks();

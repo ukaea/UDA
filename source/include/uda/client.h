@@ -54,17 +54,27 @@ LIBRARY_API const char* udaGetServerHost();
 LIBRARY_API int udaGetServerPort();
 
 LIBRARY_API void udaGetClientVersionString(char* version_string);
+
 LIBRARY_API int udaGetClientVersion();
+
 LIBRARY_API int udaGetClientVersionMajor();
+
 LIBRARY_API int udaGetClientVersionMinor();
+
 LIBRARY_API int udaGetClientVersionBugfix();
+
 LIBRARY_API int udaGetClientVersionDelta();
 
 LIBRARY_API void udaGetServerVersionString(char* version_string);
+
 LIBRARY_API int udaGetServerVersion();
+
 LIBRARY_API int udaGetServerVersionMajor();
+
 LIBRARY_API int udaGetServerVersionMinor();
+
 LIBRARY_API int udaGetServerVersionBugfix();
+
 LIBRARY_API int udaGetServerVersionDelta();
 
 LIBRARY_API int udaGetServerErrorCode();
@@ -84,14 +94,19 @@ LIBRARY_API const char* udaGetServerErrorStackRecordMsg(int record);
 LIBRARY_API void udaCloseAllConnections();
 
 LIBRARY_API int udaNumErrors(void);
+
 LIBRARY_API const char* udaGetErrorMessage(int err_num);
+
 LIBRARY_API int udaGetErrorCode(int err_num);
+
 LIBRARY_API const char* udaGetErrorLocation(int err_num);
 
 LIBRARY_API PUTDATA_BLOCK* udaNewPutDataBlock(UDA_TYPE data_type, int count, int rank, int* shape, const char* data);
+
 LIBRARY_API void udaFreePutDataBlock(PUTDATA_BLOCK* putdata_block);
 
 LIBRARY_API LOGMALLOCLIST* udaGetLogMallocList(int handle);
+
 LIBRARY_API USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);
 
 #define UDA_NUM_CLIENT_THREADS 30

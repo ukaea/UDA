@@ -7,18 +7,18 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* fields[5] = {};
 
     shape[0] = 56;
-    fields[0] = udaNewCompoundArrayField("v1", "string structure element", &offset, ARRAYCHAR, 1, shape);
+    fields[0] = udaNewCompoundFixedStringField("v1", "string structure element", &offset, 1, shape);
 
     shape[0] = 56;
     shape[1] = 3;
-    fields[1] = udaNewCompoundArrayField("v2", "string structure element", &offset, ARRAYCHAR, 2, shape);
+    fields[1] = udaNewCompoundFixedStringField("v2", "string structure element", &offset, 2, shape);
 
-    fields[2] = udaNewCompoundField("v3", "string structure element", &offset, SCALARSTRING);
+    fields[2] = udaNewCompoundVarStringField("v3", "string structure element", &offset);
 
     shape[0] = 3;
-    fields[3] = udaNewCompoundArrayField("v4", "string structure element", &offset, ARRAYSTRING, 1, shape);
+    fields[3] = udaNewCompoundVarStringArrayField("v4", "string structure element", &offset, 1, shape);
 
-    fields[4] = udaNewCompoundField("v4", "string structure element", &offset, ARRAYSTRING);
+    fields[4] = udaNewCompoundVarStringArrayField("v5", "string structure element", &offset, 0, nullptr);
 
     USERDEFINEDTYPE* test9_type = udaNewUserType("TEST9", "Test #9", 0, 0, nullptr, sizeof(TEST9), 5, fields);
 

@@ -56,6 +56,7 @@
 
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::client_server;
 
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.
  *
@@ -909,30 +910,41 @@ template <> struct TypeNamer<unsigned char> {
 };
 
 template <> struct TypeNamer<char*> {
-    static constexpr const char* Name = "string";
+    static constexpr const char* Name = "STRING";
+};
+
+template <> struct TypeNamer<void> {
+    static constexpr const char* Name = "void";
 };
 
 template <typename T>
-void defineArrayField(CompoundField* field, const char* name, const char* desc, int rank, int* shape)
+void defineField(CompoundField* field, const char* name, const char* desc, int rank, int* shape, bool is_pointer, bool is_scalar)
 {
-    strcpy(field->type, TypeNamer<T>::Name);
-    if (rank == 0) {
-        strcat(field->type, "*");
-        field->pointer = 1;
-        field->size = field->count * sizeof(T*);
-    } else {
-        int count = 1;
-        for (int i = 0; i < rank; ++i) {
-            count *= shape[i];
+    copy_string(TypeNamer<T>::Name, field->type, MAXELEMENTNAME);
+    if (is_pointer) {
+        if (!is_scalar) {
+            strcat(field->type, "*");
         }
+        field->count = 1;
+        field->rank = 0;
+        field->shape = nullptr;
+        field->pointer = 1;
+        field->size = sizeof(T*);
+    } else {
+        if constexpr (!std::is_same_v<T, void>) {
+            int count = 1;
+            for (int i = 0; i < rank; ++i) {
+                count *= shape[i];
+            }
 
-        field->pointer = 0;
-        field->count = count;
-        field->size = count * sizeof(T);
-        field->rank = rank;
-        field->shape = (int*)malloc(rank * sizeof(int));
-        for (int i = 0; i < rank; ++i) {
-            field->shape[i] = shape[i];
+            field->pointer = 0;
+            field->count = count;
+            field->size = count * sizeof(T);
+            field->rank = rank;
+            field->shape = (int*) malloc(rank * sizeof(int));
+            for (int i = 0; i < rank; ++i) {
+                field->shape[i] = shape[i];
+            }
         }
     }
     snprintf(field->desc, MAXELEMENTNAME, "[%s %s] %s", field->type, name, desc);
@@ -951,147 +963,59 @@ void defineArrayField(CompoundField* field, const char* name, const char* desc, 
  * @return Void
  */
 void uda::structures::defineField(CompoundField* field, const char* name, const char* desc, int* offset,
-                                  unsigned short type_id, int rank, int* shape)
+                                  unsigned short type_id, int rank, int* shape, bool is_pointer, bool is_scalar)
 {
     init_compound_field(field);
-    strcpy(field->name, name);
-
-    field->pointer = 0; // default for scalar values
-    field->count = 1;
+    copy_string(name, field->name, MAXELEMENTNAME);
+    field->atomictype = type_id;
 
     switch (type_id) {
-        case SCALARDOUBLE:
-            field->atomictype = UDA_TYPE_DOUBLE;
-            strcpy(field->type, "double");
-            snprintf(field->desc, MAXELEMENTNAME, "[double %s] %s", name, desc);
-            field->size = field->count * sizeof(double);
+        case UDA_TYPE_DOUBLE:
+            ::defineField<double>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case ARRAYDOUBLE:
-            field->atomictype = UDA_TYPE_DOUBLE;
-            defineArrayField<double>(field, name, desc, rank, shape);
+        case UDA_TYPE_FLOAT:
+            ::defineField<float>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case SCALARFLOAT:
-            field->atomictype = UDA_TYPE_FLOAT;
-            strcpy(field->type, "float");
-            snprintf(field->desc, MAXELEMENTNAME, "[float %s] %s", name, desc);
-            field->size = field->count * sizeof(float);
+        case UDA_TYPE_CHAR:
+            ::defineField<char>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case ARRAYFLOAT:
-            field->atomictype = UDA_TYPE_FLOAT;
-            defineArrayField<float>(field, name, desc, rank, shape);
+        case UDA_TYPE_UNSIGNED_CHAR:
+            ::defineField<unsigned char>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case SCALARLONG64:
-            field->atomictype = UDA_TYPE_LONG64;
-            strcpy(field->type, "long long");
-            snprintf(field->desc, MAXELEMENTNAME, "[long long %s] %s", name, desc);
-            field->size = field->count * sizeof(long long);
+        case UDA_TYPE_SHORT:
+            ::defineField<short>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case ARRAYLONG64:
-            field->atomictype = UDA_TYPE_LONG64;
-            defineArrayField<long long>(field, name, desc, rank, shape);
+        case UDA_TYPE_UNSIGNED_SHORT:
+            ::defineField<short>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case SCALARULONG64:
-            field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
-            strcpy(field->type, "unsigned long long");
-            snprintf(field->desc, MAXELEMENTNAME, "[unsigned long long %s] %s", name, desc);
-            field->size = field->count * sizeof(unsigned long long);
+        case UDA_TYPE_INT:
+            ::defineField<int>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case ARRAYULONG64:
-            field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
-            defineArrayField<unsigned long long>(field, name, desc, rank, shape);
+        case UDA_TYPE_UNSIGNED_INT:
+            ::defineField<int>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case SCALARINT:
-            field->atomictype = UDA_TYPE_INT;
-            strcpy(field->type, "int");
-            snprintf(field->desc, MAXELEMENTNAME, "[int %s] %s", name, desc);
-            field->size = field->count * sizeof(int);
+        case UDA_TYPE_LONG64:
+            ::defineField<long long>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case ARRAYINT:
-            field->atomictype = UDA_TYPE_INT;
-            defineArrayField<int>(field, name, desc, rank, shape);
+        case UDA_TYPE_UNSIGNED_LONG64:
+            ::defineField<long long>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case SCALARUINT:
-            field->atomictype = UDA_TYPE_UNSIGNED_INT;
-            strcpy(field->type, "unsigned int");
-            snprintf(field->desc, MAXELEMENTNAME, "[unsigned int %s] %s", name, desc);
-            field->size = field->count * sizeof(unsigned int);
+        case UDA_TYPE_STRING:
+            ::defineField<char*>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
-        case ARRAYUINT:
-            field->atomictype = UDA_TYPE_UNSIGNED_INT;
-            defineArrayField<unsigned int>(field, name, desc, rank, shape);
-            break;
-        case SCALARSHORT:
-            field->atomictype = UDA_TYPE_SHORT;
-            strcpy(field->type, "short");
-            snprintf(field->desc, MAXELEMENTNAME, "[short %s] %s", name, desc);
-            field->size = field->count * sizeof(short);
-            break;
-        case ARRAYSHORT:
-            field->atomictype = UDA_TYPE_SHORT;
-            defineArrayField<short>(field, name, desc, rank, shape);
-            break;
-        case SCALARUSHORT:
-            field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
-            strcpy(field->type, "unsigned short");
-            snprintf(field->desc, MAXELEMENTNAME, "[unsigned short %s] %s", name, desc);
-            field->size = field->count * sizeof(unsigned short);
-            break;
-        case ARRAYUSHORT:
-            field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
-            defineArrayField<unsigned short>(field, name, desc, rank, shape);
-            break;
-        case SCALARCHAR:
-            field->atomictype = UDA_TYPE_CHAR;
-            strcpy(field->type, "char");
-            snprintf(field->desc, MAXELEMENTNAME, "[char %s] %s", name, desc);
-            field->size = field->count * sizeof(char);
-            break;
-        case ARRAYCHAR:
-            field->atomictype = UDA_TYPE_CHAR;
-            defineArrayField<char>(field, name, desc, rank, shape);
-            break;
-        case SCALARSTRING:
-            field->atomictype = UDA_TYPE_STRING;
-            strcpy(field->type, "STRING");
-            snprintf(field->desc, MAXELEMENTNAME, "[char* %s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(char*);
-            field->offset =
-                (int)udaNewoffset((size_t)*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
-            field->offpad = (int)udaPadding((size_t)*offset, "char *");
-            field->alignment = udaGetalignmentof("char *");
-            break;
-        case ARRAYSTRING:
-            // Bug Fix dgm 07Jul2014: atomictype was missing!
-            field->atomictype = UDA_TYPE_STRING;
-            defineArrayField<char*>(field, name, desc, rank, shape);
-            break;
-        case ARRAYVOID:
-            field->atomictype = UDA_TYPE_VOID;
-            strcpy(field->type, "void *");
-            snprintf(field->desc, MAXELEMENTNAME, "[void* %s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(void*);
-            break;
-        case SCALARUCHAR:
-            field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
-            strcpy(field->type, "unsigned char");
-            snprintf(field->desc, MAXELEMENTNAME, "[char %s] %s", name, desc);
-            field->size = field->count * sizeof(unsigned char);
-            break;
-        case ARRAYUCHAR:
-            field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
-            defineArrayField<unsigned char>(field, name, desc, rank, shape);
+        case UDA_TYPE_VOID:
+            ::defineField<void>(field, name, desc, rank, shape, is_pointer, is_scalar);
             break;
     }
 
-    field->rank = 0;
-    field->shape = nullptr;
-
-    if (type_id != SCALARSTRING) {
+    if (type_id != UDA_TYPE_STRING) {
         field->offset = (int)udaNewoffset(*offset, field->type);
         field->offpad = (int)udaPadding(*offset, field->type);
         field->alignment = udaGetalignmentof(field->type);
+    } else {
+        field->offset = (int)udaNewoffset((size_t)*offset, "char *");
+        field->offpad = (int)udaPadding((size_t)*offset, "char *");
+        field->alignment = udaGetalignmentof("char *");
     }
 
     *offset = field->offset + field->size; // Next Offset

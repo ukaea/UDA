@@ -548,7 +548,10 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
             size_t id = 0;
             for (const auto& plugin : pluginList) {
-                if (plugin.name == request->archive) {
+                std::string name = request->archive;
+                boost::to_lower(name);
+                if (plugin.name == name) {
+
                     request->request = id;
                     copy_string(plugin.name, request->format, STRING_LENGTH);
                     is_function = plugin.type == UDA_PLUGIN_CLASS_FUNCTION;
@@ -1380,7 +1383,7 @@ int extract_subset(RequestData* request)
             std::string operation = signal.substr(lbracket_pos + 1, rbracket_pos - lbracket_pos - 1);
             operations.push_front(operation);
 
-            std::string subset = signal.substr(lbracket_pos, rbracket_pos - lbracket_pos);
+            std::string subset = signal.substr(lbracket_pos, rbracket_pos - lbracket_pos + 1);
             subsets.push_front(subset);
         }
 

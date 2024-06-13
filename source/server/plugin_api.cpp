@@ -468,18 +468,17 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
     return 0;
 }
 
-COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type)
+COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type, int rank, int* shape)
 {
     CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
-    defineField(field, name, description, offset, type, 0, nullptr);
+    defineField(field, name, description, offset, type, rank, shape, false, rank == 0);
     return field;
 }
 
-COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* description, int* offset, int type, int rank,
-                                        int* shape)
+COMPOUNDFIELD* udaNewCompoundPointerField(const char* name, const char* description, int* offset, int type, bool is_scalar)
 {
     CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
-    defineField(field, name, description, offset, type, rank, shape);
+    defineField(field, name, description, offset, type, 0, nullptr, true, is_scalar);
     return field;
 }
 

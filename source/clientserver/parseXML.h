@@ -1,12 +1,5 @@
 #pragma once
 
-#ifndef NOXMLPARSER
-#  include <libxml/parser.h>
-#  include <libxml/xmlmemory.h>
-#endif
-
-#include <stdbool.h>
-
 #include "udaDefines.h"
 #include "udaStructs.h"
 

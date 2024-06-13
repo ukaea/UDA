@@ -33,6 +33,7 @@ static int find_plugin_id_by_format(std::string_view format, const std::vector<P
         if (plugin.name == format) {
             return id;
         }
+        ++id;
     }
     return -1;
 }
@@ -198,6 +199,64 @@ int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, cons
     return 0;
 }
 
+int udaPluginReturnDataStringArray(UDA_PLUGIN_INTERFACE* plugin_interface, const char** values, size_t rank,
+                                               const size_t* shape, const char* description)
+{
+    auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
+    DataBlock* data_block = interface->data_block;
+    init_data_block(data_block);
+
+    // TODO: only rank = 1 handled
+    if (rank != 1) {
+        return 0;
+    }
+
+    size_t count = shape[0];
+
+    size_t max_len = 0;
+    for (size_t i = 0; i < count; ++i) {
+        max_len = std::max(max_len, strlen(values[i]) + 1);
+    }
+
+    char* data = (char*)malloc(max_len * count * sizeof(char));
+    for (size_t i = 0; i < count; ++i) {
+        strcpy(&data[i * max_len], values[i]);
+    }
+
+    data_block->data_type = UDA_TYPE_STRING;
+    data_block->data = data;
+
+    data_block->rank = 2;
+    data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
+
+    for (unsigned int i = 0; i < data_block->rank; i++) {
+        init_dim_block(&data_block->dims[i]);
+    }
+
+    if (description != nullptr) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+    }
+
+    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
+    data_block->dims[0].dim_n = max_len;
+    data_block->dims[0].compressed = 1;
+    data_block->dims[0].dim0 = 0.0;
+    data_block->dims[0].diff = 1.0;
+    data_block->dims[0].method = 0;
+
+    data_block->dims[1].data_type = UDA_TYPE_UNSIGNED_INT;
+    data_block->dims[1].dim_n = count;
+    data_block->dims[1].compressed = 1;
+    data_block->dims[1].dim0 = 0.0;
+    data_block->dims[1].diff = 1.0;
+    data_block->dims[1].method = 0;
+
+    data_block->data_n = max_len * count;
+
+    return 0;
+}
+
 int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank,
                         const int* shape, const char* description)
 {
@@ -207,6 +266,7 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
 
     data_block->data_type = type;
     data_block->data = (char*)malloc(size);
+    data_block->data_n = size;
 
     memcpy(data_block->data, value, size);
 
@@ -230,8 +290,6 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
         data_block->dims[i].diff = 1.0;
         data_block->dims[i].method = 0;
     }
-
-    data_block->data_n = data_block->dims[0].dim_n;
 
     return 0;
 }
@@ -264,17 +322,17 @@ const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int 
 bool udaPluginFindStringArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name)
 {
     auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
-    auto namevaluelist = &interface->request_data->nameValueList;
+    auto name_value_list = &interface->request_data->nameValueList;
 
     char** names = split_string(name, "|");
     *value = nullptr;
 
     bool found = 0;
-    for (int i = 0; i < namevaluelist->pairCount; i++) {
+    for (int i = 0; i < name_value_list->pairCount; i++) {
         size_t n;
         for (n = 0; names[n] != nullptr; ++n) {
-            if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
-                *value = namevaluelist->nameValue[i].value;
+            if (STR_IEQUALS(name_value_list->nameValue[i].name, names[n])) {
+                *value = name_value_list->nameValue[i].value;
                 found = 1;
                 break;
             }
@@ -379,7 +437,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
 
     request_data.request = find_plugin_id_by_format(request_data.format, *interface->pluginList);
     if (request_data.request == -1) {
-        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found!");
+        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found!")
     }
 
     int err = 0;
@@ -389,10 +447,10 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
         if (plugin.handle && plugin.entry_func)
         err = plugin.entry_func(&new_plugin_interface); // Call the data reader
     } else {
-        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Data Access is not available for this data request!");
+        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Data Access is not available for this data request!")
     }
 
-    // Apply subsettinng
+    // Apply sub-setting
     if (request_data.datasubset.nbound > 0) {
         Action action = {};
         init_action(&action);
@@ -477,18 +535,97 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
     return 0;
 }
 
-COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type)
+COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type, int rank, int* shape)
 {
     CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
-    defineField(field, name, description, offset, type, 0, nullptr);
+    defineField(field, name, description, offset, type, rank, shape, false, rank == 0);
     return field;
 }
 
-COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* description, int* offset, int type, int rank,
-                                        int* shape)
+COMPOUNDFIELD* udaNewCompoundPointerField(const char* name, const char* description, int* offset, int type, bool is_scalar)
 {
     CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
-    defineField(field, name, description, offset, type, rank, shape);
+    defineField(field, name, description, offset, type, 0, nullptr, true, is_scalar);
+    return field;
+}
+
+COMPOUNDFIELD* udaNewCompoundFixedStringField(const char* name, const char* description, int* offset, int rank, int* shape)
+{
+    CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
+
+    int count = 1;
+    for (int i = 0; i < rank; ++i) {
+        count *= shape[i];
+    }
+
+    copy_string(name, field->name, MAXELEMENTNAME);
+    field->atomictype = UDA_TYPE_STRING;
+    copy_string("STRING", field->type, MAXELEMENTNAME);
+    copy_string(description, field->desc, MAXELEMENTNAME);
+    field->pointer = 0;
+    field->count = count;
+    field->rank = rank;
+    field->shape = (int*)malloc(field->rank * sizeof(int));
+    for (int i = 0; i < rank; ++i) {
+        field->shape[i] = shape[i];
+    }
+    field->size = field->count * sizeof(char);
+    field->offset = udaNewoffset((size_t)*offset, field->type);
+    field->offpad = udaPadding((size_t)*offset, field->type);
+    field->alignment = udaGetalignmentof(field->type);
+    *offset = field->offset + field->size; // Next Offset
+
+    return field;
+}
+
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundVarStringField(const char* name, const char* description, int* offset)
+{
+    CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
+
+    copy_string(name, field->name, MAXELEMENTNAME);
+    field->atomictype = UDA_TYPE_STRING;
+    copy_string("STRING", field->type, MAXELEMENTNAME);
+    copy_string(description, field->desc, MAXELEMENTNAME);
+    field->pointer = 1;
+    field->count = 1;
+    field->rank = 0;
+    field->shape = nullptr;
+    field->size = field->count * sizeof(char*);
+    field->offset = udaNewoffset((size_t)*offset, field->type);
+    field->offpad = udaPadding((size_t)*offset, field->type);
+    field->alignment = udaGetalignmentof(field->type);
+    *offset = field->offset + field->size; // Next Offset
+
+    return field;
+}
+
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundVarStringArrayField(const char* name, const char* description, int* offset, int rank, int* shape)
+{
+    CompoundField* field = (CompoundField*)malloc(sizeof(CompoundField));
+
+    int count = 1;
+    bool is_pointer = rank == 0;
+
+    for (int i = 0; i < rank; ++i) {
+        count *= shape[i];
+    }
+
+    size_t size = is_pointer ? sizeof(char**) : sizeof(char*);
+
+    copy_string(name, field->name, MAXELEMENTNAME);
+    field->atomictype = UDA_TYPE_STRING;
+    copy_string("STRING *", field->type, MAXELEMENTNAME);
+    copy_string(description, field->desc, MAXELEMENTNAME);
+    field->pointer = is_pointer;
+    field->count = count;
+    field->rank = rank;
+    field->shape = shape;
+    field->size = field->count * size;
+    field->offset = udaNewoffset((size_t)*offset, field->type);
+    field->offpad = udaPadding((size_t)*offset, field->type);
+    field->alignment = udaGetalignmentof(field->type);
+    *offset = field->offset + field->size; // Next Offset
+
     return field;
 }
 
@@ -528,6 +665,8 @@ USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id
     user_type->image = image;
     user_type->size = size; // Structure size
     user_type->idamclass = UDA_TYPE_COMPOUND;
+    user_type->fieldcount = 0;
+    user_type->compoundfield = nullptr;
 
     for (size_t i = 0; i < num_fields; ++i) {
         CompoundField* field = static_cast<CompoundField*>(fields[i]);
@@ -657,7 +796,7 @@ void udaPluginLog_i(UDA_PLUGIN_INTERFACE* plugin_interface, const char* file, in
 void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* location, int code, const char* msg)
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
-    UDA_LOG(UDA_LOG_ERROR, msg);
+    UDA_LOG(UDA_LOG_ERROR, msg)
     auto error = create_error(UDA_CODE_ERROR_TYPE, location, code, msg);
     interface->error_stack.push_back(error);
 }

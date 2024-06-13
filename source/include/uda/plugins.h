@@ -76,9 +76,16 @@ LIBRARY_API UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(UDA_PLUGIN_INTERFACE*
 
 LIBRARY_API void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface);
 
-LIBRARY_API COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type);
-LIBRARY_API COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* description, int* offset, int type,
-                                                    int rank, int* shape);
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type,
+                                               int rank, int* shape);
+
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundPointerField(const char* name, const char* description, int* offset, int type,
+                                                      bool is_scalar);
+
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundFixedStringField(const char* name, const char* description, int* offset, int rank, int* shape);
+
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundVarStringField(const char* name, const char* description, int* offset);
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundVarStringArrayField(const char* name, const char* description, int* offset, int rank, int* shape);
 
 LIBRARY_API COMPOUNDFIELD* udaNewCompoundUserTypeField(const char* name, const char* description, int* offset,
                                                        USERDEFINEDTYPE* user_type);

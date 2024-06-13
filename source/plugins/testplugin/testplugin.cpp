@@ -13,7 +13,7 @@
 
 #include "teststructs.h"
 
-#define MAXELEMENTNAME 1024
+//#define MAXELEMENTNAME 1024
 
 #ifdef TESTUDT
 #  include "udtc.h"
@@ -123,7 +123,9 @@ TestPlugin::TestPlugin()
                     boost::filesystem::path(__FILE__).parent_path().append("help.txt").string())
 {
     register_method("test0", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::test0));
+    register_method("test1", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::test0));
     register_method("test2", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::test2));
+    register_method("test3", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::test2));
     register_method("test4", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::test4));
     register_method("test5", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::test5));
     register_method("test6", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::test6));
@@ -242,7 +244,7 @@ int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     size_t max_len = 0;
     for (const auto& string : strings) {
-        max_len = std::max(max_len, string.size());
+        max_len = std::max(max_len, string.size() + 1);
     }
 
     // Create a block of contigous memory and assign all bytes to nullptr character
@@ -255,14 +257,18 @@ int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
         size_t shape[] = {max_len, strings.size()};
         udaPluginReturnDataCharArray(plugin_interface, data.get(), 2, shape, "testplugins: test2 = 2D array of chars");
     } else {
-        //        int shape[] = {max_len, (int)strings.size()};
-        // TODO: yuck!
-        //        udaPluginReturnDataStringArray(plugin_interface, data.get(), 2, shape, "testplugins: test3 = array of
-        //        strings");
+        size_t shape[] = {strings.size()};
+        const char* ptrs[3];
+        ptrs[0] = strings[0].data();
+        ptrs[1] = strings[1].data();
+        ptrs[2] = strings[2].data();
+        udaPluginReturnDataStringArray(plugin_interface, ptrs, 1, shape, "testplugins: test3 = array of strings");
     }
 
     return 0;
 }
+
+#include "server2/server_plugin.h"
 
 int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
@@ -275,9 +281,11 @@ int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
     int offset = 0;
 
     COMPOUNDFIELD* fields[1] = {nullptr};
+    auto p = (uda::server::UdaPluginInterface*)plugin_interface;
+    printf("%d", p->plugin_version);
 
     int shape[1] = {56};
-    fields[0] = udaNewCompoundArrayField("value", "string structure element", &offset, ARRAYSTRING, 1, shape);
+    fields[0] = udaNewCompoundFixedStringField("value", "string structure element", &offset, 1, shape);
 
     USERDEFINEDTYPE* test4_type = udaNewUserType("TEST4", "Test #4", 0, 0, nullptr, sizeof(TEST4), 1, fields);
     udaAddUserType(plugin_interface, test4_type);
@@ -306,7 +314,7 @@ int TestPlugin::test5(UDA_PLUGIN_INTERFACE* plugin_interface)
     int offset = 0;
 
     int shape[2] = {56, 3};
-    fields[0] = udaNewCompoundArrayField("value", "string structure element", &offset, ARRAYSTRING, 2, shape);
+    fields[0] = udaNewCompoundFixedStringField("value", "string structure element", &offset, 2, shape);
 
     USERDEFINEDTYPE* test5_type = udaNewUserType("TEST5", "Test #5", 0, 0, nullptr, sizeof(TEST5), 1, fields);
     udaAddUserType(plugin_interface, test5_type);
@@ -338,7 +346,7 @@ int TestPlugin::test6(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    fields[0] = udaNewCompoundField("value", "string structure element", &offset, SCALARSTRING);
+    fields[0] = udaNewCompoundVarStringField("value", "string structure element", &offset);
 
     USERDEFINEDTYPE* test6_type = udaNewUserType("TEST6", "Test #6", 0, 0, nullptr, sizeof(TEST6), 1, fields);
     udaAddUserType(plugin_interface, test6_type);
@@ -370,7 +378,7 @@ int TestPlugin::test7(UDA_PLUGIN_INTERFACE* plugin_interface)
     int offset = 0;
 
     int shape[1] = {3};
-    fields[0] = udaNewCompoundArrayField("value", "string structure element", &offset, ARRAYSTRING, 1, shape);
+    fields[0] = udaNewCompoundVarStringArrayField("value", "string structure element", &offset, 1, shape);
 
     USERDEFINEDTYPE* test7_type = udaNewUserType("TEST7", "Test #7", 0, 0, nullptr, sizeof(TEST7), 1, fields);
     udaAddUserType(plugin_interface, test7_type);
@@ -410,7 +418,7 @@ int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    fields[0] = udaNewCompoundField("value", "string structure element", &offset, ARRAYSTRING);
+    fields[0] = udaNewCompoundVarStringArrayField("value", "string structure element", &offset, 0, nullptr);
 
     USERDEFINEDTYPE* test8_type = udaNewUserType("TEST8", "Test #8", 0, 0, nullptr, sizeof(TEST8), 1, fields);
     udaAddUserType(plugin_interface, test8_type);
@@ -437,7 +445,7 @@ int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST5", "Structure Data Test #5");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST8", "Structure Data Test #8");
     udaPluginReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
 
     return 0;
@@ -598,7 +606,7 @@ int TestPlugin::test11(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, SCALARINT);
+    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, UDA_TYPE_INT, 0, nullptr);
 
     USERDEFINEDTYPE* test11_type = udaNewUserType("TEST11", "Test #11", 0, 0, nullptr, sizeof(TEST11), 1, fields);
     udaAddUserType(plugin_interface, test11_type);
@@ -628,7 +636,7 @@ int TestPlugin::test12(UDA_PLUGIN_INTERFACE* plugin_interface)
     int offset = 0;
 
     int shape[1] = {3};
-    fields[0] = udaNewCompoundArrayField("value", "single integer structure element", &offset, SCALARINT, 1, shape);
+    fields[0] = udaNewCompoundField("value", "array integer structure element", &offset, UDA_TYPE_INT, 1, shape);
 
     USERDEFINEDTYPE* test12_type = udaNewUserType("TEST12", "Test #12", 0, 0, nullptr, sizeof(TEST12), 1, fields);
     udaAddUserType(plugin_interface, test12_type);
@@ -658,7 +666,7 @@ int TestPlugin::test13(UDA_PLUGIN_INTERFACE* plugin_interface)
     int offset = 0;
 
     int shape[2] = {2, 3};
-    fields[0] = udaNewCompoundArrayField("value", "single integer structure element", &offset, ARRAYINT, 2, shape);
+    fields[0] = udaNewCompoundField("value", "2d array integer structure element", &offset, UDA_TYPE_INT, 2, shape);
 
     USERDEFINEDTYPE* test13_type = udaNewUserType("TEST13", "Test #13", 0, 0, nullptr, sizeof(TEST13), 1, fields);
     udaAddUserType(plugin_interface, test13_type);
@@ -692,7 +700,7 @@ int TestPlugin::test14(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, ARRAYINT);
+    fields[0] = udaNewCompoundPointerField("value", "single integer structure element", &offset, UDA_TYPE_INT, true);
 
     USERDEFINEDTYPE* test14_type = udaNewUserType("TEST14", "Test #14", 0, 0, nullptr, sizeof(TEST14), 1, fields);
     udaAddUserType(plugin_interface, test14_type);
@@ -725,7 +733,7 @@ int TestPlugin::test15(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, ARRAYINT);
+    fields[0] = udaNewCompoundPointerField("value", "single integer structure element", &offset, UDA_TYPE_INT, true);
 
     USERDEFINEDTYPE* test15_type = udaNewUserType("TEST15", "Test #15", 0, 0, nullptr, sizeof(TEST15), 1, fields);
     udaAddUserType(plugin_interface, test15_type);
@@ -761,7 +769,7 @@ int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, ARRAYINT);
+    fields[0] = udaNewCompoundPointerField("value", "single integer structure element", &offset, UDA_TYPE_INT, true);
 
     USERDEFINEDTYPE* test16_type = udaNewUserType("TEST16", "Test #16", 0, 0, nullptr, sizeof(TEST16), 1, fields);
     udaAddUserType(plugin_interface, test16_type);
@@ -804,7 +812,7 @@ int TestPlugin::test18(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, SCALARINT);
+    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, UDA_TYPE_INT, 0, nullptr);
 
     USERDEFINEDTYPE* test18_type = udaNewUserType("TEST18", "Test #18", 0, 0, nullptr, sizeof(TEST18), 1, fields);
     udaAddUserType(plugin_interface, test18_type);
@@ -836,7 +844,8 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    test19a_fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, SCALARINT);
+    test19a_fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, UDA_TYPE_INT, 0,
+                                            nullptr);
 
     USERDEFINEDTYPE* test19a_type =
         udaNewUserType("TEST19A", "Test #19", 0, 0, nullptr, sizeof(TEST19A), 1, test19a_fields);
@@ -851,7 +860,7 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     offset = 0;
 
-    test19_fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, SCALARINT);
+    test19_fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, UDA_TYPE_INT, 0, nullptr);
     int shape[1] = {7};
     test19_fields[1] =
         udaNewCompoundUserTypeArrayField("vals", "single integer structure element", &offset, test19a_type, 1, shape);
@@ -906,7 +915,7 @@ int TestPlugin::test21(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
 
-    test21_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, SCALARSHORT);
+    test21_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, UDA_TYPE_SHORT, 0, nullptr);
 
     USERDEFINEDTYPE* test21_type =
         udaNewUserType("TEST21", "Test #21", 0, 0, nullptr, sizeof(TEST21), 1, test21_fields);
@@ -936,8 +945,7 @@ int TestPlugin::test22(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
     int shape[1] = {3};
-    test22_fields[0] =
-        udaNewCompoundArrayField("value", "single short structure element", &offset, ARRAYSHORT, 1, shape);
+    test22_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, UDA_TYPE_SHORT, 1, shape);
 
     USERDEFINEDTYPE* test22_type =
         udaNewUserType("TEST22", "Test #22", 0, 0, nullptr, sizeof(TEST22), 1, test22_fields);
@@ -969,8 +977,7 @@ int TestPlugin::test23(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
     int shape[2] = {3, 2};
-    test23_fields[0] =
-        udaNewCompoundArrayField("value", "single short structure element", &offset, ARRAYSHORT, 1, shape);
+    test23_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, UDA_TYPE_SHORT, 2, shape);
 
     USERDEFINEDTYPE* test23_type =
         udaNewUserType("TEST23", "Test #23", 0, 0, nullptr, sizeof(TEST23), 1, test23_fields);
@@ -1004,7 +1011,7 @@ int TestPlugin::test24(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test24_fields[1] = {nullptr};
     int offset = 0;
 
-    test24_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, ARRAYSHORT);
+    test24_fields[0] = udaNewCompoundPointerField("value", "single short structure element", &offset, UDA_TYPE_SHORT, true);
 
     USERDEFINEDTYPE* test24_type =
         udaNewUserType("TEST24", "Test #24", 0, 0, nullptr, sizeof(TEST24), 1, test24_fields);
@@ -1037,7 +1044,7 @@ int TestPlugin::test25(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test25_fields[1] = {nullptr};
     int offset = 0;
 
-    test25_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, ARRAYSHORT);
+    test25_fields[0] = udaNewCompoundPointerField("value", "single short structure element", &offset, UDA_TYPE_SHORT, true);
 
     USERDEFINEDTYPE* test25_type =
         udaNewUserType("TEST25", "Test #25", 0, 0, nullptr, sizeof(TEST25), 1, test25_fields);
@@ -1072,7 +1079,7 @@ int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test26_fields[1] = {nullptr};
     int offset = 0;
 
-    test26_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, ARRAYSHORT);
+    test26_fields[0] = udaNewCompoundPointerField("value", "single short structure element", &offset, UDA_TYPE_SHORT, true);
 
     USERDEFINEDTYPE* test26_type =
         udaNewUserType("TEST26", "Test #26", 0, 0, nullptr, sizeof(TEST26), 1, test26_fields);
@@ -1118,7 +1125,7 @@ int TestPlugin::test27(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int shape[3] = {4, 3, 2};
     test27_fields[0] =
-        udaNewCompoundArrayField("value", "single short structure element", &offset, ARRAYSHORT, 3, shape);
+        udaNewCompoundField("value", "single short structure element", &offset, UDA_TYPE_SHORT, 3, shape);
 
     USERDEFINEDTYPE* test27_type =
         udaNewUserType("TEST27", "Test #27", 0, 0, nullptr, sizeof(TEST27), 1, test27_fields);
@@ -1173,7 +1180,7 @@ int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test28_fields[1] = {nullptr};
     int offset = 0;
 
-    test28_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, ARRAYSHORT);
+    test28_fields[0] = udaNewCompoundPointerField("value", "single short structure element", &offset, UDA_TYPE_SHORT, true);
 
     USERDEFINEDTYPE* test28_type =
         udaNewUserType("TEST28", "Test #28", 0, 0, nullptr, sizeof(TEST28), 1, test28_fields);
@@ -1237,8 +1244,8 @@ int TestPlugin::test30(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test30_fields[2] = {nullptr};
     int offset = 0;
 
-    test30_fields[0] = udaNewCompoundField("R", "double structure element", &offset, SCALARDOUBLE);
-    test30_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, SCALARDOUBLE);
+    test30_fields[0] = udaNewCompoundField("R", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
+    test30_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
 
     USERDEFINEDTYPE* test30_type =
         udaNewUserType("TEST30", "Test #30", 0, 0, nullptr, sizeof(TEST30), 2, test30_fields);
@@ -1269,8 +1276,8 @@ int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test31_fields[2] = {nullptr};
     int offset = 0;
 
-    test31_fields[0] = udaNewCompoundField("R", "double structure element", &offset, SCALARDOUBLE);
-    test31_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, SCALARDOUBLE);
+    test31_fields[0] = udaNewCompoundField("R", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
+    test31_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
 
     USERDEFINEDTYPE* test31_type =
         udaNewUserType("TEST31", "Test #31", 0, 0, nullptr, sizeof(TEST31), 2, test31_fields);
@@ -1296,7 +1303,7 @@ int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
     shape[0] = 5;
     shape[1] = 20;
 
-    udaRegisterMallocArray(plugin_interface, (void*)data, count, sizeof(TEST31), "TEST30", rank, shape);
+    udaRegisterMallocArray(plugin_interface, (void*)data, count, sizeof(TEST31), "TEST31", rank, shape);
 
     // Pass Data
 
@@ -1316,8 +1323,8 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test32a_fields[2] = {nullptr};
     int offset = 0;
 
-    test32a_fields[0] = udaNewCompoundField("R", "double structure element", &offset, SCALARDOUBLE);
-    test32a_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, SCALARDOUBLE);
+    test32a_fields[0] = udaNewCompoundField("R", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
+    test32a_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
 
     USERDEFINEDTYPE* test32a_type =
         udaNewUserType("TEST32A", "Test #32", 0, 0, nullptr, sizeof(TEST32A), 2, test32a_fields);
@@ -1331,7 +1338,7 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test32_fields[2] = {nullptr};
     offset = 0;
 
-    test32_fields[0] = udaNewCompoundField("count", "int structure element", &offset, SCALARINT);
+    test32_fields[0] = udaNewCompoundField("count", "int structure element", &offset, UDA_TYPE_INT, 0, nullptr);
     int shape[1] = {100};
     test32_fields[1] = udaNewCompoundUserTypeArrayField("coords", "structure TEST32A", &offset, test32a_type, 1, shape);
 
@@ -1347,11 +1354,11 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     constexpr int field_count = 2;
 
-    data[0].count = field_count;
+    data->count = field_count;
 
     for (int i = 0; i < field_count; i++) {
-        data[0].coords[i].R = 1.0 * i;
-        data[0].coords[i].Z = 10.0 * i;
+        data->coords[i].R = 1.0 * i;
+        data->coords[i].Z = 10.0 * i;
     }
 
     // Pass Data
@@ -1372,8 +1379,8 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test33a_fields[2] = {nullptr};
     int offset = 0;
 
-    test33a_fields[0] = udaNewCompoundField("R", "double structure element", &offset, SCALARDOUBLE);
-    test33a_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, SCALARDOUBLE);
+    test33a_fields[0] = udaNewCompoundField("R", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
+    test33a_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
 
     USERDEFINEDTYPE* test33a_type =
         udaNewUserType("TEST33A", "Test #33", 0, 0, nullptr, sizeof(TEST33A), 2, test33a_fields);
@@ -1387,9 +1394,10 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test33_fields[2] = {nullptr};
     offset = 0;
 
-    test33_fields[0] = udaNewCompoundField("count", "int structure element", &offset, SCALARINT);
-    int shape[1] = {100};
-    test33_fields[1] = udaNewCompoundUserTypeArrayField("coords", "structure TEST33A", &offset, test33a_type, 1, shape);
+    test33_fields[0] = udaNewCompoundField("count", "int structure element", &offset, UDA_TYPE_INT, 0, nullptr);
+//    int shape[1] = {100};
+//    test33_fields[1] = udaNewCompoundUserTypeArrayField("coords", "structure TEST33A", &offset, test33a_type, 1, shape);
+    test33_fields[1] = udaNewCompoundUserTypePointerField("coords", "structure TEST33A", &offset, test33a_type);
 
     USERDEFINEDTYPE* test33_type =
         udaNewUserType("TEST33", "Test #33", 0, 0, nullptr, sizeof(TEST33), 2, test33_fields);
@@ -1434,8 +1442,8 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test34a_fields[2] = {nullptr};
     int offset = 0;
 
-    test34a_fields[0] = udaNewCompoundField("R", "unsigned char structure element", &offset, ARRAYUCHAR);
-    test34a_fields[1] = udaNewCompoundField("Z", "unsigned char structure element", &offset, ARRAYUCHAR);
+    test34a_fields[0] = udaNewCompoundPointerField("R", "unsigned char structure element", &offset, UDA_TYPE_UNSIGNED_CHAR, false);
+    test34a_fields[1] = udaNewCompoundPointerField("Z", "unsigned char structure element", &offset, UDA_TYPE_UNSIGNED_CHAR, false);
 
     USERDEFINEDTYPE* test34a_type =
         udaNewUserType("TEST34A", "Test #34", 0, 0, nullptr, sizeof(TEST34A), 2, test34a_fields);
@@ -1449,7 +1457,7 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test34_fields[2] = {nullptr};
     offset = 0;
 
-    test34_fields[0] = udaNewCompoundField("count", "int structure element", &offset, SCALARINT);
+    test34_fields[0] = udaNewCompoundField("count", "int structure element", &offset, UDA_TYPE_INT, 0, nullptr);
     test34_fields[1] = udaNewCompoundUserTypePointerField("coords", "structure TEST34A", &offset, test34a_type);
 
     USERDEFINEDTYPE* test34_type =
@@ -1544,17 +1552,17 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
         return err;
     }
 
-    defineField(&field, "dataCount", "the number of data array elements", &offset, SCALARUINT);
+    defineField(&field, "dataCount", "the number of data array elements", &offset, UDA_SCALAR_UINT);
 
     switch (request_block->putDataBlockList.putDataBlock[0].data_type) {
         case UDA_TYPE_INT:
-            defineField(&field, "data", "the block data array", &offset, ARRAYINT);
+            defineField(&field, "data", "the block data array", &offset, UDA_TYPE_INT);
             break;
         case UDA_TYPE_FLOAT:
-            defineField(&field, "data", "the block data array", &offset, ARRAYFLOAT);
+            defineField(&field, "data", "the block data array", &offset, UDA_ARRAY_FLOAT);
             break;
         case UDA_TYPE_DOUBLE:
-            defineField(&field, "data", "the block data array", &offset, ARRAYDOUBLE);
+            defineField(&field, "data", "the block data array", &offset, UDA_ARRAY_DOUBLE);
             break;
     }
 
@@ -1573,7 +1581,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = 0;
     init_compound_field(&field);
 
-    defineField(&field, "count", "the number of data blocks", &offset, SCALARUINT);
+    defineField(&field, "count", "the number of data blocks", &offset, UDA_SCALAR_UINT);
 
     strcpy(field.name, "blocks");
     field.atomictype = UDA_TYPE_UNKNOWN;
@@ -1706,8 +1714,9 @@ int register_enumlist(UDA_PLUGIN_INTERFACE* plugin_interface, ENUMLIST60* enum_l
 
     int shape[1] = {MAXELEMENTNAME};
     enummember60_fields[0] =
-        udaNewCompoundArrayField("name", "char array structure element", &offset, ARRAYCHAR, 1, shape);
-    enummember60_fields[1] = udaNewCompoundField("value", "long long structure element", &offset, SCALARLONG64);
+        udaNewCompoundField("name", "char array structure element", &offset, UDA_TYPE_CHAR, 1, shape);
+    enummember60_fields[1] = udaNewCompoundField("value", "long long structure element", &offset, UDA_TYPE_LONG64, 0,
+                                                 nullptr);
 
     USERDEFINEDTYPE* enummember60_type =
         udaNewUserType("ENUMMEMBER60", "Test #60", 0, 0, nullptr, sizeof(ENUMMEMBER60), 2, enummember60_fields);
@@ -1717,44 +1726,42 @@ int register_enumlist(UDA_PLUGIN_INTERFACE* plugin_interface, ENUMLIST60* enum_l
     offset = 0;
 
     enumlist60_fields[0] =
-        udaNewCompoundArrayField("name", "char array structure element", &offset, ARRAYCHAR, 1, shape);
-    enumlist60_fields[1] = udaNewCompoundField("type", "int structure element", &offset, SCALARINT);
-    enumlist60_fields[2] = udaNewCompoundField("count", "int structure element", &offset, SCALARINT);
+        udaNewCompoundField("name", "char array structure element", &offset, UDA_TYPE_CHAR, 1, shape);
+    enumlist60_fields[1] = udaNewCompoundField("type", "int structure element", &offset, UDA_TYPE_INT, 0, nullptr);
+    enumlist60_fields[2] = udaNewCompoundField("count", "int structure element", &offset, UDA_TYPE_INT, 0, nullptr);
     enumlist60_fields[3] =
         udaNewCompoundUserTypePointerField("enummember", "ENUMMEMBER60* structure element", &offset, enummember60_type);
 
-    enumlist60_fields[5] = udaNewCompoundField("arraydata_rank", "int structure element", &offset, SCALARINT);
-    enumlist60_fields[6] = udaNewCompoundField("arraydata_count", "int structure element", &offset, SCALARINT);
-    enumlist60_fields[7] = udaNewCompoundField("arraydata_shape", "int* structure element", &offset, ARRAYINT);
+    enumlist60_fields[5] = udaNewCompoundField("arraydata_rank", "int structure element", &offset, UDA_TYPE_INT, 0,
+                                               nullptr);
+    enumlist60_fields[6] = udaNewCompoundField("arraydata_count", "int structure element", &offset, UDA_TYPE_INT, 0,
+                                               nullptr);
+    enumlist60_fields[7] = udaNewCompoundPointerField("arraydata_shape", "int* structure element", &offset, UDA_TYPE_INT, false);
 
     COMPOUNDFIELD* arraydata_field = nullptr;
     switch (enum_list->type) {
         case (UDA_TYPE_UNSIGNED_SHORT): {
-            arraydata_field =
-                udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYUSHORT);
+            arraydata_field = udaNewCompoundPointerField("arraydata", "unsigned short* structure element", &offset, UDA_TYPE_UNSIGNED_SHORT, false);
             break;
         }
         case (UDA_TYPE_SHORT): {
-            arraydata_field =
-                udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYSHORT);
+            arraydata_field = udaNewCompoundPointerField("arraydata", "unsigned short* structure element", &offset, UDA_TYPE_SHORT, false);
             break;
         }
         case (UDA_TYPE_UNSIGNED_INT): {
-            arraydata_field = udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYUINT);
+            arraydata_field = udaNewCompoundPointerField("arraydata", "unsigned short* structure element", &offset, UDA_TYPE_UNSIGNED_INT, false);
             break;
         }
         case (UDA_TYPE_INT): {
-            arraydata_field = udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYINT);
+            arraydata_field = udaNewCompoundPointerField("arraydata", "unsigned short* structure element", &offset, UDA_TYPE_INT, false);
             break;
         }
         case (UDA_TYPE_UNSIGNED_LONG64): {
-            arraydata_field =
-                udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYULONG64);
+            arraydata_field = udaNewCompoundPointerField("arraydata", "unsigned short* structure element", &offset, UDA_TYPE_UNSIGNED_LONG64, false);
             break;
         }
         case (UDA_TYPE_LONG64): {
-            arraydata_field =
-                udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYLONG64);
+            arraydata_field = udaNewCompoundPointerField("arraydata", "unsigned short* structure element", &offset, UDA_TYPE_LONG64, false);
             break;
         }
     }
@@ -2002,13 +2009,13 @@ int TestPlugin::scalartest(UDA_PLUGIN_INTERFACE* plugin_interface)
 
 int TestPlugin::array1dtest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    constexpr int N = 100;
-    auto data = std::make_unique<double[]>(N);
-    for (int i = 0; i < N; ++i) {
+    constexpr int n = 100;
+    auto data = std::make_unique<double[]>(n);
+    for (int i = 0; i < n; ++i) {
         data[i] = i;
     }
 
-    size_t shape[1] = {N};
+    size_t shape[1] = {n};
     udaPluginReturnDataDoubleArray(plugin_interface, data.get(), 1, shape, nullptr);
 
     return 0;

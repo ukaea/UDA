@@ -108,6 +108,9 @@ macro( BUILD_TEST NAME SOURCE )
     ${CMAKE_SOURCE_DIR}/source/include
     ${CMAKE_BINARY_DIR}/include
   )
+  if( ENABLE_CAPNP )
+    target_compile_definitions( ${NAME} PRIVATE -DCAPNP_ENABLED=1 )
+  endif()
 
   set_target_properties( ${NAME}
     PROPERTIES
@@ -139,6 +142,9 @@ macro( BUILD_TEST NAME SOURCE )
     ${CMAKE_SOURCE_DIR}/source/include
     ${CMAKE_BINARY_DIR}/include
   )
+  if( ENABLE_CAPNP )
+    target_compile_definitions( fat_${NAME} PRIVATE -DCAPNP_ENABLED=1 )
+  endif()
 
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )

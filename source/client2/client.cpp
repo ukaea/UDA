@@ -614,7 +614,7 @@ int uda::client::Client::get(std::string_view data_signal, std::string_view data
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [{}]", data_source);
             add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        throw uda::exceptions::ClientError("Error identifying the Data Source [%1%]", data_source);
+        throw uda::exceptions::ClientError("Error identifying the Data Source [{}]", data_source);
     }
 
     print_request_block(request_block);
@@ -843,7 +843,7 @@ int uda::client::Client::receive_server_block()
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, " Protocol 11 Error (Server Block #2)");
         // Assuming the server_block is corrupted, replace with a clean copy to avoid future concatonation problems
         _server_block.idamerrorstack.nerrors = 0;
-        throw uda::exceptions::ClientError("Protocol 11 Error (Server Block #2) = %1%", err);
+        throw uda::exceptions::ClientError("Protocol 11 Error (Server Block #2) = {}", err);
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Server Block Received");

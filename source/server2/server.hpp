@@ -37,7 +37,7 @@ class Server
 
   private:
     void shutdown();
-    void initalise();
+    void initialise();
     void connect(int socket_fd);
     void loop();
     int handle_request();
@@ -60,7 +60,6 @@ class Server
     std::vector<uda::client_server::Sockets> _sockets;
     Plugins _plugins;
     bool _server_closedown = false;
-    int _malloc_source = UDA_MALLOC_SOURCE_NONE;
     std::vector<uda::client_server::DataBlock> _data_blocks;
     size_t _total_data_block_size;
     MetadataBlock _metadata_block;
@@ -69,7 +68,6 @@ class Server
     bool _fatal_error = false;
     structures::LogMallocList* _log_malloc_list = nullptr;
     structures::UserDefinedTypeList* _user_defined_type_list = nullptr;
-    structures::UserDefinedTypeList _parsed_user_defined_type_list;
 };
 
 } // namespace uda::server

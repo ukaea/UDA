@@ -62,10 +62,10 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
     typedef struct HELP_PING HELP_PING;
 
     int offset = 0;
-    COMPOUNDFIELD* field1 =
-        udaNewCompoundField("seconds", "Server time in seconds from the epoch start", &offset, SCALARUINT);
-    COMPOUNDFIELD* field2 =
-        udaNewCompoundField("microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
+    COMPOUNDFIELD* field1 = udaNewCompoundField("seconds", "Server time in seconds from the epoch start",
+                                                &offset, UDA_TYPE_UNSIGNED_INT, 0, nullptr);
+    COMPOUNDFIELD* field2 = udaNewCompoundField("microseconds", "Server inter-second time in microseconds",
+                                                &offset, UDA_TYPE_UNSIGNED_INT, 0, nullptr);
 
     COMPOUNDFIELD* fields[] = {field1, field2};
     USERDEFINEDTYPE* user_type =

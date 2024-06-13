@@ -65,6 +65,8 @@ class XdrProtocol
                           structures::LogMallocList* log_malloc_list,
                           structures::UserDefinedTypeList* user_defined_type_list);
 
+    void reset();
+
   private:
     int _protocol_version = 8;
     XDR _server_input;
@@ -73,7 +75,7 @@ class XdrProtocol
     int _server_timeout;
     server::IoData _io_data;
     structures::LogStructList _log_struct_list;
-    int _malloc_source;
+    int _malloc_source = UDA_MALLOC_SOURCE_NONE;
     int _private_flags;
 
     void create_streams();

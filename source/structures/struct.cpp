@@ -72,8 +72,7 @@ using namespace uda::logging;
 using namespace uda::structures;
 
 static unsigned int last_malloc_index = 0; // Malloc Log search index last value
-static unsigned int* last_malloc_index_value =
-    &last_malloc_index; // Preserve Malloc Log search index last value in GENERAL_STRUCT
+static unsigned int* last_malloc_index_value = &last_malloc_index; // Preserve Malloc Log search index last value in GENERAL_STRUCT
 static NTree* full_ntree = nullptr;
 
 NTREE* udaGetFullNTree()
@@ -90,6 +89,12 @@ void udaSetLastMallocIndexValue(unsigned int* lastMallocIndexValue_in)
 {
     last_malloc_index_value = lastMallocIndexValue_in;
     last_malloc_index = *last_malloc_index_value;
+}
+
+void udaResetLastMallocIndex()
+{
+    last_malloc_index = 0;
+    last_malloc_index_value = &last_malloc_index;
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -409,11 +414,13 @@ void print_compound_field(CompoundField str)
     UDA_LOG(UDA_LOG_DEBUG, "rank     : {}", str.rank)
     UDA_LOG(UDA_LOG_DEBUG, "count    : {}", str.count)
 
-    gsl::span span{ str.shape, (size_t)str.rank };
-    std::vector<std::string> shape_strings{ span.size() };
-    std::transform(span.begin(), span.end(), shape_strings.begin(), [](int i) { return std::to_string(i); });
-    std::string shape_string = boost::join(shape_strings, ",");
-    UDA_LOG(UDA_LOG_DEBUG, "shape    : [{}]", shape_string)
+    if (str.shape != nullptr && str.rank > 0) {
+        gsl::span span{ str.shape, (size_t)str.rank };
+        std::vector<std::string> shape_strings{ span.size() };
+        std::transform(span.begin(), span.end(), shape_strings.begin(), [](int i) { return std::to_string(i); });
+        std::string shape_string = boost::join(shape_strings, ",");
+        UDA_LOG(UDA_LOG_DEBUG, "shape    : [{}]", shape_string)
+    }
 }
 
 /** Print the Tabulated Contents of a CompoundField data structure.
@@ -1251,16 +1258,17 @@ void uda::structures::get_initial_user_defined_type_list(UserDefinedTypeList** a
     usertype.image = nullptr;
     usertype.size = sizeof(SArray); // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
+    usertype.fieldcount = 0;
 
     offset = 0;
 
-    defineField(&field, "count", "Number of data array elements", &offset, SCALARINT, 0, nullptr);
+    defineField(&field, "count", "Number of data array elements", &offset, UDA_TYPE_INT, 0, nullptr, false, true);
     add_compound_field(&usertype, field);
-    defineField(&field, "rank", "Rank of the data array", &offset, SCALARINT, 0, nullptr);
+    defineField(&field, "rank", "Rank of the data array", &offset, UDA_TYPE_INT, 0, nullptr, false, true);
     add_compound_field(&usertype, field);
-    defineField(&field, "shape", "Shape of the data array", &offset, ARRAYINT, 0, nullptr);
+    defineField(&field, "shape", "Shape of the data array", &offset, UDA_TYPE_INT, 0, nullptr, true, false);
     add_compound_field(&usertype, field);
-    defineField(&field, "data", "Location of the Structure Array", &offset, ARRAYVOID, 0, nullptr);
+    defineField(&field, "data", "Location of the Structure Array", &offset, UDA_TYPE_VOID, 0, nullptr, true, false);
     add_compound_field(&usertype, field);
 
     init_compound_field(&field);
@@ -1293,6 +1301,7 @@ void uda::structures::get_initial_user_defined_type_list(UserDefinedTypeList** a
     usertype.image = nullptr;
     usertype.size = sizeof(EnumMember); // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
+    usertype.fieldcount = 0;
 
     offset = 0;
 
@@ -1314,7 +1323,7 @@ void uda::structures::get_initial_user_defined_type_list(UserDefinedTypeList** a
     add_compound_field(&usertype, field);
 
     init_compound_field(&field);
-    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64, 0, nullptr);
+    defineField(&field, "value", "The ENUM value", &offset, UDA_TYPE_LONG64, 0, nullptr, false, true);
     add_compound_field(&usertype, field);
 
     add_user_defined_type(list, usertype);
@@ -1330,6 +1339,7 @@ void uda::structures::get_initial_user_defined_type_list(UserDefinedTypeList** a
     usertype.image = nullptr;
     usertype.size = sizeof(EnumMember); // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
+    usertype.fieldcount = 0;
 
     offset = 0;
 
@@ -1351,11 +1361,11 @@ void uda::structures::get_initial_user_defined_type_list(UserDefinedTypeList** a
     add_compound_field(&usertype, field);
 
     init_compound_field(&field);
-    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT, 0, nullptr);
+    defineField(&field, "type", "The ENUM base integer atomic type", &offset, UDA_TYPE_INT, 0, nullptr, false, true);
     add_compound_field(&usertype, field);
 
     init_compound_field(&field);
-    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT, 0, nullptr);
+    defineField(&field, "count", "The number of ENUM values", &offset, UDA_TYPE_INT, 0, nullptr, false, true);
     add_compound_field(&usertype, field);
 
     init_compound_field(&field);
@@ -1374,25 +1384,25 @@ void uda::structures::get_initial_user_defined_type_list(UserDefinedTypeList** a
     field.alignment = udaGetalignmentof(field.type);
     add_compound_field(&usertype, field);
 
-    // defineField(&field, "data", "Generalised data pointer for all integer type arrays", &offset, ARRAYVOID);
-    // ARRAYVOID doesn't work - not implemented in the middleware!
+    // defineField(&field, "data", "Generalised data pointer for all integer type arrays", &offset, UDA_ARRAY_VOID);
+    // UDA_ARRAY_VOID doesn't work - not implemented in the middleware!
     // Naming the field "data" hits a bug and garbage is returned!
     // Don't know the correct type until the structure is used!!!! - so cannot pre-define!
     // Make the necessary changes to the structure definition when EnumList is used or
     // Convert data to standard unsigned long64
 
     init_compound_field(&field);
-    defineField(&field, "enumarray", "Data with this enumerated type", &offset, ARRAYULONG64, 0,
-                nullptr); // Data need to be converted to this type
+    defineField(&field, "enumarray", "Data with this enumerated type", &offset, UDA_TYPE_LONG64, 0,
+                nullptr, true, false); // Data need to be converted to this type
     add_compound_field(&usertype, field);
     init_compound_field(&field);
-    defineField(&field, "enumarray_rank", "The rank of arraydata", &offset, SCALARINT, 0, nullptr);
+    defineField(&field, "enumarray_rank", "The rank of arraydata", &offset, UDA_TYPE_INT, 0, nullptr, false, true);
     add_compound_field(&usertype, field);
     init_compound_field(&field);
-    defineField(&field, "enumarray_count", "The count of arraydata", &offset, SCALARINT, 0, nullptr);
+    defineField(&field, "enumarray_count", "The count of arraydata", &offset, UDA_TYPE_INT, 0, nullptr, false, true);
     add_compound_field(&usertype, field);
     init_compound_field(&field);
-    defineField(&field, "enumarray_shape", "The shape of arraydata", &offset, ARRAYINT, 0, nullptr);
+    defineField(&field, "enumarray_shape", "The shape of arraydata", &offset, UDA_TYPE_INT, 0, nullptr, true, false);
     add_compound_field(&usertype, field);
 
     add_user_defined_type(list, usertype);

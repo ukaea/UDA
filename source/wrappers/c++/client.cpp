@@ -1,6 +1,6 @@
 #include "client.hpp"
 
-#include <boost/format.hpp>
+#include <fmt/format.h>
 #include <complex>
 #include <iterator>
 #include <uda/client.h>
@@ -98,11 +98,11 @@ void uda::Client::setProperty(Property prop, int value)
             throw InvalidUseException("Cannot set integer value for boolean property");
 
         case PROP_TIMEOUT:
-            name = (boost::format("timeout=%1%") % value).str();
+            name = fmt::format("timeout={}", value);
             udaSetProperty(name.c_str());
             break;
         case PROP_ALTRANK:
-            name = (boost::format("altrank=%1%") % value).str();
+            name = fmt::format("altrank={}", value);
             udaSetProperty(name.c_str());
             break;
 
@@ -343,7 +343,7 @@ static int typeIDToUDAType(const std::type_info& type)
 
 void uda::Client::put(const uda::Signal& signal)
 {
-    std::string filename = (boost::format("%s%06d.nc") % signal.alias() % signal.shot()).str();
+    std::string filename = fmt::format("{}{:06d}.nc", signal.alias(), signal.shot());
 
     std::string signal_class;
     switch (signal.signalClass()) {
@@ -359,7 +359,7 @@ void uda::Client::put(const uda::Signal& signal)
     }
 
     std::string request =
-        (boost::format("putdata::open(/create,"
+        fmt::format("putdata::open(/create,"
                        " filename='%s',"
                        " conventions='Fusion-1.0',"
                        " class='%s',"
@@ -368,10 +368,14 @@ void uda::Client::put(const uda::Signal& signal)
                        " pass=%d,"
                        " comment='%s',"
                        " code=%s,"
-                       " version=1)") %
-         filename % signal_class % signal.title() % signal.shot() % signal.pass() % signal.comment() % signal.code())
-            .str();
-
+                       " version=1)"
+                       , filename
+                       , signal_class
+                       , signal.title()
+                       , signal.shot()
+                       , signal.pass()
+                       , signal.comment()
+                       , signal.code());
     udaPutAPI(request.c_str(), nullptr);
 
     uda::client_server::PutDataBlock pdblock{};
