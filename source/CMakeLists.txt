@@ -1,7 +1,7 @@
 if( NOT CLIENT_ONLY )
   include( LibXml2StrPrintfConfig )
 endif()
-set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
+# set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
 find_package( Boost 1.60 REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
@@ -141,8 +141,20 @@ configure_file(
   @ONLY
 )
 
+configure_file(
+  ${CMAKE_SOURCE_DIR}/source/etc/uda.socket.in
+  ${CMAKE_BINARY_DIR}/etc/uda.socket
+  @ONLY
+)
+
+configure_file(
+  ${CMAKE_SOURCE_DIR}/source/etc/uda@.service.in
+  ${CMAKE_BINARY_DIR}/etc/uda@.service
+  @ONLY
+)
+
 install(
-  FILES ${CMAKE_BINARY_DIR}/etc/rc.uda
+  FILES ${CMAKE_BINARY_DIR}/etc/rc.uda ${CMAKE_BINARY_DIR}/etc/uda.socket ${CMAKE_BINARY_DIR}/etc/uda@.service
   DESTINATION etc
   PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 )

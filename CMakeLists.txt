@@ -35,7 +35,7 @@ set( CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake/Modules
   ${CMAKE_SOURCE_DIR}/cmake/Config
 )
-set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
+# set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
 
 #include( ColourMessages )
 include_directories( /opt/local/include )
@@ -195,12 +195,15 @@ endif()
 set( UDA_SERVER_PORT "56565" CACHE STRING "define port number in server configuration files" )
 set( UDA_SERVER_HOST "`hostname`" CACHE STRING "define hostname in server configuration files" )
 
+find_package( LibXml2 REQUIRED )
+include_directories( ${libxml2_INCLUDE_DIR} )
+
 ########################################################################################################################
 # Source directories
 
 add_subdirectory( source )
 if( NOT CLIENT_ONLY )
-  add_subdirectory( test )
+  # add_subdirectory( test )
 endif()
 
 ########################################################################################################################

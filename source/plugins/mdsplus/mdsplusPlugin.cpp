@@ -3,6 +3,7 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 
+#include <memory>
 #include <mdsobjects.h>
 
 using namespace MDSplus;
@@ -178,13 +179,16 @@ int MDSplusPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     const char* signal = nullptr;
     FIND_REQUIRED_STRING_VALUE(nvl, signal);
 
-    const char* type = nullptr;
-    FIND_REQUIRED_STRING_VALUE(nvl, type);
+    //const char* type = nullptr;
+    //FIND_REQUIRED_STRING_VALUE(nvl, type);
+
+    int datatype = 0;
+    FIND_REQUIRED_INT_VALUE(nvl, datatype);
 
     int rank = 0;
     FIND_REQUIRED_INT_VALUE(nvl, rank);
 
-    std::string address = std::string{ protocol } + "://" + host + std::to_string(port);
+    std::string address = std::string{ protocol } + "://" + host + ":" + std::to_string(port);
 
     std::unique_ptr<Connection> connection;
     try {
@@ -197,27 +201,40 @@ int MDSplusPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     auto data = std::unique_ptr<Data>(connection->get(signal));
 
-    std::string data_type = type;
+    //std::string data_type = type;
 
     if (rank == 0) {
-        if (data_type == "int") {
+        //if (data_type == "int") {
+        if (datatype == UDA_TYPE_INT) {
             auto val = data->getInt();
             setReturnDataIntScalar(data_block, val, nullptr);
-        } else if (data_type == "float") {
+        //} else if (data_type == "float") {
+        } else if (datatype == UDA_TYPE_FLOAT) {
             auto val = data->getFloat();
             setReturnDataFloatScalar(data_block, val, nullptr);
+        //} else if (data_type == "double") {
+        } else if (datatype == UDA_TYPE_DOUBLE) {
+            auto val = data->getDouble();
+            setReturnDataDoubleScalar(data_block, val, nullptr);
         } else {
             RAISE_PLUGIN_ERROR("unknown data type")
         }
     } else {
-        if (data_type == "int") {
+        //if (data_type == "int") {
+        if (datatype == UDA_TYPE_INT) {
             auto array = data->getIntArray();
             std::vector<size_t> shape = {array.size()};
             setReturnDataIntArray(data_block, array.data(), 1, shape.data(), nullptr);
-        } else if (data_type == "float") {
+        //} else if (data_type == "float") {
+        } else if (datatype == UDA_TYPE_FLOAT) {
             auto array = data->getFloatArray();
             std::vector<size_t> shape = {array.size()};
             setReturnDataFloatArray(data_block, array.data(), 1, shape.data(), nullptr);
+        //} else if (data_type == "double") {
+        } else if (datatype == UDA_TYPE_DOUBLE) {
+            auto array = data->getDoubleArray();
+            std::vector<size_t> shape = {array.size()};
+            setReturnDataDoubleArray(data_block, array.data(), 1, shape.data(), nullptr);
         } else {
             RAISE_PLUGIN_ERROR("unknown data type")
         }

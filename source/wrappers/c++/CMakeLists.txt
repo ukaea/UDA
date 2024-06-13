@@ -71,7 +71,7 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:authentication-client-objects>
 )
 
-set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${CACHE_LIBRARIES} fmt::fmt )
+set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${CACHE_LIBRARIES} fmt::fmt LibXml2::LibXml2 )
 if( WIN32 OR MINGW )
   if( MINGW )
     set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl Iconv::Iconv liblzma::liblzma ZLIB::ZLIB crypt32 stdc++ )
@@ -83,11 +83,11 @@ elseif( TIRPC_FOUND )
 endif()
 
 add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-target_link_libraries( ${LIB_NAME}-static PRIVATE ${LINK_LIB} )
+target_link_libraries( ${LIB_NAME}-static PRIVATE ${LINK_LIB} LibXml2::LibXml2 )
 
 if( BUILD_SHARED_LIBS )
   add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LINK_LIB} )
+  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LINK_LIB} LibXml2::LibXml2 )
 endif()
 
 if( NOT CLIENT_ONLY )

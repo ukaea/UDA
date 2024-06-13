@@ -115,16 +115,16 @@ elseif( TIRPC_FOUND )
 endif()
 
 add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt )
+target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt LibXml2::LibXml2 )
 
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
-  target_link_libraries( clientserver-server-objects PUBLIC fmt::fmt )
+  target_link_libraries( clientserver-server-objects PUBLIC fmt::fmt LibXml2::LibXml2 )
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
-  target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt )
+  target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt LibXml2::LibXml2 )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )
