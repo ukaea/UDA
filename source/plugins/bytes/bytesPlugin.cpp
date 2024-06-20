@@ -148,28 +148,63 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Add functionality here ....
 
 // Check if path starts with pre-approved file path
-// Raises Plugin Error if not
-void check_allowed_path(char* expandedPath) {
-    boost::filesystem::path full_path;
-    try { 
-        full_path = boost::filesystem::canonical(extendedPath);
-    } catch (boost::filesystem::filesystem_error e) {
-        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", file_path.string().c_str(), 3);
-        RAISE_PLUGIN_ERROR("Provided File Path Not Found!\n");
-        return;
+// Raises Plugin Error if notstd::vector<std::string> split_string(const std::string& input_string, const std::string& delim) {
+    size_t pos = 0, prev_pos = 0, delim_len = delim.length();
+    std::vector<std::string> string_list = {};
+    // Using for loop to make sure the loop ends, should cover all cases, 
+    //   including if the string made up of just the delim.
+    for (int i=0; i<input_string.size(); i++) {
+        pos = input_string.find(delim, prev_pos);
+        if (pos == std::string::npos) {
+            string_list.emplace_back(input_string.substr(prev_pos, input_string.size()-prev_pos));
+            break;
+        }
+        string_list.emplace_back(input_string.substr(prev_pos, pos-prev_pos));
+        prev_pos = pos + delim_len;
     }
-    char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
+    return string_list;
+}
+
+std::string join_string(std::vector<std::string> string_list, std::string delim) {
+    std::string str;
+    std::string tmp_delim = "";
+    for (std::string element : string_list) {
+        str += tmp_delim + element;
+        tmp_delim = delim;
+    }
+    return str;
+}
+ std::string resolve_filepath(char* path) {
+    std::vector<std::string> foldernames = split_string(path, "/");
+    for (int i=foldernames.size()-1; i>=0; i--) {
+        if (foldernames[i].compare("..") == 0) {
+            foldernames.erase(foldernames.begin() + i);
+            foldernames.erase(foldernames.begin() + i-1);
+            i--;
+        }
+    }
+    if (foldernames[0].compare(".") == 0) {
+        foldernames[0] = std::getenv("$PWD");
+    } else if  (foldernames[0].compare("~") == 0) {
+        foldernames[0] = (std::string("/home/")+std::getenv("USER")).c_str();
+    }
+    return join_string(foldernames, "/");
+}
+
+void check_allowed_path(char* expandedPath) {
+    char* env_str = std::getenv("HOME");
     std::vector<std::string> allowed_paths;
     if (env_str) { // gotta check if environment variable exists before using it
-        boost::algorithm::split(allowed_paths, std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS"), boost::is_any_of(","));
-    } 
+        allowed_paths = split_string(env_str, ",");
+    }
+    std::string resolved_path = resolve_filepath(expandedPath);
     bool good_path = false;
     for (std::string allowed_path : allowed_paths) {
-        if (full_path.string().rfind(allowed_path.c_str(), 0) != std::string::npos) {
+        if (resolved_path.rfind(allowed_path.c_str(), 0) != std::string::npos) {
             good_path = true;
             break;
         }
-    }
+    } 
     if (!good_path) {
         UDA_LOG(UDA_LOG_DEBUG, "Bad Path Provided %s\n", expandedPath);
         RAISE_PLUGIN_ERROR("Bad File Path Provided\n");
