@@ -193,7 +193,7 @@ std::string join_string(std::vector<std::string> string_list, std::string delim)
 }
 
 int check_allowed_path(char* expandedPath) {
-    char* env_str = std::getenv("HOME");
+    char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
     std::vector<std::string> allowed_paths;
     if (env_str) { // gotta check if environment variable exists before using it
         allowed_paths = split_string(env_str, ",");
