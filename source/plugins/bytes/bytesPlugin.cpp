@@ -5,6 +5,9 @@
 
 #include "readBytesNonOptimally.h"
 
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
@@ -143,6 +146,37 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
+
+// Check if path starts with pre-approved file path
+// Raises Plugin Error if not
+void check_allowed_path(char* expandedPath) {
+    boost::filesystem::path full_path;
+    try { 
+        full_path = boost::filesystem::canonical(extendedPath);
+    } catch (boost::filesystem::filesystem_error e) {
+        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", file_path.string().c_str(), 3);
+        RAISE_PLUGIN_ERROR("Provided File Path Not Found!\n");
+        return;
+    }
+    char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
+    std::vector<std::string> allowed_paths;
+    if (env_str) { // gotta check if environment variable exists before using it
+        boost::algorithm::split(allowed_paths, std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS"), boost::is_any_of(","));
+    } 
+    bool good_path = false;
+    for (std::string allowed_path : allowed_paths) {
+        if (full_path.string().rfind(allowed_path.c_str(), 0) != std::string::npos) {
+            good_path = true;
+            break;
+        }
+    }
+    if (!good_path) {
+        UDA_LOG(UDA_LOG_DEBUG, "Bad Path Provided %s\n", expandedPath);
+        RAISE_PLUGIN_ERROR("Bad File Path Provided\n");
+    }
+    return;
+}
+
 int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_SOURCE* data_source = idam_plugin_interface->data_source;
@@ -154,7 +188,12 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     StringCopy(data_source->path, path, MAXPATH);
     UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables! \n");
-    expand_environment_variables(data_source->path);
+    expand_environment_variables(data_source->path);    
+    
+    boost::filesystem::path boost_path = boost::filesystem::canonical(argv[1]);
+    std::cout << boost_path << std::endl;
+
+    check_allowed_path(data_source->path);
 
     return readBytes(*data_source, *signal_desc, data_block, idam_plugin_interface->environment);
 }
