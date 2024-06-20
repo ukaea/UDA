@@ -9,7 +9,7 @@ export UDA_ROOT=@CMAKE_INSTALL_PREFIX@
 
 export UDA_LOG=$UDA_ROOT/etc
 export UDA_LOG_MODE=a
-export UDA_LOG_LEVEL=DEBUG  # Options: INFO, DEBUG, WARN, ERROR, ACCESS
+export UDA_LOG_LEVEL=ERROR  # Options: INFO, DEBUG, WARN, ERROR, ACCESS
 export UDA_DEBUG_APPEND=a
 
 #------------------------------------------------------------------------------------------------------
