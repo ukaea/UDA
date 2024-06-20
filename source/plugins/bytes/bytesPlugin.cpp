@@ -154,7 +154,7 @@ std::vector<std::string> split_string(const std::string& input_string, const std
     std::vector<std::string> string_list = {};
     // Using for loop to make sure the loop ends, should cover all cases, 
     //   including if the string made up of just the delim.
-    for (int i=0; i<input_string.size(); i++) {
+    for (size_t i=0; i<input_string.size(); i++) {
         pos = input_string.find(delim, prev_pos);
         if (pos == std::string::npos) {
             string_list.emplace_back(input_string.substr(prev_pos, input_string.size()-prev_pos));
@@ -192,7 +192,7 @@ std::string join_string(std::vector<std::string> string_list, std::string delim)
     return join_string(foldernames, "/");
 }
 
-void check_allowed_path(char* expandedPath) {
+int check_allowed_path(char* expandedPath) {
     char* env_str = std::getenv("HOME");
     std::vector<std::string> allowed_paths;
     if (env_str) { // gotta check if environment variable exists before using it
@@ -210,7 +210,7 @@ void check_allowed_path(char* expandedPath) {
         UDA_LOG(UDA_LOG_DEBUG, "Bad Path Provided %s\n", expandedPath);
         RAISE_PLUGIN_ERROR("Bad File Path Provided\n");
     }
-    return;
+    return 0;
 }
 
 int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -226,9 +226,6 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables! \n");
     expand_environment_variables(data_source->path);    
     
-    boost::filesystem::path boost_path = boost::filesystem::canonical(argv[1]);
-    std::cout << boost_path << std::endl;
-
     check_allowed_path(data_source->path);
 
     return readBytes(*data_source, *signal_desc, data_block, idam_plugin_interface->environment);
