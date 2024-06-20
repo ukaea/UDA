@@ -186,7 +186,7 @@ std::string resolve_filepath(char* path) {
         }
     }
     if (counter > (int)foldernames.size()/2) {
-        RAISE_PLUGIN_ERROR("Illegal Path provided\n");
+        return "";
     }
     int i = -1;
     while ( i < (int)foldernames.size()) {
@@ -212,6 +212,9 @@ int check_allowed_path(char* expandedPath) {
         allowed_paths = split_string(env_str, ",");
     }
     std::string resolved_path = resolve_filepath(expandedPath);
+    if (resolved_path.compare("") == 0) {
+        RAISE_PLUGIN_ERROR("Illegal File Path Provided\n");
+    }
     bool good_path = false;
     for (std::string allowed_path : allowed_paths) {
         if (resolved_path.rfind(allowed_path.c_str(), 0) != std::string::npos) {
