@@ -148,7 +148,8 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Add functionality here ....
 
 // Check if path starts with pre-approved file path
-// Raises Plugin Error if notstd::vector<std::string> split_string(const std::string& input_string, const std::string& delim) {
+// Raises Plugin Error if not
+std::vector<std::string> split_string(const std::string& input_string, const std::string& delim) {
     size_t pos = 0, prev_pos = 0, delim_len = delim.length();
     std::vector<std::string> string_list = {};
     // Using for loop to make sure the loop ends, should cover all cases, 
