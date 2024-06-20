@@ -175,13 +175,26 @@ std::string join_string(std::vector<std::string> string_list, std::string delim)
     }
     return str;
 }
- std::string resolve_filepath(char* path) {
+
+std::string resolve_filepath(char* path) {
     std::vector<std::string> foldernames = split_string(path, "/");
-    for (int i=foldernames.size()-1; i>=0; i--) {
+    // checking the number of '..' doesnt exceed the number of actual folders
+    int counter = 0;
+    for (std::string folder : foldernames) {
+        if (folder.compare("..") == 0) {
+            counter++;
+        }
+    }
+    if (counter > (int)foldernames.size()/2) {
+        RAISE_PLUGIN_ERROR("Illegal Path provided\n");
+    }
+    int i = -1;
+    while ( i < (int)foldernames.size()) {
+        i++;        
         if (foldernames[i].compare("..") == 0) {
             foldernames.erase(foldernames.begin() + i);
             foldernames.erase(foldernames.begin() + i-1);
-            i--;
+            i -= 2;
         }
     }
     if (foldernames[0].compare(".") == 0) {
