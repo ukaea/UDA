@@ -5,8 +5,7 @@
 
 #include "readBytesNonOptimally.h"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -149,6 +148,7 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Check if path starts with pre-approved file path
 // Raises Plugin Error if not
+
 std::vector<std::string> split_string(const std::string& input_string, const std::string& delim) {
     size_t pos = 0, prev_pos = 0, delim_len = delim.length();
     std::vector<std::string> string_list = {};
@@ -165,7 +165,7 @@ std::vector<std::string> split_string(const std::string& input_string, const std
     }
     return string_list;
 }
-
+/*
 std::string join_string(std::vector<std::string> string_list, std::string delim) {
     std::string str;
     std::string tmp_delim = "";
@@ -174,60 +174,40 @@ std::string join_string(std::vector<std::string> string_list, std::string delim)
         tmp_delim = delim;
     }
     return str;
-}
+}*/
 
-std::string resolve_filepath(char* path) {
-    std::vector<std::string> foldernames = split_string(path, "/");
-    // checking the number of '..' doesnt exceed the number of actual folders
-    int counter = 0;
-    for (std::string folder : foldernames) {
-        if (folder.compare("..") == 0) {
-            counter++;
-        }
-    }
-    if (counter > (int)foldernames.size()/2) {
-        return "";
-    }
-    int i = -1;
-    while ( i < (int)foldernames.size()) {
-        i++;        
-        if (foldernames[i].compare("..") == 0) {
-            foldernames.erase(foldernames.begin() + i);
-            foldernames.erase(foldernames.begin() + i-1);
-            i -= 2;
-        }
-    }
-    if (foldernames[0].compare(".") == 0) {
-        foldernames[0] = std::getenv("$PWD");
-    } else if  (foldernames[0].compare("~") == 0) {
-        foldernames[0] = (std::string("/home/")+std::getenv("USER")).c_str();
-    }
-    return join_string(foldernames, "/");
-}
 
 int check_allowed_path(char* expandedPath) {
+    UDA_LOG(UDA_LOG_DEBUG, "Entered CHECK ALLOWED PATH: %s\n", expandedPath);
     char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
     std::vector<std::string> allowed_paths;
     if (env_str) { // gotta check if environment variable exists before using it
         allowed_paths = split_string(env_str, ",");
     }
-    std::string resolved_path = resolve_filepath(expandedPath);
-    if (resolved_path.compare("") == 0) {
-        RAISE_PLUGIN_ERROR("Illegal File Path Provided\n");
+    UDA_LOG(UDA_LOG_DEBUG, "CHECKED UDA_BYTES_PLUGIN_ALLOWED_PATHS exists\n");
+    std::string resolved_path;
+    try {
+        resolved_path = std::filesystem::canonical(expandedPath).string();
+    } catch (std::filesystem::filesystem_error&) { 
+        RAISE_PLUGIN_ERROR("File or Directory Not Found");
     }
+    UDA_LOG(UDA_LOG_DEBUG, "NOT ILLEGAL FILE PATH: %s\n", resolved_path.c_str());
     bool good_path = false;
     for (std::string allowed_path : allowed_paths) {
         if (resolved_path.rfind(allowed_path.c_str(), 0) != std::string::npos) {
+            UDA_LOG(UDA_LOG_DEBUG, "PATH ALLOWED\n");
             good_path = true;
             break;
         }
     } 
     if (!good_path) {
         UDA_LOG(UDA_LOG_DEBUG, "Bad Path Provided %s\n", expandedPath);
-        RAISE_PLUGIN_ERROR("Bad File Path Provided\n");
+        RAISE_PLUGIN_ERROR("Bad File Path Provided");
     }
     return 0;
 }
+
+
 
 int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
@@ -238,7 +218,8 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_data->nameValueList, path);
 
-    StringCopy(data_source->path, path, MAXPATH);
+ 
+   StringCopy(data_source->path, path, MAXPATH);
     UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables! \n");
     expand_environment_variables(data_source->path);    
     
