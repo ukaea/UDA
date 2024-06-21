@@ -6,6 +6,7 @@
 #include "readBytesNonOptimally.h"
 
 #include <filesystem>
+#include <boost/algorithm/string.hpp>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -148,61 +149,29 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Check if path starts with pre-approved file path
 // Raises Plugin Error if not
-
-std::vector<std::string> split_string(const std::string& input_string, const std::string& delim) {
-    size_t pos = 0, prev_pos = 0, delim_len = delim.length();
-    std::vector<std::string> string_list = {};
-    // Using for loop to make sure the loop ends, should cover all cases, 
-    //   including if the string made up of just the delim.
-    for (size_t i=0; i<input_string.size(); i++) {
-        pos = input_string.find(delim, prev_pos);
-        if (pos == std::string::npos) {
-            string_list.emplace_back(input_string.substr(prev_pos, input_string.size()-prev_pos));
-            break;
-        }
-        string_list.emplace_back(input_string.substr(prev_pos, pos-prev_pos));
-        prev_pos = pos + delim_len;
-    }
-    return string_list;
-}
-/*
-std::string join_string(std::vector<std::string> string_list, std::string delim) {
-    std::string str;
-    std::string tmp_delim = "";
-    for (std::string element : string_list) {
-        str += tmp_delim + element;
-        tmp_delim = delim;
-    }
-    return str;
-}*/
-
-
 int check_allowed_path(char* expandedPath) {
-    UDA_LOG(UDA_LOG_DEBUG, "Entered CHECK ALLOWED PATH: %s\n", expandedPath);
+    std::string full_path;
+    try { 
+        full_path = std::filesystem::canonical(expandedPath).string();
+    } catch (std::filesystem::filesystem_error& e) {
+        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
+        RAISE_PLUGIN_ERROR("Provided File Path Not Found!\n");
+    }
     char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
     std::vector<std::string> allowed_paths;
     if (env_str) { // gotta check if environment variable exists before using it
-        allowed_paths = split_string(env_str, ",");
-    }
-    UDA_LOG(UDA_LOG_DEBUG, "CHECKED UDA_BYTES_PLUGIN_ALLOWED_PATHS exists\n");
-    std::string resolved_path;
-    try {
-        resolved_path = std::filesystem::canonical(expandedPath).string();
-    } catch (std::filesystem::filesystem_error&) { 
-        RAISE_PLUGIN_ERROR("File or Directory Not Found");
-    }
-    UDA_LOG(UDA_LOG_DEBUG, "NOT ILLEGAL FILE PATH: %s\n", resolved_path.c_str());
+        boost::algorithm::split(allowed_paths, std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS"), boost::is_any_of(","));
+    } 
     bool good_path = false;
     for (std::string allowed_path : allowed_paths) {
-        if (resolved_path.rfind(allowed_path.c_str(), 0) != std::string::npos) {
-            UDA_LOG(UDA_LOG_DEBUG, "PATH ALLOWED\n");
+        if (full_path.rfind(allowed_path.c_str(), 0) != std::string::npos) {
             good_path = true;
             break;
         }
-    } 
+    }
     if (!good_path) {
         UDA_LOG(UDA_LOG_DEBUG, "Bad Path Provided %s\n", expandedPath);
-        RAISE_PLUGIN_ERROR("Bad File Path Provided");
+        RAISE_PLUGIN_ERROR("Bad File Path Provided\n");
     }
     return 0;
 }
