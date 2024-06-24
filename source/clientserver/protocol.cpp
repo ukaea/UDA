@@ -39,6 +39,98 @@
 #  include <server/serverStartup.h>
 #endif
 
+int protocol_serv(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+             IoData* io_data, unsigned int private_flags, int malloc_source, int *serverVersion)
+{
+	int err = 0;
+
+    UDA_LOG(UDA_LOG_DEBUG, "\nPROTOCOL: protocolVersion = %d\n\n", protocolVersion);
+
+    //----------------------------------------------------------------------------
+    // Error Management Loop
+
+    do {
+		//----------------------------------------------------------------------------
+        // Server State
+
+        if (protocol_id == UDA_PROTOCOL_SERVER_BLOCK) {
+
+            auto server_block = (SERVER_BLOCK*) str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!xdrrec_skiprecord(xdrs)) {
+                        err = UDA_PROTOCOL_ERROR_5;
+                        break;
+                    }
+
+                    closeUdaError();    // Free Heap associated with Previous Data Access
+
+                    if (!xdr_server1(xdrs, server_block, protocolVersion,serverVersion)) {
+                        err = UDA_PROTOCOL_ERROR_22;
+                        break;
+                    }
+
+                    if (server_block->idamerrorstack.nerrors > 0) {    // No Data to Receive?
+
+                        server_block->idamerrorstack.idamerror = (UDA_ERROR*) malloc(
+                                server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
+                        initErrorRecords(&server_block->idamerrorstack);
+
+                        if (!xdr_server2(xdrs, server_block)) {
+                            err = UDA_PROTOCOL_ERROR_22;
+                            break;
+                        }
+                    }
+
+                    break;
+
+                case XDR_SEND:
+                    if (!xdr_server1(xdrs, server_block, protocolVersion,serverVersion)) {
+                        err = UDA_PROTOCOL_ERROR_22;
+                        break;
+                    }
+
+                    if (server_block->idamerrorstack.nerrors > 0) {        // No Data to Send?
+                        if (!xdr_server2(xdrs, server_block)) {
+                            err = UDA_PROTOCOL_ERROR_22;
+                            break;
+                        }
+                    }
+
+                    if (!xdrrec_endofrecord(xdrs, 1)) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                        break;
+                    }
+                    break;
+
+                case XDR_FREE_HEAP:
+
+                    if (!xdr_server(xdrs, server_block)) {
+                        err = UDA_PROTOCOL_ERROR_23;
+                        break;
+                    }
+                    break;
+
+				default:
+                    err = UDA_PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+		}
+		UDA_LOG(UDA_LOG_DEBUG, "protocol_serv must be only used for protocol_id==UDA_PROTOCOL_SERVER_BLOCK. Current value = %d\n",protocol_id);
+		err=UDA_PROTOCOL_ERROR_1093;
+
+	}while(0);
+
+	return err;
+}
+
+
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
              IoData* io_data, unsigned int private_flags, int malloc_source)
@@ -734,68 +826,19 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == UDA_PROTOCOL_SERVER_BLOCK) {
 
-            auto server_block = (SERVER_BLOCK*) str;
-
             switch (direction) {
 
                 case XDR_RECEIVE:
 
-                    if (!xdrrec_skiprecord(xdrs)) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
+					UDA_LOG(UDA_LOG_DEBUG, "Call to protocol with protocol_id == UDA_PROTOCOL_SERVER_BLOCK and direction == XDR_RECEIVE is forbidden. Use protocol_serv instead\n");
+                	err=UDA_PROTOCOL_ERROR_1093;
 
-                    closeUdaError();    // Free Heap associated with Previous Data Access
-
-                    if (!xdr_server1(xdrs, server_block, protocolVersion)) {
-                        err = UDA_PROTOCOL_ERROR_22;
-                        break;
-                    }
-
-                    if (server_block->idamerrorstack.nerrors > 0) {    // No Data to Receive?
-
-                        server_block->idamerrorstack.idamerror = (UDA_ERROR*) malloc(
-                                server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
-                        initErrorRecords(&server_block->idamerrorstack);
-
-                        if (!xdr_server2(xdrs, server_block)) {
-                            err = UDA_PROTOCOL_ERROR_22;
-                            break;
-                        }
-                    }
-
-                    break;
-
-                case XDR_SEND:
-                    if (!xdr_server1(xdrs, server_block, protocolVersion)) {
-                        err = UDA_PROTOCOL_ERROR_22;
-                        break;
-                    }
-
-                    if (server_block->idamerrorstack.nerrors > 0) {        // No Data to Send?
-                        if (!xdr_server2(xdrs, server_block)) {
-                            err = UDA_PROTOCOL_ERROR_22;
-                            break;
-                        }
-                    }
-
-                    if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                        break;
-                    }
-                    break;
-
-                case XDR_FREE_HEAP:
-
-                    if (!xdr_server(xdrs, server_block)) {
-                        err = UDA_PROTOCOL_ERROR_23;
-                        break;
-                    }
                     break;
 
                 default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
+                    err = protocol_serv(xdrs, protocol_id, direction, token, logmalloclist,
+             							userdefinedtypelist, str, protocolVersion, log_struct_list,
+             							io_data, private_flags, malloc_source,NULL);
             }
 
             break;

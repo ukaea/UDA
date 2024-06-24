@@ -68,4 +68,9 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
                           LOGSTRUCTLIST* log_struct_list,
                           unsigned int private_flags, int malloc_source);
 
+int protocol2_serv(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+                          USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
+                          LOGSTRUCTLIST* log_struct_list,
+                          unsigned int private_flags, int malloc_source, int *serverVersion);
+
 #endif // UDA_CLIENTSERVER_UDA_PROTOCOL_H
