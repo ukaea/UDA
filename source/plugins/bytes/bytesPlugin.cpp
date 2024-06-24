@@ -149,7 +149,7 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Check if path starts with pre-approved file path
 // Raises Plugin Error if not
-int check_allowed_path(char* expandedPath) {
+int check_allowed_path(const char* expandedPath) {
     std::string full_path;
     try { 
         full_path = std::filesystem::canonical(expandedPath).string();
@@ -160,7 +160,7 @@ int check_allowed_path(char* expandedPath) {
     char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
     std::vector<std::string> allowed_paths;
     if (env_str) { // gotta check if environment variable exists before using it
-        boost::algorithm::split(allowed_paths, std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS"), boost::is_any_of(","));
+        boost::algorithm::split(allowed_paths, std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS"), boost::is_any_of(";"));
     } 
     bool good_path = false;
     for (std::string allowed_path : allowed_paths) {
