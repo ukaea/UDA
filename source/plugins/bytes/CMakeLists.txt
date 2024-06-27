@@ -1,7 +1,7 @@
 ########################################################################################################################
 # Dependencies
 find_package( LibXml2 QUIET )
-find_package( Boost COMPONENTS system )
+find_package( Boost COMPONENTS )
 
 if( NOT LIBXML2_FOUND )
   message( WARNING "Libxml2 not found - skipping template plugin" )
@@ -28,6 +28,6 @@ uda_plugin(
     ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
-    Boost::system
+    Boost::boost
     ${STDFS_VAR}
 )
