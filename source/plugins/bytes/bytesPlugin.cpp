@@ -177,7 +177,6 @@ int check_allowed_path(const char* expandedPath) {
 }
 
 
-
 int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_SOURCE* data_source = idam_plugin_interface->data_source;
@@ -186,9 +185,8 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     const char* path;
     FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_data->nameValueList, path);
-
  
-   StringCopy(data_source->path, path, MAXPATH);
+    StringCopy(data_source->path, path, MAXPATH);
     UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables! \n");
     expand_environment_variables(data_source->path);    
     
