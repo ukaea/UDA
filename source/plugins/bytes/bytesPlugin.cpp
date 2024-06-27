@@ -160,7 +160,7 @@ int check_allowed_path(const char* expandedPath) {
     char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
     std::vector<std::string> allowed_paths;
     if (env_str) { // gotta check if environment variable exists before using it
-        boost::algorithm::split(allowed_paths, std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS"), boost::is_any_of(";"));
+        boost::split(allowed_paths, std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS"), boost::is_any_of(";"));
     } 
     bool good_path = false;
     for (std::string allowed_path : allowed_paths) {
