@@ -20,9 +20,6 @@ jobs:
           # - [ubuntu-latest,aarch64,manylinux_2_28_aarch64]
           - [macos-13, x86_64, macosx_x86_64]
           - [macos-14, arm64, macosx_arm64]
-        # python:
-        #   ["cp36", "cp37", "cp38", "cp39", "cp310", "cp311"]
-
 
     steps:
       - uses: actions/checkout@v3
@@ -47,7 +44,8 @@ jobs:
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
-          CIBW_SKIP: cp36* cp37* *-musllinux*
+          # CIBW_SKIP: cp36* cp37* *-musllinux*
+          CIBW_SKIP: cp*-musllinux* *-musllinux*
           CIBW_BEFORE_ALL: >
             yum update -y &&
             yum install -y wget openssl-devel libxml2-devel libtirpc-devel  &&
@@ -93,7 +91,7 @@ jobs:
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
-          CIBW_SKIP: cp36* cp37* *-musllinux*
+          CIBW_SKIP: cp*-musllinux* *-musllinux*
           CIBW_BEFORE_ALL: >
             dnf update -y &&
             dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &&
@@ -142,7 +140,7 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
-          CIBW_SKIP: cp36* cp37* 
+          # CIBW_SKIP: cp36* cp37* 
           # CIBW_BEFORE_ALL:
           #   cat ./source/wrappers/python/setup.py 
 
