@@ -3,7 +3,7 @@
 import os
 import sys
 import sysconfig
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 from Cython.Build import cythonize
 from Cython.Compiler.Main import default_options
 import numpy
@@ -11,7 +11,7 @@ import numpy
 default_options['compile_time_env'] = {'CAPNP': @CAPNP_FLAG@}
 
 extra_link_args = []
-extra_compile_args = ['-std=c++11']
+extra_compile_args = ['-std=c++17']
 
 root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
 
@@ -78,15 +78,21 @@ ext = Extension(
     define_macros=extra_macros,
 )
 
+
+def get_version(v):
+    if v.count('.') > 2:
+        v = ".Post".join(v.rsplit('.', 1))
+    print("setup version = %s" % v)
+    return v
+
+
 setup(
-    name='@PROJECT_NAME@',
-    version='@PROJECT_VERSION@',
+    name='uda',
+    version=get_version('@PROJECT_VERSION@'),
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
-    url='https://github.com/ukaea/UDA',
+    url='https://github.com/stephen-dixon/uda',
     packages=['pyuda'],
     ext_modules=cythonize([ext]),
-    setup_requires=['numpy>=1.7', 'Cython>=0.29', 'six'],
-    install_requires=['numpy>=1.7', 'six'],
 )

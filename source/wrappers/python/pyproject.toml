@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=42", "numpy>=1.7, <2", "Cython>=0.29", "six"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "uda"
+dynamic = ["version"]
+readme = {file = 'README.md', content-type = "text/markdown"}
+license = {text = "Apache-2.0 license"}
+dependencies = ["numpy", "six"]
+requires-python = ">= 3.5"
+
+[project.optional-dependencies]
+plot = ["pyplot"]
+full = ["pyplot", "rich"]
