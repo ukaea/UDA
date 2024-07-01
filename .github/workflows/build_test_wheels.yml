@@ -29,11 +29,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: rename pyuda distribution name from uda to ukaea_pyuda_test for testpypi
-        run: |
-          sed -i "s/name='uda'/name='ukaea_pyuda_test'/g" ./source/wrappers/python/setup.py.in
-          sed -i 's/name="uda"/name="ukaea_pyuda_test"/g' ./source/wrappers/python/pyproject.toml
-
       - name: Set up QEMU
         if: runner.os == 'Linux'
         uses: docker/setup-qemu-action@v3
@@ -161,7 +156,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: testpypi
-      # url: https://test.pypi.org/project/ukaea_pyuda/
     permissions:
       id-token: write
     # if: github.event_name == 'release' && github.event.action == 'published'
