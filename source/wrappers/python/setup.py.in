@@ -86,9 +86,8 @@ def get_version(v):
     return v
 
 
-# name='@PROJECT_NAME@',
 setup(
-    name='ukaea_pyuda_test',
+    name='uda',
     version=get_version('@PROJECT_VERSION@'),
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',

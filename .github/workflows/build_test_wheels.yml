@@ -1,11 +1,10 @@
-name: build and upload wheels
+name: test building and upload wheels to testpypi
 
 on: 
   push:
-    # branches:
-    #   - feature/python-wheels
-    tags:
-      - '*'
+    branches:
+      - release/*
+      - main
 
 jobs:
   build_wheels:
@@ -17,17 +16,23 @@ jobs:
       fail-fast: false
       matrix:
         build-platform:
-          - [ubuntu-latest, x86_64, manylinux2014_x86_64]
+          # skip longer-running builds
+          # - [ubuntu-latest, x86_64, manylinux2014_x86_64]
           - [ubuntu-latest, x86_64, manylinux_2_28_x86_64]
-          - [ubuntu-latest,aarch64,manylinux_2_28_aarch64]
+          # - [ubuntu-latest,aarch64,manylinux_2_28_aarch64]
           - [macos-13, x86_64, macosx_x86_64]
           - [macos-14, arm64, macosx_arm64]
 
     steps:
       - uses: actions/checkout@v3
-        # need git tags available for setuptools_scm to grab tags? will elad to slower checkout
+        # need git tags available for setuptools_scm to grab tags? will lead to slower checkout
         with:
           fetch-depth: 0
+
+      - name: rename pyuda distribution name from uda to ukaea_pyuda_test for testpypi
+      - run: |
+        sed -i "s/name='uda'/name='ukaea_pyuda_test'/g" ./source/wrappers/python/setup.py.in
+        sed -i 's/name="uda"/name='ukaea_pyuda_test'/g' ./source/wrappers/python/pyproject.toml
 
       - name: Set up QEMU
         if: runner.os == 'Linux'
@@ -155,12 +160,12 @@ jobs:
     needs: build_wheels
     runs-on: ubuntu-latest
     environment: 
-      name: pypi
-      url: https://pypi.org/p/uda
+      name: testpypi
+      # url: https://test.pypi.org/project/ukaea_pyuda/
     permissions:
       id-token: write
     # if: github.event_name == 'release' && github.event.action == 'published'
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -170,3 +175,5 @@ jobs:
           merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
