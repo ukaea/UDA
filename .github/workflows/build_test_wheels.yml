@@ -30,9 +30,9 @@ jobs:
           fetch-depth: 0
 
       - name: rename pyuda distribution name from uda to ukaea_pyuda_test for testpypi
-      - run: |
+        run: |
         sed -i "s/name='uda'/name='ukaea_pyuda_test'/g" ./source/wrappers/python/setup.py.in
-        sed -i 's/name="uda"/name='ukaea_pyuda_test'/g' ./source/wrappers/python/pyproject.toml
+        sed -i 's/name="uda"/name="ukaea_pyuda_test"/g' ./source/wrappers/python/pyproject.toml
 
       - name: Set up QEMU
         if: runner.os == 'Linux'
