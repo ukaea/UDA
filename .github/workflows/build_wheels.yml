@@ -77,7 +77,7 @@ jobs:
             ./bootstrap.sh --prefix=/usr/local  &&
             ./b2 --without-python --prefix=/usr/local install &&
             cd /project  &&
-            cmake -B build -DNO_JAVA_WRAPPER=ON -DBUILD_SHARED_LIBS=ON -DSSLAUTHENTICATION=OFF -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
+            cmake -B build -DNO_JAVA_WRAPPER=ON -DBUILD_SHARED_LIBS=ON -DSSLAUTHENTICATION=ON -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
             cmake --build build -j --config Release --target install &&
             cp -r /usr/local/python_installer/* /project/source/wrappers/python/ 
 
@@ -103,7 +103,7 @@ jobs:
             cmake -B build 
             -DBUILD_SHARED_LIBS=ON 
             -DCMAKE_BUILD_TYPE=Release 
-            -DSSLAUTHENTICATION=OFF 
+            -DSSLAUTHENTICATION=ON 
             -DNO_JAVA_WRAPPER=ON 
             -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
             cmake --build build -j --config Release --target install &&
@@ -124,7 +124,7 @@ jobs:
           cmake -B build 
           -DBUILD_SHARED_LIBS=ON 
           -DCMAKE_BUILD_TYPE=Release 
-          -DSSLAUTHENTICATION=OFF 
+          -DSSLAUTHENTICATION=ON 
           -DENABLE_CAPNP=ON 
           -DNO_JAVA_WRAPPER=ON 
           -DCMAKE_INSTALL_PREFIX=$PWD/install
