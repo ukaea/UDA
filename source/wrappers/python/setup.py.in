@@ -92,7 +92,6 @@ setup(
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
-    url='https://github.com/ukaea/uda',
     packages=['pyuda'],
     ext_modules=cythonize([ext]),
 )
