@@ -161,8 +161,8 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 int check_allowed_path(const char* expandedPath) {
     std::string full_path;
     try { 
-        full_path = std::filesystem::canonical(expandedPath).string();
-    } catch (std::filesystem::filesystem_error& e) {
+        full_path = filesystem::canonical(expandedPath).string();
+    } catch (filesystem::filesystem_error& e) {
         UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
         RAISE_PLUGIN_ERROR("Provided File Path Not Found!\n");
     }
