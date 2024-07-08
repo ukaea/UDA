@@ -2,16 +2,12 @@ name: build and upload wheels
 
 on: 
   push:
-    branches:
-      - release/*
     tags:
       - '*'
 
 jobs:
   build_wheels:
-    # name: build wheels on ${{matrix.os}} ${{matrix.arch}}
     name: build wheels on ${{matrix.build-platform[0]}} ${{matrix.build-platform[1]}}
-    # runs-on: ${{matrix.os}}
     runs-on: ${{matrix.build-platform[0]}}
     strategy:
       fail-fast: false
@@ -19,7 +15,7 @@ jobs:
         build-platform:
           - [ubuntu-latest, x86_64, manylinux2014_x86_64]
           - [ubuntu-latest, x86_64, manylinux_2_28_x86_64]
-          # - [ubuntu-latest,aarch64,manylinux_2_28_aarch64]
+          - [ubuntu-latest,aarch64,manylinux_2_28_aarch64]
           - [macos-13, x86_64, macosx_x86_64]
           - [macos-14, arm64, macosx_arm64]
 
@@ -46,7 +42,6 @@ jobs:
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
-          # CIBW_SKIP: cp36* cp37* *-musllinux*
           CIBW_SKIP: cp*-musllinux* *-musllinux*
           CIBW_BEFORE_ALL: >
             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && 
@@ -144,9 +139,6 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
-          # CIBW_SKIP: cp36* cp37* 
-          # CIBW_BEFORE_ALL:
-          #   cat ./source/wrappers/python/setup.py 
 
       - uses: actions/upload-artifact@v4
         with:
