@@ -9,6 +9,9 @@
 #  if !__has_include(<filesystem>)
 #include <experimental/filesystem>
 namespace filesystem = std::experimental::filesystem;
+#  else
+#include <filesystem>
+namespace filesystem = std::filesystem;
 #  endif
 #else
 #include <filesystem>
