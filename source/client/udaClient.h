@@ -7,6 +7,7 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 #include <clientserver/export.h>
+#include "legacy_client.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -117,5 +118,6 @@ LIBRARY_API void setLogMallocList(LOGMALLOCLIST* logmalloclist_in);
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif // UDA_CLIENT_UDACLIENT_H
