@@ -5,7 +5,16 @@
 
 #include "readBytesNonOptimally.h"
 
+#if defined __has_include
+#  if !__has_include(<filesystem>)
+#include <experimental/filesystem>
+namespace filesystem = std::experimental::filesystem;
+#  endif
+#else
 #include <filesystem>
+namespace filesystem = std::filesystem;
+#endif
+
 #include <boost/algorithm/string.hpp>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);

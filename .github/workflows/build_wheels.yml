@@ -2,8 +2,8 @@ name: build and upload wheels
 
 on: 
   push:
-    # branches:
-    #   - feature/python-wheels
+    branches:
+      - release/*
     tags:
       - '*'
 
