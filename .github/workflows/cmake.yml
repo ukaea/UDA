@@ -106,8 +106,8 @@ jobs:
       - name: Install windows dependencies
         if: matrix.os == 'windows-latest'
         # vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
+        # rm -r $VCPKG_INSTALLATION_ROOT/buildtrees &&
         run: >
-          rm -r $VCPKG_INSTALLATION_ROOT/buildtrees &&
           git -C $VCPKG_INSTALLATION_ROOT pull &&
           vcpkg update &&
           vcpkg install --triplet x64-mingw-static 
