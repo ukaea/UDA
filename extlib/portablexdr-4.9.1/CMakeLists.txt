@@ -30,7 +30,11 @@ configure_file(
 
 include_directories( ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR} )
 
-add_library( ${PROJECT_NAME} SHARED ${SOURCES} )
+if( NOT WIN32 )
+    add_library( ${PROJECT_NAME} SHARED ${SOURCES} )
+else()
+    add_library( ${PROJECT_NAME} STATIC ${SOURCES} )
+endif()
 
 install(
     FILES rpc/rpc.h rpc/types.h rpc/xdr.h ${CMAKE_BINARY_DIR}/config.h
