@@ -18,8 +18,7 @@ jobs:
   build:
     strategy:
       matrix:
-#        os: [ubuntu-latest, windows-latest, macos-latest]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         release: [Release]
         ssl: [ON, OFF]
         client-only: [OFF]
@@ -169,6 +168,7 @@ jobs:
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
+          -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/uda_install
 
       - name: Build
         run: cmake --build build --config ${{ matrix.release }}
