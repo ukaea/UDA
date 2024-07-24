@@ -107,7 +107,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: >
           rm -r $VCPKG_INSTALLATION_ROOT/buildtrees
-          git pull -C $VCPKG_INSTALLATION_ROOT
+          git -C $VCPKG_INSTALLATION_ROOT pull
           vcpkg update
           # vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
           vcpkg install --triplet x64-mingw-static 
