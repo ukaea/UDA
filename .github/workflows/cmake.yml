@@ -192,7 +192,7 @@ jobs:
           python3 -m venv ${{github.workspace}}/venv &&
           source ${{github.workspace}}/venv/bin/activate &&
           pip3 install --upgrade pip &&
-          pip3 install wheel Cython numpy six &&
+          pip3 install wheel Cython "numpy<2" six &&
           pip3 install ${{github.workspace}}/python_installer
 
       - name: Test pyuda import
