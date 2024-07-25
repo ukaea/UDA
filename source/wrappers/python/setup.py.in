@@ -93,6 +93,6 @@ setup(
     long_description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
-    packages=['pyuda'],
+    packages=['pyuda', 'uda'],
     ext_modules=cythonize([ext]),
 )
