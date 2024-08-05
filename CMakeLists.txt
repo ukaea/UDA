@@ -28,6 +28,10 @@ if( CMAKE_VERSION VERSION_GREATER 3.12 )
   cmake_policy( SET CMP0075 OLD )
 endif()
 
+if( CMAKE_VERSION VERSION_GREATER 3.30 )
+    cmake_policy( SET CMP0167 NEW )
+endif()
+
 # Extra cmake modules to find libraries
 set( CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
