@@ -61,6 +61,7 @@ jobs:
         if: runner.os == 'Windows'
         env:
           XDR_ROOT: extlib/install
+          Boost_DIR: C:/vcpkg/installed/x64-windows-static-md/share/boost
           Boost_INCLUDE_DIR: C:/vcpkg/installed/x64-windows-static-md/include
         run: >
           cmake -Bextlib/build  ./extlib
