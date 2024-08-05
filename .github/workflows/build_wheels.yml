@@ -91,6 +91,7 @@ jobs:
           -DNO_JAVA_WRAPPER=ON
           -DNO_CXX_WRAPPER=ON
           -DNO_IDL_WRAPPER=ON
+          -DNO_CLI=ON
           -DNO_MEMCACHE=ON
           -DCMAKE_INSTALL_PREFIX=install
           && cmake --build build -j --config Release 

@@ -1,4 +1,5 @@
 if( "${NO_CLI}" )
+    message( WARNING "Not building uda CLI due to option NO_CLI" )
     return()
 endif()
 
