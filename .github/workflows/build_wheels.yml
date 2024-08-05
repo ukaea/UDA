@@ -61,7 +61,7 @@ jobs:
         if: runner.os == 'Windows'
         env:
           XDR_ROOT: extlib/install
-          CMAKE_PREFIX_PATH: C:/vcpkg/installed/x64-windows-static-md
+          CMAKE_PREFIX_PATH: C:/vcpkg/installed/x64-windows-static-md:C:/vcpkg/installed/x64-windows-static-md/include/iconv
           Boost_DIR: C:/vcpkg/installed/x64-windows-static-md/share/boost
           LibXml2_DIR: C:/vcpkg/installed/x64-windows-static-md/share/libxml2
           # Iconv_DIR: C:/vcpkg/installed/x64-windows-static-md/share/iconv
