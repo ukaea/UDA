@@ -46,7 +46,7 @@ jobs:
       - name: install windows deps
         if: runner.os == 'Windows'
         run: >
-          vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
+          vcpkg install --triplet x64-windows-static-md --binarysource="clear;x-gha,readwrite"
           libxml2
           capnproto
           boost-program-options
@@ -62,47 +62,54 @@ jobs:
         env:
           XDR_ROOT: extlib/install
         run: >
-          cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B extlib/build -G "MinGW Makefiles" ./extlib
-          && cmake --build extlib/build
+          cmake -Bextlib/build  ./extlib
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake 
+          -DVCPKG_TARGET_TRIPLET="x64-windows-static-md"
+          -DVCPKG_HOST_TRIPLET="x64-windows-static-md"
+          -DCMAKE_GENERATOR_PLATFORM=x64
+          -DBUILD_SHARED_LIBS=OFF
+          && cmake --build extlib/build --config Release
           && cmake --install extlib/build --prefix extlib/install
-          && cmake -G "MinGW Makefiles" -B build .
+          && cmake -Bbuild .
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET="x64-windows-static-md"
+          -DVCPKG_HOST_TRIPLET="x64-windows-static-md"
+          -DCMAKE_GENERATOR_PLATFORM=x64
           -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=Release
           -DSSLAUTHENTICATION=OFF
           -DCLIENT_ONLY=ON
           -DENABLE_CAPNP=ON
           -DNO_JAVA_WRAPPER=ON
           -DCMAKE_INSTALL_PREFIX=install
-          && cmake --build build -j --config Release
-          && cmake --install build --prefix install --config Release
+          && cmake --build build -j --config Release 
+          && cmake --install build --config Release
           && ls install/lib
-          && cp -r install ${{github.workspace}}\python_installer
-          && ls ${{github.workspace}}
+          # && cp -r install ${{github.workspace}}\python_installer
+          # && ls ${{github.workspace}}
 
-      - name: test pyuda on windows
-        if: runner.os == 'Windows'
-        env:
-          UDA_DIR: ${{github.workspace}}\install
-          EXTLIB_INSTALL_DIR: ${{github.workspace}}\extlib\install
-        run: >
-          (gcm python3).Path &&
-          #Set-Content -Path "C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\distutils\distutils.cfg" -Value "[build]`ncompiler = mingw32" &&
-          python3 -m venv ${{github.workspace}}/venv &&
-          ls ${{github.workspace}}/venv &&
-          ${{github.workspace}}/venv/Scripts/Activate.ps1 &&
-          pip3 install --upgrade pip wheel &&
-          pip3 install Cython numpy six wheel &&
-          CXX=g++ CC=gcc python3 ${{github.workspace}}\install\python_installer\setup.py bdist_wheel
-
+      # - name: test pyuda on windows
+      #   if: runner.os == 'Windows'
+      #   env:
+      #     UDA_DIR: ${{github.workspace}}\install
+      #     EXTLIB_INSTALL_DIR: ${{github.workspace}}\extlib\install
+      #   run: >
+      #     (gcm python3).Path &&
+      #     #Set-Content -Path "C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\distutils\distutils.cfg" -Value "[build]`ncompiler = mingw32" &&
+      #     python3 -m venv ${{github.workspace}}/venv &&
+      #     ls ${{github.workspace}}/venv &&
+      #     ${{github.workspace}}/venv/Scripts/Activate.ps1 &&
+      #     pip3 install --upgrade pip wheel &&
+      #     pip3 install Cython numpy six wheel &&
+      #     CXX=g++ CC=gcc python3 ${{github.workspace}}\install\python_installer\setup.py bdist_wheel
+      #
 
 
       - name: build windows wheels
         if: runner.OS == 'Windows'
         uses: pypa/cibuildwheel@v2.17.0
         with:
-          package-dir: ./source/wrappers/python
-          config-file: ./source/wrappers/python/pyproject.toml
+          package-dir: ./install/python_installer
+          config-file: ./install/python_installer/pyproject.toml
         env:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: windows

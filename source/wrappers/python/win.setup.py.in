@@ -28,6 +28,10 @@ elif sys.platform.lower() == 'darwin':
     dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
+else:
+    stalib_ext = 'lib'
+    dynlib_ext = 'dll'
+    extra_compile_args = ['/MD']
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
@@ -40,8 +44,8 @@ if build_fat:
     extra_macros = [('FATCLIENT', None)]
 else:
     uda_libs = [
-        'lib@PROJECT_NAME@_client.' + stalib_ext,
-    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+        '@PROJECT_NAME@_client.dll.' + stalib_ext,
+    ] + ['@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
     extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []
 
@@ -49,27 +53,19 @@ ext = Extension(
     'cpyuda',
     ['pyuda/cpyuda/cpyuda.pyx'],
     include_dirs=list(filter(None, [
-        '/usr/include/tirpc',
         '@TIRPC_PYUDA_INCLUDE_DIR@',
         '@LIBXML2_INCLUDE_DIR@',
         os.path.join(root, 'include', 'uda'),
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),
-    libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs)),
+    libraries=list(filter(None, extra_libs)),
     library_dirs=list(filter(None, [
-        '@STDCXX_LIB_DIR@',
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@CAPNP_LIB_DIR@',
-        '@FMT_LIB_DIR@'
-    ])),
-    runtime_library_dirs=list(filter(None, [
-        '@STDCXX_LIB_DIR@',
-        '@OPENSSL_LIB_DIR@',
-        '@LIBXML_LIB_DIR@',
-        '@CAPNP_LIB_DIR@',
-        '@FMT_LIB_DIR@'
+        '@FMT_LIB_DIR@',
+        os.path.join(root, 'lib')
     ])),
     extra_objects=[os.path.join(root, 'lib', uda_lib) for uda_lib in uda_libs],
     extra_link_args=extra_link_args,
@@ -87,7 +83,7 @@ def get_version(v):
 
 
 setup(
-    name='uda',
+    name='ukaea_pyuda_test',
     version=get_version('@PROJECT_VERSION@'),
     description='Unified Data Access (UDA)',
     long_description='Unified Data Access (UDA)',

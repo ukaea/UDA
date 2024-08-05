@@ -81,7 +81,7 @@ static struct	xdr_ops xdrmem_ops = {
  */
 void
 xdrmem_create(xdrs, addr, size, op)
-	XDR *xdrs;
+	register XDR *xdrs;
 	caddr_t addr;
 	u_int size;
 	enum xdr_op op;
@@ -101,7 +101,7 @@ xdrmem_destroy(/*xdrs*/)
 
 static bool_t
 xdrmem_getlong(xdrs, lp)
-	XDR *xdrs;
+	register XDR *xdrs;
 	long *lp;
 {
 
@@ -114,7 +114,7 @@ xdrmem_getlong(xdrs, lp)
 
 static bool_t
 xdrmem_putlong(xdrs, lp)
-	XDR *xdrs;
+	register XDR *xdrs;
 	long *lp;
 {
 
@@ -127,9 +127,9 @@ xdrmem_putlong(xdrs, lp)
 
 static bool_t
 xdrmem_getbytes(xdrs, addr, len)
-	XDR *xdrs;
+	register XDR *xdrs;
 	caddr_t addr;
-	u_int len;
+	register u_int len;
 {
 
 	if ((xdrs->x_handy -= len) < 0)
@@ -141,9 +141,9 @@ xdrmem_getbytes(xdrs, addr, len)
 
 static bool_t
 xdrmem_putbytes(xdrs, addr, len)
-	XDR *xdrs;
+	register XDR *xdrs;
 	caddr_t addr;
-	u_int len;
+	register u_int len;
 {
 
 	if ((xdrs->x_handy -= len) < 0)
@@ -155,7 +155,7 @@ xdrmem_putbytes(xdrs, addr, len)
 
 static u_int
 xdrmem_getpos(xdrs)
-	XDR *xdrs;
+	register XDR *xdrs;
 {
 
 	return xdrs->x_private - xdrs->x_base;
@@ -163,13 +163,13 @@ xdrmem_getpos(xdrs)
 
 static bool_t
 xdrmem_setpos(xdrs, pos)
-	XDR *xdrs;
+	register XDR *xdrs;
 	u_int pos;
 {
-	caddr_t newaddr = xdrs->x_base + pos;
-	caddr_t lastaddr = xdrs->x_private + xdrs->x_handy;
+	register caddr_t newaddr = xdrs->x_base + pos;
+	register caddr_t lastaddr = xdrs->x_private + xdrs->x_handy;
 
-	if ((void*)newaddr > (void*)lastaddr)
+	if ((long)newaddr > (long)lastaddr)
 		return (FALSE);
 	xdrs->x_private = newaddr;
 	xdrs->x_handy = lastaddr - newaddr;
@@ -178,7 +178,7 @@ xdrmem_setpos(xdrs, pos)
 
 static long *
 xdrmem_inline(xdrs, len)
-	XDR *xdrs;
+	register XDR *xdrs;
 	int len;
 {
 	long *buf = 0;

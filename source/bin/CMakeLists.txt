@@ -1,3 +1,7 @@
+if( "${NO_CLI}" )
+    return()
+endif()
+
 add_executable( uda_cli uda_cli.cpp )
 
 option( UDA_CLI_BOOST_STATIC "compile commandline interface with static boost libraries" OFF )

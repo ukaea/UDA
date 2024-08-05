@@ -53,6 +53,7 @@ static char sccsid[] = "@(#)xdr.c 1.35 87/08/12";
  */
 #define XDR_FALSE	((long) 0)
 #define XDR_TRUE	((long) 1)
+#define LASTUNSIGNED	((u_int) 0-1)
 
 /*
  * for unit alignment
@@ -71,7 +72,7 @@ xdr_free(proc, objp)
 	XDR x;
 	
 	x.x_op = XDR_FREE;
-	(*proc)(&x, &objp);
+	(*proc)(&x, objp);
 }
 
 /*
@@ -133,7 +134,7 @@ xdr_u_int(xdrs, up)
  */
 bool_t
 xdr_long(xdrs, lp)
-	XDR *xdrs;
+	register XDR *xdrs;
 	long *lp;
 {
 
@@ -155,7 +156,7 @@ xdr_long(xdrs, lp)
  */
 bool_t
 xdr_u_long(xdrs, ulp)
-	XDR *xdrs;
+	register XDR *xdrs;
 	u_long *ulp;
 {
 
@@ -173,7 +174,7 @@ xdr_u_long(xdrs, ulp)
  */
 bool_t
 xdr_short(xdrs, sp)
-	XDR *xdrs;
+	register XDR *xdrs;
 	short *sp;
 {
 	long l;
@@ -202,15 +203,15 @@ xdr_short(xdrs, sp)
  */
 bool_t
 xdr_u_short(xdrs, usp)
-	XDR *xdrs;
+	register XDR *xdrs;
 	u_short *usp;
 {
-	long l;
+	u_long l;
 
 	switch (xdrs->x_op) {
 
 	case XDR_ENCODE:
-		l = (long) *usp;
+		l = (u_long) *usp;
 		return (XDR_PUTLONG(xdrs, &l));
 
 	case XDR_DECODE:
@@ -249,17 +250,17 @@ xdr_char(xdrs, cp)
  * XDR an unsigned char
  */
 bool_t
-xdr_u_char(xdrs, ucp)
+xdr_u_char(xdrs, cp)
 	XDR *xdrs;
-	u_char *ucp;
+	u_char *cp;
 {
 	u_int u;
 
-	u = (*ucp);
+	u = (*cp);
 	if (!xdr_u_int(xdrs, &u)) {
 		return (FALSE);
 	}
-	*ucp = u;
+	*cp = u;
 	return (TRUE);
 }
 
@@ -268,7 +269,7 @@ xdr_u_char(xdrs, ucp)
  */
 bool_t
 xdr_bool(xdrs, bp)
-	XDR *xdrs;
+	register XDR *xdrs;
 	bool_t *bp;
 {
 	long lb;
@@ -326,11 +327,11 @@ xdr_enum(xdrs, ep)
  */
 bool_t
 xdr_opaque(xdrs, cp, cnt)
-	XDR *xdrs;
+	register XDR *xdrs;
 	caddr_t cp;
-	u_int cnt;
+	register u_int cnt;
 {
-	u_int rndup;
+	register u_int rndup;
 	static char crud[BYTES_PER_XDR_UNIT];
 
 	/*
@@ -378,13 +379,13 @@ xdr_opaque(xdrs, cp, cnt)
  */
 bool_t
 xdr_bytes(xdrs, cpp, sizep, maxsize)
-	XDR *xdrs;
+	register XDR *xdrs;
 	char **cpp;
-	u_int *sizep;
+	register u_int *sizep;
 	u_int maxsize;
 {
-	char *sp = *cpp;  /* sp is the actual string pointer */
-	u_int nodesize;
+	register char *sp = *cpp;  /* sp is the actual string pointer */
+	register u_int nodesize;
 
 	/*
 	 * first deal with the length since xdr bytes are counted
@@ -453,13 +454,13 @@ xdr_netobj(xdrs, np)
  */
 bool_t
 xdr_union(xdrs, dscmp, unp, choices, dfault)
-	XDR *xdrs;
+	register XDR *xdrs;
 	enum_t *dscmp;		/* enum to decide which arm to work on */
 	char *unp;		/* the union itself */
-	struct xdr_discrim *choices;	/* [value, xdr proc] for each arm */
+	const struct xdr_discrim *choices;	/* [value, xdr proc] for each arm */
 	xdrproc_t dfault;	/* default xdr routine */
 {
-	enum_t dscm;
+	register enum_t dscm;
 
 	/*
 	 * we deal with the discriminator;  it's an enum
@@ -475,14 +476,14 @@ xdr_union(xdrs, dscmp, unp, choices, dfault)
 	 */
 	for (; choices->proc != NULL_xdrproc_t; choices++) {
 		if (choices->value == dscm)
-			return ((*(choices->proc))(xdrs, &unp));
+			return ((*(choices->proc))(xdrs, unp, LASTUNSIGNED));
 	}
 
 	/*
 	 * no match - execute the default xdr routine if there is one
 	 */
 	return ((dfault == NULL_xdrproc_t) ? FALSE :
-	    (*dfault)(xdrs, &unp));
+	    (*dfault)(xdrs, unp, LASTUNSIGNED));
 }
 
 
@@ -502,11 +503,11 @@ xdr_union(xdrs, dscmp, unp, choices, dfault)
  */
 bool_t
 xdr_string(xdrs, cpp, maxsize)
-	XDR *xdrs;
+	register XDR *xdrs;
 	char **cpp;
 	u_int maxsize;
 {
-	char *sp = *cpp;  /* sp is the actual string pointer */
+	register char *sp = *cpp;  /* sp is the actual string pointer */
 	u_int size;
 	u_int nodesize;
 
@@ -570,7 +571,7 @@ xdr_wrapstring(xdrs, cpp)
 	XDR *xdrs;
 	char **cpp;
 {
-	if (xdr_string(xdrs, cpp, INT_MAX)) {
+	if (xdr_string(xdrs, cpp, LASTUNSIGNED)) {
 		return (TRUE);
 	}
 	return (FALSE);

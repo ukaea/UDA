@@ -160,6 +160,7 @@ option( NO_PYTHON_WRAPPER "Don't build Python wrapper" OFF )
 option( NO_JAVA_WRAPPER "Don't build Java wrapper" OFF )
 option( NO_IDL_WRAPPER "Don't build IDL wrapper" OFF )
 option( FAT_IDL "Build IDL wrapper using fat-client" OFF )
+option( NO_CLI "Don't build UDA CLI" OFF )
 
 if( SERVER_ONLY )
   if( CLIENT_ONLY OR NO_WRAPPERS OR FAT_IDL )

@@ -24,9 +24,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
-#if defined(__GNUC__)
-#  include <unistd.h>
-#endif
+#include <unistd.h>
 #include <getopt.h>
 
 #include "rpcgen_int.h"

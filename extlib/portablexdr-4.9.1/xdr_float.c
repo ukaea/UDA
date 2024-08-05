@@ -46,9 +46,9 @@ static char sccsid[] = "@(#)xdr_float.c 1.12 87/08/11 Copyr 1984 Sun Micro";
 #include "rpc/types.h"
 #include "rpc/xdr.h"
 
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
-#define vax
-#endif
+//#if defined(__CYGWIN32__) || defined(__MINGW32__)
+//#define vax
+//#endif
 
 /*
  * NB: Not portable.
@@ -88,8 +88,8 @@ static struct sgl_limits {
 
 bool_t
 xdr_float(xdrs, fp)
-	XDR *xdrs;
-	float *fp;
+	register XDR *xdrs;
+	register float *fp;
 {
 #if defined(vax)
 	struct ieee_single is;
@@ -193,14 +193,14 @@ static struct dbl_limits {
 
 bool_t
 xdr_double(xdrs, dp)
-	XDR *xdrs;
+	register XDR *xdrs;
 	double *dp;
 {
-	long *lp;
+	register long *lp;
 #if defined(vax)
 	struct	ieee_double id;
 	struct	vax_double vd;
-	struct dbl_limits *lim;
+	register struct dbl_limits *lim;
 	int i;
 #endif
 

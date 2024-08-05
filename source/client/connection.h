@@ -17,7 +17,7 @@ int connectionOpen();
 int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
                           int* user_timeout);
 int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_start, int user_timeout, int client_version);
-void closeAllConnections();
+LIBRARY_API void closeAllConnections();
 void closeConnection(ClosedownType type);
 
 int clientWriteout(void* iohandle, char* buf, int count);

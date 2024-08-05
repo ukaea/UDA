@@ -586,11 +586,15 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         updateClientBlock(&client_block, client_flags, *private_flags); // Allows User to Change Properties at run-time
 
         // Operating System Name
-
+#ifndef _MSC_VER
         if ((env = getenv("OSTYPE")) != nullptr) {
             strcpy(client_block.OSName, env);
         }
-
+#else
+        if ((env = getenv("OS")) != nullptr) {
+            strcpy(client_block.OSName, env);
+        }
+#endif
         // Client's study DOI
 
         if ((env = getenv("UDA_CLIENT_DOI")) != nullptr) {
