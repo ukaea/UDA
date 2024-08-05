@@ -61,15 +61,11 @@ jobs:
         if: runner.os == 'Windows'
         env:
           XDR_ROOT: extlib/install
-          CMAKE_PREFIX_PATH: C:/vcpkg/installed/x64-windows-static-md;C:/vcpkg/installed/x64-windows-static-md/include
+          CMAKE_PREFIX_PATH: C:/vcpkg/installed/x64-windows-static-md
           Boost_DIR: C:/vcpkg/installed/x64-windows-static-md/share/boost
           LibXml2_DIR: C:/vcpkg/installed/x64-windows-static-md/share/libxml2
-          # Iconv_DIR: C:/vcpkg/installed/x64-windows-static-md/share/iconv
-          # Iconv_INCLUDE_DIR: C:/vcpkg/installed/x64-windows-static-md/include
-          # Iconv_LIBRARY: C:/vcpkg/installed/x64-windows-static-md/lib
           CapnProto_DIR: C:/vcpkg/installed/x64-windows-static-md/share/capnproto
           fmt_DIR: C:/vcpkg/installed/x64-windows-static-md/share/fmt
-          # Boost_INCLUDE_DIR: C:/vcpkg/installed/x64-windows-static-md/include
         run: >
           cmake -Bextlib/build  ./extlib
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake 
@@ -135,8 +131,8 @@ jobs:
         if: runner.OS == 'Windows'
         uses: pypa/cibuildwheel@v2.17.0
         with:
-          package-dir: ./install/python_installer
-          config-file: ./install/python_installer/pyproject.toml
+          package-dir: ${{github.workspace}}/install/python_installer
+          config-file: ${{github.workspace}}/install/python_installer/pyproject.toml
         env:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: windows
