@@ -224,7 +224,7 @@ jobs:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
-  .upload_pypi:
+  upload_pypi:
     needs: build_wheels
     runs-on: ubuntu-latest
     environment: 
