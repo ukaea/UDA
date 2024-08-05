@@ -93,7 +93,7 @@ jobs:
           -DNO_IDL_WRAPPER=ON
           -DNO_MEMCACHE=ON
           -DCMAKE_INSTALL_PREFIX=install
-          (Get-Content build/CMakeCache.txt) | ForEach-Object {
+          && (Get-Content build/CMakeCache.txt) | ForEach-Object {
             if ($_ -match ".*Iconv_INCLUDE_DIR.*") {
               "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
           } else {
