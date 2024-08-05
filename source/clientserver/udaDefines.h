@@ -128,7 +128,16 @@ extern "C" {
 
 #if defined(_WIN32)
 #  if !defined(__MINGW32__)
-#include <winsock2.h>
+struct timeval {
+    long tv_sec;
+    long tv_usec;
+};
+
+struct timezone {
+    int tz_minuteswest;
+    int tz_dsttime;
+};
+
 LIBRARY_API int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #  endif
 #endif
