@@ -54,7 +54,7 @@
 #define UDA_PROTOCOL_LIMITER            113
 #define UDA_PROTOCOL_OPAQUE_STOP        200
 
-#if _MSV_VER !__INTEL_COMPILER
+#if _MSV_VER && !__INTEL_COMPILER
     int mkstemp(char* template_str);
 #endif
 
