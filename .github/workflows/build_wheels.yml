@@ -93,7 +93,7 @@ jobs:
           -DNO_IDL_WRAPPER=ON
           -DNO_MEMCACHE=ON
           -DCMAKE_INSTALL_PREFIX=install
-          && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h C:/vcpkg/installed/x64-windows-static-md/include/libxml/
+          && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h C:/vcpkg/installed/x64-windows-static-md/include/libxml2/libxml/
           && cmake --build build -j --config Release 
           && cmake --install build --config Release
           && ls install/lib
