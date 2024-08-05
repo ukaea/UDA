@@ -5,7 +5,6 @@ requires = [
     "numpy >=1.7, <2; python_version >= '3.13'",
     "Cython>=0.29",
     "six",
-    "delvewheel"
 ]
 build-backend = "setuptools.build_meta"
 

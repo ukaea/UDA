@@ -139,6 +139,7 @@ jobs:
           CIBW_PLATFORM: windows
           CIBW_BUILD: cp31*-${{matrix.build-platform[2]}}
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
+          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
 
 
       - name: Build manylinux2014 wheels
