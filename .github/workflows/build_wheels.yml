@@ -61,7 +61,7 @@ jobs:
         if: runner.os == 'Windows'
         env:
           XDR_ROOT: extlib/install
-          CMAKE_PREFIX_PATH: C:/vcpkg/installed/x64-windows-static-md;C:/vcpkg/installed/x64-windows-static-md/include/iconv
+          CMAKE_PREFIX_PATH: C:/vcpkg/installed/x64-windows-static-md;C:/vcpkg/installed/x64-windows-static-md/include
           Boost_DIR: C:/vcpkg/installed/x64-windows-static-md/share/boost
           LibXml2_DIR: C:/vcpkg/installed/x64-windows-static-md/share/libxml2
           # Iconv_DIR: C:/vcpkg/installed/x64-windows-static-md/share/iconv
@@ -89,12 +89,23 @@ jobs:
           -DCLIENT_ONLY=ON
           -DENABLE_CAPNP=ON
           -DNO_JAVA_WRAPPER=ON
+          -DNO_CXX_WRAPPER=ON
+          -DNO_IDL_WRAPPER=ON
+          -DNO_MEMCACHE=ON
           -DCMAKE_INSTALL_PREFIX=install
+          (Get-Content build/CMakeCache.txt) | ForEach-Object {
+            if ($_ -match ".*Iconv_INCLUDE_DIR.*") {
+              "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
+          } else {
+            $_
+          }
+          } | Set-Content ./build/CMakeCache.txt
           && cmake --build build -j --config Release 
           && cmake --install build --config Release
           && ls install/lib
           # && cp -r install ${{github.workspace}}\python_installer
           # && ls ${{github.workspace}}
+          # && sed -i "s/.*Iconv_INCLUDE_DIR.*/Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include" build/CMakeCache.txt
 
       # - name: test pyuda on windows
       #   if: runner.os == 'Windows'
