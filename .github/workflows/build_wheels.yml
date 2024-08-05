@@ -93,8 +93,6 @@ jobs:
           -DNO_IDL_WRAPPER=ON
           -DNO_MEMCACHE=ON
           -DCMAKE_INSTALL_PREFIX=install
-          && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h C:/vcpkg/installed/x64-windows-static-md/include/libxml2/libxml/
-          && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h ./source/structures/
           && cmake --build build -j --config Release 
           && cmake --install build --config Release
           && ls install/lib
@@ -110,6 +108,10 @@ jobs:
           # } | Set-Content ./build/CMakeCache.txt
           # && Add-Content -Path ./build/CMakeCache.txt -Value "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
 
+
+
+          # && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h C:/vcpkg/installed/x64-windows-static-md/include/libxml2/libxml/
+          # && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h ./source/structures/
 
       # - name: test pyuda on windows
       #   if: runner.os == 'Windows'
@@ -138,6 +140,7 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: windows
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
 
 
       - name: Build manylinux2014 wheels
