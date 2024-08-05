@@ -93,7 +93,7 @@ jobs:
           && cmake --build build -j --config Release 
           && cmake --install build --config Release
           && ls install/lib
-          && cat install/python_install/setup.py
+          && cat install/python_installer/setup.py
           # && cp -r install ${{github.workspace}}\python_installer
           # && ls ${{github.workspace}}
           # && sed -i "s/.*Iconv_INCLUDE_DIR.*/Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include" build/CMakeCache.txt
