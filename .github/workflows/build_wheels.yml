@@ -63,7 +63,9 @@ jobs:
           XDR_ROOT: extlib/install
           Boost_DIR: C:/vcpkg/installed/x64-windows-static-md/share/boost
           LibXml2_DIR: C:/vcpkg/installed/x64-windows-static-md/share/libxml2
-          Iconv_DIR: C:/vcpkg/installed/x64-windows-static-md/share/iconv
+          # Iconv_DIR: C:/vcpkg/installed/x64-windows-static-md/share/iconv
+          Iconv_INCLUDE_DIR: C:/vcpkg/installed/x64-windows-static-md/include
+          Iconv_LIBRARY_DIR: C:/vcpkg/installed/x64-windows-static-md/lib
           CapnProto_DIR: C:/vcpkg/installed/x64-windows-static-md/share/capnproto
           fmt_DIR: C:/vcpkg/installed/x64-windows-static-md/share/fmt
           # Boost_INCLUDE_DIR: C:/vcpkg/installed/x64-windows-static-md/include
