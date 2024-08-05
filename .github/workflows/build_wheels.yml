@@ -137,7 +137,7 @@ jobs:
         env:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: windows
-          CIBW_BUILD: cp312-${{matrix.build-platform[2]}}
+          CIBW_BUILD: cp31*-${{matrix.build-platform[2]}}
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
 
 
