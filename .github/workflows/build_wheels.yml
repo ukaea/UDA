@@ -94,39 +94,7 @@ jobs:
           && cmake --install build --config Release
           && ls install/lib
           && cat install/python_installer/setup.py
-          # && cp -r install ${{github.workspace}}\python_installer
-          # && ls ${{github.workspace}}
-          # && sed -i "s/.*Iconv_INCLUDE_DIR.*/Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include" build/CMakeCache.txt
-          # && (Get-Content build/CMakeCache.txt) | ForEach-Object {
-          #   if ($_ -match ".*Iconv_INCLUDE_DIR.*") {
-          #     "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
-          # } else {
-          #   $_
-          # }
-          # } | Set-Content ./build/CMakeCache.txt
-          # && Add-Content -Path ./build/CMakeCache.txt -Value "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
-
-
-
-          # && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h C:/vcpkg/installed/x64-windows-static-md/include/libxml2/libxml/
-          # && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h ./source/structures/
-
-      # - name: test pyuda on windows
-      #   if: runner.os == 'Windows'
-      #   env:
-      #     UDA_DIR: ${{github.workspace}}\install
-      #     EXTLIB_INSTALL_DIR: ${{github.workspace}}\extlib\install
-      #   run: >
-      #     (gcm python3).Path &&
-      #     #Set-Content -Path "C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\distutils\distutils.cfg" -Value "[build]`ncompiler = mingw32" &&
-      #     python3 -m venv ${{github.workspace}}/venv &&
-      #     ls ${{github.workspace}}/venv &&
-      #     ${{github.workspace}}/venv/Scripts/Activate.ps1 &&
-      #     pip3 install --upgrade pip wheel &&
-      #     pip3 install Cython numpy six wheel &&
-      #     CXX=g++ CC=gcc python3 ${{github.workspace}}\install\python_installer\setup.py bdist_wheel
-      #
-
+         
 
       - name: build windows wheels
         if: runner.OS == 'Windows'
@@ -137,7 +105,8 @@ jobs:
         env:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: windows
-          CIBW_BUILD: cp31*-${{matrix.build-platform[2]}}
+          CIBW_BUILD: cp3*-${{matrix.build-platform[2]}}
+          CIBW_SKIP: cp36* cp37*   
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
 
