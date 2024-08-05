@@ -93,20 +93,22 @@ jobs:
           -DNO_IDL_WRAPPER=ON
           -DNO_MEMCACHE=ON
           -DCMAKE_INSTALL_PREFIX=install
-          && (Get-Content build/CMakeCache.txt) | ForEach-Object {
-            if ($_ -match ".*Iconv_INCLUDE_DIR.*") {
-              "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
-          } else {
-            $_
-          }
-          } | Set-Content ./build/CMakeCache.txt
-          && Add-Content -Path ./build/CMakeCache.txt -Value "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
+          && cp C:/vcpkg/installed/x64-windows-static-md/include/iconv.h C:/vcpkg/installed/x64-windows-static-md/include/libxml/
           && cmake --build build -j --config Release 
           && cmake --install build --config Release
           && ls install/lib
           # && cp -r install ${{github.workspace}}\python_installer
           # && ls ${{github.workspace}}
           # && sed -i "s/.*Iconv_INCLUDE_DIR.*/Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include" build/CMakeCache.txt
+          # && (Get-Content build/CMakeCache.txt) | ForEach-Object {
+          #   if ($_ -match ".*Iconv_INCLUDE_DIR.*") {
+          #     "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
+          # } else {
+          #   $_
+          # }
+          # } | Set-Content ./build/CMakeCache.txt
+          # && Add-Content -Path ./build/CMakeCache.txt -Value "Iconv_INCLUDE_DIR:PATH=C:/vcpkg/installed/x64-windows-static-md/include"
+
 
       # - name: test pyuda on windows
       #   if: runner.os == 'Windows'
