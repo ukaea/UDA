@@ -45,23 +45,28 @@ set( Boost_USE_MULTITHREADED OFF )
 ########################################################################################################################
 # Version and Machine information
 
-include( GetGitRevisionDescription )
+# include( GetGitRevisionDescription )
+#
+# git_describe( GIT_TAG --tags )
+#
+# if( "${GIT_TAG}" MATCHES "^.*NOTFOUND$" )
+#   message( WARNING "Failed to get git revision: ${GIT_TAG}" )
+#   set( GIT_VERSION "0.0.0" )
+# elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)$" )
+#   set( GIT_VERSION "${GIT_TAG}" )
+# elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)-([0-9]+)-.*$" )
+#   set( GIT_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
+# else()
+#   message( WARNING "invalid git tag for version parsing: ${GIT_TAG}" )
+#   set( GIT_VERSION "0.0.0" )
+# endif()
 
-git_describe( GIT_TAG --tags )
+# Set VERSION and FULL_VERSION from `git describe`
+# but use git export attribute for release tarballs 
+set( GIT_ARCHIVE_DESCRIBE [[$Format:%(describe)$]] )
+include( DetermineVersion )
 
-if( "${GIT_TAG}" MATCHES "^.*NOTFOUND$" )
-  message( WARNING "Failed to get git revision: ${GIT_TAG}" )
-  set( GIT_VERSION "0.0.0" )
-elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)$" )
-  set( GIT_VERSION "${GIT_TAG}" )
-elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)-([0-9]+)-.*$" )
-  set( GIT_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
-else()
-  message( WARNING "invalid git tag for version parsing: ${GIT_TAG}" )
-  set( GIT_VERSION "0.0.0" )
-endif()
-
-project( uda VERSION ${GIT_VERSION} )
+project( uda VERSION ${VERSION} )
 
 set( USER $ENV{USER} )
 
