@@ -865,7 +865,7 @@ int getIdamDataStatus(int handle)
 */
 int udaGetLastHandle()
 {
-    return acc_getCurrentDataBlockIndex();
+    return udaGetCurrentDataBlockIndex();
 }
 
 //!  returns the number of data items in the data object

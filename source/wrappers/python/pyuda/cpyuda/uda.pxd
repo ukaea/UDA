@@ -112,9 +112,9 @@ cdef extern from "client/accAPI.h":
     int getIdamErrorType(int handle);
     void putIdamServerHost(const char* host);
     void putIdamServerPort(int port);
-    int getIdamProperty(const char* property)
-    void setIdamProperty(const char* property);
-    void resetIdamProperty(const char* property);
+    int udaGetProperty(const char* property)
+    void udaSetProperty(const char* property);
+    void udaResetProperty(const char* property);
     const char* getIdamDataLabel(int handle);
     const char* getIdamDataUnits(int handle);
     const char* getIdamDataDesc(int handle);

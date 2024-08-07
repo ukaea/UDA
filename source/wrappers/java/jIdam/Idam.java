@@ -31,14 +31,14 @@ public class Idam {
 // Set Server Properties
      
      public static native void setIdamPrivateFlag(int flag);     
-     public static native void setIdamClientFlag(int flag);     
-     public static native void setIdamProperty(String property);     
-     public static native int  getIdamProperty(String property);
+     public static native void udaSetClientFlag(int flag);     
+     public static native void udaSetProperty(String property);     
+     public static native int  udaGetProperty(String property);
 
      public static native void resetIdamPrivateFlag(int flag);
-     public static native void resetIdamClientFlag(int flag);
-     public static native void resetIdamProperty(String property);
-     public static native void resetIdamProperties();
+     public static native void udaResetClientFlag(int flag);
+     public static native void udaResetProperty(String property);
+     public static native void udaResetProperties();
 
 // Server Identification
 
@@ -77,7 +77,7 @@ public class Idam {
      
 // Last Data Access structure handle
 
-     public static native int getIdamLastHandle(int handle);
+     public static native int udaGetLastHandle(int handle);
      
 // Data properties
 

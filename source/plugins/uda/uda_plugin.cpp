@@ -57,7 +57,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Resetting all UDA client properties
 
-        resetIdamProperties();
+        udaResetProperties();
         udaFreeAll();
 
         putIdamServerHost(oldServerHost);    // Original Host
@@ -82,7 +82,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Resetting all UDA client properties
 
-        resetIdamProperties();
+        udaResetProperties();
 
         // Hand over Server IO File Handles to UDA Client library
 
@@ -310,18 +310,18 @@ Notes: there are three pathways depending on the request pattern
 
     CLIENT_BLOCK* client_block = idam_plugin_interface->client_block;
 
-    if (client_block->get_nodimdata) setIdamProperty("get_nodimdata");
-    if (client_block->get_timedble) setIdamProperty("get_timedble");
-    if (client_block->get_dimdble) setIdamProperty("get_dimdble");
-    if (client_block->get_datadble) setIdamProperty("get_datadble");
+    if (client_block->get_nodimdata) udaSetProperty("get_nodimdata");
+    if (client_block->get_timedble) udaSetProperty("get_timedble");
+    if (client_block->get_dimdble) udaSetProperty("get_dimdble");
+    if (client_block->get_datadble) udaSetProperty("get_datadble");
 
-    if (client_block->get_bad) setIdamProperty("get_bad");
-    if (client_block->get_meta) setIdamProperty("get_meta");
-    if (client_block->get_asis) setIdamProperty("get_asis");
-    if (client_block->get_uncal) setIdamProperty("get_uncal");
-    if (client_block->get_notoff) setIdamProperty("get_notoff");
-    if (client_block->get_scalar) setIdamProperty("get_scalar");
-    if (client_block->get_bytes) setIdamProperty("get_bytes");
+    if (client_block->get_bad) udaSetProperty("get_bad");
+    if (client_block->get_meta) udaSetProperty("get_meta");
+    if (client_block->get_asis) udaSetProperty("get_asis");
+    if (client_block->get_uncal) udaSetProperty("get_uncal");
+    if (client_block->get_notoff) udaSetProperty("get_notoff");
+    if (client_block->get_scalar) udaSetProperty("get_scalar");
+    if (client_block->get_bytes) udaSetProperty("get_bytes");
 
     // Timeout ...
 
@@ -329,8 +329,8 @@ Notes: there are three pathways depending on the request pattern
 
     // Client Flags ...
 
-    resetIdamClientFlag((unsigned int)CLIENTFLAG_FULLRESET);
-    setIdamClientFlag(client_block->clientFlags);
+    udaResetClientFlag((unsigned int)CLIENTFLAG_FULLRESET);
+    udaSetClientFlag(client_block->clientFlags);
 
     // Client application provenance
 
@@ -574,7 +574,7 @@ Notes: there are three pathways depending on the request pattern
     }
 
     resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
-    resetIdamClientFlag((unsigned int)CLIENTFLAG_FULLRESET);
+    udaResetClientFlag((unsigned int)CLIENTFLAG_FULLRESET);
 
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap

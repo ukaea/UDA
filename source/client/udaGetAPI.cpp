@@ -148,7 +148,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
-    lockIdamThread();
+    udaLockThread();
 
     if (host != nullptr) {
         putIdamServerHost(host);
@@ -227,7 +227,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     // Fetch Data
 
 #ifdef TESTSERVERCLIENT
-    unlockIdamThread();    
+    udaUnlockThread();    
     return -1;
 #endif
 
@@ -260,7 +260,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
-    lockIdamThread();
+    udaLockThread();
 
     if (host != nullptr) {
         putIdamServerHost(host);
@@ -339,7 +339,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     // Fetch Data
 
 #ifdef TESTSERVERCLIENT
-    unlockIdamThread();
+    udaUnlockThread();
     return -1;
 #endif
 

@@ -409,7 +409,7 @@ extern void setidamproperty_(char* property, int lproperty)
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
     s = TrimString(s);
-    setIdamProperty(s);
+    udaSetProperty(s);
     free( s);
 }
 
@@ -419,7 +419,7 @@ extern void getidamproperty_(const char* property, int* value, int lproperty)
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
     s = TrimString(s);
-    *value = getIdamProperty(s);
+    *value = udaGetProperty(s);
 }
 
 extern void resetidamproperty_(char* property, int lproperty)
@@ -428,13 +428,13 @@ extern void resetidamproperty_(char* property, int lproperty)
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
     s = TrimString(s);
-    resetIdamProperty(s);
+    udaResetProperty(s);
     free( s);
 }
 
 extern void resetidamproperties_()
 {
-    resetIdamProperties();
+    udaResetProperties();
     return;
 }
 
@@ -612,7 +612,7 @@ extern void getidamdatastatus_(int* handle, int* status)
 
 extern void getidamlasthandle_(int* handle)
 {
-    *handle = getIdamLastHandle();
+    *handle = udaGetLastHandle();
 }
 
 extern void getidamdatanum_(int* hd, int* datanum)
