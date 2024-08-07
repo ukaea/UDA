@@ -8,7 +8,6 @@
 #include <structures/genStructs.h>
 #include <clientserver/export.h>
 #include "udaClient.h"
-#include "legacy_accAPI.h"
 
 #ifdef __cplusplus
 extern "C" {
