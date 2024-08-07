@@ -48,8 +48,6 @@ set( SRC_FILES
   udaPutAPI.cpp
   udaClient.cpp
   udaClientHostList.cpp
-  legacy_accAPI.cpp
-  legacy_client.cpp
 )
 
 set( HEADER_FILES
