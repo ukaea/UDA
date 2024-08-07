@@ -55,3 +55,5 @@ endif()
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY )
 
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.py DESTINATION python_installer )
+install( FILES ${CMAKE_CURRENT_LIST_DIR}/pyproject.toml DESTINATION python_installer )
+install( FILES ${CMAKE_CURRENT_LIST_DIR}/README.md DESTINATION python_installer )

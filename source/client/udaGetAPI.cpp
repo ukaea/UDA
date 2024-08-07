@@ -148,7 +148,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
-    lockIdamThread(client_flags);
+    lockIdamThread();
 
     if (host != nullptr) {
         putIdamServerHost(host);
@@ -176,7 +176,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     static bool reopen_logs = true;
 
     if (udaStartup(0, client_flags, &reopen_logs) != 0) {
-        unlockUdaThread(client_flags);
+        unlockUdaThread();
         return PROBLEM_OPENING_LOGS;
     }
 
@@ -217,7 +217,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockUdaThread(client_flags);
+        unlockUdaThread();
         return -err;
     }
 
@@ -246,7 +246,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
 
     freeClientRequestBlock(&request_block);
     // Unlock the thread
-    unlockUdaThread(client_flags);
+    unlockUdaThread();
     return handle;
 }
 
@@ -260,7 +260,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
-    lockIdamThread(client_flags);
+    lockIdamThread();
 
     if (host != nullptr) {
         putIdamServerHost(host);
@@ -287,7 +287,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     static bool reopen_logs = true;
 
     if (udaStartup(0, client_flags, &reopen_logs) != 0) {
-        unlockUdaThread(client_flags);
+        unlockUdaThread();
         return PROBLEM_OPENING_LOGS;
     }
 
@@ -328,7 +328,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
         if (udaNumErrors() == 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockUdaThread(client_flags);
+        unlockUdaThread();
         return -err;
     }
 
@@ -353,6 +353,6 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
 #endif
 
     // Unlock the thread
-    unlockUdaThread(client_flags);
+    unlockUdaThread();
     return err;
 }

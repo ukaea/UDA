@@ -48,6 +48,8 @@ set( SRC_FILES
   udaPutAPI.cpp
   udaClient.cpp
   udaClientHostList.cpp
+  legacy_accAPI.cpp
+  legacy_client.cpp
 )
 
 set( HEADER_FILES
@@ -66,6 +68,8 @@ set( HEADER_FILES
   udaPutAPI.h
   updateSelectParms.h
   udaClientHostList.h
+  legacy_accAPI.h
+  legacy_client.h
 )
 
 include_directories(

@@ -930,7 +930,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             //------------------------------------------------------------------------------
             // Allocate memory for the Data Block Structure
             // Re-use existing stale Data Blocks
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = acc_getIdamNewDataHandle();
 
             if (data_block_idx < 0) {            // Error
                 data_block_indices[i] = -data_block_idx;
@@ -1426,9 +1426,7 @@ void udaFreeAll()
     uda::cache::free_cache();
 #endif
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-
-    for (int i = 0; i < acc_getCurrentDataBlockIndex(client_flags); ++i) {
+    for (int i = 0; i < acc_getCurrentDataBlockIndex(); ++i) {
 #ifndef FATCLIENT
         freeDataBlock(getIdamDataBlock(i));
 #else
@@ -1493,9 +1491,11 @@ void putIdamThreadClientBlock(CLIENT_BLOCK* str)
     client_block = *str;
 }
 
-CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags)
-{    // save current state of properties for future rollback
+CLIENT_BLOCK udaSaveProperties()
+{    
+    // save current state of properties for future rollback
     CLIENT_BLOCK cb = client_block;      // Copy of Global Structure (maybe not initialised! i.e. idam API not called)
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     cb.get_datadble = client_flags->get_datadble;      // Copy individual properties only
     cb.get_dimdble = client_flags->get_dimdble;
     cb.get_timedble = client_flags->get_timedble;
@@ -1513,8 +1513,9 @@ CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags)
     return cb;
 }
 
-void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags)
-{         // Restore Properties to a prior saved state
+void udaRestoreProperties(CLIENT_BLOCK cb)
+{         
+    // Restore Properties to a prior saved state
     client_block.get_datadble = cb.get_datadble;     // Overwrite Individual Global Structure Components
     client_block.get_dimdble = cb.get_dimdble;
     client_block.get_timedble = cb.get_timedble;
@@ -1528,6 +1529,7 @@ void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags)
     client_block.clientFlags = cb.clientFlags;
     client_block.altRank = cb.altRank;
 
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->get_datadble = client_block.get_datadble;
     client_flags->get_dimdble = client_block.get_dimdble;
     client_flags->get_timedble = client_block.get_timedble;
