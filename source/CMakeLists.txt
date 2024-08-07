@@ -133,6 +133,12 @@ foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
   )
 endforeach()
 
+install(
+  DIRECTORY
+    ${CMAKE_BINARY_DIR}/lib/pkgconfig
+  DESTINATION lib
+)
+
 find_program( XINETD_EXE xinetd PATHS /usr/sbin/ /usr/local/sbin/ )
 
 configure_file(
