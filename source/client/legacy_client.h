@@ -8,8 +8,8 @@
 extern "C" {
 #endif
 
-LIBRARY_API inline void idamFree(int handle);
-LIBRARY_API inline void idamFreeAll();
+LIBRARY_API void idamFree(int handle);
+LIBRARY_API void idamFreeAll();
 
 #ifdef __cplusplus
 }
