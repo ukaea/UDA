@@ -15,7 +15,7 @@ LIBRARY_API inline void idamFree(int handle)
 
 LIBRARY_API inline void idamFreeAll()
 {
-    udaFreeAll()
+    udaFreeAll();
 }
 
 #ifdef __cplusplus
