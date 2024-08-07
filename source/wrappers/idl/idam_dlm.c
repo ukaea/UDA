@@ -1186,18 +1186,17 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     sout->status = (IDL_LONG)status;
     sout->error_code = (IDL_LONG)error_code;
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
-    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
-    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
-    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
-    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
-    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
-    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
-    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
-    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
-    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
-    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
+    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble");  // (IDL_LONG) kw.get_datadble;
+    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble");   // (IDL_LONG) kw.get_dimdble;
+    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble");  // (IDL_LONG) kw.get_timedble;
+    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar");    // (IDL_LONG) kw.get_scalar;
+    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes");     // (IDL_LONG) kw.get_bytes;
+    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis");      // (IDL_LONG) kw.get_asis;
+    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad");       // (IDL_LONG) kw.get_bad;
+    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta");      // (IDL_LONG) kw.get_meta;
+    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal");     // (IDL_LONG) kw.get_uncal;
+    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff");    // (IDL_LONG) kw.get_notoff;
+    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata"); // (IDL_LONG) kw.get_nodimdata;
 
     IDL_StrStore(&(sout->signal), "");
     IDL_StrStore(&(sout->source), "");
@@ -1296,8 +1295,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     char source[STRING_LENGTH];
     int exp_number = 0;
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = saveIdamProperties();  // preserve the current set of client properties
 
     int handle, status, error_code;
     char* error_msg;
@@ -1544,55 +1542,55 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     // Process Keywords (take Priority over Passed Arguments)
 
     if (kw.debug) {
-        setIdamProperty("debug", client_flags);    // Cannot be reset (currently!)
+        setIdamProperty("debug");    // Cannot be reset (currently!)
     }
 
     if (kw.verbose) {
-        setIdamProperty("verbose", client_flags);
+        setIdamProperty("verbose");
     }
 
     if (kw.get_datadble) {
-        setIdamProperty("get_datadble", client_flags);    // Properties passed by Keyword must be reset to the prior state
+        setIdamProperty("get_datadble");    // Properties passed by Keyword must be reset to the prior state
     }
 
     if (kw.get_dimdble) {
-        setIdamProperty("get_dimdble", client_flags);
+        setIdamProperty("get_dimdble");
     }
 
     if (kw.get_timedble) {
-        setIdamProperty("get_timedble", client_flags);
+        setIdamProperty("get_timedble");
     }
 
     if (kw.get_scalar) {
-        setIdamProperty("get_scalar", client_flags);
+        setIdamProperty("get_scalar");
     }
 
     if (kw.get_bytes) {
-        setIdamProperty("get_bytes", client_flags);
+        setIdamProperty("get_bytes");
     }
 
     if (kw.get_asis) {
-        setIdamProperty("get_asis", client_flags);
+        setIdamProperty("get_asis");
     }
 
     if (kw.get_bad) {
-        setIdamProperty("get_bad", client_flags);
+        setIdamProperty("get_bad");
     }
 
     if (kw.get_meta) {
-        setIdamProperty("get_meta", client_flags);
+        setIdamProperty("get_meta");
     }
 
     if (kw.get_uncal) {
-        setIdamProperty("get_uncal", client_flags);
+        setIdamProperty("get_uncal");
     }
 
     if (kw.get_notoff) {
-        setIdamProperty("get_notoff", client_flags);
+        setIdamProperty("get_notoff");
     }
 
     if (kw.get_nodimdata) {
-        setIdamProperty("get_nodimdata", client_flags);
+        setIdamProperty("get_nodimdata");
     }
 
     //--------------------------------------------------------------------------
@@ -1623,7 +1621,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_BAD_HANDLE));
     }
 
@@ -1637,7 +1635,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
     }
 
@@ -1651,17 +1649,17 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     sout->status = (IDL_LONG)status;
     sout->error_code = (IDL_LONG)error_code;
 
-    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
-    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
-    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
-    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
-    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
-    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
-    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
-    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
-    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
-    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
-    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
+    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble");  // (IDL_LONG) kw.get_datadble;
+    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble");   // (IDL_LONG) kw.get_dimdble;
+    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble");  // (IDL_LONG) kw.get_timedble;
+    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar");    // (IDL_LONG) kw.get_scalar;
+    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes");     // (IDL_LONG) kw.get_bytes;
+    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis");      // (IDL_LONG) kw.get_asis;
+    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad");       // (IDL_LONG) kw.get_bad;
+    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta");      // (IDL_LONG) kw.get_meta;
+    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal");     // (IDL_LONG) kw.get_uncal;
+    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff");    // (IDL_LONG) kw.get_notoff;
+    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata"); // (IDL_LONG) kw.get_nodimdata;
 
     IDL_StrStore(&(sout->signal), signal);
     IDL_StrStore(&(sout->source), source);
@@ -1704,7 +1702,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    restoreIdamProperties(cblock);
     return (ivReturn);
 }
 
@@ -1726,8 +1724,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     int useIdamGetAPI = 0;
     static IDL_LONG exp_number, pass = -1, mdstreenum;
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = saveIdamProperties();  // preserve the current set of client properties
 
     int handle, rank, order, status, error_code;
     char* error_msg;
@@ -1952,7 +1949,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_ARGUMENTS));
     }
 
@@ -1968,7 +1965,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NOT_IMPLEMENTED));
     }
 
@@ -2002,47 +1999,47 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
 
         if ((int)asin->get_datadble) {
             setIdamProperty(
-                    "get_datadble", client_flags);    // Properties passed by Structure must be reset to the prior state
+                    "get_datadble");    // Properties passed by Structure must be reset to the prior state
         }
 
         if ((int)asin->get_dimdble) {
-            setIdamProperty("get_dimdble", client_flags);
+            setIdamProperty("get_dimdble");
         }
 
         if ((int)asin->get_timedble) {
-            setIdamProperty("get_timedble", client_flags);
+            setIdamProperty("get_timedble");
         }
 
         if ((int)asin->get_scalar) {
-            setIdamProperty("get_scalar", client_flags);
+            setIdamProperty("get_scalar");
         }
 
         if ((int)asin->get_bytes) {
-            setIdamProperty("get_bytes", client_flags);
+            setIdamProperty("get_bytes");
         }
 
         if ((int)asin->get_asis) {
-            setIdamProperty("get_asis", client_flags);
+            setIdamProperty("get_asis");
         }
 
         if ((int)asin->get_bad) {
-            setIdamProperty("get_bad", client_flags);
+            setIdamProperty("get_bad");
         }
 
         if ((int)asin->get_meta) {
-            setIdamProperty("get_meta", client_flags);
+            setIdamProperty("get_meta");
         }
 
         if ((int)asin->get_uncal) {
-            setIdamProperty("get_uncal", client_flags);
+            setIdamProperty("get_uncal");
         }
 
         if ((int)asin->get_notoff) {
-            setIdamProperty("get_notoff", client_flags);
+            setIdamProperty("get_notoff");
         }
 
         if ((int)asin->get_nodimdata) {
-            setIdamProperty("get_nodimdata", client_flags);
+            setIdamProperty("get_nodimdata");
         }
 
         if (strlen(signal) > 0 && strlen(source) > 0) {
@@ -2062,7 +2059,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                 }
 
                 IDL_KW_FREE;
-                restoreIdamProperties(cblock, client_flags);
+                restoreIdamProperties(cblock);
                 return (IDL_GettmpLong(GDE_NO_EXP_NUMBER));
             }
 
@@ -2081,7 +2078,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                     }
 
                     IDL_KW_FREE;
-                    restoreIdamProperties(cblock, client_flags);
+                    restoreIdamProperties(cblock);
                     return (IDL_GettmpLong(GDE_NOT_IMPLEMENTED));
                 }
 
@@ -2110,7 +2107,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         IDL_KW_FREE;
-                        restoreIdamProperties(cblock, client_flags);
+                        restoreIdamProperties(cblock);
                         return (IDL_GettmpLong(GDE_NO_EXP_NUMBER));
                     }
                 }
@@ -2133,7 +2130,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                     }
 
                     IDL_KW_FREE;
-                    restoreIdamProperties(cblock, client_flags);
+                    restoreIdamProperties(cblock);
                     return (IDL_GettmpLong(GDE_NO_SIGNAL_ARGUMENT));
                 }
 
@@ -2152,7 +2149,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         IDL_KW_FREE;
-                        restoreIdamProperties(cblock, client_flags);
+                        restoreIdamProperties(cblock);
                         return (IDL_GettmpLong(GDE_NOT_IMPLEMENTED));
                     }
 
@@ -2172,7 +2169,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         IDL_KW_FREE;
-                        restoreIdamProperties(cblock, client_flags);
+                        restoreIdamProperties(cblock);
                         return (IDL_GettmpLong(GDE_NO_SIGNAL_ARGUMENT));
                     }
 
@@ -2365,55 +2362,55 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     }
 
     if (kw.debug) {
-        setIdamProperty("debug", client_flags);    // Cannot be reset (currently!)
+        setIdamProperty("debug");    // Cannot be reset (currently!)
     }
 
     if (kw.verbose) {
-        setIdamProperty("verbose", client_flags);
+        setIdamProperty("verbose");
     }
 
     if (kw.get_datadble) {
-        setIdamProperty("get_datadble", client_flags);    // Properties passed by Keyword must be reset to the prior state
+        setIdamProperty("get_datadble");    // Properties passed by Keyword must be reset to the prior state
     }
 
     if (kw.get_dimdble) {
-        setIdamProperty("get_dimdble", client_flags);
+        setIdamProperty("get_dimdble");
     }
 
     if (kw.get_timedble) {
-        setIdamProperty("get_timedble", client_flags);
+        setIdamProperty("get_timedble");
     }
 
     if (kw.get_scalar) {
-        setIdamProperty("get_scalar", client_flags);
+        setIdamProperty("get_scalar");
     }
 
     if (kw.get_bytes) {
-        setIdamProperty("get_bytes", client_flags);
+        setIdamProperty("get_bytes");
     }
 
     if (kw.get_asis) {
-        setIdamProperty("get_asis", client_flags);
+        setIdamProperty("get_asis");
     }
 
     if (kw.get_bad) {
-        setIdamProperty("get_bad", client_flags);
+        setIdamProperty("get_bad");
     }
 
     if (kw.get_meta) {
-        setIdamProperty("get_meta", client_flags);
+        setIdamProperty("get_meta");
     }
 
     if (kw.get_uncal) {
-        setIdamProperty("get_uncal", client_flags);
+        setIdamProperty("get_uncal");
     }
 
     if (kw.get_notoff) {
-        setIdamProperty("get_notoff", client_flags);
+        setIdamProperty("get_notoff");
     }
 
     if (kw.get_nodimdata) {
-        setIdamProperty("get_nodimdata", client_flags);
+        setIdamProperty("get_nodimdata");
     }
 
     //--------------------------------------------------------------------------
@@ -2422,7 +2419,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     if (kw.help) {
         userhelp(stdout, "getidam");
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(0));
     }
 
@@ -2515,7 +2512,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         IDL_KW_FREE;
-                        restoreIdamProperties(cblock, client_flags);
+                        restoreIdamProperties(cblock);
                         return (IDL_GettmpLong(GDE_NO_API_IDENTIFIED));
                     }
                 }
@@ -2540,7 +2537,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_BAD_HANDLE));
     }
 
@@ -2557,7 +2554,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
     }
 
@@ -2573,17 +2570,17 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     sout->status = (IDL_LONG)status;
     sout->error_code = (IDL_LONG)error_code;
 
-    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
-    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
-    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
-    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
-    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
-    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
-    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
-    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
-    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
-    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
-    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
+    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble");  // (IDL_LONG) kw.get_datadble;
+    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble");   // (IDL_LONG) kw.get_dimdble;
+    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble");  // (IDL_LONG) kw.get_timedble;
+    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar");    // (IDL_LONG) kw.get_scalar;
+    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes");     // (IDL_LONG) kw.get_bytes;
+    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis");      // (IDL_LONG) kw.get_asis;
+    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad");       // (IDL_LONG) kw.get_bad;
+    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta");      // (IDL_LONG) kw.get_meta;
+    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal");     // (IDL_LONG) kw.get_uncal;
+    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff");    // (IDL_LONG) kw.get_notoff;
+    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata"); // (IDL_LONG) kw.get_nodimdata;
 
     IDL_StrStore(&(sout->signal), signal);
     IDL_StrStore(&(sout->source), source);
@@ -2627,7 +2624,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    restoreIdamProperties(cblock);
     return (ivReturn);
 }
 
@@ -2640,11 +2637,10 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
 
     int data_n, rank, ndata, errtype;
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = saveIdamProperties();  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = getIdamProperty("get_bad");         // Current client get_bad property
 
     IDAM_SIN* sin = NULL;      // Input Structure
     IDAM_DOUT* sout = NULL;    // Returned Structure
@@ -2845,7 +2841,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     }
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        setIdamProperty("get_bad");
         client_get_bad = 1;
     }
 
@@ -2871,7 +2867,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
@@ -2889,7 +2885,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -2907,7 +2903,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -2917,7 +2913,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -2927,7 +2923,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_RANK_TOO_HIGH));
     }
 
@@ -3134,7 +3130,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
             }
 
             IDL_KW_FREE;
-            restoreIdamProperties(cblock, client_flags);
+            restoreIdamProperties(cblock);
             return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
     }
 
@@ -3144,7 +3140,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
     }
 
@@ -3174,7 +3170,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords and IDAM Heap
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    restoreIdamProperties(cblock);
     return (ivReturn);
 
 }
@@ -3199,11 +3195,10 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
 
     IDAM_SIN* sin;              // Returned Structure
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = saveIdamProperties();  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = getIdamProperty("get_bad");         // Current client get_bad property
 
     char* dvec;
     IDL_VPTR idlArray = NULL;
@@ -3259,7 +3254,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
     sin = (IDAM_SIN*)argv[0]->value.s.arr->data;        // Input Structure
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        setIdamProperty("get_bad");
         client_get_bad = 1;
     }
 
@@ -3289,7 +3284,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
@@ -3303,7 +3298,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -3402,7 +3397,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
             }
 
             IDL_KW_FREE;
-            restoreIdamProperties(cblock, client_flags);
+            restoreIdamProperties(cblock);
             return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
 
     }
@@ -3411,7 +3406,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    restoreIdamProperties(cblock);
     return (idlArray);
 }
 
@@ -3437,11 +3432,10 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
 
     IDAM_SIN* sin;      // Returned Structure
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  //preserve the current set of client properties
+    CLIENT_BLOCK cblock = saveIdamProperties();  //preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = getIdamProperty("get_bad");         // Current client get_bad property
 
     char* dvec;
     IDL_VPTR idlArray = NULL;
@@ -3497,7 +3491,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
     sin = (IDAM_SIN*)argv[0]->value.s.arr->data;        // Input Structure
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        setIdamProperty("get_bad");
         client_get_bad = 1;
     }
 
@@ -3507,7 +3501,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_VALID_HANDLE));
     }
 
@@ -3528,7 +3522,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
@@ -3542,7 +3536,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -3643,7 +3637,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
             }
 
             IDL_KW_FREE;
-            restoreIdamProperties(cblock, client_flags);
+            restoreIdamProperties(cblock);
             return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
 
     }
@@ -3652,7 +3646,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    restoreIdamProperties(cblock);
     return (idlArray);
 }
 
@@ -3681,11 +3675,10 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
     IDAM_SIN* sin = NULL;          // Input Structure
     IDAM_DIMOUT* sout = NULL;      // Returned Structure
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = saveIdamProperties();  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = getIdamProperty("get_bad");         // Current client get_bad property
 
     IDL_VPTR ivReturn = NULL;
 
@@ -3888,7 +3881,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        setIdamProperty("get_bad");
         client_get_bad = 1;
     }
 
@@ -3898,7 +3891,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_VALID_HANDLE));
     }
 
@@ -3919,7 +3912,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
@@ -3933,7 +3926,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -3946,7 +3939,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_SUCH_DIMENSION));
     }
 
@@ -4119,7 +4112,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
     }
 
@@ -4141,7 +4134,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    restoreIdamProperties(cblock);
     return (ivReturn);
 }
 
@@ -4165,11 +4158,10 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
 
     IDAM_SIN* sin;      // Returned Structure
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = saveIdamProperties();  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = getIdamProperty("get_bad");         // Current client get_bad property
 
     char* dvec;
     IDL_VPTR idlArray = NULL;
@@ -4228,7 +4220,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        setIdamProperty("get_bad");
         client_get_bad = 1;
     }
 
@@ -4238,7 +4230,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_VALID_HANDLE));
     }
 
@@ -4259,7 +4251,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
@@ -4273,7 +4265,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -4286,7 +4278,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        restoreIdamProperties(cblock);
         return (IDL_GettmpLong(GDE_NO_SUCH_DIMENSION));
     }
 
@@ -4403,7 +4395,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
             }
 
             IDL_KW_FREE;
-            restoreIdamProperties(cblock, client_flags);
+            restoreIdamProperties(cblock);
             return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
 
     }
@@ -4412,7 +4404,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    restoreIdamProperties(cblock);
     return (idlArray);
 }
 
@@ -6865,8 +6857,7 @@ setproperty(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    setIdamProperty((char*)IDL_STRING_STR(&argv[0]->value.str), client_flags);
+    setIdamProperty((char*)IDL_STRING_STR(&argv[0]->value.str));
     return (IDL_GettmpLong(0));
 }
 
@@ -6876,8 +6867,7 @@ resetproperty(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    resetIdamProperty((char*)IDL_STRING_STR(&argv[0]->value.str), client_flags);
+    resetIdamProperty((char*)IDL_STRING_STR(&argv[0]->value.str));
     return (IDL_GettmpLong(0));
 }
 
@@ -6885,8 +6875,7 @@ IDL_VPTR IDL_CDECL
 
 resetproperties(int argc, IDL_VPTR argv[], char* argk)
 {
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    resetIdamProperties(client_flags);
+    resetIdamProperties();
     return (IDL_GettmpLong(0));
 }
 
@@ -6895,8 +6884,7 @@ IDL_VPTR IDL_CDECL
 setidamclientflag(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_SCALAR(argv[0]);
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    setIdamClientFlag(client_flags, (unsigned int)IDL_ULongScalar(argv[0]));
+    setIdamClientFlag((unsigned int)IDL_ULongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
@@ -6905,8 +6893,7 @@ IDL_VPTR IDL_CDECL
 resetidamclientflag(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_SCALAR(argv[0]);
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    resetIdamClientFlag(client_flags, (unsigned int)IDL_ULongScalar(argv[0]));
+    resetIdamClientFlag((unsigned int)IDL_ULongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
@@ -7392,8 +7379,7 @@ IDL_VPTR IDL_CDECL
 
 getlasthandle(int argc, IDL_VPTR argv[], char* argk)
 {
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    return (IDL_GettmpLong(getIdamLastHandle(client_flags)));
+    return (IDL_GettmpLong(getIdamLastHandle()));
 }
 
 //====================================================================================

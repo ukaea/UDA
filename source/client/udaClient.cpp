@@ -125,7 +125,7 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
 
         if (data != nullptr) {
             // Success
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = acc_getIdamNewDataHandle();
 
             if (data_block_idx < 0) {            // Error
                 return -data_block_idx;
@@ -163,7 +163,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
 
         if (data != nullptr) {
             // Success
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = acc_getIdamNewDataHandle();
 
             if (data_block_idx < 0) {            // Error
                 return -data_block_idx;
@@ -1008,7 +1008,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         for (int i = 0; i < data_block_list0.count; ++i) {
             DATA_BLOCK* data_block0 = &data_block_list0.data[i];
 
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = acc_getIdamNewDataHandle();
             DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx); // data blocks may have been realloc'ed
             copyDataBlock(data_block, data_block0);
 
