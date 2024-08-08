@@ -46,7 +46,6 @@ jobs:
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
-          # CIBW_SKIP: cp36* cp37* *-musllinux*
           CIBW_SKIP: cp*-musllinux* *-musllinux*
           CIBW_BEFORE_ALL: >
             yum update -y &&
@@ -85,7 +84,6 @@ jobs:
         if: startswith(matrix.build-platform[2], 'manylinux_2_28')
         uses: pypa/cibuildwheel@v2.17.0
         with:
-          # package-dir: /usr/local/python_installer
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
         env:
@@ -142,9 +140,6 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
-          # CIBW_SKIP: cp36* cp37* 
-          # CIBW_BEFORE_ALL:
-          #   cat ./source/wrappers/python/setup.py 
 
       - uses: actions/upload-artifact@v4
         with:
@@ -158,8 +153,6 @@ jobs:
       name: testpypi
     permissions:
       id-token: write
-    # if: github.event_name == 'release' && github.event.action == 'published'
-    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/download-artifact@v4
         with:
