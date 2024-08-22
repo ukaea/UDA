@@ -5,6 +5,7 @@ install( FILES ${CYTHON_FILES} pyuda/cpyuda/uda.pxd DESTINATION python_installer
 file( GLOB INSTALL_FILES pyuda/*.py )
 
 install( FILES ${INSTALL_FILES} DESTINATION python_installer/pyuda )
+install( FILES ${CMAKE_CURRENT_LIST_DIR}/uda/__init__.py DESTINATION python_installer/uda )
 
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/pyuda/_version.py.in ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py @ONLY )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/pyuda )
@@ -54,3 +55,5 @@ endif()
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY )
 
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.py DESTINATION python_installer )
+install( FILES ${CMAKE_CURRENT_LIST_DIR}/pyproject.toml DESTINATION python_installer )
+install( FILES ${CMAKE_CURRENT_LIST_DIR}/README.md DESTINATION python_installer )

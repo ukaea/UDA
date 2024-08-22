@@ -66,6 +66,8 @@ set( HEADER_FILES
   udaPutAPI.h
   updateSelectParms.h
   udaClientHostList.h
+  legacy_accAPI.h
+  legacy_client.h
 )
 
 include_directories(

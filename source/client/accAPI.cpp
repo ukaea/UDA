@@ -96,8 +96,9 @@ int getThreadId(thread_t id)
 }
 
 // Lock the thread and set the previous STATE  
-void lockIdamThread(CLIENT_FLAGS* client_flags)
+void udaLockThread()
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     static unsigned int mutex_initialised = 0;
 
     if (!mutex_initialised) {
@@ -162,8 +163,9 @@ void lockIdamThread(CLIENT_FLAGS* client_flags)
 /**
  * Unlock the thread and save the current STATE
  */
-void unlockUdaThread(CLIENT_FLAGS* client_flags)
+void udaUnlockThread()
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
 #ifdef __GNUC__
     thread_t threadId = pthread_self();
 #else
@@ -188,9 +190,9 @@ void unlockUdaThread(CLIENT_FLAGS* client_flags)
 /**
  * Free thread resources
  */
-void freeIdamThread(CLIENT_FLAGS* client_flags)
+void udaFreeThread()
 {
-    lockIdamThread(client_flags);
+    udaLockThread();
 #ifdef __GNUC__
     thread_t threadId = pthread_self();
 #else
@@ -212,13 +214,13 @@ void freeIdamThread(CLIENT_FLAGS* client_flags)
         initServerBlock(&(idamState[threadCount].server_block), 0);
         threadList[threadCount] = 0;
     }
-    unlockUdaThread(client_flags);
+    udaUnlockThread();
 }
 
 #else
-void lockIdamThread() {}
-void unlockIdamThread() {}
-void freeIdamThread() {}
+void udaLockThread() {}
+void udaUnlockThread() {}
+void udaFreeThread() {}
 #endif // NOPTHREADS
 
 int getIdamThreadLastHandle()
@@ -240,8 +242,9 @@ void acc_freeDataBlocks()
     putIdamThreadLastHandle(-1);
 }
 
-DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags)
+DATA_BLOCK* udaGetCurrentDataBlock()
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         getIdamThreadLastHandle() >= 0) {
         return &data_blocks[getIdamThreadLastHandle()];
@@ -249,8 +252,9 @@ DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags)
     return &data_blocks.back();
 }
 
-int acc_getCurrentDataBlockIndex(CLIENT_FLAGS* client_flags)
+int udaGetCurrentDataBlockIndex()
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         getIdamThreadLastHandle() >= 0) {
         return getIdamThreadLastHandle();
@@ -258,8 +262,9 @@ int acc_getCurrentDataBlockIndex(CLIENT_FLAGS* client_flags)
     return data_blocks.size() - 1;
 }
 
-int acc_growIdamDataBlocks(CLIENT_FLAGS* client_flags)
+int udaGrowDataBlocks()
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         getIdamThreadLastHandle() >= 0) {
         return 0;
@@ -284,8 +289,9 @@ static int findNewHandleIndex()
     return -1;
 }
 
-int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags)
+int udaGetNewDataHandle()
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     int newHandleIndex = -1;
 
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
@@ -372,8 +378,9 @@ void resetIdamPrivateFlag(unsigned int flag)
 * @return Void.
 */
 
-void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
+void udaSetClientFlag(unsigned int flag)
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->flags = client_flags->flags | flag;
 }
 
@@ -384,8 +391,9 @@ void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 * @return Void.
 */
 
-void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
+void udaResetClientFlag(unsigned int flag)
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->flags &= !flag;
 }
 
@@ -417,9 +425,10 @@ void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 * @param property the name of the property to set true or a name value pair.
 * @return Void.
 */
-void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
+void udaSetProperty(const char* property)
 {
     // User settings for Client and Server behaviour
+    CLIENT_FLAGS* client_flags = udaClientFlags();
 
     char name[56];
     char* value;
@@ -477,9 +486,10 @@ void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
 * @param property the name of the property.
 * @return Void.
 */
-int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags)
+int udaGetProperty(const char* property)
 {
     // User settings for Client and Server behaviour
+    CLIENT_FLAGS* client_flags = udaClientFlags();
 
     if (property[0] == 'g') {
         if (STR_IEQUALS(property, "get_datadble")) return client_flags->get_datadble;
@@ -513,9 +523,10 @@ int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags)
 * @return Void.
 */
 
-void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
+void udaResetProperty(const char* property)
 {
     // User settings for Client and Server behaviour
+    CLIENT_FLAGS* client_flags = udaClientFlags();
 
     if (property[0] == 'g') {
         if (STR_IEQUALS(property, "get_datadble")) client_flags->get_datadble = 0;
@@ -547,9 +558,10 @@ void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
 /**
 * @return Void.
 */
-void resetIdamProperties(CLIENT_FLAGS* client_flags)
+void udaResetProperties()
 {
     // Reset on Both Client and Server
+    CLIENT_FLAGS* client_flags = udaClientFlags();
 
     client_flags->get_datadble = 0;
     client_flags->get_dimdble = 0;
@@ -851,9 +863,9 @@ int getIdamDataStatus(int handle)
 /**
 \return   handle.
 */
-int getIdamLastHandle(CLIENT_FLAGS* client_flags)
+int udaGetLastHandle()
 {
-    return acc_getCurrentDataBlockIndex(client_flags);
+    return udaGetCurrentDataBlockIndex();
 }
 
 //!  returns the number of data items in the data object

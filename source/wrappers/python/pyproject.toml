@@ -1,0 +1,37 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "oldest-supported-numpy; python_version < '3.13'",
+    "numpy >=1.7, <2; python_version >= '3.13'",
+    "Cython>=0.29",
+    "six"
+]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+homepage = "https://ukaea.github.io/UDA/"
+documentation = "https://ukaea.github.io/UDA/"
+source = "https://github.com/ukaea/UDA"
+tracker = "https://github.com/ukaea/UDA/issues"
+
+[project]
+name = "uda"
+dynamic = ["version"]
+readme = {file = 'README.md', content-type = "text/markdown"}
+license = {text = "Apache-2.0 license"}
+dependencies = ["numpy>1.7, <2", "six"]
+requires-python = ">= 3.5"
+
+classifiers = [
+    'Intended Audience :: Science/Research',
+    'Programming Language :: C',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: MacOS :: MacOS X',
+]
+
+
+[project.optional-dependencies]
+plot = ["pyplot"]
+full = ["pyplot", "rich"]
