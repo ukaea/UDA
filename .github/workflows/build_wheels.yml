@@ -4,9 +4,6 @@ on:
   push:
     tags:
       - '*'
-    branches:
-      - feature/python-wheels
-      - feature/python-wheels-windows
 
 jobs:
   build_wheels:
