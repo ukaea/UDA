@@ -78,7 +78,7 @@ jobs:
           -DVCPKG_HOST_TRIPLET="x64-windows-static-md"
           -DCMAKE_GENERATOR_PLATFORM=x64
           -DBUILD_SHARED_LIBS=ON
-          -DSSLAUTHENTICATION=OFF
+          -DSSLAUTHENTICATION=ON
           -DCLIENT_ONLY=ON
           -DENABLE_CAPNP=ON
           -DNO_JAVA_WRAPPER=ON
