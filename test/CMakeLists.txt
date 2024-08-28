@@ -52,6 +52,7 @@ set( TESTS
 )
 
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
+include_directories( SYSTEM ${Boost_INCLUDE_DIRS} )
 include_directories( SYSTEM ${LIBXML2_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
