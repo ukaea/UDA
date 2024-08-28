@@ -18,21 +18,11 @@ jobs:
   build:
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-latest, macos-latest]
-        # release: [Release]
-        # ssl: [ON, OFF]
-        # client-only: [OFF]
-        # capnp: [ON, OFF]
-        os: [windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         release: [Release]
-        ssl: [OFF]
-        client-only: [ON]
-        capnp: [OFF]
-#        include:
-#          - client-only: ON
-#            ssl: OFF
-#          - client-only: OFF
-#            ssl: OFF
+        ssl: [ON, OFF]
+        client-only: [OFF]
+        capnp: [ON, OFF]
 
     runs-on: ${{ matrix.os }}
 
@@ -43,11 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # - uses: actions/github-script@v7
-      #   with:
-      #     script: |
-      #       core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-      #       core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: Install linux dependencies
         if: matrix.os == 'ubuntu-latest'
@@ -105,12 +95,8 @@ jobs:
 
       - name: Install windows dependencies
         if: matrix.os == 'windows-latest'
-        # vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
-        # rm -r $VCPKG_INSTALLATION_ROOT/buildtrees &&
         run: >
-          git -C $VCPKG_INSTALLATION_ROOT pull &&
-          vcpkg update && vcpkg upgrade &&
-          vcpkg install --triplet x64-mingw-static 
+          vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
           libxml2
           capnproto
           boost-program-options
