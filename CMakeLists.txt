@@ -30,6 +30,7 @@ endif()
 
 if( CMAKE_VERSION VERSION_GREATER 3.30 )
     cmake_policy( SET CMP0167 NEW )
+    cmake_policy( SET CMP0057 NEW )
 endif()
 
 # Extra cmake modules to find libraries
