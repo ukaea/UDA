@@ -132,7 +132,7 @@ add_definitions(
 )
 
 if( WIN32 OR MINGW )
-  add_definitions( -D_CRT_SECURE_NO_WARNINGS )
+  add_definitions( -D_CRT_SECURE_NO_WARNINGS -DNOMINMAX )
   set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
   set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".dll.lib" ".a" ".lib" )
   if( MINGW )

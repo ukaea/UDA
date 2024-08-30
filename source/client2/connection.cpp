@@ -4,6 +4,7 @@
 #ifdef _WIN32
 #  include <cctype>
 #  include <winsock2.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
+#  include "windows_defines.hpp"
 #endif
 
 #include "connection.hpp"
@@ -38,10 +39,6 @@
 #  ifndef EAI_SYSTEM
 #    define EAI_SYSTEM -11 /* System error returned in 'errno'. */
 #  endif
-#endif
-
-#if _MSC_VER && !__INTEL_COMPILER
-#  define strncasecmp _strnicmp
 #endif
 
 #include <clientserver/errorLog.h>
