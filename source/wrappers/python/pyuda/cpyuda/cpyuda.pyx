@@ -1,7 +1,3 @@
-# cdef extern from "winsock2.h":
-#     pass
-# cdef extern from "windows.h":
-#     pass
 include "handle.pyx"
 include "client.pyx"
 include "dim.pyx"

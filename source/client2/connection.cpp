@@ -40,6 +40,10 @@
 #  endif
 #endif
 
+#if _MSC_VER && !__INTEL_COMPILER
+#  define strncasecmp _strnicmp
+#endif
+
 #include <clientserver/errorLog.h>
 #include <clientserver/manageSockets.h>
 #include <logging/logging.h>

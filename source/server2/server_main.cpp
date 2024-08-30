@@ -2,6 +2,7 @@
 #if defined(__GNUC__)
 #  include <unistd.h>
 #else
+#  define NOMINMAX
 #  include <windows.h>
 #  define sleep Sleep
 #endif

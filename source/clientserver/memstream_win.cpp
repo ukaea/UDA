@@ -2,6 +2,7 @@
 
 #include "memstream.h"
 
+#define NOMINMAX
 #include <windows.h>
 #include <cstdlib>
 #include <string.h>
