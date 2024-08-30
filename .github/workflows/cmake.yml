@@ -21,8 +21,15 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         release: [Release]
         ssl: [ON, OFF]
-        client-only: [OFF]
+        client-only: [ON, OFF]
         capnp: [ON, OFF]
+        exclude:
+          - os: windows-latest
+            client-only: OFF
+          - os: ubuntu-latest
+            client-only: ON
+          - os: macos-latest
+            client-only: ON
 
     runs-on: ${{ matrix.os }}
 
