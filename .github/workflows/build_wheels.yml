@@ -124,7 +124,7 @@ jobs:
         if: >
           startswith(matrix.build-platform[2], 'manylinux2014') && 
           github.event_name == 'push' && 
-          startsWith(github.ref, 'refs/tags/)
+          startsWith(github.ref, 'refs/tags/')
         uses: pypa/cibuildwheel@v2.17.0
         with:
           package-dir: ./source/wrappers/python

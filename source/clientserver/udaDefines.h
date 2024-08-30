@@ -128,10 +128,6 @@ extern "C" {
 
 #if defined(_WIN32)
 #  if !defined(__MINGW32__)
-    // struct timezone {
-    //     int tz_minuteswest; /* minutes west of Greenwich */
-    //     int tz_dsttime;     /* type of DST correction */
-    // };
     LIBRARY_API int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #  endif
 #endif
