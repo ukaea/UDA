@@ -15,7 +15,7 @@ source = "https://github.com/ukaea/UDA"
 tracker = "https://github.com/ukaea/UDA/issues"
 
 [project]
-name = "ukaea_pyuda_test"
+name = "uda"
 dynamic = ["version"]
 readme = {file = 'README.md', content-type = "text/markdown"}
 license = {text = "Apache-2.0 license"}
@@ -31,7 +31,6 @@ classifiers = [
     'Operating System :: MacOS :: MacOS X',
     'Operating System :: Microsoft :: Windows',
 ]
-
 
 [project.optional-dependencies]
 plot = ["pyplot"]
