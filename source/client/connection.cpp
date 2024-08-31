@@ -9,8 +9,6 @@
 #  endif
 #endif
 
-#endif
-
 #include "connection.h"
 
 #include <cstdlib>
