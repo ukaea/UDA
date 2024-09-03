@@ -1514,15 +1514,3 @@ bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str)
            && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
            && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
-
-//bool_t xdr_hdc_buffer_length(XDR* xdrs, uint64_t* n)
-//{
-//    int rc = xdr_u_longlong_t(xdrs, n);
-//    return rc;
-//}
-
-//bool_t xdr_hdc_buffer(XDR* xdrs, char* buffer, uint64_t n)
-//{
-//    int rc = xdr_vector(xdrs, buffer, n, sizeof(char), (xdrproc_t)xdr_char);
-//    return rc;
-//}

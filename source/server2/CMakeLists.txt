@@ -8,9 +8,7 @@ find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-  if( NOT MINGW )
-    find_package( dlfcn-win32 CONFIG REQUIRED )
-  endif()
+  find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
@@ -53,7 +51,7 @@ add_definitions( -DSERVERBUILD )
 add_library( server2-objects OBJECT
   ${SRC_FILES}
 )
-target_link_libraries( server2-objects PRIVATE fmt::fmt )
+target_link_libraries( server2-objects PRIVATE spdlog::spdlog fmt::fmt )
 
 set( SERVER2_OBJ
   $<TARGET_OBJECTS:server2-objects>
@@ -61,6 +59,7 @@ set( SERVER2_OBJ
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>
   $<TARGET_OBJECTS:authentication-server-objects>
+  $<TARGET_OBJECTS:cache-objects>
 )
 
 add_library( server2-static STATIC ${SERVER2_OBJ} )
@@ -70,22 +69,18 @@ endif()
 
 set( LINK_XDR )
 set( EXE_FLAG )
-set( EXE_EXT )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )
-  if( MINGW )
-    set( EXE_EXT ".exe" )
-  endif()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-elseif( TIRPC_FOUND )
+elseif(TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
   set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
 endif()
 
-target_link_libraries( server2-static PRIVATE ${LINK_XDR} )
+target_link_libraries( server2-static PRIVATE ${LINK_XDR} fmt::fmt )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server2-shared PRIVATE ${LINK_XDR} )
+  target_link_libraries( server2-shared PRIVATE ${LINK_XDR} fmt::fmt )
 endif()
 
 add_executable( server2-exe ${EXE_FLAG} server_main.cpp)
@@ -108,7 +103,7 @@ if( WIN32 OR MINGW )
 endif()
 
 set( LINK_DL )
-if( WIN32 AND NOT MINGW )
+if( WIN32 OR MINGW )
   set( LINK_DL dlfcn-win32::dl )
 else()
   set( LINK_DL dl )

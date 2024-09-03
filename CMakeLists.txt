@@ -28,6 +28,11 @@ if( CMAKE_VERSION VERSION_GREATER 3.12 )
   cmake_policy( SET CMP0075 OLD )
 endif()
 
+if( CMAKE_VERSION VERSION_GREATER 3.30 )
+    cmake_policy( SET CMP0167 NEW )
+    cmake_policy( SET CMP0057 NEW )
+endif()
+
 # Extra cmake modules to find libraries
 set( CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
@@ -45,23 +50,12 @@ set( Boost_USE_MULTITHREADED OFF )
 ########################################################################################################################
 # Version and Machine information
 
-include( GetGitRevisionDescription )
+# Set VERSION and FULL_VERSION from `git describe`
+# but use git export attribute for release tarballs 
+set( GIT_ARCHIVE_DESCRIBE [[$Format:%(describe)$]] )
+include( DetermineVersion )
 
-git_describe( GIT_TAG --tags )
-
-if( "${GIT_TAG}" MATCHES "^.*NOTFOUND$" )
-  message( WARNING "Failed to get git revision: ${GIT_TAG}" )
-  set( GIT_VERSION "0.0.0" )
-elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)$" )
-  set( GIT_VERSION "${GIT_TAG}" )
-elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)-([0-9]+)-.*$" )
-  set( GIT_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
-else()
-  message( WARNING "invalid git tag for version parsing: ${GIT_TAG}" )
-  set( GIT_VERSION "0.0.0" )
-endif()
-
-project( uda VERSION ${GIT_VERSION} )
+project( uda VERSION ${VERSION} )
 
 set( USER $ENV{USER} )
 
@@ -86,11 +80,15 @@ if( "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" )
 endif()
 
 if( CMAKE_VERSION VERSION_GREATER 3.0.9 )
-  if( CMAKE_C_COMPILER_ID STREQUAL "Intel" )
+  if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "IntelLLVM" )
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17" )
   else()
-    set( CMAKE_CXX_STANDARD 17 )
+    if( WIN32 AND MSVC )
+        set( CMAKE_CXX_STANDARD 20 )
+    else()
+        set( CMAKE_CXX_STANDARD 17 )
+    endif()
     set( CMAKE_CXX_STANDARD_REQUIRED ON )
     # C++ extension = OFF to use STD instead GNU
     set( CMAKE_CXX_EXTENSIONS OFF )
@@ -102,7 +100,7 @@ else()
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 
-    if( NOT APPLE )
+    if( NOT APPLE AND NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "IntelLLVM") )
       set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-use-after-free" )
     endif()
   endif()
@@ -134,7 +132,7 @@ add_definitions(
 )
 
 if( WIN32 OR MINGW )
-  add_definitions( -D_CRT_SECURE_NO_WARNINGS )
+  add_definitions( -D_CRT_SECURE_NO_WARNINGS -DNOMINMAX )
   set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
   set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".dll.lib" ".a" ".lib" )
   if( MINGW )
@@ -171,6 +169,7 @@ option( NO_PYTHON_WRAPPER "Don't build Python wrapper" OFF )
 option( NO_JAVA_WRAPPER "Don't build Java wrapper" OFF )
 option( NO_IDL_WRAPPER "Don't build IDL wrapper" OFF )
 option( FAT_IDL "Build IDL wrapper using fat-client" OFF )
+option( NO_CLI "Don't build UDA CLI" OFF )
 
 if( SERVER_ONLY )
   if( CLIENT_ONLY OR NO_WRAPPERS OR FAT_IDL )

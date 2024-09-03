@@ -15,13 +15,13 @@ extern "C" {
 
 #define UDA_NUM_CLIENT_THREADS 30
 
-LIBRARY_API DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags);
+LIBRARY_API DATA_BLOCK* udaGetCurrentDataBlock();
 
-LIBRARY_API int acc_getCurrentDataBlockIndex(CLIENT_FLAGS* client_flags);
+LIBRARY_API int udaGetCurrentDataBlockIndex();
 
-LIBRARY_API int acc_growIdamDataBlocks(CLIENT_FLAGS* client_flags);
+LIBRARY_API int udaGrowDataBlocks();
 
-LIBRARY_API int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags);
+LIBRARY_API int udaGetNewDataHandle();
 
 LIBRARY_API void acc_freeDataBlocks();
 
@@ -29,21 +29,22 @@ LIBRARY_API void setIdamPrivateFlag(unsigned int flag);
 
 LIBRARY_API void resetIdamPrivateFlag(unsigned int flag);
 
-LIBRARY_API void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
+LIBRARY_API void udaSetClientFlag(unsigned int flag);
 
-LIBRARY_API void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
+LIBRARY_API void udaResetClientFlag(unsigned int flag);
 
-LIBRARY_API void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
+LIBRARY_API void udaSetProperty(const char* property);
 
-LIBRARY_API int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags);
+LIBRARY_API int udaGetProperty(const char* property);
 
-LIBRARY_API void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
+LIBRARY_API void udaResetProperty(const char* property);
 
-LIBRARY_API void resetIdamProperties(CLIENT_FLAGS* client_flags);
+LIBRARY_API void udaResetProperties();
 
-LIBRARY_API CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags);
+LIBRARY_API CLIENT_BLOCK udaSaveProperties();
 
-LIBRARY_API void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags);
+LIBRARY_API void udaRestoreProperties(CLIENT_BLOCK cb);
+// LIBRARY_API void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags);
 
 LIBRARY_API CLIENT_BLOCK* getIdamProperties(int handle);
 
@@ -83,7 +84,7 @@ LIBRARY_API int getIdamSignalStatus(int handle);
 
 LIBRARY_API int getIdamDataStatus(int handle);
 
-LIBRARY_API int getIdamLastHandle(CLIENT_FLAGS* client_flags);
+LIBRARY_API int udaGetLastHandle();
 
 LIBRARY_API int getIdamDataNum(int handle);
 
@@ -245,11 +246,11 @@ LIBRARY_API int getIdamDataCheckSum(int handle);
 
 LIBRARY_API int getIdamDimDataCheckSum(int handle, int ndim);
 
-LIBRARY_API void lockIdamThread(CLIENT_FLAGS* client_flags);
+LIBRARY_API void udaLockThread();
 
-LIBRARY_API void unlockUdaThread(CLIENT_FLAGS* client_flags);
+LIBRARY_API void udaUnlockThread();
 
-LIBRARY_API void freeIdamThread(CLIENT_FLAGS* client_flags);
+LIBRARY_API void udaFreeThread();
 
 LIBRARY_API int getIdamThreadLastHandle();
 

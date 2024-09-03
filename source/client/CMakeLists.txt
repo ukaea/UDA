@@ -66,6 +66,8 @@ set( HEADER_FILES
   udaPutAPI.h
   updateSelectParms.h
   udaClientHostList.h
+  legacy_accAPI.h
+  legacy_client.h
 )
 
 include_directories(
@@ -119,7 +121,7 @@ if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
   set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 ${XDR_LIBRARIES} )
   if ( MINGW )
-    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl stdc++ pthread )
+    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl crypt32 stdc++ pthread )
   else()
     set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl )
   endif()

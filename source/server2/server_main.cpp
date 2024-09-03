@@ -22,7 +22,7 @@ int main()
 
     try {
         uda::Server server;
-        server.run();
+//        server.run();
     } catch (uda::server::Exception& ex) {
         return ex.code();
     }

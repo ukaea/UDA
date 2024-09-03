@@ -1,9 +1,6 @@
 ########################################################################################################################
 # Dependencies
 
-find_package( IDL )
-find_package( Java 1.6 )
-find_package( JNI )
 find_package( Boost )
 
 if( NOT NO_CXX_WRAPPER )
@@ -23,6 +20,7 @@ else()
 endif()
 
 if( NOT NO_IDL_WRAPPER )
+  find_package( IDL )
   if( IDL_FOUND )
     remove_definitions( -Wall -Werror )
     add_subdirectory( idl )
@@ -35,6 +33,8 @@ else()
 endif()
 
 if( NOT NO_JAVA_WRAPPER )
+  find_package( Java 1.6 )
+  find_package( JNI )
   if( JAVA_FOUND AND JNI_FOUND )
     add_subdirectory( java )
   else()

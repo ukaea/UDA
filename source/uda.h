@@ -13,6 +13,8 @@
 #  include <client/udaPutAPI.h>
 #  include <client/accAPI.h>
 #  include <client/udaClient.h>
+#  include <client/legacy_client.h>
+#  include <client/legacy_accAPI.h>
 #endif
 
 #endif // UDA_H

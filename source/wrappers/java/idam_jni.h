@@ -44,7 +44,7 @@ LIBRARY_API JNIEXPORT void JNICALL Java_Idam_setIdamPrivateFlag
 
 /*
  * Class:     Idam
- * Method:    setIdamClientFlag
+ * Method:    udaSetClientFlag
  * Signature: (I)V
  */
 LIBRARY_API JNIEXPORT void JNICALL Java_Idam_setIdamClientFlag
@@ -52,7 +52,7 @@ LIBRARY_API JNIEXPORT void JNICALL Java_Idam_setIdamClientFlag
 
 /*
  * Class:     Idam
- * Method:    setIdamProperty
+ * Method:    udaSetProperty
  * Signature: (Ljava/lang/String;)V
  */
 LIBRARY_API JNIEXPORT void JNICALL Java_Idam_setIdamProperty
@@ -60,7 +60,7 @@ LIBRARY_API JNIEXPORT void JNICALL Java_Idam_setIdamProperty
 
 /*
  * Class:     Idam
- * Method:    getIdamProperty
+ * Method:    udaGetProperty
  * Signature: (Ljava/lang/String;)I
  */
 LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamProperty
@@ -76,7 +76,7 @@ LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamPrivateFlag
 
 /*
  * Class:     Idam
- * Method:    resetIdamClientFlag
+ * Method:    udaResetClientFlag
  * Signature: (I)V
  */
 LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamClientFlag
@@ -84,7 +84,7 @@ LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamClientFlag
 
 /*
  * Class:     Idam
- * Method:    resetIdamProperty
+ * Method:    udaResetProperty
  * Signature: (Ljava/lang/String;)V
  */
 LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamProperty
@@ -92,7 +92,7 @@ LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamProperty
 
 /*
  * Class:     Idam
- * Method:    resetIdamProperties
+ * Method:    udaResetProperties
  * Signature: ()V
  */
 LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamProperties
@@ -268,7 +268,7 @@ LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamDataStatus
 
 /*
  * Class:     Idam
- * Method:    getIdamLastHandle
+ * Method:    udaGetLastHandle
  * Signature: (I)I
  */
 LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamLastHandle

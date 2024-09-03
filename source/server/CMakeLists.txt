@@ -138,6 +138,8 @@ endif()
 set( LINK_DL )
 if( WIN32 OR MINGW )
   set( LINK_DL dlfcn-win32::dl )
+else()
+  set( LINK_DL dl )
 endif()
 
 set( LINK_M )
@@ -285,12 +287,6 @@ install(
   FILES
     ${GEN_ETC_FILES}
   DESTINATION etc
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_BINARY_DIR}/lib/pkgconfig
-  DESTINATION lib
 )
 
 install(

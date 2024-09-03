@@ -734,7 +734,11 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 break;
             }
 
-            if (data_block->data_n == 0) break;            // No Data to Receive!
+            if (data_block->data_n == 0) {
+                data_block->data_type = UDA_TYPE_UNKNOWN;
+                data_block->rank = 0;
+                break;            // No Data to Receive!
+            }
 
             if ((err = allocData(data_block)) != 0) break;        // Allocate Heap Memory
 

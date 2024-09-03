@@ -7,7 +7,7 @@ include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
 # Hack to build on GCC/12.2.0
 if( NOT WIN32 OR MINGW )
-  if ( NOT APPLE )
+  if ( NOT APPLE AND NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "IntelLLVM") )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-use-after-free -Wno-mismatched-new-delete" )
   endif()
 endif()
@@ -16,12 +16,14 @@ find_package( LibXml2 REQUIRED )
 
 if( WIN32 AND NOT MINGW )
   add_compile_definitions( MINGW )
-  add_definitions( /W2 /WX )
+  message( AUTHOR_WARNING "BEWARE: Not treating MSVC warnings as errors due to known issue compiling capnp schema" )
+  add_definitions( /W2 )
+  #add_definitions( /W2 /WX )
 else()
   add_definitions( -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers )
   if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER 5.0 )
     add_definitions( -Wno-format-truncation -Wno-format-overflow )
-    if( NOT MINGW )
+    if( NOT MINGW AND NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "IntelLLVM") )
       add_definitions( -Wno-use-after-free )
     endif()
   endif()
@@ -42,7 +44,7 @@ add_subdirectory( authentication )
 add_subdirectory( structures )
 add_subdirectory( clientserver )
 add_subdirectory( client )
-#add_subdirectory( client2 )
+add_subdirectory( client2 )
 if( ENABLE_CAPNP )
   add_compile_definitions( CAPNP_ENABLED=1 )
   add_subdirectory( serialisation )
@@ -54,7 +56,7 @@ endif()
 
 if( NOT CLIENT_ONLY )
   add_subdirectory( server )
-#  add_subdirectory( server2 )
+  add_subdirectory( server2 )
   add_subdirectory( plugins )
 endif()
 
@@ -133,6 +135,12 @@ foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
   )
 endforeach()
 
+install(
+  DIRECTORY
+    ${CMAKE_BINARY_DIR}/lib/pkgconfig
+  DESTINATION lib
+)
+
 find_program( XINETD_EXE xinetd PATHS /usr/sbin/ /usr/local/sbin/ )
 
 configure_file(
@@ -146,3 +154,23 @@ install(
   DESTINATION etc
   PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 )
+
+set( SERVICE_FILES
+  uda.socket
+  uda@.service
+)
+
+foreach( SERVICE_FILE ${SERVICE_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/source/etc/${SERVICE_FILE}.in"
+    "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+    @ONLY
+  )
+
+  install(
+    FILES "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+    DESTINATION etc
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+  )
+endforeach()
+

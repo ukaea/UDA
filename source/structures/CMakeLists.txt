@@ -11,6 +11,10 @@ else()
 endif()
 
 find_package( LibXml2 REQUIRED )
+if ( WIN32 )
+    find_package( Iconv REQUIRED )
+    message( "ICONV INCLUDE DIR: ${Iconv_INCLUDE_DIR}" )
+endif()
 
 ########################################################################################################################
 # Sources
@@ -28,7 +32,7 @@ include_directories(
 )
 
 if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
+  include_directories( ${XDR_INCLUDE_DIR} ${Iconv_INCLUDE_DIR} )
 #  add_compile_options( -Wno-error=use-after-free )
 elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )

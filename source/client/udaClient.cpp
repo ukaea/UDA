@@ -125,7 +125,7 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
 
         if (data != nullptr) {
             // Success
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = udaGetNewDataHandle();
 
             if (data_block_idx < 0) {            // Error
                 return -data_block_idx;
@@ -163,7 +163,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
 
         if (data != nullptr) {
             // Success
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = udaGetNewDataHandle();
 
             if (data_block_idx < 0) {            // Error
                 return -data_block_idx;
@@ -544,8 +544,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
 #  if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         // Create the SSL binding and context, and verify the server certificate
-        if ((err = startUdaClientSSL()) != 0) {
-            break;
+        if (initServer) {
+            if ((err = startUdaClientSSL()) != 0) {
+                break;
+            }
         }
 #  endif
 
@@ -584,11 +586,15 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         updateClientBlock(&client_block, client_flags, *private_flags); // Allows User to Change Properties at run-time
 
         // Operating System Name
-
+#ifndef _MSC_VER
         if ((env = getenv("OSTYPE")) != nullptr) {
             strcpy(client_block.OSName, env);
         }
-
+#else
+        if ((env = getenv("OS")) != nullptr) {
+            strcpy(client_block.OSName, env);
+        }
+#endif
         // Client's study DOI
 
         if ((env = getenv("UDA_CLIENT_DOI")) != nullptr) {
@@ -937,7 +943,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             //------------------------------------------------------------------------------
             // Allocate memory for the Data Block Structure
             // Re-use existing stale Data Blocks
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = udaGetNewDataHandle();
 
             if (data_block_idx < 0) {            // Error
                 data_block_indices[i] = -data_block_idx;
@@ -1015,7 +1021,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         for (int i = 0; i < data_block_list0.count; ++i) {
             DATA_BLOCK* data_block0 = &data_block_list0.data[i];
 
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = udaGetNewDataHandle();
             DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx); // data blocks may have been realloc'ed
             copyDataBlock(data_block, data_block0);
 
@@ -1433,9 +1439,7 @@ void udaFreeAll()
     uda::cache::free_cache();
 #endif
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-
-    for (int i = 0; i < acc_getCurrentDataBlockIndex(client_flags); ++i) {
+    for (int i = 0; i < udaGetCurrentDataBlockIndex(); ++i) {
 #ifndef FATCLIENT
         freeDataBlock(getIdamDataBlock(i));
 #else
@@ -1501,9 +1505,11 @@ void putIdamThreadClientBlock(CLIENT_BLOCK* str)
     client_block = *str;
 }
 
-CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags)
-{    // save current state of properties for future rollback
+CLIENT_BLOCK udaSaveProperties()
+{    
+    // save current state of properties for future rollback
     CLIENT_BLOCK cb = client_block;      // Copy of Global Structure (maybe not initialised! i.e. idam API not called)
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     cb.get_datadble = client_flags->get_datadble;      // Copy individual properties only
     cb.get_dimdble = client_flags->get_dimdble;
     cb.get_timedble = client_flags->get_timedble;
@@ -1521,8 +1527,9 @@ CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags)
     return cb;
 }
 
-void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags)
-{         // Restore Properties to a prior saved state
+void udaRestoreProperties(CLIENT_BLOCK cb)
+{         
+    // Restore Properties to a prior saved state
     client_block.get_datadble = cb.get_datadble;     // Overwrite Individual Global Structure Components
     client_block.get_dimdble = cb.get_dimdble;
     client_block.get_timedble = cb.get_timedble;
@@ -1536,6 +1543,7 @@ void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags)
     client_block.clientFlags = cb.clientFlags;
     client_block.altRank = cb.altRank;
 
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->get_datadble = client_block.get_datadble;
     client_flags->get_dimdble = client_block.get_dimdble;
     client_flags->get_timedble = client_block.get_timedble;

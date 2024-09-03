@@ -4,6 +4,9 @@
 #ifdef _WIN32
 #  include <cctype>
 #  include <winsock2.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
+#  ifdef _MSC_VER
+#    define strncasecmp _strnicmp
+#  endif
 #endif
 
 #include "connection.h"
