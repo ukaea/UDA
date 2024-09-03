@@ -4,7 +4,7 @@ requires = [
     "oldest-supported-numpy; python_version < '3.13'",
     "numpy >=1.7, <2; python_version >= '3.13'",
     "Cython>=0.29",
-    "six",
+    "six"
 ]
 build-backend = "setuptools.build_meta"
 
