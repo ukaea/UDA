@@ -232,7 +232,7 @@ xdr_double(xdrs, dp)
 		id.sign = vd.sign;
 		lp = (long *)(void *)&id;
 #endif
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
+#if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_WIN32) 
 		return (XDR_PUTLONG(xdrs, lp+1) && XDR_PUTLONG(xdrs, lp));
 #else
 		return (XDR_PUTLONG(xdrs, lp++) && XDR_PUTLONG(xdrs, lp));
@@ -241,7 +241,7 @@ xdr_double(xdrs, dp)
 	case XDR_DECODE:
 #if !defined(vax)
 		lp = (long *)dp;
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
+#if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_WIN32) 
 		return (XDR_GETLONG(xdrs, lp+1) && XDR_GETLONG(xdrs, lp));
 #else
 		return (XDR_GETLONG(xdrs, lp++) && XDR_GETLONG(xdrs, lp));

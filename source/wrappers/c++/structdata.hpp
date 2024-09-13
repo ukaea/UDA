@@ -35,6 +35,8 @@ public:
         std::string tname = typeid(T).name();
 #ifdef __GNUC__
         std::string demangled_name(abi::__cxa_demangle(tname.c_str(), nullptr, nullptr, &status));
+#elif _MSC_VER && !__INTEL_COMPILER
+        std::string demangled_name = tname;
 #else
         char demangled[1024];
         UnDecorateSymbolName(tname, demangled, sizeof(demangled), UNDNAME_COMPLETE);

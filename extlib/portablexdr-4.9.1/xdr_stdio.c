@@ -54,7 +54,7 @@ static char sccsid[] = "@(#)xdr_stdio.c 1.16 87/08/11 Copyr 1984 Sun Micro";
 
 #include "byteswap.h"
 
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
+#if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_WIN32) 
 #include <stdlib.h>
 #include <fcntl.h>
 unsigned int _CRT_fmode = _O_BINARY;
