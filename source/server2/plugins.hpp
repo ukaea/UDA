@@ -54,6 +54,10 @@ class Plugins
     [[nodiscard]] std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> find_by_name(const std::string& name) const;
     [[nodiscard]] boost::optional<const uda::client_server::PluginData&> find_by_id(size_t id) const;
 
+#if UDA_TEST
+    void add_plugin(client_server::PluginData&& plugin) { _plugins.emplace_back(std::move(plugin)); }
+#endif
+
   private:
     const config::Config& _config;
     std::vector<client_server::PluginData> _plugins;

@@ -1464,16 +1464,13 @@ void parse_name_value(const char* pair, NameValue* nameValue, unsigned short str
         nameValue->name = (char*)malloc(lstr * sizeof(char));
         if (copy[0] == '/') {
             strcpy(nameValue->name, &copy[1]); // Ignore leader forward slash
-            lstr = 5;
-            nameValue->value = (char*)malloc(lstr * sizeof(char));
-            strcpy(nameValue->value, "true");
-            UDA_LOG(UDA_LOG_DEBUG, "Placeholder name: {}, value: {}", nameValue->name, nameValue->value)
         } else {
             strcpy(nameValue->name, copy);
-            nameValue->value = (char*)malloc(lstr * sizeof(char));
-            strcpy(nameValue->value, copy);
-            UDA_LOG(UDA_LOG_DEBUG, "Placeholder value: {}", nameValue->name);
         }
+        lstr = 5;
+        nameValue->value = (char*)malloc(lstr * sizeof(char));
+        strcpy(nameValue->value, "true");
+        UDA_LOG(UDA_LOG_DEBUG, "Placeholder name: {}, value: {}", nameValue->name, nameValue->value)
     }
     left_trim_string(nameValue->name);
     left_trim_string(nameValue->value);

@@ -86,6 +86,20 @@ if( ( WIN32 AND MINGW ) OR NOT WIN32 )
   set( LINK_M m )
 endif()
 
+add_executable( server_tests server_tests.cpp )
+target_include_directories( server_tests PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_BINARY_DIR}/include
+)
+target_link_libraries( server_tests PRIVATE
+  Boost::boost
+  OpenSSL::SSL
+  ${LIBRARIES}
+  server2-static
+)
+target_compile_definitions( server_tests PRIVATE UDA_TEST )
+
 macro( BUILD_TEST NAME SOURCE )
   set( LINK_PROJECT ${PROJECT_NAME}_cpp-static )
   if( BUILD_SHARED_LIBS )

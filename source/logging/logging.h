@@ -34,8 +34,13 @@ void set_log_stdout(LogLevel mode);
 void set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode);
 
 template<typename... Args>
-void log(LogLevel mode, const char* file, int line, const std::string& fmt, Args &&...args)
+void log(LogLevel mode, const char* file, int line, const std::string_view fmt, Args &&...args)
 {
+    auto log_level = spdlog::get_level();
+    if (log_level == spdlog::level::off) {
+        return;
+    }
+
     std::shared_ptr<spdlog::logger> logger;
     spdlog::level::level_enum level;
 
@@ -74,7 +79,7 @@ void log(LogLevel mode, const char* file, int line, const std::string& fmt, Args
     if (mode == LogLevel::UDA_LOG_ERROR) {
         spdlog::get("debug")->log(loc, level, fmt, args...);
     }
-    logger->flush();
+//    logger->flush();
 }
 
 } // namespace uda::logging

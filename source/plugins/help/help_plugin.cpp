@@ -33,7 +33,7 @@ class HelpPlugin : public UDAPluginBase
 };
 
 HelpPlugin::HelpPlugin()
-    : UDAPluginBase("HELP", 1, "read", boost::filesystem::path(__FILE__).parent_path().append("help.txt").string())
+    : UDAPluginBase("HELP", 1, "ping", boost::filesystem::path(__FILE__).parent_path().append("help.txt").string())
 {
     register_method("ping", static_cast<UDAPluginBase::plugin_member_type>(&HelpPlugin::ping));
     register_method("services", static_cast<UDAPluginBase::plugin_member_type>(&HelpPlugin::services));

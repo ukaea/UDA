@@ -35,7 +35,7 @@ class Server
     LIBRARY_API Server(config::Config config);
     LIBRARY_API void run();
 
-  private:
+  protected:
     void shutdown();
     void initialise();
     void connect(int socket_fd);
