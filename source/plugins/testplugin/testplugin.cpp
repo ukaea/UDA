@@ -453,6 +453,8 @@ int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 
 int TestPlugin::test9(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
+    init_structure_definitions(plugin_interface);
+
     // Create Data
 
     TEST9* data = (TEST9*)malloc(4 * sizeof(TEST9)); // Structured Data Must be a heap variable
@@ -1340,6 +1342,7 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     test32_fields[0] = udaNewCompoundField("count", "int structure element", &offset, UDA_TYPE_INT, 0, nullptr);
     int shape[1] = {100};
+    offset = offsetof(TEST32, coords);
     test32_fields[1] = udaNewCompoundUserTypeArrayField("coords", "structure TEST32A", &offset, test32a_type, 1, shape);
 
     USERDEFINEDTYPE* test32_type =
@@ -1352,8 +1355,9 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
     TEST32* data = (TEST32*)malloc(data_n * sizeof(TEST32)); // Structured Data Must be a heap variable
     udaRegisterMalloc(plugin_interface, (void*)data, data_n, sizeof(TEST32), "TEST32");
 
-    constexpr int field_count = 2;
+    constexpr int field_count = 100;
 
+    memset(data, '\0', sizeof(TEST32));
     data->count = field_count;
 
     for (int i = 0; i < field_count; i++) {
@@ -1397,6 +1401,7 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
     test33_fields[0] = udaNewCompoundField("count", "int structure element", &offset, UDA_TYPE_INT, 0, nullptr);
 //    int shape[1] = {100};
 //    test33_fields[1] = udaNewCompoundUserTypeArrayField("coords", "structure TEST33A", &offset, test33a_type, 1, shape);
+    offset = offsetof(TEST33, coords);
     test33_fields[1] = udaNewCompoundUserTypePointerField("coords", "structure TEST33A", &offset, test33a_type);
 
     USERDEFINEDTYPE* test33_type =
@@ -1442,7 +1447,9 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test34a_fields[2] = {nullptr};
     int offset = 0;
 
+    offset = offsetof(TEST34A, R);
     test34a_fields[0] = udaNewCompoundPointerField("R", "unsigned char structure element", &offset, UDA_TYPE_UNSIGNED_CHAR, false);
+    offset = offsetof(TEST34A, Z);
     test34a_fields[1] = udaNewCompoundPointerField("Z", "unsigned char structure element", &offset, UDA_TYPE_UNSIGNED_CHAR, false);
 
     USERDEFINEDTYPE* test34a_type =
@@ -1457,7 +1464,9 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD* test34_fields[2] = {nullptr};
     offset = 0;
 
+    offset = offsetof(TEST34, count);
     test34_fields[0] = udaNewCompoundField("count", "int structure element", &offset, UDA_TYPE_INT, 0, nullptr);
+    offset = offsetof(TEST34, coords);
     test34_fields[1] = udaNewCompoundUserTypePointerField("coords", "structure TEST34A", &offset, test34a_type);
 
     USERDEFINEDTYPE* test34_type =

@@ -923,7 +923,7 @@ void defineField(CompoundField* field, const char* name, const char* desc, int r
     copy_string(TypeNamer<T>::Name, field->type, MAXELEMENTNAME);
     if (is_pointer) {
         if (!is_scalar) {
-            strcat(field->type, "*");
+            strcat(field->type, " *");
         }
         field->count = 1;
         field->rank = 0;

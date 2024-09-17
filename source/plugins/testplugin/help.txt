@@ -44,4 +44,4 @@ test60-62: ENUMLIST structures
 
 plugin: test calling other plugins
 
-error: Error reporting and server termination tests;
+error: Error reporting and server termination tests
