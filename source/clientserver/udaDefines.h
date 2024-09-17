@@ -128,7 +128,7 @@ extern "C" {
 
 #if defined(_WIN32)
 #  if !defined(__MINGW32__)
-LIBRARY_API int gettimeofday(struct timeval* tp, struct timezone* tzp);
+    LIBRARY_API int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #  endif
 #endif
 

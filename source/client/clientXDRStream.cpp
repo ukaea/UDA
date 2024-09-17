@@ -25,7 +25,7 @@ std::pair<XDR*, XDR*> clientCreateXDRStream()
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     if (getUdaClientSSLDisabled()) {
     
-#if defined (__APPLE__) || defined(__TIRPC__)
+#if defined (__APPLE__) || defined(__TIRPC__) || defined(_WIN32)
        xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
                      reinterpret_cast<int (*)(void *, void *, int)>(clientReadin),
                      reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
@@ -43,7 +43,7 @@ std::pair<XDR*, XDR*> clientCreateXDRStream()
                      reinterpret_cast<int (*)(char *, char *, int)>(clientWriteout));
 #endif    
     } else {
-#if defined (__APPLE__) || defined(__TIRPC__)
+#if defined (__APPLE__) || defined(__TIRPC__) || defined(_WIN32)
        xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
                      reinterpret_cast<int (*)(void *, void *, int)>(readUdaClientSSL),
                      reinterpret_cast<int (*)(void *, void *, int)>(writeUdaClientSSL));
@@ -63,7 +63,7 @@ std::pair<XDR*, XDR*> clientCreateXDRStream()
     }
 #else
 
-#if defined (__APPLE__) || defined(__TIRPC__)
+#if defined (__APPLE__) || defined(__TIRPC__) || defined(_WIN32)
     xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
                   reinterpret_cast<int (*)(void *, void *, int)>(clientReadin),
                   reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));

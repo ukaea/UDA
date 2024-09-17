@@ -1173,7 +1173,8 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
                     // job done!
 
                     data_block->source_status = data_source->status;
-                    data_block->signal_status = signal_rec->status;
+	/*in case of CODAC, we are setting information on the signal_status of data_block, so with thic echk, our status is removed which causes some failures in our client. Need to be kept as it or provide another way to stor this information and send it to client, indicates if there are more chunks available to fetch, if file is open and growing, new data can come, everything is ok */
+                   if(data_block->signal_status == 1) { data_block->signal_status = signal_rec->status; }
 
                     return 0;
                 }

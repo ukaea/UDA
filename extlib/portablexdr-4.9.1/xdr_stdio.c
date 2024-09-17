@@ -54,7 +54,7 @@ static char sccsid[] = "@(#)xdr_stdio.c 1.16 87/08/11 Copyr 1984 Sun Micro";
 
 #include "byteswap.h"
 
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
+#if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_WIN32) 
 #include <stdlib.h>
 #include <fcntl.h>
 unsigned int _CRT_fmode = _O_BINARY;
@@ -90,7 +90,7 @@ static struct xdr_ops	xdrstdio_ops = {
  */
 void
 xdrstdio_create(xdrs, file, op)
-	XDR *xdrs;
+	register XDR *xdrs;
 	FILE *file;
 	enum xdr_op op;
 {
@@ -108,7 +108,7 @@ xdrstdio_create(xdrs, file, op)
  */
 static void
 xdrstdio_destroy(xdrs)
-	XDR *xdrs;
+	register XDR *xdrs;
 {
 	(void)fflush((FILE *)xdrs->x_private);
 	/* xx should we close the file ?? */
@@ -117,7 +117,7 @@ xdrstdio_destroy(xdrs)
 static bool_t
 xdrstdio_getlong(xdrs, lp)
 	XDR *xdrs;
-	long *lp;
+	register long *lp;
 {
 
 	if (fread((caddr_t)lp, sizeof(long), 1, (FILE *)xdrs->x_private) != 1)

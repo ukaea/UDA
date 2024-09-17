@@ -28,6 +28,11 @@ if( CMAKE_VERSION VERSION_GREATER 3.12 )
   cmake_policy( SET CMP0075 OLD )
 endif()
 
+if( CMAKE_VERSION VERSION_GREATER 3.30 )
+    cmake_policy( SET CMP0167 NEW )
+    cmake_policy( SET CMP0057 NEW )
+endif()
+
 # Extra cmake modules to find libraries
 set( CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
@@ -79,7 +84,11 @@ if( CMAKE_VERSION VERSION_GREATER 3.0.9 )
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17" )
   else()
-    set( CMAKE_CXX_STANDARD 17 )
+    if( WIN32 AND MSVC )
+        set( CMAKE_CXX_STANDARD 20 )
+    else()
+        set( CMAKE_CXX_STANDARD 17 )
+    endif()
     set( CMAKE_CXX_STANDARD_REQUIRED ON )
     # C++ extension = OFF to use STD instead GNU
     set( CMAKE_CXX_EXTENSIONS OFF )
@@ -123,7 +132,7 @@ add_definitions(
 )
 
 if( WIN32 OR MINGW )
-  add_definitions( -D_CRT_SECURE_NO_WARNINGS )
+  add_definitions( -D_CRT_SECURE_NO_WARNINGS -DNOMINMAX )
   set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
   set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".dll.lib" ".a" ".lib" )
   if( MINGW )
@@ -160,6 +169,7 @@ option( NO_PYTHON_WRAPPER "Don't build Python wrapper" OFF )
 option( NO_JAVA_WRAPPER "Don't build Java wrapper" OFF )
 option( NO_IDL_WRAPPER "Don't build IDL wrapper" OFF )
 option( FAT_IDL "Build IDL wrapper using fat-client" OFF )
+option( NO_CLI "Don't build UDA CLI" OFF )
 
 if( SERVER_ONLY )
   if( CLIENT_ONLY OR NO_WRAPPERS OR FAT_IDL )
