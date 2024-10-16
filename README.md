@@ -13,10 +13,6 @@ See LICENCE.txt for details.
 
 ## Getting UDA
 
-UDA binaries can be downloaded from:
-
-    <url>
-
 The source code can be downloaded from:
 
     https://github.com/ukaea/UDA/releases/
@@ -25,7 +21,17 @@ The UDA git repository can be cloned:
 
     git clone git@github.com:ukaea/UDA.git
 
-## Building from source
+## Getting the UDA client
+
+The easiest way to obtain the client is to pip install the python wrapper (pyuda), wheels are uploaded for every tagged release from version 2.7.6. Further details are available on [pypi](https://pypi.org/project/uda/).
+
+```sh
+pip install uda
+```
+
+For any other use cases please see the documentation to build from source [here](https://ukaea.github.io/UDA/client_installation/).
+
+## Building UDA Server from source
 
 ### Dependencies
 
@@ -46,87 +52,6 @@ UDA requires the following to avail in order to build:
 | netcdf | | netcdf plugin |
 | MDSplus | | MDS+ plugin |
 
-#### Windows
-
-> Note: If you want to use Visual Studio 2019 to compile UDA, please refer to sections [Visual Studio](#visual-studio) and [vcpkg](#vcpkg) below
-
-Building extlibs (running in Powershell):
-
-    cd extlib
-    mkdir build
-    cd build
-    cmake.exe .. -G"MinGW Makefiles" -DBUILD_SHARED_LIBS=ON
-    mingw32-make.exe
-    cd ..
-    .\install.bat
-
-Building extlibs (running in MinGW64 Shell):
-
-    cd extlib/portablexdr-4.9.1
-    ./configure
-    make
-    cd ..
-    ./install.sh
-
-Building extlibs (running in VS2019 x64 Native Tools):
-
-    cd extlib
-    mkdir build
-    cd build
-    cmake.exe .. -G"Visual Studio 16 2019"
-    msbuild.exe ALL_BUILD.vcxproj /p:configuration=release /p:platform=x64
-    cd ..
-    install.bat
-
-Tested and built on Windows 10 (built using MinGW 64-bit, running in Powershell):
-
-    mkdir build
-    cd build
-    ..\scripts\cmake-win.bat
-    mingw32-make.exe
-    mingw32-make.exe install
-
-Tested and built on Windows 10 (built using MinGW 64-bit, running in MinGW64 Shell):
-
-    mkdir build
-    cd build
-    cmake .. -G"Unix Makefiles" -DBUILD_SHARED_LIBS=ON -DTARGET_TYPE=OTHER
-    make
-    make install
-
-Tested and built on Windows 10 (built using VS2019 x64 Native Tools):
-
-    mkdir build
-    cd build
-    cmake.exe .. -G"Visual Studio 16 2019" -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake" -DNO_MODULES=ON -DTARGET_TYPE=OTHER -DBUILD_SHARED_LIBS=ON
-    msbuild ALL_BUILD.vcxproj /p:configuration=release /p:platform=x64
-    msbuild INSTALL.vcxproj /p:configuration=release /p:platform=x64
-
-Running Python client:
-
-    $python_dir = (Get-Item (Get-Command python).Source).DirectoryName
-    rm $python_dir\Lib\site-packages\pyuda
-    copy -Recurse .\include\pyuda  $python_dir\Lib\site-packages\
-    cp .\extlib\lib\libxdr.dll $python_dir\Lib\site-packages\pyuda\
-    
-    Set-Item -Path env:UDA_HOST -Value "idam3.mast.ccfe.ac.uk"
-    Set-Item -Path env:UDA_HOST -Value "56565"
-    python
-
-#### CentOS
-
-Packages needed for CentOS
-
-    $ LANG=C sudo yum -y groupinstall 'Development Tools'
-    $ sudo yum -y install openssl-devel boost-devel swig-devel python-devel \
-      postgresql-devel libxml2-devel gsl-devel libgcrypt-devel bzip2-devel \
-      java-1.8.0-openjdk-devel
-
-#### Ubuntu
-
-    sudo apt-get install git python3-dev libssl-dev libboost-dev python3-numpy python3-matplotlib
-
-#### OSX
 
 ### Running cmake configuration
 
