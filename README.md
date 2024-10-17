@@ -41,103 +41,47 @@ UDA requires the following to avail in order to build:
 | --- | --- | --- |
 | cmake | \> 3.0 | |
 | OpenSSL | | |
-| PostgreSQL | | |
 | LibXml2 | | |
-| LibMemcached | | to enable caching |
-| swig  | 3.0.0 | Python & HTTP wrappers |
-| python | \> 3.0 | Python & HTTP wrappers |
+| libfmt | | |
+| spdlog | | |
+| capnproto | | |
 | boost | | C++, Python & HTTP wrappers |
-| java | | Java wrapper |
-| hdf5 |  | hdf5 plugin |
-| netcdf | | netcdf plugin |
-| MDSplus | | MDS+ plugin |
+| LibMemcached | | to enable caching |
+| python | \> 3.0 | Python wrapper |
 
+An example installation for ubuntu 22.10 would be as follows.
 
-### Running cmake configuration
+Start by install all system-level dependencies.
+```sh
+sudo apt update && sudo apt install -y
+git
+libboost-dev
+libboost-program-options-dev
+libssl-dev
+cmake
+build-essential
+pkg-config
+libxml2-dev
+libspdlog-dev
+ninja-build
+capnproto
+libcapnp-dev
+python3-dev
+python3-pip
+python3-venv
+```
 
-To configure the UDA build you first need to run cmake:
+Configure the cmake project.
+```sh
+cmake -G Ninja -B build . \
+-DBUILD_SHARED_LIBS=ON \
+-DSSLAUTHENTICATION=ON \
+-DCLIENT_ONLY=OFF \
+-DENABLE_CAPNP=ON \
+-DCMAKE_INSTALL_PREFIX=install
+```
 
-    cmake -B<build_dir> -H. -DTARGET_TYPE:STRING=<target>
+```sh
+cmake --build build -j --config Release --target install
+```
 
-Where `<build_dir>` is the build directory to create and `<target>` is the target specific configuration to use. The
-different targets available are `MAST`, `ITER` and `OTHER`. These are available in the `cmake/Config` directory with
-the file name `target-<target>.cmake`. To add a new target simply copy one of these files and rename to the desired target name.
-
-An example configuration command is:
-
-    cmake -Bbuild -H. -DTARGET_TYPE:STRING=OTHER
-
-By default UDA will configure to build in client-server mode with both the client and server being built.
-
-To only build the client use:
-
-    cmake -DCLIENT_ONLY:BOOL=TRUE ...
-
-To build UDA in fat-client mode use:
-
-    cmake -DFAT_BUILD:BOOL=TRUE ...
-
-### Building
-
-    make -C <build_dir>
-
-### Installing
-
-    make -C <build_dir> install
-
-### Packaging
-
-On Linux system:
-
-    make -C <build_dir> package
-
-On Windows system (MinGW):
-
-    make -C <build_dir> package
-
-On Windows system (VS2019):
-
-    msbuild.exe INSTALL.vcxproj /p:configuration=release /p:platform=x64
-
-## Visual Studio
-
-UDA can be compiled with Visaul Studio 2019.
-To do that, Vidual Studio need to be iunstalled witrh at least the following packages:
-
-- C++ Desktop development tools
-- CMake tools
-- Python 3.7
-- MFC and ATL libraries
-- English language pack (even if you choose another language)
-- Windows 10 SDK v10.0.17134.0
-
-## vcpkg
-
-vcpkg if a library manager designed by Microsoft to procure standard libraries for Visual Studio.
-
-It supports CMake toolchain, easily usable with UDA CMakeList.txt files.
-
-To use vcpkg, follow theses steps:
-
-    git clone https://github.com/Microsoft/vcpkg
-    cd vcpkg
-    bootstrap-vcpkg.bat
-
-After that, vcpkg tool is ready to acquire libraries.
-For UDA, severals libraries are mandatory, the following command download, compile and install them :
-
-    vcpkg install libxml2:x64-windows openssl:x64-windows boost:x64-windows python3:x64-windows dlfcn-win32:x64-windows libpq:x64-windows netcdf-c:x64-windows blitz:x64-windows
-
-## Other Notes
-
-Ninja installation for CentOS:
-
-    git clone https://github.com/ninja-build/ninja.git
-
-    cd ninja
-    ./configure.py --bootstrap
-    export PATH="${HOME}/ninja:${PATH}"
-
-Add the following to your .bashrc file:
-
-    export PYTHONPATH=/usr/local/include
