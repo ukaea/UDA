@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Installing a UDA client
+nav_order: 3
 ---
 
 # UDA client installation
