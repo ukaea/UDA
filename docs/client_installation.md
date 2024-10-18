@@ -14,7 +14,7 @@ The UDA client is a C library which exposes a number of API functions for reques
 There are a number of client wrappers which provide an UDA interface in different programming languages, such as Python and C++, 
 often with a more user-friendly, object-oriented layer over the basic C-API.
 
-In general the underlying UDA client library must be fully built and then any number of additional language wrappers can 
+In general, the underlying UDA client library must be fully built and then any number of additional language wrappers can 
 be built on-top. With the exception on the python wrapper, building any additional wrappers is completely handled by the 
 project CMake configuration. It's worth noting, however, that pre-built Docker images or python wheels may already be 
 available for your platform. 
