@@ -4,6 +4,9 @@
 #ifdef _WIN32
 #  include <cctype>
 #  include <winsock2.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
+#  ifdef _MSC_VER
+#    define strncasecmp _strnicmp
+#  endif
 #endif
 
 #include "connection.h"
@@ -81,6 +84,8 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
     int clientSocket0 = client_socket;
     XDR* clientInput0 = *client_input;
     XDR* clientOutput0 = *client_output;
+	int proto_version=environment->protocol_version;
+	int server_version=environment->server_version;
 
     // Identify the current Socket connection in the Socket List
 
@@ -99,6 +104,8 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
             time(tv_server_start);                     // Start a New Server AGE timer
             client_socket = -1;                          // Flags no Socket is open
             environment->server_change_socket = 0;      // Client doesn't know the Socket ID so disable
+			environment->protocol_version=-1;
+			environment->server_version = 0;
         }
     }
 
@@ -124,6 +131,8 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
         environment->server_socket = client_socketlist.sockets[newsocketId].fh;
         environment->server_port = client_socketlist.sockets[newsocketId].port;
         strcpy(environment->server_host, client_socketlist.sockets[newsocketId].host);
+		environment->protocol_version = client_socketlist.sockets[newsocketId].protocol_version;
+		environment->server_version = client_socketlist.sockets[newsocketId].server_version;
     }
 
     // save Previous data if a previous socket existed
@@ -134,6 +143,8 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
         client_socketlist.sockets[socketId].fh = clientSocket0;
         client_socketlist.sockets[socketId].Input = clientInput0;
         client_socketlist.sockets[socketId].Output = clientOutput0;
+		client_socketlist.sockets[socketId].protocol_version=proto_version;
+		client_socketlist.sockets[socketId].server_version=server_version;
     }
 
     return err;
@@ -200,7 +211,7 @@ void setHints(struct addrinfo* hints, const char* hostname)
     }
 }
 
-int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_start, int user_timeout)
+int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_start, int user_timeout, int client_version)
 {
     int window_size = DB_READ_BLOCK_SIZE;        // 128K
     int rc;
@@ -534,9 +545,13 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Output = client_output;
 	client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].user_timeout = user_timeout;
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].tv_server_start = *tv_server_start;
+	client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].protocol_version = client_version;
+	client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].server_version = 0;
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = client_socket;
+	environment->protocol_version=client_version;
+	environment->server_version=0;
 
     // Write the socket number to the SSL functions
 

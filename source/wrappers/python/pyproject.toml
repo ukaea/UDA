@@ -29,8 +29,8 @@ classifiers = [
     'Programming Language :: Python :: 3 :: Only',
     'Operating System :: POSIX :: Linux',
     'Operating System :: MacOS :: MacOS X',
+    'Operating System :: Microsoft :: Windows',
 ]
-
 
 [project.optional-dependencies]
 plot = ["pyplot"]

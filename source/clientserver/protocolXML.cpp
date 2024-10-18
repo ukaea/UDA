@@ -75,6 +75,15 @@
 #  include "xdrHData.h"
 #endif
 
+#if _MSC_VER && !__INTEL_COMPILER
+    #include <io.h>
+    int mkstemp(char* template_str)
+    {
+        auto len = strlen(template_str) + 1;
+        return _mktemp_s(template_str, len);
+    }
+#endif
+
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
                 LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags, int malloc_source,

@@ -41,6 +41,8 @@ typedef struct Sockets {
     time_t tv_server_start; // Server Startup Clock Time
     XDR* Input;             // Client Only XDR input Stream;
     XDR* Output;            // Client Only XDR Output Stream;
+	int protocol_version;
+	int server_version;
 } SOCKETS;
 
 typedef struct SocketList {

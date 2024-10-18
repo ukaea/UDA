@@ -12,7 +12,7 @@ extern "C" {
 #ifdef UDA_CLIENT_FLAGS_API
 // #warning "Using legacy API names with redundant \"client_flags\" arguments, these will be deprecated in future"
 
-       LIBRARY_API inline DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags)
+     LIBRARY_API inline DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags)
     {
         return udaGetCurrentDataBlock();
     }
@@ -59,7 +59,7 @@ extern "C" {
 
     LIBRARY_API inline void resetIdamProperties(CLIENT_FLAGS* client_flags)
     {
-    udaResetProperties();
+        udaResetProperties();
     }
 
     CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags)
@@ -141,7 +141,7 @@ extern "C" {
 
     LIBRARY_API inline void resetIdamProperties()
     {
-    udaResetProperties();
+        udaResetProperties();
     }
 
     LIBRARY_API inline CLIENT_BLOCK saveIdamProperties()

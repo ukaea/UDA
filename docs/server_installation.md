@@ -1,13 +1,14 @@
 ---
 layout: default
 title: Server Installation
+nav_order: 4
 ---
 
 ## Prerequisites
 
 | Name              | Minimum Version          |
 |-------------------|--------------------------|
-| C++ compiler      | c++11 compliant compiler |
+| C++ compiler      | c++17 compliant compiler |
 | CMake             | 3.0                      |
 | Boost             | 1.65                     |
 | OpenSSL version 1 | 1.1                      |
@@ -17,7 +18,7 @@ title: Server Installation
 
 ## Supported OSs
 
-UDA has been build on Linux, macOS and Windows.
+The UDA server can been build on Linux and macOS. Note that the server will not run on Windows; only the client installation is supported. 
 
 ## Builing UDA
 

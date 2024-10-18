@@ -7,6 +7,10 @@
 #include "accAPI.h"
 #include "exceptions.hpp"
 
+#ifdef _WIN32
+#  include "windows_defines.hpp"
+#endif
+
 #include <clientserver/udaDefines.h>
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>

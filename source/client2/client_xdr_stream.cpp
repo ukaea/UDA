@@ -24,7 +24,7 @@ std::pair<XDR*, XDR*> uda::client::createXDRStream(IoData* io_data)
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     if (getUdaClientSSLDisabled()) {
-#if defined (__APPLE__) || defined(__TIRPC__)
+#if defined (__APPLE__) || defined(__TIRPC__) || defined(_WIN32)
        xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
                      reinterpret_cast<int (*)(void *, void *, int)>(uda::client::readin),
                      reinterpret_cast<int (*)(void *, void *, int)>(uda::client::writeout));
@@ -42,7 +42,7 @@ std::pair<XDR*, XDR*> uda::client::createXDRStream(IoData* io_data)
                      reinterpret_cast<int (*)(char *, char *, int)>(uda::client::writeout));
 #endif    
     } else {
-#if defined (__APPLE__) || defined(__TIRPC__)
+#if defined (__APPLE__) || defined(__TIRPC__) || defined(_WIN32)
        xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
                      reinterpret_cast<int (*)(void *, void *, int)>(readUdaClientSSL),
                      reinterpret_cast<int (*)(void *, void *, int)>(writeUdaClientSSL));
@@ -62,7 +62,7 @@ std::pair<XDR*, XDR*> uda::client::createXDRStream(IoData* io_data)
     }
 #else
 
-#if defined (__APPLE__) || defined(__TIRPC__)
+#if defined (__APPLE__) || defined(__TIRPC__) || defined(_WIN32)
     xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
                   reinterpret_cast<int (*)(void *, void *, int)>(uda::client::readin),
                   reinterpret_cast<int (*)(void *, void *, int)>(uda::client::writeout));
