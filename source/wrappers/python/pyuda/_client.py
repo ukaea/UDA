@@ -53,7 +53,12 @@ class Client(with_metaclass(ClientMeta, object)):
     """
     __metaclass__ = ClientMeta
 
-    def __init__(self, debug_level=logging.ERROR):
+    def __init__(self, server=None, port=None, debug_level=logging.ERROR):
+        if server is not None:
+            self.__class__.server = server
+        if port is not None:
+            self.__class__.port = port
+            
         self.version = __version__
         assert self.version == cpyuda.get_build_version().decode(), "mismatching pyuda and c-library versions"
 
