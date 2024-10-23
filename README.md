@@ -9,7 +9,11 @@ remote server, or as fat-client API where both the client access and plugin func
 
 ## Licence
 
-See LICENCE.txt for details.
+UDA is licenced under an Apache 2.0 licence. See [LICENCE.txt](https://github.com/ukaea/UDA/blob/main/LICENCE.txt) for details.
+
+## documentation
+
+See the github pages for current [Docs](https://ukaea.github.io/UDA/)
 
 ## Getting UDA
 
@@ -17,7 +21,7 @@ The source code can be downloaded from:
 
     https://github.com/ukaea/UDA/releases/
 
-The UDA git repository can be cloned:
+The UDA git repository can be cloned from:
 
     git clone git@github.com:ukaea/UDA.git
 
@@ -33,9 +37,15 @@ For any other use cases please see the documentation to build from source [here]
 
 ## Building UDA Server from source
 
+There are some notes available [here](https://ukaea.github.io/UDA/server_installation/) in the documentation. 
+
+Note that the most up-to-date build script will be the one used for testing in the github CI tests [here](https://github.com/ukaea/UDA/blob/release/2.8.0/.github/workflows/cmake.yml). This will contain the relevant buld steps for Ubuntu and MacOS. There are also some dockerfiles available [here](https://github.com/ukaea/UDA/tree/release/2.8.0/docker) which will show the build steps for some other Linux flavours. 
+
+An example installation for ubuntu 22.10 would be as follows.
+
 ### Dependencies
 
-UDA requires the following to avail in order to build:
+UDA requires the following to packages in order to build:
 
 | Name | Version | Required For |
 | --- | --- | --- |
@@ -49,9 +59,8 @@ UDA requires the following to avail in order to build:
 | LibMemcached | | to enable caching |
 | python | \> 3.0 | Python wrapper |
 
-An example installation for ubuntu 22.10 would be as follows.
 
-Start by install all system-level dependencies.
+Start by installing all system-level dependencies.
 ```sh
 sudo apt update && sudo apt install -y
 git
@@ -71,7 +80,7 @@ python3-pip
 python3-venv
 ```
 
-Configure the cmake project.
+Configure the cmake project
 ```sh
 cmake -G Ninja -B build . \
 -DBUILD_SHARED_LIBS=ON \
@@ -81,6 +90,7 @@ cmake -G Ninja -B build . \
 -DCMAKE_INSTALL_PREFIX=install
 ```
 
+build and install
 ```sh
 cmake --build build -j --config Release --target install
 ```
