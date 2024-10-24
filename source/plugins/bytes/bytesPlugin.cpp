@@ -20,30 +20,30 @@ namespace filesystem = std::filesystem;
 
 #include <boost/algorithm/string.hpp>
 
-static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_help(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_version(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_builddate(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_read(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-int bytesPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     static int init = 0;
 
     //----------------------------------------------------------------------------------------
     // Standard v1 Plugin Interface
 
-    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+    if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
-    idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
+    plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
     //----------------------------------------------------------------------------------------
     // Heap Housekeeping
@@ -59,9 +59,9 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // A list must be maintained to register these plugin calls to manage housekeeping.
     // Calls to plugins must also respect access policy and user authentication policy
 
-    REQUEST_DATA* request = idam_plugin_interface->request_data;
+    REQUEST_DATA* request = plugin_interface->request_data;
 
-    if (idam_plugin_interface->housekeeping || STR_IEQUALS(request->function, "reset")) {
+    if (plugin_interface->housekeeping || STR_IEQUALS(request->function, "reset")) {
         if (!init) return 0; // Not previously initialised: Nothing to do!
         // Free Heap & reset counters
         init = 0;
@@ -87,17 +87,17 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
     if (STR_IEQUALS(request->function, "help")) {
-        return do_help(idam_plugin_interface);
+        return do_help(plugin_interface);
     } else if (STR_IEQUALS(request->function, "version")) {
-        return do_version(idam_plugin_interface);
+        return do_version(plugin_interface);
     } else if (STR_IEQUALS(request->function, "builddate")) {
-        return do_builddate(idam_plugin_interface);
+        return do_builddate(plugin_interface);
     } else if (STR_IEQUALS(request->function, "defaultmethod")) {
-        return do_defaultmethod(idam_plugin_interface);
+        return do_defaultmethod(plugin_interface);
     } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
-        return do_maxinterfaceversion(idam_plugin_interface);
+        return do_maxinterfaceversion(plugin_interface);
     } else if (STR_IEQUALS(request->function, "read")) {
-        return do_read(idam_plugin_interface);
+        return do_read(plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
     }
@@ -105,55 +105,55 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 /**
  * Help: A Description of library functionality
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int do_help(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     const char* help = "\nbytes: data reader to access files as a block of bytes without interpretation\n\n";
     const char* desc = "bytes: help = description of this plugin";
 
-    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
+    return setReturnDataString(plugin_interface->data_block, help, desc);
 }
 
 /**
  * Plugin version
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int do_version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
+    return setReturnDataIntScalar(plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
 }
 
 /**
  * Plugin Build Date
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int do_builddate(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
+    return setReturnDataString(plugin_interface->data_block, __DATE__, "Plugin build date");
 }
 
 /**
  * Plugin Default Method
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int do_defaultmethod(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
+    return setReturnDataString(plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
 }
 
 /**
  * Plugin Maximum Interface Version
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
+    return setReturnDataIntScalar(plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
 
 //----------------------------------------------------------------------------------------
@@ -169,14 +169,15 @@ int check_allowed_path(const char* expandedPath) {
         UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
         RAISE_PLUGIN_ERROR("Provided File Path Not Found!\n");
     }
-    char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
+    const char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
     std::vector<std::string> allowed_paths;
-    if (env_str) { // gotta check if environment variable exists before using it
-        boost::split(allowed_paths, std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS"), boost::is_any_of(";"));
+    if (env_str) {
+        // gotta check if environment variable exists before using it
+        boost::split(allowed_paths, env_str, boost::is_any_of(";"));
     } 
     bool good_path = false;
-    for (std::string allowed_path : allowed_paths) {
-        if (full_path.rfind(allowed_path.c_str(), 0) != std::string::npos) {
+    for (const auto& allowed_path : allowed_paths) {
+        if (full_path.rfind(allowed_path, 0) != std::string::npos) {
             good_path = true;
             break;
         }
@@ -188,21 +189,20 @@ int check_allowed_path(const char* expandedPath) {
     return 0;
 }
 
-
-int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int do_read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_SOURCE* data_source = idam_plugin_interface->data_source;
-    SIGNAL_DESC* signal_desc = idam_plugin_interface->signal_desc;
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_SOURCE* data_source = plugin_interface->data_source;
+    SIGNAL_DESC* signal_desc = plugin_interface->signal_desc;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
 
     const char* path;
-    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_data->nameValueList, path);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_data->nameValueList, path);
 
     StringCopy(data_source->path, path, MAXPATH);
-    UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables! \n");
+    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables! \n");
     expand_environment_variables(data_source->path);    
     
     check_allowed_path(data_source->path);
 
-    return readBytes(*data_source, *signal_desc, data_block, idam_plugin_interface->environment);
+    return readBytes(*data_source, *signal_desc, data_block, plugin_interface->environment);
 }

@@ -219,20 +219,23 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 //-----------------------------------------------------------------------
 // Server State Block
 
-bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion)
+bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion, int *serverVersion)
 {
 
     int rc = 0;
-    static int serverVersion = 0;
 
     rc = xdr_int(xdrs, &str->version);
 
     if (xdrs->x_op == XDR_DECODE && rc) {                // Test for a server crash!
-        if (serverVersion == 0) {
-            serverVersion = str->version;               // Assume OK on first exchange
-        } else if (serverVersion != str->version) {     // Usually different if the server has crashed
+		if (serverVersion == NULL) {
+			UDA_LOG(UDA_LOG_DEBUG, "Server #1 serverVersion == NULL\n");
+			return 0;
+		}
+        if (*serverVersion == 0) {
+            *serverVersion = str->version;               // Assume OK on first exchange
+        } else if (*serverVersion != str->version) {     // Usually different if the server has crashed
             rc = 0;                                     // Force an error
-            str->version = serverVersion;               // Replace the erroneous version number
+            str->version = *serverVersion;               // Replace the erroneous version number
             UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc = %d\n", rc);
             return rc;
         }

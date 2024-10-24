@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import sysconfig
+from setuptools import setup, Extension
+from Cython.Build import cythonize
+from Cython.Compiler.Main import default_options
+import numpy
+
+default_options['compile_time_env'] = {'CAPNP': @CAPNP_FLAG@}
+
+extra_link_args = []
+extra_compile_args = ['-std=c++17']
+
+root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
+
+print('Detected platform: ' + sys.platform)
+print('Detected system: ' + sysconfig.get_platform())
+
+stalib_ext = ''
+dynlib_ext = ''
+if sys.platform.lower().startswith('linux'):
+    stalib_ext = 'a'
+    dynlib_ext = 'so'
+elif sys.platform.lower() == 'darwin':
+    stalib_ext = 'a'
+    dynlib_ext = 'dylib'
+    # On Mac OS we have to force setting of rpath
+    extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
+else:
+    stalib_ext = 'lib'
+    dynlib_ext = 'dll'
+    extra_compile_args = ['/MD']
+
+uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
+build_fat = os.environ.get('UDA_FAT_PYTHON', False)
+if build_fat:
+    uda_libs = [
+        'libfat@PROJECT_NAME@_client.' + stalib_ext,
+        'lib@PROJECT_NAME@_plugins.' + stalib_ext,
+    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+    extra_libs = ['xml2', 'pq']
+    extra_macros = [('FATCLIENT', None)]
+else:
+    uda_libs = [
+        '@PROJECT_NAME@_client.dll.' + stalib_ext,
+    ] + ['@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+    extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
+    extra_macros = []
+
+ext = Extension(
+    'cpyuda',
+    ['pyuda/cpyuda/cpyuda.pyx'],
+    include_dirs=list(filter(None, [
+        '@TIRPC_PYUDA_INCLUDE_DIR@',
+        '@LIBXML2_INCLUDE_DIR@',
+        os.path.join(root, 'include', 'uda'),
+        numpy.get_include(),
+        '@FMT_INCLUDE_DIR@'
+    ])),
+    libraries=list(filter(None, extra_libs)),
+    library_dirs=list(filter(None, [
+        '@OPENSSL_LIB_DIR@',
+        '@LIBXML_LIB_DIR@',
+        '@CAPNP_LIB_DIR@',
+        '@FMT_LIB_DIR@',
+        os.path.join(root, 'lib')
+    ])),
+    extra_objects=[os.path.join(root, 'lib', uda_lib) for uda_lib in uda_libs],
+    extra_link_args=extra_link_args,
+    extra_compile_args=extra_compile_args,
+    language='c++',
+    define_macros=extra_macros,
+)
+
+
+def get_version(v):
+    if v.count('.') > 2:
+        v = ".Post".join(v.rsplit('.', 1))
+    print("setup version = %s" % v)
+    return v
+
+
+setup(
+    name='ukaea_pyuda_test',
+    version=get_version('@PROJECT_VERSION@'),
+    description='Unified Data Access (UDA)',
+    long_description='Unified Data Access (UDA)',
+    author='Jonathan Hollocombe',
+    author_email='jonathan.hollocombe@ukaea.uk',
+    packages=['pyuda', 'uda'],
+    ext_modules=cythonize([ext]),
+)
