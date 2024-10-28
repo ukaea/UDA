@@ -5,6 +5,7 @@
 #endif
 
 #include <stdbool.h>
+#include <iostream>
 
 #include "uda/types.h"
 #include "udaDefines.h"
@@ -305,8 +306,11 @@ struct PutDataBlockList : PUTDATA_BLOCK_LIST {
     PutDataBlock* putDataBlock; // Array of data blocks
 };
 
+// forward declaration of enum in errorLog.h
+enum class ErrorType;
+
 struct UdaError {
-    int type;                     // Error Classification
+    ErrorType type;               // Error Classification
     int code;                     // Error Code
     char location[STRING_LENGTH]; // Where this Error is Located
     char msg[STRING_LENGTH];      // Message

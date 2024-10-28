@@ -86,7 +86,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
         close_error();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [{}]", putInstruction);
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
+            add_error(ErrorType::Code, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
@@ -165,7 +165,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
         close_error();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [{}]", putInstruction);
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
+            add_error(ErrorType::Code, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }

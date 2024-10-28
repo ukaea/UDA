@@ -652,7 +652,7 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
     interface->error_stack.idamerror =
         (UdaError*)realloc(interface->error_stack.idamerror, interface->error_stack.nerrors * sizeof(UdaError));
     interface->error_stack.idamerror[interface->error_stack.nerrors - 1] =
-        create_error(UDA_CODE_ERROR_TYPE, location, code, msg);
+        create_error(ErrorType::Code, location, code, msg);
 }
 
 int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)

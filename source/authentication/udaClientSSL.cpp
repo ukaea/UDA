@@ -528,7 +528,7 @@ int uda::authentication::writeUdaClientSSL(void* iohandle, char* buf, int count)
             if (rc != count) { // Check the write is complete
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Incomplete write to socket!");
-                add_error(UDA_CODE_ERROR_TYPE, "writeUdaClientSSL", err, "Incomplete write to socket!");
+                add_error(ErrorType::Code, "writeUdaClientSSL", err, "Incomplete write to socket!");
                 return -1;
             }
             break;
@@ -537,7 +537,7 @@ int uda::authentication::writeUdaClientSSL(void* iohandle, char* buf, int count)
             reportSSLErrorCode(rc);
             err = 999;
             UDA_LOG(UDA_LOG_DEBUG, "Write to socket failed!");
-            add_error(UDA_CODE_ERROR_TYPE, "writeUdaClientSSL", err, "Write to socket failed!");
+            add_error(ErrorType::Code, "writeUdaClientSSL", err, "Write to socket failed!");
 #  ifndef _WIN32
             int fopts = 0;
             if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||
@@ -567,14 +567,14 @@ int uda::authentication::readUdaClientSSL(void* iohandle, char* buf, int count)
 
         if (rc < 0) { // Error
             int serrno = errno;
-            add_error(UDA_SYSTEM_ERROR_TYPE, "readUdaClientSSL", errno, "Socket is Closed!");
+            add_error(ErrorType::System, "readUdaClientSSL", errno, "Socket is Closed!");
             if (serrno == EBADF) {
                 UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!");
             } else {
                 UDA_LOG(UDA_LOG_DEBUG, "Read error - {}", strerror(serrno));
             }
             err = 999;
-            add_error(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err,
+            add_error(ErrorType::Code, "readUdaClientSSL", err,
                       "Socket is Closed! Data request failed. Restarting connection.");
             UDA_LOG(UDA_LOG_DEBUG, "Socket is Closed! Data request failed. Restarting connection.");
             return -1;
@@ -607,7 +607,7 @@ int uda::authentication::readUdaClientSSL(void* iohandle, char* buf, int count)
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Server socket connection closed!");
-                add_error(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "Server socket connection closed!");
+                add_error(ErrorType::Code, "readUdaClientSSL", err, "Server socket connection closed!");
                 return -1;
 
             case SSL_ERROR_WANT_READ: // the operation did not complete, try again
@@ -618,21 +618,21 @@ int uda::authentication::readUdaClientSSL(void* iohandle, char* buf, int count)
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "A read operation failed!");
-                add_error(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "A read operation failed!");
+                add_error(ErrorType::Code, "readUdaClientSSL", err, "A read operation failed!");
                 return -1;
 
             case SSL_ERROR_SYSCALL: // some I/O error occured - disconnect?
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Socket read I/O error!");
-                add_error(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "Socket read I/O error!");
+                add_error(ErrorType::Code, "readUdaClientSSL", err, "Socket read I/O error!");
                 return -1;
 
             default: // some other error
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!");
-                add_error(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "Read from socket failed!");
+                add_error(ErrorType::Code, "readUdaClientSSL", err, "Read from socket failed!");
 #  ifndef _WIN32
                 int fopts = 0;
                 if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||

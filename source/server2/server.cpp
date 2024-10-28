@@ -167,7 +167,7 @@ void uda::server::Server::start_logs()
         if (!log_dir.empty()) {
             std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", log_dir);
             if (system(cmd.c_str()) != 0) {
-                add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
+                add_error(ErrorType::Code, __func__, 999, "mkdir command failed");
                 throw uda::server::StartupException("mkdir command failed");
             }
         }

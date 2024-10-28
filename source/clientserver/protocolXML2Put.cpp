@@ -70,7 +70,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
     // If the recursive depth is too large then perhaps an infinite loop is in play!
 
     if (recursiveDepthPut++ > MAXRECURSIVEDEPTH) {
-        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999, "Maximum Recursive Depth reached!");
+        add_error(ErrorType::Code, "xdrUserDefinedData", 999, "Maximum Recursive Depth reached!");
         return 0;
     }
 
@@ -125,7 +125,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
     for (int j = 0; j < userdefinedtype->fieldcount; j++) {
 
         if (j >= userdefinedtype->fieldcount) {
-            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999, "Fieldcount Exceeded!");
+            add_error(ErrorType::Code, "xdrUserDefinedData", 999, "Fieldcount Exceeded!");
             break;
         }
 
@@ -211,7 +211,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;               // array element count
 
                                     if (rcount != 0) { // there should be no remainder
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -222,7 +222,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Type Float Data Heap Allocation not found in log!");
                             break;
                         }
@@ -296,7 +296,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -307,7 +307,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Type Double Data Heap Allocation not found in log!");
                             break;
                         }
@@ -380,7 +380,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified short malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -391,7 +391,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Short Data Heap Allocation not found in log!");
                             break;
                         }
@@ -465,7 +465,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified unsigned short malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -476,7 +476,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Unsigned Short Data Heap Allocation not found in log!");
                             break;
                         }
@@ -549,7 +549,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -560,7 +560,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Integer Data Heap Allocation not found in log!");
                             break;
                         }
@@ -633,7 +633,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -643,7 +643,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
 
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Unsigned Integer Data Heap Allocation not found in log!");
                             break;
                         }
@@ -715,7 +715,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -725,7 +725,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
 
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Long Long Data Heap Allocation not found in log!");
                             break;
                         }
@@ -798,7 +798,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -808,7 +808,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
 
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Unsigned Long Long Data Heap Allocation not found in log!");
                             break;
                         }
@@ -884,7 +884,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                     count = totalsize / size;
 
                                     if (rcount != 0) {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -912,7 +912,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         }
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Char Data Heap Allocation not found in log!");
                             break;
                         }
@@ -1009,7 +1009,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         rc = rc && xdr_int(xdrs, &count);
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "String Data Heap Allocation not found in log!");
                             break;
                         }
@@ -1141,7 +1141,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         rc = rc && xdr_int(xdrs, &nstr); // This many strings to send
 
                         if ((nstr == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "String Array Data Heap Allocation not found in log!");
                             break;
                         }
@@ -1235,7 +1235,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                             }
                             rc = rc && xdr_int(xdrs, &count);
                             if ((count == 0 || size == 0) && *p != 0) {
-                                add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                           "String Data Heap Allocation not found in log!");
                                 break;
                             }
@@ -1292,7 +1292,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                                         size = ssize;
                                         count = totalsize / size;
                                     } else {
-                                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                        add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                                   "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
@@ -1301,7 +1301,7 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         }
 
                         if ((count == 0 || size == 0) && *p != 0) {
-                            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                            add_error(ErrorType::Code, "xdrUserDefinedData", 999,
                                       "Data Heap Allocation not found in log!");
                             break;
                         }
@@ -1451,18 +1451,18 @@ int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logm
                         *p = (VOIDTYPE)z;
                         break;
                     } else {
-                        add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999, "User Defined Type not known!");
+                        add_error(ErrorType::Code, "xdrUserDefinedData", 999, "User Defined Type not known!");
                         break;
                     }
                 }
 
-                add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999, "Type not known!");
+                add_error(ErrorType::Code, "xdrUserDefinedData", 999, "Type not known!");
                 break;
             }
         }
 
         if (!rc) {
-            add_error(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999, "XDR Return Code False => Bad send/receive!");
+            add_error(ErrorType::Code, "xdrUserDefinedData", 999, "XDR Return Code False => Bad send/receive!");
             recursiveDepthPut--;
             return rc;
         }
@@ -1499,7 +1499,7 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LogMallocList* logmalloclist, UserDe
     } else {
 
         if (userdefinedtype == nullptr) {
-            add_error(UDA_CODE_ERROR_TYPE, "udaXDRUserDefinedTypeData", 999,
+            add_error(ErrorType::Code, "udaXDRUserDefinedTypeData", 999,
                       "No User Defined Type passed - cannot send!");
             return 0;
         }
@@ -1589,7 +1589,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                         err = 999;
                         UDA_LOG(UDA_LOG_DEBUG, "nullptr SArray User defined data Structure Definition");
                         print_user_defined_type_list_table(*userdefinedtypelist);
-                        add_error(UDA_CODE_ERROR_TYPE, "protocolXML2Put", err,
+                        add_error(ErrorType::Code, "protocolXML2Put", err,
                                   "nullptr User defined data Structure Definition");
                         break;
                     }
@@ -1629,7 +1629,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
 
                     if (!rc) {
                         err = 999;
-                        add_error(UDA_CODE_ERROR_TYPE, "protocolXML2Put", err,
+                        add_error(ErrorType::Code, "protocolXML2Put", err,
                                   "Bad Return Code passing data structures");
                         break;
                     }
@@ -1655,7 +1655,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
 
                     if (option == 4) {
                         err = 999;
-                        add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML2Put", err, "Unknown package Type control option");
+                        add_error(ErrorType::System, "protocolXML2Put", err, "Unknown package Type control option");
                         break;
                     }
 
@@ -1679,7 +1679,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
 
                         if (!rc) {
                             err = 999;
-                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML2Put", err,
+                            add_error(ErrorType::Code, "protocolXML2Put", err,
                                       "Failure receiving Structure Definitions");
                             break;
                         }
@@ -1695,7 +1695,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
 
                         if (!rc) {
                             err = 999;
-                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML2Put", err,
+                            add_error(ErrorType::Code, "protocolXML2Put", err,
                                       "Failure receiving Data and Structure Definition");
                             break;
                         }
@@ -1707,7 +1707,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                             auto s = (SArray*)data;
                             if (s->count != data_block->data_n) { // check for consistency
                                 err = 999;
-                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML2Put", err, "Inconsistent S Array Counts");
+                                add_error(ErrorType::Code, "protocolXML2Put", err, "Inconsistent S Array Counts");
                                 break;
                             }
 
@@ -1724,7 +1724,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
 
                         } else {
                             err = 999;
-                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML2Put", err,
+                            add_error(ErrorType::Code, "protocolXML2Put", err,
                                       "Name of Received Data Structure Incorrect");
                             break;
                         }

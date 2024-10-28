@@ -91,7 +91,7 @@ void reportServerSSLErrorCode(int rc)
             break;
     }
     err = 999;
-    add_error(UDA_CODE_ERROR_TYPE, "udaSSL", err, msg);
+    add_error(ErrorType::Code, "udaSSL", err, msg);
     UDA_LOG(UDA_LOG_DEBUG, "Error - {}", msg);
     UDA_LOG(UDA_LOG_DEBUG, "Error - {}", ERR_error_string(ERR_get_error(), nullptr));
     UDA_LOG(UDA_LOG_DEBUG, "State - {}", SSL_state_string(g_ssl));

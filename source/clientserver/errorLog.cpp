@@ -9,25 +9,25 @@
 
 using namespace uda::logging;
 
-static std::vector<uda::client_server::UdaError> udaerrorstack;
+static std::vector<uda::client_server::UdaError> uda_error_stack;
 
 int udaNumErrors(void)
 {
-    return static_cast<int>(udaerrorstack.size());
+    return static_cast<int>(uda_error_stack.size());
 }
 
 const char* udaGetErrorMessage(int err_num)
 {
-    if (err_num > (int)udaerrorstack.size() && err_num < (int)udaerrorstack.size()) {
-        return udaerrorstack[err_num].msg;
+    if (err_num > (int)uda_error_stack.size() && err_num < (int)uda_error_stack.size()) {
+        return uda_error_stack[err_num].msg;
     }
     return "no error found";
 }
 
 const char* udaGetErrorLocation(int err_num)
 {
-    if (err_num > (int)udaerrorstack.size() && err_num < (int)udaerrorstack.size()) {
-        return udaerrorstack[err_num].location;
+    if (err_num > (int)uda_error_stack.size() && err_num < (int)uda_error_stack.size()) {
+        return uda_error_stack[err_num].location;
     }
     return "no error found";
 }
@@ -38,8 +38,8 @@ void uda::client_server::error_log(ClientBlock client_block, RequestBlock reques
     unsigned int nerrors;
 
     if (error_stack == nullptr) {
-        errors = udaerrorstack.data();
-        nerrors = udaerrorstack.size();
+        errors = uda_error_stack.data();
+        nerrors = uda_error_stack.size();
     } else {
         errors = error_stack->idamerror;
         nerrors = error_stack->nerrors;
@@ -54,7 +54,7 @@ void uda::client_server::error_log(ClientBlock client_block, RequestBlock reques
 
     struct tm* broken = gmtime(&calendar);
 
-    static char access_date[UDA_DATE_LENGTH]; // The Calendar Time as a formatted String
+    static char access_date[DateLength]; // The Calendar Time as a formatted String
 
 #ifndef _WIN32
     asctime_r(broken, access_date);
@@ -84,13 +84,13 @@ void uda::client_server::error_log(ClientBlock client_block, RequestBlock reques
 
 void uda::client_server::init_error_stack()
 {
-    udaerrorstack.clear();
+    uda_error_stack.clear();
 }
 
 void uda::client_server::init_error_records(const ErrorStack* errorstack)
 {
     for (unsigned int i = 0; i < errorstack->nerrors; i++) {
-        errorstack->idamerror[i].type = 0;
+        errorstack->idamerror[i].type = ErrorType::None;
         errorstack->idamerror[i].code = 0;
         errorstack->idamerror[i].location[0] = '\0';
         errorstack->idamerror[i].msg[0] = '\0';
@@ -99,12 +99,12 @@ void uda::client_server::init_error_records(const ErrorStack* errorstack)
 
 void uda::client_server::print_error_stack()
 {
-    if (udaerrorstack.empty()) {
+    if (uda_error_stack.empty()) {
         UDA_LOG(UDA_LOG_DEBUG, "Empty Error Stack");
         return;
     }
     int i = 1;
-    for (const auto& error : udaerrorstack) {
+    for (const auto& error : uda_error_stack) {
         UDA_LOG(UDA_LOG_DEBUG, "{} {} {} {} {}", i, error.type, error.code, error.location, error.msg);
         ++i;
     }
@@ -116,7 +116,7 @@ void uda::client_server::print_error_stack()
 //            1 => Code Error
 //            2 => Plugin Error
 
-uda::client_server::UdaError uda::client_server::create_error(int type, const char* location, int code, const char* msg)
+uda::client_server::UdaError uda::client_server::create_error(ErrorType type, const char* location, int code, const char* msg)
 {
     UdaError error;
 
@@ -127,7 +127,7 @@ uda::client_server::UdaError uda::client_server::create_error(int type, const ch
 
     size_t lmsg0 = strlen(error.msg);
 
-    if (type == UDA_SYSTEM_ERROR_TYPE) {
+    if (type == ErrorType::System) {
         const char* errmsg = strerror(code);
         size_t lmsg1 = strlen(errmsg);
         if (lmsg0 == 0) {
@@ -148,26 +148,26 @@ uda::client_server::UdaError uda::client_server::create_error(int type, const ch
     return error;
 }
 
-void uda::client_server::add_error(int type, const char* location, int code, const char* msg)
+void uda::client_server::add_error(ErrorType type, const char* location, int code, const char* msg)
 {
-    udaerrorstack.push_back(create_error(type, location, code, msg));
+    uda_error_stack.push_back(create_error(type, location, code, msg));
 }
 
 // Concatenate Error Stack structures
 
 void uda::client_server::concat_error(ErrorStack* errorstackout)
 {
-    if (udaerrorstack.empty()) {
+    if (uda_error_stack.empty()) {
         return;
     }
 
     unsigned int iold = errorstackout->nerrors;
-    unsigned int inew = udaerrorstack.size() + errorstackout->nerrors;
+    unsigned int inew = uda_error_stack.size() + errorstackout->nerrors;
 
     errorstackout->idamerror = (UdaError*)realloc((void*)errorstackout->idamerror, (inew * sizeof(UdaError)));
 
     for (unsigned int i = iold; i < inew; i++) {
-        errorstackout->idamerror[i] = udaerrorstack[i - iold];
+        errorstackout->idamerror[i] = uda_error_stack[i - iold];
     }
     errorstackout->nerrors = inew;
 }

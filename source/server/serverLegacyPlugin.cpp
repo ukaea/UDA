@@ -252,7 +252,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
             default:
                 UDA_LOG(UDA_LOG_DEBUG, "Unknown Requested Data Access Routine ({}) ", request->request);
                 err = 9999;
-                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Requested Data Access Routine");
+                add_error(ErrorType::Code, __func__, err, "Unknown Requested Data Access Routine");
                 break;
         }
 

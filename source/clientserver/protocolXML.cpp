@@ -139,7 +139,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                         err = 999;
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: nullptr SArray User defined data Structure Definition");
                         print_user_defined_type_list_table(*userdefinedtypelist);
-                        add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                        add_error(ErrorType::Code, "protocolXML", err,
                                   "nullptr User defined data Structure Definition");
                         break;
                     }
@@ -189,13 +189,13 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                             if (errno != 0) {
                                 err = errno;
                             }
-                            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                            add_error(ErrorType::System, "protocolXML", err,
                                       "Unable to Obtain a Temporary/Cache File Name");
                             break;
                         }
                         if ((xdrfile = fopen(temp_file.c_str(), "wb")) == nullptr) {
                             err = 999;
-                            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                            add_error(ErrorType::System, "protocolXML", err,
                                       "Unable to Open a Temporary/Cache XDR File for Writing");
                             break;
                         }
@@ -235,7 +235,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                     if (!rc) {
                         err = 999;
-                        add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Bad Return Code passing data structures");
+                        add_error(ErrorType::Code, "protocolXML", err, "Bad Return Code passing data structures");
                         break;
                     }
 
@@ -322,7 +322,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                     if (option == 4) {
                         err = 999;
-                        add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err, "Unknown package Type control option");
+                        add_error(ErrorType::System, "protocolXML", err, "Unknown package Type control option");
                         break;
                     }
 
@@ -341,10 +341,10 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                             if (errno != 0) {
                                 err = errno;
                             }
-                            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                            add_error(ErrorType::System, "protocolXML", err,
                                       "Unable to Obtain a Temporary File Name [3]");
                             err = 998;
-                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                            add_error(ErrorType::Code, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[{}]",
                                     tempFile);
                             break;
@@ -389,10 +389,10 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                                 if (errno != 0) {
                                     err = errno;
                                 }
-                                add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                add_error(ErrorType::System, "protocolXML", err,
                                           " Unable to Obtain a Temporary File Name [2]");
                                 err = 997;
-                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                                add_error(ErrorType::Code, "protocolXML", err, tempFile);
                                 UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[{}]",
                                         tempFile);
                                 break;
@@ -404,7 +404,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
-                                add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                add_error(ErrorType::System, "protocolXML", err,
                                           " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
@@ -422,7 +422,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                         if (!rc) {
                             err = 999;
-                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                            add_error(ErrorType::Code, "protocolXML", err,
                                       "Failure receiving Structure Definitions");
                             break;
                         }
@@ -436,7 +436,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #B");
                         if (!rc) {
                             err = 999;
-                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                            add_error(ErrorType::Code, "protocolXML", err,
                                       "Failure receiving Data and Structure Definition");
                             break;
                         }
@@ -470,7 +470,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                             auto s = (SArray*)data;
                             if (s->count != data_block->data_n) { // check for consistency
                                 err = 999;
-                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
+                                add_error(ErrorType::Code, "protocolXML", err, "Inconsistent S Array Counts");
                                 break;
                             }
                             data_block->data =
@@ -483,7 +483,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                         } else {
                             err = 999;
-                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                            add_error(ErrorType::Code, "protocolXML", err,
                                       "Name of Received Data Structure Incorrect");
                             break;
                         }
@@ -494,7 +494,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
             } else {
                 err = 999;
-                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Unknown Opaque type");
+                add_error(ErrorType::Code, "protocolXML", err, "Unknown Opaque type");
                 break;
             }
         }
@@ -526,10 +526,10 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                             if (errno != 0) {
                                 err = errno;
                             }
-                            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                            add_error(ErrorType::System, "protocolXML", err,
                                       " Unable to Obtain a Temporary File Name");
                             err = 996;
-                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                            add_error(ErrorType::Code, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[{}]", tempFile);
                             break;
                         }
@@ -565,7 +565,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
-                                add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                add_error(ErrorType::System, "protocolXML", err,
                                           " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
@@ -580,7 +580,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                             if (!rc) {
                                 err = 999;
-                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                add_error(ErrorType::Code, "protocolXML", err,
                                           "Failure receiving Structure Definitions");
                                 break;
                             }
@@ -594,7 +594,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                             if (!rc) {
                                 err = 999;
-                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                add_error(ErrorType::Code, "protocolXML", err,
                                           "Failure receiving Data and Structure Definition");
                                 break;
                             }
@@ -622,7 +622,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                                 auto s = (SArray*)data;
                                 if (s->count != data_block->data_n) { // check for consistency
                                     err = 999;
-                                    add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
+                                    add_error(ErrorType::Code, "protocolXML", err, "Inconsistent S Array Counts");
                                     break;
                                 }
                                 data_block->data = (char*)
@@ -636,7 +636,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
                             } else {
                                 err = 999;
-                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                add_error(ErrorType::Code, "protocolXML", err,
                                           "Name of Received Data Structure Incorrect");
                                 break;
                             }
@@ -644,7 +644,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                     }
                 } else {
                     err = 999;
-                    add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Unknown Opaque type");
+                    add_error(ErrorType::Code, "protocolXML", err, "Unknown Opaque type");
                     break;
                 }
             }

@@ -48,7 +48,7 @@ int uda::client_server::name_value_substitution(NameValueList* name_value_list, 
     unsigned short strip = 0; // Do Not Remove enclosing quotes from name value pairs
     if (name_value_pairs(tpass, &new_name_value_list, strip) == -1) {
         err = 999;
-        add_error(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err, "Name Value pair syntax is incorrect!");
+        add_error(ErrorType::Code, "nameValueSubstitution", err, "Name Value pair syntax is incorrect!");
         return err;
     }
 
@@ -126,7 +126,7 @@ int uda::client_server::name_value_substitution(NameValueList* name_value_list, 
                 // Too many placeholders for the available substitutions
                 UDA_LOG(UDA_LOG_DEBUG, "Inconsistent count of placeholders and available substitutions!");
                 err = 999;
-                add_error(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
+                add_error(ErrorType::Code, "nameValueSubstitution", err,
                           "Inconsistent count of placeholders and available substitutions!");
                 break;
             }
@@ -139,7 +139,7 @@ int uda::client_server::name_value_substitution(NameValueList* name_value_list, 
                     UDA_LOG(UDA_LOG_DEBUG, "Placeholder numbering is Inconsistent with Placeholder Count!");
                     UDA_LOG(UDA_LOG_DEBUG, "tpass_index[{}] = {}  ({})", i, tpass_index[i], placeholder_count);
                     err = 999;
-                    add_error(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
+                    add_error(ErrorType::Code, "nameValueSubstitution", err,
                               "Placeholder numbering is Inconsistent with Placeholder Count!");
                     break;
                 }

@@ -167,7 +167,7 @@ int set_db_file_lock_state(FILE* db, LockActionType type)
 
     if (type == LockActionType::UNLOCK) {
         int err = 999;
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "cache file lock not released indicating problem with cache");
+        add_error(ErrorType::Code, __func__, err, "cache file lock not released indicating problem with cache");
         return err;
     }
 
@@ -187,7 +187,7 @@ int set_db_file_lock_state(FILE* db, LockActionType type)
 
     if (rc == -1 || count >= CACHE_MAXCOUNT) {
         int err = 999;
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "unable to lock the cache database");
+        add_error(ErrorType::Code, __func__, err, "unable to lock the cache database");
         return err;
     }
 
@@ -258,7 +258,7 @@ boost::optional<CacheStats> get_cache_stats(FILE* db)
     if (stats.deadCount >= CACHE_MAXDEADRECORDS) {
         auto maybe_updated_stats = purge_cache(db);
         if (!maybe_updated_stats) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "failed to purge cache");
+            add_error(ErrorType::Code, __func__, 999, "failed to purge cache");
             return {};
         }
         stats = maybe_updated_stats.get();
@@ -359,7 +359,7 @@ boost::optional<CacheStats> purge_cache(FILE* db)
         const auto& record = pair.second;
         size_t count = fwrite(record.c_str(), sizeof(char), record.size(), db);
         if (count != record.size() || errno != 0) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to write cache record");
+            add_error(ErrorType::Code, __func__, 999, "Failed to write cache record");
             return {};
         }
     }

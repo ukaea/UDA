@@ -220,14 +220,14 @@ int uda::server::XdrProtocol::read_client_block(ClientBlock* client_block, LogMa
     if (!xdrrec_skiprecord(&_server_input)) {
         err = UDA_PROTOCOL_ERROR_5;
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Client Block)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 5 Error (Client Block)");
     } else {
 
         int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK; // Recieve Client Block
 
         if ((err = protocol2(&_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                              client_block, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
+            add_error(ErrorType::Code, __func__, err, "Protocol 10 Error (Client Block)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!");
         }
 
@@ -288,7 +288,7 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
     if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                          &metadata_block.data_system, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure");
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
+        add_error(ErrorType::Code, __func__, err, "Protocol 4 Error");
         return err;
     }
 
@@ -301,7 +301,7 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
                          &metadata_block.system_config, _protocol_version, &_log_struct_list, 0, _malloc_source)) !=
         0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure");
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
+        add_error(ErrorType::Code, __func__, err, "Protocol 5 Error");
         return err;
     }
 
@@ -313,7 +313,7 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
     if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                          &metadata_block.data_source, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure");
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
+        add_error(ErrorType::Code, __func__, err, "Protocol 6 Error");
         return err;
     }
 
@@ -325,7 +325,7 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
     if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                          &metadata_block.signal_rec, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure");
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
+        add_error(ErrorType::Code, __func__, err, "Protocol 7 Error");
         return err;
     }
 
@@ -337,7 +337,7 @@ int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogM
     if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                          &metadata_block.signal_desc, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure");
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
+        add_error(ErrorType::Code, __func__, err, "Protocol 8 Error");
         return err;
     }
 
@@ -359,7 +359,7 @@ int uda::server::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& dat
                          user_defined_type_list, (void*)&data_block_list, _protocol_version, &_log_struct_list, 0,
                          _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure");
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
+        add_error(ErrorType::Code, __func__, err, "Protocol 2 Error");
         return err;
     }
 
@@ -391,7 +391,7 @@ int uda::server::XdrProtocol::send_hierachical_data(const DataBlock& data_block,
         int err = 0;
         if ((err = protocol2(&_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              (void*)&data_block, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
+            add_error(ErrorType::Code, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
             return err;
         }
 
@@ -425,7 +425,7 @@ int uda::server::XdrProtocol::recv_client_block(ServerBlock& server_block, Clien
 
         UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Block");
 
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 10 Error (Receiving Client Block)");
         concat_error(&server_block.idamerrorstack); // Update Server State with Error Stack
         close_error();
 

@@ -1557,7 +1557,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     if (request_block->putDataBlockList.blockCount == 0) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "No Put Data Blocks to process!");
+        addIdamError(ErrorType::Code, "testplugin", err, "No Put Data Blocks to process!");
         return err;
     }
 
@@ -2222,8 +2222,8 @@ int createUDTSocket(int* usock, int port, int rendezvous)
 
     if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 9991;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createUDTSocket", err, "Illegal port number or port is busy");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createUDTSocket", err, (char*)udt_getlasterror_desc());
+        addIdamError(ErrorType::Code, "testplugin:createUDTSocket", err, "Illegal port number or port is busy");
+        addIdamError(ErrorType::Code, "testplugin:createUDTSocket", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -2284,8 +2284,8 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
 
     if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, "Illegal port number or port is busy");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
+        addIdamError(ErrorType::Code, "testplugin:createTCPSocket", err, "Illegal port number or port is busy");
+        addIdamError(ErrorType::Code, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -2293,8 +2293,8 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
 
     if (bind(*ssock, res->ai_addr, res->ai_addrlen) != 0) {
         int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, "Socket Bind error");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
+        addIdamError(ErrorType::Code, "testplugin:createTCPSocket", err, "Socket Bind error");
+        addIdamError(ErrorType::Code, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -2316,8 +2316,8 @@ int c_connect(UDTSOCKET* usock, int port)
 
     if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
         int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:c_connect", err, "Socket Connect error");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:c_connect", err, (char*)udt_getlasterror_desc());
+        addIdamError(ErrorType::Code, "testplugin:c_connect", err, "Socket Connect error");
+        addIdamError(ErrorType::Code, "testplugin:c_connect", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -2340,8 +2340,8 @@ int tcp_connect(SYSSOCKET* ssock, int port)
 
     if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
         int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:tcp_connect", err, "Socket Connect error");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:tcp_connect", err, (char*)udt_getlasterror_desc());
+        addIdamError(ErrorType::Code, "testplugin:tcp_connect", err, "Socket Connect error");
+        addIdamError(ErrorType::Code, "testplugin:tcp_connect", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -2372,7 +2372,7 @@ int TestPlugin::testudt(UDA_PLUGIN_INTERFACE* plugin_interface)
     if (createUDTSocket(&client, 0, false) < 0) {
         ;
         err = 9990;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, "Unable to create a UDT Socket");
+        addIdamError(ErrorType::Code, "testplugin:udt", err, "Unable to create a UDT Socket");
         return err;
     }
 
@@ -2406,8 +2406,8 @@ int TestPlugin::testudt(UDA_PLUGIN_INTERFACE* plugin_interface)
         int sent = udt_send(client, (char*)buffer + g_TotalNum * sizeof(int32_t) - tosend, tosend, 0);
         if (sent < 0) {
             err = 9990;
-            addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, "Unable to Send Data");
-            addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, (char*)udt_getlasterror_desc());
+            addIdamError(ErrorType::Code, "testplugin:udt", err, "Unable to Send Data");
+            addIdamError(ErrorType::Code, "testplugin:udt", err, (char*)udt_getlasterror_desc());
             break;
         }
         tosend -= sent;

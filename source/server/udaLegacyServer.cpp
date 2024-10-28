@@ -131,7 +131,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     &client_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 10 Error (Receiving Client Block)");
                     concat_error(&server_block.idamerrorstack);
                     close_error();
 
@@ -181,7 +181,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #1)");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 11 Error (Sending Server Block #1)");
                     concat_error(&server_block.idamerrorstack); // Update Server State with Error Stack
                     close_error();
                     normal_legacy_wait = 1;
@@ -212,7 +212,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                 &request_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Request Block")
-                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 1 Error (Receiving Client Request)");
+                add_error(ErrorType::Code, __func__, err, "Protocol 1 Error (Receiving Client Request)");
                 break;
             }
 
@@ -253,7 +253,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 if (client_block.version < 6) {
                     err = 999;
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                    add_error(ErrorType::Code, __func__, err,
                               "PROXY redirection: Originating Client Version not compatible with the PROXY server "
                               "interface.");
                     break;
@@ -272,7 +272,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 if (strstr(request_block.source, work) != nullptr) {
                     err = 999;
                     add_error(
-                        UDA_CODE_ERROR_TYPE, __func__, err,
+                        ErrorType::Code, __func__, err,
                         "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
                     break;
                 }
@@ -282,7 +282,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 if (strlen(request_block.source) >=
                     (STRING_LENGTH - 1 - strlen(environment->server_proxy) - 4 + strlen(request_block.api_delim))) {
                     err = 999;
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                    add_error(ErrorType::Code, __func__, err,
                               "PROXY redirection: The source argument string is too long!");
                     break;
                 }
@@ -336,7 +336,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     &(request_data->putDataBlockList), protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                    add_error(ErrorType::Code, __func__, err,
                               "Protocol 1 Error (Receiving Client putDataBlockList)");
                     break;
                 }
@@ -407,7 +407,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             if (client_block.get_dimdble || client_block.get_timedble || client_block.get_scalar) {
                 if (serverProcessing(client_block, &data_block) != 0) {
                     err = 779;
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Server-Side Processing Error");
+                    add_error(ErrorType::Code, __func__, err, "Server-Side Processing Error");
                     break;
                 }
             }
@@ -423,7 +423,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             if (data_block.data_n > 0 && (protocol_version_type_test(protocolVersion, data_block.data_type) ||
                                           protocol_version_type_test(protocolVersion, data_block.error_type))) {
                 err = 999;
-                add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                add_error(ErrorType::Code, __func__, err,
                           "The Data has a type that cannot be passed to the Client: A newer client library version "
                           "is required.");
                 break;
@@ -436,7 +436,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                     if (protocol_version_type_test(protocolVersion, dim.data_type) ||
                         protocol_version_type_test(protocolVersion, dim.error_type)) {
                         err = 999;
-                        add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                        add_error(ErrorType::Code, __func__, err,
                                   "A Coordinate Data has a numerical type that cannot be passed to the Client: A "
                                   "newer client library version is required.");
                         break;
@@ -476,7 +476,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                 &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2")
-                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
+                add_error(ErrorType::Code, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
                 break;
             }
 
@@ -506,7 +506,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem #1 Receiving Next Protocol ID")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #1) Error");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 3 (Next Protocol #1) Error");
                     break;
                 }
 
@@ -516,7 +516,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 if (next_protocol != UDA_PROTOCOL_DATA_SYSTEM) {
                     err = 998;
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 Error: Protocol Request Inconsistency");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 3 Error: Protocol Request Inconsistency");
                     break;
                 }
 
@@ -529,7 +529,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     &data_system, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 4 Error");
                     break;
                 }
 
@@ -542,7 +542,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     &system_config, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 5 Error");
                     break;
                 }
 
@@ -555,7 +555,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     &data_source, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 6 Error");
                     break;
                 }
 
@@ -568,7 +568,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     &signal_rec, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 7 Error");
                     break;
                 }
 
@@ -581,7 +581,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     &signal_desc, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 8 Error");
                     break;
                 }
 
@@ -596,7 +596,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                 user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
                                 private_flags, malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem #2 Receiving Next Protocol ID")
-                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
+                add_error(ErrorType::Code, __func__, err, "Protocol 3 (Next Protocol #2) Error");
                 break;
             }
 
@@ -609,7 +609,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             if (next_protocol != UDA_PROTOCOL_DATA_BLOCK_LIST) {
                 err = 997;
-                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 Error: Incorrect Request");
+                add_error(ErrorType::Code, __func__, err, "Protocol 3 Error: Incorrect Request");
                 break;
             }
 
@@ -622,7 +622,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                 &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure")
-                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
+                add_error(ErrorType::Code, __func__, err, "Protocol 2 Error");
                 break;
             }
 
@@ -639,13 +639,13 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                                     user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem #2a Receiving Next Protocol ID")
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
+                    add_error(ErrorType::Code, __func__, err, "Protocol 3 (Next Protocol #2) Error");
                     break;
                 }
 
                 if (next_protocol != UDA_PROTOCOL_STRUCTURES) {
                     err = 999;
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Incorrect Next Protocol received: (Structures)");
+                    add_error(ErrorType::Code, __func__, err, "Incorrect Next Protocol received: (Structures)");
                     break;
                 }
             }
@@ -670,7 +670,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                     &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
+                    add_error(ErrorType::Code, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
                     break;
                 }
 
@@ -704,7 +704,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
         if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list, user_defined_type_list,
                             nullptr, protocolVersion, &log_struct_list, &io_data, private_flags, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem #3 Receiving Next Protocol ID")
-            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Server Shutdown) Error");
+            add_error(ErrorType::Code, __func__, err, "Protocol 3 (Server Shutdown) Error");
             break;
         }
 

@@ -456,7 +456,7 @@ int uda::server::udaProvenancePlugin(const uda::config::Config& config, ClientBl
     reset = 1;
     if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            add_error(ErrorType::Code, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;
@@ -587,7 +587,7 @@ int uda::server::udaServerMetaDataPlugin(const uda::config::Config& config, cons
     reset = 1;
     if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            add_error(ErrorType::Code, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;

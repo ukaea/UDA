@@ -1093,7 +1093,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
             int serrno = errno;
             if (serrno != 0 || xmlfile == nullptr) {
                 if (serrno != 0) {
-                    add_error(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
+                    add_error(ErrorType::System, "idamserverReadData", serrno, "");
                 }
                 if (xmlfile != nullptr) {
                     fclose(xmlfile);

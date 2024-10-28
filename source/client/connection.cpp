@@ -122,7 +122,7 @@ int uda::client::reconnect(config::Config& config, XDR** client_input, XDR** cli
         int newsocketId;
         if ((newsocketId = get_socket_record_id(&client_socketlist, socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
-            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "The User Specified Socket Connection does not exist");
+            add_error(ErrorType::Code, __func__, err, "The User Specified Socket Connection does not exist");
             return err;
         }
 
@@ -277,7 +277,7 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
     auto host = udaClientFindHostByAlias(host_name.c_str());
     if (host != nullptr) {
         if (host->host_name.empty()) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, -1,
+            add_error(ErrorType::Code, __func__, -1,
                       "The host_name is not recognised for the host alias provided!");
             return -1;
         }
@@ -334,9 +334,9 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
     errno = 0;
     // RC if ((rc = getaddrinfo(hostname, service_port, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
     if ((rc = getaddrinfo(host_name.c_str(), service_port, &hints, &result)) != 0) {
-        add_error(UDA_SYSTEM_ERROR_TYPE, __func__, rc, (char*)gai_strerror(rc));
+        add_error(ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
         if (rc == EAI_SYSTEM || errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+            add_error(ErrorType::System, __func__, errno, "");
         }
         if (result) {
             freeaddrinfo(result);
@@ -355,9 +355,9 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
 
     if (client_socket < 0 || errno != 0) {
         if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+            add_error(ErrorType::System, __func__, errno, "");
         } else {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Problem Opening Socket");
+            add_error(ErrorType::Code, __func__, -1, "Problem Opening Socket");
         }
         if (client_socket != -1)
 #ifndef _WIN32
@@ -431,7 +431,7 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
             host = udaClientFindHostByAlias(host_name.c_str());
             if (host != nullptr) {
                 if (host->host_name.empty()) {
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, -1,
+                    add_error(ErrorType::Code, __func__, -1,
                               "The hostname2 is not recognised for the host alias provided!");
                     return -1;
                 }
@@ -478,9 +478,9 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
 
             errno = 0;
             if ((rc = getaddrinfo(host_name.c_str(), service_port, &hints, &result)) != 0 || errno != 0) {
-                add_error(UDA_SYSTEM_ERROR_TYPE, __func__, rc, (char*)gai_strerror(rc));
+                add_error(ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
                 if (rc == EAI_SYSTEM || errno != 0) {
-                    add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+                    add_error(ErrorType::System, __func__, errno, "");
                 }
                 if (result) {
                     freeaddrinfo(result);
@@ -492,9 +492,9 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
 
             if (client_socket < 0 || errno != 0) {
                 if (errno != 0) {
-                    add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+                    add_error(ErrorType::System, __func__, errno, "");
                 } else {
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Problem Opening Socket");
+                    add_error(ErrorType::Code, __func__, -1, "Problem Opening Socket");
                 }
                 if (client_socket != -1)
 #ifndef _WIN32
@@ -532,9 +532,9 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
 
         if (rc < 0) {
             if (errno != 0) {
-                add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+                add_error(ErrorType::System, __func__, errno, "");
             } else {
-                add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Unable to Connect to Server Stream Socket");
+                add_error(ErrorType::Code, __func__, -1, "Unable to Connect to Server Stream Socket");
             }
             if (client_socket != -1)
 #ifndef _WIN32
@@ -566,14 +566,14 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
 
     int on = 1;
     if (setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Error Setting KEEPALIVE on Socket");
+        add_error(ErrorType::Code, __func__, -1, "Error Setting KEEPALIVE on Socket");
         close(client_socket);
         client_socket = -1;
         return -1;
     }
     on = 1;
     if (setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Error Setting NODELAY on Socket");
+        add_error(ErrorType::Code, __func__, -1, "Error Setting NODELAY on Socket");
         close(client_socket);
         client_socket = -1;
         return -1;
@@ -640,17 +640,17 @@ int uda::client::clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
                 UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!");
-                add_error(UDA_CODE_ERROR_TYPE, __func__, -2,
+                add_error(ErrorType::Code, __func__, -2,
                           "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
                     UDA_LOG(UDA_LOG_DEBUG, "ENETUNREACH error!");
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, -3, "Server Unavailable: ENETUNREACH");
+                    add_error(ErrorType::Code, __func__, -3, "Server Unavailable: ENETUNREACH");
                     return -3;
                 } else {
                     UDA_LOG(UDA_LOG_DEBUG, "ECONNREFUSED error!");
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, -4, "Server Unavailable: ECONNREFUSED");
+                    add_error(ErrorType::Code, __func__, -4, "Server Unavailable: ECONNREFUSED");
                     return -4;
                 }
             }
@@ -669,7 +669,7 @@ int uda::client::clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int
 
 #ifndef _WIN32
     if ((OldSIGPIPEHandler = signal(SIGPIPE, SIG_IGN)) == SIG_ERR) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Error attempting to ignore SIG_PIPE");
+        add_error(ErrorType::Code, __func__, -1, "Error attempting to ignore SIG_PIPE");
         return -1;
     }
 #endif
@@ -690,7 +690,7 @@ int uda::client::clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int
 
 #ifndef _WIN32
     if (signal(SIGPIPE, OldSIGPIPEHandler) == SIG_ERR) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Error attempting to restore SIG_PIPE handler");
+        add_error(ErrorType::Code, __func__, -1, "Error attempting to restore SIG_PIPE handler");
         return -1;
     }
 #endif
@@ -730,9 +730,9 @@ int uda::client::clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int c
     if (!rc) {
         rc = -1;
         if (errno != 0 && errno != EINTR) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, rc, "");
+            add_error(ErrorType::System, __func__, rc, "");
         }
-        add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "No Data waiting at Socket when Data Expected!");
+        add_error(ErrorType::Code, __func__, rc, "No Data waiting at Socket when Data Expected!");
     }
 
     return rc;

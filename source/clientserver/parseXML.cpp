@@ -1317,12 +1317,12 @@ int uda::client_server::parse_doc(char* docname, Actions* actions)
     if ((doc = xmlParseDoc((xmlChar*)docname)) == nullptr) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
-        add_error(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "XML Not Parsed");
+        add_error(ErrorType::Code, "parseDoc", 1, "XML Not Parsed");
         return 1;
     }
 
     if ((cur = xmlDocGetRootElement(doc)) == nullptr) {
-        add_error(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "Empty XML Document");
+        add_error(ErrorType::Code, "parseDoc", 1, "Empty XML Document");
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return 1;

@@ -117,7 +117,7 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
         auto server_socket = _config.get("client.server_socket").as_or_default(-1);
         if ((socketId = find_socket(server_socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
-            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "The User Specified Socket Connection does not exist");
+            add_error(ErrorType::Code, __func__, err, "The User Specified Socket Connection does not exist");
             return err;
         }
 
@@ -312,9 +312,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     errno = 0;
     if ((rc = getaddrinfo(host_name.c_str(), service_port, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
-        add_error(UDA_SYSTEM_ERROR_TYPE, __func__, rc, (char*)gai_strerror(rc));
+        add_error(ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
         if (rc == EAI_SYSTEM || errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+            add_error(ErrorType::System, __func__, errno, "");
         }
         if (result) {
             freeaddrinfo(result);
@@ -333,9 +333,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     if (_client_socket < 0 || errno != 0) {
         if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+            add_error(ErrorType::System, __func__, errno, "");
         } else {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Problem Opening Socket");
+            add_error(ErrorType::Code, __func__, -1, "Problem Opening Socket");
         }
         if (_client_socket != -1) {
 #ifndef _WIN32
@@ -440,9 +440,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
             errno = 0;
             if ((rc = getaddrinfo(host_name.c_str(), service_port, &hints, &result)) != 0 || errno != 0) {
-                add_error(UDA_SYSTEM_ERROR_TYPE, __func__, rc, (char*)gai_strerror(rc));
+                add_error(ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
                 if (rc == EAI_SYSTEM || errno != 0) {
-                    add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+                    add_error(ErrorType::System, __func__, errno, "");
                 }
                 if (result) {
                     freeaddrinfo(result);
@@ -454,9 +454,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
             if (_client_socket < 0 || errno != 0) {
                 if (errno != 0) {
-                    add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+                    add_error(ErrorType::System, __func__, errno, "");
                 } else {
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Problem Opening Socket");
+                    add_error(ErrorType::Code, __func__, -1, "Problem Opening Socket");
                 }
                 if (_client_socket != -1) {
 #ifndef _WIN32
@@ -484,9 +484,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
         if (rc < 0) {
             if (errno != 0) {
-                add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+                add_error(ErrorType::System, __func__, errno, "");
             } else {
-                add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Unable to Connect to Server Stream Socket");
+                add_error(ErrorType::Code, __func__, -1, "Unable to Connect to Server Stream Socket");
             }
             if (_client_socket != -1)
 #ifndef _WIN32
@@ -518,14 +518,14 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     int on = 1;
     if (setsockopt(_client_socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Error Setting KEEPALIVE on Socket");
+        add_error(ErrorType::Code, __func__, -1, "Error Setting KEEPALIVE on Socket");
         ::close(_client_socket);
         _client_socket = -1;
         return -1;
     }
     on = 1;
     if (setsockopt(_client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Error Setting NODELAY on Socket");
+        add_error(ErrorType::Code, __func__, -1, "Error Setting NODELAY on Socket");
         ::close(_client_socket);
         _client_socket = -1;
         return -1;
@@ -621,17 +621,17 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
                 UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!");
-                add_error(UDA_CODE_ERROR_TYPE, __func__, -2,
+                add_error(ErrorType::Code, __func__, -2,
                           "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
                     UDA_LOG(UDA_LOG_DEBUG, "ENETUNREACH error!");
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, -3, "Server Unavailable: ENETUNREACH");
+                    add_error(ErrorType::Code, __func__, -3, "Server Unavailable: ENETUNREACH");
                     return -3;
                 } else {
                     UDA_LOG(UDA_LOG_DEBUG, "ECONNREFUSED error!");
-                    add_error(UDA_CODE_ERROR_TYPE, __func__, -4, "Server Unavailable: ECONNREFUSED");
+                    add_error(ErrorType::Code, __func__, -4, "Server Unavailable: ECONNREFUSED");
                     return -4;
                 }
             }
@@ -650,7 +650,7 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
 
 #ifndef _WIN32
     if ((OldSIGPIPEHandler = signal(SIGPIPE, SIG_IGN)) == SIG_ERR) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Error attempting to ignore SIG_PIPE");
+        add_error(ErrorType::Code, __func__, -1, "Error attempting to ignore SIG_PIPE");
         return -1;
     }
 #endif
@@ -671,7 +671,7 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
 
 #ifndef _WIN32
     if (signal(SIGPIPE, OldSIGPIPEHandler) == SIG_ERR) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, -1, "Error attempting to restore SIG_PIPE handler");
+        add_error(ErrorType::Code, __func__, -1, "Error attempting to restore SIG_PIPE handler");
         return -1;
     }
 #endif
@@ -713,9 +713,9 @@ int uda::client::readin(void* iohandle, char* buf, int count)
     if (!rc) {
         rc = -1;
         if (errno != 0 && errno != EINTR) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, rc, "");
+            add_error(ErrorType::System, __func__, rc, "");
         }
-        add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "No Data waiting at Socket when Data Expected!");
+        add_error(ErrorType::Code, __func__, rc, "No Data waiting at Socket when Data Expected!");
     }
 
     return rc;

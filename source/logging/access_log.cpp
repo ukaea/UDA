@@ -54,7 +54,7 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
 #  endif
     static struct timeval et_start;
     static struct timeval et_end;
-    static char access_date[UDA_DATE_LENGTH]; // The Calendar Time as a formatted String
+    static char access_date[DateLength]; // The Calendar Time as a formatted String
 
     errno = 0;
 

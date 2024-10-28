@@ -277,7 +277,7 @@ static int encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, 
             gcry_sexp_release(mpiTokenSexp);
             mpiTokenSexp = nullptr;
         }
-        add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error Generating Token S-Exp");
+        add_error(ErrorType::Code, __func__, 999, "Error Generating Token S-Exp");
         UDA_THROW_ERROR(999, gpg_strerror(gerr));
     }
 
@@ -290,7 +290,7 @@ static int encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, 
                 if (mpiTokenSexp != nullptr) {
                     gcry_sexp_release(mpiTokenSexp);
                 }
-                add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Encryption Error");
+                add_error(ErrorType::Code, __func__, 999, "Encryption Error");
                 UDA_THROW_ERROR(999, gpg_strerror(gerr));
             }
 
@@ -370,13 +370,13 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
     gcry_sexp_t decr = nullptr; // Decrypted token
 
     if ((gerr = gcry_sexp_create(&encr, (void*)*ciphertext, *ciphertext_len, 1, nullptr)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error Generating Token S-Exp");
+        add_error(ErrorType::Code, __func__, 999, "Error Generating Token S-Exp");
         UDA_THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
 
     if ((gerr = gcry_pk_decrypt(&decr, encr, key)) != 0) {
         gcry_sexp_release(encr);
-        add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Decryption Error");
+        add_error(ErrorType::Code, __func__, 999, "Decryption Error");
         UDA_THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
 

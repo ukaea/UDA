@@ -95,7 +95,7 @@ int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* heade
     if (fh == nullptr || ferror(fh) || errno != 0) {
         err = 999;
         if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
+            add_error(ErrorType::System, "parseIncludeFile", errno,
                       "Unable to Open Structure Definition Header file for Read Access!");
         }
         if (fh != nullptr) {
@@ -248,7 +248,7 @@ int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    add_error(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                    add_error(ErrorType::Code, "parseIncludeFile", 999,
                               "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
@@ -279,7 +279,7 @@ int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    add_error(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                    add_error(ErrorType::Code, "parseIncludeFile", 999,
                               "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
@@ -442,7 +442,7 @@ int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* heade
                                 }
                             } else {
                                 err = 999;
-                                add_error(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                                add_error(ErrorType::Code, "parseIncludeFile", 999,
                                           "typedef statement does not conform to syntax model!");
                                 return err;
                             }

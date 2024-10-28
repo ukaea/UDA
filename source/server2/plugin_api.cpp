@@ -797,7 +797,7 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     UDA_LOG(UDA_LOG_ERROR, msg)
-    auto error = create_error(UDA_CODE_ERROR_TYPE, location, code, msg);
+    auto error = create_error(ErrorType::Code, location, code, msg);
     interface->error_stack.push_back(error);
 }
 

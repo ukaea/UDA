@@ -397,7 +397,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
     reset = 1;
     if ((rc = uda::server::server_redirect_std_streams(config, reset)) != 0 || err != 0) {
         if (rc != 0) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            add_error(ErrorType::Code, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;
@@ -534,7 +534,7 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::client_se
     reset = 1;
     if ((rc = server_redirect_std_streams(config, reset)) != 0 || err != 0) {
         if (rc != 0) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            add_error(ErrorType::Code, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;

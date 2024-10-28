@@ -72,7 +72,7 @@ int alloc_meta(DataSystem** data_system, SystemConfig** system_config, DataSourc
     if (*data_system == nullptr || *system_config == nullptr || *data_source == nullptr || *signal_rec == nullptr ||
         *signal_desc == nullptr) {
         err = ERROR_ALLOCATING_META_DATA_HEAP;
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Error Allocating Heap for Meta Data");
+        add_error(ErrorType::Code, __func__, err, "Error Allocating Heap for Meta Data");
         return err;
     }
 
@@ -189,7 +189,7 @@ uda::client::Client::Client() : _connection{_config}, _protocol_version{ClientVe
     set_log_file(UDA_LOG_INFO, file_name, log_mode);
 
     if (errno != 0) {
-        add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open debug log");
+        add_error(ErrorType::System, __func__, errno, "failed to open debug log");
         close_logging();
         return;
     }
@@ -200,7 +200,7 @@ uda::client::Client::Client() : _connection{_config}, _protocol_version{ClientVe
     }
 
     if (errno != 0) {
-        add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open error log");
+        add_error(ErrorType::System, __func__, errno, "failed to open error log");
         close_logging();
         return;
     }
@@ -220,7 +220,7 @@ int uda::client::Client::fetch_meta()
     if ((err = protocol2(_client_input, UDA_PROTOCOL_DATA_SYSTEM, XDR_RECEIVE, nullptr, _logmalloclist,
                          _userdefinedtypelist, data_system, _protocol_version, &_log_struct_list, _private_flags,
                          _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error (Data System)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 4 Error (Data System)");
         return err;
     }
     print_data_system(*data_system);
@@ -228,7 +228,7 @@ int uda::client::Client::fetch_meta()
     if ((err = protocol2(_client_input, UDA_PROTOCOL_SYSTEM_CONFIG, XDR_RECEIVE, nullptr, _logmalloclist,
                          _userdefinedtypelist, system_config, _protocol_version, &_log_struct_list, _private_flags,
                          _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (System Config)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 5 Error (System Config)");
         return err;
     }
     print_system_config(*system_config);
@@ -236,14 +236,14 @@ int uda::client::Client::fetch_meta()
     if ((err = protocol2(_client_input, UDA_PROTOCOL_DATA_SOURCE, XDR_RECEIVE, nullptr, _logmalloclist,
                          _userdefinedtypelist, data_source, _protocol_version, &_log_struct_list, _private_flags,
                          _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error (Data Source)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 6 Error (Data Source)");
         return err;
     }
     print_data_source(*data_source);
 
     if ((err = protocol2(_client_input, UDA_PROTOCOL_SIGNAL, XDR_RECEIVE, nullptr, _logmalloclist, _userdefinedtypelist,
                          signal_rec, _protocol_version, &_log_struct_list, _private_flags, _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Signal)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Signal)");
         return err;
     }
     print_signal(*signal_rec);
@@ -251,7 +251,7 @@ int uda::client::Client::fetch_meta()
     if ((err = protocol2(_client_input, UDA_PROTOCOL_SIGNAL_DESC, XDR_RECEIVE, nullptr, _logmalloclist,
                          _userdefinedtypelist, signal_desc, _protocol_version, &_log_struct_list, _private_flags,
                          _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error (Signal Desc)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 8 Error (Signal Desc)");
         return err;
     }
     print_signal_desc(*signal_desc);
@@ -280,7 +280,7 @@ int uda::client::Client::fetch_hierarchical_data(DataBlock* data_block)
         int err = 0;
         if ((err = protocol2(_client_input, protocol_id, XDR_RECEIVE, nullptr, _logmalloclist, _userdefinedtypelist,
                              data_block, _protocol_version, &_log_struct_list, _private_flags, _malloc_source)) != 0) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Client Side Protocol Error (Opaque Structure Type)");
+            add_error(ErrorType::Code, __func__, err, "Client Side Protocol Error (Opaque Structure Type)");
             return err;
         }
     }
@@ -368,7 +368,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     } else if (_connection.open()) {
         // Assume the Server is Still Alive
         if (_client_output->x_ops == nullptr || _client_input->x_ops == nullptr) {
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "XDR Streams are Closed!");
+            add_error(ErrorType::Code, __func__, 999, "XDR Streams are Closed!");
             UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!");
             closedown(ClosedownType::CLOSE_SOCKETS, &_connection, _client_input, _client_output, &_reopen_logs,
                       &_env_host, &_env_port);
@@ -385,7 +385,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         startup_states = true;
         if (_connection.create(_client_input, _client_output, _host_list) != 0) {
             int err = NO_SOCKET_CONNECTION;
-            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "No Socket Connection to Server");
+            add_error(ErrorType::Code, __func__, err, "No Socket Connection to Server");
             return err;
         }
 
@@ -452,7 +452,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
                          _private_flags, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)");
 
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
         throw uda::exceptions::ClientError("Protocol 2 Error (Failure Receiving Data Block)");
     }
 
@@ -519,7 +519,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 
             if (err == 0 && (get_data_status(data_block) == MIN_STATUS) && !_client_flags.get_bad) {
                 // If Data are not usable, flag the client
-                add_error(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
+                add_error(ErrorType::Code, __func__, DATA_STATUS_BAD,
                           "Data Status is BAD ... Data are Not Usable!");
 
                 if (data_block->errcode == 0) {
@@ -591,7 +591,7 @@ int uda::client::Client::send_putdata(const RequestBlock& request_block)
             if ((err = protocol2(_client_output, protocol_id, XDR_SEND, nullptr, _logmalloclist, _userdefinedtypelist,
                                  &(request->putDataBlockList), _protocol_version, &_log_struct_list, _private_flags,
                                  _malloc_source)) != 0) {
-                add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                add_error(ErrorType::Code, __func__, err,
                           "Protocol 1 Error (sending putDataBlockList from Request Block)");
                 throw uda::exceptions::ClientError("Protocol 1 Error (sending putDataBlockList from Request Block)");
             }
@@ -612,7 +612,7 @@ int uda::client::Client::get(std::string_view data_signal, std::string_view data
     if (make_request_block(_config, &signal_ptr, &source_ptr, 1, &request_block) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [{}]", data_source);
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            add_error(ErrorType::Code, __func__, 999, "Error identifying the Data Source");
         }
         throw uda::exceptions::ClientError("Error identifying the Data Source [{}]", data_source);
     }
@@ -641,7 +641,7 @@ std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std
     if (make_request_block(_config, signals.data(), sources.data(), requests.size(), &request_block) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source");
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            add_error(ErrorType::Code, __func__, 999, "Error identifying the Data Source");
         }
         throw uda::exceptions::ClientError("Error identifying the Data Source");
     }
@@ -684,7 +684,7 @@ int uda::client::Client::test_connection()
 
         if (count > 0) { // Error if data is waiting
             add_error(
-                UDA_CODE_ERROR_TYPE, __func__, 999,
+                ErrorType::Code, __func__, 999,
                 "Data waiting in the input data buffer when none expected! Please contact the system administrator.");
             UDA_LOG(UDA_LOG_DEBUG, "[{}] excess data bytes waiting in input buffer!", count++);
             throw uda::exceptions::ClientError(
@@ -701,7 +701,7 @@ int uda::client::Client::test_connection()
 
         if (!rc) {
             int err = 999;
-            add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+            add_error(ErrorType::Code, __func__, err,
                       "Corrupted input data stream! Please contact the system administrator.");
             UDA_LOG(UDA_LOG_DEBUG, "Unable to flush input buffer!!!");
             throw uda::exceptions::ClientError("Corrupted input data stream! Please contact the system administrator.");
@@ -719,7 +719,7 @@ int uda::client::Client::send_request_block(RequestBlock& request_block)
     int err = 0;
     if ((err = protocol2(_client_output, protocol_id, XDR_SEND, nullptr, _logmalloclist, _userdefinedtypelist,
                          &request_block, _protocol_version, &_log_struct_list, _private_flags, _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 1 Error (Request Block)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 1 Error (Request Block)");
         throw uda::exceptions::ClientError("Protocol 1 Error (Request Block)");
     }
 
@@ -732,7 +732,7 @@ int uda::client::Client::send_client_block()
     int err = 0;
     if ((err = protocol2(_client_output, protocol_id, XDR_SEND, nullptr, _logmalloclist, _userdefinedtypelist,
                          &_client_block, _protocol_version, &_log_struct_list, _private_flags, _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 10 Error (Client Block)");
         throw uda::exceptions::ClientError("Protocol 10 Error (Client Block)");
     }
 
@@ -748,14 +748,14 @@ int uda::client::Client::perform_handshake()
     int err = 0;
     if ((err = protocol2(_client_output, protocol_id, XDR_SEND, nullptr, _logmalloclist, _userdefinedtypelist,
                          &_client_block, _protocol_version, &_log_struct_list, _private_flags, _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 10 Error (Client Block)");
         UDA_LOG(UDA_LOG_DEBUG, "Error Sending Client Block");
         throw uda::exceptions::ClientError("Protocol 10 Error (Client Block)");
     }
 
     if (!(xdrrec_endofrecord(_client_output, 1))) { // Send data now
         err = UDA_PROTOCOL_ERROR_7;
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Client Block)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Client Block)");
         UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_endofrecord after Client Block");
         throw uda::exceptions::ClientError("Protocol 7 Error (Client Block)");
     }
@@ -765,7 +765,7 @@ int uda::client::Client::perform_handshake()
     // Wait for data, then position buffer reader to the start of a new record
     if (!(xdrrec_skiprecord(_client_input))) {
         err = UDA_PROTOCOL_ERROR_5;
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Server Block)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 5 Error (Server Block)");
         UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_skiprecord prior to Server Block");
         throw uda::exceptions::ClientError("Protocol 5 Error (Server Block)");
     }
@@ -775,7 +775,7 @@ int uda::client::Client::perform_handshake()
 
     if ((err = protocol2(_client_input, protocol_id, XDR_RECEIVE, nullptr, _logmalloclist, _userdefinedtypelist,
                          &_server_block, _protocol_version, &_log_struct_list, _private_flags, _malloc_source)) != 0) {
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Server Block #1)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 11 Error (Server Block #1)");
         // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
         _server_block.idamerrorstack.nerrors = 0;
         UDA_LOG(UDA_LOG_DEBUG, "Error receiving Server Block");
@@ -811,7 +811,7 @@ int uda::client::Client::flush_sockets()
     int rc = 0;
     if (!(rc = xdrrec_endofrecord(_client_output, 1))) {
         int err = UDA_PROTOCOL_ERROR_7;
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Request Block & putDataBlockList)");
+        add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Request Block & putDataBlockList)");
         return err;
     }
 
@@ -819,7 +819,7 @@ int uda::client::Client::flush_sockets()
 
     if (!xdrrec_skiprecord(_client_input)) {
         int err = UDA_PROTOCOL_ERROR_5;
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, " Protocol 5 Error (Server & Data Structures)");
+        add_error(ErrorType::Code, __func__, err, " Protocol 5 Error (Server & Data Structures)");
         return err;
     }
 
@@ -840,7 +840,7 @@ int uda::client::Client::receive_server_block()
                          _userdefinedtypelist, &_server_block, _protocol_version, &_log_struct_list, _private_flags,
                          _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = {}", err);
-        add_error(UDA_CODE_ERROR_TYPE, __func__, err, " Protocol 11 Error (Server Block #2)");
+        add_error(ErrorType::Code, __func__, err, " Protocol 11 Error (Server Block #2)");
         // Assuming the server_block is corrupted, replace with a clean copy to avoid future concatonation problems
         _server_block.idamerrorstack.nerrors = 0;
         throw uda::exceptions::ClientError("Protocol 11 Error (Server Block #2) = {}", err);
@@ -1212,7 +1212,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
     if (make_request_block(_config, &signal_ptr, &source_ptr, 1, &request_block) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source");
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            add_error(ErrorType::Code, __func__, 999, "Error identifying the Data Source");
         }
         throw uda::exceptions::ClientError("Error identifying the Data Source");
     }
@@ -1241,7 +1241,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
     if (make_request_block(_config, &signal_ptr, &source_ptr, 1, &request_block) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source");
-            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            add_error(ErrorType::Code, __func__, 999, "Error identifying the Data Source");
         }
         throw uda::exceptions::ClientError("Error identifying the Data Source");
     }
