@@ -2,8 +2,6 @@
 # Dependencies
 
 find_package( IDL )
-find_package( Java 1.6 )
-find_package( JNI )
 find_package( Boost )
 
 if( NOT NO_CXX_WRAPPER )
@@ -33,16 +31,3 @@ if( NOT NO_IDL_WRAPPER )
 else()
   message( WARNING "IDL wrapper not being built due to CMake option NO_IDL_WRAPPER" )
 endif()
-
-# if( NOT NO_JAVA_WRAPPER )
-#   if( JAVA_FOUND AND JNI_FOUND )
-#     add_subdirectory( java )
-#   else()
-#     message( WARNING "JAVA or JNI not found - not building Java wrapper" )
-#   endif()
-# else()
-#   message( WARNING "Java wrapper not being built due to CMake option NO_JAVA_WRAPPER" )
-# endif()
-
-#add_subdirectory( matlab )
-#add_subdirectory( PHP )
