@@ -23,15 +23,17 @@ struct HostData {
 //-------------------------------------------------------
 // Socket Types
 
-#define TYPE_UNKNOWN_SERVER 0
-#define TYPE_UDA_SERVER 1
-#define TYPE_MDSPLUS_SERVER 2
+enum class SocketType {
+    Unknown = 0,
+    UDA = 1,
+    MDSPLUS = 2,
+};
 
 //--------------------------------------------------------
 // Socket Management
 
 typedef struct Sockets {
-    int type;             // Type Code (e.g.,1=>IDAM;2=>MDS+);
+    SocketType type;             // Type Code
     char host[MAXSERVER]; // Server's Host Name or IP Address
     int port;
     int status;             // Open (1) or Closed (0)

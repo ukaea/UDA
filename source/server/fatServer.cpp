@@ -213,7 +213,7 @@ static int process_hierarchical_data(DataBlock* data_block, LogStructList* log_s
 
     // Write data to the temporary file
 
-    int protocol_id = UDA_PROTOCOL_STRUCTURES;
+    ProtocolId protocol_id = ProtocolId::Structures;
     protocol_xml(&xdr_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                  data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
                  serverCreateXDRStream);
@@ -239,7 +239,7 @@ static int process_hierarchical_data(DataBlock* data_block, LogStructList* log_s
 
     // Read data from the temporary file
 
-    protocol_id = UDA_PROTOCOL_STRUCTURES;
+    protocol_id = ProtocolId::Structures;
     err = protocol_xml(&xdr_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                        data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
                        serverCreateXDRStream);

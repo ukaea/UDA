@@ -535,7 +535,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     Sockets socket = {};
 
-    socket.type = TYPE_UDA_SERVER;
+    socket.type = SocketType::UDA;
     socket.status = 1;
     socket.fh = _client_socket;
     socket.port = server_port;
@@ -564,7 +564,7 @@ void uda::client::Connection::close_socket(int fh)
 {
     for (auto& socket : _socket_list) {
         if (socket.fh == fh && socket.fh >= 0) {
-            if (socket.type == TYPE_UDA_SERVER) {
+            if (socket.type == SocketType::UDA) {
 #ifndef _WIN32
                 ::close(fh); // Only Genuine Sockets!
 #else

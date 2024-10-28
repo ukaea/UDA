@@ -18,7 +18,7 @@ void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].port == port) {
-            if (socks->sockets[i].type == TYPE_UDA_SERVER) {
+            if (socks->sockets[i].type == SocketType::UDA) {
                 close(socks->sockets[i].fh); // Only Genuine Sockets!
             }
             socks->sockets[i].status = 0;
@@ -32,7 +32,7 @@ void uda::server::closeServerSocket(SOCKETLIST* socks, int fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh) {
-            if (socks->sockets[i].type == TYPE_UDA_SERVER) {
+            if (socks->sockets[i].type == SocketType::UDA) {
                 close(fh); // Only Genuine Sockets!
             }
             socks->sockets[i].status = 0;

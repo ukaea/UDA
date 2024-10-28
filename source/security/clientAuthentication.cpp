@@ -270,7 +270,7 @@ static int issueToken(ClientBlock* client_block, LogMallocList* logmalloclist, U
     securityBlock->server_ciphertextLength = 0;
 
 #ifndef TESTIDAMSECURITY
-    int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
+    ProtocolId protocol_id = ProtocolId::ClientBlock;
 
     if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                          &client_block)) != 0) {
@@ -317,7 +317,7 @@ static int decryptServerToken(ServerBlock* server_block, ClientBlock* client_blo
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #5)");
     }
 
-    int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
+    ProtocolId protocol_id = ProtocolId::ServerBlock;
 
     if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                          &server_block)) != 0) {
@@ -410,7 +410,7 @@ static int encryptServerToken(ClientBlock* client_block, LogMallocList* logmallo
     securityBlock->client_ciphertextLength = 0;
 
 #ifndef TESTIDAMSECURITY
-    int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
+    ProtocolId protocol_id = ProtocolId::ClientBlock;
 
     if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                          &client_block)) != 0) {

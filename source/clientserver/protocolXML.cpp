@@ -75,7 +75,7 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 
-int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, int* token,
+int uda::client_server::protocol_xml(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token,
                                      LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
                                      int protocolVersion, LogStructList* log_struct_list, IoData* io_data,
                                      unsigned int private_flags, int malloc_source, CreateXDRStreams create_xdr_streams)
@@ -113,7 +113,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
         //----------------------------------------------------------------------------
         // Generalised User Defined Data Structures
 
-        if (protocol_id == UDA_PROTOCOL_STRUCTURES) {
+        if (protocol_id == ProtocolId::Structures) {
 
             void* data = nullptr;
             data_block = (DataBlock*)str;
@@ -656,7 +656,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 
 #ifndef FATCLIENT
 
-        if (protocol_id == UDA_PROTOCOL_META) {
+        if (protocol_id == ProtocolId::Meta) {
             data_block = (DataBlock*)str;
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {

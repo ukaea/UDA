@@ -22,10 +22,13 @@ int uda::server::sleepServer(XDR* server_input, XDR* server_output, LogMallocLis
                              LogStructList* log_struct_list, int server_tot_block_time, int server_timeout,
                              IoData* io_data, int private_flags, int malloc_source)
 {
-    int protocol_id, next_protocol, err, rc;
+    ProtocolId protocol_id;
+    ProtocolId next_protocol;
+    int err;
+    int rc;
 
-    protocol_id = UDA_PROTOCOL_NEXT_PROTOCOL;
-    next_protocol = 0;
+    protocol_id = ProtocolId::NextProtocol;
+    next_protocol = ProtocolId::Start;
 
     UDA_LOG(UDA_LOG_DEBUG, "Entering Server Sleep Loop");
 
@@ -57,14 +60,14 @@ int uda::server::sleepServer(XDR* server_input, XDR* server_output, LogMallocLis
     }
 #endif
 
-    if (next_protocol == UDA_PROTOCOL_CLOSEDOWN) {
+    if (next_protocol == ProtocolId::CloseDown) {
         UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Shutdown");
         return 0;
     }
 
-    if (next_protocol != UDA_PROTOCOL_WAKE_UP) {
+    if (next_protocol != ProtocolId::WakeUp) {
         UDA_LOG(UDA_LOG_DEBUG, "Unknown Wakeup Request -> Server Shutting down");
-        add_error(ErrorType::Code, "sleepServer", next_protocol, "Unknown Wakeup Request -> Server Shutdown");
+        add_error(ErrorType::Code, "sleepServer", (int)next_protocol, "Unknown Wakeup Request -> Server Shutdown");
         return 0;
     }
 

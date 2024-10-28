@@ -65,7 +65,7 @@ void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timev
     }
 }
 
-int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int* token, LogMallocList* logmalloclist,
+int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token, LogMallocList* logmalloclist,
                                  UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                  LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
                                  int malloc_source)
@@ -82,7 +82,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Retrieve Client Requests
 
-        if (protocol_id == UDA_PROTOCOL_REQUEST_BLOCK) {
+        if (protocol_id == ProtocolId::RequestBlock) {
 
             auto request_block = (RequestBlock*)str;
 
@@ -127,7 +127,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Data Block
 
-        if (protocol_id == UDA_PROTOCOL_DATA_BLOCK_LIST) {
+        if (protocol_id == ProtocolId::DataBlockList) {
 
             auto data_block = (DataBlock*)str;
 
@@ -328,7 +328,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Data Block
 
-        if (protocol_id == UDA_PROTOCOL_PUTDATA_BLOCK_LIST) {
+        if (protocol_id == ProtocolId::PutdataBlockList) {
 
             auto put_data_block_list = (PutDataBlockList*)str;
             PutDataBlock put_data;
@@ -440,7 +440,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Error Status or Next Protocol id or exchange token ....
 
-        if (protocol_id == UDA_PROTOCOL_NEXT_PROTOCOL) {
+        if (protocol_id == ProtocolId::NextProtocol) {
 
             switch (direction) {
 
@@ -449,14 +449,14 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                         err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
-                    if (!xdr_int(xdrs, token)) {
+                    if (!xdr_int(xdrs, (int*)token)) {
                         err = UDA_PROTOCOL_ERROR_9;
                         break;
                     }
                     break;
 
                 case XDR_SEND:
-                    if (!xdr_int(xdrs, token)) {
+                    if (!xdr_int(xdrs, (int*)token)) {
                         err = UDA_PROTOCOL_ERROR_9;
                         break;
                     }
@@ -481,7 +481,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Data System record
 
-        if (protocol_id == UDA_PROTOCOL_DATA_SYSTEM) {
+        if (protocol_id == ProtocolId::DataSystem) {
             auto data_system = (DataSystem*)str;
 
             switch (direction) {
@@ -526,7 +526,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // System Configuration record
 
-        if (protocol_id == UDA_PROTOCOL_SYSTEM_CONFIG) {
+        if (protocol_id == ProtocolId::SystemConfig) {
 
             auto system_config = (SystemConfig*)str;
 
@@ -573,7 +573,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Data Source record
 
-        if (protocol_id == UDA_PROTOCOL_DATA_SOURCE) {
+        if (protocol_id == ProtocolId::DataSource) {
 
             auto data_source = (DataSource*)str;
 
@@ -620,7 +620,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Signal record
 
-        if (protocol_id == UDA_PROTOCOL_SIGNAL) {
+        if (protocol_id == ProtocolId::Signal) {
 
             auto signal = (Signal*)str;
 
@@ -668,7 +668,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Signal Description record
 
-        if (protocol_id == UDA_PROTOCOL_SIGNAL_DESC) {
+        if (protocol_id == ProtocolId::SignalDesc) {
 
             auto signal_desc = (SignalDesc*)str;
 
@@ -717,7 +717,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Client State
 
-        if (protocol_id == UDA_PROTOCOL_CLIENT_BLOCK) {
+        if (protocol_id == ProtocolId::ClientBlock) {
 
             auto client_block = (ClientBlock*)str;
 
@@ -767,7 +767,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Server State
 
-        if (protocol_id == UDA_PROTOCOL_SERVER_BLOCK) {
+        if (protocol_id == ProtocolId::ServerBlock) {
 
             auto server_block = (ServerBlock*)str;
 
@@ -839,7 +839,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         //----------------------------------------------------------------------------
         // Hierarchical or Meta Data Structures
 
-        if (protocol_id > UDA_PROTOCOL_OPAQUE_START && protocol_id < UDA_PROTOCOL_OPAQUE_STOP) {
+        if (protocol_id > ProtocolId::OpaqueStart && protocol_id < ProtocolId::OpaqueStop) {
             err = protocol_xml(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
                                protocolVersion, log_struct_list, io_data, private_flags, malloc_source, nullptr);
         }

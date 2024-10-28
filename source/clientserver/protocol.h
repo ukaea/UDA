@@ -2,52 +2,82 @@
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
+#include <string>
 
 #include "structures/genStructs.h"
 
 //-------------------------------------------------------
 // Client Server Conversation Protocols
 
-#define UDA_PROTOCOL_REGULAR_START 0 // Identifies Regular Data Protocol Group
-#define UDA_PROTOCOL_REQUEST_BLOCK 1
-#define UDA_PROTOCOL_DATA_BLOCK_LIST 2
-#define UDA_PROTOCOL_NEXT_PROTOCOL 3
-#define UDA_PROTOCOL_DATA_SYSTEM 4
-#define UDA_PROTOCOL_SYSTEM_CONFIG 5
-#define UDA_PROTOCOL_DATA_SOURCE 6
-#define UDA_PROTOCOL_SIGNAL 7
-#define UDA_PROTOCOL_SIGNAL_DESC 8
-#define UDA_PROTOCOL_SPARE1 9
-#define UDA_PROTOCOL_CLIENT_BLOCK 10
-#define UDA_PROTOCOL_SERVER_BLOCK 11
-#define UDA_PROTOCOL_SPARE2 12
-#define UDA_PROTOCOL_CLOSEDOWN 13
-#define UDA_PROTOCOL_SLEEP 14
-#define UDA_PROTOCOL_WAKE_UP 15
-#define UDA_PROTOCOL_PUTDATA_BLOCK_LIST 16
-#define UDA_PROTOCOL_SECURITY_BLOCK 17
-#define UDA_PROTOCOL_OBJECT 18
-#define UDA_PROTOCOL_SERIALISE_OBJECT 19
-#define UDA_PROTOCOL_SERIALISE_FILE 20
-#define UDA_PROTOCOL_DATAOBJECT 21
-#define UDA_PROTOCOL_DATAOBJECT_FILE 22
-#define UDA_PROTOCOL_REGULAR_STOP 99
+namespace uda::client_server {
 
-#define UDA_PROTOCOL_OPAQUE_START 100 // Identifies Legacy Hierarchical Data Protocol Group
-#define UDA_PROTOCOL_STRUCTURES 101
-#define UDA_PROTOCOL_META 102
-#define UDA_PROTOCOL_EFIT 103
-#define UDA_PROTOCOL_PFCOILS 104
-#define UDA_PROTOCOL_PFPASSIVE 105
-#define UDA_PROTOCOL_PFSUPPLIES 106
-#define UDA_PROTOCOL_FLUXLOOP 107
-#define UDA_PROTOCOL_MAGPROBE 108
-#define UDA_PROTOCOL_PFCIRCUIT 109
-#define UDA_PROTOCOL_PLASMACURRENT 110
-#define UDA_PROTOCOL_DIAMAGNETIC 111
-#define UDA_PROTOCOL_TOROIDALFIELD 112
-#define UDA_PROTOCOL_LIMITER 113
-#define UDA_PROTOCOL_OPAQUE_STOP 200
+enum class ProtocolId : int {
+    Start = 0,
+    RequestBlock = 1,
+    DataBlockList = 2,
+    NextProtocol = 3,
+    DataSystem = 4,
+    SystemConfig = 5,
+    DataSource = 6,
+    Signal = 7,
+    SignalDesc = 8,
+    Spare1 = 9,
+    ClientBlock = 10,
+    ServerBlock = 11,
+    Spare2 = 12,
+    CloseDown = 13,
+    Sleep = 14,
+    WakeUp = 15,
+    PutdataBlockList = 16,
+    SecurityBlock = 17,
+    Object = 18,
+    SerialiseObject = 19,
+    SerialiseFile = 20,
+    DataObject = 21,
+    DataObjectFile = 22,
+    RegularStop = 99,
+
+    OpaqueStart = 100,
+    Structures = 101,
+    Meta = 102,
+    OpaqueStop = 200,
+};
+
+inline std::string format_as(ProtocolId protocol)
+{
+    switch (protocol) {
+        case ProtocolId::Start: return "ProtocolId::Start";
+        case ProtocolId::RequestBlock: return "ProtocolId::RequestBlock";
+        case ProtocolId::DataBlockList: return "ProtocolId::DataBlockList";
+        case ProtocolId::NextProtocol: return "ProtocolId::NextProtocol";
+        case ProtocolId::DataSystem: return "ProtocolId::DataSystem";
+        case ProtocolId::SystemConfig: return "ProtocolId::SystemConfig";
+        case ProtocolId::DataSource: return "ProtocolId::DataSource";
+        case ProtocolId::Signal: return "ProtocolId::Signal";
+        case ProtocolId::SignalDesc: return "ProtocolId::SignalDesc";
+        case ProtocolId::Spare1: return "ProtocolId::Spare1";
+        case ProtocolId::ClientBlock: return "ProtocolId::ClientBlock";
+        case ProtocolId::ServerBlock: return "ProtocolId::ServerBlock";
+        case ProtocolId::Spare2: return "ProtocolId::Spare2";
+        case ProtocolId::CloseDown: return "ProtocolId::CloseDown";
+        case ProtocolId::Sleep: return "ProtocolId::Sleep";
+        case ProtocolId::WakeUp: return "ProtocolId::WakeUp";
+        case ProtocolId::PutdataBlockList: return "ProtocolId::PutdataBlockList";
+        case ProtocolId::SecurityBlock: return "ProtocolId::SecurityBlock";
+        case ProtocolId::Object: return "ProtocolId::Object";
+        case ProtocolId::SerialiseObject: return "ProtocolId::SerialiseObject";
+        case ProtocolId::SerialiseFile: return "ProtocolId::SerialiseFile";
+        case ProtocolId::DataObject: return "ProtocolId::DataObject";
+        case ProtocolId::DataObjectFile: return "ProtocolId::DataObjectFile";
+        case ProtocolId::RegularStop: return "ProtocolId::RegularStop";
+        case ProtocolId::OpaqueStart: return "ProtocolId::OpaqueStart";
+        case ProtocolId::Structures: return "ProtocolId::Structures";
+        case ProtocolId::Meta: return "ProtocolId::Meta";
+        case ProtocolId::OpaqueStop: return "ProtocolId::OpaqueStop";
+    }
+}
+
+}
 
 #define MIN_BLOCK_TIME 1000
 #define MAX_BLOCK_TIME 10000
@@ -65,12 +95,12 @@ void set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot
 
 void update_select_params(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
 
-int protocol(XDR* xdrs, int protocol_id, int direction, int* token, uda::structures::LogMallocList* logmalloclist,
+int protocol(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token, uda::structures::LogMallocList* logmalloclist,
              uda::structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
              uda::structures::LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
              int malloc_source);
 
-int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, uda::structures::LogMallocList* logmalloclist,
+int protocol2(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token, uda::structures::LogMallocList* logmalloclist,
               uda::structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
               uda::structures::LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 

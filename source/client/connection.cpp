@@ -103,7 +103,7 @@ int uda::client::reconnect(config::Config& config, XDR** client_input, XDR** cli
         auto host = config.get("connection.host").as_or_default(""s);
         auto port = config.get("connection.port").as_or_default(56565);
 
-        if (get_socket(&client_socketlist, TYPE_UDA_SERVER, &status, host, port, &fh) == 0) {
+        if (get_socket(&client_socketlist, SocketType::UDA, &status, host, port, &fh) == 0) {
             config.set("connection.socket", fh);
             config.set("connection.change_socket", true);
         } else {
@@ -583,7 +583,7 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
     config_port = config->get("connection.port").as_or_default(0);
 
     // Add New Socket to the Socket's List
-    add_socket(&client_socketlist, TYPE_UDA_SERVER, 1, config_host, config_port,
+    add_socket(&client_socketlist, SocketType::UDA, 1, config_host, config_port,
                client_socket);
     client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].Input = client_input;
     client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].Output = client_output;

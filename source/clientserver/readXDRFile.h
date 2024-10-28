@@ -3,8 +3,6 @@
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 
-#define MAXDOLOOPLIMIT 500 // ~50MB file
-
 namespace uda::client_server
 {
 

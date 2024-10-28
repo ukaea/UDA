@@ -10,7 +10,7 @@
 #  include "server/serverStartup.h"
 #endif
 
-#define MAXDOLOOPLIMIT 500 // ~50MB file
+constexpr size_t MaxDoLoopLimit = 500; // ~50MB file
 
 using namespace uda::client_server;
 using namespace uda::logging;
@@ -18,7 +18,7 @@ using namespace uda::logging;
 int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
 {
 
-    int err = 0, rc = 1, nchar, bufsize, count;
+    int err = 0, rc = 1, nchar, buf_size, count;
     FILE* fh;
     char* bp = nullptr;
 
@@ -51,24 +51,24 @@ int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
         // Read File and write to xdr data stream
 
         nchar = 0;
-        bufsize = 100 * 1024;
+        buf_size = 100 * 1024;
         rc = 1;
         count = 0;
 
-        if ((bp = (char*)malloc(bufsize * sizeof(char))) == nullptr) {
+        if ((bp = (char*)malloc(buf_size * sizeof(char))) == nullptr) {
             err = 999;
             add_error(ErrorType::Code, "sendXDRFile", err, "Unable to Allocate Heap Memory for the XDR File");
-            bufsize = 0;
-            rc = xdr_int(xdrs, &bufsize);
+            buf_size = 0;
+            rc = xdr_int(xdrs, &buf_size);
             break;
         }
 
-        rc = xdr_int(xdrs, &bufsize); // Send Server buffer size, e.g., 100k bytes
+        rc = xdr_int(xdrs, &buf_size); // Send Server buffer size, e.g., 100k bytes
 
-        UDA_LOG(UDA_LOG_DEBUG, "Buffer size {}", bufsize);
+        UDA_LOG(UDA_LOG_DEBUG, "Buffer size {}", buf_size);
 
         while (!feof(fh)) {
-            nchar = (int)fread(bp, sizeof(char), bufsize, fh);
+            nchar = (int)fread(bp, sizeof(char), buf_size, fh);
             rc = rc && xdr_int(xdrs, &nchar); // Number of Bytes to send
 
             UDA_LOG(UDA_LOG_DEBUG, "File block size {}", nchar);
@@ -105,7 +105,8 @@ int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
 
 int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
 {
-    int err = 0, rc = 1, nchar, bufsize, count, doLoopLimit = 0;
+    int err = 0, rc = 1, nchar, buf_size, count;
+    size_t do_loop_limit = 0;
     FILE* fh;
     char* bp = nullptr;
 
@@ -140,17 +141,17 @@ int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
         nchar = 0;
 
         rc = xdrrec_skiprecord(xdrs);
-        rc = xdr_int(xdrs, &bufsize); // Server buffer size, e.g., 100k bytes
+        rc = xdr_int(xdrs, &buf_size); // Server buffer size, e.g., 100k bytes
 
-        UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Buffer size {}", bufsize);
+        UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Buffer size {}", buf_size);
 
-        if (bufsize <= 0 || bufsize > 100 * 1024) {
+        if (buf_size <= 0 || buf_size > 100 * 1024) {
             err = 999;
             add_error(ErrorType::Code, "receiveXDRFile", err, "Zero buffer size: Server failure");
             break;
         }
 
-        if ((bp = (char*)malloc(bufsize * sizeof(char))) == nullptr) {
+        if ((bp = (char*)malloc(buf_size * sizeof(char))) == nullptr) {
             err = 999;
             add_error(ErrorType::Code, "receiveXDRFile", err, "Unable to Allocate Heap Memory for the XDR File");
             break;
@@ -161,15 +162,15 @@ int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
         do {
             errno = 0;
 
-            if (doLoopLimit > 0) {
+            if (do_loop_limit > 0) {
                 rc = rc && xdrrec_skiprecord(xdrs);
             }
 
             rc = rc && xdr_int(xdrs, &nchar); // How many bytes to receive?
 
-            UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: [{}] File block size {}", doLoopLimit, nchar);
+            UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: [{}] File block size {}", do_loop_limit, nchar);
 
-            if (nchar > bufsize) {
+            if (nchar > buf_size) {
                 err = 999;
                 add_error(ErrorType::Code, "receiveXDRFile", err, "File block size inconsistent with buffer size");
                 break;
@@ -179,9 +180,9 @@ int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
                 rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char); // Bytes
                 count = count + (int)fwrite(bp, sizeof(char), nchar, fh);
             }
-        } while (nchar > 0 && errno == 0 && doLoopLimit++ < MAXDOLOOPLIMIT);
+        } while (nchar > 0 && errno == 0 && do_loop_limit++ < MaxDoLoopLimit);
 
-        if (doLoopLimit >= MAXDOLOOPLIMIT) {
+        if (do_loop_limit >= MaxDoLoopLimit) {
             err = 999;
             add_error(ErrorType::Code, "receiveXDRFile", err, "Maximum XDR file size reached: ~50MBytes");
             break;

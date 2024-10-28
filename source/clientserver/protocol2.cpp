@@ -46,10 +46,10 @@ using namespace uda::structures;
 static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int protocolVersion);
-static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMallocList* logmalloclist,
+static int handle_putdata_block_list(XDR* xdrs, int direction, ProtocolId* token, LogMallocList* logmalloclist,
                                      UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
                                      LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
-static int handle_next_protocol(XDR* xdrs, int direction, int* token);
+static int handle_next_protocol(XDR* xdrs, int direction, ProtocolId* token);
 static int handle_data_system(XDR* xdrs, int direction, const void* str);
 static int handle_system_config(XDR* xdrs, int direction, const void* str);
 static int handle_data_source(XDR* xdrs, int direction, const void* str);
@@ -64,61 +64,61 @@ static int handle_dataobject_file(int direction, const void* str);
 static int handle_security_block(XDR* xdrs, int direction, const void* str);
 #endif
 
-int uda::client_server::protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LogMallocList* logmalloclist,
+int uda::client_server::protocol2(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token, LogMallocList* logmalloclist,
                                   UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                   LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
 
     switch (protocol_id) {
-        case UDA_PROTOCOL_REQUEST_BLOCK:
+        case ProtocolId::RequestBlock:
             err = handle_request_block(xdrs, direction, str, protocolVersion);
             break;
-        case UDA_PROTOCOL_DATA_BLOCK_LIST:
+        case ProtocolId::DataBlockList:
             err = handle_data_block_list(xdrs, direction, str, protocolVersion);
             break;
-        case UDA_PROTOCOL_PUTDATA_BLOCK_LIST:
+        case ProtocolId::PutdataBlockList:
             err = handle_putdata_block_list(xdrs, direction, token, logmalloclist, userdefinedtypelist, str,
                                             protocolVersion, log_struct_list, private_flags, malloc_source);
             break;
-        case UDA_PROTOCOL_NEXT_PROTOCOL:
+        case ProtocolId::NextProtocol:
             err = handle_next_protocol(xdrs, direction, token);
             break;
-        case UDA_PROTOCOL_DATA_SYSTEM:
+        case ProtocolId::DataSystem:
             err = handle_data_system(xdrs, direction, str);
             break;
-        case UDA_PROTOCOL_SYSTEM_CONFIG:
+        case ProtocolId::SystemConfig:
             err = handle_system_config(xdrs, direction, str);
             break;
-        case UDA_PROTOCOL_DATA_SOURCE:
+        case ProtocolId::DataSource:
             err = handle_data_source(xdrs, direction, str);
             break;
-        case UDA_PROTOCOL_SIGNAL:
+        case ProtocolId::Signal:
             err = handle_signal(xdrs, direction, str);
             break;
-        case UDA_PROTOCOL_SIGNAL_DESC:
+        case ProtocolId::SignalDesc:
             err = handle_signal_desc(xdrs, direction, str);
             break;
 #ifdef SECURITYENABLED
-        case UDA_PROTOCOL_SECURITY_BLOCK:
+        case ProtocolId::SecurityBlock:
             err = handle_security_block(xdrs, direction, str);
             break;
 #endif
-        case UDA_PROTOCOL_CLIENT_BLOCK:
+        case ProtocolId::ClientBlock:
             err = handle_client_block(xdrs, direction, str, protocolVersion);
             break;
-        case UDA_PROTOCOL_SERVER_BLOCK:
+        case ProtocolId::ServerBlock:
             err = handle_server_block(xdrs, direction, str, protocolVersion);
             break;
-        case UDA_PROTOCOL_DATAOBJECT:
+        case ProtocolId::DataObject:
             err = handle_dataobject(xdrs, direction, str);
             break;
-        case UDA_PROTOCOL_DATAOBJECT_FILE:
+        case ProtocolId::DataObjectFile:
             err = handle_dataobject_file(direction, str);
 
             break;
         default:
-            if (protocol_id > UDA_PROTOCOL_OPAQUE_START && protocol_id < UDA_PROTOCOL_OPAQUE_STOP) {
+            if (protocol_id > ProtocolId::OpaqueStart && protocol_id < ProtocolId::OpaqueStop) {
                 err = protocol_xml2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
                                     protocolVersion, log_struct_list, private_flags, malloc_source);
             }
@@ -500,7 +500,7 @@ static int handle_data_system(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_next_protocol(XDR* xdrs, int direction, int* token)
+static int handle_next_protocol(XDR* xdrs, int direction, ProtocolId* token)
 {
     int err = 0;
     switch (direction) {
@@ -509,14 +509,14 @@ static int handle_next_protocol(XDR* xdrs, int direction, int* token)
                 err = UDA_PROTOCOL_ERROR_5;
                 break;
             }
-            if (!xdr_int(xdrs, token)) {
+            if (!xdr_int(xdrs, (int*)token)) {
                 err = UDA_PROTOCOL_ERROR_9;
                 break;
             }
             break;
 
         case XDR_SEND:
-            if (!xdr_int(xdrs, token)) {
+            if (!xdr_int(xdrs, (int*)token)) {
                 err = UDA_PROTOCOL_ERROR_9;
                 break;
             }
@@ -537,7 +537,7 @@ static int handle_next_protocol(XDR* xdrs, int direction, int* token)
     return err;
 }
 
-static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMallocList* logmalloclist,
+static int handle_putdata_block_list(XDR* xdrs, int direction, ProtocolId* token, LogMallocList* logmalloclist,
                                      UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
                                      LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
@@ -603,7 +603,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMa
                     data_block->data_n = (int)put_data.count;         // This number (also rank and shape)
                     data_block->opaque_block = put_data.opaque_block; // User Defined Type
 
-                    int protocol_id = UDA_PROTOCOL_STRUCTURES;
+                    ProtocolId protocol_id = ProtocolId::Structures;
                     if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist,
                                                  userdefinedtypelist, data_block, protocolVersion, log_struct_list,
                                                  private_flags, malloc_source)) != 0) {
@@ -668,7 +668,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LogMa
                     data_block.data =
                         (char*)putDataBlockList->putDataBlock[i].data; // Compact memory block with structures
 
-                    int protocol_id = UDA_PROTOCOL_STRUCTURES;
+                    ProtocolId protocol_id = ProtocolId::Structures;
                     if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist,
                                                  userdefinedtypelist, &data_block, protocolVersion, log_struct_list,
                                                  private_flags, malloc_source)) != 0) {

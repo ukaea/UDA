@@ -1549,7 +1549,7 @@ bool_t uda::client_server::xdr_user_defined_type_list_put(XDR* xdrs, UserDefined
     return rc;
 }
 
-int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direction, int* token,
+int uda::client_server::protocol_xml2_put(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token,
                                           LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                                           void* str, int protocolVersion, LogStructList* log_struct_list,
                                           unsigned int private_flags, int malloc_source)
@@ -1567,7 +1567,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
         //----------------------------------------------------------------------------
         // Generalised User Defined Data Structures
 
-        if (protocol_id == UDA_PROTOCOL_STRUCTURES) {
+        if (protocol_id == ProtocolId::Structures) {
 
             void* data = nullptr;
             data_block = (DataBlock*)str;

@@ -108,7 +108,7 @@ void free_data_blocks(std::vector<DataBlock>& data_blocks)
 void close_sockets(std::vector<Sockets>& sockets)
 {
     for (auto& socket : sockets) {
-        if (socket.type == TYPE_UDA_SERVER) {
+        if (socket.type == SocketType::UDA) {
             close(socket.fh);
         }
     }
@@ -325,7 +325,7 @@ void uda::server::Server::loop()
 {
     int err = 0;
 
-    int next_protocol;
+    ProtocolId next_protocol;
 
     do {
         UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop");
@@ -358,7 +358,7 @@ void uda::server::Server::loop()
         uda_access_log(FALSE, _client_block, _request_block, _server_block, _total_data_block_size);
 
         err = 0;
-        next_protocol = UDA_PROTOCOL_SLEEP;
+        next_protocol = ProtocolId::Sleep;
         UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol);
 
         //----------------------------------------------------------------------------
@@ -410,7 +410,7 @@ void uda::server::Server::loop()
         //----------------------------------------------------------------------------
         // Server Wait Loop
 
-    } while (err == 0 && next_protocol == UDA_PROTOCOL_SLEEP && !_fatal_error);
+    } while (err == 0 && next_protocol == ProtocolId::Sleep && !_fatal_error);
 }
 
 int uda::server::Server::handle_request()

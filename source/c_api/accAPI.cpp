@@ -3433,14 +3433,14 @@ void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSi
     XDR xdrs;
     xdrstdio_create(&xdrs, memfile, XDR_ENCODE);
 
-    int token;
+    ProtocolId token;
 
     auto userdefinedtypelist = static_cast<UserDefinedTypeList*>(udaGetUserDefinedTypeList(handle));
     auto logmalloclist = static_cast<LogMallocList*>(udaGetLogMallocList(handle));
     DataBlockList data_block_list;
     data_block_list.count = 1;
     data_block_list.data = getDataBlock(handle);
-    protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
+    protocol2(&xdrs, ProtocolId::DataBlockList, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
               &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
 #ifdef _WIN32

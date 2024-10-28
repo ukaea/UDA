@@ -29,7 +29,7 @@ void uda::client_server::init_socket_list(SOCKETLIST* socks)
 
 // Add a New Socket to the Socket List
 
-int uda::client_server::add_socket(SOCKETLIST* socks, int type, int status, const std::string& host, int port, int fh)
+int uda::client_server::add_socket(SOCKETLIST* socks, SocketType type, int status, const std::string& host, int port, int fh)
 {
     int old_fh = -1;
     if (!get_socket(socks, type, &status, host, port, &old_fh)) { // Is an Open Socket already listed?
@@ -54,7 +54,7 @@ int uda::client_server::add_socket(SOCKETLIST* socks, int type, int status, cons
 
 // Search for an Open Socket in the Socket List
 
-int uda::client_server::get_socket(SOCKETLIST* socks, int type, int* status, const std::string& host, int port, int* fh)
+int uda::client_server::get_socket(SOCKETLIST* socks, SocketType type, int* status, const std::string& host, int port, int* fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (STR_IEQUALS(host.c_str(), socks->sockets[i].host) && socks->sockets[i].type == type &&
@@ -86,7 +86,7 @@ void uda::client_server::close_client_socket(SOCKETLIST* socks, int fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh && socks->sockets[i].fh >= 0) {
-            if (socks->sockets[i].type == TYPE_UDA_SERVER) {
+            if (socks->sockets[i].type == SocketType::UDA) {
 #ifndef _WIN32
                 close(fh); // Only Genuine Sockets!
 #else

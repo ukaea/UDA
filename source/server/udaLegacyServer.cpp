@@ -47,7 +47,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 {
 
     int rc, err = 0, depth, fatal = 0;
-    int protocol_id, next_protocol;
+    ProtocolId protocol_id, next_protocol;
 
     static unsigned short normal_legacy_wait = 0;
     static unsigned int total_datablock_size = 0;
@@ -125,7 +125,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 UDA_LOG(UDA_LOG_DEBUG, "Receiving Client Block")
                 UDA_LOG(UDA_LOG_DEBUG, "XDR #AB xdrrec_eof ? {}", rc)
 
-                protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
+                protocol_id = ProtocolId::ClientBlock;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                                     &client_block, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -173,7 +173,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             if (normal_legacy_wait) {
 
-                protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
+                protocol_id = ProtocolId::ServerBlock;
 
                 UDA_LOG(UDA_LOG_DEBUG, "Sending Server Block")
 
@@ -206,7 +206,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             // Errors: Fatal to Data Access
             //       Pass Back and Await Client Instruction
 
-            protocol_id = UDA_PROTOCOL_REQUEST_BLOCK;
+            protocol_id = ProtocolId::RequestBlock;
 
             if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                                 &request_block, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -330,7 +330,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             if (request_data->put) {
 
-                protocol_id = UDA_PROTOCOL_PUTDATA_BLOCK_LIST;
+                protocol_id = ProtocolId::PutdataBlockList;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                                     &(request_data->putDataBlockList), protocolVersion, &log_struct_list, &io_data,
@@ -470,7 +470,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 strcpy(server_block.msg, server_block.idamerrorstack.idamerror[0].msg);
             }
 
-            protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
+            protocol_id = ProtocolId::ServerBlock;
 
             if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                 &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -500,7 +500,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 // Next Protocol id
 
-                protocol_id = UDA_PROTOCOL_NEXT_PROTOCOL;
+                protocol_id = ProtocolId::NextProtocol;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list,
                                     user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
@@ -514,7 +514,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 UDA_LOG(UDA_LOG_DEBUG, "Next Protocol {} Received", next_protocol)
                 UDA_LOG(UDA_LOG_DEBUG, "XDR #D xdrrec_eof ? {}", rc)
 
-                if (next_protocol != UDA_PROTOCOL_DATA_SYSTEM) {
+                if (next_protocol != ProtocolId::DataSystem) {
                     err = 998;
                     add_error(ErrorType::Code, __func__, err, "Protocol 3 Error: Protocol Request Inconsistency");
                     break;
@@ -523,7 +523,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 //----------------------------------------------------------------------------
                 // Send the Data System Structure
 
-                protocol_id = UDA_PROTOCOL_DATA_SYSTEM;
+                protocol_id = ProtocolId::DataSystem;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                     &data_system, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -536,7 +536,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 //----------------------------------------------------------------------------
                 // Send the System Configuration Structure
 
-                protocol_id = UDA_PROTOCOL_SYSTEM_CONFIG;
+                protocol_id = ProtocolId::SystemConfig;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                     &system_config, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -549,7 +549,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 //----------------------------------------------------------------------------
                 // Send the Data Source Structure
 
-                protocol_id = UDA_PROTOCOL_DATA_SOURCE;
+                protocol_id = ProtocolId::DataSource;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                     &data_source, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -562,7 +562,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 //----------------------------------------------------------------------------
                 // Send the Signal Structure
 
-                protocol_id = UDA_PROTOCOL_SIGNAL;
+                protocol_id = ProtocolId::Signal;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                     &signal_rec, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -575,7 +575,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 //----------------------------------------------------------------------------
                 // Send the Signal Description Structure
 
-                protocol_id = UDA_PROTOCOL_SIGNAL_DESC;
+                protocol_id = ProtocolId::SignalDesc;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                     &signal_desc, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -590,7 +590,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             //----------------------------------------------------------------------------
             // Next Protocol id
 
-            protocol_id = UDA_PROTOCOL_NEXT_PROTOCOL;
+            protocol_id = ProtocolId::NextProtocol;
 
             if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list,
                                 user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
@@ -607,7 +607,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             //----------------------------------------------------------------------------
             // Send the Data
 
-            if (next_protocol != UDA_PROTOCOL_DATA_BLOCK_LIST) {
+            if (next_protocol != ProtocolId::DataBlockList) {
                 err = 997;
                 add_error(ErrorType::Code, __func__, err, "Protocol 3 Error: Incorrect Request");
                 break;
@@ -616,7 +616,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             print_data_block(data_block);
             UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client")
 
-            protocol_id = UDA_PROTOCOL_DATA_BLOCK_LIST;
+            protocol_id = ProtocolId::DataBlockList;
 
             if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                 &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
@@ -633,7 +633,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
 
-                protocol_id = UDA_PROTOCOL_NEXT_PROTOCOL;
+                protocol_id = ProtocolId::NextProtocol;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list,
                                     user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
@@ -643,7 +643,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                     break;
                 }
 
-                if (next_protocol != UDA_PROTOCOL_STRUCTURES) {
+                if (next_protocol != ProtocolId::Structures) {
                     err = 999;
                     add_error(ErrorType::Code, __func__, err, "Incorrect Next Protocol received: (Structures)");
                     break;
@@ -655,14 +655,10 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
                 if (data_block.opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
-                    protocol_id = UDA_PROTOCOL_META;
-                } else {
-                    if (data_block.opaque_type == UDA_OPAQUE_TYPE_STRUCTURES ||
-                        data_block.opaque_type == UDA_OPAQUE_TYPE_XDRFILE) {
-                        protocol_id = UDA_PROTOCOL_STRUCTURES;
-                    } else {
-                        protocol_id = UDA_PROTOCOL_EFIT;
-                    }
+                    protocol_id = ProtocolId::Meta;
+                } else if (data_block.opaque_type == UDA_OPAQUE_TYPE_STRUCTURES ||
+                    data_block.opaque_type == UDA_OPAQUE_TYPE_XDRFILE) {
+                    protocol_id = ProtocolId::Structures;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client")
@@ -698,8 +694,8 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
         // <========================== Client Server Code Only
 
-        protocol_id = UDA_PROTOCOL_NEXT_PROTOCOL;
-        next_protocol = 0;
+        protocol_id = ProtocolId::NextProtocol;
+        next_protocol = ProtocolId::Start;
 
         if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list, user_defined_type_list,
                             nullptr, protocolVersion, &log_struct_list, &io_data, private_flags, malloc_source)) != 0) {
@@ -714,13 +710,13 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
         UDA_LOG(UDA_LOG_DEBUG, "Current Error Value {}", err)
 
         UDA_LOG(UDA_LOG_DEBUG, "Client Request {}", next_protocol)
-        if (next_protocol == UDA_PROTOCOL_CLOSEDOWN) {
+        if (next_protocol == ProtocolId::CloseDown) {
             UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Die")
         }
-        if (next_protocol == UDA_PROTOCOL_SLEEP) {
+        if (next_protocol == ProtocolId::Sleep) {
             UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Sleep")
         }
-        if (next_protocol == UDA_PROTOCOL_WAKE_UP) {
+        if (next_protocol == ProtocolId::WakeUp) {
             UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Wake-up")
         }
 
@@ -762,7 +758,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
         //----------------------------------------------------------------------------
         // Server Wait Loop
 
-    } while (err == 0 && next_protocol == UDA_PROTOCOL_SLEEP &&
+    } while (err == 0 && next_protocol == ProtocolId::Sleep &&
              sleepServer(server_input, server_output, log_malloc_list, user_defined_type_list, protocolVersion,
                          &log_struct_list, server_tot_block_time, server_timeout, &io_data, private_flags,
                          malloc_source));

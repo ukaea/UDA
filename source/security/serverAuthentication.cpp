@@ -177,7 +177,7 @@ static SECURITY_BLOCK* receiveSecurityBlock(ClientBlock* client_block, LogMalloc
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
         add_error(ErrorType::Code, __func__, UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
     } else {
-        int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK; // Recieve Client Block
+        ProtocolId protocol_id = ProtocolId::ClientBlock; // Recieve Client Block
 
         int err = 0;
         if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
@@ -312,7 +312,7 @@ static int issueToken(ServerBlock* server_block, LogMallocList* logmalloclist, U
     securityBlock->server_ciphertextLength = (unsigned short)server_ciphertextLength;
 
 #  ifndef TESTIDAMSECURITY
-    int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
+    ProtocolId protocol_id = ProtocolId::ServerBlock;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                          server_block)) != 0) {
@@ -340,7 +340,7 @@ static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, Log
     // Receive the encrypted token (B) from the client
 
 #  ifndef TESTIDAMSECURITY
-    int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
+    ProtocolId protocol_id = ProtocolId::ClientBlock;
 
     if (!xdrrec_skiprecord(serverInput)) {
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
@@ -388,7 +388,7 @@ static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, Log
     securityBlock->client_ciphertextLength = (unsigned short)client_ciphertextLength;
 
 #  ifndef TESTIDAMSECURITY
-    protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
+    protocol_id = ProtocolId::ServerBlock;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                          server_block)) != 0) {
