@@ -100,7 +100,7 @@ unsigned int count_data_block_list_size(const std::vector<uda::client_server::Da
 void free_data_blocks(std::vector<DataBlock>& data_blocks)
 {
     for (auto& data_block : data_blocks) {
-        freeDataBlock(&data_block);
+        free_data_block(&data_block);
     }
     data_blocks.clear();
 }
@@ -378,7 +378,7 @@ void uda::server::Server::loop()
         udaSetFullNTree(nullptr);
         udaResetLastMallocIndex();
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlockList");
+        UDA_LOG(UDA_LOG_DEBUG, "free_data_blockList");
         free_data_blocks(_data_blocks);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions");
@@ -387,7 +387,7 @@ void uda::server::Server::loop()
         UDA_LOG(UDA_LOG_DEBUG, "freeActions");
         free_actions(&_actions_sig);
 
-        freeRequestBlock(&_request_block);
+        free_request_block(&_request_block);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap

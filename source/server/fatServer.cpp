@@ -225,7 +225,7 @@ static int process_hierarchical_data(DataBlock* data_block, LogStructList* log_s
 
     // Free Heap
 
-    freeReducedDataBlock(data_block);
+    free_reduced_data_block(data_block);
     *data_block = data_block_copy;
 
     // Create an input XDR stream
@@ -281,7 +281,7 @@ int fat_client_return(ServerBlock* server_block, DataBlockList* data_blocks, Dat
         }
     }
 
-    freeRequestBlock(request_block);
+    free_request_block(request_block);
 
     return err;
 }

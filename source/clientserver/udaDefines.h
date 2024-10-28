@@ -1,5 +1,4 @@
-#ifndef UDA_CLIENTSERVER_IDAMDEFINES_H
-#define UDA_CLIENTSERVER_IDAMDEFINES_H
+#pragma once
 
 //--------------------------------------------------------
 // Size Definitions
@@ -140,5 +139,3 @@
 // QA Status
 
 #define DEFAULT_STATUS 1 // Default Signal and Data_Source Status value
-
-#endif // UDA_CLIENTSERVER_IDAMDEFINES_H

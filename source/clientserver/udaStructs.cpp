@@ -6,7 +6,7 @@
 
 using namespace uda::logging;
 
-void uda::client_server::freePutDataBlockList(PutDataBlockList* putDataBlockList)
+void uda::client_server::free_put_data_block_list(PutDataBlockList* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
@@ -17,10 +17,10 @@ void uda::client_server::freePutDataBlockList(PutDataBlockList* putDataBlockList
 // void freeRequestData(RequestData* request_data)
 //{
 //     free_name_value_list(&request_data->nameValueList);
-//     freePutDataBlockList(&request_data->putDataBlockList);
+//     free_put_data_block_list(&request_data->putDataBlockList);
 // }
 
-void uda::client_server::freeRequestBlock(RequestBlock* request_block)
+void uda::client_server::free_request_block(RequestBlock* request_block)
 {
     //    for (int i = 0; i < request_block->num_requests; ++i) {
     //        freeRequestData(&request_block->requests[0]);
@@ -30,7 +30,7 @@ void uda::client_server::freeRequestBlock(RequestBlock* request_block)
     //    request_block->requests = nullptr;
 }
 
-void uda::client_server::freeClientPutDataBlockList(PutDataBlockList* putDataBlockList)
+void uda::client_server::free_client_put_data_block_list(PutDataBlockList* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
@@ -38,7 +38,7 @@ void uda::client_server::freeClientPutDataBlockList(PutDataBlockList* putDataBlo
     //    init_put_data_block_list(putDataBlockList);
 }
 
-void uda::client_server::freeDataBlock(DataBlock* data_block)
+void uda::client_server::free_data_block(DataBlock* data_block)
 {
     // Free Heap Memory & Zero all Integer values
 
@@ -197,10 +197,10 @@ void uda::client_server::freeDataBlock(DataBlock* data_block)
     UDA_LOG(UDA_LOG_DEBUG, "Exit");
 }
 
-void uda::client_server::freeDataBlockList(DataBlockList* data_block_list)
+void uda::client_server::free_data_block_list(DataBlockList* data_block_list)
 {
     for (int i = 0; i < data_block_list->count; ++i) {
-        freeDataBlock(&data_block_list->data[i]);
+        free_data_block(&data_block_list->data[i]);
     }
     free(data_block_list->data);
     data_block_list->count = 0;
@@ -208,7 +208,7 @@ void uda::client_server::freeDataBlockList(DataBlockList* data_block_list)
 }
 
 // Free Heap Memory & Zero all Integer values
-void uda::client_server::freeReducedDataBlock(DataBlock* data_block)
+void uda::client_server::free_reduced_data_block(DataBlock* data_block)
 {
 #ifdef FATCLIENT
     if (data_block == nullptr) {

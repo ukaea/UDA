@@ -345,33 +345,56 @@ struct NameValueList {
     NameValue* nameValue; // List of individual name value pairs in parse order
 };
 
-enum REQUEST {
-    REQUEST_SHUTDOWN = -30,
-    REQUEST_READ_GENERIC, // Generic Signal via the UDA Database
-    REQUEST_READ_IDA,     // an IDA File
-    REQUEST_READ_MDS,     // an MDSPlus Server
-    REQUEST_READ_IDAM,    // a Remote UDA server
-    REQUEST_READ_FORMAT,  // Server to Choose Plugin for Requested Format
-    REQUEST_READ_CDF,     // netCDF File
-    REQUEST_READ_HDF5,    // HDF5 FIle
-    REQUEST_READ_XML,     // XML Document defining a Signal
-    REQUEST_READ_UFILE,   // TRANSP UFile
-    REQUEST_READ_FILE,    // Read a File: A Container of Bytes!
-    REQUEST_READ_SQL,     // Read from an SQL Data Source
-    REQUEST_READ_PPF,     // JET PPF
-    REQUEST_READ_JPF,     // JET JPF
-    REQUEST_READ_NEW_PLUGIN,
-    REQUEST_READ_NOTHING,    // Immediate Return without Error: Client Server Timing Tests
-    REQUEST_READ_BLOCKED,    // Disable Server Option for External Users (Not a client side option)
-    REQUEST_READ_HDATA,      // Hierarchical Data Structures
-    REQUEST_READ_SERVERSIDE, // Server Side Functions
-    REQUEST_READ_UNKNOWN,    // Plugin Not Known
-    REQUEST_READ_WEB,        // a Remote or Local web server
-    REQUEST_READ_BIN,        // Binary file
-    REQUEST_READ_HELP,       // Help file
-    REQUEST_READ_DEVICE,     // Request to an External Device's data server
-    REQUEST_CACHED,
+enum class Request {
+    Shutdown = -30,
+    ReadGeneric, // Generic Signal via the UDA Database
+    ReadIDA,     // an IDA File
+    ReadMDS,     // an MDSPlus Server
+    ReadUDA,    // a Remote UDA server
+    ReadFormat,  // Server to Choose Plugin for Requested Format
+    ReadCPF,     // netCDF File
+    ReadHDF5,
+    ReadXML,
+    ReadUFile,   // TRANSP UFile
+    ReadFile,
+    ReadSQL,     // Read from an SQL Data Source
+    ReadPPF,     // JET PPF
+    ReadJPF,     // JET JPF
+    ReadNewPlugin,
+    ReadNothing,    // Immediate Return without Error: Client Server Timing Tests
+    ReadHData,
+    ReadServerside, // Server Side Functions
+    ReadUnknown,    // Plugin Not Known
+    ReadWeb,        // a Remote or Local web server
+    Cached,
 };
+
+inline std::string format_as(Request request)
+{
+    switch (request) {
+        case Request::Shutdown: return "Request::Shutdown";
+        case Request::ReadGeneric: return "Request::ReadGeneric";
+        case Request::ReadIDA: return "Request::ReadIDA";
+        case Request::ReadMDS: return "Request::ReadMDS";
+        case Request::ReadUDA: return "Request::ReadUDA";
+        case Request::ReadFormat: return "Request::ReadFormat";
+        case Request::ReadCPF: return "Request::ReadCPF";
+        case Request::ReadHDF5: return "Request::ReadHDF5";
+        case Request::ReadXML: return "Request::ReadXML";
+        case Request::ReadUFile: return "Request::ReadUFile";
+        case Request::ReadFile: return "Request::ReadFile";
+        case Request::ReadSQL: return "Request::ReadSQL";
+        case Request::ReadPPF: return "Request::ReadPPF";
+        case Request::ReadJPF: return "Request::ReadJPF";
+        case Request::ReadNewPlugin: return "Request::ReadNewPlugin";
+        case Request::ReadNothing: return "Request::ReadNothing";
+        case Request::ReadHData: return "Request::ReadHData";
+        case Request::ReadServerside: return "Request::ReadServerside";
+        case Request::ReadUnknown: return "Request::ReadUnknown";
+        case Request::ReadWeb: return "Request::ReadWeb";
+        case Request::Cached: return "Request::Cached";
+    }
+}
 
 struct OptionalLong {
     bool init;
@@ -422,18 +445,18 @@ struct RequestBlock {
     RequestData* requests;
 };
 
-void freeClientPutDataBlockList(PutDataBlockList* putDataBlockList);
+void free_client_put_data_block_list(PutDataBlockList* putDataBlockList);
 
-void freeDataBlock(DataBlock* data_block);
+void free_data_block(DataBlock* data_block);
 
-void freeDataBlockList(DataBlockList* data_block_list);
+void free_data_block_list(DataBlockList* data_block_list);
 
-void freeReducedDataBlock(DataBlock* data_block);
+void free_reduced_data_block(DataBlock* data_block);
 
-void freeRequestBlock(RequestBlock* request_block);
+void free_request_block(RequestBlock* request_block);
 
 // void freeRequestData(RequestData* request_data);
 
-void freePutDataBlockList(PutDataBlockList* putDataBlockList);
+void free_put_data_block_list(PutDataBlockList* putDataBlockList);
 
 } // namespace uda::client_server

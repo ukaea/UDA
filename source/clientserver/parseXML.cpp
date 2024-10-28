@@ -1657,14 +1657,14 @@ void uda::client_server::free_actions(Actions* actions)
     void* cptr;
 
     UDA_LOG(UDA_LOG_DEBUG, "freeActions: Enter")
-    UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock: Number of Actions = {} ", actions->nactions)
+    UDA_LOG(UDA_LOG_DEBUG, "free_data_block: Number of Actions = {} ", actions->nactions)
 
     if (actions->nactions == 0) {
         return;
     }
 
     for (int i = 0; i < actions->nactions; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock: freeing action Type = {} ", actions->action[i].actionType)
+        UDA_LOG(UDA_LOG_DEBUG, "free_data_block: freeing action Type = {} ", actions->action[i].actionType)
 
         switch (actions->action[i].actionType) {
 

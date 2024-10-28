@@ -29,36 +29,36 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
         //----------------------------------------------------------------------
         // Client Requests the Server to Choose Data Access plugin
 
-        if (request->request == REQUEST_READ_FORMAT) {
-            UDA_LOG(UDA_LOG_DEBUG, "Request: REQUEST_READ_FORMAT");
+        if (request->request == (int)Request::ReadUDA) {
+            UDA_LOG(UDA_LOG_DEBUG, "Request: Request::ReadFormat");
             UDA_LOG(UDA_LOG_DEBUG, "Format : {} ", request->format);
 
             if (STR_IEQUALS(request->format, "IDA") || STR_IEQUALS(request->format, "IDA3")) {
-                request->request = REQUEST_READ_IDA;
+                request->request = (int)Request::ReadIDA;
                 //                parseIDAPath(request);        // Check Path for file details
             } else if (STR_IEQUALS(request->format, "NETCDF")) {
-                request->request = REQUEST_READ_CDF;
+                request->request = (int)Request::ReadCPF;
             } else if (STR_IEQUALS(request->format, "HDF5")) {
-                request->request = REQUEST_READ_HDF5;
+                request->request = (int)Request::ReadHDF5;
             } else if (STR_IEQUALS(request->format, "XML")) {
-                request->request = REQUEST_READ_XML;
+                request->request = (int)Request::ReadXML;
                 //                parseXMLPath(request);        // Check Path for details
             } else if (STR_IEQUALS(request->format, "UFILE")) {
-                request->request = REQUEST_READ_UFILE;
+                request->request = (int)Request::ReadUFile;
             } else if (STR_IEQUALS(request->format, "BIN") || STR_IEQUALS(request->format, "BINARY")) {
-                request->request = REQUEST_READ_FILE;
+                request->request = (int)Request::ReadFile;
             } else if (STR_IEQUALS(request->format, "PPF")) {
-                request->request = REQUEST_READ_PPF;
+                request->request = (int)Request::ReadPPF;
             } else if (STR_IEQUALS(request->format, "JPF")) {
-                request->request = REQUEST_READ_JPF;
+                request->request = (int)Request::ReadJPF;
             } else if (STR_IEQUALS(request->format, "TEST")) {
-                request->request = REQUEST_READ_NEW_PLUGIN;
+                request->request = (int)Request::ReadNewPlugin;
             } else if (STR_IEQUALS(request->format, "NOTHING")) {
-                request->request = REQUEST_READ_NOTHING;
+                request->request = (int)Request::ReadNothing;
             } else if (STR_IEQUALS(request->format, "HDATA")) {
-                request->request = REQUEST_READ_HDATA;
+                request->request = (int)Request::ReadHData;
             } else if (STR_IEQUALS(request->format, "SQL")) {
-                request->request = REQUEST_READ_SQL;
+                request->request = (int)Request::ReadSQL;
             }
 
             UDA_LOG(UDA_LOG_DEBUG, "Request Selected: {}", request->request);
@@ -73,7 +73,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
         // Client Identifies the File or Signal via the State Block
 
         switch (request->request) {
-            case REQUEST_READ_IDA:
+            case (int)Request::ReadIDA:
 
                 strcpy(data_source->source_alias, trim_string(request->file));
                 strcpy(data_source->filename, trim_string(request->file));
@@ -93,7 +93,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", request->pass);
                 break;
 
-            case REQUEST_READ_NEW_PLUGIN:
+            case (int)Request::ReadNewPlugin:
                 strcpy(data_source->source_alias, trim_string(request->file));
                 strcpy(data_source->filename, trim_string(request->file));
                 strcpy(data_source->path, trim_string(request->path));
@@ -112,7 +112,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", request->pass);
                 break;
 
-            case REQUEST_READ_MDS:
+            case (int)Request::ReadMDS:
                 strcpy(data_source->filename, trim_string(request->file)); // MDS+ Tree
                 strcpy(data_source->server, trim_string(request->server)); // MDS+ Server Name
 
@@ -132,14 +132,14 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "Tree Number  : {} ", request->exp_number);
                 break;
 
-            case REQUEST_READ_IDAM:
+            case (int)Request::ReadUDA:
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read Remote IDAM Source");
                 UDA_LOG(UDA_LOG_DEBUG, "Server       : {} ", request->server);
                 UDA_LOG(UDA_LOG_DEBUG, "Source       : {} ", request->file);
                 UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
                 break;
 
-            case REQUEST_READ_CDF:
+            case (int)Request::ReadCPF:
                 strcpy(data_source->path, trim_string(request->path)); // netCDF File Location
                 copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
@@ -148,7 +148,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
                 break;
 
-            case REQUEST_READ_HDF5:
+            case (int)Request::ReadHDF5:
                 strcpy(data_source->path, trim_string(request->path)); // HDF5 File Location
                 copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
@@ -157,7 +157,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "Signal       : {} ", request->signal);
                 break;
 
-            case REQUEST_READ_XML:
+            case (int)Request::ReadXML:
                 data_source->exp_number = request->exp_number;
                 data_source->pass = request->pass;
 
@@ -166,28 +166,28 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "XML Document : {} ", request->signal);
                 break;
 
-            case REQUEST_READ_UFILE:
+            case (int)Request::ReadUFile:
                 strcpy(data_source->path, trim_string(request->path)); // UFile File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadUFile");
                 UDA_LOG(UDA_LOG_DEBUG, "UFile File   : {} ", request->path);
                 break;
 
-            case REQUEST_READ_FILE:
+            case (int)Request::ReadFile:
                 strcpy(data_source->path, trim_string(request->path)); // File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadBytes");
                 UDA_LOG(UDA_LOG_DEBUG, "File  : {} ", request->path);
                 break;
 
-            case REQUEST_READ_HDATA:
+            case (int)Request::ReadHData:
                 strcpy(data_source->path, trim_string(request->path)); // File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHData");
                 UDA_LOG(UDA_LOG_DEBUG, "File  : {} ", request->path);
                 break;
 
-            case REQUEST_READ_SQL:
+            case (int)Request::ReadSQL:
                 strcpy(data_source->path, trim_string(request->path));     // SQL database etc.
                 strcpy(data_source->server, trim_string(request->server)); // SQL server host
                 strcpy(data_source->format, trim_string(request->format));
@@ -198,7 +198,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "SQL   : {} ", request->signal);
                 break;
 
-            case REQUEST_READ_NOTHING:
+            case (int)Request::ReadNothing:
                 data_source->exp_number = request->exp_number; // Size of Data Block
                 data_source->pass = request->pass;             // Compressible or Not
 
@@ -223,7 +223,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read Nothing! (Returns Test Data)");
                 break;
 
-            case REQUEST_READ_PPF:
+            case (int)Request::ReadPPF:
                 strcpy(data_source->source_alias, trim_string(request->file));
                 strcpy(data_source->filename, trim_string(request->file));
                 strcpy(data_source->path, trim_string(request->path));
@@ -240,7 +240,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", request->pass);
                 break;
 
-            case REQUEST_READ_JPF:
+            case (int)Request::ReadJPF:
                 copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
                 data_source->exp_number = request->exp_number;
 

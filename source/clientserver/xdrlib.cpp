@@ -285,7 +285,7 @@ bool_t uda::client_server::xdr_request_data(XDR* xdrs, RequestData* str, int pro
 {
     int request = static_cast<int>(str->request);
     int rc = xdr_int(xdrs, &request);
-    str->request = static_cast<REQUEST>(request);
+    str->request = static_cast<int>(request);
     rc = rc && xdr_int(xdrs, &str->exp_number);
     rc = rc && xdr_int(xdrs, &str->pass);
     rc = rc && wrap_xdr_string(xdrs, (char*)str->tpass, STRING_LENGTH);

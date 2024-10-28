@@ -905,7 +905,7 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
             auto count = (unsigned int*)malloc(sizeof(unsigned int));
             if (p1 == nullptr) {
                 count[0] = (unsigned int)data_block->data_n;
-                freeDataBlock(data_block);
+                free_data_block(data_block);
                 init_data_block(data_block);
                 data_block->data_n = 1;
                 data_block->data = (char*)count;

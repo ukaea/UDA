@@ -188,7 +188,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     //-------------------------------------------------------------------------
     // Free Heap
 
-    freeClientPutDataBlockList(&request_block.requests[0].putDataBlockList);
+    free_client_put_data_block_list(&request_block.requests[0].putDataBlockList);
 
     return handle;
 }

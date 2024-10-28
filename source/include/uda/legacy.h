@@ -195,7 +195,7 @@ inline int acc_getCurrentDataBlockIndex()
     return udaGetCurrentDataBlockIndex();
 }
 
-inline void acc_freeDataBlocks()
+inline void acc_free_data_blocks()
 {
     return udaFreeDataBlocks();
 }

@@ -110,7 +110,7 @@ int getCurrentDataBlockIndex()
     return data_blocks.size() - 1;
 }
 
-void freeDataBlocks()
+void free_data_blocks()
 {
     data_blocks.clear();
     udaPutThreadLastHandle(-1);
@@ -576,14 +576,14 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
             int rc = check_file_cache(request, &data_block, g_log_malloc_list, g_user_defined_type_list,
                                       &log_struct_list, client_flags, *private_flags, malloc_source);
             if (rc >= 0) {
-                request_block->requests[i].request = REQUEST_CACHED;
+                request_block->requests[i].request = Request::Cached;
                 ++num_cached;
                 continue;
             }
             rc = check_mem_cache(cache, request, &data_block, g_log_malloc_list, g_user_defined_type_list,
                                  &log_struct_list, client_flags, *private_flags, malloc_source);
             if (rc >= 0) {
-                request_block->requests[i].request = REQUEST_CACHED;
+                request_block->requests[i].request = Request::Cached;
                 ++num_cached;
                 continue;
             }
@@ -1073,7 +1073,7 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
             DataBlock* data_block = getDataBlock(data_block_idx);
 
             //           DataBlock* in_data;
-            //           if (request_block->requests[i].request == REQUEST_CACHED) {
+            //           if (request_block->requests[i].request == Request::Cached) {
             //               in_data = &cached_data_block_list.data[i];
             //           } else {
             //               in_data = &recv_data_block_list.data[recv_idx];
@@ -1563,13 +1563,13 @@ void udaFreeAll()
 
     for (int i = 0; i < getCurrentDataBlockIndex(); ++i) {
 #ifndef FATCLIENT
-        freeDataBlock(getDataBlock(i));
+        free_data_block(getDataBlock(i));
 #else
-        freeDataBlock(getDataBlock(i));
+        free_data_block(getDataBlock(i));
 #endif
     }
 
-    freeDataBlocks();
+    free_data_blocks();
 
 #ifndef FATCLIENT
     g_user_defined_type_list = nullptr; // malloc'd within protocolXML

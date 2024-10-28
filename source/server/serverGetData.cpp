@@ -67,7 +67,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
 #ifndef PROXYSERVER
     if (original_request == 0 || *depth == 0) {
         original_request = request_data->request;
-        if (request_data->request != REQUEST_READ_XML) {
+        if (request_data->request != (int)Request::ReadXML) {
             if (STR_STARTSWITH(request_data->signal, "<?xml")) {
                 original_xml = 1;
             }
@@ -90,8 +90,8 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
 
     UDA_LOG(UDA_LOG_DEBUG, "udaGetData Recursive Depth = {}", *depth);
 
-    // Can't use REQUEST_READ_SERVERSIDE because data must be read first using a 'real' data reader or
-    // REQUEST_READ_GENERIC
+    // Can't use Request::ReadServerside because data must be read first using a 'real' data reader or
+    // Request::ReadGeneric
 
     if (protocolVersion < 6) {
         if (STR_IEQUALS(request_data->archive, "SS") || STR_IEQUALS(request_data->archive, "SERVERSIDE")) {
@@ -155,7 +155,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
     // Allow Composites (C) or Signal Switch (S) through regardless of request type
 
     if (signal_desc->type != 'C' && !serverside && signal_desc->type != 'S' &&
-        (!(request_data->request == REQUEST_READ_GENERIC || request_data->request == REQUEST_READ_XML))) {
+        (!(request_data->request == (int)Request::ReadGeneric || request_data->request == (int)Request::ReadXML))) {
         return 0;
     }
 
@@ -248,13 +248,13 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     // Need to change formats from GENERIC if Composite and Signal Description record only exists and
                     // format Not Generic!
 
-                    if (request_data->request == REQUEST_READ_GENERIC && request_data->exp_number <= 0) {
-                        request_data->request = REQUEST_READ_XML;
+                    if (request_data->request == (int)Request::ReadGeneric && request_data->exp_number <= 0) {
+                        request_data->request = (int)Request::ReadXML;
                     }
 
                     //=======>>>==========================================================
 
-                    if (request_data->request == REQUEST_READ_XML || request_data->exp_number <= 0) {
+                    if (request_data->request == (int)Request::ReadXML || request_data->exp_number <= 0) {
                         if ((strlen(actions_comp_desc.action[compId].composite.file) == 0 ||
                              strlen(actions_comp_desc.action[compId].composite.format) == 0) &&
                             request_block2.exp_number <= 0) {
@@ -269,10 +269,10 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                         request_block2.request =
                             findPluginIdByFormat(actions_comp_desc.action[compId].composite.format, plugin_list);
 
-                        if (request_block2.request == REQUEST_READ_UNKNOWN) {
+                        if (request_block2.request == (int)Request::ReadUnknown) {
                             if (actions_comp_desc.action[compId].composite.format[0] == '\0' &&
                                 request_block2.exp_number > 0) {
-                                request_block2.request = REQUEST_READ_GENERIC;
+                                request_block2.request = (int)Request::ReadGeneric;
                             } else {
                                 free_actions(&actions_comp_desc);
                                 free_actions(&actions_comp_sig);
@@ -282,7 +282,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                             }
                         }
 
-                        if (request_block2.request == REQUEST_READ_HDF5) {
+                        if (request_block2.request == (int)Request::ReadHDF5) {
                             strcpy(data_source->path, trim_string(request_block2.path));          // HDF5 File Location
                             strcpy(signal_desc->signal_name, trim_string(request_block2.signal)); // HDF5 Variable Name
                         }
@@ -415,7 +415,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
             free_actions(&actions_comp_sig2);
 
             if (rc != 0) {
-                freeDataBlock(&data_block2);
+                free_data_block(&data_block2);
                 (*depth)--;
                 return rc;
             }
@@ -423,7 +423,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
             // Replace Error Data
 
             rc = swap_signal_error(data_block, &data_block2, 0);
-            freeDataBlock(&data_block2);
+            free_data_block(&data_block2);
 
             if (rc != 0) {
                 (*depth)--;
@@ -461,7 +461,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
             free_actions(&actions_comp_sig2);
 
             if (rc != 0) {
-                freeDataBlock(&data_block2);
+                free_data_block(&data_block2);
                 (*depth)--;
                 return rc;
             }
@@ -469,7 +469,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
             // Replace Error Data
 
             rc = swap_signal_error(data_block, &data_block2, 1);
-            freeDataBlock(&data_block2);
+            free_data_block(&data_block2);
 
             if (rc != 0) {
                 (*depth)--;
@@ -538,7 +538,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
 
                     request_block2.request = findPluginIdByFormat(request_block2.format, plugin_list);
 
-                    if (request_block2.request == REQUEST_READ_UNKNOWN) {
+                    if (request_block2.request == (int)Request::ReadUnknown) {
                         free_actions(&actions_comp_desc2);
                         free_actions(&actions_comp_sig2);
                         (*depth)--;
@@ -565,7 +565,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     free_actions(&actions_comp_sig2);
 
                     if (rc != 0) {
-                        freeDataBlock(&data_block2);
+                        free_data_block(&data_block2);
                         (*depth)--;
                         return rc;
                     }
@@ -575,7 +575,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     rc = swap_signal_dim(actions_desc->action[compId].composite.dimensions[i].dimcomposite, data_block,
                                          &data_block2);
 
-                    freeDataBlock(&data_block2);
+                    free_data_block(&data_block2);
 
                     if (rc != 0) {
                         (*depth)--;
@@ -613,7 +613,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     free_actions(&actions_comp_sig2);
 
                     if (rc != 0) {
-                        freeDataBlock(&data_block2);
+                        free_data_block(&data_block2);
                         (*depth)--;
                         return rc;
                     }
@@ -623,7 +623,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     rc = swap_signal_dim_error(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
                                                data_block, &data_block2, 0);
 
-                    freeDataBlock(&data_block2);
+                    free_data_block(&data_block2);
 
                     if (rc != 0) {
                         (*depth)--;
@@ -661,7 +661,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     free_actions(&actions_comp_sig2);
 
                     if (rc != 0) {
-                        freeDataBlock(&data_block2);
+                        free_data_block(&data_block2);
                         (*depth)--;
                         return rc;
                     }
@@ -670,7 +670,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
 
                     rc = swap_signal_dim_error(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
                                                data_block, &data_block2, 1);
-                    freeDataBlock(&data_block2);
+                    free_data_block(&data_block2);
 
                     if (rc != 0) {
                         (*depth)--;
@@ -979,7 +979,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // The exception is XML defining Composite signals. These have a specific Request type.
     //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
-    if (request->request != REQUEST_READ_XML) {
+    if (request->request != (int)Request::ReadXML) {
         if (STR_STARTSWITH(request->signal, "<?xml")) {
             signal_desc->type = 'C';                   // Composite/Derived Type
             signal_desc->signal_name[0] = '\0';        // The true signal is contained in the XML
@@ -1008,10 +1008,10 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // the same Rank, then allow normal Generic lookup.
     //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
-    if (client_block.clientFlags & CLIENTFLAG_ALTDATA && request->request != REQUEST_READ_XML &&
+    if (client_block.clientFlags & CLIENTFLAG_ALTDATA && request->request != (int)Request::ReadXML &&
         STR_STARTSWITH(request->signal, "<?xml")) {
 
-        if (request->request != REQUEST_READ_GENERIC) {
+        if (request->request != (int)Request::ReadGeneric) {
             // Must be a Private File so switch signal names
             strcpy(request->signal, signal_desc->signal_name); // Alias or Generic have no context wrt private files
             signal_desc->xml[0] = '\0';                        // No corrections to private data files
@@ -1032,7 +1032,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // Plugin sourced data (type 'P') will fail as there is no entry in the DataSource table so ignore
     //------------------------------------------------------------------------------
 
-    if (request->request == REQUEST_READ_GENERIC) {
+    if (request->request == (int)Request::ReadGeneric) {
 
         // Identify the required Plugin
 
@@ -1066,7 +1066,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
             makeServerRequestData(config, request, plugin_list);
         }
 
-    } // end of REQUEST_READ_GENERIC
+    } // end of Request::ReadGeneric
 
     // Placeholder name-value substitution and additional name-value pairs
     // Modifies HEAP in request_block
@@ -1082,7 +1082,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // Client XML Specified Composite Signal
     //------------------------------------------------------------------------------
 
-    if (request->request == REQUEST_READ_XML) {
+    if (request->request == (int)Request::ReadXML) {
         if (strlen(request->signal) > 0) {
             strcpy(signal_desc->xml, request->signal); // XML is passed via the signal string
         } else if (strlen(request->path) > 0) {        // XML is passed via a file
@@ -1151,7 +1151,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
 
         int plugin_id;
 
-        if (request->request != REQUEST_READ_GENERIC && request->request != REQUEST_READ_UNKNOWN) {
+        if (request->request != (int)Request::ReadGeneric && request->request != (int)Request::ReadUnknown) {
             plugin_id = request->request; // User has Specified a Plugin
             UDA_LOG(UDA_LOG_DEBUG, "Plugin Request ID {}", plugin_id);
         } else {
@@ -1161,7 +1161,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
 
         UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request->putDataBlockList.blockCount);
 
-        if (plugin_id != REQUEST_READ_UNKNOWN) {
+        if (plugin_id != (int)Request::ReadUnknown) {
 
             int id = plugin_id;
 
@@ -1229,14 +1229,14 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
                     return 0;
                 }
 
-                request->request = REQUEST_READ_GENERIC; // Use a different Plugin
+                request->request = (int)Request::ReadGeneric; // Use a different Plugin
             }
         }
     }
 
-    int plugin_id = REQUEST_READ_UNKNOWN;
+    int plugin_id = (int)Request::ReadUnknown;
 
-    if (request->request != REQUEST_READ_GENERIC) {
+    if (request->request != (int)Request::ReadGeneric) {
         plugin_id = request->request; // User API has Specified a Plugin
     } else {
 
@@ -1268,7 +1268,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         }
     }
 
-    if (plugin_id == REQUEST_READ_UNKNOWN) {
+    if (plugin_id == (int)Request::ReadUnknown) {
         UDA_LOG(UDA_LOG_DEBUG, "No Plugin Selected");
     }
     UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source->archive);
@@ -1287,7 +1287,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     //----------------------------------------------------------------------------
     // Status values
 
-    if (request->request == REQUEST_READ_GENERIC) {
+    if (request->request == (int)Request::ReadGeneric) {
         data_block->source_status = data_source->status;
         data_block->signal_status = signal_rec->status;
     }

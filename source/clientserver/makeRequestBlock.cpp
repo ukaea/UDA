@@ -100,7 +100,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     //------------------------------------------------------------------------------
     // Start with ignorance about which plugin to use
 
-    request->request = REQUEST_READ_UNKNOWN;
+    request->request = (int)Request::ReadUnknown;
 
     //------------------------------------------------------------------------------
     // Check there is something to work with!
@@ -142,7 +142,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     bool is_proxy = config.get("server.is_proxy").as_or_default(false);
 
     if (is_proxy) {
-        request->request = REQUEST_READ_IDAM;
+        request->request = (int)Request::ReadUDA;
     }
 
     //==============================================================================
@@ -304,7 +304,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                     left_trim_string(work2);
                     trim_string(work2);
 
-                    request->request = REQUEST_READ_SERVERSIDE;
+                    request->request = (int)Request::ReadServerside;
                     extract_function_name(work, request);
 
                     UDA_LOG(UDA_LOG_DEBUG, "**** Server Side Function ??? ****")
@@ -379,11 +379,11 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             // configuration file. The request must be a generic lookup of how to access data remotely for the specified
             // device. The external server providing access to the foreign device's data will interpret the arguments
 
-            if (request->request == REQUEST_READ_UNKNOWN) {
+            if (request->request == (int)Request::ReadUnknown) {
                 UDA_LOG(UDA_LOG_DEBUG, "No plugin was identified for the format: {}", work2)
                 is_foreign = true;
                 strcpy(request->device_name, work2);     // Copy the DEVICE prefix
-                request->request = REQUEST_READ_GENERIC; // The database will identify the target
+                request->request = (int)Request::ReadGeneric; // The database will identify the target
 
                 break;
             }
@@ -499,7 +499,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     // server) the Plugin Name is synonymous with the Archive Name and takes priority (The archive name is discarded as
     // unimportant)
 
-    if (request->request == REQUEST_READ_IDAM) {
+    if (request->request == (int)Request::ReadUDA) {
         reduce_signal = false;
         err = extract_archive(config, request, reduce_signal);
     } else {
@@ -566,7 +566,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             if (!is_function) { // Must be a default server-side function
                 for (const auto& plugin : pluginList) {
                     if (plugin.entry_func_name == "ServerSide" && plugin.library_name.empty()) {
-                        request->request = REQUEST_READ_SERVERSIDE; // Found
+                        request->request = (int)Request::ReadServerside; // Found
                         copy_string(plugin.name, request->format, STRING_LENGTH);
                         is_function = true;
                         break;
@@ -581,7 +581,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
         } else {
             // Select the Generic plugin: No source => no format or protocol or library was specified.
-            request->request = REQUEST_READ_GENERIC;
+            request->request = (int)Request::ReadGeneric;
             UDA_LOG(UDA_LOG_DEBUG, "C request: {}", request->request)
         }
 
@@ -595,7 +595,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             if (id >= 0
                     && pluginList[id].type == UDA_PLUGIN_CLASS_FUNCTION
                     && pluginList[id].entry_func_name != "serverside") {
-                if (request->request == REQUEST_READ_GENERIC || request->request == REQUEST_READ_UNKNOWN) {
+                if (request->request == (int)Request::ReadGeneric || request->request == (int)Request::ReadUnknown) {
                     request->request = id; // Found
                     copy_string(pluginList[id].name, request->format, STRING_LENGTH);
                     UDA_LOG(UDA_LOG_DEBUG, "D request: {}", request->request);
@@ -622,7 +622,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     //                MDS+::server
     //                MDS+::
 
-    if (request->request == REQUEST_READ_MDS && !is_proxy) {
+    if (request->request == (int)Request::ReadMDS && !is_proxy) {
 
         reverse_string(test + ldelim, work); // Drop the delimiters and Reverse the Source String
 
@@ -668,7 +668,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     //---------------------------------------------------------------------------------------------------------------------
     // UDA and WEB Servers ...      parse source modelled as: server:port/source
 
-    if (request->request == REQUEST_READ_IDAM || request->request == REQUEST_READ_WEB) {
+    if (request->request == (int)Request::ReadUDA || request->request == (int)Request::ReadWeb) {
         strcpy(work, test + ldelim); // Drop the delimiters
 
         // Isolate the Server from the source UDA::server:port/source or SSL://server:port/source
@@ -699,7 +699,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     //---------------------------------------------------------------------------------------------------------------------
     // SQL Servers ...
 
-    if (request->request == REQUEST_READ_SQL) {
+    if (request->request == (int)Request::ReadSQL) {
         strcpy(request->server, request->path);
         if ((test = strchr(request->server, '/')) != nullptr) {
             test[0] = '\0';
@@ -779,7 +779,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
 
     request->format[0] = '\0';
     request->file[0] = '\0';
-    request->request = REQUEST_READ_UNKNOWN;
+    request->request = (int)Request::ReadUnknown;
 
     if (source[0] == '\0') {
         return rc;
@@ -983,7 +983,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
         auto format = config.get("server.default_format").as_or_default(""s);
         if (source[0] == '/' && source[1] != '\0' && isdigit(source[1])) { // Default File Format?
             if (generic_request_test(&source[1], request)) {               // Matches 99999/999
-                request->request = REQUEST_READ_UNKNOWN;
+                request->request = (int)Request::ReadUnknown;
                 strcpy(request->format, format.c_str()); // the default Server File Format
                 break;
             }
@@ -1035,7 +1035,7 @@ int generic_request_test(const char* source, RequestData* request)
 
     request->format[0] = '\0';
     request->file[0] = '\0';
-    request->request = REQUEST_READ_UNKNOWN;
+    request->request = (int)Request::ReadUnknown;
 
     if (source[0] == '\0') {
         return rc;
@@ -1052,7 +1052,7 @@ int generic_request_test(const char* source, RequestData* request)
 
     if (is_number((char*)source)) { // Is the source an integer number?
         rc = 1;
-        request->request = REQUEST_READ_GENERIC;
+        request->request = (int)Request::ReadGeneric;
         strcpy(request->path, "");                              // Clean the path
         request->exp_number = (int)strtol(source, nullptr, 10); // Plasma Shot Number
         UDA_LOG(UDA_LOG_DEBUG, "exp number identified, selecting GENERIC plugin.");
@@ -1061,7 +1061,7 @@ int generic_request_test(const char* source, RequestData* request)
         if ((token = strtok(work, "/")) != nullptr) { // Tokenise the remaining string
             if (is_number(token)) {                   // Is the First token an integer number?
                 rc = 1;
-                request->request = REQUEST_READ_GENERIC;
+                request->request = (int)Request::ReadGeneric;
                 strcpy(request->path, ""); // Clean the path
                 request->exp_number = (int)strtol(token, nullptr, 10);
                 if ((token = strtok(nullptr, "/")) != nullptr) { // Next Token

@@ -723,8 +723,8 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock")
-        freeDataBlock(&data_block);
+        UDA_LOG(UDA_LOG_DEBUG, "free_data_block")
+        free_data_block(&data_block);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions")
         free_actions(&actions_desc);
@@ -732,8 +732,8 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions")
         free_actions(&actions_sig);
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeRequestBlock")
-        freeRequestBlock(&request_block);
+        UDA_LOG(UDA_LOG_DEBUG, "free_request_block")
+        free_request_block(&request_block);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
@@ -775,7 +775,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
     //----------------------------------------------------------------------------
     // Free Data Block Heap Memory in case by-passed
 
-    freeDataBlock(&data_block);
+    free_data_block(&data_block);
 
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)

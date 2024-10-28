@@ -966,8 +966,8 @@ int do_server_loop(Config& config, RequestBlock* request_block, DataBlockList* d
         free(log_malloc_list);
         log_malloc_list = nullptr;
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeDataBlockList");
-        freeDataBlockList(data_block_list);
+        UDA_LOG(UDA_LOG_DEBUG, "free_data_blockList");
+        free_data_block_list(data_block_list);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions");
         free_actions(actions_desc);
@@ -975,7 +975,7 @@ int do_server_loop(Config& config, RequestBlock* request_block, DataBlockList* d
         UDA_LOG(UDA_LOG_DEBUG, "freeActions");
         free_actions(actions_sig);
 
-        freeRequestBlock(request_block);
+        free_request_block(request_block);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
@@ -1023,7 +1023,7 @@ int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block, 
     //----------------------------------------------------------------------------
     // Free Data Block Heap Memory in case by-passed
 
-    freeDataBlockList(data_block_list);
+    free_data_block_list(data_block_list);
 
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)

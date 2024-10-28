@@ -23,7 +23,7 @@ struct HostData {
 //-------------------------------------------------------
 // Socket Types
 
-enum class SocketType {
+enum class SocketType : int {
     Unknown = 0,
     UDA = 1,
     MDSPLUS = 2,

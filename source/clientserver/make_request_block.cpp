@@ -297,7 +297,7 @@ void uda::parse_signal(RequestData& result, const std::string& signal, const std
 
         result.request = find_plugin_id_by_format(plugin, plugin_list);
     } else {
-        result.request = REQUEST_READ_GENERIC;
+        result.request = (int)Request::ReadGeneric;
     }
 
     write_string(result.archive, archive, STRING_LENGTH);
@@ -437,7 +437,7 @@ RequestData make_request_data(const Config& config, const RequestData& request_d
     bool is_proxy = config.get("server.is_proxy").as_or_default(false);
 
     if (is_proxy) {
-        result.request = REQUEST_READ_IDAM;
+        result.request = (int)Request::ReadUDA;
     }
 
     uda::write_string(result.api_delim, delim, MAXNAME);

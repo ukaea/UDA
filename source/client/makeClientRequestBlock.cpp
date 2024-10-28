@@ -173,7 +173,7 @@ void uda::client::freeClientRequestBlock(RequestBlock* request_block)
     if (request_block != nullptr && request_block->requests != nullptr) {
         for (int i = 0; i < request_block->num_requests; i++) {
             free_name_value_list(&request_block->requests[i].nameValueList);
-            freeClientPutDataBlockList(&request_block->requests[i].putDataBlockList);
+            free_client_put_data_block_list(&request_block->requests[i].putDataBlockList);
         }
         free(request_block->requests);
         request_block->requests = nullptr;

@@ -250,7 +250,7 @@ int uda::server::udaServerPlugin(const uda::config::Config& config, RequestData*
     // Does the Path to Private Files contain hierarchical components not seen by the server?
     // If so make a substitution to resolve path problems.
 
-    if (strlen(request->server) == 0 && request->request != REQUEST_READ_SERVERSIDE) {
+    if (strlen(request->server) == 0 && request->request != (int)Request::ReadServerside) {
         // Must be a File plugin
         if ((err = path_replacement(config, request->path)) != 0) {
             return err;
@@ -449,7 +449,7 @@ int uda::server::udaProvenancePlugin(const uda::config::Config& config, ClientBl
         data_block.opaque_block = nullptr;
     }
 
-    freeDataBlock(&data_block);
+    free_data_block(&data_block);
 
     // Reset Redirected Output
 

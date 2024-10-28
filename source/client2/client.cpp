@@ -1223,7 +1223,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
     std::vector<int> indices(request_block.num_requests);
     get_requests(request_block, indices.data());
 
-    freeClientPutDataBlockList(&request_block.requests[0].putDataBlockList);
+    free_client_put_data_block_list(&request_block.requests[0].putDataBlockList);
 
     return indices[0];
 }
