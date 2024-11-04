@@ -1538,7 +1538,7 @@ void init_dim_documentation(DimDocumentation* act) {
 }
 
 void init_dim_error_model(DimErrorModel* act) {
-    act->model = ERROR_MODEL_UNKNOWN; // No Error Model
+    act->model = (int)ErrorModelType::Unknown; // No Error Model
     act->param_n = 0;                 // No. Model parameters
     for (int i = 0; i < MAXERRPARAMS; i++) {
         act->params[i] = 0.0;
@@ -1592,7 +1592,7 @@ void init_composite(Composite* act) {
 
 void init_error_model(ErrorModel* act)
 {
-    act->model = ERROR_MODEL_UNKNOWN; // No Error Model
+    act->model = (int)ErrorModelType::Unknown; // No Error Model
     act->param_n = 0;                 // No. Model parameters
     for (int i = 0; i < MAXERRPARAMS; i++) {
         act->params[i] = 0.0;

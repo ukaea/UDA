@@ -3,17 +3,17 @@
 namespace uda::client
 {
 
-int idamErrorModel(int model, int param_n, float* params, int data_n, float* data, int* asymmetry, float* errhi,
+int error_model(int model, int param_n, float* params, int data_n, float* data, int* asymmetry, float* errhi,
                    float* errlo);
 
-int idamSyntheticModel(int model, int param_n, float* params, int data_n, float* data);
+int synthetic_model(int model, int param_n, float* params, int data_n, float* data);
 
-int generateIdamSyntheticData(int handle);
+int generate_synthetic_data(int handle);
 
-int generateIdamSyntheticDimData(int handle, int ndim);
+int generate_synthetic_dim_data(int handle, int ndim);
 
-int generateIdamDataError(int handle);
+int generate_data_error(int handle);
 
-int generateIdamDimDataError(int handle, int ndim);
+int generate_dim_data_error(int handle, int ndim);
 
 } // namespace uda::client

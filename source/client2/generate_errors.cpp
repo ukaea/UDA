@@ -23,9 +23,9 @@ int uda::client::error_model(int model, int param_n, float* params, int data_n, 
 {
     *asymmetry = 0; // No Error Asymmetry for most models
 
-    switch (model) {
+    switch ((ErrorModelType)model) {
 
-        case ERROR_MODEL_DEFAULT:
+        case ErrorModelType::Default:
             if (param_n != 2) {
                 return 1;
             }
@@ -35,7 +35,7 @@ int uda::client::error_model(int model, int param_n, float* params, int data_n, 
             }
             break;
 
-        case ERROR_MODEL_DEFAULT_ASYMMETRIC:
+        case ErrorModelType::DefaultAsymmetric:
             if (param_n != 4) {
                 return 1;
             }
@@ -78,12 +78,12 @@ int uda::client::synthetic_model(int model, int param_n, float* params, int data
         gsl_rng_env_setup();
         random = gsl_rng_alloc(gsl_rng_default);
         gsl_rng_set(random,
-                    (unsigned long int)ERROR_MODEL_SEED); // Seed the Random Number generator with the library default
+                    (unsigned long int)ErrorModelSeed); // Seed the Random Number generator with the library default
     }
 
     switch (model) {
 
-        case ERROR_MODEL_GAUSSIAN: // Standard normal Distribution
+        case ErrorModelType::Gaussian: // Standard normal Distribution
             if (param_n < 1 || param_n > 2) {
                 return 1;
             }
@@ -95,13 +95,13 @@ int uda::client::synthetic_model(int model, int param_n, float* params, int data
             }
             break;
 
-        case ERROR_MODEL_RESEED: // Change the Seed
+        case ErrorModelType::Reseed: // Change the Seed
             if (param_n == 1) {
                 gsl_rng_set(random, (unsigned long int)params[0]);
             }
             break;
 
-        case ERROR_MODEL_GAUSSIAN_SHIFT:
+        case ErrorModelType::GaussianShift:
             if (param_n < 1 || param_n > 2) {
                 return 1;
             }
@@ -114,7 +114,7 @@ int uda::client::synthetic_model(int model, int param_n, float* params, int data
             }
             break;
 
-        case ERROR_MODEL_POISSON:
+        case ErrorModelType::Poisson:
             if (param_n < 0 || param_n > 1) {
                 return 1;
             }
@@ -161,7 +161,7 @@ int uda::client::generate_synthetic_data(int handle)
 
     get_error_model(handle, &model, &param_n, params);
 
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) {
+    if (model <= (int)ErrorModelType::Unknown || model >= (int)ErrorModelType::Undefined) {
         return 0; // No valid Model
     }
 
@@ -416,7 +416,7 @@ int uda::client::generate_synthetic_dim_data(int handle, int ndim)
 
     get_error_model(handle, &model, &param_n, params);
 
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) {
+    if (model <= (int)ErrorModelType::Unknown || model >= (int)ErrorModelType::Undefined) {
         return 0; // No valid Model
     }
 
@@ -670,7 +670,7 @@ int uda::client::generate_data_error(int handle)
 
     get_error_model(handle, &model, &param_n, params);
 
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) {
+    if (model <= (int)ErrorModelType::Unknown || model >= (int)ErrorModelType::Undefined) {
         return 0; // No valid Model
     }
 
@@ -988,7 +988,7 @@ int uda::client::generate_dim_data_error(int handle, int ndim)
 
     get_error_model(handle, &model, &param_n, params);
 
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) {
+    if (model <= (int)ErrorModelType::Unknown || model >= (int)ErrorModelType::Undefined) {
         return 0; // No valid Model
     }
 

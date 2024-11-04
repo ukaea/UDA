@@ -3,6 +3,8 @@
 #include "generate_errors.hpp"
 #include "uda/client.h"
 
+using namespace uda::client_server;
+
 std::once_flag uda::client::ThreadClient::init_flag_ = {};
 uda::client::Client* uda::client::ThreadClient::instance_ = nullptr;
 
@@ -62,7 +64,7 @@ char* get_synthetic_data(int handle)
     if (status != MIN_STATUS && (data_block->client_block.get_bad || client_flags->get_bad)) {
         return nullptr;
     }
-    if (!client_flags->get_synthetic || data_block->error_model == ERROR_MODEL_UNKNOWN) {
+    if (!client_flags->get_synthetic || data_block->error_model == (int)ErrorModelType::Unknown) {
         return data_block->data;
     }
     uda::client::generate_synthetic_data(handle);
@@ -153,7 +155,7 @@ char* uda::client::get_synthetic_data(int handle)
     if (status != MIN_STATUS && (data_block->client_block.get_bad || client_flags->get_bad)) {
         return nullptr;
     }
-    if (!client_flags->get_synthetic || data_block->error_model == ERROR_MODEL_UNKNOWN) {
+    if (!client_flags->get_synthetic || data_block->error_model == (int)ErrorModelType::Unknown) {
         return data_block->data;
     }
     uda::client::generate_synthetic_data(handle);
@@ -229,7 +231,7 @@ void uda::client::get_error_model(int handle, int* model, int* param_n, float* p
     auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
-        *model = ERROR_MODEL_UNKNOWN;
+        *model = (int)ErrorModelType::Unknown;
         *param_n = 0;
         return;
     }

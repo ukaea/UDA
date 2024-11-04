@@ -500,7 +500,7 @@ void udaPutErrorModel(int handle, int model, int param_n, const float* params)
     if (data_block == nullptr) {
         return;
     }
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) {
+    if (model <= (int)ErrorModelType::Unknown || model >= (int)ErrorModelType::Undefined) {
         return; // No valid Model
     }
 
@@ -525,7 +525,7 @@ void udaPutDimErrorModel(int handle, int ndim, int model, int param_n, const flo
     if (ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return; // No Dim
     }
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) {
+    if (model <= (int)ErrorModelType::Unknown || model >= (int)ErrorModelType::Undefined) {
         return; // No valid Model
     }
 
@@ -986,7 +986,7 @@ void udaGetErrorModel(int handle, int* model, int* param_n, float* params)
 {
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr) {
-        *model = ERROR_MODEL_UNKNOWN;
+        *model = (int)ErrorModelType::Unknown;
         *param_n = 0;
         return;
     }
@@ -1010,42 +1010,42 @@ int udaGetErrorAsymmetry(int handle)
 
 int udaGetErrorModelId(const char* model)
 {
-    for (int i = 1; i < ERROR_MODEL_UNDEFINED; i++) {
+    for (int i = 1; i < (int)ErrorModelType::Undefined; i++) {
         switch (i) {
             case 1:
                 if (STR_IEQUALS(model, "default")) {
-                    return ERROR_MODEL_DEFAULT;
+                    return (int)ErrorModelType::Default;
                 }
                 break;
             case 2:
                 if (STR_IEQUALS(model, "default_asymmetric")) {
-                    return ERROR_MODEL_DEFAULT_ASYMMETRIC;
+                    return (int)ErrorModelType::DefaultAsymmetric;
                 }
                 break;
 #ifdef NO_GSL_LIB
             case 3:
                 if (STR_IEQUALS(model, "gaussian")) {
-                    return ERROR_MODEL_GAUSSIAN;
+                    return ErrorModelType::Gaussian;
                 }
                 break;
             case 4:
                 if (STR_IEQUALS(model, "reseed")) {
-                    return ERROR_MODEL_RESEED;
+                    return ErrorModelType::Reseed;
                 }
                 break;
             case 5:
                 if (STR_IEQUALS(model, "gaussian_shift")) {
-                    return ERROR_MODEL_GAUSSIAN_SHIFT;
+                    return ErrorModelType::GaussianShift;
                 }
                 break;
             case 6:
                 if (STR_IEQUALS(model, "poisson")) {
-                    return ERROR_MODEL_POISSON;
+                    return ErrorModelType::Poisson;
                 }
                 break;
 #endif
             default:
-                return ERROR_MODEL_UNKNOWN;
+                return (int)ErrorModelType::Unknown;
         }
     }
     return 0;
@@ -1093,10 +1093,10 @@ char* udaGetSyntheticData(int handle)
     if (status != MIN_STATUS && (data_block->client_block.get_bad || client_flags->get_bad)) {
         return nullptr;
     }
-    if (!client_flags->get_synthetic || data_block->error_model == ERROR_MODEL_UNKNOWN) {
+    if (!client_flags->get_synthetic || data_block->error_model == (int)ErrorModelType::Unknown) {
         return data_block->data;
     }
-    generateIdamSyntheticData(handle);
+    generate_synthetic_data(handle);
     return data_block->synthetic;
 }
 
@@ -1253,8 +1253,8 @@ char* udaGetAsymmetricError(int handle, int above)
             } // otherwise the data array must have been returned by the server or generated
         }
     } else {
-        if (data_block->error_model != ERROR_MODEL_UNKNOWN) {
-            generateIdamDataError(handle); // Create the errors from a model if the model exits
+        if (data_block->error_model != (int)ErrorModelType::Unknown) {
+            generate_data_error(handle); // Create the errors from a model if the model exits
             if (above) {
                 return data_block->errhi;
             } else if (!data_block->errasymmetry) {
@@ -1550,7 +1550,7 @@ void udaGetDoubleData(int handle, double* fp)
         if (!client_flags->get_synthetic) {
             memcpy((void*)fp, (void*)data_block->data, (size_t)data_block->data_n * sizeof(double));
         } else {
-            generateIdamSyntheticData(handle);
+            generate_synthetic_data(handle);
             if (data_block->synthetic != nullptr) {
                 memcpy((void*)fp, (void*)data_block->synthetic, (size_t)data_block->data_n * sizeof(double));
             } else {
@@ -1568,7 +1568,7 @@ void udaGetDoubleData(int handle, double* fp)
         if (!client_flags->get_synthetic) {
             array = data_block->data;
         } else {
-            generateIdamSyntheticData(handle);
+            generate_synthetic_data(handle);
             if (data_block->synthetic != nullptr) {
                 array = data_block->synthetic;
             } else {
@@ -1717,7 +1717,7 @@ void udaGetFloatData(int handle, float* fp)
         if (!client_flags->get_synthetic) {
             memcpy((void*)fp, (void*)data_block->data, (size_t)data_block->data_n * sizeof(float));
         } else {
-            generateIdamSyntheticData(handle);
+            generate_synthetic_data(handle);
             if (data_block->synthetic != nullptr) {
                 memcpy((void*)fp, (void*)data_block->synthetic, (size_t)data_block->data_n * sizeof(float));
             } else {
@@ -1735,7 +1735,7 @@ void udaGetFloatData(int handle, float* fp)
         if (!client_flags->get_synthetic) {
             array = data_block->data;
         } else {
-            generateIdamSyntheticData(handle);
+            generate_synthetic_data(handle);
             if (data_block->synthetic != nullptr) {
                 array = data_block->synthetic;
             } else {
@@ -2301,7 +2301,7 @@ void udaGetDimErrorModel(int handle, int ndim, int* model, int* param_n, float* 
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
 
-        *model = ERROR_MODEL_UNKNOWN;
+        *model = (int)ErrorModelType::Unknown;
         *param_n = 0;
         return;
     }
@@ -2413,7 +2413,7 @@ void udaGetDoubleDimData(int handle, int ndim, double* fp)
         if (!client_flags->get_synthetic) {
             memcpy((void*)fp, (void*)data_block->dims[ndim].dim, (size_t)data_block->dims[ndim].dim_n * sizeof(double));
         } else {
-            generateIdamSyntheticDimData(handle, ndim);
+            generate_synthetic_dim_data(handle, ndim);
             if (data_block->dims[ndim].synthetic != nullptr) {
                 memcpy((void*)fp, (void*)data_block->dims[ndim].synthetic,
                        (size_t)data_block->dims[ndim].dim_n * sizeof(double));
@@ -2430,7 +2430,7 @@ void udaGetDoubleDimData(int handle, int ndim, double* fp)
         if (!client_flags->get_synthetic) {
             array = data_block->dims[ndim].dim;
         } else {
-            generateIdamSyntheticDimData(handle, ndim);
+            generate_synthetic_dim_data(handle, ndim);
             if (data_block->dims[ndim].synthetic != nullptr) {
                 array = data_block->dims[ndim].synthetic;
             } else {
@@ -2569,7 +2569,7 @@ void udaGetFloatDimData(int handle, int ndim, float* fp)
         if (!client_flags->get_synthetic) {
             memcpy((void*)fp, (void*)data_block->dims[ndim].dim, (size_t)data_block->dims[ndim].dim_n * sizeof(float));
         } else {
-            generateIdamSyntheticDimData(handle, ndim);
+            generate_synthetic_dim_data(handle, ndim);
             if (data_block->dims[ndim].synthetic != nullptr) {
                 memcpy((void*)fp, (void*)data_block->dims[ndim].synthetic,
                        (size_t)data_block->dims[ndim].dim_n * sizeof(float));
@@ -2586,7 +2586,7 @@ void udaGetFloatDimData(int handle, int ndim, float* fp)
         if (!client_flags->get_synthetic) {
             array = data_block->dims[ndim].dim;
         } else {
-            generateIdamSyntheticDimData(handle, ndim);
+            generate_synthetic_dim_data(handle, ndim);
             if (data_block->dims[ndim].synthetic != nullptr) {
                 array = data_block->dims[ndim].synthetic;
             } else {
@@ -2797,8 +2797,8 @@ char* udaGetDimAsymmetricError(int handle, int ndim, int above)
             } // otherwise the data array must have been returned by the server
         }     // or generated in a previous call
     } else {
-        if (data_block->dims[ndim].error_model != ERROR_MODEL_UNKNOWN) {
-            generateIdamDimDataError(handle, ndim);
+        if (data_block->dims[ndim].error_model != (int)ErrorModelType::Unknown) {
+            generate_dim_data_error(handle, ndim);
             if (above || !data_block->dims[ndim].errasymmetry) {
                 return data_block->dims[ndim].errhi;
             } else {

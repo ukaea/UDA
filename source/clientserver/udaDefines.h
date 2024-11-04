@@ -108,15 +108,22 @@
 //--------------------------------------------------------
 // Error Models
 
-#define ERROR_MODEL_SEED 12345
-#define ERROR_MODEL_UNKNOWN 0
-#define ERROR_MODEL_DEFAULT 1
-#define ERROR_MODEL_DEFAULT_ASYMMETRIC 2
-#define ERROR_MODEL_GAUSSIAN 3
-#define ERROR_MODEL_RESEED 4
-#define ERROR_MODEL_GAUSSIAN_SHIFT 5
-#define ERROR_MODEL_POISSON 6
-#define ERROR_MODEL_UNDEFINED 7
+namespace uda::client_server {
+
+constexpr unsigned long int ErrorModelSeed = 12345;
+
+enum class ErrorModelType : int {
+    Unknown = 0,
+    Default = 1,
+    DefaultAsymmetric = 2,
+    Gaussian = 3,
+    Reseed = 4,
+    GaussianShift = 5,
+    Poisson = 6,
+    Undefined = 7,
+};
+
+}
 
 //--------------------------------------------------------
 // Caching
