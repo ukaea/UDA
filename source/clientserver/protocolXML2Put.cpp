@@ -1549,7 +1549,7 @@ bool_t uda::client_server::xdr_user_defined_type_list_put(XDR* xdrs, UserDefined
     return rc;
 }
 
-int uda::client_server::protocol_xml2_put(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token,
+int uda::client_server::protocol_xml2_put(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                                           LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                                           void* str, int protocolVersion, LogStructList* log_struct_list,
                                           unsigned int private_flags, int malloc_source)

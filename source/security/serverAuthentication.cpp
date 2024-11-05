@@ -180,7 +180,7 @@ static SECURITY_BLOCK* receiveSecurityBlock(ClientBlock* client_block, LogMalloc
         ProtocolId protocol_id = ProtocolId::ClientBlock; // Recieve Client Block
 
         int err = 0;
-        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverInput, protocol_id, XDRStreamDirection::Receive, nullptr, logmalloclist, userdefinedtypelist,
                              client_block)) != 0) {
             add_error(ErrorType::Code, __func__, err, "Protocol 10 Error (Client Block #2)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!");
@@ -314,7 +314,7 @@ static int issueToken(ServerBlock* server_block, LogMallocList* logmalloclist, U
 #  ifndef TESTIDAMSECURITY
     ProtocolId protocol_id = ProtocolId::ServerBlock;
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(serverOutput, protocol_id, XDRStreamDirection::Send, nullptr, logmalloclist, userdefinedtypelist,
                          server_block)) != 0) {
         add_error(ErrorType::Code, __func__, err, "Protocol 10 Error (securityBlock #4)");
     }
@@ -347,7 +347,7 @@ static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, Log
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
     }
 
-    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(serverInput, protocol_id, XDRStreamDirection::Receive, nullptr, logmalloclist, userdefinedtypelist,
                          client_block)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 11 Error (securityBlock #7)");
     }
@@ -390,7 +390,7 @@ static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, Log
 #  ifndef TESTIDAMSECURITY
     protocol_id = ProtocolId::ServerBlock;
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(serverOutput, protocol_id, XDRStreamDirection::Send, nullptr, logmalloclist, userdefinedtypelist,
                          server_block)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 10 Error (securityBlock #7)");
     }

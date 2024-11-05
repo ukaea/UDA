@@ -1,6 +1,7 @@
 #pragma once
 
 #include "structures/genStructs.h"
+#include "xdrlib.h"
 
 #include <cstdio>
 #include <rpc/rpc.h>
@@ -14,7 +15,7 @@ namespace uda::client_server
 
 enum class ProtocolId;
 
-int protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token, uda::structures::LogMallocList* logmalloclist,
+int protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, uda::structures::LogMallocList* logmalloclist,
                   uda::structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                   uda::structures::LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 

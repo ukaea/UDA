@@ -127,7 +127,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::ClientBlock;
 
-                if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_input, protocol_id, XDRStreamDirection::Receive, nullptr, log_malloc_list, user_defined_type_list,
                                     &client_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block")
@@ -177,7 +177,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 UDA_LOG(UDA_LOG_DEBUG, "Sending Server Block")
 
-                if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                     &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block")
@@ -208,7 +208,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             protocol_id = ProtocolId::RequestBlock;
 
-            if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+            if ((err = protocol(server_input, protocol_id, XDRStreamDirection::Receive, nullptr, log_malloc_list, user_defined_type_list,
                                 &request_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Request Block")
@@ -332,7 +332,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::PutdataBlockList;
 
-                if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_input, protocol_id, XDRStreamDirection::Receive, nullptr, log_malloc_list, user_defined_type_list,
                                     &(request_data->putDataBlockList), protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List")
@@ -472,7 +472,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             protocol_id = ProtocolId::ServerBlock;
 
-            if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+            if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                 &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2")
@@ -502,7 +502,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::NextProtocol;
 
-                if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list,
+                if ((err = protocol(server_input, protocol_id, XDRStreamDirection::Receive, &next_protocol, log_malloc_list,
                                     user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem #1 Receiving Next Protocol ID")
@@ -525,7 +525,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::DataSystem;
 
-                if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                     &data_system, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure")
@@ -538,7 +538,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::SystemConfig;
 
-                if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                     &system_config, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure")
@@ -551,7 +551,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::DataSource;
 
-                if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                     &data_source, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure")
@@ -564,7 +564,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::Signal;
 
-                if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                     &signal_rec, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure")
@@ -577,7 +577,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::SignalDesc;
 
-                if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                     &signal_desc, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure")
@@ -592,7 +592,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             protocol_id = ProtocolId::NextProtocol;
 
-            if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list,
+            if ((err = protocol(server_input, protocol_id, XDRStreamDirection::Receive, &next_protocol, log_malloc_list,
                                 user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
                                 private_flags, malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem #2 Receiving Next Protocol ID")
@@ -618,7 +618,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             protocol_id = ProtocolId::DataBlockList;
 
-            if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+            if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                 &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure")
@@ -635,7 +635,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 protocol_id = ProtocolId::NextProtocol;
 
-                if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list,
+                if ((err = protocol(server_input, protocol_id, XDRStreamDirection::Receive, &next_protocol, log_malloc_list,
                                     user_defined_type_list, nullptr, protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem #2a Receiving Next Protocol ID")
@@ -663,7 +663,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client")
 
-                if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
+                if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
                                     &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     add_error(ErrorType::Code, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
@@ -697,7 +697,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
         protocol_id = ProtocolId::NextProtocol;
         next_protocol = ProtocolId::Start;
 
-        if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, log_malloc_list, user_defined_type_list,
+        if ((err = protocol(server_input, protocol_id, XDRStreamDirection::Receive, &next_protocol, log_malloc_list, user_defined_type_list,
                             nullptr, protocolVersion, &log_struct_list, &io_data, private_flags, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem #3 Receiving Next Protocol ID")
             add_error(ErrorType::Code, __func__, err, "Protocol 3 (Server Shutdown) Error");

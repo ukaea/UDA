@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "structures/genStructs.h"
+#include "xdrlib.h"
 
 namespace uda::client_server
 {
@@ -24,7 +25,7 @@ bool_t xdr_user_defined_type(XDR* xdrs, uda::structures::UserDefinedTypeList* us
 
 bool_t xdr_user_defined_type_list_put(XDR* xdrs, uda::structures::UserDefinedTypeList* str);
 
-int protocol_xml2_put(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token,
+int protocol_xml2_put(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                       uda::structures::LogMallocList* logmalloclist,
                       uda::structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                       uda::structures::LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);

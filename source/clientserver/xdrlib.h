@@ -5,19 +5,18 @@
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 
-//-------------------------------------------------------
-// XDR Stream Directions
-
-#define XDR_SEND 0
-#define XDR_RECEIVE 1
-#define XDR_FREE_HEAP 2
-
 #ifdef __APPLE__
 #  define xdr_uint64_t xdr_u_int64_t
 #endif
 
 namespace uda::client_server
 {
+
+enum class XDRStreamDirection {
+    Send = 0,
+    Receive = 1,
+    FreeHeap = 2,
+};
 
 //-----------------------------------------------------------------------
 // Test version's type passing capability

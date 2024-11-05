@@ -34,7 +34,7 @@ int uda::server::sleepServer(XDR* server_input, XDR* server_output, LogMallocLis
 
     UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Listening for Next Client Request");
 
-    if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
+    if ((err = protocol(server_input, protocol_id, XDRStreamDirection::Receive, &next_protocol, logmalloclist, userdefinedtypelist,
                         nullptr, protocolVersion, log_struct_list, io_data, private_flags, malloc_source)) != 0) {
 
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Error Listening for Wake-up {}", err);
@@ -53,7 +53,7 @@ int uda::server::sleepServer(XDR* server_input, XDR* server_output, LogMallocLis
 
 #ifndef NOCHAT
     // Echo Next Protocol straight back to Client
-    if ((err = protocol(server_output, protocol_id, XDR_SEND, &next_protocol, logmalloclist, userdefinedtypelist,
+    if ((err = protocol(server_output, protocol_id, XDRStreamDirection::Send, &next_protocol, logmalloclist, userdefinedtypelist,
                         nullptr, protocolVersion, log_struct_list, io_data, private_flags, malloc_source)) != 0) {
         add_error(ErrorType::Code, "sleepServer", err, "Protocol 3 Error Echoing Next Protocol ID");
         return 0;

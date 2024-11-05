@@ -65,7 +65,7 @@ void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timev
     }
 }
 
-int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token, LogMallocList* logmalloclist,
+int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                  UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                  LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
                                  int malloc_source)
@@ -87,7 +87,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
             auto request_block = (RequestBlock*)str;
 
             switch (direction) {
-                case XDR_RECEIVE:
+                case XDRStreamDirection::Receive:
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
                         break;
@@ -98,7 +98,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
                     if (!xdr_request(xdrs, request_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_2;
                         break;
@@ -109,7 +109,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
                     if (!xdr_request(xdrs, request_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_3;
                         break;
@@ -132,7 +132,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
             auto data_block = (DataBlock*)str;
 
             switch (direction) {
-                case XDR_RECEIVE:
+                case XDRStreamDirection::Receive:
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
                         break;
@@ -143,7 +143,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
 
                     // Check client/server understands new data types
-                    // direction == XDR_RECEIVE && protocolVersion == 3 Means Client receiving data from a
+                    // direction == XDRStreamDirection::Receive && protocolVersion == 3 Means Client receiving data from a
                     // Version >= 3 Server (Type has to be passed first)
 
                     if (protocol_version_type_test(protocolVersion, data_block->data_type) ||
@@ -229,11 +229,11 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
 
                     // Check client/server understands new data types
 
-                    // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client
+                    // direction == XDRStreamDirection::Send && protocolVersion == 3 Means Server sending data to a Version 3 Client
                     // (Type is known)
 
                     if (protocol_version_type_test(protocolVersion, data_block->data_type) ||
@@ -315,7 +315,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
                     break;
 
                 default:
@@ -335,7 +335,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
             switch (direction) {
 
-                case XDR_RECEIVE: {
+                case XDRStreamDirection::Receive: {
 
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
@@ -385,7 +385,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     break;
                 }
 
-                case XDR_SEND: {
+                case XDRStreamDirection::Send: {
 
                     UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: {}", put_data_block_list->blockCount);
 
@@ -426,7 +426,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     break;
                 }
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
                     break;
 
                 default:
@@ -444,7 +444,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
             switch (direction) {
 
-                case XDR_RECEIVE: // From Client to Server
+                case XDRStreamDirection::Receive: // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
                         break;
@@ -455,7 +455,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
                     if (!xdr_int(xdrs, (int*)token)) {
                         err = UDA_PROTOCOL_ERROR_9;
                         break;
@@ -466,7 +466,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE:
+                case XDRStreamDirection::FreeHeap:
                     err = UDA_PROTOCOL_ERROR_3;
                     break;
 
@@ -485,7 +485,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
             auto data_system = (DataSystem*)str;
 
             switch (direction) {
-                case XDR_RECEIVE: // From Client to Server
+                case XDRStreamDirection::Receive: // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
                         break;
@@ -496,7 +496,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
 
                     if (!xdr_data_system(xdrs, data_system)) {
                         err = UDA_PROTOCOL_ERROR_10;
@@ -508,7 +508,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
 
                     if (!xdr_data_system(xdrs, data_system)) {
                         err = UDA_PROTOCOL_ERROR_11;
@@ -531,7 +531,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
             auto system_config = (SystemConfig*)str;
 
             switch (direction) {
-                case XDR_RECEIVE:
+                case XDRStreamDirection::Receive:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
@@ -543,7 +543,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
 
                     if (!xdr_system_config(xdrs, system_config)) {
                         err = UDA_PROTOCOL_ERROR_12;
@@ -555,7 +555,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
 
                     if (!xdr_system_config(xdrs, system_config)) {
                         err = UDA_PROTOCOL_ERROR_13;
@@ -578,7 +578,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
             auto data_source = (DataSource*)str;
 
             switch (direction) {
-                case XDR_RECEIVE:
+                case XDRStreamDirection::Receive:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
@@ -590,7 +590,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
 
                     if (!xdr_data_source(xdrs, data_source)) {
                         err = UDA_PROTOCOL_ERROR_14;
@@ -602,7 +602,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
 
                     if (!xdr_data_source(xdrs, data_source)) {
                         err = UDA_PROTOCOL_ERROR_15;
@@ -626,7 +626,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
             switch (direction) {
 
-                case XDR_RECEIVE:
+                case XDRStreamDirection::Receive:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
@@ -638,7 +638,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
 
                     if (!xdr_signal(xdrs, signal)) {
                         err = UDA_PROTOCOL_ERROR_16;
@@ -650,7 +650,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
 
                     if (!xdr_signal(xdrs, signal)) {
                         err = UDA_PROTOCOL_ERROR_17;
@@ -674,7 +674,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
             switch (direction) {
 
-                case XDR_RECEIVE:
+                case XDRStreamDirection::Receive:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
@@ -687,7 +687,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
 
                     if (!xdr_signal_desc(xdrs, signal_desc)) {
                         err = UDA_PROTOCOL_ERROR_18;
@@ -699,7 +699,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
 
                     if (!xdr_signal_desc(xdrs, signal_desc)) {
                         err = UDA_PROTOCOL_ERROR_19;
@@ -723,7 +723,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
             switch (direction) {
 
-                case XDR_RECEIVE:
+                case XDRStreamDirection::Receive:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
@@ -736,7 +736,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
 
                     if (!xdr_client(xdrs, client_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_20;
@@ -748,7 +748,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
 
                     if (!xdr_client(xdrs, client_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_21;
@@ -773,7 +773,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
             switch (direction) {
 
-                case XDR_RECEIVE:
+                case XDRStreamDirection::Receive:
 
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = UDA_PROTOCOL_ERROR_5;
@@ -801,7 +801,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
 
                     break;
 
-                case XDR_SEND:
+                case XDRStreamDirection::Send:
                     if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_22;
                         break;
@@ -820,7 +820,7 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, int directio
                     }
                     break;
 
-                case XDR_FREE_HEAP:
+                case XDRStreamDirection::FreeHeap:
 
                     if (!xdr_server(xdrs, server_block)) {
                         err = UDA_PROTOCOL_ERROR_23;

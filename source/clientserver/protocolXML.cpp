@@ -75,7 +75,7 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 
-int uda::client_server::protocol_xml(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token,
+int uda::client_server::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                                      LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
                                      int protocolVersion, LogStructList* log_struct_list, IoData* io_data,
                                      unsigned int private_flags, int malloc_source, CreateXDRStreams create_xdr_streams)
@@ -660,7 +660,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, ProtocolId protocol_id, int dire
             data_block = (DataBlock*)str;
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {
-                    case XDR_RECEIVE:
+                    case XDRStreamDirection::Receive:
                         if (!xdrrec_skiprecord(xdrs)) {
                             err = UDA_PROTOCOL_ERROR_5;
                             break;
@@ -677,7 +677,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, ProtocolId protocol_id, int dire
 
                         break;
 
-                    case XDR_SEND:
+                    case XDRStreamDirection::Send:
                         if (!xdr_meta(xdrs, data_block)) {
                             UDA_LOG(UDA_LOG_DEBUG, "Error sending Metadata XML Document: \n{}\n",
                                     (char*)data_block->opaque_block);
@@ -690,7 +690,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, ProtocolId protocol_id, int dire
                         }
                         break;
 
-                    case XDR_FREE_HEAP:
+                    case XDRStreamDirection::FreeHeap:
                         break;
 
                     default:

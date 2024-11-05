@@ -97,7 +97,7 @@ int sha1File(char* name, FILE* fh, unsigned char* md);
 
 #define MAX_ELEMENT_SHA1 20
 
-int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token,
+int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                                       LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
                                       int protocolVersion, LogStructList* log_struct_list, unsigned int private_flags,
                                       int malloc_source)
@@ -1120,7 +1120,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
             data_block = (DataBlock*)str;
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {
-                    case XDR_RECEIVE:
+                    case XDRStreamDirection::Receive:
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
                             err = UDA_PROTOCOL_ERROR_5;
                             break;
@@ -1136,7 +1136,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
                         }
                         break;
 
-                    case XDR_SEND:
+                    case XDRStreamDirection::Send:
 
                         if (!(rc = xdr_meta(xdrs, data_block))) {
                             UDA_LOG(UDA_LOG_DEBUG, "Error sending Metadata XML Document: \n{}\n",
@@ -1150,7 +1150,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
                         }
                         break;
 
-                    case XDR_FREE_HEAP:
+                    case XDRStreamDirection::FreeHeap:
                         break;
 
                     default:
@@ -1452,7 +1452,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DataBlock* 
         DataBlockList data_block_list;
         data_block_list.count = 1;
         data_block_list.data = data_block;
-        err = protocol2(&xdrObject, ProtocolId::DataBlockList, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
+        err = protocol2(&xdrObject, ProtocolId::DataBlockList, XDRStreamDirection::Send, nullptr, logmalloclist, userdefinedtypelist,
                         &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
         // Close the stream and file
@@ -1495,7 +1495,7 @@ int unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DataBlock
         DataBlockList data_block_list;
         data_block_list.count = 1;
         data_block_list.data = data_block;
-        err = protocol2(&xdrObject, ProtocolId::DataBlockList, XDR_RECEIVE, nullptr, logmalloclist,
+        err = protocol2(&xdrObject, ProtocolId::DataBlockList, XDRStreamDirection::Receive, nullptr, logmalloclist,
                         userdefinedtypelist, &data_block_list, protocolVersion, log_struct_list, private_flags,
                         malloc_source);
 

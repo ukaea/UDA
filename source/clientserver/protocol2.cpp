@@ -43,28 +43,28 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 
-static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int protocolVersion);
-static int handle_putdata_block_list(XDR* xdrs, int direction, ProtocolId* token, LogMallocList* logmalloclist,
+static int handle_request_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
+static int handle_data_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
+static int handle_data_block_list(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
+static int handle_putdata_block_list(XDR* xdrs, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                      UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
                                      LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
-static int handle_next_protocol(XDR* xdrs, int direction, ProtocolId* token);
-static int handle_data_system(XDR* xdrs, int direction, const void* str);
-static int handle_system_config(XDR* xdrs, int direction, const void* str);
-static int handle_data_source(XDR* xdrs, int direction, const void* str);
-static int handle_signal(XDR* xdrs, int direction, const void* str);
-static int handle_signal_desc(XDR* xdrs, int direction, const void* str);
-static int handle_client_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-static int handle_dataobject(XDR* xdrs, int direction, const void* str);
-static int handle_dataobject_file(int direction, const void* str);
+static int handle_next_protocol(XDR* xdrs, XDRStreamDirection direction, ProtocolId* token);
+static int handle_data_system(XDR* xdrs, XDRStreamDirection direction, const void* str);
+static int handle_system_config(XDR* xdrs, XDRStreamDirection direction, const void* str);
+static int handle_data_source(XDR* xdrs, XDRStreamDirection direction, const void* str);
+static int handle_signal(XDR* xdrs, XDRStreamDirection direction, const void* str);
+static int handle_signal_desc(XDR* xdrs, XDRStreamDirection direction, const void* str);
+static int handle_client_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
+static int handle_server_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
+static int handle_dataobject(XDR* xdrs, XDRStreamDirection direction, const void* str);
+static int handle_dataobject_file(XDRStreamDirection direction, const void* str);
 
 #ifdef SECURITYENABLED
-static int handle_security_block(XDR* xdrs, int direction, const void* str);
+static int handle_security_block(XDR* xdrs, XDRStreamDirection direction, const void* str);
 #endif
 
-int uda::client_server::protocol2(XDR* xdrs, ProtocolId protocol_id, int direction, ProtocolId* token, LogMallocList* logmalloclist,
+int uda::client_server::protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                   UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                   LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
@@ -128,28 +128,28 @@ int uda::client_server::protocol2(XDR* xdrs, ProtocolId protocol_id, int directi
 }
 
 #ifdef SECURITYENABLED
-static int handle_security_block(XDR* xdrs, int direction, const void* str)
+static int handle_security_block(XDR* xdrs, XDRStreamDirection direction, const void* str)
 {
     int err = 0;
     ClientBlock* client_block = (ClientBlock*)str;
     SecurityBlock* security_block = &(client_block->securityBlock);
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_security_block1(xdrs, security_block)) {
                 err = UDA_PROTOCOL_ERROR_23;
                 break;
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_security_block1(xdrs, security_block)) {
                 err = UDA_PROTOCOL_ERROR_23;
                 break;
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -180,21 +180,21 @@ static int handle_security_block(XDR* xdrs, int direction, const void* str)
     }
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_security_block2(xdrs, security_block)) {
                 err = UDA_PROTOCOL_ERROR_24;
                 break;
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_security_block2(xdrs, security_block)) {
                 err = UDA_PROTOCOL_ERROR_24;
                 break;
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -205,15 +205,15 @@ static int handle_security_block(XDR* xdrs, int direction, const void* str)
 }
 #endif // SECURITYENABLED
 
-static int handle_dataobject_file(int direction, const void* str)
+static int handle_dataobject_file(XDRStreamDirection direction, const void* str)
 {
     int err = 0;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             break;
 
         default:
@@ -224,13 +224,13 @@ static int handle_dataobject_file(int direction, const void* str)
     return err;
 }
 
-static int handle_dataobject(XDR* xdrs, int direction, const void* str)
+static int handle_dataobject(XDR* xdrs, XDRStreamDirection direction, const void* str)
 {
     int err = 0;
     auto data_object = (DataObject*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_data_object1(xdrs, data_object)) { // Storage requirements
                 err = UDA_PROTOCOL_ERROR_22;
                 break;
@@ -247,7 +247,7 @@ static int handle_dataobject(XDR* xdrs, int direction, const void* str)
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
 
             if (!xdr_data_object1(xdrs, data_object)) {
                 err = UDA_PROTOCOL_ERROR_22;
@@ -266,13 +266,13 @@ static int handle_dataobject(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
+static int handle_server_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto server_block = (ServerBlock*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             close_error(); // Free Heap associated with Previous Data Access
 
             if (!xdr_server1(xdrs, server_block, protocolVersion)) {
@@ -294,7 +294,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
 
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_22;
                 break;
@@ -309,7 +309,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
 
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -319,27 +319,27 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
     return err;
 }
 
-static int handle_client_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
+static int handle_client_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto client_block = (ClientBlock*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_client(xdrs, client_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_20;
                 break;
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_client(xdrs, client_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_20;
                 break;
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -349,27 +349,27 @@ static int handle_client_block(XDR* xdrs, int direction, const void* str, int pr
     return err;
 }
 
-static int handle_signal_desc(XDR* xdrs, int direction, const void* str)
+static int handle_signal_desc(XDR* xdrs, XDRStreamDirection direction, const void* str)
 {
     int err = 0;
     auto signal_desc = (SignalDesc*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_signal_desc(xdrs, signal_desc)) {
                 err = UDA_PROTOCOL_ERROR_18;
                 break;
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_signal_desc(xdrs, signal_desc)) {
                 err = UDA_PROTOCOL_ERROR_18;
                 break;
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -379,27 +379,27 @@ static int handle_signal_desc(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_signal(XDR* xdrs, int direction, const void* str)
+static int handle_signal(XDR* xdrs, XDRStreamDirection direction, const void* str)
 {
     int err = 0;
     auto signal = (Signal*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_signal(xdrs, signal)) {
                 err = UDA_PROTOCOL_ERROR_16;
                 break;
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_signal(xdrs, signal)) {
                 err = UDA_PROTOCOL_ERROR_16;
                 break;
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -409,28 +409,28 @@ static int handle_signal(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_data_source(XDR* xdrs, int direction, const void* str)
+static int handle_data_source(XDR* xdrs, XDRStreamDirection direction, const void* str)
 {
     int err = 0;
     auto data_source = (DataSource*)str;
 
     switch (direction) {
 
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_data_source(xdrs, data_source)) {
                 err = UDA_PROTOCOL_ERROR_14;
                 break;
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_data_source(xdrs, data_source)) {
                 err = UDA_PROTOCOL_ERROR_14;
                 break;
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -440,27 +440,27 @@ static int handle_data_source(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_system_config(XDR* xdrs, int direction, const void* str)
+static int handle_system_config(XDR* xdrs, XDRStreamDirection direction, const void* str)
 {
     int err = 0;
     auto system_config = (SystemConfig*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_system_config(xdrs, system_config)) {
                 err = UDA_PROTOCOL_ERROR_12;
                 break;
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_system_config(xdrs, system_config)) {
                 err = UDA_PROTOCOL_ERROR_12;
                 break;
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -470,27 +470,27 @@ static int handle_system_config(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_data_system(XDR* xdrs, int direction, const void* str)
+static int handle_data_system(XDR* xdrs, XDRStreamDirection direction, const void* str)
 {
     int err = 0;
     auto data_system = (DataSystem*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_data_system(xdrs, data_system)) {
                 err = UDA_PROTOCOL_ERROR_10;
                 break;
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_data_system(xdrs, data_system)) {
                 err = UDA_PROTOCOL_ERROR_10;
                 break;
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -500,11 +500,11 @@ static int handle_data_system(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_next_protocol(XDR* xdrs, int direction, ProtocolId* token)
+static int handle_next_protocol(XDR* xdrs, XDRStreamDirection direction, ProtocolId* token)
 {
     int err = 0;
     switch (direction) {
-        case XDR_RECEIVE: // From Client to Server
+        case XDRStreamDirection::Receive: // From Client to Server
             if (!xdrrec_skiprecord(xdrs)) {
                 err = UDA_PROTOCOL_ERROR_5;
                 break;
@@ -515,7 +515,7 @@ static int handle_next_protocol(XDR* xdrs, int direction, ProtocolId* token)
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_int(xdrs, (int*)token)) {
                 err = UDA_PROTOCOL_ERROR_9;
                 break;
@@ -526,7 +526,7 @@ static int handle_next_protocol(XDR* xdrs, int direction, ProtocolId* token)
             }
             break;
 
-        case XDR_FREE:
+        case XDRStreamDirection::FreeHeap:
             err = UDA_PROTOCOL_ERROR_3;
             break;
 
@@ -537,7 +537,7 @@ static int handle_next_protocol(XDR* xdrs, int direction, ProtocolId* token)
     return err;
 }
 
-static int handle_putdata_block_list(XDR* xdrs, int direction, ProtocolId* token, LogMallocList* logmalloclist,
+static int handle_putdata_block_list(XDR* xdrs, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                      UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
                                      LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
@@ -546,7 +546,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, ProtocolId* token
 
     switch (direction) {
 
-        case XDR_RECEIVE: {
+        case XDRStreamDirection::Receive: {
             unsigned int blockCount = 0;
 
             if (!xdr_u_int(xdrs, &blockCount)) {
@@ -621,7 +621,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, ProtocolId* token
             break;
         }
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
 
             UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: {}", putDataBlockList->blockCount);
 
@@ -679,7 +679,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, ProtocolId* token
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -689,20 +689,20 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, ProtocolId* token
     return err;
 }
 
-static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
+static int handle_data_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto data_block = (DataBlock*)str;
 
     switch (direction) {
-        case XDR_RECEIVE: {
+        case XDRStreamDirection::Receive: {
             if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_61;
                 break;
             }
 
             // Check client/server understands new data types
-            // direction == XDR_RECEIVE && protocolVersion == 3 Means Client receiving data from a
+            // direction == XDRStreamDirection::Receive && protocolVersion == 3 Means Client receiving data from a
             // Version >= 3 Server (Type has to be passed first)
 
             if (protocol_version_type_test(protocolVersion, data_block->data_type) ||
@@ -789,11 +789,11 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
             break;
         }
 
-        case XDR_SEND: {
+        case XDRStreamDirection::Send: {
 
             // Check client/server understands new data types
 
-            // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is
+            // direction == XDRStreamDirection::Send && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is
             // known)
 
             UDA_LOG(UDA_LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block");
@@ -877,7 +877,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
             break;
         }
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -888,13 +888,13 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
     return err;
 }
 
-static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int protocolVersion)
+static int handle_data_block_list(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto data_block_list = (DataBlockList*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_data_block_list(xdrs, data_block_list, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_1;
                 break;
@@ -903,7 +903,7 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
             for (int i = 0; i < data_block_list->count; ++i) {
                 DataBlock* data_block = &data_block_list->data[i];
                 init_data_block(data_block);
-                err = handle_data_block(xdrs, XDR_RECEIVE, data_block, protocolVersion);
+                err = handle_data_block(xdrs, XDRStreamDirection::Receive, data_block, protocolVersion);
                 if (err != 0) {
                     err = UDA_PROTOCOL_ERROR_2;
                     break;
@@ -914,14 +914,14 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
             }
             break;
 
-        case XDR_SEND: {
+        case XDRStreamDirection::Send: {
             if (!xdr_data_block_list(xdrs, data_block_list, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_2;
                 break;
             }
             for (int i = 0; i < data_block_list->count; ++i) {
                 DataBlock* data_block = &data_block_list->data[i];
-                int rc = handle_data_block(xdrs, XDR_SEND, data_block, protocolVersion);
+                int rc = handle_data_block(xdrs, XDRStreamDirection::Send, data_block, protocolVersion);
                 if (rc != 0) {
                     err = UDA_PROTOCOL_ERROR_2;
                     break;
@@ -933,7 +933,7 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
             break;
         }
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:
@@ -943,13 +943,13 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
     return err;
 }
 
-static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
+static int handle_request_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto request_block = (RequestBlock*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDRStreamDirection::Receive:
             if (!xdr_request(xdrs, request_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_1;
                 break;
@@ -967,7 +967,7 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
             }
             break;
 
-        case XDR_SEND:
+        case XDRStreamDirection::Send:
             if (!xdr_request(xdrs, request_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_2;
                 break;
@@ -983,7 +983,7 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
             }
             break;
 
-        case XDR_FREE_HEAP:
+        case XDRStreamDirection::FreeHeap:
             break;
 
         default:

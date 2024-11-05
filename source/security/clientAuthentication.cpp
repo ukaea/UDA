@@ -272,7 +272,7 @@ static int issueToken(ClientBlock* client_block, LogMallocList* logmalloclist, U
 #ifndef TESTIDAMSECURITY
     ProtocolId protocol_id = ProtocolId::ClientBlock;
 
-    if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(clientOutput, protocol_id, XDRStreamDirection::Send, nullptr, logmalloclist, userdefinedtypelist,
                          &client_block)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 10 Error (securityBlock #1)");
     }
@@ -319,7 +319,7 @@ static int decryptServerToken(ServerBlock* server_block, ClientBlock* client_blo
 
     ProtocolId protocol_id = ProtocolId::ServerBlock;
 
-    if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(clientInput, protocol_id, XDRStreamDirection::Receive, nullptr, logmalloclist, userdefinedtypelist,
                          &server_block)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 11 Error (securityBlock #5)");
     }
@@ -412,7 +412,7 @@ static int encryptServerToken(ClientBlock* client_block, LogMallocList* logmallo
 #ifndef TESTIDAMSECURITY
     ProtocolId protocol_id = ProtocolId::ClientBlock;
 
-    if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(clientOutput, protocol_id, XDRStreamDirection::Send, nullptr, logmalloclist, userdefinedtypelist,
                          &client_block)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 10 Error (securityBlock #6)");
     }
