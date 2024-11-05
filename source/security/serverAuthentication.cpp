@@ -175,7 +175,7 @@ static SECURITY_BLOCK* receiveSecurityBlock(ClientBlock* client_block, LogMalloc
 #  ifndef TESTIDAMSECURITY
     if (!xdrrec_skiprecord(serverInput)) {
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
-        add_error(ErrorType::Code, __func__, UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
+        add_error(ErrorType::Code, __func__, ProtocolError::Error5, "Protocol 5 Error (Client Block #2)");
     } else {
         ProtocolId protocol_id = ProtocolId::ClientBlock; // Recieve Client Block
 
@@ -320,7 +320,7 @@ static int issueToken(ServerBlock* server_block, LogMallocList* logmalloclist, U
     }
 
     if (!xdrrec_endofrecord(serverOutput, 1)) {
-        add_error(ErrorType::Code, __func__, UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
+        add_error(ErrorType::Code, __func__, ProtocolError::Error7, "Protocol 7 Error (Server Block)");
     }
 #  endif
 
@@ -344,7 +344,7 @@ static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, Log
 
     if (!xdrrec_skiprecord(serverInput)) {
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
+        UDA_THROW_ERROR(ProtocolError::Error5, "Protocol 5 Error (Client Block #7)");
     }
 
     if ((err = protocol2(serverInput, protocol_id, XDRStreamDirection::Receive, nullptr, logmalloclist, userdefinedtypelist,
@@ -396,7 +396,7 @@ static int verifyToken(ServerBlock* server_block, ClientBlock* client_block, Log
     }
 
     if (!xdrrec_endofrecord(serverOutput, 1)) {
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #7)");
+        UDA_THROW_ERROR(ProtocolError::Error7, "Protocol 7 Error (Server Block #7)");
     }
 #  endif
 

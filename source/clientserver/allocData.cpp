@@ -37,11 +37,11 @@ int uda::client_server::alloc_array(int data_type, size_t n_data, char** ap)
     if (data_size > 0) {
         *ap = (char*)realloc((void*)*ap, n_data * data_size);
     } else if (data_type != UDA_TYPE_COMPOUND) {
-        return UNKNOWN_DATA_TYPE;
+        return (int)ServerSideError::UnknownDataType;
     }
 
     if (*ap == nullptr && data_type != UDA_TYPE_COMPOUND) {
-        return ERROR_ALLOCATING_HEAP;
+        return (int)ServerSideError::ErrorAllocatingHeap;
     }
 
     return 0;
@@ -60,7 +60,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
     if (data_block->rank > 0) {
         data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
         if (data_block->dims == nullptr) {
-            return ERROR_ALLOCATING_HEAP;
+            return (int)ServerSideError::ErrorAllocatingHeap;
         }
         for (unsigned int i = 0; i < data_block->rank; i++) {
             init_dim_block(&data_block->dims[i]);
@@ -90,7 +90,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
             }
         }
     } else if (data_block->data_type != UDA_TYPE_COMPOUND) {
-        return UNKNOWN_DATA_TYPE;
+        return (int)ServerSideError::UnknownDataType;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "allocData :");
@@ -104,7 +104,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
 
     if (db == nullptr && data_block->data_type != UDA_TYPE_COMPOUND) {
         UDA_LOG(UDA_LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data");
-        return ERROR_ALLOCATING_HEAP;
+        return (int)ServerSideError::ErrorAllocatingHeap;
     }
 
     size_t error_size = getSizeOf((UDA_TYPE)data_block->error_type);
@@ -117,7 +117,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
 
     if ((ebh == nullptr || (ebl == nullptr && data_block->errasymmetry)) &&
         (data_block->error_type != UDA_TYPE_COMPOUND && data_block->error_type != UDA_TYPE_UNKNOWN)) {
-        return ERROR_ALLOCATING_HEAP;
+        return (int)ServerSideError::ErrorAllocatingHeap;
     }
 
     data_block->data = db;
@@ -167,10 +167,10 @@ int uda::client_server::alloc_dim(DataBlock* data_block)
         }
 
         if (db == nullptr) {
-            return ERROR_ALLOCATING_HEAP;
+            return (int)ServerSideError::ErrorAllocatingHeap;
         }
         if (ebh == nullptr || (ebl == nullptr && data_block->dims[i].errasymmetry)) {
-            return ERROR_ALLOCATING_HEAP;
+            return (int)ServerSideError::ErrorAllocatingHeap;
         }
 
         data_block->dims[i].dim = db;
@@ -226,7 +226,7 @@ int uda::client_server::alloc_put_data(PutDataBlock* putData)
     if (data_size > 0) {
         db = (char*)malloc(count * data_size);
     } else {
-        return UNKNOWN_DATA_TYPE;
+        return (int)ServerSideError::UnknownDataType;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "allocPutData :");
@@ -237,7 +237,7 @@ int uda::client_server::alloc_put_data(PutDataBlock* putData)
 
     if (db == nullptr && putData->data_type != UDA_TYPE_COMPOUND) {
         UDA_LOG(UDA_LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data");
-        return ERROR_ALLOCATING_HEAP;
+        return (int)ServerSideError::ErrorAllocatingHeap;
     }
 
     putData->data = db;

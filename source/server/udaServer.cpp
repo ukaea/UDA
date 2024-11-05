@@ -298,7 +298,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
         // Send the Server Block and bypass sending data (there are none!)
 
         if (!xdrrec_endofrecord(server_output, 1)) {
-            err = UDA_PROTOCOL_ERROR_7;
+            err = (int)ProtocolError::Error7;
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2");
             add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Server Block)");
             return err;
@@ -406,7 +406,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
     // ******* is this an extra XDR EOF ?????
 
     if (!xdrrec_endofrecord(server_output, 1)) {
-        err = UDA_PROTOCOL_ERROR_7;
+        err = (int)ProtocolError::Error7;
         add_error(ErrorType::Code, "idamClient", err, "Protocol 7 Error (Server Block)");
         return err;
     }
@@ -465,7 +465,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
 
     if (!xdrrec_skiprecord(server_input)) {
         *fatal = 1;
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block)");
+        UDA_THROW_ERROR((int)ProtocolError::Error5, "Protocol 5 Error (Client Block)");
     }
 
     ProtocolId protocol_id = ProtocolId::ClientBlock;
@@ -1128,7 +1128,7 @@ int handshake_client(Config& config, ClientBlock* client_block, ServerBlock* ser
     int err = 0;
 
     if (!xdrrec_skiprecord(server_input)) {
-        err = UDA_PROTOCOL_ERROR_5;
+        err = (int)ProtocolError::Error5;
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
         add_error(ErrorType::Code, __func__, err, "Protocol 5 Error (Client Block)");
     } else {
@@ -1182,7 +1182,7 @@ int handshake_client(Config& config, ClientBlock* client_block, ServerBlock* ser
     }
 
     if (!xdrrec_endofrecord(server_output, 1)) { // Send data now
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
+        UDA_THROW_ERROR((int)ProtocolError::Error7, "Protocol 7 Error (Server Block)");
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Initial Server Block sent without error");
@@ -1208,7 +1208,7 @@ int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_o
     // Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
 
     if (startup() != 0) {
-        int err = FATAL_ERROR_LOGS;
+        int err = (int)FatalError::Logs;
         add_error(ErrorType::Code, __func__, err, "Fatal Error Opening the Server Logs");
         concat_error(&server_block->idamerrorstack);
         init_error_stack();

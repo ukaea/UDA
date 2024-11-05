@@ -8,6 +8,8 @@
 
 #include "udaErrors.h"
 
+using namespace uda::client_server;
+
 namespace
 {
 
@@ -67,7 +69,7 @@ template <typename T> int decompress(uda::client_server::Dims* ddim)
 
     if (ddim->dim == nullptr) {
         if ((ddim->dim = (char*)malloc(ndata * sizeof(T))) == nullptr) {
-            return UNCOMPRESS_ALLOCATING_HEAP;
+            return (int)ServerSideError::UncompressAllocatingHeap;
         }
     }
     T* dim_data = (T*)ddim->dim;
@@ -208,6 +210,6 @@ int uda::client_server::uncompress_dim(Dims* ddim)
             //        case UDA_TYPE_UNSIGNED_LONG64:
             //            return decompress<uint64_t>(ddim);
         default:
-            return UNKNOWN_DATA_TYPE;
+            return (int)ServerSideError::UnknownDataType;
     }
 }

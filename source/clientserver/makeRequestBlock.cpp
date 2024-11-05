@@ -660,7 +660,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
         }
 
         if (err != 0) {
-            UDA_THROW_ERROR(NO_SERVER_SPECIFIED, "The MDSPlus Data Source does not comply with the naming models: "
+            UDA_THROW_ERROR((int)RequestError::NoServerSpecified, "The MDSPlus Data Source does not comply with the naming models: "
                                                  "server/tree/number or server/path/to/data/tree/number")
         }
     }
@@ -1108,7 +1108,7 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
         if ((test = strstr(request->signal, request->api_delim)) != nullptr) {
 
             if (test - request->signal >= StringLength - 1 || strlen(test + ldelim) >= MaxMeta - 1) {
-                UDA_ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
+                UDA_ADD_ERROR((int)RequestError::ArchiveNameTooLong, "The ARCHIVE Name is too long!");
                 return err;
             }
             copy_string(request->signal, request->archive, test - request->signal + 1);

@@ -43,13 +43,13 @@ int make_request_data(const char* data_object, const char* data_source, RequestD
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
 
     if (strlen(data_object) >= MaxMeta) {
-        UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
+        UDA_THROW_ERROR((int)RequestError::SignalArgTooLong, "The Signal/Data Object Argument string is too long!");
     } else {
         strcpy(request->signal, data_object); // Passed to the server without modification
     }
 
     if (strlen(data_source) >= StringLength) {
-        UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
+        UDA_THROW_ERROR((int)RequestError::SourceArgTooLong, "The Data Source Argument string is too long!");
     } else {
         strcpy(request->source, data_source); // Passed to the server without modification
     }
@@ -81,7 +81,7 @@ int make_request_data(const char* data_object, const char* data_source, RequestD
     if (!device.empty() && strstr(request->source, request->api_delim) == nullptr) {
         size_t lstr = strlen(request->source) + device.size() + strlen(request->api_delim);
         if (lstr >= StringLength) {
-            UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG,
+            UDA_THROW_ERROR((int)RequestError::SourceArgTooLong,
                             "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
         std::string test = fmt::format("{}{}{}", device, request->api_delim, request->source);
@@ -91,7 +91,7 @@ int make_request_data(const char* data_object, const char* data_source, RequestD
     if (!archive.empty() && strstr(request->signal, request->api_delim) == nullptr) {
         size_t lstr = strlen(request->signal) + archive.size() + strlen(request->api_delim);
         if (lstr >= StringLength) {
-            UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG,
+            UDA_THROW_ERROR((int)RequestError::SignalArgTooLong,
                             "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
         std::string test = fmt::format("{}{}{}", archive, request->api_delim, request->signal);

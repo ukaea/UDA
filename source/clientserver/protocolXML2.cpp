@@ -1122,7 +1122,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStre
                 switch (direction) {
                     case XDRStreamDirection::Receive:
                         if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = UDA_PROTOCOL_ERROR_5;
+                            err = (int)ProtocolError::Error5;
                             break;
                         }
                         if ((data_block->opaque_block = (char*)malloc((data_block->opaque_count + 1) * sizeof(char))) ==
@@ -1145,7 +1145,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStre
                             break;
                         }
                         if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                            err = UDA_PROTOCOL_ERROR_7;
+                            err = (int)ProtocolError::Error7;
                             break;
                         }
                         break;
@@ -1154,7 +1154,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStre
                         break;
 
                     default:
-                        err = UDA_PROTOCOL_ERROR_4;
+                        err = (int)ProtocolError::Error4;
                         break;
                 }
             }

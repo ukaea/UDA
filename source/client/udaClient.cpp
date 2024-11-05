@@ -402,7 +402,7 @@ static int allocMeta(DataSystem** data_system, SystemConfig** system_config, Dat
 
     if (*data_system == nullptr || *system_config == nullptr || *data_source == nullptr || *signal_rec == nullptr ||
         *signal_desc == nullptr) {
-        err = ERROR_ALLOCATING_META_DATA_HEAP;
+        err = (int)ServerSideError::ErrorAllocatingMetaDataHeap;
         add_error(ErrorType::Code, __func__, err, "Error Allocating Heap for Meta Data");
         return err;
     }
@@ -820,7 +820,7 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
             }
 
             if (!(xdrrec_endofrecord(client_output, 1))) { // Send data now
-                err = UDA_PROTOCOL_ERROR_7;
+                err = (int)ProtocolError::Error7;
                 add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Client Block)");
                 UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_endofrecord after Client Block");
                 break;
@@ -830,7 +830,7 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
 
             // Wait for data, then position buffer reader to the start of a new record
             if (!(xdrrec_skiprecord(client_input))) {
-                err = UDA_PROTOCOL_ERROR_5;
+                err = (int)ProtocolError::Error5;
                 add_error(ErrorType::Code, __func__, err, "Protocol 5 Error (Server Block)");
                 UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_skiprecord prior to Server Block");
                 break;
@@ -973,7 +973,7 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
         // Send the Full TCP packet and wait for the returned data
 
         if (!(rc = xdrrec_endofrecord(client_output, 1))) {
-            err = UDA_PROTOCOL_ERROR_7;
+            err = (int)ProtocolError::Error7;
             add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Request Block & putDataBlockList)");
             break;
         }
@@ -981,7 +981,7 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
         UDA_LOG(UDA_LOG_DEBUG, "****** Outgoing tcp packet sent without error. Waiting for data.");
 
         if (!xdrrec_skiprecord(client_input)) {
-            err = UDA_PROTOCOL_ERROR_5;
+            err = (int)ProtocolError::Error5;
             add_error(ErrorType::Code, __func__, err, " Protocol 5 Error (Server & Data Structures)");
             break;
         }

@@ -7,7 +7,7 @@
 #define GDE_BAD_HANDLE 4
 #define GDE_NO_VALID_HANDLE 5
 #define GDE_DATA_HAS_ERROR 6
-#define GDE_UNKNOWN_DATA_TYPE 7
+#define GDE_ServerSideError::UnknownDataType 7
 #define GDE_NO_SUCH_DIMENSION 8
 #define GDE_NO_DATA_TO_RETURN 9
 #define GDE_RANK_TOO_HIGH 10

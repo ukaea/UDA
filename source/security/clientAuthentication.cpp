@@ -279,7 +279,7 @@ static int issueToken(ClientBlock* client_block, LogMallocList* logmalloclist, U
 
     // Send to server
     if (!xdrrec_endofrecord(clientOutput, 1)) {
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #1)");
+        UDA_THROW_ERROR(ProtocolError::Error7, "Protocol 7 Error (Client Block #1)");
     }
 
     // No need to resend the client's certificates or encrypted token A
@@ -314,7 +314,7 @@ static int decryptServerToken(ServerBlock* server_block, ClientBlock* client_blo
 
 #ifndef TESTIDAMSECURITY
     if (!xdrrec_endofrecord(clientInput, 1)) {
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #5)");
+        UDA_THROW_ERROR(ProtocolError::Error7, "Protocol 7 Error (Server Block #5)");
     }
 
     ProtocolId protocol_id = ProtocolId::ServerBlock;
@@ -419,7 +419,7 @@ static int encryptServerToken(ClientBlock* client_block, LogMallocList* logmallo
 
     // Send to server
     if (!xdrrec_endofrecord(clientOutput, 1)) {
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #6)");
+        UDA_THROW_ERROR(ProtocolError::Error7, "Protocol 7 Error (Client Block #6)");
     }
 
     free(server_ciphertext);

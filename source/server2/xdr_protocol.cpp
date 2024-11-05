@@ -218,7 +218,7 @@ int uda::server::XdrProtocol::read_client_block(ClientBlock* client_block, LogMa
     UDA_LOG(UDA_LOG_DEBUG, "Receiving Client Block");
 
     if (!xdrrec_skiprecord(&_server_input)) {
-        err = UDA_PROTOCOL_ERROR_5;
+        err = (int)ProtocolError::Error5;
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!");
         add_error(ErrorType::Code, __func__, err, "Protocol 5 Error (Client Block)");
     } else {
@@ -264,7 +264,7 @@ int uda::server::XdrProtocol::send_server_block(ServerBlock server_block, LogMal
 int uda::server::XdrProtocol::flush()
 {
     if (!xdrrec_endofrecord(&_server_output, 1)) { // Send data now
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
+        UDA_THROW_ERROR((int)ProtocolError::Error7, "Protocol 7 Error (Server Block)");
     }
 
     return 0;
@@ -406,7 +406,7 @@ int uda::server::XdrProtocol::recv_client_block(ServerBlock& server_block, Clien
 
     if (!xdrrec_skiprecord(&_server_input)) {
         *fatal = true;
-        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block)");
+        UDA_THROW_ERROR((int)ProtocolError::Error5, "Protocol 5 Error (Client Block)");
     }
 
     ProtocolId protocol_id = ProtocolId::ClientBlock;

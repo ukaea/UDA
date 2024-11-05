@@ -71,7 +71,7 @@ int alloc_meta(DataSystem** data_system, SystemConfig** system_config, DataSourc
 
     if (*data_system == nullptr || *system_config == nullptr || *data_source == nullptr || *signal_rec == nullptr ||
         *signal_desc == nullptr) {
-        err = ERROR_ALLOCATING_META_DATA_HEAP;
+        err = (int)ServerSideError::ErrorAllocatingMetaDataHeap;
         add_error(ErrorType::Code, __func__, err, "Error Allocating Heap for Meta Data");
         return err;
     }
@@ -752,7 +752,7 @@ int uda::client::Client::perform_handshake()
     }
 
     if (!(xdrrec_endofrecord(_client_output, 1))) { // Send data now
-        err = UDA_PROTOCOL_ERROR_7;
+        err = (int)ProtocolError::Error7;
         add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Client Block)");
         UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_endofrecord after Client Block");
         throw uda::exceptions::ClientError("Protocol 7 Error (Client Block)");
@@ -762,7 +762,7 @@ int uda::client::Client::perform_handshake()
 
     // Wait for data, then position buffer reader to the start of a new record
     if (!(xdrrec_skiprecord(_client_input))) {
-        err = UDA_PROTOCOL_ERROR_5;
+        err = (int)ProtocolError::Error5;
         add_error(ErrorType::Code, __func__, err, "Protocol 5 Error (Server Block)");
         UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_skiprecord prior to Server Block");
         throw uda::exceptions::ClientError("Protocol 5 Error (Server Block)");
@@ -808,7 +808,7 @@ int uda::client::Client::flush_sockets()
 
     int rc = 0;
     if (!(rc = xdrrec_endofrecord(_client_output, 1))) {
-        int err = UDA_PROTOCOL_ERROR_7;
+        int err = (int)ProtocolError::Error7;
         add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Request Block & putDataBlockList)");
         return err;
     }
@@ -816,7 +816,7 @@ int uda::client::Client::flush_sockets()
     UDA_LOG(UDA_LOG_DEBUG, "****** Outgoing tcp packet sent without error. Waiting for data.");
 
     if (!xdrrec_skiprecord(_client_input)) {
-        int err = UDA_PROTOCOL_ERROR_5;
+        int err = (int)ProtocolError::Error5;
         add_error(ErrorType::Code, __func__, err, " Protocol 5 Error (Server & Data Structures)");
         return err;
     }

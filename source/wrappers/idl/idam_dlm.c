@@ -3135,7 +3135,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
 
             IDL_KW_FREE;
             udaRestoreProperties(cblock, client_flags);
-            return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
+            return (IDL_GettmpLong(GDE_ServerSideError::UnknownDataType));
     }
 
     if (sout == NULL) {
@@ -3403,7 +3403,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
 
             IDL_KW_FREE;
             udaRestoreProperties(cblock, client_flags);
-            return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
+            return (IDL_GettmpLong(GDE_ServerSideError::UnknownDataType));
 
     }
 
@@ -3644,7 +3644,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
 
             IDL_KW_FREE;
             udaRestoreProperties(cblock, client_flags);
-            return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
+            return (IDL_GettmpLong(GDE_ServerSideError::UnknownDataType));
 
     }
 
@@ -4110,7 +4110,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
             }
 
             IDL_KW_FREE;
-            return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
+            return (IDL_GettmpLong(GDE_ServerSideError::UnknownDataType));
     }
 
     if (sout == NULL) {
@@ -4404,7 +4404,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
 
             IDL_KW_FREE;
             udaRestoreProperties(cblock, client_flags);
-            return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
+            return (IDL_GettmpLong(GDE_ServerSideError::UnknownDataType));
 
     }
 
@@ -8342,7 +8342,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             }
 
             IDL_KW_FREE;
-            return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
+            return (IDL_GettmpLong(GDE_ServerSideError::UnknownDataType));
     }
 
     if (sout == NULL) {
