@@ -563,7 +563,7 @@ int uda::authentication::readUdaClientSSL(void* iohandle, char* buf, int count)
 
     udaUpdateSelectParms(g_sslSocket, &rfds, &tv);
 
-    while (((rc = select(g_sslSocket + 1, &rfds, nullptr, nullptr, &tv)) <= 0) && maxloop++ < MAXLOOP) {
+    while (((rc = select(g_sslSocket + 1, &rfds, nullptr, nullptr, &tv)) <= 0) && maxloop++ < MaxLoop) {
 
         if (rc < 0) { // Error
             int serrno = errno;

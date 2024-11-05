@@ -220,7 +220,7 @@ void setHints(struct addrinfo* hints, const char* hostname)
 
 int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_start, int user_timeout)
 {
-    int window_size = DB_READ_BLOCK_SIZE; // 128K
+    int window_size = DBReadBlockSize; // 128K
     int rc;
 
     static int max_socket_delay = -1;
@@ -712,7 +712,7 @@ int uda::client::clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int c
 
     udaUpdateSelectParms(client_socket, &rfds, &tv);
 
-    while ((select(client_socket + 1, &rfds, nullptr, nullptr, &tv) <= 0) && maxloop++ < MAXLOOP) {
+    while ((select(client_socket + 1, &rfds, nullptr, nullptr, &tv) <= 0) && maxloop++ < MaxLoop) {
         udaUpdateSelectParms(client_socket, &rfds, &tv); // Keep trying ...
     }
 

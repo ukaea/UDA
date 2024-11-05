@@ -194,7 +194,7 @@ void uda::server::Server::start_logs()
 
 void uda::server::Server::initialise()
 {
-    _server_timeout = TIMEOUT;
+    _server_timeout = TimeOut;
     _fatal_error = false;
 
     auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
@@ -453,7 +453,7 @@ int uda::server::Server::handle_request()
     // policy
 
     auto external_user = _config.get("server.external_user").as_or_default(false);
-    if (!external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
+    if (!external_user && (private_flags & private_flags::External)) {
         _config.set("server.external_user", true);
         external_user = true;
     }
@@ -486,7 +486,7 @@ int uda::server::Server::handle_request()
 
     // Test for an immediate CLOSEDOWN instruction
 
-    if (_client_block.timeout == 0 || (_client_block.clientFlags & CLIENTFLAG_CLOSEDOWN)) {
+    if (_client_block.timeout == 0 || (_client_block.clientFlags & client_flags::CloseDown)) {
         _server_closedown = true;
         return err;
     }
@@ -537,14 +537,14 @@ int uda::server::Server::handle_request()
 
     // Check string length compatibility
 
-    if (strlen(request_block_.source) >= (STRING_LENGTH - 1 - proxy_name.size() - strlen(environment_->server_proxy) -
+    if (strlen(request_block_.source) >= (StringLength - 1 - proxy_name.size() - strlen(environment_->server_proxy) -
                                           strlen(request_block_.api_delim))) {
         UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
     }
 
     // Prepend the client request and test for a redirection request via the proxy's plugin
 
-    char work[STRING_LENGTH];
+    char work[StringLength];
 
     if (request_block_.api_delim[0] != '\0') {
         sprintf(work, "%s%s", proxy_name.c_str(), request_block_.api_delim);
@@ -633,11 +633,11 @@ int uda::server::Server::handle_request()
     for (int i = 0; i < _request_block.num_requests; ++i) {
         RequestData* request = &_request_block.requests[0];
 
-        char work[STRING_LENGTH];
+        char work[StringLength];
         if (request->api_delim[0] != '\0') {
-            snprintf(work, STRING_LENGTH, "UDA%s", request->api_delim);
+            snprintf(work, StringLength, "UDA%s", request->api_delim);
         } else {
-            snprintf(work, STRING_LENGTH, "UDA%s", delim.c_str());
+            snprintf(work, StringLength, "UDA%s", delim.c_str());
         }
 
         if (!proxy_target.empty() && strncasecmp(request->source, work, strlen(work)) != 0) {
@@ -655,9 +655,9 @@ int uda::server::Server::handle_request()
             // never passed.
 
             if (request->api_delim[0] != '\0') {
-                snprintf(work, STRING_LENGTH, "UDA%s%s", request->api_delim, server.c_str());
+                snprintf(work, StringLength, "UDA%s%s", request->api_delim, server.c_str());
             } else {
-                snprintf(work, STRING_LENGTH, "UDA%s%s", delim.c_str(), server.c_str());
+                snprintf(work, StringLength, "UDA%s%s", delim.c_str(), server.c_str());
             }
 
             if (strstr(request->source, work) != nullptr) {
@@ -668,17 +668,17 @@ int uda::server::Server::handle_request()
             // Check string length compatibility
 
             if (strlen(request->source) >=
-                (STRING_LENGTH - 1 - proxy_target.size() - 4 + strlen(request->api_delim))) {
+                (StringLength - 1 - proxy_target.size() - 4 + strlen(request->api_delim))) {
                 UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
             }
 
             // Prepend the redirection UDA server details
 
             if (request->api_delim[0] != '\0') {
-                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", request->api_delim, proxy_target.c_str(),
+                snprintf(work, StringLength, "UDA%s%s/%s", request->api_delim, proxy_target.c_str(),
                          request->source);
             } else {
-                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", delim.c_str(), proxy_target.c_str(),
+                snprintf(work, StringLength, "UDA%s%s/%s", delim.c_str(), proxy_target.c_str(),
                          request->source);
             }
 
@@ -946,7 +946,7 @@ void uda::server::Server::handshake_client()
 
     err = _protocol.read_client_block(&_client_block, _log_malloc_list, _user_defined_type_list);
 
-    if (_client_block.timeout == 0 || _client_block.clientFlags & CLIENTFLAG_CLOSEDOWN) {
+    if (_client_block.timeout == 0 || _client_block.clientFlags & client_flags::CloseDown) {
         _server_closedown = true;
         return;
     }

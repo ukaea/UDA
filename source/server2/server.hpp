@@ -63,7 +63,7 @@ class Server
     std::vector<uda::client_server::DataBlock> _data_blocks;
     size_t _total_data_block_size;
     MetadataBlock _metadata_block;
-    int _server_timeout = TIMEOUT;
+    int _server_timeout = client_server::TimeOut;
     int _server_tot_block_time;
     bool _fatal_error = false;
     structures::LogMallocList* _log_malloc_list = nullptr;

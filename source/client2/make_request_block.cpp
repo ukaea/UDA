@@ -19,13 +19,13 @@ int make_request_data(const Config& config, const char* data_object, const char*
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
 
-    if (strlen(data_object) >= MAXMETA) {
+    if (strlen(data_object) >= MaxMeta) {
         UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
     } else {
         strcpy(request->signal, data_object); // Passed to the server without modification
     }
 
-    if (strlen(data_source) >= STRING_LENGTH) {
+    if (strlen(data_source) >= StringLength) {
         UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
     } else {
         strcpy(request->source, data_source); // Passed to the server without modification
@@ -55,7 +55,7 @@ int make_request_data(const Config& config, const char* data_object, const char*
 
     if (!device.empty() && strstr(request->source, request->api_delim) == nullptr) {
         auto source = fmt::format("{}{}{}", device, request->api_delim, request->source);
-        if (source.length() >= STRING_LENGTH) {
+        if (source.length() >= StringLength) {
             UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG,
                             "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
@@ -64,7 +64,7 @@ int make_request_data(const Config& config, const char* data_object, const char*
 
     if (!archive.empty() && strstr(request->signal, request->api_delim) == nullptr) {
         auto signal = fmt::format("{}{}{}", archive, request->api_delim, request->signal);
-        if (signal.length() >= STRING_LENGTH) {
+        if (signal.length() >= StringLength) {
             UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG,
                             "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }

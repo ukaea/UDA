@@ -62,20 +62,20 @@ int apply_sub_setting(Dims* dims, int rank, int dim_id, char* data, int ndata, i
 
 int number_of_subsetting_operations(const Action* action)
 {
-    switch (action->actionType) {
-        case UDA_COMPOSITE_TYPE:
+    switch ((ActionType)action->actionType) {
+        case ActionType::Composite:
             // XML Based sub-setting
             if (action->composite.nsubsets == 0) {
                 return 0; // Nothing to Subset
             }
             return action->composite.nsubsets;
-        case UDA_SERVER_SIDE_TYPE:
+        case ActionType::ServerSide:
             // Client Requested sub-setting
             if (action->serverside.nsubsets == 0) {
                 return 0; // Nothing to Subset
             }
             return action->serverside.nsubsets;
-        case UDA_SUBSET_TYPE:
+        case ActionType::Subset:
             // Client Requested sub-setting
             return 1;
         default:
@@ -1134,7 +1134,7 @@ int apply_count(Subset subset, DataBlock* data_block)
         }
         data_block->data = (char*)count;
         data_block->data_units[0] = '\0';
-        snprintf(data_block->data_label, STRING_LENGTH, "count(dim_id=%d)", dim_id);
+        snprintf(data_block->data_label, StringLength, "count(dim_id=%d)", dim_id);
     }
 
     return 0;
@@ -1390,7 +1390,7 @@ int uda::server::serverSubsetData(DataBlock* data_block, const Action& action, L
     // Check Rank
 
     if (data_block->rank > 2 &&
-        !(action.actionType == UDA_SUBSET_TYPE && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
+        !(action.actionType == (int)ActionType::Subset && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
         UDA_THROW_ERROR(9999, "Not Configured to Subset Data with Rank Higher than 2");
     }
 
@@ -1399,13 +1399,13 @@ int uda::server::serverSubsetData(DataBlock* data_block, const Action& action, L
 
     for (int i = 0; i < n_subsets; i++) { // the number of sets of Subset Operations
         Subset subset;
-        if (action.actionType == UDA_COMPOSITE_TYPE) {
+        if (action.actionType == (int)ActionType::Composite) {
             subset = action.composite.subsets[i]; // the set of Subset Operations
         } else {
-            if (action.actionType == UDA_SERVER_SIDE_TYPE) {
+            if (action.actionType == (int)ActionType::ServerSide) {
                 subset = action.serverside.subsets[i];
             } else {
-                if (action.actionType == UDA_SUBSET_TYPE) {
+                if (action.actionType == (int)ActionType::Subset) {
                     subset = action.subset;
                 }
             }
@@ -1555,7 +1555,7 @@ int uda::server::serverParseServerSide(RequestData* request_block, Actions* acti
 
     init_action(&action[nactions - 1]);
 
-    action[nactions - 1].actionType = UDA_SERVER_SIDE_TYPE;
+    action[nactions - 1].actionType = (int)ActionType::ServerSide;
     action[nactions - 1].inRange = 1;
     action[nactions - 1].actionId = nactions;
 
@@ -1629,7 +1629,7 @@ int uda::server::serverParseServerSide(RequestData* request_block, Actions* acti
     std::vector<std::string> tokens;
     boost::split(tokens, op_string, boost::is_any_of(","), boost::token_compress_off);
 
-    if (tokens.size() > UDA_MAX_DATA_RANK) {
+    if (tokens.size() > MaxDataRank) {
         UDA_THROW_ERROR(9999, "The number of Dimensional Operations exceeds the Internal Limit");
     }
 

@@ -35,7 +35,7 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(UDA_PLUGIN_INTERFACE* plugin_inte
     auto plugin_list = old_plugin_interface->pluginList;
 
     auto request_data = (RequestData*)calloc(1, sizeof(RequestData));
-    copy_string(request, request_data->signal, MAXMETA);
+    copy_string(request, request_data->signal, MaxMeta);
     make_request_data(*config, request_data, *plugin_list);
 
     auto user_defined_type_list = (UserDefinedTypeList*)calloc(1, sizeof(UserDefinedTypeList));
@@ -78,8 +78,8 @@ template <typename T> int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_inter
     data[0] = value;
 
     if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+        strncpy(data_block->data_desc, description, StringLength);
+        data_block->data_desc[StringLength - 1] = '\0';
     }
 
     data_block->rank = 0;
@@ -99,8 +99,8 @@ int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, 
     init_data_block(data_block);
 
     if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+        strncpy(data_block->data_desc, description, StringLength);
+        data_block->data_desc[StringLength - 1] = '\0';
     }
 
     data_block->rank = (int)rank;
@@ -173,8 +173,8 @@ int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, cons
     }
 
     if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+        strncpy(data_block->data_desc, description, StringLength);
+        data_block->data_desc[StringLength - 1] = '\0';
     }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -209,8 +209,8 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
     }
 
     if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+        strncpy(data_block->data_desc, description, StringLength);
+        data_block->data_desc[StringLength - 1] = '\0';
     }
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
@@ -387,7 +387,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
     if (request_data.datasubset.nbound > 0) {
         Action action = {};
         init_action(&action);
-        action.actionType = UDA_SUBSET_TYPE;
+        action.actionType = (int)ActionType::Subset;
         action.subset = request_data.datasubset;
         err = serverSubsetData(new_plugin_interface.data_block, action, new_plugin_interface.logmalloclist);
     }
@@ -416,8 +416,8 @@ int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* da
     data_block->opaque_block = (void*)udaFindUserDefinedType(interface->userdefinedtypelist, user_type, 0);
 
     if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+        strncpy(data_block->data_desc, description, StringLength);
+        data_block->data_desc[StringLength - 1] = '\0';
     }
 
     return 0;
@@ -461,8 +461,8 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
     data_block->opaque_block = (void*)udaFindUserDefinedType(interface->userdefinedtypelist, user_type, 0);
 
     if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+        strncpy(data_block->data_desc, description, StringLength);
+        data_block->data_desc[StringLength - 1] = '\0';
     }
 
     return 0;

@@ -75,7 +75,7 @@ ServerBlock server_block;
 time_t tv_server_start = 0;
 time_t tv_server_end = 0;
 
-char client_username[STRING_LENGTH] = "client";
+char client_username[StringLength] = "client";
 
 int authentication_needed = 1; // Enable the mutual authentication conversation at startup
 
@@ -103,7 +103,7 @@ static std::vector<DataBlock> data_blocks = {};
 int getCurrentDataBlockIndex()
 {
     auto client_flags = udaClientFlags();
-    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+    if ((client_flags->flags & client_flags::ReuseLastHandle || client_flags->flags & client_flags::FreeReuseLastHandle) &&
         udaGetThreadLastHandle() >= 0) {
         return udaGetThreadLastHandle();
     }
@@ -119,7 +119,7 @@ void free_data_blocks()
 int growDataBlocks()
 {
     auto client_flags = udaClientFlags();
-    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+    if ((client_flags->flags & client_flags::ReuseLastHandle || client_flags->flags & client_flags::FreeReuseLastHandle) &&
         udaGetThreadLastHandle() >= 0) {
         return 0;
     }
@@ -148,9 +148,9 @@ int getNewDataHandle()
     auto client_flags = udaClientFlags();
     int newHandleIndex = -1;
 
-    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+    if ((client_flags->flags & client_flags::ReuseLastHandle || client_flags->flags & client_flags::FreeReuseLastHandle) &&
         (newHandleIndex = udaGetThreadLastHandle()) >= 0) {
-        if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
+        if (client_flags->flags & client_flags::FreeReuseLastHandle) {
             udaFree(newHandleIndex);
         } else {
             // Application has responsibility for freeing heap in the Data Block
@@ -187,9 +187,9 @@ int newDataHandle()
     int newHandleIndex = -1;
     auto client_flags = udaClientFlags();
 
-    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+    if ((client_flags->flags & client_flags::ReuseLastHandle || client_flags->flags & client_flags::FreeReuseLastHandle) &&
         (newHandleIndex = udaGetThreadLastHandle()) >= 0) {
-        if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
+        if (client_flags->flags & client_flags::FreeReuseLastHandle) {
             udaFree(newHandleIndex);
         } else {
             // Application has responsibility for freeing heap in the Data Block
@@ -248,7 +248,7 @@ int check_file_cache(const RequestData* request_data, DataBlock** p_data_block, 
                      UserDefinedTypeList* user_defined_type_list, LogStructList* log_struct_list,
                      CLIENT_FLAGS* client_flags, unsigned int private_flags, int malloc_source)
 {
-    if (client_flags->flags & CLIENTFLAG_FILECACHE && !request_data->put) {
+    if (client_flags->flags & client_flags::FileCache && !request_data->put) {
         // Query the cache for the Data
         DataBlock* data = udaFileCacheRead(request_data, log_malloc_list, user_defined_type_list, protocol_version,
                                            log_struct_list, private_flags, malloc_source);
@@ -279,7 +279,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, RequestData* request_data, Data
                     int malloc_source)
 {
     // Check Client Properties for permission to cache
-    if ((client_flags->flags & CLIENTFLAG_CACHE) && !request_data->put) {
+    if ((client_flags->flags & client_flags::Cache) && !request_data->put) {
 
         // Open the Cache
         if (cache == nullptr) {
@@ -315,11 +315,11 @@ int check_mem_cache(uda::cache::UdaCache* cache, RequestData* request_data, Data
 void copyDataBlock(DataBlock* str, DataBlock* in)
 {
     *str = *in;
-    memcpy(str->errparams, in->errparams, MAXERRPARAMS);
-    memcpy(str->data_units, in->data_units, STRING_LENGTH);
-    memcpy(str->data_label, in->data_label, STRING_LENGTH);
-    memcpy(str->data_desc, in->data_desc, STRING_LENGTH);
-    memcpy(str->error_msg, in->error_msg, STRING_LENGTH);
+    memcpy(str->errparams, in->errparams, MaxErrParams);
+    memcpy(str->data_units, in->data_units, StringLength);
+    memcpy(str->data_label, in->data_label, StringLength);
+    memcpy(str->data_desc, in->data_desc, StringLength);
+    memcpy(str->error_msg, in->error_msg, StringLength);
     init_client_block(&str->client_block, 0, "");
 }
 
@@ -507,7 +507,7 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
     unsigned int* private_flags = udaPrivateFlags();
     CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->alt_rank = 0;
-    client_flags->user_timeout = TIMEOUT;
+    client_flags->user_timeout = TimeOut;
 
     time_t protocol_time; // Time a Conversation Occured
 
@@ -1099,17 +1099,17 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
 
             //------------------------------------------------------------------------------
             // Cache the data if the server has passed permission and the application (client) has enabled caching
-            if (client_flags->flags & CLIENTFLAG_FILECACHE) {
+            if (client_flags->flags & client_flags::FileCache) {
                 udaFileCacheWrite(data_block, request_block, g_log_malloc_list, g_user_defined_type_list,
                                   protocol_version, &log_struct_list, *private_flags, malloc_source);
             }
 
 #  ifndef NOLIBMEMCACHED
 #    ifdef CACHEDEV
-            if (cache != nullptr && clientFlags & CLIENTFLAG_CACHE &&
-                data_block.cachePermission == UDA_PLUGIN_OK_TO_CACHE) {
+            if (cache != nullptr && clientFlags & client_flags::Cache &&
+                data_block.cachePermission == PluginCachePermission::OkToCache) {
 #    else
-            if (cache != nullptr && client_flags->flags & CLIENTFLAG_CACHE) {
+            if (cache != nullptr && client_flags->flags & client_flags::Cache) {
 #    endif
                 cache_write(cache, &request_block->requests[i], data_block, g_log_malloc_list, g_user_defined_type_list,
                             *environment, protocol_version, client_flags->flags, &log_struct_list, *private_flags,
@@ -1587,7 +1587,7 @@ void udaFreeAll()
 
     if (connectionOpen()) {
         client_block.timeout = 0;                                                   // Surrogate CLOSEDOWN instruction
-        client_block.clientFlags = client_block.clientFlags | CLIENTFLAG_CLOSEDOWN; // Direct CLOSEDOWN instruction
+        client_block.clientFlags = client_block.clientFlags | client_flags::CloseDown; // Direct CLOSEDOWN instruction
         protocol_id = ProtocolId::ClientBlock;
         protocol2(*g_client_output, protocol_id, XDR_SEND, nullptr, g_log_malloc_list, g_user_defined_type_list,
                   &client_block, protocol_version, g_log_struct_list, *udaPrivateFlags(), UDA_MALLOC_SOURCE_NONE);

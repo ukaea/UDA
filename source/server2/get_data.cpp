@@ -264,7 +264,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
     //--------------------------------------------------------------------------------------------------------------------------
     // Limit the Recursive Depth
 
-    if (*depth == UDA_XML_MAX_RECURSIVE) {
+    if (*depth == XmlMaxRecursive) {
         UDA_THROW_ERROR(7777, "Recursive Depth (Derived or Substitute Data) Exceeds Internal Limit");
     }
 
@@ -285,7 +285,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                     return rc;
                 }
                 // Erase original Subset request
-                copy_string(trim_string(request_data->signal), _metadata_block.signal_desc.signal_name, MAXNAME);
+                copy_string(trim_string(request_data->signal), _metadata_block.signal_desc.signal_name, MaxName);
             }
         }
     } else if (STR_IEQUALS(request_data->function, "subset")) {
@@ -299,7 +299,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
                     return rc;
                 }
                 // Erase original Subset request
-                copy_string(trim_string(request_data->signal), _metadata_block.signal_desc.signal_name, MAXNAME);
+                copy_string(trim_string(request_data->signal), _metadata_block.signal_desc.signal_name, MaxName);
             }
         }
     }
@@ -326,7 +326,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
         UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Subset)   {}", *depth);
         Action action = {};
         init_action(&action);
-        action.actionType = UDA_SUBSET_TYPE;
+        action.actionType = (int)ActionType::Subset;
         action.subset = request_data->datasubset;
         if ((rc = server_subset_data(data_block, action, _log_malloc_list)) != 0) {
             (*depth)--;
@@ -384,7 +384,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
         comp_id = -1;
         if (rc == 0) {
             for (int i = 0; i < actions_comp_desc.nactions; i++) {
-                if (actions_comp_desc.action[i].actionType == UDA_COMPOSITE_TYPE &&
+                if (actions_comp_desc.action[i].actionType == (int)ActionType::Composite &&
                     actions_comp_desc.action[i].inRange) {
                     comp_id = i;
                     break; // First Record found only!
@@ -670,7 +670,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
     if (is_derived && comp_id > -1) {
         for (int i = 0; i < _actions_desc.action[comp_id].composite.ndimensions; i++) {
-            if (_actions_desc.action[comp_id].composite.dimensions[i].dimType == UDA_DIM_COMPOSITE_TYPE) {
+            if (_actions_desc.action[comp_id].composite.dimensions[i].dimType == (int)ActionDimType::Composite) {
                 if (strlen(_actions_desc.action[comp_id].composite.dimensions[i].dimcomposite.dim_signal) > 0) {
 
                     UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Data");
@@ -905,7 +905,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
     if (!serverside && !is_derived && _metadata_block.signal_desc.type == 'S') {
         for (int i = 0; i < _actions_desc.nactions; i++) {
-            if (_actions_desc.action[i].actionType == UDA_SUBSET_TYPE) {
+            if (_actions_desc.action[i].actionType == (int)ActionType::Subset) {
                 UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Subset)   {}", *depth);
                 print_data_block(*data_block);
 
@@ -922,7 +922,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
 
     if (serverside) {
         for (int i = 0; i < actions_serverside.nactions; i++) {
-            if (actions_serverside.action[i].actionType == UDA_SERVER_SIDE_TYPE) {
+            if (actions_serverside.action[i].actionType == (int)ActionType::ServerSide) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
                     UDA_LOG(UDA_LOG_DEBUG, "Calling server_subset_data (Serverside)   {}", *depth);
                     print_data_block(*data_block);
@@ -949,7 +949,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     // If err > 0 then an error occured
     // If err < 0 then unable to read signal because it is a derived type and details are in XML format
 
-    char mapping[MAXMETA] = "";
+    char mapping[MaxMeta] = "";
 
     print_request_data(*request);
 
@@ -987,7 +987,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     // the same Rank, then allow normal Generic lookup.
     //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
-    if (_client_block.clientFlags & CLIENTFLAG_ALTDATA && request->request != (int)Request::ReadXML &&
+    if (_client_block.clientFlags & client_flags::AltData && request->request != (int)Request::ReadXML &&
         STR_STARTSWITH(request->signal, "<?xml")) {
 
         if (request->request != (int)Request::ReadGeneric) {
@@ -1025,7 +1025,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have
         // been specified
 
-        copy_string(maybe_plugin->default_method, request->function, STRING_LENGTH);
+        copy_string(maybe_plugin->default_method, request->function, StringLength);
 
         // Execute the plugin to resolve the identity of the data requested
 
@@ -1079,7 +1079,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                 UDA_THROW_ERROR(122, "Unable to Open the XML File defining the signal");
             }
             nchar = 0;
-            while (!feof(xmlfile) && nchar < MAXMETA) {
+            while (!feof(xmlfile) && nchar < MaxMeta) {
                 request->signal[nchar++] = (char)getc(xmlfile);
             }
             request->signal[nchar - 2] = '\0'; // Remove EOF Character and replace with String Terminator
@@ -1227,7 +1227,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         // Don't append the file name to the path - if it's already present!
 
         if (strstr(_metadata_block.data_source.path, _metadata_block.data_source.filename) == nullptr) {
-            if (strlen(_metadata_block.data_source.path) + strlen(_metadata_block.data_source.filename) + 1 < MAXPATH) {
+            if (strlen(_metadata_block.data_source.path) + strlen(_metadata_block.data_source.filename) + 1 < MaxPath) {
                 strcat(_metadata_block.data_source.path, "/");
                 strcat(_metadata_block.data_source.path, _metadata_block.data_source.filename);
             } else {

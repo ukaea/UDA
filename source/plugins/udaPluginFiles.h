@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 
+#define UDA_FILENAME_LENGTH 1024
+
 //------------------------------------------------------------------------------------------------------------------------
 // Plugins opening files can maintain state by recording file handles in a list.
 // Two usage patterns are assumed: the file opening function returns an integer or a pointer
@@ -23,7 +25,7 @@ extern "C" {
 
 typedef struct UdaPluginFile {
     int status;                   // Open (1) or Closed (0)
-    char filename[STRING_LENGTH]; // Full Data Source Filename
+    char filename[UDA_FILENAME_LENGTH]; // Full Data Source Filename
     long handleInt;               // Integer File Handle
     void* handlePtr;              // Pointer file handle
     struct timeval file_open;     // File Open Clock Time

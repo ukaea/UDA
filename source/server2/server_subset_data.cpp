@@ -74,19 +74,19 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
 
     int n_subsets = 0;
 
-    if (action.actionType == UDA_COMPOSITE_TYPE) { // XML Based subsetting
+    if (action.actionType == (int)ActionType::Composite) { // XML Based subsetting
         if (action.composite.nsubsets == 0) {
             return 0; // Nothing to Subset
         }
         n_subsets = action.composite.nsubsets;
     } else {
-        if (action.actionType == UDA_SERVER_SIDE_TYPE) { // Client Requested subsetting
+        if (action.actionType == (int)ActionType::ServerSide) { // Client Requested subsetting
             if (action.serverside.nsubsets == 0) {
                 return 0; // Nothing to Subset
             }
             n_subsets = action.serverside.nsubsets;
         } else {
-            if (action.actionType == UDA_SUBSET_TYPE) { // Client Requested subsetting
+            if (action.actionType == (int)ActionType::Subset) { // Client Requested subsetting
                 n_subsets = 1;
             } else {
                 return 0;
@@ -98,13 +98,13 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
     // Check Rank
 
     if (data_block->rank > 2 &&
-        !(action.actionType == UDA_SUBSET_TYPE && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
+        !(action.actionType == (int)ActionType::Subset && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
         UDA_THROW_ERROR(9999, "Not Configured to Subset Data with Rank Higher than 2");
     }
 
     // Check for special case of rank 0 data indexed by [0]
 
-    if (data_block->rank == 0 && n_subsets == 1 && action.actionType == UDA_SUBSET_TYPE
+    if (data_block->rank == 0 && n_subsets == 1 && action.actionType == (int)ActionType::Subset
             && action.subset.nbound == 1 && action.subset.operation[0][0] == ':'
             && action.subset.lbindex[0].init && action.subset.lbindex[0].value == 0
             && action.subset.ubindex[0].init && action.subset.ubindex[0].value == 1) {
@@ -118,13 +118,13 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
 
     for (int i = 0; i < n_subsets; i++) { // the number of sets of Subset Operations
 
-        if (action.actionType == UDA_COMPOSITE_TYPE) {
+        if (action.actionType == (int)ActionType::Composite) {
             subset = action.composite.subsets[i]; // the set of Subset Operations
         } else {
-            if (action.actionType == UDA_SERVER_SIDE_TYPE) {
+            if (action.actionType == (int)ActionType::ServerSide) {
                 subset = action.serverside.subsets[i];
             } else {
-                if (action.actionType == UDA_SUBSET_TYPE) {
+                if (action.actionType == (int)ActionType::Subset) {
                     subset = action.subset;
                 }
             }
@@ -978,7 +978,7 @@ int uda::server::server_subset_data(client_server::DataBlock* data_block, client
                 }
                 data_block->data = (char*)count;
                 data_block->data_units[0] = '\0';
-                snprintf(data_block->data_label, STRING_LENGTH, "count(dim_id=%d)", dim_id);
+                snprintf(data_block->data_label, StringLength, "count(dim_id=%d)", dim_id);
             }
         }
 
@@ -1210,14 +1210,14 @@ int uda::server::server_parse_server_side(config::Config& config, client_server:
     char *p = nullptr, *t1 = nullptr, *t2 = nullptr;
     char api_delim[3] =
         "::"; // ********** TO DO: This should be an Environment Variable compatible with the Client delimiter
-    char archive[STRING_LENGTH] = "";
-    char signal[STRING_LENGTH] = "";
-    char options[STRING_LENGTH] = "";
-    char operation[STRING_LENGTH];
-    char opcopy[STRING_LENGTH];
+    char archive[StringLength] = "";
+    char signal[StringLength] = "";
+    char options[StringLength] = "";
+    char operation[StringLength];
+    char opcopy[StringLength];
     char* endp = nullptr;
 
-    int lsignal, nactions, n_subsets, n_bound, ierr, lop;
+    int nactions, n_subsets, n_bound, ierr, lop;
 
     Action* action = nullptr;
     Subset* subsets = nullptr;
@@ -1236,9 +1236,9 @@ int uda::server::server_parse_server_side(config::Config& config, client_server:
         UDA_THROW_ERROR(9999, "Syntax Error: The Signal Name has no Terminating Quotation character!");
     }
 
-    lsignal = (int)(p - request_block->signal) - 8; // Signal name Length
-    if (lsignal >= STRING_LENGTH) {
-        lsignal = STRING_LENGTH - 1;
+    size_t lsignal = (size_t)(p - request_block->signal) - 8; // Signal name Length
+    if (lsignal >= StringLength) {
+        lsignal = StringLength - 1;
     }
     strncpy(signal, request_block->signal + 8, lsignal);
     signal[lsignal] = '\0';
@@ -1300,7 +1300,7 @@ int uda::server::server_parse_server_side(config::Config& config, client_server:
 
     init_action(&action[nactions - 1]);
 
-    action[nactions - 1].actionType = UDA_SERVER_SIDE_TYPE;
+    action[nactions - 1].actionType = (int)ActionType::ServerSide;
     action[nactions - 1].inRange = 1;
     action[nactions - 1].actionId = nactions;
 
@@ -1366,7 +1366,7 @@ int uda::server::server_parse_server_side(config::Config& config, client_server:
     if ((p = strtok(opcopy, ",")) != nullptr) {       // Tokenise into Individual Operations on each Dimension
         subsets[n_subsets - 1].dimid[n_bound] = n_bound; // Identify the Dimension to apply the operation on
         n_bound++;
-        if (strlen(p) < UDA_SXML_MAX_STRING) {
+        if (strlen(p) < SxmlMaxString) {
             strcpy(subsets[n_subsets - 1].operation[n_bound - 1], p);
             mid_trim_string(subsets[n_subsets - 1].operation[n_bound - 1]); // Remove internal white space
         } else {
@@ -1377,11 +1377,11 @@ int uda::server::server_parse_server_side(config::Config& config, client_server:
         while ((p = strtok(nullptr, ",")) != nullptr) {
             subsets[n_subsets - 1].dimid[n_bound] = n_bound;
             n_bound++;
-            if (n_bound > UDA_MAX_DATA_RANK) {
+            if (n_bound > MaxDataRank) {
                 free(subsets);
                 UDA_THROW_ERROR(9999, "The number of Dimensional Operations exceeds the Internal Limit");
             }
-            if (strlen(p) < UDA_SXML_MAX_STRING) {
+            if (strlen(p) < SxmlMaxString) {
                 strcpy(subsets[n_subsets - 1].operation[n_bound - 1], p);
                 mid_trim_string(subsets[n_subsets - 1].operation[n_bound - 1]); // Remove white space
             } else {

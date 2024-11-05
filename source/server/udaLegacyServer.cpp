@@ -69,7 +69,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
     init_log_struct_list(&log_struct_list);
 
     int server_tot_block_time = 0;
-    int server_timeout = TIMEOUT; // user specified Server Lifetime
+    int server_timeout = TimeOut; // user specified Server Lifetime
 
     uda::server::IoData io_data = {};
     io_data.server_tot_block_time = &server_tot_block_time;
@@ -161,7 +161,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
             bool external_user = config.get("server.external_user").as_or_default(false);
 
-            if (!external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
+            if (!external_user && (private_flags & private_flags::External)) {
                 config.set("server.external_user", true);
             }
 
@@ -239,7 +239,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
 #  ifdef PROXYSERVER
 
-            char work[STRING_LENGTH];
+            char work[StringLength];
 
             if (request_block.api_delim[0] != '\0') {
                 sprintf(work, "UDA%s", request_block.api_delim);
@@ -280,7 +280,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
                 // Check string length compatibility
 
                 if (strlen(request_block.source) >=
-                    (STRING_LENGTH - 1 - strlen(environment->server_proxy) - 4 + strlen(request_block.api_delim))) {
+                    (StringLength - 1 - strlen(environment->server_proxy) - 4 + strlen(request_block.api_delim))) {
                     err = 999;
                     add_error(ErrorType::Code, __func__, err,
                               "PROXY redirection: The source argument string is too long!");

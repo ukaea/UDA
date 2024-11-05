@@ -199,7 +199,7 @@ int uda::server::uda_server(uda::config::Config& config, uda::client_server::Cli
     init_log_struct_list(&log_struct_list);
 
     int server_tot_block_time = 0;
-    int server_timeout = TIMEOUT; // user specified Server Lifetime
+    int server_timeout = TimeOut; // user specified Server Lifetime
 
     IoData io_data = {};
     io_data.server_tot_block_time = &server_tot_block_time;
@@ -507,7 +507,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
 
     auto external_user = config.get("server.external_user").as_or_default(false);
 
-    if (!external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
+    if (!external_user && (private_flags & private_flags::External)) {
         config.set("server.external_user", true);
     }
 
@@ -539,7 +539,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
 
     // Test for an immediate CLOSEDOWN instruction
 
-    if (client_block->timeout == 0 || (client_block->clientFlags & CLIENTFLAG_CLOSEDOWN)) {
+    if (client_block->timeout == 0 || (client_block->clientFlags & client_flags::CloseDown)) {
         *server_closedown = 1;
         return err;
     }
@@ -590,7 +590,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
     char* proxyNameDefault = "UDA";
     char* proxyName = nullptr;
 
-    char work[STRING_LENGTH];
+    char work[StringLength];
 
     if ((proxyName = getenv("UDA_PROXYPLUGINNAME")) == nullptr) {
         proxyName = proxyNameDefault;
@@ -599,7 +599,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
     // Check string length compatibility
 
     if (strlen(request_block->source) >=
-        (STRING_LENGTH - 1 - strlen(proxyName) - strlen(environment.server_proxy) - strlen(request_block->api_delim))) {
+        (StringLength - 1 - strlen(proxyName) - strlen(environment.server_proxy) - strlen(request_block->api_delim))) {
         UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
     }
 
@@ -728,7 +728,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
             // Check string length compatibility
 
             if (strlen(request->source) >=
-                (STRING_LENGTH - 1 - server_proxy.size() - 4 + strlen(request->api_delim))) {
+                (StringLength - 1 - server_proxy.size() - 4 + strlen(request->api_delim))) {
                 UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
             }
 
@@ -814,7 +814,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
         auto request = &request_block->requests[i];
 
         auto cache_block = cache_read(config, cache, request, log_malloc_list, user_defined_type_list, protocol_version,
-                                      CLIENTFLAG_CACHE, log_struct_list, private_flags, malloc_source);
+                                      client_flags::Cache, log_struct_list, private_flags, malloc_source);
         if (cache_block != nullptr) {
             data_block_list->data[i] = *cache_block;
             continue;
@@ -827,7 +827,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
                        plugin_list, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
 
         cache_write(config, cache, request, data_block, log_malloc_list, user_defined_type_list, protocol_version,
-                    CLIENTFLAG_CACHE, log_struct_list, private_flags, malloc_source);
+                    client_flags::Cache, log_struct_list, private_flags, malloc_source);
     }
 
     for (int i = 0; i < request_block->num_requests; ++i) {
@@ -1148,7 +1148,7 @@ int handshake_client(Config& config, ClientBlock* client_block, ServerBlock* ser
 
         // Test for an immediate CLOSEDOWN instruction
 
-        if (client_block->timeout == 0 || client_block->clientFlags & CLIENTFLAG_CLOSEDOWN) {
+        if (client_block->timeout == 0 || client_block->clientFlags & client_flags::CloseDown) {
             *server_closedown = 1;
             return err;
         }

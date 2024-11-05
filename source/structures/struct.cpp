@@ -233,7 +233,7 @@ void udaExpandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], in
 {
     // Insert values with #define names
     int len, lstr;
-    char work[STRING_LENGTH];
+    char work[StringLength];
     char *p1, *p2, *p3;
 
     if (buffer[0] != '\t' || buffer[0] != ' ') {
@@ -260,7 +260,7 @@ void udaExpandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], in
                 } else {
                     for (int j = 0; j < defCount; j++) {
                         if (!strcmp((char*)defnames[j], work)) {
-                            snprintf(work, STRING_LENGTH, " = %d]", defvalues[j]); // Array size
+                            snprintf(work, StringLength, " = %d]", defvalues[j]); // Array size
                             strncat(expand, &p1[1], p2 - &p1[1]);
                             len = len + (int)(p2 - &p1[1]);
                             expand[len] = '\0';

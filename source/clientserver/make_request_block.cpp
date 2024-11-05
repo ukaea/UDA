@@ -211,8 +211,8 @@ std::string udaExpandEnvironmentalVariables(const std::string& path)
         return new_path;
     }
 
-    char old_cwd[STRING_LENGTH];
-    size_t old_cwd_sz = STRING_LENGTH - 1;
+    char old_cwd[StringLength];
+    size_t old_cwd_sz = StringLength - 1;
     if (getcwd(old_cwd, old_cwd_sz) == nullptr) { // Current Working Directory
         UDA_LOG(UDA_LOG_DEBUG, "Unable to identify PWD!");
         return new_path;
@@ -221,8 +221,8 @@ std::string udaExpandEnvironmentalVariables(const std::string& path)
     if (chdir(path.c_str()) == 0) {
         // Change to path directory
         // The Current Working Directory is now the resolved directory name
-        char cwd[STRING_LENGTH];
-        size_t cwd_sz = STRING_LENGTH - 1;
+        char cwd[StringLength];
+        size_t cwd_sz = StringLength - 1;
         char* p_cwd = getcwd(cwd, cwd_sz);
 
         UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:");
@@ -285,7 +285,7 @@ void uda::parse_signal(RequestData& result, const std::string& signal, const std
     std::string function = signal_match["function"];
     bool is_function = !function.empty();
 
-    write_string(result.function, function, STRING_LENGTH);
+    write_string(result.function, function, StringLength);
 
     std::string archive = signal_match["archive"];
     boost::trim_right_if(archive, boost::is_any_of(":"));
@@ -300,7 +300,7 @@ void uda::parse_signal(RequestData& result, const std::string& signal, const std
         result.request = (int)Request::ReadGeneric;
     }
 
-    write_string(result.archive, archive, STRING_LENGTH);
+    write_string(result.archive, archive, StringLength);
 
     std::string args = signal_match["args"];
     auto name_values = uda::parse_args(args, true);
@@ -308,7 +308,7 @@ void uda::parse_signal(RequestData& result, const std::string& signal, const std
     write_name_values(result.nameValueList, name_values);
 
     std::string subsets = signal_match["subsets"];
-    write_string(result.subset, subsets, STRING_LENGTH);
+    write_string(result.subset, subsets, StringLength);
 
     std::vector<std::string> tokens;
     boost::split(tokens, subsets, boost::is_any_of("[]"), boost::algorithm::token_compress_on);
@@ -332,13 +332,13 @@ void uda::parse_source(RequestData& result, const std::string& source)
     std::string function = source_match["function"];
     bool is_function = !function.empty();
 
-    write_string(result.function, function, STRING_LENGTH);
+    write_string(result.function, function, StringLength);
 
     std::string path = source_match["path"];
     bool is_file = !path.empty();
 
     path = udaExpandEnvironmentalVariables(path);
-    write_string(result.path, path, STRING_LENGTH);
+    write_string(result.path, path, StringLength);
 
     std::string s_pulse = source_match["pulse"];
     long pulse = std::stol(s_pulse);
@@ -351,7 +351,7 @@ void uda::parse_source(RequestData& result, const std::string& source)
 
     write_int(&result.pass, pass);
     if (*end == '\0') {
-        write_string(result.tpass, s_pass, STRING_LENGTH);
+        write_string(result.tpass, s_pass, StringLength);
     }
 
     std::string device = source_match["device"];
@@ -381,8 +381,8 @@ void uda::parse_source(RequestData& result, const std::string& source)
         throw std::runtime_error{"invalid source - too many prefixes"};
     }
 
-    write_string(result.function, function, STRING_LENGTH);
-    write_string(result.format, format, STRING_LENGTH);
+    write_string(result.function, function, StringLength);
+    write_string(result.format, format, StringLength);
 }
 
 void uda::write_string(char* out, std::string in, size_t len)
@@ -440,9 +440,9 @@ RequestData make_request_data(const Config& config, const RequestData& request_d
         result.request = (int)Request::ReadUDA;
     }
 
-    uda::write_string(result.api_delim, delim, MAXNAME);
-    uda::write_string(result.signal, signal, MAXMETA);
-    uda::write_string(result.source, source, STRING_LENGTH);
+    uda::write_string(result.api_delim, delim, MaxName);
+    uda::write_string(result.signal, signal, MaxMeta);
+    uda::write_string(result.source, source, StringLength);
 
     uda::parse_source(result, source);
     uda::parse_signal(result, signal, plugin_list);

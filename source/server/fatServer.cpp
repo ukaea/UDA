@@ -109,7 +109,7 @@ int uda::server::fat_server(const Config& config, ClientBlock client_block, Serv
     init_log_struct_list(&log_struct_list);
 
     int server_tot_block_time = 0;
-    int server_timeout = TIMEOUT; // user specified Server Lifetime
+    int server_timeout = TimeOut; // user specified Server Lifetime
 
     IoData io_data = {};
     io_data.server_tot_block_time = &server_tot_block_time;
@@ -190,10 +190,10 @@ static int process_hierarchical_data(DataBlock* data_block, LogStructList* log_s
     // Create an output XDR stream
 
     FILE* xdrfile;
-    char tempFile[MAXPATH];
+    char tempFile[MaxPath];
     char* env;
     if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-        snprintf(tempFile, MAXPATH, "%s/idamXDRXXXXXX", env);
+        snprintf(tempFile, MaxPath, "%s/idamXDRXXXXXX", env);
     } else {
         strcpy(tempFile, "/tmp/idamXDRXXXXXX");
     }
@@ -215,7 +215,7 @@ static int process_hierarchical_data(DataBlock* data_block, LogStructList* log_s
 
     ProtocolId protocol_id = ProtocolId::Structures;
     protocol_xml(&xdr_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
-                 data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
+                 data_block, protocol_version, log_struct_list, io_data, ::private_flags, malloc_source,
                  serverCreateXDRStream);
 
     // Close the stream and file
@@ -241,7 +241,7 @@ static int process_hierarchical_data(DataBlock* data_block, LogStructList* log_s
 
     protocol_id = ProtocolId::Structures;
     err = protocol_xml(&xdr_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
-                       data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
+                       data_block, protocol_version, log_struct_list, io_data, ::private_flags, malloc_source,
                        serverCreateXDRStream);
 
     // Close the stream and file

@@ -58,13 +58,13 @@ void uda::client_server::init_request_block(RequestBlock* str)
 void uda::client_server::init_client_block(ClientBlock* str, int version, const char* clientname)
 {
     str->version = version;
-    str->timeout = TIMEOUT;
+    str->timeout = TimeOut;
     if (getenv("UDA_TIMEOUT")) {
         str->timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
     }
     str->pid = (int)getpid();
     strcpy(str->uid, clientname); // Global userid
-    str->compressDim = COMPRESS_DIM;
+    str->compressDim = CompressDim;
 
     str->clientFlags = 0;
     str->altRank = 0;
@@ -132,17 +132,17 @@ void uda::client_server::init_data_block(DataBlock* str)
     str->synthetic = nullptr;
     str->errhi = nullptr;
     str->errlo = nullptr;
-    memset(str->errparams, '\0', sizeof(str->errparams[0]) * MAXERRPARAMS);
+    memset(str->errparams, '\0', sizeof(str->errparams[0]) * MaxErrParams);
     str->dims = nullptr;
     str->data_system = nullptr;
     str->system_config = nullptr;
     str->data_source = nullptr;
     str->signal_rec = nullptr;
     str->signal_desc = nullptr;
-    memset(str->data_units, '\0', STRING_LENGTH);
-    memset(str->data_label, '\0', STRING_LENGTH);
-    memset(str->data_desc, '\0', STRING_LENGTH);
-    memset(str->error_msg, '\0', STRING_LENGTH);
+    memset(str->data_units, '\0', StringLength);
+    memset(str->data_label, '\0', StringLength);
+    memset(str->data_desc, '\0', StringLength);
+    memset(str->error_msg, '\0', StringLength);
     init_client_block(&(str->client_block), 0, "");
 }
 
@@ -166,7 +166,7 @@ void uda::client_server::init_dim_block(Dims* str)
     str->ints = nullptr;
     str->errhi = nullptr;
     str->errlo = nullptr;
-    for (int i = 0; i < MAXERRPARAMS; i++) {
+    for (int i = 0; i < MaxErrParams; i++) {
         str->errparams[i] = 0.0;
     }
     str->dim_units[0] = '\0';

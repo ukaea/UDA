@@ -47,8 +47,8 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
     static int original_err_fh = 0;
     static FILE* mdsmsg_fh = nullptr;
 
-    static char mksdir_template[MAXPATH] = {0};
-    static char temp_file[MAXPATH] = {0};
+    static char mksdir_template[MaxPath] = {0};
+    static char temp_file[MaxPath] = {0};
 
     static bool single_file = false;
 
@@ -79,7 +79,7 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
             if (!redirect) {
                 auto work_dir = config.get("plugins.work_dir");
                 if (work_dir) {
-                    snprintf(mksdir_template, MAXPATH, "%s/idamPLUGINXXXXXX", work_dir.as<std::string>().c_str());
+                    snprintf(mksdir_template, MaxPath, "%s/idamPLUGINXXXXXX", work_dir.as<std::string>().c_str());
                 } else {
                     strcpy(mksdir_template, "/tmp/idamPLUGINXXXXXX");
                 }
@@ -205,7 +205,7 @@ int uda::server::server_plugin(const Config& config, RequestData *request, DataS
     strcpy(data_source->filename, trim_string(request->file));
     strcpy(data_source->path, trim_string(request->path));
 
-    copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
+    copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
 
     strcpy(data_source->server, trim_string(request->server));
 
@@ -306,7 +306,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
     // mimic a client request
 
     if (logRecord == nullptr || strlen(logRecord) == 0) {
-        snprintf(request.signal, MAXMETA,
+        snprintf(request.signal, MaxMeta,
                  "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
                  "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
                  plugin->name.c_str(), client_block->DOI, original_request->signal, original_request->source,
@@ -315,7 +315,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
 
         // need 2> record the server log record
 
-        snprintf(request.signal, MAXMETA, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
+        snprintf(request.signal, MaxMeta, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
                  plugin->name.c_str(), client_block->DOI, logRecord, exec_method);
     }
 

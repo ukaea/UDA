@@ -54,12 +54,13 @@ void uda::client_server::error_log(ClientBlock client_block, RequestBlock reques
 
     struct tm* broken = gmtime(&calendar);
 
-    static char access_date[DateLength]; // The Calendar Time as a formatted String
+    constexpr size_t access_date_length = 27;
+    static char access_date[access_date_length]; // The Calendar Time as a formatted String
 
 #ifndef _WIN32
     asctime_r(broken, access_date);
 #else
-    asctime_s(accessdate, UDA_DATE_LENGTH, broken);
+    asctime_s(accessdate, access_date_length, broken);
 #endif
 
     convert_non_printable2(access_date);
@@ -122,8 +123,8 @@ uda::client_server::UdaError uda::client_server::create_error(ErrorType type, co
 
     error.type = type;
     error.code = code;
-    copy_string(location, error.location, STRING_LENGTH);
-    copy_string(msg, error.msg, STRING_LENGTH);
+    copy_string(location, error.location, StringLength);
+    copy_string(msg, error.msg, StringLength);
 
     size_t lmsg0 = strlen(error.msg);
 
@@ -131,15 +132,15 @@ uda::client_server::UdaError uda::client_server::create_error(ErrorType type, co
         const char* errmsg = strerror(code);
         size_t lmsg1 = strlen(errmsg);
         if (lmsg0 == 0) {
-            copy_string(errmsg, error.msg, STRING_LENGTH);
+            copy_string(errmsg, error.msg, StringLength);
         } else {
-            if ((lmsg0 + 2) < STRING_LENGTH) {
+            if ((lmsg0 + 2) < StringLength) {
                 strcat(error.msg, "; ");
-                if ((lmsg0 + lmsg1 + 2) < STRING_LENGTH) {
+                if ((lmsg0 + lmsg1 + 2) < StringLength) {
                     strcat(error.msg, errmsg);
                 } else {
-                    strncat(error.msg, errmsg, ((unsigned int)(STRING_LENGTH - 1 - (lmsg0 + 2))));
-                    error.msg[STRING_LENGTH - 1] = '\0';
+                    strncat(error.msg, errmsg, ((unsigned int)(StringLength - 1 - (lmsg0 + 2))));
+                    error.msg[StringLength - 1] = '\0';
                 }
             }
         }

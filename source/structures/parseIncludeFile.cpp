@@ -40,8 +40,8 @@ int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* heade
               maxAlign = 0;
     FILE* fh = nullptr;
 
-    char buffer[STRING_LENGTH];
-    char work[STRING_LENGTH];
+    char buffer[StringLength];
+    char work[StringLength];
     char name[MAXELEMENTNAME];
     char name1[MAXELEMENTNAME], name2[MAXELEMENTNAME], name3[MAXELEMENTNAME];
     char* p = nullptr;
@@ -153,7 +153,7 @@ int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* heade
     //
     //
     //
-    while (fgets(buffer, STRING_LENGTH, fh) != nullptr) {
+    while (fgets(buffer, StringLength, fh) != nullptr) {
 
         left_trim_string(trim_string(buffer));
 

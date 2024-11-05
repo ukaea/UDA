@@ -82,8 +82,8 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 {
     int ldelim;
     int err = 0;
-    char work[MAXMETA];
-    char work2[MAXMETA];
+    char work[MaxMeta];
+    char work2[MaxMeta];
     unsigned short strip = 1; // Remove enclosing quotes from name value pairs
 
     UDA_LOG(UDA_LOG_DEBUG, "Source Argument")
@@ -108,8 +108,8 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
     auto archive = config.get("request.default_archive").as_or_default(""s);
     auto device = config.get("request.default_device").as_or_default(""s);
 
-    snprintf(work, MAXMETA, "%s%s", archive.c_str(), delim.c_str()); // default archive
-    snprintf(work2, MAXMETA, "%s%s", device.c_str(), delim.c_str()); // default device
+    snprintf(work, MaxMeta, "%s%s", archive.c_str(), delim.c_str()); // default archive
+    snprintf(work2, MaxMeta, "%s%s", device.c_str(), delim.c_str()); // default device
 
     left_trim_string(request->signal);
     trim_string(request->signal);
@@ -324,7 +324,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                     for (const auto& plugin : pluginList) {
                         if (plugin.name == request->archive) {
                             request->request = id;
-                            copy_string(plugin.name, request->format, STRING_LENGTH);
+                            copy_string(plugin.name, request->format, StringLength);
                         }
                         ++id;
                     }
@@ -349,7 +349,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                 if (plugin.name == work2) {
                     if (plugin.type != UDA_PLUGIN_CLASS_DEVICE) {
                         request->request = id; // Found
-                        copy_string(plugin.name, request->format, STRING_LENGTH);
+                        copy_string(plugin.name, request->format, StringLength);
                         if (plugin.type != UDA_PLUGIN_CLASS_FILE) { // The full file path fully resolved by the client
                             strcpy(request->path,
                                    test + ldelim);     // Complete String following :: delimiter
@@ -553,7 +553,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                 if (plugin.name == name) {
 
                     request->request = id;
-                    copy_string(plugin.name, request->format, STRING_LENGTH);
+                    copy_string(plugin.name, request->format, StringLength);
                     is_function = plugin.type == UDA_PLUGIN_CLASS_FUNCTION;
                     break;
                 }
@@ -567,7 +567,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                 for (const auto& plugin : pluginList) {
                     if (plugin.entry_func_name == "ServerSide" && plugin.library_name.empty()) {
                         request->request = (int)Request::ReadServerside; // Found
-                        copy_string(plugin.name, request->format, STRING_LENGTH);
+                        copy_string(plugin.name, request->format, StringLength);
                         is_function = true;
                         break;
                     }
@@ -597,7 +597,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                     && pluginList[id].entry_func_name != "serverside") {
                 if (request->request == (int)Request::ReadGeneric || request->request == (int)Request::ReadUnknown) {
                     request->request = id; // Found
-                    copy_string(pluginList[id].name, request->format, STRING_LENGTH);
+                    copy_string(pluginList[id].name, request->format, StringLength);
                     UDA_LOG(UDA_LOG_DEBUG, "D request: {}", request->request);
                 } else if (request->request != id) { // Inconsistent
                     // Let Source have priority over the Signal?
@@ -805,7 +805,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
         const char* ida = " 99";
         const char* blank = "   ";
         FILE* ph = nullptr;
-        int lstr = STRING_LENGTH;
+        int lstr = StringLength;
         std::string cmd;
         cmd = fmt::format("head -c10 {} 2>/dev/null", source);
         errno = 0;
@@ -817,7 +817,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
             return -999;
         }
 
-        char buffer[STRING_LENGTH];
+        char buffer[StringLength];
         if (!feof(ph)) {
             if (fgets(buffer, lstr - 1, ph) == nullptr) {
                 UDA_THROW_ERROR(-999, "failed to read command")
@@ -936,7 +936,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
         bool break_again = false;
         for (const auto& plugin : pluginList) {
             if (plugin.extension == &test[1]) {
-                copy_string(plugin.name, request->format, STRING_LENGTH);
+                copy_string(plugin.name, request->format, StringLength);
                 break_again = true;
                 break;
             }
@@ -1011,7 +1011,7 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
 #else
                 char* base = basename(request->source);
 #endif
-                copy_string(base, request->file, STRING_LENGTH);
+                copy_string(base, request->file, StringLength);
             }
             break;
         }
@@ -1028,7 +1028,7 @@ int generic_request_test(const char* source, RequestData* request)
 {
     int rc = 0;
     char* token = nullptr;
-    char work[STRING_LENGTH];
+    char work[StringLength];
 
     //------------------------------------------------------------------------------
     // Start with ignorance about which plugin to use
@@ -1107,7 +1107,7 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
 
         if ((test = strstr(request->signal, request->api_delim)) != nullptr) {
 
-            if (test - request->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
+            if (test - request->signal >= StringLength - 1 || strlen(test + ldelim) >= MaxMeta - 1) {
                 UDA_ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
                 return err;
             }
@@ -1170,10 +1170,10 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
 
 void udaExpandEnvironmentalVariables(char* path)
 {
-    size_t lcwd = STRING_LENGTH - 1;
-    char work[STRING_LENGTH];
-    char cwd[STRING_LENGTH];
-    char ocwd[STRING_LENGTH];
+    size_t lcwd = StringLength - 1;
+    char work[StringLength];
+    char cwd[StringLength];
+    char ocwd[StringLength];
 
     if (strchr(path, '$') == nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "No embedded environment variables detected")
@@ -1204,7 +1204,7 @@ void udaExpandEnvironmentalVariables(char* path)
         UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution!")
 
         char *fp = nullptr, *env, *fp1;
-        char work1[STRING_LENGTH];
+        char work1[StringLength];
 
         if (path[0] == '$' || (fp = strchr(&path[1], '$')) != nullptr) { // Search for a $ character
 

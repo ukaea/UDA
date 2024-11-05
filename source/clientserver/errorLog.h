@@ -4,8 +4,6 @@
 namespace uda::client_server
 {
 
-constexpr size_t DateLength = 27;
-
 enum class ErrorType : int {
     None = 0,
     System = 1,

@@ -40,7 +40,7 @@ int get_data_status(int handle)
     if (data_block == nullptr) {
         return 0;
     }
-    if (get_signal_status(handle) == DEFAULT_STATUS) {
+    if (get_signal_status(handle) == DefaultStatus) {
         // Signal Status Not Changed from Default - use Data Source Value
         return data_block->source_status;
     } else {
@@ -182,7 +182,7 @@ int uda::client::get_data_status(int handle)
     if (data_block == nullptr) {
         return 0;
     }
-    if (get_signal_status(handle) == DEFAULT_STATUS) {
+    if (get_signal_status(handle) == DefaultStatus) {
         // Signal Status Not Changed from Default - use Data Source Value
         return data_block->source_status;
     } else {

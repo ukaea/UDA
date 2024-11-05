@@ -10,6 +10,8 @@
 using namespace uda::authentication;
 #endif
 
+using namespace uda::client_server;
+
 std::pair<XDR*, XDR*> uda::server::serverCreateXDRStream(uda::client_server::IoData* io_data)
 {
     static XDR server_input = {};
@@ -21,37 +23,37 @@ std::pair<XDR*, XDR*> uda::server::serverCreateXDRStream(uda::client_server::IoD
 #if !defined(FATCLIENT) && defined(SSLAUTHENTICATION)
     if (getUdaServerSSLDisabled()) {
 #  if defined(__APPLE__) || defined(__TIRPC__)
-        xdrrec_create(&server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+        xdrrec_create(&server_output, DBReadBlockSize, DBWriteBlockSize, io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                       reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 
-        xdrrec_create(&server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+        xdrrec_create(&server_input, DBReadBlockSize, DBWriteBlockSize, io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                       reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 #  else
-        xdrrec_create(&server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
+        xdrrec_create(&server_output, DBReadBlockSize, DBWriteBlockSize, (char*)io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(server_read),
                       reinterpret_cast<int (*)(char*, char*, int)>(server_write));
 
-        xdrrec_create(&server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
+        xdrrec_create(&server_input, DBReadBlockSize, DBWriteBlockSize, (char*)io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(server_read),
                       reinterpret_cast<int (*)(char*, char*, int)>(server_write));
 #  endif
     } else {
 #  if defined(__APPLE__) || defined(__TIRPC__)
-        xdrrec_create(&server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+        xdrrec_create(&server_output, DBReadBlockSize, DBWriteBlockSize, io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(void*, void*, int)>(writeUdaServerSSL));
 
-        xdrrec_create(&server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+        xdrrec_create(&server_input, DBReadBlockSize, DBWriteBlockSize, io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(void*, void*, int)>(writeUdaServerSSL));
 #  else
-        xdrrec_create(&server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
+        xdrrec_create(&server_output, DBReadBlockSize, DBWriteBlockSize, (char*)io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(char*, char*, int)>(writeUdaServerSSL));
 
-        xdrrec_create(&server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
+        xdrrec_create(&server_input, DBReadBlockSize, DBWriteBlockSize, (char*)io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(char*, char*, int)>(writeUdaServerSSL));
 #  endif
@@ -59,19 +61,19 @@ std::pair<XDR*, XDR*> uda::server::serverCreateXDRStream(uda::client_server::IoD
 #else // SSLAUTHENTICATION
 
 #  if defined(__APPLE__) || defined(__TIRPC__)
-    xdrrec_create(&server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+    xdrrec_create(&server_output, DBReadBlockSize, DBWriteBlockSize, io_data,
                   reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                   reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 
-    xdrrec_create(&server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+    xdrrec_create(&server_input, DBReadBlockSize, DBWriteBlockSize, io_data,
                   reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                   reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 #  else
-    xdrrec_create(&server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
+    xdrrec_create(&server_output, DBReadBlockSize, DBWriteBlockSize, (char*)io_data,
                   reinterpret_cast<int (*)(char*, char*, int)>(server_read),
                   reinterpret_cast<int (*)(char*, char*, int)>(server_write));
 
-    xdrrec_create(&server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
+    xdrrec_create(&server_input, DBReadBlockSize, DBWriteBlockSize, (char*)io_data,
                   reinterpret_cast<int (*)(char*, char*, int)>(server_read),
                   reinterpret_cast<int (*)(char*, char*, int)>(server_write));
 #  endif

@@ -162,7 +162,7 @@ int uda::client::generate_synthetic_data(int handle)
 
     int model;
     int param_n;
-    float params[MAXERRPARAMS];
+    float params[MaxErrParams];
 
     udaGetErrorModel(handle, &model, &param_n, params);
 
@@ -417,7 +417,7 @@ int uda::client::generate_synthetic_dim_data(int handle, int ndim)
 
     int model;
     int param_n;
-    float params[MAXERRPARAMS];
+    float params[MaxErrParams];
 
     udaGetErrorModel(handle, &model, &param_n, params);
 
@@ -671,7 +671,7 @@ int uda::client::generate_data_error(int handle)
 
     int model;
     int param_n;
-    float params[MAXERRPARAMS];
+    float params[MaxErrParams];
 
     udaGetErrorModel(handle, &model, &param_n, params);
 
@@ -989,7 +989,7 @@ int uda::client::generate_dim_data_error(int handle, int ndim)
 
     int model;
     int param_n;
-    float params[MAXERRPARAMS];
+    float params[MaxErrParams];
 
     udaGetErrorModel(handle, &model, &param_n, params);
 

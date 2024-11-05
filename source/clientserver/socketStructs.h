@@ -34,7 +34,7 @@ enum class SocketType : int {
 
 typedef struct Sockets {
     SocketType type;             // Type Code
-    char host[MAXSERVER]; // Server's Host Name or IP Address
+    char host[MaxServer]; // Server's Host Name or IP Address
     int port;
     int status;             // Open (1) or Closed (0)
     int fh;                 // Socket to Server File Handle

@@ -22,7 +22,7 @@ _properties = {
     "get_scalar": ("GET_SCALAR", False),
     "get_nodimdata": ("GET_NO_DIM_DATA", False),
     "get_meta": ("META", False),
-    "timeout": ("TIMEOUT", True),
+    "timeout": ("TimeOut", True),
     "verbose": ("VERBOSE", False),
     "debug": ("DEBUG", False),
     "altdata": ("ALT_DATA", True),

@@ -124,7 +124,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
     int hashSize = MAX_ELEMENT_SHA1;
     unsigned char mdr[MAX_ELEMENT_SHA1]; // SHA1 Hash of data received
 
-    if ((private_flags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) { // Intermediate XDR File, not stream
+    if ((private_flags & private_flags::XdrFile) && protocolVersion >= 5) { // Intermediate XDR File, not stream
         if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
             // File to record XDR encoded data
             temp_file = fmt::format("{}/idamXDRXXXXXX", env);
@@ -215,7 +215,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
                     UDA_LOG(UDA_LOG_DEBUG, "private_flags   : {} ", private_flags);
                     UDA_LOG(UDA_LOG_DEBUG, "protocolVersion: {} ", protocolVersion);
 
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) &&
+                    if ((private_flags & private_flags::XdrFile) &&
                         protocolVersion >= 5) { // Server calling another server
 
                         // Create a temporary or cached XDR file
@@ -252,7 +252,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
                         xdrstdio_create(&XDROutput, xdrfile, XDR_ENCODE);
                         xdrs = &XDROutput; // Switch from TCP stream to file based object
 
-                    } else if ((private_flags & PRIVATEFLAG_XDROBJECT) && protocolVersion >= 7) {
+                    } else if ((private_flags & private_flags::XdrObject) && protocolVersion >= 7) {
 
                         // Create a memory stream file
                         // Write the serialised data into a data object using a stdio xdr stream
@@ -355,7 +355,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
 
 #ifndef FATCLIENT
 
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) &&
+                    if ((private_flags & private_flags::XdrFile) &&
                         protocolVersion >= 5) { // Server calling another server
 
                         // Close the stream and file
@@ -382,7 +382,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
                             break;
                         }
 
-                    } else if ((private_flags & PRIVATEFLAG_XDROBJECT) &&
+                    } else if ((private_flags & private_flags::XdrObject) &&
                                protocolVersion >= 7) { // Server calling another server
 
                         // Close the stream and file
@@ -446,16 +446,16 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
                     UDA_LOG(UDA_LOG_DEBUG, "Receiving from Server");
 
                     // 5 valid options:
-                    //    1> unpack structures, no xdr file involved    => private_flags & PRIVATEFLAG_XDRFILE   == 0 &&
+                    //    1> unpack structures, no xdr file involved    => private_flags & private_flags::XdrFile   == 0 &&
                     //    packageType == PACKAGE_STRUCTDATA 2> unpack structures, from an xdr file        =>
-                    //    private_flags & PRIVATEFLAG_XDRFILE   == 0 && packageType == PACKAGE_XDRFILE 3> xdr file only,
-                    //    no unpacking, passforward    => private_flags & PRIVATEFLAG_XDRFILE        && packageType ==
-                    //    PACKAGE_XDRFILE 4> Error                    => private_flags & PRIVATEFLAG_XDRFILE        &&
+                    //    private_flags & private_flags::XdrFile   == 0 && packageType == PACKAGE_XDRFILE 3> xdr file only,
+                    //    no unpacking, passforward    => private_flags & private_flags::XdrFile        && packageType ==
+                    //    PACKAGE_XDRFILE 4> Error                    => private_flags & private_flags::XdrFile        &&
                     //    (packageType == PACKAGE_STRUCTDATA || packageType == PACKAGE_XDROBJECT) 5> unpack structures,
-                    //    from an xdr object    => private_flags & PRIVATEFLAG_XDROBJECT == 0 && packageType ==
+                    //    from an xdr object    => private_flags & private_flags::XdrObject == 0 && packageType ==
                     //    PACKAGE_XDROBJECT 6> xdr object only, no unpacking, passforward    => private_flags &
-                    //    PRIVATEFLAG_XDROBJECT      && packageType == PACKAGE_XDROBJECT 4> Error                    =>
-                    //    private_flags & PRIVATEFLAG_XDROBJECT      && (packageType == PACKAGE_STRUCTDATA ||
+                    //    private_flags::XdrObject      && packageType == PACKAGE_XDROBJECT 4> Error                    =>
+                    //    private_flags & private_flags::XdrObject      && (packageType == PACKAGE_STRUCTDATA ||
                     //    packageType == PACKAGE_XDRFILE)
 
                     // Data Object Caching rules:
@@ -487,39 +487,39 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
 #else
                     rc = 1;
 
-                    if (private_flags & PRIVATEFLAG_XDRFILE) {
+                    if (private_flags & private_flags::XdrFile) {
                         packageType = UDA_PACKAGE_XDRFILE;
-                    } else if (private_flags & PRIVATEFLAG_XDROBJECT) {
+                    } else if (private_flags & private_flags::XdrObject) {
                         packageType = UDA_PACKAGE_XDROBJECT;
-                    } else if (private_flags & PRIVATEFLAG_XDROBJECT) {
+                    } else if (private_flags & private_flags::XdrObject) {
                         packageType = UDA_PACKAGE_XDROBJECT;
                     } else {
                         packageType = UDA_PACKAGE_STRUCTDATA;
                     }
 #endif
 
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == UDA_PACKAGE_STRUCTDATA) {
+                    if ((private_flags & private_flags::XdrFile) == 0 && packageType == UDA_PACKAGE_STRUCTDATA) {
                         option = 1;
                     }
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == UDA_PACKAGE_XDRFILE &&
+                    if ((private_flags & private_flags::XdrFile) == 0 && packageType == UDA_PACKAGE_XDRFILE &&
                         protocolVersion >= 5) {
                         option = 2;
                     }
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) == PRIVATEFLAG_XDRFILE &&
+                    if ((private_flags & private_flags::XdrFile) == private_flags::XdrFile &&
                         packageType == UDA_PACKAGE_XDRFILE && protocolVersion >= 5) {
                         option = 3;
                     }
-                    if ((private_flags & PRIVATEFLAG_XDROBJECT) == 0 && packageType == UDA_PACKAGE_XDROBJECT &&
+                    if ((private_flags & private_flags::XdrObject) == 0 && packageType == UDA_PACKAGE_XDROBJECT &&
                         protocolVersion >= 7) {
                         option = 5;
                     }
-                    if ((private_flags & PRIVATEFLAG_XDROBJECT) == PRIVATEFLAG_XDROBJECT &&
+                    if ((private_flags & private_flags::XdrObject) == private_flags::XdrObject &&
                         packageType == UDA_PACKAGE_XDROBJECT && protocolVersion >= 7) {
                         option = 6;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "{}  {}   {}", private_flags & PRIVATEFLAG_XDRFILE,
-                            packageType == UDA_PACKAGE_STRUCTDATA, private_flags & PRIVATEFLAG_XDROBJECT);
+                    UDA_LOG(UDA_LOG_DEBUG, "{}  {}   {}", private_flags & private_flags::XdrFile,
+                            packageType == UDA_PACKAGE_STRUCTDATA, private_flags & private_flags::XdrObject);
                     UDA_LOG(UDA_LOG_DEBUG, "Receive data option : {}", option);
                     UDA_LOG(UDA_LOG_DEBUG, "Receive package Type: {}", packageType);
 
@@ -865,7 +865,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
                             // ERROR
                         }
 
-                        if (private_flags & PRIVATEFLAG_XDROBJECT) { // Forward the object again
+                        if (private_flags & private_flags::XdrObject) { // Forward the object again
 
                             data_block->data = nullptr; // No Data - not unpacked
                             data_block->opaque_block =
@@ -992,7 +992,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, int dir
 
                         err = receive_xdr_file(xdrs, temp_file.c_str()); // Receive and write the file
 
-                        if (private_flags & PRIVATEFLAG_XDRFILE) { // Forward the file (option 3) again
+                        if (private_flags & private_flags::XdrFile) { // Forward the file (option 3) again
 
                             // If this is an intermediate client then read the file without unpacking the structures
 

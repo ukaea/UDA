@@ -230,7 +230,7 @@ void udaSetProperty(const char* property)
                 set_log_level(UDA_LOG_DEBUG);
             }
             if (STR_IEQUALS(property, "altData")) {
-                client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
+                client_flags->flags = client_flags->flags | client_flags::AltData;
             }
             if (!strncasecmp(property, "altRank", 7)) {
                 copy_string(property, name, 56);
@@ -247,13 +247,13 @@ void udaSetProperty(const char* property)
             }
         }
         if (STR_IEQUALS(property, "reuseLastHandle")) {
-            client_flags->flags = client_flags->flags | CLIENTFLAG_REUSELASTHANDLE;
+            client_flags->flags = client_flags->flags | client_flags::ReuseLastHandle;
         }
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
-            client_flags->flags = client_flags->flags | CLIENTFLAG_FREEREUSELASTHANDLE;
+            client_flags->flags = client_flags->flags | client_flags::FreeReuseLastHandle;
         }
         if (STR_IEQUALS(property, "fileCache")) {
-            client_flags->flags = client_flags->flags | CLIENTFLAG_FILECACHE;
+            client_flags->flags = client_flags->flags | client_flags::FileCache;
         }
     }
 }
@@ -314,10 +314,10 @@ int udaGetProperty(const char* property)
             return client_flags->alt_rank;
         }
         if (STR_IEQUALS(property, "reuseLastHandle")) {
-            return (int)(client_flags->flags & CLIENTFLAG_REUSELASTHANDLE);
+            return (int)(client_flags->flags & client_flags::ReuseLastHandle);
         }
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
-            return (int)(client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE);
+            return (int)(client_flags->flags & client_flags::FreeReuseLastHandle);
         }
         if (STR_IEQUALS(property, "verbose")) {
             return get_log_level() == UDA_LOG_INFO;
@@ -326,10 +326,10 @@ int udaGetProperty(const char* property)
             return get_log_level() == UDA_LOG_DEBUG;
         }
         if (STR_IEQUALS(property, "altData")) {
-            return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
+            return (int)(client_flags->flags & client_flags::AltData);
         }
         if (STR_IEQUALS(property, "fileCache")) {
-            return (int)(client_flags->flags & CLIENTFLAG_FILECACHE);
+            return (int)(client_flags->flags & client_flags::FileCache);
         }
     }
     return 0;
@@ -392,19 +392,19 @@ void udaResetProperty(const char* property)
             set_log_level(UDA_LOG_NONE);
         }
         if (STR_IEQUALS(property, "altData")) {
-            client_flags->flags &= !CLIENTFLAG_ALTDATA;
+            client_flags->flags &= !client_flags::AltData;
         }
         if (STR_IEQUALS(property, "altRank")) {
             client_flags->alt_rank = 0;
         }
         if (STR_IEQUALS(property, "reuseLastHandle")) {
-            client_flags->flags &= !CLIENTFLAG_REUSELASTHANDLE;
+            client_flags->flags &= !client_flags::ReuseLastHandle;
         }
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
-            client_flags->flags &= !CLIENTFLAG_FREEREUSELASTHANDLE;
+            client_flags->flags &= !client_flags::FreeReuseLastHandle;
         }
         if (STR_IEQUALS(property, "fileCache")) {
-            client_flags->flags &= !CLIENTFLAG_FILECACHE;
+            client_flags->flags &= !client_flags::FileCache;
         }
     }
 }
@@ -432,7 +432,7 @@ void udaResetProperties()
     client_flags->get_bytes = 0;
     client_flags->get_nodimdata = 0;
     set_log_level(UDA_LOG_NONE);
-    client_flags->user_timeout = TIMEOUT;
+    client_flags->user_timeout = TimeOut;
     if (getenv("UDA_TIMEOUT")) {
         client_flags->user_timeout = atoi(getenv("UDA_TIMEOUT"));
     }
@@ -507,8 +507,8 @@ void udaPutErrorModel(int handle, int model, int param_n, const float* params)
     data_block->error_model = model;     // Model ID
     data_block->error_param_n = param_n; // Number of parameters
 
-    if (param_n > MAXERRPARAMS) {
-        data_block->error_param_n = MAXERRPARAMS;
+    if (param_n > MaxErrParams) {
+        data_block->error_param_n = MaxErrParams;
     }
 
     for (int i = 0; i < data_block->error_param_n; i++) {
@@ -532,8 +532,8 @@ void udaPutDimErrorModel(int handle, int ndim, int model, int param_n, const flo
     data_block->dims[ndim].error_model = model;     // Model ID
     data_block->dims[ndim].error_param_n = param_n; // Number of parameters
 
-    if (param_n > MAXERRPARAMS) {
-        data_block->dims[ndim].error_param_n = MAXERRPARAMS;
+    if (param_n > MaxErrParams) {
+        data_block->dims[ndim].error_param_n = MaxErrParams;
     }
     for (int i = 0; i < data_block->dims[ndim].error_param_n; i++) {
         data_block->dims[ndim].errparams[i] = params[i];
@@ -690,7 +690,7 @@ int udaGetDataStatus(int handle)
     if (data_block == nullptr) {
         return 0;
     }
-    if (udaGetSignalStatus(handle) == DEFAULT_STATUS) {
+    if (udaGetSignalStatus(handle) == DefaultStatus) {
         // Signal Status Not Changed from Default - use Data Source Value
         return data_block->source_status;
     } else {
@@ -753,7 +753,7 @@ unsigned int udaGetCachePermission(int handle)
     // Permission to cache?
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr) {
-        return UDA_PLUGIN_NOT_OK_TO_CACHE;
+        return (int)PluginCachePermission::NotOkToCache;
     }
     return data_block->cachePermission;
 }

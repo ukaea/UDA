@@ -1646,7 +1646,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, ProtocolId protocol_id, int
 
                     rc = rc && xdr_int(xdrs, &packageType); // Receive data package type
 
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == UDA_PACKAGE_STRUCTDATA) {
+                    if ((private_flags & private_flags::XdrFile) == 0 && packageType == UDA_PACKAGE_STRUCTDATA) {
                         option = 1;
                     }
 

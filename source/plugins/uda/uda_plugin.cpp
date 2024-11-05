@@ -63,7 +63,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
         int version;
         int pid;                 // Client Application process id
-        char uid[STRING_LENGTH]; // Who the Client is
+        char uid[StringLength]; // Who the Client is
 
         // Server properties set by the client
 
@@ -110,13 +110,13 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
         char* errhi;                   // Error Array (Errors above the line: data + error)
         char* errlo;                   // Error Array (Errors below the line: data - error)
-        float errparams[MAXERRPARAMS]; // the array of model parameters
+        float errparams[MaxErrParams]; // the array of model parameters
 
-        char data_units[STRING_LENGTH];
-        char data_label[STRING_LENGTH];
-        char data_desc[STRING_LENGTH];
+        char data_units[StringLength];
+        char data_label[StringLength];
+        char data_desc[StringLength];
 
-        char error_msg[STRING_LENGTH];
+        char error_msg[StringLength];
 
         Dims* dims;
         DataSystem* data_system;
@@ -173,13 +173,13 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------
     // Private Flags, User Specified Flags and Properties for the Remote Server
 
-    udaResetPrivateFlag(PRIVATEFLAG_FULLRESET);
+    udaResetPrivateFlag(private_flags::FullReset);
     // Ensure Hierarchical Data are passed as an opaque object/file
-    udaSetPrivateFlag(PRIVATEFLAG_XDRFILE);
+    udaSetPrivateFlag(private_flags::XdrFile);
 
     // This fails if the legacy UDA plugin is called by a server in the forward chain and it set marked a 'private'
     // For IMAS development, this has been disabled
-    // if(environment.external_user) udaSetPrivateFlag(PRIVATEFLAG_EXTERNAL);    // Maintain external user status
+    // if(environment.external_user) udaSetPrivateFlag(private_flags::External);    // Maintain external user status
 
     // Set Userid
 
@@ -230,7 +230,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Client Flags ...
 
-    udaResetClientFlag(CLIENTFLAG_FULLRESET);
+    udaResetClientFlag(client_flags::FullReset);
     udaSetClientFlag(client_block->clientFlags);
 
     // Client application provenance
@@ -304,7 +304,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     } else if (pathway == 2) {
 
-        char source[2 * MAXNAME + 2];
+        char source[2 * MaxName + 2];
 
         //----------------------------------------------------------------------
         // Device redirect or server protocol
@@ -422,7 +422,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         }
     } else if (pathway == 4) {
 
-        char source[2 * MAXNAME + 2];
+        char source[2 * MaxName + 2];
 
         //----------------------------------------------------------------------
         // Server protocol
@@ -479,8 +479,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         handle = udaGetAPI(request->signal, source);
     }
 
-    udaResetPrivateFlag(PRIVATEFLAG_FULLRESET);
-    udaResetClientFlag(CLIENTFLAG_FULLRESET);
+    udaResetPrivateFlag(private_flags::FullReset);
+    udaResetClientFlag(client_flags::FullReset);
 
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap
@@ -543,7 +543,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         db.errhi = odb->errhi;
         db.errlo = odb->errlo;
 
-        for (int i = 0; i < MAXERRPARAMS; i++) {
+        for (int i = 0; i < MaxErrParams; i++) {
             db.errparams[i] = odb->errparams[i];
         }
 

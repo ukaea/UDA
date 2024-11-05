@@ -265,8 +265,8 @@ void uda::client_server::add_put_data_block_list(PutDataBlock* putDataBlock, Put
         putDataBlockList->blockCount + 1 >= putDataBlockList->blockListSize) {
         putDataBlockList->putDataBlock =
             (PutDataBlock*)realloc((void*)putDataBlockList->putDataBlock,
-                                   (putDataBlockList->blockListSize + GROWPUTDATABLOCKLIST) * sizeof(PutDataBlock));
-        putDataBlockList->blockListSize = putDataBlockList->blockListSize + GROWPUTDATABLOCKLIST;
+                                   (putDataBlockList->blockListSize + GrowPutdataBlockList) * sizeof(PutDataBlock));
+        putDataBlockList->blockListSize = putDataBlockList->blockListSize + GrowPutdataBlockList;
     }
     putDataBlockList->putDataBlock[putDataBlockList->blockCount++] = *putDataBlock;
 }

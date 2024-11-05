@@ -46,7 +46,7 @@ void uda::server::initPluginList(std::vector<PluginData>& plugin_list)
     {
         int rc = 0;
         char csv_char = ',';
-        char buffer[STRING_LENGTH];
+        char buffer[StringLength];
         char* root;
         char* config = getenv("UDA_PLUGIN_CONFIG"); // Server plugin configuration file
         FILE* conf = nullptr;
@@ -99,7 +99,7 @@ void uda::server::initPluginList(std::vector<PluginData>& plugin_list)
         cachePermission and publicUse may use one of the following values: "Y|N,1|0,T|F,True|False"
         */
 
-        while (fgets(buffer, STRING_LENGTH - 1, conf) != nullptr) {
+        while (fgets(buffer, StringLength - 1, conf) != nullptr) {
             convert_non_printable2(buffer);
             left_trim_string(trim_string(buffer));
             do {

@@ -17,7 +17,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
 {
     int err = 0;
     char* token = nullptr;
-    char work[STRING_LENGTH];
+    char work[StringLength];
 
     UDA_LOG(UDA_LOG_DEBUG, "Start");
 
@@ -79,7 +79,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 strcpy(data_source->filename, trim_string(request->file));
                 strcpy(data_source->path, trim_string(request->path));
 
-                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
 
                 data_source->exp_number = request->exp_number;
                 data_source->pass = request->pass;
@@ -98,7 +98,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 strcpy(data_source->filename, trim_string(request->file));
                 strcpy(data_source->path, trim_string(request->path));
 
-                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
 
                 data_source->exp_number = request->exp_number;
                 data_source->pass = request->pass;
@@ -116,10 +116,10 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 strcpy(data_source->filename, trim_string(request->file)); // MDS+ Tree
                 strcpy(data_source->server, trim_string(request->server)); // MDS+ Server Name
 
-                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
 
-                if (strlen(signal_desc->signal_name) == MAXNAME - 1) {
-                    copy_string(trim_string(request->signal), signal_desc->xml, MAXMETA); // Pass via XML member
+                if (strlen(signal_desc->signal_name) == MaxName - 1) {
+                    copy_string(trim_string(request->signal), signal_desc->xml, MaxMeta); // Pass via XML member
                     signal_desc->signal_name[0] = '\0';
                 }
 
@@ -141,7 +141,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
 
             case (int)Request::ReadCPF:
                 strcpy(data_source->path, trim_string(request->path)); // netCDF File Location
-                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: readnetCDF");
                 UDA_LOG(UDA_LOG_DEBUG, "netCDF File  : {} ", request->path);
@@ -150,7 +150,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
 
             case (int)Request::ReadHDF5:
                 strcpy(data_source->path, trim_string(request->path)); // HDF5 File Location
-                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHDF5");
                 UDA_LOG(UDA_LOG_DEBUG, "HDF5 File    : {} ", request->path);
@@ -227,7 +227,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 strcpy(data_source->source_alias, trim_string(request->file));
                 strcpy(data_source->filename, trim_string(request->file));
                 strcpy(data_source->path, trim_string(request->path));
-                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
                 data_source->exp_number = request->exp_number;
                 data_source->pass = request->pass;
                 data_source->type = ' ';
@@ -241,7 +241,7 @@ int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_so
                 break;
 
             case (int)Request::ReadJPF:
-                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
                 data_source->exp_number = request->exp_number;
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read JPF");

@@ -25,11 +25,11 @@ namespace uda::client_server
 
 struct DataSubset {
     int subsetCount;      // Number of defined dimensions to subset
-    int subset[MAXRANK2]; // If 1 then subset to apply
-    int start[MAXRANK2];  // Starting Index of each dimension
-    int stop[MAXRANK2];   // Ending Index of each dimension
-    int count[MAXRANK2];  // The number of values (sub-samples) read from each dimension
-    int stride[MAXRANK2]; // The step stride along each dimension
+    int subset[MaxRank2]; // If 1 then subset to apply
+    int start[MaxRank2];  // Starting Index of each dimension
+    int stop[MaxRank2];   // Ending Index of each dimension
+    int count[MaxRank2];  // The number of values (sub-samples) read from each dimension
+    int stride[MaxRank2]; // The step stride along each dimension
 };
 
 struct VLen {
@@ -53,12 +53,12 @@ struct DataSystem {
     int version;
     int meta_id;
     char type;
-    char device_name[MAXNAME];
-    char system_name[MAXNAME];
-    char system_desc[MAXDESC];
-    char creation[MAXDATE];
-    char xml[MAXMETA];
-    char xml_creation[MAXDATE];
+    char device_name[MaxName];
+    char system_name[MaxName];
+    char system_desc[MaxDesc];
+    char creation[MaxDate];
+    char xml[MaxMeta];
+    char xml_creation[MaxDate];
     char _padding[3];
 };
 
@@ -66,11 +66,11 @@ struct SystemConfig {
     int config_id;
     int system_id;
     int meta_id;
-    char config_name[MAXNAME];
-    char config_desc[MAXDESC];
-    char creation[MAXDATE];
-    char xml[MAXMETA];
-    char xml_creation[MAXDATE];
+    char config_name[MaxName];
+    char config_desc[MaxDesc];
+    char creation[MaxDate];
+    char xml[MaxMeta];
+    char xml_creation[MaxDate];
 };
 
 struct DataSource {
@@ -88,22 +88,22 @@ struct DataSource {
     char access;
     char reprocess;
     char type;
-    char source_alias[MAXNAME];
-    char pass_date[MAXDATE];
-    char archive[MAXNAME];
-    char device_name[MAXNAME];
-    char format[MAXFORMAT];
-    char path[MAXPATH];
-    char filename[MAXFILENAME];
-    char server[MAXSERVER];
-    char userid[MAXNAME];
-    char reason_desc[MAXDESC];
-    char run_desc[MAXMETA];
-    char status_desc[MAXMETA];
-    char creation[MAXDATE];
-    char modified[MAXDATE];
-    char xml[MAXMETA];
-    char xml_creation[MAXDATE];
+    char source_alias[MaxName];
+    char pass_date[MaxDate];
+    char archive[MaxName];
+    char device_name[MaxName];
+    char format[MaxFormat];
+    char path[MaxPath];
+    char filename[MaxFilename];
+    char server[MaxServer];
+    char userid[MaxName];
+    char reason_desc[MaxDesc];
+    char run_desc[MaxMeta];
+    char status_desc[MaxMeta];
+    char creation[MaxDate];
+    char modified[MaxDate];
+    char xml[MaxMeta];
+    char xml_creation[MaxDate];
     char _padding[1];
 };
 
@@ -117,11 +117,11 @@ struct Signal {
     int status_impact_code;
     char access;
     char reprocess;
-    char status_desc[MAXMETA];
-    char creation[MAXDATE];
-    char modified[MAXDATE];
-    char xml[MAXMETA];
-    char xml_creation[MAXDATE];
+    char status_desc[MaxMeta];
+    char creation[MaxDate];
+    char modified[MaxDate];
+    char xml[MaxMeta];
+    char xml_creation[MaxDate];
     char _padding[2];
 };
 
@@ -132,17 +132,17 @@ struct SignalDesc {
     int range_start;
     int range_stop;
     char type;
-    char source_alias[MAXNAME];
-    char signal_alias[MAXNAME];
-    char signal_name[MAXNAME];
-    char generic_name[MAXNAME];
-    char description[MAXDESC];
-    char signal_class[MAXDESC];
-    char signal_owner[MAXDESC];
-    char creation[MAXDATE];
-    char modified[MAXDATE];
-    char xml[MAXMETA];
-    char xml_creation[MAXDATE];
+    char source_alias[MaxName];
+    char signal_alias[MaxName];
+    char signal_name[MaxName];
+    char generic_name[MaxName];
+    char description[MaxDesc];
+    char signal_class[MaxDesc];
+    char signal_owner[MaxDesc];
+    char creation[MaxDate];
+    char modified[MaxDate];
+    char xml[MaxMeta];
+    char xml_creation[MaxDate];
     char _padding[3];
     int signal_alias_type;
     int signal_map_id;
@@ -171,10 +171,10 @@ struct Dims {
 
     char* errhi;                   // Dimension Error Array (Errors above the line: data + error)
     char* errlo;                   // Dimension Error Array (Errors below the line: data - error)
-    float errparams[MAXERRPARAMS]; // the array of model parameters
+    float errparams[MaxErrParams]; // the array of model parameters
 
-    char dim_units[STRING_LENGTH];
-    char dim_label[STRING_LENGTH];
+    char dim_units[StringLength];
+    char dim_label[StringLength];
 };
 
 struct SecurityBlock {
@@ -196,7 +196,7 @@ struct SecurityBlock {
 struct ClientBlock {
     int version;
     int pid;                 // Client Application process id
-    char uid[STRING_LENGTH]; // Who the Client is (claim of identity to the first server)
+    char uid[StringLength]; // Who the Client is (claim of identity to the first server)
 
     // Server properties set by the client
 
@@ -221,10 +221,10 @@ struct ClientBlock {
 
     unsigned int privateFlags; // set of private flags used to communicate server to server
 
-    char OSName[STRING_LENGTH]; // Name of the Client side Operating System, e.g. OSX
-    char DOI[STRING_LENGTH];    // User's research DOI - to be logged with all data access requests
+    char OSName[StringLength]; // Name of the Client side Operating System, e.g. OSX
+    char DOI[StringLength];    // User's research DOI - to be logged with all data access requests
 
-    char uid2[STRING_LENGTH]; // Who the Client is (claim of identity to the last server)
+    char uid2[StringLength]; // Who the Client is (claim of identity to the last server)
     SecurityBlock
         securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
@@ -249,13 +249,13 @@ struct DataBlock {
 
     char* errhi;                   // Error Array (Errors above the line: data + error)
     char* errlo;                   // Error Array (Errors below the line: data - error)
-    float errparams[MAXERRPARAMS]; // the array of model parameters
+    float errparams[MaxErrParams]; // the array of model parameters
 
-    char data_units[STRING_LENGTH];
-    char data_label[STRING_LENGTH];
-    char data_desc[STRING_LENGTH];
+    char data_units[StringLength];
+    char data_label[StringLength];
+    char data_desc[StringLength];
 
-    char error_msg[STRING_LENGTH];
+    char error_msg[StringLength];
 
     Dims* dims;
     DataSystem* data_system;
@@ -312,8 +312,8 @@ enum class ErrorType;
 struct UdaError {
     ErrorType type;               // Error Classification
     int code;                     // Error Code
-    char location[STRING_LENGTH]; // Where this Error is Located
-    char msg[STRING_LENGTH];      // Message
+    char location[StringLength]; // Where this Error is Located
+    char msg[StringLength];      // Message
 };
 
 struct ErrorStack : UDA_ERROR_STACK {
@@ -324,11 +324,11 @@ struct ErrorStack : UDA_ERROR_STACK {
 struct ServerBlock {
     int version;
     int error;
-    char msg[STRING_LENGTH];
+    char msg[StringLength];
     int pid; // Server Application process id
     ErrorStack idamerrorstack;
-    char OSName[STRING_LENGTH]; // Name of the Server's Operating System, e.g. OSX
-    char DOI[STRING_LENGTH];    // Server version/implementation DOI - to be logged with all data consumers
+    char OSName[StringLength]; // Name of the Server's Operating System, e.g. OSX
+    char DOI[StringLength];    // Server version/implementation DOI - to be logged with all data consumers
     SecurityBlock
     securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
@@ -405,34 +405,34 @@ struct Subset {
     int nbound;                                             // the Number of Subsetting Operations
     int reform;                                             // reduce Rank if any dimension has length 1
     int order;                                              // Time Dimension order
-    double bound[UDA_MAX_DATA_RANK];                        // Array of Floating point Bounding values
-    OptionalLong stride[UDA_MAX_DATA_RANK];                 // Array of Integer values: Striding values
-    OptionalLong ubindex[UDA_MAX_DATA_RANK];                // Array of Integer values: Bounding or Upper Index
-    OptionalLong lbindex[UDA_MAX_DATA_RANK];                // Array of Integer values: Lower Index
-    char operation[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING]; // Array of Subsetting Operations
-    int dimid[UDA_MAX_DATA_RANK];                           // Array of Dimension IDs to subset
-    bool isindex[UDA_MAX_DATA_RANK];                        // Flag the Operation Bound is an Integer Type
-    char data_signal[UDA_SXML_MAX_STRING];                  // Name of Signal to subset
-    char member[UDA_SXML_MAX_STRING];                       // Name of Structure Member to extract and to subset
-    char function[UDA_SXML_MAX_STRING];                     // Apply this named function to the subsetted data
+    double bound[MaxDataRank];                        // Array of Floating point Bounding values
+    OptionalLong stride[MaxDataRank];                 // Array of Integer values: Striding values
+    OptionalLong ubindex[MaxDataRank];                // Array of Integer values: Bounding or Upper Index
+    OptionalLong lbindex[MaxDataRank];                // Array of Integer values: Lower Index
+    char operation[MaxDataRank][SxmlMaxString]; // Array of Subsetting Operations
+    int dimid[MaxDataRank];                           // Array of Dimension IDs to subset
+    bool isindex[MaxDataRank];                        // Flag the Operation Bound is an Integer Type
+    char data_signal[SxmlMaxString];                  // Name of Signal to subset
+    char member[SxmlMaxString];                       // Name of Structure Member to extract and to subset
+    char function[SxmlMaxString];                     // Apply this named function to the subsetted data
 };
 
 struct RequestData {
     int request;                     // Plugin or Shutdown Server
     int exp_number;                  // Pulse No.,Tree No., etc
     int pass;                        // Pass, Sequence, etc
-    char tpass[STRING_LENGTH];       //
-    char path[STRING_LENGTH];        // Path to File, Path to Node
-    char file[STRING_LENGTH];        // File name, Tree name
-    char format[STRING_LENGTH];      // File Format
-    char signal[MAXMETA];            // Signal, Node etc
-    char archive[STRING_LENGTH];     // Archive: pr98, transp, etc
-    char device_name[STRING_LENGTH]; // Device name: Mast, Jet, etc
-    char server[STRING_LENGTH];      // UDA, MDS+ Server
-    char source[STRING_LENGTH];      // Data Source, Server Host, URL etc
-    char function[STRING_LENGTH];    // Server-Side function or attached plugin function
-    char api_delim[MAXNAME];         // Delimiter string to use decoding the signal and source arguments
-    char subset[STRING_LENGTH];      // Subset instructions
+    char tpass[StringLength];       //
+    char path[StringLength];        // Path to File, Path to Node
+    char file[StringLength];        // File name, Tree name
+    char format[StringLength];      // File Format
+    char signal[MaxMeta];            // Signal, Node etc
+    char archive[StringLength];     // Archive: pr98, transp, etc
+    char device_name[StringLength]; // Device name: Mast, Jet, etc
+    char server[StringLength];      // UDA, MDS+ Server
+    char source[StringLength];      // Data Source, Server Host, URL etc
+    char function[StringLength];    // Server-Side function or attached plugin function
+    char api_delim[MaxName];         // Delimiter string to use decoding the signal and source arguments
+    char subset[StringLength];      // Subset instructions
     Subset datasubset;               // Parsed subset instructions (Server Side)
     NameValueList nameValueList;     // Set of Name-Value pairs (Server Side Function)
 

@@ -17,11 +17,13 @@
 #include <cmath>
 #include <memory.h>
 
+#include "clientserver/udaDefines.h"
 #include "common/stringUtils.h"
 #include "logging/logging.h"
 #include <uda/types.h>
 
 using namespace uda::logging;
+using namespace uda::client_server;
 
 int uda::server::serverParseSignalXML(uda::client_server::DataSource data_source, uda::client_server::Signal signal,
                                       uda::client_server::SignalDesc signal_desc,
@@ -312,12 +314,12 @@ void uda::server::serverApplySignalXML(uda::client_server::ClientBlock client_bl
             continue; // Out of Pulse/Pass Range
         }
 
-        switch (actions.action[i].actionType) {
+        switch ((ActionType)actions.action[i].actionType) {
 
                 //----------------------------------------------------------------------------------------------
                 // Documentation Changes: Label/Units Corrections
 
-            case UDA_DOCUMENTATION_TYPE:
+            case ActionType::Documentation:
                 if (strlen(actions.action[i].documentation.label) > 0) {
                     strcpy(data_block->data_label, actions.action[i].documentation.label);
                 }
@@ -331,7 +333,7 @@ void uda::server::serverApplySignalXML(uda::client_server::ClientBlock client_bl
                 }
 
                 for (int j = 0; j < actions.action[i].documentation.ndimensions; j++) {
-                    if (actions.action[i].documentation.dimensions[j].dimType == UDA_DIM_DOCUMENTATION_TYPE) {
+                    if (actions.action[i].documentation.dimensions[j].dimType == (int)ActionDimType::Documentation) {
                         if (actions.action[i].documentation.dimensions[j].dimid > -1 &&
                             (unsigned int)actions.action[i].documentation.dimensions[j].dimid < data_block->rank) {
                             if (strlen(actions.action[i].documentation.dimensions[j].dimdocumentation.label) > 0) {
@@ -350,7 +352,7 @@ void uda::server::serverApplySignalXML(uda::client_server::ClientBlock client_bl
                 //----------------------------------------------------------------------------------------------
                 // Error Models (Asymmetry is decided by the model's properties, not by the XML)
 
-            case UDA_ERROR_MODEL_TYPE:
+            case ActionType::ErrorModel:
                 data_block->error_model = actions.action[i].errormodel.model;
                 data_block->error_param_n = actions.action[i].errormodel.param_n;
                 for (int j = 0; j < data_block->error_param_n; j++) {
@@ -358,7 +360,7 @@ void uda::server::serverApplySignalXML(uda::client_server::ClientBlock client_bl
                 }
 
                 for (int j = 0; j < actions.action[i].errormodel.ndimensions; j++) {
-                    if (actions.action[i].errormodel.dimensions[j].dimType == UDA_DIM_ERROR_MODEL_TYPE) {
+                    if (actions.action[i].errormodel.dimensions[j].dimType == (int)ActionDimType::ErrorModel) {
                         if (actions.action[i].errormodel.dimensions[j].dimid > -1 &&
                             (unsigned int)actions.action[i].errormodel.dimensions[j].dimid < data_block->rank) {
                             data_block->dims[actions.action[i].errormodel.dimensions[j].dimid].error_model =
@@ -385,7 +387,7 @@ void uda::server::serverApplySignalXML(uda::client_server::ClientBlock client_bl
                 // timeoffset.method == 2 => Create a New Time Vector using an interval value only. Use the Original
                 // Starting value if possible.
 
-            case UDA_TIME_OFFSET_TYPE:
+            case ActionType::Offset:
 
                 if (client_block.get_notoff || data_block->order < 0) {
                     break;
@@ -763,7 +765,7 @@ void uda::server::serverApplySignalXML(uda::client_server::ClientBlock client_bl
                 //----------------------------------------------------------------------------------------------
                 // Calibration Corrections
 
-            case UDA_CALIBRATION_TYPE:
+            case ActionType::Calibration:
 
                 if (!client_block.get_uncal) {
 
@@ -801,7 +803,7 @@ void uda::server::serverApplySignalXML(uda::client_server::ClientBlock client_bl
 
                         dimid = actions.action[i].calibration.dimensions[j].dimid;
 
-                        if (actions.action[i].calibration.dimensions[j].dimType == UDA_DIM_CALIBRATION_TYPE &&
+                        if (actions.action[i].calibration.dimensions[j].dimType == (int)ActionDimType::Calibration &&
                             actions.action[i].actionId != 0 && dimid > -1 && (unsigned int)dimid < data_block->rank) {
 
                             if (strlen(actions.action[i].calibration.dimensions[j].dimcalibration.units) > 0) {

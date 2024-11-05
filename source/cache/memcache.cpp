@@ -100,7 +100,7 @@ std::string generate_cache_key(const RequestData* request, Environment environme
                                unsigned int private_flags)
 {
     // Check Properties for permission and requested method
-    if (!(flags & CLIENTFLAG_CACHE)) {
+    if (!(flags & client_flags::Cache)) {
         return {};
     }
 

@@ -1293,7 +1293,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     //-------------------------------------------------------------------------
 
     char* signal;
-    char source[STRING_LENGTH];
+    char source[StringLength];
     int exp_number = 0;
 
     CLIENT_FLAGS* client_flags = udaClientFlags();

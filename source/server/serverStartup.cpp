@@ -34,8 +34,8 @@ int uda::server::startup()
     auto log_mode = config->get("logging.mode").as_or_default("w"s);
 
     if (log_level <= UDA_LOG_ACCESS) {
-        char cmd[STRING_LENGTH];
-        snprintf(cmd, STRING_LENGTH, "mkdir -p %s 2>/dev/null", log_dir.c_str());
+        char cmd[StringLength];
+        snprintf(cmd, StringLength, "mkdir -p %s 2>/dev/null", log_dir.c_str());
         if (system(cmd) != 0) {
             UDA_THROW_ERROR(999, "mkdir command failed");
         }

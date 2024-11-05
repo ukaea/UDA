@@ -12,7 +12,7 @@ namespace uda::client_server
 
 /*! The workstation (client host) name is obtained using the operating system command 'hostname'.
 
-@param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
+@param host The name of the client host workstation. The string is pre-allocated with length StringLength
 @returns A pointer to the host string (Identical to the argument).
 */
 char* host_id(char* host);

@@ -82,7 +82,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
     //--------------------------------------------------------------------------------------------------------------------------
     // Limit the Recursive Depth
 
-    if (*depth == UDA_XML_MAX_RECURSIVE) {
+    if (*depth == XmlMaxRecursive) {
         UDA_THROW_ERROR(7777, "Recursive Depth (Derived or Substitute Data) Exceeds Internal Limit");
     }
 
@@ -103,7 +103,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     return rc;
                 }
                 // Erase original Subset request
-                copy_string(trim_string(request_data->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request_data->signal), signal_desc->signal_name, MaxName);
             }
         }
     } else if (STR_IEQUALS(request_data->function, "subset")) {
@@ -117,7 +117,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
                     return rc;
                 }
                 // Erase original Subset request
-                copy_string(trim_string(request_data->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request_data->signal), signal_desc->signal_name, MaxName);
             }
         }
     }
@@ -142,7 +142,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
         UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Subset)   {}", *depth);
         Action action = {};
         init_action(&action);
-        action.actionType = UDA_SUBSET_TYPE;
+        action.actionType = (int)ActionType::Subset;
         action.subset = request_data->datasubset;
         if ((rc = serverSubsetData(data_block, action, logmalloclist)) != 0) {
             (*depth)--;
@@ -199,7 +199,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
         compId = -1;
         if (rc == 0) {
             for (int i = 0; i < actions_comp_desc.nactions; i++) {
-                if (actions_comp_desc.action[i].actionType == UDA_COMPOSITE_TYPE &&
+                if (actions_comp_desc.action[i].actionType == (int)ActionType::Composite &&
                     actions_comp_desc.action[i].inRange) {
                     compId = i;
                     break; // First Record found only!
@@ -483,7 +483,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
 
     if (isDerived && compId > -1) {
         for (int i = 0; i < actions_desc->action[compId].composite.ndimensions; i++) {
-            if (actions_desc->action[compId].composite.dimensions[i].dimType == UDA_DIM_COMPOSITE_TYPE) {
+            if (actions_desc->action[compId].composite.dimensions[i].dimType == (int)ActionDimType::Composite) {
                 if (strlen(actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_signal) > 0) {
 
                     UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Data");
@@ -719,7 +719,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
 
     if (!serverside && !isDerived && signal_desc->type == 'S') {
         for (int i = 0; i < actions_desc->nactions; i++) {
-            if (actions_desc->action[i].actionType == UDA_SUBSET_TYPE) {
+            if (actions_desc->action[i].actionType == (int)ActionType::Subset) {
                 UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Subset)   {}", *depth);
                 print_data_block(*data_block);
 
@@ -736,7 +736,7 @@ int uda::server::get_data(const Config& config, int* depth, RequestData* request
 
     if (serverside) {
         for (int i = 0; i < actions_serverside.nactions; i++) {
-            if (actions_serverside.action[i].actionType == UDA_SERVER_SIDE_TYPE) {
+            if (actions_serverside.action[i].actionType == (int)ActionType::ServerSide) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
                     UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Serverside)   {}", *depth);
                     print_data_block(*data_block);
@@ -970,7 +970,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // If err > 0 then an error occured
     // If err < 0 then unable to read signal because it is a derived type and details are in XML format
 
-    char mapping[MAXMETA] = "";
+    char mapping[MaxMeta] = "";
 
     print_request_data(*request);
 
@@ -1008,7 +1008,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // the same Rank, then allow normal Generic lookup.
     //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
-    if (client_block.clientFlags & CLIENTFLAG_ALTDATA && request->request != (int)Request::ReadXML &&
+    if (client_block.clientFlags & client_flags::AltData && request->request != (int)Request::ReadXML &&
         STR_STARTSWITH(request->signal, "<?xml")) {
 
         if (request->request != (int)Request::ReadGeneric) {
@@ -1047,7 +1047,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
         // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have
         // been specified
 
-        copy_string(plugin_list[plugin_id].default_method, request->function, STRING_LENGTH);
+        copy_string(plugin_list[plugin_id].default_method, request->function, StringLength);
 
         // Execute the plugin to resolve the identity of the data requested
 
@@ -1101,7 +1101,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
                 UDA_THROW_ERROR(122, "Unable to Open the XML File defining the signal");
             }
             nchar = 0;
-            while (!feof(xmlfile) && nchar < MAXMETA) {
+            while (!feof(xmlfile) && nchar < MaxMeta) {
                 request->signal[nchar++] = (char)getc(xmlfile);
             }
             request->signal[nchar - 2] = '\0'; // Remove EOF Character and replace with String Terminator
@@ -1264,7 +1264,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
 
         if (path.string().find(data_source->filename) == std::string::npos) {
             path /= data_source->filename;
-            copy_string(path.c_str(), data_source->path, MAXPATH);
+            copy_string(path.c_str(), data_source->path, MaxPath);
         }
     }
 

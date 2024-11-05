@@ -8,39 +8,39 @@ namespace uda::client_server
 
 struct Map {
     int nmap;                                             // the Number of Mapping Operations
-    double value[UDA_MAX_DATA_RANK];                      // Array of values to Map to
-    char mapping[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING]; // Array of Mapping Operations
-    int dimid[UDA_MAX_DATA_RANK];                         // Array of Dimension IDs to Map to
-    char data_signal[UDA_SXML_MAX_STRING];                // Name of Signal
+    double value[MaxDataRank];                      // Array of values to Map to
+    char mapping[MaxDataRank][SxmlMaxString]; // Array of Mapping Operations
+    int dimid[MaxDataRank];                         // Array of Dimension IDs to Map to
+    char data_signal[SxmlMaxString];                // Name of Signal
 };
 
 struct DimCalibration {
     double factor;
     double offset;
     int invert;
-    char units[UDA_SXML_MAX_STRING];
+    char units[SxmlMaxString];
 };
 
 struct DimComposite {
     int to_dim;   // duplicated as dimid     // Swap to Dimension ID
     int from_dim; // Swap from Dimension ID
-    char file[UDA_SXML_MAX_STRING];
-    char format[UDA_SXML_MAX_STRING];
-    char dim_signal[UDA_SXML_MAX_STRING];  // Dimension Source Signal Name
-    char dim_error[UDA_SXML_MAX_STRING];   // Dimension Error Source Signal Name
-    char dim_aserror[UDA_SXML_MAX_STRING]; // Dimension Asymmetric Error Source Signal Name
+    char file[SxmlMaxString];
+    char format[SxmlMaxString];
+    char dim_signal[SxmlMaxString];  // Dimension Source Signal Name
+    char dim_error[SxmlMaxString];   // Dimension Error Source Signal Name
+    char dim_aserror[SxmlMaxString]; // Dimension Asymmetric Error Source Signal Name
 };
 
 struct DimDocumentation {
-    char label[UDA_SXML_MAX_STRING];
-    char units[UDA_SXML_MAX_STRING];
+    char label[SxmlMaxString];
+    char units[SxmlMaxString];
 };
 
 struct DimErrorModel {
     int model;   // Error Model Id
     int param_n; // The number of parameters
     // float *params;                            // Parameter Array
-    float params[MAXERRPARAMS];
+    float params[MaxErrParams];
 };
 
 struct Dimension {
@@ -64,27 +64,27 @@ struct Calibration {
     double factor;
     double offset;
     int invert;
-    char units[UDA_SXML_MAX_STRING];
-    char target[UDA_SXML_MAX_STRING];
+    char units[SxmlMaxString];
+    char target[SxmlMaxString];
     int ndimensions;
     Dimension* dimensions;
 };
 
 struct Documentation {
-    char label[UDA_SXML_MAX_STRING];
-    char units[UDA_SXML_MAX_STRING];
-    char description[UDA_XML_MAX_DESC];
+    char label[SxmlMaxString];
+    char units[SxmlMaxString];
+    char description[XmlMaxDesc];
     int ndimensions;
     Dimension* dimensions;
 };
 
 struct Composite {
-    char file[UDA_SXML_MAX_STRING];   // Complete file name
-    char format[UDA_SXML_MAX_STRING]; // File Format
-    char data_signal[UDA_SXML_MAX_STRING];
-    char error_signal[UDA_SXML_MAX_STRING];
-    char aserror_signal[UDA_SXML_MAX_STRING]; // Asymmetric Error Source Signal Name
-    char map_to_signal[UDA_SXML_MAX_STRING]; // straight replacement of signals (useful only if pass range is necessary)
+    char file[SxmlMaxString];   // Complete file name
+    char format[SxmlMaxString]; // File Format
+    char data_signal[SxmlMaxString];
+    char error_signal[SxmlMaxString];
+    char aserror_signal[SxmlMaxString]; // Asymmetric Error Source Signal Name
+    char map_to_signal[SxmlMaxString]; // straight replacement of signals (useful only if pass range is necessary)
     int order;                               // Identify the Time Dimension
     int ndimensions;
     int nsubsets;
@@ -98,7 +98,7 @@ struct ErrorModel {
     int model;   // Error Model Id
     int param_n; // The number of parameters
     // float *params;                            // Parameter Array
-    float params[MAXERRPARAMS];
+    float params[MaxErrParams];
     int ndimensions;
     Dimension* dimensions;
 };

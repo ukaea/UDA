@@ -65,14 +65,14 @@ using namespace uda::logging;
 /**
  * The workstation (client host) name is obtained using the operating system command 'hostname'.
  *
- * @param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
+ * @param host The name of the client host workstation. The string is pre-allocated with length StringLength
  * @return A pointer to the host string (Identical to the argument).
  */
 char* uda::client_server::host_id(char* host)
 {
 
 #  ifdef _WIN32
-    DWORD size = STRING_LENGTH - 1;
+    DWORD size = StringLength - 1;
     GetComputerName(host, &size);
     return host;
 #  else
@@ -80,19 +80,19 @@ char* uda::client_server::host_id(char* host)
     host[0] = '\0';
 
 #    ifndef USEHOSTDOMAINNAME
-    if ((gethostname(host, STRING_LENGTH - 1)) != 0) {
+    if ((gethostname(host, StringLength - 1)) != 0) {
         char* env = getenv("HOSTNAME");
         if (env != nullptr) {
-            copy_string(env, host, STRING_LENGTH);
+            copy_string(env, host, StringLength);
         }
     }
 #    else
-    if ((gethostname(host, STRING_LENGTH - 1)) == 0) {
-        char domain[STRING_LENGTH];
-        if ((getdomainname(domain, STRING_LENGTH - 1)) == 0) {
+    if ((gethostname(host, StringLength - 1)) == 0) {
+        char domain[StringLength];
+        if ((getdomainname(domain, StringLength - 1)) == 0) {
             int l1 = (int)strlen(host);
             int l2 = (int)strlen(domain);
-            if (l1 + l2 + 1 < STRING_LENGTH - 1) {
+            if (l1 + l2 + 1 < StringLength - 1) {
                 strcat(host, ".");
                 strcat(host, domain);
             }
@@ -100,7 +100,7 @@ char* uda::client_server::host_id(char* host)
     } else {
         char* env = getenv("HOSTNAME");
         if (env != nullptr) {
-            copy_string(env, host, STRING_LENGTH);
+            copy_string(env, host, StringLength);
         }
     }
 #    endif
@@ -199,8 +199,8 @@ int uda::client_server::path_replacement(const uda::config::Config& config, char
                 std::vector<std::string> path_tokens;
                 std::vector<std::string> sub_tokens;
 
-                boost::split(target_tokens, targets[i], boost::is_any_of(PATH_SEPARATOR), boost::token_compress_on);
-                boost::split(path_tokens, path, boost::is_any_of(PATH_SEPARATOR), boost::token_compress_on);
+                boost::split(target_tokens, targets[i], boost::is_any_of(PathSeparator), boost::token_compress_on);
+                boost::split(path_tokens, path, boost::is_any_of(PathSeparator), boost::token_compress_on);
 
                 if (path_tokens.size() < target_tokens.size()) {
                     // Impossible substitution, so ignore this target
@@ -209,7 +209,7 @@ int uda::client_server::path_replacement(const uda::config::Config& config, char
 
                 if (substitutes[i] == "*") {
                     // Wildcard found
-                    boost::split(sub_tokens, substitutes[i], boost::is_any_of(PATH_SEPARATOR),
+                    boost::split(sub_tokens, substitutes[i], boost::is_any_of(PathSeparator),
                                  boost::token_compress_on);
 
                     auto is_wild = [](const std::string& token) { return token[0] == '0'; };
@@ -241,7 +241,7 @@ int uda::client_server::path_replacement(const uda::config::Config& config, char
                         size_t kstart = 0;
                         path[0] = '\0';
                         for (size_t j = 0; j < substitutes.size(); j++) {
-                            strcat(path, PATH_SEPARATOR);
+                            strcat(path, PathSeparator);
                             if (substitutes[j][0] == '*') {
                                 // Substitute actual path element
                                 for (size_t k = kstart; k < target_tokens.size(); k++) {
@@ -327,9 +327,9 @@ int uda::client_server::link_replacement(char* path)
         return err;
     }
 
-    char buffer[STRING_LENGTH];
+    char buffer[StringLength];
     if (!feof(ph)) {
-        if (fgets(buffer, STRING_LENGTH - 1, ph) == nullptr) {
+        if (fgets(buffer, StringLength - 1, ph) == nullptr) {
             UDA_THROW_ERROR(999, "failed to read line from command");
         }
     }
@@ -394,21 +394,21 @@ int uda::client_server::expand_file_path(const uda::config::Config& config, char
     //----------------------------------------------------------------------------------------------
 
     char *fp = nullptr, *fp1 = nullptr, *env = nullptr;
-    char file[STRING_LENGTH];
+    char file[StringLength];
 #    ifndef NOHOSTPREFIX
-    char host[STRING_LENGTH];
+    char host[StringLength];
 #    endif
-    char cwd[STRING_LENGTH];
-    char ocwd[STRING_LENGTH];  // Current Working Directory
-    char opath[STRING_LENGTH]; // Original Path string
-    char work[STRING_LENGTH];
-    char work1[STRING_LENGTH];
-    char scratch[STRING_LENGTH];
-    char netname[STRING_LENGTH];
+    char cwd[StringLength];
+    char ocwd[StringLength];  // Current Working Directory
+    char opath[StringLength]; // Original Path string
+    char work[StringLength];
+    char work1[StringLength];
+    char scratch[StringLength];
+    char netname[StringLength];
     char* pcwd = cwd;
     char* token = nullptr;
 
-    int lcwd = STRING_LENGTH - 1;
+    int lcwd = StringLength - 1;
     int lpath, err = 0;
     size_t lscratch;
     int t1, t2, t3, t4, t5, t6;
@@ -459,7 +459,7 @@ int uda::client_server::expand_file_path(const uda::config::Config& config, char
     // Override compiler options
 
     if ((env = getenv("UDA_SCRATCHNAME")) != nullptr) { // Check for Environment Variable
-        snprintf(scratch, STRING_LENGTH, "/%s/", env);
+        snprintf(scratch, StringLength, "/%s/", env);
         lscratch = (int)strlen(scratch);
     }
 
@@ -558,7 +558,7 @@ int uda::client_server::expand_file_path(const uda::config::Config& config, char
 
         if ((fp = strrchr(path, '/')) == nullptr) { // Search backwards - extract filename
             strcpy(work1, path);
-            snprintf(path, STRING_LENGTH, "%s/%s", cwd, work1); // prepend the CWD and return
+            snprintf(path, StringLength, "%s/%s", cwd, work1); // prepend the CWD and return
             if ((err = link_replacement(path)) != 0) {
                 return err;
             }
@@ -679,7 +679,7 @@ int uda::client_server::expand_file_path(const uda::config::Config& config, char
 
         //! Prepend the expanded/resolved directory name to the File Name
 
-        snprintf(path, STRING_LENGTH, "%s/%s", work1, file); // Prepend the path to the filename
+        snprintf(path, StringLength, "%s/%s", work1, file); // Prepend the path to the filename
 
     } // End of t1 - t5 tests
 
@@ -715,14 +715,14 @@ int uda::client_server::expand_file_path(const uda::config::Config& config, char
 
             // TODO: refactor this function so that we do not have to guess the path size
             if (strlen(netname) > 0 && strlen(host) > 0) {
-                snprintf(path, STRING_LENGTH, "/%s/%s%s", netname, host,
+                snprintf(path, StringLength, "/%s/%s%s", netname, host,
                          work); // prepend /netname/hostname to /scratch/...
             } else {
                 if (strlen(netname) > 0) {
-                    snprintf(path, STRING_LENGTH, "/%s%s", netname, work);
+                    snprintf(path, StringLength, "/%s%s", netname, work);
                 } else {
                     if (strlen(host) > 0) {
-                        snprintf(path, STRING_LENGTH, "/%s%s", host, work);
+                        snprintf(path, StringLength, "/%s%s", host, work);
                     }
                 }
             }
@@ -757,8 +757,8 @@ char* uda::client_server::path_id(char* path)
 #  else
 
     char* p;
-    char work[STRING_LENGTH]; // Are these consistent with the system MAX_PATH?
-    char pwd[STRING_LENGTH];
+    char work[StringLength]; // Are these consistent with the system MAX_PATH?
+    char pwd[StringLength];
     strcpy(work, path);
 
     // the path string may contain malign embedded linux commands: is chdir secure?
@@ -770,10 +770,10 @@ char* uda::client_server::path_id(char* path)
         return path;
     }
 
-    if (getcwd(pwd, STRING_LENGTH - 1) != nullptr) {
+    if (getcwd(pwd, StringLength - 1) != nullptr) {
         errno = 0;
         if (chdir(path) == 0) {
-            if ((p = getcwd(pwd, STRING_LENGTH - 1)) != nullptr) {
+            if ((p = getcwd(pwd, StringLength - 1)) != nullptr) {
                 strcpy(path, p);
                 if (chdir(pwd) != 0) {
                     add_error(ErrorType::System, __func__, errno, "");

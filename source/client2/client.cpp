@@ -31,11 +31,11 @@ namespace
 void copy_data_block(DataBlock* str, DataBlock* in)
 {
     *str = *in;
-    memcpy(str->errparams, in->errparams, MAXERRPARAMS);
-    memcpy(str->data_units, in->data_units, STRING_LENGTH);
-    memcpy(str->data_label, in->data_label, STRING_LENGTH);
-    memcpy(str->data_desc, in->data_desc, STRING_LENGTH);
-    memcpy(str->error_msg, in->error_msg, STRING_LENGTH);
+    memcpy(str->errparams, in->errparams, MaxErrParams);
+    memcpy(str->data_units, in->data_units, StringLength);
+    memcpy(str->data_label, in->data_label, StringLength);
+    memcpy(str->data_desc, in->data_desc, StringLength);
+    memcpy(str->error_msg, in->error_msg, StringLength);
     init_client_block(&str->client_block, 0, "");
 }
 
@@ -122,7 +122,7 @@ uda::client::Client::Client() : _connection{_config}, _protocol_version{ClientVe
 
     _client_flags = {};
     _client_flags.alt_rank = 0;
-    _client_flags.user_timeout = TIMEOUT;
+    _client_flags.user_timeout = TimeOut;
 
     const char* timeout = getenv("UDA_TIMEOUT");
     if (timeout != nullptr) {
@@ -158,7 +158,7 @@ uda::client::Client::Client() : _connection{_config}, _protocol_version{ClientVe
 
     _cache = uda::cache::open_cache();
 
-    char username[STRING_LENGTH];
+    char username[StringLength];
     user_id(username);
     _client_username = username;
 
@@ -321,7 +321,7 @@ int get_data_status(DataBlock* data_block)
     if (data_block == nullptr) {
         return 0;
     }
-    if (get_signal_status(data_block) == DEFAULT_STATUS) {
+    if (get_signal_status(data_block) == DefaultStatus) {
         // Signal Status Not Changed from Default - use Data Source Value
         return data_block->source_status;
     } else {
@@ -488,12 +488,12 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 
         //------------------------------------------------------------------------------
         // Cache the data if the server has passed permission and the application (client) has enabled caching
-        if (_client_flags.flags & CLIENTFLAG_FILECACHE) {
+        if (_client_flags.flags & client_flags::FileCache) {
             udaFileCacheWrite(data_block, &request_block, _logmalloclist, _userdefinedtypelist, _protocol_version,
                               &_log_struct_list, _private_flags, _malloc_source);
         }
 
-        if (_cache != nullptr && _client_flags.flags & CLIENTFLAG_CACHE) {
+        if (_cache != nullptr && _client_flags.flags & client_flags::Cache) {
             cache_write(_config, _cache, &request_block.requests[i], data_block, _logmalloclist, _userdefinedtypelist,
                         _protocol_version, _client_flags.flags, &_log_struct_list, _private_flags,
                         _malloc_source);
@@ -944,7 +944,7 @@ void uda::client::Client::set_property(const char* property)
                 set_log_level(UDA_LOG_DEBUG);
             }
             if (STR_IEQUALS(property, "altData")) {
-                _client_flags.flags = _client_flags.flags | CLIENTFLAG_ALTDATA;
+                _client_flags.flags = _client_flags.flags | client_flags::AltData;
             }
             if (!strncasecmp(property, "altRank", 7)) {
                 copy_string(property, name, 56);
@@ -961,13 +961,13 @@ void uda::client::Client::set_property(const char* property)
             }
         }
         if (STR_IEQUALS(property, "reuseLastHandle")) {
-            _client_flags.flags = _client_flags.flags | CLIENTFLAG_REUSELASTHANDLE;
+            _client_flags.flags = _client_flags.flags | client_flags::ReuseLastHandle;
         }
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
-            _client_flags.flags = _client_flags.flags | CLIENTFLAG_FREEREUSELASTHANDLE;
+            _client_flags.flags = _client_flags.flags | client_flags::FreeReuseLastHandle;
         }
         if (STR_IEQUALS(property, "fileCache")) {
-            _client_flags.flags = _client_flags.flags | CLIENTFLAG_FILECACHE;
+            _client_flags.flags = _client_flags.flags | client_flags::FileCache;
         }
     }
 }
@@ -1021,10 +1021,10 @@ int uda::client::Client::get_property(const char* property)
             return _alt_rank;
         }
         if (STR_IEQUALS(property, "reuseLastHandle")) {
-            return (int)(_client_flags.flags & CLIENTFLAG_REUSELASTHANDLE);
+            return (int)(_client_flags.flags & client_flags::ReuseLastHandle);
         }
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
-            return (int)(_client_flags.flags & CLIENTFLAG_FREEREUSELASTHANDLE);
+            return (int)(_client_flags.flags & client_flags::FreeReuseLastHandle);
         }
         if (STR_IEQUALS(property, "verbose")) {
             return get_log_level() == UDA_LOG_INFO;
@@ -1033,10 +1033,10 @@ int uda::client::Client::get_property(const char* property)
             return get_log_level() == UDA_LOG_DEBUG;
         }
         if (STR_IEQUALS(property, "altData")) {
-            return (int)(_client_flags.flags & CLIENTFLAG_ALTDATA);
+            return (int)(_client_flags.flags & client_flags::AltData);
         }
         if (STR_IEQUALS(property, "fileCache")) {
-            return (int)(_client_flags.flags & CLIENTFLAG_FILECACHE);
+            return (int)(_client_flags.flags & client_flags::FileCache);
         }
     }
     return 0;
@@ -1091,19 +1091,19 @@ void uda::client::Client::reset_property(const char* property)
             set_log_level(UDA_LOG_NONE);
         }
         if (STR_IEQUALS(property, "altData")) {
-            _client_flags.flags &= !CLIENTFLAG_ALTDATA;
+            _client_flags.flags &= !client_flags::AltData;
         }
         if (STR_IEQUALS(property, "altRank")) {
             _client_flags.alt_rank = 0;
         }
         if (STR_IEQUALS(property, "reuseLastHandle")) {
-            _client_flags.flags &= !CLIENTFLAG_REUSELASTHANDLE;
+            _client_flags.flags &= !client_flags::ReuseLastHandle;
         }
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
-            _client_flags.flags &= !CLIENTFLAG_FREEREUSELASTHANDLE;
+            _client_flags.flags &= !client_flags::FreeReuseLastHandle;
         }
         if (STR_IEQUALS(property, "fileCache")) {
-            _client_flags.flags &= !CLIENTFLAG_FILECACHE;
+            _client_flags.flags &= !client_flags::FileCache;
         }
     }
 }
@@ -1125,7 +1125,7 @@ void uda::client::Client::reset_properties()
     _client_flags.get_bytes = 0;
     _client_flags.get_nodimdata = 0;
     set_log_level(UDA_LOG_NONE);
-    _client_flags.user_timeout = TIMEOUT;
+    _client_flags.user_timeout = TimeOut;
     if (getenv("UDA_TIMEOUT")) {
         _client_flags.user_timeout = atoi(getenv("UDA_TIMEOUT"));
     }

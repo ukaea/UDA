@@ -55,7 +55,7 @@ void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timev
 {
     FD_ZERO(rfds);
     FD_SET(fd, rfds);
-    if (server_tot_block_time < MAXBLOCK) {
+    if (server_tot_block_time < MaxBlock) {
         // (ms) For the First blocking period have rapid response (clientserver/udaDefines.h == 1000)
         tv->tv_sec = 0;
         tv->tv_usec = MIN_BLOCK_TIME; // minimum wait (1ms)
