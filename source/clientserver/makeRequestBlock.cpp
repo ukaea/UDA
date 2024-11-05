@@ -35,9 +35,6 @@
 #  define chdir _chdir
 #endif
 
-#define MAXMAPDEPTH 10 // Maximum number of chained signal name mappings (Recursive depth)
-#define MAXREQDEPTH 4  // Maximum number of Device Name to Server Protocol and Host substitution
-
 using namespace uda::client_server;
 using namespace uda::logging;
 

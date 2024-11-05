@@ -80,9 +80,6 @@ inline std::string format_as(ProtocolId protocol)
 
 }
 
-#define MIN_BLOCK_TIME 1000
-#define MAX_BLOCK_TIME 10000
-
 //---------------------------------------------------------------------------------------------------
 // Client Server XDR data Streams (DON'T CHANGE ORDER or Legacy client won't work!)
 

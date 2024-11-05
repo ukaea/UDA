@@ -80,10 +80,6 @@
 #include <fmt/format.h>
 #include <openssl/sha.h>
 
-#define PARTBLOCKINIT 1
-#define PARTBLOCKUPDATE 2
-#define PARTBLOCKOUTPUT 3
-
 using namespace uda::client_server;
 using namespace uda::structures;
 using namespace uda::logging;
@@ -95,7 +91,7 @@ void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md);
 int sha1File(char* name, FILE* fh, unsigned char* md);
 }
 
-#define MAX_ELEMENT_SHA1 20
+constexpr int MaxElementSha1 = 20;
 
 int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                                       LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
@@ -118,11 +114,11 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStre
     std::string temp_file = "/tmp/idamXDRXXXXXX";
     char* env = nullptr;
 
-    unsigned char md[MAX_ELEMENT_SHA1 + 1]; // SHA1 Hash
-    md[MAX_ELEMENT_SHA1] = '\0';
+    unsigned char md[MaxElementSha1 + 1]; // SHA1 Hash
+    md[MaxElementSha1] = '\0';
     strcpy((char*)md, "12345678901234567890");
-    int hashSize = MAX_ELEMENT_SHA1;
-    unsigned char mdr[MAX_ELEMENT_SHA1]; // SHA1 Hash of data received
+    int hashSize = MaxElementSha1;
+    unsigned char mdr[MaxElementSha1]; // SHA1 Hash of data received
 
     if ((private_flags & private_flags::XdrFile) && protocolVersion >= 5) { // Intermediate XDR File, not stream
         if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
@@ -594,7 +590,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStre
                         // Check the hash
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (int i = 0; i < MAX_ELEMENT_SHA1; i++) {
+                        for (int i = 0; i < MaxElementSha1; i++) {
                             rc = rc && (md[i] == mdr[i]);
                         }
                         if (!rc) {
@@ -678,7 +674,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStre
                             // Check the hash
                             sha1Block(object, objectSize, mdr);
                             rc = 1;
-                            for (int i = 0; i < MAX_ELEMENT_SHA1; i++) {
+                            for (int i = 0; i < MaxElementSha1; i++) {
                                 rc = rc && (md[i] == mdr[i]);
                             }
                             if (!rc) {
@@ -831,7 +827,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStre
                         // Check the hash
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (int i = 0; i < MAX_ELEMENT_SHA1; i++) {
+                        for (int i = 0; i < MaxElementSha1; i++) {
                             rc = rc && (md[i] == mdr[i]);
                         }
                         if (!rc) {
@@ -858,7 +854,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStre
                         // Check the hash
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (int i = 0; i < MAX_ELEMENT_SHA1; i++) {
+                        for (int i = 0; i < MaxElementSha1; i++) {
                             rc = rc && (md[i] == mdr[i]);
                         }
                         if (!rc) {

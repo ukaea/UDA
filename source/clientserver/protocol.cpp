@@ -42,12 +42,19 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 
+namespace {
+
+constexpr int MinBlockTime = 1000;
+constexpr int MaxBlockTime = 10000;
+
+} // anon namespace
+
 void uda::client_server::set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
 {
     FD_ZERO(rfds);    // Initialise the File Descriptor set
     FD_SET(fd, rfds); // Identify the Socket in the FD set
     tv->tv_sec = 0;
-    tv->tv_usec = MIN_BLOCK_TIME; // minimum wait microsecs (1ms)
+    tv->tv_usec = MinBlockTime; // minimum wait microsecs (1ms)
     *server_tot_block_time = 0;
 }
 
@@ -58,10 +65,10 @@ void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timev
     if (server_tot_block_time < MaxBlock) {
         // (ms) For the First blocking period have rapid response (clientserver/udaDefines.h == 1000)
         tv->tv_sec = 0;
-        tv->tv_usec = MIN_BLOCK_TIME; // minimum wait (1ms)
+        tv->tv_usec = MinBlockTime; // minimum wait (1ms)
     } else {
         tv->tv_sec = 0;
-        tv->tv_usec = MAX_BLOCK_TIME; // maximum wait (10ms)
+        tv->tv_usec = MaxBlockTime; // maximum wait (10ms)
     }
 }
 
