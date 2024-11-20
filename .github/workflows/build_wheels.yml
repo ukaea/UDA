@@ -36,12 +36,12 @@ jobs:
           - [windows-latest, AMD64, win_amd64]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         # need git tags available for setuptools_scm to grab tags
         with:
           fetch-depth: 0
 
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v7
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
@@ -107,7 +107,7 @@ jobs:
          
       - name: build windows wheels
         if: runner.OS == 'Windows'
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@v2.21.3
         with:
           package-dir: ${{github.workspace}}/install/python_installer
           config-file: ${{github.workspace}}/install/python_installer/pyproject.toml
@@ -125,7 +125,7 @@ jobs:
           startswith(matrix.build-platform[2], 'manylinux2014') && 
           github.event_name == 'push' && 
           startsWith(github.ref, 'refs/tags/')
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@v2.21.3
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -176,7 +176,7 @@ jobs:
           startswith(matrix.build-platform[2], 'manylinux_2_28') && 
           ! ( startswith(matrix.build-platform[1], 'aarch64') && 
           !startsWith(github.ref, 'refs/tags/') )
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@v2.21.3
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -226,7 +226,7 @@ jobs:
 
       - name: Build macos wheels
         if: runner.os == 'macOS'
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@v2.21.3
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
