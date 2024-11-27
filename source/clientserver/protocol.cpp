@@ -49,6 +49,41 @@ constexpr int MaxBlockTime = 10000;
 
 } // anon namespace
 
+std::string uda::client_server::format_as(ProtocolId protocol)
+{
+    switch (protocol) {
+        case ProtocolId::Start: return "ProtocolId::Start";
+        case ProtocolId::RequestBlock: return "ProtocolId::RequestBlock";
+        case ProtocolId::DataBlockList: return "ProtocolId::DataBlockList";
+        case ProtocolId::NextProtocol: return "ProtocolId::NextProtocol";
+        case ProtocolId::DataSystem: return "ProtocolId::DataSystem";
+        case ProtocolId::SystemConfig: return "ProtocolId::SystemConfig";
+        case ProtocolId::DataSource: return "ProtocolId::DataSource";
+        case ProtocolId::Signal: return "ProtocolId::Signal";
+        case ProtocolId::SignalDesc: return "ProtocolId::SignalDesc";
+        case ProtocolId::Spare1: return "ProtocolId::Spare1";
+        case ProtocolId::ClientBlock: return "ProtocolId::ClientBlock";
+        case ProtocolId::ServerBlock: return "ProtocolId::ServerBlock";
+        case ProtocolId::Spare2: return "ProtocolId::Spare2";
+        case ProtocolId::CloseDown: return "ProtocolId::CloseDown";
+        case ProtocolId::Sleep: return "ProtocolId::Sleep";
+        case ProtocolId::WakeUp: return "ProtocolId::WakeUp";
+        case ProtocolId::PutdataBlockList: return "ProtocolId::PutdataBlockList";
+        case ProtocolId::SecurityBlock: return "ProtocolId::SecurityBlock";
+        case ProtocolId::Object: return "ProtocolId::Object";
+        case ProtocolId::SerialiseObject: return "ProtocolId::SerialiseObject";
+        case ProtocolId::SerialiseFile: return "ProtocolId::SerialiseFile";
+        case ProtocolId::DataObject: return "ProtocolId::DataObject";
+        case ProtocolId::DataObjectFile: return "ProtocolId::DataObjectFile";
+        case ProtocolId::RegularStop: return "ProtocolId::RegularStop";
+        case ProtocolId::OpaqueStart: return "ProtocolId::OpaqueStart";
+        case ProtocolId::Structures: return "ProtocolId::Structures";
+        case ProtocolId::Meta: return "ProtocolId::Meta";
+        case ProtocolId::OpaqueStop: return "ProtocolId::OpaqueStop";
+    }
+    return "";
+}
+
 void uda::client_server::set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
 {
     FD_ZERO(rfds);    // Initialise the File Descriptor set

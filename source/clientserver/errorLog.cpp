@@ -32,6 +32,21 @@ const char* udaGetErrorLocation(int err_num)
     return "no error found";
 }
 
+std::string uda::client_server::format_as(ErrorType error_type)
+{
+    switch (error_type) {
+        case ErrorType::None:
+            return "ErrorType::None";
+        case ErrorType::System:
+            return "ErrorType::System";
+        case ErrorType::Code:
+            return "ErrorType::Code";
+        case ErrorType::Plugin:
+            return "ErrorType::Plugin";
+    }
+    return "";
+}
+
 void uda::client_server::error_log(ClientBlock client_block, RequestBlock request_block, ErrorStack* error_stack)
 {
     UdaError* errors = nullptr;
@@ -76,7 +91,7 @@ void uda::client_server::error_log(ClientBlock client_block, RequestBlock reques
 
     for (unsigned int i = 0; i < nerrors; i++) {
         log(UDA_LOG_ERROR, __FILE__, __LINE__,
-            "1 {} [{}] {} {} [{}] [{}]", client_block.uid, access_date, errors[i].type,
+            "1 {} [{}] {} {} [{}] [{}]", client_block.uid, access_date, format_as(errors[i].type),
             errors[i].code, errors[i].location, errors[i].msg);
     }
 }
@@ -106,7 +121,7 @@ void uda::client_server::print_error_stack()
     }
     int i = 1;
     for (const auto& error : uda_error_stack) {
-        UDA_LOG(UDA_LOG_DEBUG, "{} {} {} {} {}", i, error.type, error.code, error.location, error.msg);
+        UDA_LOG(UDA_LOG_DEBUG, "{} {} {} {} {}", i, format_as(error.type), error.code, error.location, error.msg);
         ++i;
     }
 }

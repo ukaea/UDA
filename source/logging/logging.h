@@ -7,6 +7,26 @@
 
 #define UDA_LOG(LEVEL, FMT, ...) uda::logging::log(LEVEL, __FILE__, __LINE__, FMT, ##__VA_ARGS__);
 
+//template<typename T, typename = std::enable_if<std::is_enum<T>::value, bool>>
+//inline auto format_as(T t) -> typename std::underlying_type<T>::type {
+//    return static_cast<typename std::underlying_type<T>::type>(t);
+//}
+
+namespace uda::client_server {
+enum class ProtocolId;
+}
+
+template<>
+struct fmt::formatter<uda::client_server::ProtocolId> : fmt::formatter<std::underlying_type_t<uda::client_server::ProtocolId>>
+{
+    // Forwards the formatting by casting the enum to it's underlying type
+    auto format(const uda::client_server::ProtocolId& enumValue, format_context& ctx) const
+    {
+        return fmt::formatter<std::underlying_type_t<uda::client_server::ProtocolId>>::format(
+                static_cast<std::underlying_type_t<uda::client_server::ProtocolId>>(enumValue), ctx);
+    }
+};
+
 namespace uda::logging
 {
 

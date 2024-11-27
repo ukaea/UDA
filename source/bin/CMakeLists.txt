@@ -6,7 +6,7 @@ if ( UDA_CLI_BOOST_STATIC )
     set( Boost_USE_STATIC_LIBS ON )
 endif()
 
-find_package( Boost COMPONENTS program_options REQUIRED )
+find_package( Boost COMPONENTS program_options regex REQUIRED )
 
 target_include_directories( uda_cli PRIVATE
   ${CMAKE_SOURCE_DIR}/source
@@ -17,6 +17,7 @@ target_include_directories( uda_cli PRIVATE
 
 target_link_libraries( uda_cli PRIVATE client-static uda_cpp-static )
 target_link_libraries( uda_cli PRIVATE Boost::program_options )
+target_link_libraries( uda_cli PRIVATE Boost::regex )
 
 if( ENABLE_CAPNP )
   find_package( CapnProto REQUIRED )

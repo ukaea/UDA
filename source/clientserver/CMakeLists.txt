@@ -5,7 +5,7 @@ find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 find_package( Boost REQUIRED COMPONENTS regex )
 
-set( LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt Boost::regex )
+set( LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt Boost::boost )
 
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )

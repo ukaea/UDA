@@ -11,19 +11,7 @@ enum class ErrorType : int {
     Plugin = 3,
 };
 
-inline std::string format_as(ErrorType error_type)
-{
-    switch (error_type) {
-        case ErrorType::None:
-            return "ErrorType::None";
-        case ErrorType::System:
-            return "ErrorType::System";
-        case ErrorType::Code:
-            return "ErrorType::Code";
-        case ErrorType::Plugin:
-            return "ErrorType::Plugin";
-    }
-}
+std::string format_as(ErrorType error_type);
 
 void error_log(ClientBlock client_block, RequestBlock request_block, ErrorStack* error_stack);
 

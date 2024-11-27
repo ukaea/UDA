@@ -4,8 +4,9 @@
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 find_package( LibXml2 REQUIRED )
+find_package( Boost REQUIRED COMPONENTS regex )
 
-set( LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt LibXml2::LibXml2 common-objects )
+set( LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt LibXml2::LibXml2 common-objects Boost::regex )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
