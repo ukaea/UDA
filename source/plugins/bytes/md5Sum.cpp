@@ -34,7 +34,7 @@ void md5Sum(char *bp, int size, char *md5check) {
 
     md5check[2*MD5_SIZE]='\0';
 
-    for(i=0; i<MD5_SIZE; i++) {
+    for(i = 0; i < MD5_SIZE; i++) {
         sprintf(md5check+2*i, "%02x", signature[i]);
     }
 }

@@ -31,13 +31,14 @@
 #include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
 
-#define BYTEFILEDOESNOTEXIST        100001
-#define BYTEFILEATTRIBUTEERROR      100002
-#define BYTEFILEISNOTREGULAR        100003
-#define BYTEFILEOPENERROR           100004
-#define BYTEFILEHEAPERROR           100005
-#define BYTEFILEMD5ERROR            100006
-#define BYTEFILEMD5DIFF             100007
+#define BYTE_FILE_DOES_NOT_EXIST      100001
+#define BYTE_FILE_ATTRIBUTE_ERROR     100002
+#define BYTE_FILE_IS_NOT_REGULAR      100003
+#define BYTE_FILE_OPEN_ERROR          100004
+#define BYTE_FILE_HEAP_ERROR          100005
+#define BYTE_FILE_MD5_ERROR           100006
+#define BYTE_FILE_MD5DIFF             100007
+#define BYTE_FILE_READ_ERROR          100008
 
 int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const std::string& checksum)
 {
@@ -63,14 +64,26 @@ int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const
         char* newp = (char*)realloc(bp, (size_t)data_block->data_n);
         if (newp == nullptr) {
             free(bp);
-            err = BYTEFILEHEAPERROR;
+            err = BYTE_FILE_HEAP_ERROR;
             addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Allocate Heap Memory for the File");
             break;
         }
         bp = newp;
+
+        errno = 0;
         int n_read = (int)fread(bp + buf_offset, sizeof(char), (size_t)buf_size, fh);
+
+        int serrno = errno;
+        if (n_read == 0 || serrno != 0) {
+            int err = BYTE_FILE_READ_ERROR;
+            if (serrno != 0) {
+                addIdamError(UDA_SYSTEM_ERROR_TYPE, "readBytes", serrno, "");
+            }
+            addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Open the File for Read Access");
+        }
+
         nchar += n_read;
-        if (nchar >= max_bytes) {
+        if (max_bytes > 0 && nchar >= max_bytes) {
             break;
         }
         buf_offset = nchar;
@@ -113,8 +126,6 @@ int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const
 
     data_block->order = -1;        // No Dimensions
     data_block->data_type = UDA_TYPE_CHAR;
-
-    fclose(fh); // Close the File
 
     return err;
 }
