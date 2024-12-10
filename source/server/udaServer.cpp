@@ -343,7 +343,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
     for (int i = 0; i < data_block_list->count; ++i) {
         DATA_BLOCK* data_block = &data_block_list->data[i];
 
-        if (protocol_version < 10 && data_block->data_type == UDA_TYPE_COMPOUND &&
+        if (data_block->data_type == UDA_TYPE_COMPOUND &&
             data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
                 protocol_id = UDA_PROTOCOL_META;
