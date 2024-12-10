@@ -27,7 +27,7 @@ struct MetadataBlock {
 
 class Server {
 public:
-    constexpr static int ServerVersion = 8;
+    constexpr static int ServerVersion = 10;
     constexpr static int LegacyServerVersion = 6;
 
     LIBRARY_API Server();

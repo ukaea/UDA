@@ -616,7 +616,7 @@ bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion)
     return rc;
 }
 
-bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
+bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str, int protocolVersion)
 {
     switch (str->data_type) {
         case UDA_TYPE_FLOAT:
@@ -662,7 +662,13 @@ bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
             return 1;    // Nothing to send so retain good return code
 
         case UDA_TYPE_CAPNP:
-            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
+            if (protocolVersion >= 10) {
+                return xdr_opaque(xdrs, str->data, (u_int)str->data_n * sizeof(char));
+            } else {
+                return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
+            }
+        case UDA_TYPE_OPAQUE:
+            return xdr_opaque(xdrs, str->data, (u_int)str->data_n * sizeof(char));
 
         default:
             return 0;

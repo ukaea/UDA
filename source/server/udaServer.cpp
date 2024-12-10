@@ -42,8 +42,8 @@
 //--------------------------------------------------------------------------------------
 // static globals
 
-constexpr int server_version = 9;
-static int protocol_version = 9;
+constexpr int server_version = 10;
+static int protocol_version = 10;
 static int legacy_server_version = 6;
 
 static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;            // User Defined Structure Types from Data Files & Plugins
