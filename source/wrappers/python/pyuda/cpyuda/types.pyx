@@ -17,6 +17,7 @@ __uda2np_map = {
     12: np.NPY_UINT64, # UDA_TYPE_UNSIGNED_LONG64 = 12,
     13: np.NPY_COMPLEX64, # UDA_TYPE_COMPLEX = 13,
     14: np.NPY_COMPLEX128, # UDA_TYPE_DCOMPLEX = 14,
+    19: np.NPY_UINT8, # UDA_TYPE_OPAQUE
 }
 
 __np2uda_map = dict((__uda2np_map[i], i) for i in __uda2np_map)
