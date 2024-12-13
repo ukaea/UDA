@@ -93,7 +93,7 @@ class Client(with_metaclass(ClientMeta, object)):
         :return:
         """
 
-        result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
+        result = cpyuda.get_data("bytes::read(path=%s, /opaque)" % source_file, "")
 
         with open(output_file, 'wb') as f_out:
             result.data().tofile(f_out)
