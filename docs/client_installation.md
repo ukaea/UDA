@@ -76,6 +76,7 @@ Install dependencies from system package manager.
 ```sh
 sudo apt update && sudo apt install -y \
 git \
+libtirpc-dev \
 libboost-dev \
 libboost-program-options-dev \
 libssl-dev \
