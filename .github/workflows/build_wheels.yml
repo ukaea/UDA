@@ -115,7 +115,7 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: windows
           CIBW_BUILD: cp3*-${{matrix.build-platform[2]}}
-          CIBW_SKIP: cp36* cp37*   
+          CIBW_SKIP: cp36* cp37* cp313*  
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
 
@@ -234,7 +234,7 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
-          MACOSX_DEPLOYMENT_TARGET: '12.0'
+          MACOSX_DEPLOYMENT_TARGET: '13.0'
 
       - uses: actions/upload-artifact@v4
         with:
