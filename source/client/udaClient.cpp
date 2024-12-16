@@ -1042,6 +1042,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             }
 
             printDataBlock(*data_block);
+            data_received = true;
+            data_block_indices[i] = data_block_idx;
         }
 
 #endif      // <========================== End of FatClient Code Only
