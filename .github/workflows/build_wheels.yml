@@ -191,6 +191,7 @@ jobs:
             dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &&
             dnf install -y boost-devel openssl-devel libxml2-devel libtirpc-devel 
             fmt fmt-devel spdlog spdlog-devel capnproto capnproto-devel &&
+            rpm -ql boost-devel &&
             cd /project &&
             cmake -B build 
             -DBUILD_SHARED_LIBS=ON 
@@ -234,6 +235,7 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
+          MACOSX_DEPLOYMENT_TARGET: "${{ ${{matrix.build-platform[0]}} == 'macos-13' && '13.0' || '14.0' }}"
 
       - uses: actions/upload-artifact@v4
         with:
