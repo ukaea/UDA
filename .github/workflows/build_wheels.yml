@@ -28,12 +28,12 @@ jobs:
           # which are only executed on push to tag. 
           # Test wheels are also generated for the other platforms (and uploaded to testpypi)
           # on pushes to release branches and to main
-          - [ubuntu-latest, x86_64, manylinux2014_x86_64]
-          - [ubuntu-latest, x86_64, manylinux_2_28_x86_64]
-          - [ubuntu-latest, aarch64, manylinux_2_28_aarch64]
-          - [macos-13, x86_64, macosx_x86_64]
-          - [macos-14, arm64, macosx_arm64]
-          - [windows-latest, AMD64, win_amd64]
+          - [ubuntu-latest, x86_64, manylinux2014_x86_64, 0.0]
+          - [ubuntu-latest, x86_64, manylinux_2_28_x86_64, 0.0]
+          - [ubuntu-latest, aarch64, manylinux_2_28_aarch64, 0.0]
+          - [macos-13, x86_64, macosx_x86_64, 13.0]
+          - [macos-14, arm64, macosx_arm64, 14.0]
+          - [windows-latest, AMD64, win_amd64, 0.0]
 
     steps:
       - uses: actions/checkout@v4
@@ -222,12 +222,7 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=$PWD/install
           -DCLIENT_ONLY=ON &&
           cmake --build build -j --config Release --target install &&
-          cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/ &&
-          if [[ ${{matrix.build-platform[0]}} == 'macos-14' ]]; then 
-              echo "MACOSX_DEPLOYMENT_TARGET=14.0 >> $GITHUB_ENV"; 
-              else echo "MACOSX_DEPLOYMENT_TARGET=13.0 >> $GITHUB_ENV"; 
-              fi
-
+          cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/
 
       - name: Build macos wheels
         if: runner.os == 'macOS'
@@ -239,10 +234,7 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
-          # MACOSX_DEPLOYMENT_TARGET: '13.0'
-        # run: |
-        #   if [[ ${{matrix.build-platform[0]}} == 'macos-14' ]]; then
-        #   echo "MACOSX_DEPLOYMENT_TARGET=14.0 >> $GITHUB_ENV"
+          MACOSX_DEPLOYMENT_TARGET: ${{matrix.build-platform[3]}}
 
       - uses: actions/upload-artifact@v4
         with:
