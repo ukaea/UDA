@@ -223,10 +223,10 @@ jobs:
           -DCLIENT_ONLY=ON &&
           cmake --build build -j --config Release --target install &&
           cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/ &&
-          if [[ ${{matrix.build-platform[0]}} == 'macos-14' ]]; then \
-              echo "MACOSX_DEPLOYMENT_TARGET=14.0 >> $GITHUB_ENV"; \
-          else echo "MACOSX_DEPLOYMENT_TARGET=13.0 >> $GITHUB_ENV"; \
-          fi
+          if [[ ${{matrix.build-platform[0]}} == 'macos-14' ]]; then 
+              echo "MACOSX_DEPLOYMENT_TARGET=14.0 >> $GITHUB_ENV"; 
+              else echo "MACOSX_DEPLOYMENT_TARGET=13.0 >> $GITHUB_ENV"; 
+              fi
 
 
       - name: Build macos wheels
