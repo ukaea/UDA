@@ -22,7 +22,7 @@
         strftime(uix_buf, 30, "%Y:%m:%dT%H:%M:%S", uix_tm);
 #  define uix_printtime() { \
             UIX_DEFINETIME \
-            printf("%s.%dZ, ", uix_buf,(int32_t)uix_tmnow.tv_usec); \
+            printf("%s.%06dZ, ", uix_buf,(int32_t)uix_tmnow.tv_usec); \
         }
 #  define UDA_LOG(LEVEL, FMT, ...) do{ if (LEVEL >= udaGetLogLevel()) {UIX_DEFINETIME udaLog(LEVEL, "%s.%dZ, %s:%d >> " FMT, uix_buf, (int32_t)uix_tmnow.tv_usec, basename((char *)__FILE__), __LINE__, ##__VA_ARGS__); }} while(0)
 #endif
