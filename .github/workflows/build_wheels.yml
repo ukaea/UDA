@@ -203,6 +203,10 @@ jobs:
 
       - name: build uda on macos
         if: runner.os == 'macOS'
+        # note: it's recommended in cibuildwheel to build all deps from source in macos 
+        # instead of using homebrew as this way the wheel will be back-compatible with 
+        # other macos versions. MACOSX_DEPLOYMENT_TARGET will no longer be required if
+        # this change is made.
         run: >
           brew update-reset && brew install
           git
@@ -233,9 +237,10 @@ jobs:
         env:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
-          CIBW_SKIP: cp313*
+          # CIBW_SKIP: cp313*
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           MACOSX_DEPLOYMENT_TARGET: ${{matrix.build-platform[3]}}
+          CIBW_BEFORE_BUILD: pip install "numpy >=1.17, <2"
 
       - uses: actions/upload-artifact@v4
         with:
