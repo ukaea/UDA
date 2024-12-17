@@ -245,6 +245,8 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     const char* checksum = nullptr;
     FIND_STRING_VALUE(plugin_interface->request_data->nameValueList, checksum);
 
+    bool opaque = findValue(&plugin_interface->request_data->nameValueList, "opaque");
+
     char tmp_path[MAXPATH];
     StringCopy(tmp_path, path, MAXPATH);
     UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables! \n");
@@ -287,7 +289,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
         return err;
     }
 
-    return readBytes(file, data_block, offset, max_bytes, checksum);
+    return readBytes(file, data_block, offset, max_bytes, checksum, opaque);
 }
 
 int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)

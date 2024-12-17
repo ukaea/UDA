@@ -11,7 +11,8 @@ from ._version import __version__
 
 from six import with_metaclass
 import logging
-from collections import namedtuple
+import math
+from progress.bar import Bar
 from collections.abc import Iterable
 import sys
 try:
@@ -85,18 +86,37 @@ class Client(with_metaclass(ClientMeta, object)):
         except ImportError:
             pass
 
-    def get_file(self, source_file, output_file=None):
+    def get_file(self, source_file, output_file=None, chunk_size=1):
         """
         Retrieve file using bytes plugin and write to file
-        :param source_file: the full path to the file
-        :param output_file: the name of the output file
+        :param str      source_file: the full path to the file
+        :param str|None output_file: the name of the output file
+        :param int      chunk_size: download chunk size in MB, set to 0 to download the file in one chunk
         :return:
         """
+        if chunk_size < 0:
+            raise ValueError("chunk_size must not be negative")
 
-        result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
+        if chunk_size:
+            result = cpyuda.get_data(f"bytes::size(path={source_file})", "")
+            size = result.data()
+            chunk_size = int(chunk_size * 1024 * 1024)
+            count = 0
+            steps = math.ceil(size / chunk_size)
+            bar = Bar('Downloading', max=steps, suffix='%(percent)d%%')
+            with open(output_file, 'wb') as f_out:
+                while count < size:
+                    result = cpyuda.get_data(f"bytes::read(path={source_file}, max_bytes={chunk_size}, offset={count}, /opaque)", "")
+                    data = result.data()
+                    count += data.size
+                    data.tofile(f_out)
+                    bar.next()
+            print(flush=True)
+        else:
+            result = cpyuda.get_data(f"bytes::read(path={source_file}, /opaque)", "")
 
-        with open(output_file, 'wb') as f_out:
-            result.data().tofile(f_out)
+            with open(output_file, 'wb') as f_out:
+                result.data().tofile(f_out)
 
         return
 
