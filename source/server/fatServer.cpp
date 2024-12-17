@@ -44,8 +44,8 @@ unsigned int clientFlags = 0;
 int malloc_source = UDA_MALLOC_SOURCE_NONE;
 unsigned int private_flags = 0;
 
-int server_version = 8;
-static int protocol_version = 8;
+int server_version = 10;
+static int protocol_version = 10;
 
 SOCKETLIST socket_list;
 

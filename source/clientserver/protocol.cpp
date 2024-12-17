@@ -221,7 +221,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     if ((err = allocData(data_block)) != 0) break;        // Allocate Heap Memory
 
-                    if (!xdr_data_block2(xdrs, data_block)) {
+                    if (!xdr_data_block2(xdrs, data_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_62;
                         break;
                     }
@@ -309,7 +309,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    if (!xdr_data_block2(xdrs, data_block)) {
+                    if (!xdr_data_block2(xdrs, data_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_62;
                         break;
                     }

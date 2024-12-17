@@ -42,8 +42,8 @@
 //--------------------------------------------------------------------------------------
 // static globals
 
-constexpr int server_version = 9;
-static int protocol_version = 9;
+constexpr int server_version = 10;
+static int protocol_version = 10;
 static int legacy_server_version = 6;
 
 static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;            // User Defined Structure Types from Data Files & Plugins
@@ -343,7 +343,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
     for (int i = 0; i < data_block_list->count; ++i) {
         DATA_BLOCK* data_block = &data_block_list->data[i];
 
-        if (protocol_version < 10 && data_block->data_type == UDA_TYPE_COMPOUND &&
+        if (data_block->data_type == UDA_TYPE_COMPOUND &&
             data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
                 protocol_id = UDA_PROTOCOL_META;

@@ -37,6 +37,8 @@ size_t getSizeOf(UDA_TYPE data_type)
             return sizeof(DCOMPLEX);
         case UDA_TYPE_CAPNP:
             return sizeof(char);
+        case UDA_TYPE_OPAQUE:
+            return sizeof(char);
         default:
             return 0;
     }
