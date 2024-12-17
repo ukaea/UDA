@@ -107,7 +107,7 @@ jobs:
          
       - name: build windows wheels
         if: runner.OS == 'Windows'
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ${{github.workspace}}/install/python_installer
           config-file: ${{github.workspace}}/install/python_installer/pyproject.toml
@@ -125,7 +125,7 @@ jobs:
           startswith(matrix.build-platform[2], 'manylinux2014') && 
           github.event_name == 'push' && 
           startsWith(github.ref, 'refs/tags/')
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -176,7 +176,7 @@ jobs:
           startswith(matrix.build-platform[2], 'manylinux_2_28') && 
           ! ( startswith(matrix.build-platform[1], 'aarch64') && 
           !startsWith(github.ref, 'refs/tags/') )
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -226,7 +226,7 @@ jobs:
 
       - name: Build macos wheels
         if: runner.os == 'macOS'
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
