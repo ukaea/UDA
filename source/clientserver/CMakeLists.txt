@@ -6,6 +6,7 @@ find_package( fmt REQUIRED )
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
 endif()
+find_package( Boost REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -105,6 +106,7 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${fmt_SOURCE_DIR}/include
+  ${Boost_INCLUDE_DIRS}
 )
 
 if( MINGW OR WIN32 )

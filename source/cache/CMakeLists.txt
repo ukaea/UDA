@@ -24,6 +24,7 @@ set( SRC_FILES
 
 include_directories(
   ${OPENSSL_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/source
   ${LIBXML2_INCLUDE_DIR}
