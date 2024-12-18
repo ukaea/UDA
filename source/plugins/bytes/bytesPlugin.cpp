@@ -154,7 +154,7 @@ int BytesPlugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
         std::string token = sub_match.str();
         if (i !=4 and !token.empty() and bitshift >=0)
         {
-            encoded_version |= (unsigned int) std::stoi(token) << bitshift;   
+            encoded_version |= static_cast<unsigned int>(std::stoi(token)) << bitshift;   
             bitshift -= 8;
         }
     }
@@ -179,7 +179,7 @@ int BytesPlugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->rank = 0;
     data_block->data_type = UDA_TYPE_UNSIGNED_INT;
-    data_block->data = (char*)data;
+    data_block->data = reinterpret_cast<char*>(data);
     data_block->data_n = 1;
     return 0;
 }
