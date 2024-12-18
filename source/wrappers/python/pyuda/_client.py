@@ -97,6 +97,14 @@ class Client(with_metaclass(ClientMeta, object)):
         if chunk_size < 0:
             raise ValueError("chunk_size must not be negative")
 
+        # bytes::size() function won't exist in some old servers,
+        # check for compatible plugin version.
+        # magic number is byte encoding for version number 1.8.0.31
+        # when automatic versioning was introduced for bytes plugin
+        result = cpyuda.get_data("bytes::version()", "")
+        if result.data() < 34078751:
+            chunk_size = 0
+
         if chunk_size:
             result = cpyuda.get_data(f"bytes::size(path={source_file})", "")
             size = result.data()

@@ -107,7 +107,7 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     } else if (STR_IEQUALS(request->function, "size")) {
         return plugin.size(plugin_interface);
     } else {
-        RAISE_PLUGIN_ERROR("Unknown function requested!");
+        RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
     }
 }
 
@@ -131,7 +131,53 @@ int BytesPlugin::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
  */
 int BytesPlugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
+    /*
+     * byte encoded version number
+     * b00 00   00 00   00 00   00 00
+     * major.   minor.  patch.  (optional) post-tag commit
+     */
+    std::string version_string = UDA_BUILD_VERSION;
+    unsigned int encoded_version = 0;
+
+    std::regex r("([0-9]+)\\.([0-9]+)\\.([0-9]+)(\\.([0-9]+))?");
+
+    std::smatch r_matches;
+    std::regex_match(version_string, r_matches, r);
+    int bitshift = 24;
+    for (std::size_t i = 1; i < r_matches.size(), i<=5; ++i)
+    {
+        if (i !=4 and !token.empty())
+        {
+            std::ssub_match sub_match = r_matches[i];
+            std::string token = sub_match.str();
+            encoded_version |= (unsigned int) std::stoi(token) << bitshift;   
+            bitshift -= 8;
+        }
+    }
+
+    // ideally parsed version should always have at least 3 matches. Unexpected version string format or 
+    // problem parsing if fewer matches than this
+    // if (bitshift > 0)
+    // {
+    //     RAISE_PLUGIN_ERROR_AND_EXIT("unexpected plugin version format: expected at least MAJOR.MINOR.PATCH", plugin_interface); 
+    // }
+
+    // no set-return function for unsigned int type
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    int* data = (int*)malloc(sizeof(unsigned int));
+    data[0] = encoded_version;
+
+    const char* description = "Byte-encoded plugin version number from MAJOR.MINOR.PATCH.POST string";
+    strncpy(data_block->data_desc, description, STRING_LENGTH);
+    data_block->data_desc[STRING_LENGTH - 1] = '\0';
+
+    data_block->rank = 0;
+    data_block->data_type = UDA_TYPE_UNSIGNED_INT;
+    data_block->data = (char*)data;
+    data_block->data_n = 1;
+    return 0;
 }
 
 /**
