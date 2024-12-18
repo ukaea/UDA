@@ -2,6 +2,7 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/initStructs.h>
 #include <version.h>
 
 #include "readBytesNonOptimally.h"
@@ -147,9 +148,9 @@ int BytesPlugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
     std::smatch r_matches;
     std::regex_match(version_string, r_matches, r);
     int bitshift = 24;
-    for (std::size_t i = 1; i < r_matches.size(), i<=5; ++i)
+    for (std::size_t i = 1; i < r_matches.size(); ++i)
     {
-        if (i !=4 and !token.empty())
+        if (i !=4 and !token.empty() and bitshift >=0)
         {
             std::ssub_match sub_match = r_matches[i];
             std::string token = sub_match.str();
