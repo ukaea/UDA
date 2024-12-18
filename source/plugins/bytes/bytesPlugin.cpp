@@ -150,10 +150,10 @@ int BytesPlugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
     int bitshift = 24;
     for (std::size_t i = 1; i < r_matches.size(); ++i)
     {
+        std::ssub_match sub_match = r_matches[i];
+        std::string token = sub_match.str();
         if (i !=4 and !token.empty() and bitshift >=0)
         {
-            std::ssub_match sub_match = r_matches[i];
-            std::string token = sub_match.str();
             encoded_version |= (unsigned int) std::stoi(token) << bitshift;   
             bitshift -= 8;
         }
