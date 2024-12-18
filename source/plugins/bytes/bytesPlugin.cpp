@@ -2,6 +2,7 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
+#include <version.h>
 
 #include "readBytesNonOptimally.h"
 
@@ -19,6 +20,8 @@ namespace filesystem = std::filesystem;
 #endif
 
 #include <boost/algorithm/string.hpp>
+#include <string>
+#include <regex>
 
 #define BYTEFILEOPENERROR           100004
 #define BYTEFILEHEAPERROR           100005
