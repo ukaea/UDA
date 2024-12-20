@@ -55,6 +55,7 @@ UDA requires the following to packages in order to build:
 | libfmt | | |
 | spdlog | | |
 | capnproto | | |
+| tirpc | | |
 | boost | | C++, Python & HTTP wrappers |
 | LibMemcached | | to enable caching |
 | python | \> 3.0 | Python wrapper |
@@ -64,6 +65,7 @@ Start by installing all system-level dependencies.
 ```sh
 sudo apt update && sudo apt install -y
 git
+libtirpc-dev
 libboost-dev
 libboost-program-options-dev
 libssl-dev
@@ -94,4 +96,8 @@ build and install
 ```sh
 cmake --build build -j --config Release --target install
 ```
+## Events and training
 
+Slide packs including some hands-on exercises are available from an UDA workshop delivered at ITER in 2023. These resources provide some additional details and working examples for working with UDA, especially in the context of the ITER Modelling and Analysis Suite (IMAS).
+
+See event details and resources [here](https://indico.iter.org/event/81/).
