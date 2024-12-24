@@ -10,6 +10,8 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 
+#include <regex>
+
 IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
     auto plugin_interface = (IDAM_PLUGIN_INTERFACE*)calloc(1, sizeof(IDAM_PLUGIN_INTERFACE));
@@ -156,7 +158,43 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
 }
 
 int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, 
-        const size_t* shape, const char* description)
+                          const size_t* shape, const char* description)
+{
+    return setReturnDataArray(data_block, values, rank, shape, description);
+}
+
+int setReturnDataIShortArray(DATA_BLOCK* data_block, short* values, size_t rank, 
+                          const size_t* shape, const char* description)
+{
+    return setReturnDataArray(data_block, values, rank, shape, description);
+}
+
+int setReturnDataLongArray(DATA_BLOCK* data_block, long* values, size_t rank, 
+                          const size_t* shape, const char* description)
+{
+    return setReturnDataArray(data_block, values, rank, shape, description);
+}
+
+int setReturnDataUnsignedIntArray(DATA_BLOCK* data_block, unsgined int* values, size_t rank, 
+                          const size_t* shape, const char* description)
+{
+    return setReturnDataArray(data_block, values, rank, shape, description);
+}
+
+int setReturnDataUnsignedShortArray(DATA_BLOCK* data_block, unsigned short* values, size_t rank, 
+                          const size_t* shape, const char* description)
+{
+    return setReturnDataArray(data_block, values, rank, shape, description);
+}
+
+int setReturnDataUnsignedLongArray(DATA_BLOCK* data_block, unsigned long* values, size_t rank, 
+                          const size_t* shape, const char* description)
+{
+    return setReturnDataArray(data_block, values, rank, shape, description);
+}
+
+int setReturnDataUnsignedCharArray(DATA_BLOCK* data_block, unsigned char* values, size_t rank, 
+                          const size_t* shape, const char* description)
 {
     return setReturnDataArray(data_block, values, rank, shape, description);
 }
@@ -602,4 +640,26 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUG
     }
 
     return err;
+}
+
+unsigned int bitEncodeSemanticVersionNumber(const char* version)
+{
+    unsigned int encoded_version = 0;
+
+    std::regex r("([0-9]+)\\.([0-9]+)\\.([0-9]+)(\\.([0-9]+))?");
+
+    std::smatch r_matches;
+    std::regex_match(version_string, r_matches, r);
+    int bitshift = 24;
+    for (std::size_t i = 1; i < r_matches.size(); ++i)
+    {
+        std::ssub_match sub_match = r_matches[i];
+        std::string token = sub_match.str();
+        if (i !=4 and !token.empty() and bitshift >=0)
+        {
+            encoded_version |= static_cast<unsigned int>(std::stoi(token)) << bitshift;   
+            bitshift -= 8;
+        }
+    }
+    return encoded_version;
 }

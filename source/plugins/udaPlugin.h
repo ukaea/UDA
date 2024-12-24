@@ -43,16 +43,41 @@ LIBRARY_API int findPluginIdByDevice(const char* device, const PLUGINLIST* plugi
 LIBRARY_API int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list);
 LIBRARY_API int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list);
 
-LIBRARY_API int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description);
-LIBRARY_API int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape, const char* description);
-LIBRARY_API int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description);
-LIBRARY_API int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description);
-LIBRARY_API int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description);
+LIBRARY_API int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank,
+                                        const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank,
+                                        const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, 
+                                      const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataIShortArray(DATA_BLOCK* data_block, short* values, size_t rank, 
+                                         const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataLongArray(DATA_BLOCK* data_block, long* values, size_t rank, 
+                                      const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataUnsignedIntArray(DATA_BLOCK* data_block, unsgined int* values, size_t rank, 
+                                              const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataUnsignedShortArray(DATA_BLOCK* data_block, unsigned short* values, size_t rank, 
+                                                const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataUnsignedLongArray(DATA_BLOCK* data_block, unsigned long* values, size_t rank, 
+                                               const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataUnsignedCharArray(DATA_BLOCK* data_block, unsigned char* values, size_t rank, 
+                                               const size_t* shape, const char* description);
+
+LIBRARY_API int setReturnDataCharScalar(DATA_BLOCK* data_block, char value, const char* description);
+LIBRARY_API int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description);
 LIBRARY_API int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* description);
 LIBRARY_API int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description);
-LIBRARY_API int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description);
-LIBRARY_API int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description);
+LIBRARY_API int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description);
+LIBRARY_API int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description);
+LIBRARY_API int setReturnDataUnsignedCharScalar(DATA_BLOCK* data_block, unsigned char value,
+                                                const char* description);
+LIBRARY_API int setReturnDataUnsignedShortScalar(DATA_BLOCK* data_block, unsigned short value,
+                                                 const char* description);
+LIBRARY_API int setReturnDataUnsignedIntScalar(DATA_BLOCK* data_block, int value,
+                                               const char* description);
+LIBRARY_API int setReturnDataUnsignedLongScalar(DATA_BLOCK* data_block, unsigned long value,
+                                                const char* description);
 
+LIBRARY_API int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description);
 LIBRARY_API int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape, const char* description);
 
 LIBRARY_API bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name);
@@ -64,6 +89,8 @@ LIBRARY_API bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* value
 LIBRARY_API bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name);
 LIBRARY_API bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
 LIBRARY_API bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name);
+
+LIBRARY_API unsigned int bitEncodeSemanticVersionNumber(const char* version);
 
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
