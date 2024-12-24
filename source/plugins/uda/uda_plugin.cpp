@@ -9,6 +9,7 @@
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <client/udaClient.h>
+#include <version.h>
 #include <fmt/format.h>
 
 #if !defined(__GNUC__)
@@ -140,7 +141,7 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
+    return setReturnDataString(idam_plugin_interface->data_block, UDA_BUILD_VERSION, "Plugin version number");
 }
 
 /**
