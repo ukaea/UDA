@@ -84,9 +84,9 @@ cmake --install build
 
 ## Running the server
 
-There are currently two main options to run the server as a system service, either using xinetd or systemd. It's also possible to run a test server manually using xinetd, but this is more for testing and debugging and will be covered in the development section of the docs. 
+There are currently two main options to run the server as a system service, either using xinetd or systemd as super-server daemons. It's also possible to run a test server manually using xinetd, but this is more for testing and debugging and will be covered in the [development](/UDA/development) section of the docs. 
 
-Note that concurrent connections are managed by spinning up a new instance of the server process for each new client process. All the listener options listed here will have configurable options to control how many concurrent connections can be permitted at any one time, both as a total number of connections and the acceptable number from any single source IP.
+Note that concurrent connections are managed by spinning up a new instance of the server process for each new client process. All the listener options listed here will have configurable options to control how many concurrent connections can be permitted at any one time, both as a total number of connections and the acceptable number from any single source (IP address).
 
 The server process launched for each request is the `udaserver.sh` script in the `etc` subdirectory. This script loads a companion configuration file `udaserver.cfg` and then launches the uda server binary (`/bin/uda_server`).
 
@@ -109,9 +109,13 @@ sudo systemctl enable uda.socket
 ### xinetd
 The xinetd configuration file `xinetd.conf` will be installed to the `etc` subdirectory in the uda install location. This file can be used to set the maximum connection limits and the port number.
 
-Copy this configuration file into `/etc/xinetd.d` to deploy the service. It can be a good idea to rename it to something more descriptive when moving, e.g. `uda` instad of `xinetd.conf`.
+Copy this configuration file into `/etc/xinetd.d` and start (or restart) the xinetd system service to deploy. It can be a good idea to rename it to something more descriptive when moving, e.g. `uda` instad of `xinetd.conf`.
+
 ```sh
 cp <install_dir>/etc/xinetd.conf /etc/xinetd.d/uda
+sudo systemctl start xinetd
+sudo systemctl enable xinetd
+
 ```
 
 ### (experimental) launchd
@@ -125,13 +129,26 @@ Currently, configuration options are loaded as environment variables in the uda 
 
 There is a directory in `<install_dir>/etc` called `machine.d` in which general configuration options for a specific domain can be set. The uda server will look for a file named after what the `dnsdomainname` command evaluates to on the current machine. This can be used to e.g. load environment modules on an HPC system or shared cluster. 
 
-
 ### General server-specific options 
 
-Most general server options are set in `<install_dir>/etc/udaserver.cfg` including the debug level, the file locations of plugin-registration files, and to add the library locations of uda and any uda-plugin builds (as well as any other dependencies such as imas) to the LD_LIBRARY path. 
+Most general server options are set in `<install_dir>/etc/udaserver.cfg` including the debug level, the file locations of plugin-registration files, and to add the library locations of uda and any uda-plugin builds (as well as any other dependencies such as imas) to the LD_LIBRARY_PATH. 
 
 Note that the UDA_LOG_LEVEL should Generally be set to ERROR for a production deployment. The DEBUG level will impose severe a performance penalty, but can be used to print some very verbose logs for each incoming request during server development. 
 
 ### Plugin-specific options
 
-Any configuration options for specific plugins will be stored in different files for each plugin in the `<install_dir>/etc/plugins.d` directory. This may be to set file paths for additional configuration files required by a plugin at runtime, to set a list of permissible filesystem locations a plugin is permitted to access (e.g. in the  bytes plugin), or to set memory limits on the size of data a plugin is allowed to cache. See any plugin-specific documentation for more information.
+Any configuration options for specific plugins will be stored in different files for each plugin in the `<install_dir>/etc/plugins.d` directory. This may be to set file paths for additional configuration files required by a plugin at runtime, to set a list of permissible filesystem locations a plugin is permitted to access (e.g. in the  bytes plugin), or to set memory limits on the size of data a plugin is allowed to cache. 
+
+Refer to any plugin-specific documentation for more information on configuration options for a particular plugin.
+
+## Configuring a server to accept authenticated connections only
+UDA currently only supports X509 based SSL certificate authentication, see the [authentication](/UDA/authentication) section for more details.
+
+```sh
+export UDA_SERVER_SSL_AUTHENTICATE=1
+export UDA_SERVER_SSL_CERT="${UDA_ROOT}/etc/.uda/certs/<server_address>.pem"
+export UDA_SERVER_SSL_KEY="${UDA_ROOT}/etc/.uda/keys/<server_address>.key.pem"
+export UDA_SERVER_CA_SSL_CERT="${UDA_ROOT}/etc/.uda/certs/uda-ca.cert.pem"
+export UDA_SERVER_CA_SSL_CRL="${UDA_ROOT}/etc/.uda/crl/uda-ca.crl.pem"
+
+```

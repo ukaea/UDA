@@ -15,7 +15,7 @@ There are a number of client wrappers which provide an UDA interface in differen
 often with a more user-friendly, object-oriented layer over the basic C-API.
 
 In general, the underlying UDA client library must be fully built and then any number of additional language wrappers can 
-be built on-top. With the exception on the python wrapper, building any additional wrappers is completely handled by the 
+be built on-top. With the exception of the python wrapper, building any additional wrappers is completely handled by the 
 project CMake configuration. It's worth noting, however, that pre-built Docker images or python wheels may already be 
 available for your platform. 
 
@@ -348,4 +348,18 @@ python3 -m pip install .
 # test
 python3 -c 'import pyuda; print(pyuda.__version__)'
 ```
+# Configuring an authenticated client connection
 
+Once you have a certificate bundle, set the following environment variables to the individual SSL file locations. See the [Authentication section](/UDA/authentication) for more details about authenticated connections in uda.
+
+These variables will need to be set before every new client session when you are connecting to an SSL-authenticated uda server.
+
+```sh
+SSL_HOME="<certificate_install_dir>/.uda"
+
+export UDA_CLIENT_SSL_KEY="${SSL_HOME}/keys/<username>.key.pem"
+export UDA_CLIENT_CA_SSL_CERT="${SSL_HOME}/certs/uda-ca.cert.pem"
+export UDA_CLIENT_SSL_CERT="${SSL_HOME}/certs/<username>.cert.pem"
+export UDA_CLIENT_SSL_AUTHENTICATE=1
+
+```

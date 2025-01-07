@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API changes
-nav_order: 6
+nav_order: 7
 ---
 
 # API changes
