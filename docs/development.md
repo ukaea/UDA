@@ -4,8 +4,6 @@ title: UDA Development
 nav_order: 5
 ---
 
-TODO: UDA Development instructions
-
 # UDA Development
 {:.no_toc}
 
@@ -38,8 +36,7 @@ The text `server running` will be output to the console if this executes success
 
 
 ### Running a development server under launchd (MacOS)
-TODO: launchd instructions
-
+See the launchd section of the instructions for [building and running a server](/UDA/server_installation#launchd). 
 
 ### Running a fat client (client and server in one process)
 TODO: fat client instructions

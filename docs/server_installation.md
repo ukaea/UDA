@@ -118,8 +118,24 @@ sudo systemctl enable xinetd
 
 ```
 
-### (experimental) launchd
-To-do
+### launchd
+The launchd configuration file `launchd.udaserver.plist` will be installed to the etc subdirectory in the uda install location. The `SockServiceName` key in this file defines what the port number will be (56565 by default). 
+
+Copy the plist file to the MacOS LaunchAgents directory and start the super-server as shown below. 
+
+```sh
+cp <install_dir>/etc/launchd.udaserver.plist ~/Library/LaunchAgents/.
+launchctl load ~/Library/LaunchAgents/launchd.udaserver.plist
+launchctl start udaserver
+```
+
+You can stop as follows:
+
+```sh
+launchctl stop udaserver
+launchctl unload ~/Library/LaunchAgents/launchd.udaserver.plist
+```
+
 
 ## Server configuration and logging
 
