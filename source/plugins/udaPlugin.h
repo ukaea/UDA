@@ -53,7 +53,7 @@ LIBRARY_API int setReturnDataIShortArray(DATA_BLOCK* data_block, short* values, 
                                          const size_t* shape, const char* description);
 LIBRARY_API int setReturnDataLongArray(DATA_BLOCK* data_block, long* values, size_t rank, 
                                       const size_t* shape, const char* description);
-LIBRARY_API int setReturnDataUnsignedIntArray(DATA_BLOCK* data_block, unsgined int* values, size_t rank, 
+LIBRARY_API int setReturnDataUnsignedIntArray(DATA_BLOCK* data_block, unsigned int* values, size_t rank, 
                                               const size_t* shape, const char* description);
 LIBRARY_API int setReturnDataUnsignedShortArray(DATA_BLOCK* data_block, unsigned short* values, size_t rank, 
                                                 const size_t* shape, const char* description);

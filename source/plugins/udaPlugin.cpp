@@ -175,7 +175,7 @@ int setReturnDataLongArray(DATA_BLOCK* data_block, long* values, size_t rank,
     return setReturnDataArray(data_block, values, rank, shape, description);
 }
 
-int setReturnDataUnsignedIntArray(DATA_BLOCK* data_block, unsgined int* values, size_t rank, 
+int setReturnDataUnsignedIntArray(DATA_BLOCK* data_block, unsigned int* values, size_t rank, 
                           const size_t* shape, const char* description)
 {
     return setReturnDataArray(data_block, values, rank, shape, description);
