@@ -61,7 +61,7 @@ function checknamesarelegal, names, verbose=verbose
         c = badchars[j]
         r = strpos(names[i], string(c))            ; Search for illegal characters within the tag name
         if(r ge 0) then begin
-           if keword_set(verbose) then print,'WARNING: An Illegal structure name tag has been detected ['+names[i]+'] - Replacing '+string(c)+' with '+sub
+           if keyword_set(verbose) then print,'WARNING: An Illegal structure name tag has been detected ['+names[i]+'] - Replacing '+string(c)+' with '+sub
            b = BYTE(names[i])
            w = WHERE(b eq c, nw)    
            if(nw gt 0) then begin
