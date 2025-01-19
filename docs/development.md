@@ -126,3 +126,21 @@ cont
 Use the `cont` command on the client-side debugging process when you're ready for the server-side execution to progress.
 
 From this point you can continue to use `gdb` on the server process as you would usually. 
+
+## Package Breakdown
+
+TODO: UML diagrams
+
+### Server
+
+### Clientserver
+
+### Client
+
+### Plugins
+
+### Structures
+
+### Security
+
+### Serialisation

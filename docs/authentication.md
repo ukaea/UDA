@@ -24,10 +24,10 @@ Certificate revocations can be managed using a certificate revocation list (CRL)
 
 ```sh
 export UDA_SERVER_SSL_AUTHENTICATE=1
-export UDA_SERVER_SSL_CERT="${UDA_ROOT}/etc/.uda/certs/<server_address>.pem"
-export UDA_SERVER_SSL_KEY="${UDA_ROOT}/etc/.uda/keys/<server_address>.key.pem"
-export UDA_SERVER_CA_SSL_CERT="${UDA_ROOT}/etc/.uda/certs/uda-ca.cert.pem"
-export UDA_SERVER_CA_SSL_CRL="${UDA_ROOT}/etc/.uda/crl/uda-ca.crl.pem"
+export UDA_SERVER_SSL_CERT="${UDA_ROOT}/etc/.uda/<server_address>.crt"
+export UDA_SERVER_SSL_KEY="${UDA_ROOT}/etc/.uda/<server_address>.key"
+export UDA_SERVER_CA_SSL_CERT="${UDA_ROOT}/etc/.uda/rootCA.cert.pem"
+export UDA_SERVER_CA_SSL_CRL="${UDA_ROOT}/etc/.uda/crl/rootCA.crl"
 ```
 
 ## Configuring an authenticated client connection
@@ -35,9 +35,9 @@ export UDA_SERVER_CA_SSL_CRL="${UDA_ROOT}/etc/.uda/crl/uda-ca.crl.pem"
 ```sh
 SSL_HOME="<certificate_install_dir>/.uda"
 
-export UDA_CLIENT_SSL_KEY="${SSL_HOME}/keys/<username>.key.pem"
-export UDA_CLIENT_CA_SSL_CERT="${SSL_HOME}/certs/uda-ca.cert.pem"
-export UDA_CLIENT_SSL_CERT="${SSL_HOME}/certs/<username>.cert.pem"
+export UDA_CLIENT_SSL_KEY="${SSL_HOME}/client.key"
+export UDA_CLIENT_SSL_CERT="${SSL_HOME}/client.crt"
+export UDA_CLIENT_CA_SSL_CERT="${SSL_HOME}/rootCA.key"
 export UDA_CLIENT_SSL_AUTHENTICATE=1
 
 ```
