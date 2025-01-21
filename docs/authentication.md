@@ -35,10 +35,9 @@ export UDA_SERVER_CA_SSL_CRL="${UDA_ROOT}/etc/.uda/crl/rootCA.crl"
 ```sh
 SSL_HOME="<certificate_install_dir>/.uda"
 
+export UDA_CLIENT_SSL_AUTHENTICATE=1
 export UDA_CLIENT_SSL_KEY="${SSL_HOME}/client.key"
 export UDA_CLIENT_SSL_CERT="${SSL_HOME}/client.crt"
 export UDA_CLIENT_CA_SSL_CERT="${SSL_HOME}/rootCA.key"
-export UDA_CLIENT_SSL_AUTHENTICATE=1
-
 ```
 

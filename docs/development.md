@@ -119,7 +119,6 @@ gdb -p <PID>
 # set break points where required
 break help_plugin.cpp:66
 cont
-
 ```
 
 ### Unlocking the client-side process and debugging the server
