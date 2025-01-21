@@ -9,8 +9,11 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+#include <version.h>
 
+#include <type_traits>
 #include <regex>
+#include <string>
 
 IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
@@ -68,42 +71,44 @@ constexpr int get_uda_type()
     {
         return UDA_TYPE_INT;
     }
-    else if(std::is_same<T, char>::value)
+    if (std::is_same<T, char>::value)
 	{
 		return UDA_TYPE_CHAR;
 	}
-    else if(std::is_same<T, short>::value)
+    if (std::is_same<T, short>::value)
 	{
 		return UDA_TYPE_SHORT;
 	}
-    else if(std::is_same<T, long>::value)
+    if (std::is_same<T, long>::value)
 	{
 		return UDA_TYPE_LONG;
 	}
-    else if(std::is_same<T, float>::value)
+    if (std::is_same<T, float>::value)
     {
         return UDA_TYPE_FLOAT;
     }
-    else if(std::is_same<T, double>::value)
+    if (std::is_same<T, double>::value)
     {
         return UDA_TYPE_DOUBLE;
     }
-    else if(std::is_same<T, unsigned char>::value)
+    if (std::is_same<T, unsigned char>::value)
 	{
 		return UDA_TYPE_UNSIGNED_CHAR;
 	}
-    else if(std::is_same<T, unsigned short>::value)
+    if (std::is_same<T, unsigned short>::value)
 	{
-		return UDA_TYPE_SHORT;
+		return UDA_TYPE_UNSIGNED_SHORT;
 	}
-    else if(std::is_same<T, unsigned int>::value)
+    if (std::is_same<T, unsigned int>::value)
 	{
 		return UDA_TYPE_UNSIGNED_INT;
 	}
-    else if(std::is_same<T, unsigned long>::value)
+    if (std::is_same<T, unsigned long>::value)
 	{
 		return UDA_TYPE_UNSIGNED_LONG;
-	}
+    }
+
+    return UDA_TYPE_UNDEFINED; 
 }
 
 template <typename T>
@@ -245,7 +250,7 @@ int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* descri
     return setReturnDataScalar(data_block, value, description);
 }
 
-setReturnDataUnsignedIntScalar(DATA_BLOCK* data_block, unsigned int value, const char* description)
+int setReturnDataUnsignedIntScalar(DATA_BLOCK* data_block, unsigned int value, const char* description)
 {
     return setReturnDataScalar(data_block, value, description);
 }
@@ -640,26 +645,4 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUG
     }
 
     return err;
-}
-
-unsigned int bitEncodeSemanticVersionNumber(const char* version)
-{
-    unsigned int encoded_version = 0;
-
-    std::regex r("([0-9]+)\\.([0-9]+)\\.([0-9]+)(\\.([0-9]+))?");
-
-    std::smatch r_matches;
-    std::regex_match(version_string, r_matches, r);
-    int bitshift = 24;
-    for (std::size_t i = 1; i < r_matches.size(); ++i)
-    {
-        std::ssub_match sub_match = r_matches[i];
-        std::string token = sub_match.str();
-        if (i !=4 and !token.empty() and bitshift >=0)
-        {
-            encoded_version |= static_cast<unsigned int>(std::stoi(token)) << bitshift;   
-            bitshift -= 8;
-        }
-    }
-    return encoded_version;
 }
