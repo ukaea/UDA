@@ -99,10 +99,10 @@ class Client(with_metaclass(ClientMeta, object)):
 
         # bytes::size() function won't exist in some old servers,
         # check for compatible plugin version.
-        # magic number is byte encoding for version number 1.8.0.31
-        # when automatic versioning was introduced for bytes plugin
+        # automatic versioning was introduced for bytes plugin
+        # in release 2.8.1, this changed the return type from int to str
         result = cpyuda.get_data("bytes::version()", "")
-        if result.data() < 34078751:
+        if not result.is_string():
             chunk_size = 0
 
         if chunk_size:
