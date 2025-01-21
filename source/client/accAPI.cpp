@@ -156,6 +156,8 @@ void udaLockThread()
         client_flags->flags = idamState[id].client_block.clientFlags;
         putIdamThreadLastHandle(idamState[id].lastHandle);
     } else {
+        int id = getThreadId(threadId);
+        putIdamThreadServerBlock(&idamState[id].server_block);
         putIdamThreadLastHandle(-1);
     }
 }
@@ -180,6 +182,7 @@ void udaUnlockThread()
         idamState[id].client_block.clientFlags = client_flags->flags;
         idamState[id].lastHandle = getIdamThreadLastHandle();
     }
+
 #ifdef __GNUC__
     pthread_mutex_unlock(&lock);
 #else
@@ -801,12 +804,16 @@ int getIdamServerSocket()
 */
 int getIdamErrorCode(int handle)
 {
+    int result;
+    udaLockThread();
     // Error Code Returned from Server
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
-        return getIdamServerErrorStackRecordCode(0);
+        result = getIdamServerErrorStackRecordCode(0);
     } else {
-        return data_blocks[handle].errcode;
+        result = data_blocks[handle].errcode;
     }
+    udaUnlockThread();
+    return result;
 }
 
 //!  returns the data access error message
@@ -816,12 +823,16 @@ int getIdamErrorCode(int handle)
 */
 const char* getIdamErrorMsg(int handle)
 {
+    const char* result;
+    udaLockThread();
     // Error Message returned from server
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
-        return getIdamServerErrorStackRecordMsg(0);
+        result = getIdamServerErrorStackRecordMsg(0);
     } else {
-        return data_blocks[handle].error_msg;
+        result = data_blocks[handle].error_msg;
     }
+    udaUnlockThread();
+    return result;
 }
 
 //!  returns the data source quality status

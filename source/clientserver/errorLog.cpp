@@ -152,12 +152,12 @@ void concatUdaError(UDA_ERROR_STACK* errorstackout)
 
 void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
 {
-    // "FIX" : this is causing segfaults when using multiple clients (eg. get and put) 
-    //         apparently due to both trying to free the same memory. Needs fixing properly.
-    //    free(errorstack->idamerror);
-      
+    if (errorstack->idamerror != nullptr)
+    {
+       free(errorstack->idamerror);
+       errorstack->idamerror = nullptr;
+    }
     errorstack->nerrors = 0;
-    errorstack->idamerror = nullptr;
 }
 
 // Free Stack Heap
