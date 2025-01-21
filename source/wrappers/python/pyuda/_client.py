@@ -106,7 +106,7 @@ class Client(with_metaclass(ClientMeta, object)):
             chunk_size = 0
 
         if chunk_size:
-            result = cpyuda.get_data(f"bytes::size(path={source_file})", "")
+            result = cpyuda.get_data("bytes::size(path={path})".format(path=source_file) % source_file, "")
             size = result.data()
             chunk_size = int(chunk_size * 1024 * 1024)
             count = 0
@@ -114,14 +114,14 @@ class Client(with_metaclass(ClientMeta, object)):
             bar = Bar('Downloading', max=steps, suffix='%(percent)d%%')
             with open(output_file, 'wb') as f_out:
                 while count < size:
-                    result = cpyuda.get_data(f"bytes::read(path={source_file}, max_bytes={chunk_size}, offset={count}, /opaque)", "")
+                    result = cpyuda.get_data("bytes::read(path={path}, max_bytes={max_bytes}, offset={offset}, /opaque)".format(path=source_file, max_bytes=chunk_size, offset=count), "")
                     data = result.data()
                     count += data.size
                     data.tofile(f_out)
                     bar.next()
             print(flush=True)
         else:
-            result = cpyuda.get_data(f"bytes::read(path={source_file}, /opaque)", "")
+            result = cpyuda.get_data("bytes::read(path={path}, /opaque)".format(path=source_file), "")
 
             with open(output_file, 'wb') as f_out:
                 result.data().tofile(f_out)
