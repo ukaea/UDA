@@ -23,6 +23,11 @@ Follow the instructions in [server installation](/UDA/server_installation) for b
 cmake --build build  --config Debug --target intall
 ```
 
+### Run the development server
+There is a simple way to temporarily run the uda super-server daemon under xinted for testing or development only that doesn't require the same elevated privileges as the system-level install described in the [server installation](/UDA/server_installation) section; this method is currently only available for xinetd and is described in the next section. 
+
+Note that if you need to run your server under `launchd` (for MacOS) or `systemd`, you will need to follow the instructions on the [server installation](/UDA/server_installation) page to run your development server.
+
 ### Running a development server under xinetd
 Once uda has been built there will be a script called `rc.uda` in the `etc` subdirectory of your uda install which can be used as shown below to start a xinetd process listening on the port specified in `etc/xinetd.conf`. Xinetd here is used as a super-server daemon which will launch new uda server processes for each new incoming client connection. 
 
@@ -34,6 +39,7 @@ The `rc.uda` script takes one of 3 possible arguments: `start` to start the xine
 ```
 The text `server running` will be output to the console if this executes successfully. If the `start` command failed for any reason the status will output `xinetd.<hostname>.pid not found, server not running` instead. Logging from the xinetd process (including messages from successful or failed startup attempts) will be written to a file called `mylog.<hostname>`. Note that the port number specified in `xinetd.conf` must be unique for each running uda server installation, so may need to be changed from the default 56565 value if that is already in use by another server on the same host. 
 
+Note that this method of running the xinetd super-server daemon is not appropriate for running a production server and should be used for development purposes only. See the instructions in the [server installation](/UDA/server_installation) guide instead for the recommended deployment methods. 
 
 ### Running a development server under launchd (MacOS)
 See the launchd section of the instructions for [building and running a server](/UDA/server_installation#launchd). 
@@ -85,6 +91,9 @@ export UDA_PORT=56565
 ./plugin_test_testplugin
 ```
 
+## Writing new tests
+TODO: testing strategy and CTest integration
+
 ## Debugging
 This section will mainly focus on how to debug an uda server because of the complications of the client-server communication. For debugging either the client or the fat-client there aren't any additional considerations to be aware of in the same way, simply compile with debug symbols and use your usual choice of debugging tool (`gdb`, `lldb`, etc.).
 
@@ -125,6 +134,10 @@ cont
 Use the `cont` command on the client-side debugging process when you're ready for the server-side execution to progress.
 
 From this point you can continue to use `gdb` on the server process as you would usually. 
+
+## Code style conventions
+
+TODO: clang-format and clang-tidy instructions
 
 ## Package Breakdown
 
