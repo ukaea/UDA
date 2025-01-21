@@ -14,17 +14,17 @@ nav_order: 5
 
 ## Setting up a development environment
 
-To begin developing you will need to fork the the uda repository from github, build the project, and run a local development server for testing before making your changes.
+To begin developing you will need to fork the uda repository from github, build the project, and run a local development server for testing before making your changes.
 
 ### Creating a development build
-Follow the instructions in [server installtion](/UDA/server_installation) for building an uda server from source for your platform. You can optionally change the cmake config option to generate debug symbols if required: 
+Follow the instructions in [server installation](/UDA/server_installation) for building an uda server from source for your platform. You can optionally change the cmake config option to generate debug symbols if required: 
 
 ```sh
 cmake --build build  --config Debug --target intall
 ```
 
 ### Running a development server under xinetd
-Once uda has been built there will be a script called `rc.uda` in the `etc` subdirectory of your uda install which can be used as shown below to start an xinetd process listening on the port specified in `etc/xinetd.conf`. Xinetd here is used as a super-server daemon which will launch new uda server processes for each new incoming client connection. 
+Once uda has been built there will be a script called `rc.uda` in the `etc` subdirectory of your uda install which can be used as shown below to start a xinetd process listening on the port specified in `etc/xinetd.conf`. Xinetd here is used as a super-server daemon which will launch new uda server processes for each new incoming client connection. 
 
 The `rc.uda` script takes one of 3 possible arguments: `start` to start the xinetd process, `stop` to kill a running xinetd process (from the pid written to a file called `xinetd.<hostname>.pid`), and `status` which will print whether a valid pid file is found or not, or if one is found but the process no longer exists. 
 
@@ -32,7 +32,7 @@ The `rc.uda` script takes one of 3 possible arguments: `start` to start the xine
 ./rc.uda start
 ./rc.uda status
 ```
-The text `server running` will be output to the console if this executes successfully. If the start command failed for any reason the status will output `xinetd.<hostname>.pid not found, server not running` instead. Logging from the xinetd process (including messages from successful or failed startup attempts) will be written to a file called `mylog.<hostname>`. Note that the port number specified in `xinetd.conf` must be unique for each running uda server installation, so may need to be changed from the default 56565 value if that is already in use by another server on the same host. 
+The text `server running` will be output to the console if this executes successfully. If the `start` command failed for any reason the status will output `xinetd.<hostname>.pid not found, server not running` instead. Logging from the xinetd process (including messages from successful or failed startup attempts) will be written to a file called `mylog.<hostname>`. Note that the port number specified in `xinetd.conf` must be unique for each running uda server installation, so may need to be changed from the default 56565 value if that is already in use by another server on the same host. 
 
 
 ### Running a development server under launchd (MacOS)
