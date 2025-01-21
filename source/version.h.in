@@ -9,7 +9,9 @@
 const unsigned int UDA_BUILD_VERSION_MAJOR = @CMAKE_PROJECT_VERSION_MAJOR@;
 const unsigned int UDA_BUILD_VERSION_MINOR = @CMAKE_PROJECT_VERSION_MINOR@;
 const unsigned int UDA_BUILD_VERSION_PATCH = @CMAKE_PROJECT_VERSION_PATCH@;
-const unsigned int UDA_BUILD_VERSION_DELTA = @CMAKE_PROJECT_VERSION_TWEAK@;
+
+// the delta is optional only and may not be set in cmake
+#define UDA_BUILD_VERSION_DELTA_STRING "@CMAKE_PROJECT_VERSION_TWEAK@"
 
 LIBRARY_API unsigned int bitEncodeSemanticVersionString(const char* version_string);
 LIBRARY_API unsigned int bitEncodeVersionNumber(unsigned int major, unsigned int minor, 

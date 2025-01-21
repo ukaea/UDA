@@ -57,15 +57,6 @@ include( DetermineVersion )
 
 project( uda VERSION ${VERSION} )
 
-message(STATUS "Project version: ${CMAKE_PROJECT_VERSION}")
-message(STATUS "Version major: ${CMAKE_PROJECT_VERSION_MAJOR}")
-message(STATUS "Version minor: ${CMAKE_PROJECT_VERSION_MINOR}")
-message(STATUS "Version patch: ${CMAKE_PROJECT_VERSION_PATCH}")
-
-if (NOT DEFINED CMAKE_PROJECT_VERSION_MAJOR)
-    message(FATAL_ERROR "CMAKE_PROJECT_VERSION_MAJOR is not defined. This is required for the uda build.")
-endif ()
-
 set( USER $ENV{USER} )
 
 ########################################################################################################################
