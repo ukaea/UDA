@@ -29,7 +29,7 @@ nav_order: 4
 
 The UDA server can been build on Linux and macOS. Note that the server will not run on Windows; only the client installation is supported. 
 
-## Builing UDA
+## Building UDA
 
 Note that the most up-to-date build script will be the one used for testing in the github CI tests [here](https://github.com/ukaea/UDA/blob/release/2.8.0/.github/workflows/cmake.yml). This will contain the relevant buld steps for Ubuntu and MacOS. There are also some dockerfiles available [here](https://github.com/ukaea/UDA/tree/release/2.8.0/docker) which will show the build steps for some other Linux flavours. 
 
@@ -67,7 +67,7 @@ Cmake configuration options
 
 ```bash
 export UDA_ROOT=/usr/local
-cmake -Bbuild -H. -DBUILD_SHARED_LIBS=ON -CMAKE_INSTALL_PREFIX=$UDA_ROOT -DCMAKE_BUILD_TYPE=Release
+cmake -Bbuild -H. -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$UDA_ROOT -DCMAKE_BUILD_TYPE=Release
 ```
 
 **Build**
@@ -115,7 +115,6 @@ Copy this configuration file into `/etc/xinetd.d` and start (or restart) the xin
 cp <install_dir>/etc/xinetd.conf /etc/xinetd.d/uda
 sudo systemctl start xinetd
 sudo systemctl enable xinetd
-
 ```
 
 ### launchd
@@ -166,5 +165,4 @@ export UDA_SERVER_SSL_CERT="${UDA_ROOT}/etc/.uda/certs/<server_address>.pem"
 export UDA_SERVER_SSL_KEY="${UDA_ROOT}/etc/.uda/keys/<server_address>.key.pem"
 export UDA_SERVER_CA_SSL_CERT="${UDA_ROOT}/etc/.uda/certs/uda-ca.cert.pem"
 export UDA_SERVER_CA_SSL_CRL="${UDA_ROOT}/etc/.uda/crl/uda-ca.crl.pem"
-
 ```

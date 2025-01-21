@@ -51,7 +51,6 @@ pyuda.Client.server = <your.uda.server.address>
 
 client = pyuda.Client()
 data_object = client.get('signal-name', source) 
-
 ```
 
 ## Building a docker image
