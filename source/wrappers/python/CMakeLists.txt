@@ -47,7 +47,13 @@ if ( WIN32 )
 else()
   get_filename_component( FMT_ROOT_DIR "${fmt_CONFIG}/../../../../" ABSOLUTE )
   set( FMT_INCLUDE_DIR ${FMT_ROOT_DIR}/include )
-  set( FMT_LIB_DIR ${FMT_ROOT_DIR}/lib )
+
+  find_library( FMT_LIB_FILE NAMES fmt
+      HINTS
+      ${FMT_ROOT_DIR}
+      PATH_SUFFIXES lib lib64 )
+  get_filename_component( FMT_LIB_DIR ${FMT_LIB_FILE} DIRECTORY )
+
   get_filename_component( OPENSSL_LIB_DIR "${OPENSSL_SSL_LIBRARY}" DIRECTORY )
   get_filename_component( LIBXML_LIB_DIR "${LIBXML2_LIBRARIES}" DIRECTORY )
 endif()
