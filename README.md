@@ -11,9 +11,13 @@ remote server, or as fat-client API where both the client access and plugin func
 
 UDA is licenced under an Apache 2.0 licence. See [LICENCE.txt](https://github.com/ukaea/UDA/blob/main/LICENCE.txt) for details.
 
-## documentation
+## Documentation
 
 See the github pages for current [Docs](https://ukaea.github.io/UDA/)
+
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/ukaea/UDA/blob/main/CONTRIBUTING.md) for contribution guidelines.
 
 ## Getting UDA
 
