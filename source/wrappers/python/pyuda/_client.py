@@ -11,7 +11,8 @@ from ._version import __version__
 
 from six import with_metaclass
 import logging
-from collections import namedtuple
+import math
+from progress.bar import Bar
 from collections.abc import Iterable
 import sys
 try:
@@ -85,18 +86,45 @@ class Client(with_metaclass(ClientMeta, object)):
         except ImportError:
             pass
 
-    def get_file(self, source_file, output_file=None):
+    def get_file(self, source_file, output_file=None, chunk_size=1):
         """
         Retrieve file using bytes plugin and write to file
-        :param source_file: the full path to the file
-        :param output_file: the name of the output file
+        :param str      source_file: the full path to the file
+        :param str|None output_file: the name of the output file
+        :param int      chunk_size: download chunk size in MB, set to 0 to download the file in one chunk
         :return:
         """
+        if chunk_size < 0:
+            raise ValueError("chunk_size must not be negative")
 
-        result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
+        # bytes::size() function won't exist in some old servers,
+        # check for compatible plugin version.
+        # automatic versioning was introduced for bytes plugin
+        # in release 2.8.1, this changed the return type from int to str
+        result = cpyuda.get_data("bytes::version()", "")
+        if not result.is_string():
+            chunk_size = 0
 
-        with open(output_file, 'wb') as f_out:
-            result.data().tofile(f_out)
+        if chunk_size:
+            result = cpyuda.get_data("bytes::size(path={path})".format(path=source_file) % source_file, "")
+            size = result.data()
+            chunk_size = int(chunk_size * 1024 * 1024)
+            count = 0
+            steps = math.ceil(size / chunk_size)
+            bar = Bar('Downloading', max=steps, suffix='%(percent)d%%')
+            with open(output_file, 'wb') as f_out:
+                while count < size:
+                    result = cpyuda.get_data("bytes::read(path={path}, max_bytes={max_bytes}, offset={offset}, /opaque)".format(path=source_file, max_bytes=chunk_size, offset=count), "")
+                    data = result.data()
+                    count += data.size
+                    data.tofile(f_out)
+                    bar.next()
+            print(flush=True)
+        else:
+            result = cpyuda.get_data("bytes::read(path={path}, /opaque)".format(path=source_file), "")
+
+            with open(output_file, 'wb') as f_out:
+                result.data().tofile(f_out)
 
         return
 

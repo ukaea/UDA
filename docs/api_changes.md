@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API changes
-nav_order: 6
+nav_order: 7
 ---
 
 # API changes
@@ -39,44 +39,43 @@ LIBRARY_API inline void idamFreeAll()
 {
     udaFreeAll();
 }
-
 ```
 
 ### legacy_accAPI.h
-This header contains the mappings for all functions from `clent/accAPI.h` whose definitions were changed in release 2.7.0. Note that to implement this header some API functions had to be changed to pre-empt the new v3.0 syntax (such as `udaUnlockThread` instead of `unlockUdaThread` ). It's also worth being aware of the two options available: either to enable the interface using the extra `client_flags` argument or the one without. The version without `client_flags` is the default and the other behaviour can be enabled by setting a compile flag called `UDA_CLIENT_FLAGS_API`.
+This header contains the mappings for all functions from `client/accAPI.h` whose definitions were changed in release 2.7.0. Note that to implement this header some API functions had to be changed to pre-empt the new v3.0 syntax (such as `udaUnlockThread` instead of `unlockUdaThread` ). It's also worth being aware of the two options available: either to enable the interface using the extra `client_flags` argument or the one without. The version without `client_flags` is the default and the other behaviour can be enabled by setting a compile flag called `UDA_CLIENT_FLAGS_API`.
 
 ```c++
 #ifdef UDA_CLIENT_FLAGS_API
 
-     LIBRARY_API inline DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags)
-    {
-        return udaGetCurrentDataBlock();
-    }
+ LIBRARY_API inline DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags)
+{
+    return udaGetCurrentDataBlock();
+}
 
-    LIBRARY_API inline void unlockUdaThread(CLIENT_FLAGS* client_flags)
-    {
-        udaUnlockThread();
-    }
+LIBRARY_API inline void unlockUdaThread(CLIENT_FLAGS* client_flags)
+{
+    udaUnlockThread();
+}
 
-    LIBRARY_API inline void freeIdamThread(CLIENT_FLAGS* client_flags)
-    {
-        udaFreeThread();
-    }
+LIBRARY_API inline void freeIdamThread(CLIENT_FLAGS* client_flags)
+{
+    udaFreeThread();
+}
 
 #else
 
-    LIBRARY_API inline DATA_BLOCK* acc_getCurrentDataBlock()
-    {
-        return udaGetCurrentDataBlock();
-    }
+LIBRARY_API inline DATA_BLOCK* acc_getCurrentDataBlock()
+{
+    return udaGetCurrentDataBlock();
+}
 
-    LIBRARY_API inline void unlockUdaThread()
-    {
-        udaUnlockThread();
-    }
+LIBRARY_API inline void unlockUdaThread()
+{
+    udaUnlockThread();
+}
 
-    LIBRARY_API inline void freeIdamThread()
-    {
-        udaFreeThread();
-    }
+LIBRARY_API inline void freeIdamThread()
+{
+    udaFreeThread();
+}
 ```

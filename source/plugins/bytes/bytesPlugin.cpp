@@ -2,6 +2,8 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/initStructs.h>
+#include <version.h>
 
 #include "readBytesNonOptimally.h"
 
@@ -19,6 +21,8 @@ namespace filesystem = std::filesystem;
 #endif
 
 #include <boost/algorithm/string.hpp>
+#include <string>
+#include <regex>
 
 #define BYTEFILEOPENERROR           100004
 #define BYTEFILEHEAPERROR           100005
@@ -107,7 +111,7 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     } else if (STR_IEQUALS(request->function, "size")) {
         return plugin.size(plugin_interface);
     } else {
-        RAISE_PLUGIN_ERROR("Unknown function requested!");
+        RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
     }
 }
 
@@ -131,7 +135,7 @@ int BytesPlugin::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
  */
 int BytesPlugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
+    return setReturnDataString(plugin_interface->data_block, UDA_BUILD_VERSION, "Plugin version number");
 }
 
 /**
@@ -245,6 +249,8 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     const char* checksum = nullptr;
     FIND_STRING_VALUE(plugin_interface->request_data->nameValueList, checksum);
 
+    bool opaque = findValue(&plugin_interface->request_data->nameValueList, "opaque");
+
     char tmp_path[MAXPATH];
     StringCopy(tmp_path, path, MAXPATH);
     UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables! \n");
@@ -287,7 +293,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
         return err;
     }
 
-    return readBytes(file, data_block, offset, max_bytes, checksum);
+    return readBytes(file, data_block, offset, max_bytes, checksum, opaque);
 }
 
 int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)

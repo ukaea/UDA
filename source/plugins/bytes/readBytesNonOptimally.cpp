@@ -40,7 +40,7 @@
 #define BYTE_FILE_MD5DIFF             100007
 #define BYTE_FILE_READ_ERROR          100008
 
-int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const std::string& checksum)
+int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const std::string& checksum, bool opaque)
 {
     int err = 0;
 
@@ -125,7 +125,11 @@ int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const
     data_block->dims[0].method = 0;
 
     data_block->order = -1;        // No Dimensions
-    data_block->data_type = UDA_TYPE_OPAQUE; // pass as raw unmodified bytes
+    if (opaque) {
+        data_block->data_type = UDA_TYPE_OPAQUE; // pass as raw unmodified bytes
+    } else {
+        data_block->data_type = UDA_TYPE_CHAR;
+    }
 
     return err;
 }

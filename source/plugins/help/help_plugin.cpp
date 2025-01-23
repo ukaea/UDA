@@ -17,6 +17,7 @@
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <clientserver/stringUtils.h>
+#include <version.h>
 #include <fmt/format.h>
 
 static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
@@ -79,7 +80,7 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                            "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
         return setReturnDataString(data_block, help, "Help help = description of this plugin");
     } else if (STR_IEQUALS(request->function, "version")) {
-        return setReturnDataIntScalar(data_block, THISPLUGIN_VERSION, "Plugin version number");
+        return setReturnDataString(data_block, UDA_BUILD_VERSION, "Plugin version number");
     } else if (STR_IEQUALS(request->function, "builddate")) {
         return setReturnDataString(data_block, __DATE__, "Plugin build date");
     } else if (STR_IEQUALS(request->function, "defaultmethod")) {

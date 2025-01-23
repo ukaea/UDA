@@ -203,6 +203,10 @@ jobs:
 
       - name: build uda on macos
         if: runner.os == 'macOS'
+        # note: it's recommended in cibuildwheel to build all deps from source in macos 
+        # instead of using homebrew as this way the wheel will be back-compatible with 
+        # other macos versions. MACOSX_DEPLOYMENT_TARGET will no longer be required if
+        # this change is made.
         run: >
           brew update-reset && brew install
           git

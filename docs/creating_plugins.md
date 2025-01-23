@@ -70,7 +70,7 @@ If the function argument is required you can use another helper macro which will
 and return from the function with a non-zero value, if the argument is not found:
 
 ```c
-int arg1;˚
+int arg1;
 FIND_REQUIRED_INT_VALUE(nvl, arg1);
 ```
 

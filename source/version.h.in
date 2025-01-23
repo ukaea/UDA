@@ -4,4 +4,28 @@
 #define UDA_BUILD_VERSION "@PROJECT_VERSION@"
 #define UDA_BUILD_DATE "@BUILD_TIMESTAMP@"
 
+#include <clientserver/export.h>
+
+const unsigned int UDA_BUILD_VERSION_MAJOR = @CMAKE_PROJECT_VERSION_MAJOR@;
+const unsigned int UDA_BUILD_VERSION_MINOR = @CMAKE_PROJECT_VERSION_MINOR@;
+const unsigned int UDA_BUILD_VERSION_PATCH = @CMAKE_PROJECT_VERSION_PATCH@;
+
+// the delta is optional only and may not be set in cmake
+#define UDA_BUILD_VERSION_DELTA_STRING "@CMAKE_PROJECT_VERSION_TWEAK@"
+
+LIBRARY_API unsigned int bitEncodeSemanticVersionString(const char* version_string);
+LIBRARY_API unsigned int bitEncodeVersionNumber(unsigned int major, unsigned int minor, 
+                                    unsigned int patch, unsigned int delta);
+typedef struct VersionData
+{
+    unsigned int major;
+    unsigned int minor;
+    unsigned int patch;
+    unsigned int delta;
+    char version_string[256];
+} VERSION_DATA;
+
+LIBRARY_API VERSION_DATA decodeVersionNumber(unsigned int encoded_version);
+
+
 #endif // UDA_VERSION_H

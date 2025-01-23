@@ -22,6 +22,7 @@ include_directories(
 )
 
 set( SRC_FILES
+  version.cpp
   allocData.cpp
   compressDim.cpp
   copyStructs.cpp

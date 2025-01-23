@@ -11,9 +11,13 @@ remote server, or as fat-client API where both the client access and plugin func
 
 UDA is licenced under an Apache 2.0 licence. See [LICENCE.txt](https://github.com/ukaea/UDA/blob/main/LICENCE.txt) for details.
 
-## documentation
+## Documentation
 
 See the github pages for current [Docs](https://ukaea.github.io/UDA/)
+
+## Contributing
+
+See [CONTRIBUTING.md](https://github.com/ukaea/UDA/blob/main/CONTRIBUTING.md) for contribution guidelines.
 
 ## Getting UDA
 
@@ -55,6 +59,7 @@ UDA requires the following to packages in order to build:
 | libfmt | | |
 | spdlog | | |
 | capnproto | | |
+| tirpc | | |
 | boost | | C++, Python & HTTP wrappers |
 | LibMemcached | | to enable caching |
 | python | \> 3.0 | Python wrapper |
@@ -64,6 +69,7 @@ Start by installing all system-level dependencies.
 ```sh
 sudo apt update && sudo apt install -y
 git
+libtirpc-dev
 libboost-dev
 libboost-program-options-dev
 libssl-dev
@@ -94,4 +100,8 @@ build and install
 ```sh
 cmake --build build -j --config Release --target install
 ```
+## Events and training
 
+Slide packs including some hands-on exercises are available from an UDA workshop delivered at ITER in 2023. These resources provide some additional details and working examples for working with UDA, especially in the context of the ITER Modelling and Analysis Suite (IMAS).
+
+See event details and resources [here](https://indico.iter.org/event/81/).

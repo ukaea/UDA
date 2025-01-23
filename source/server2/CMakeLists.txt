@@ -233,6 +233,7 @@ set( ETC_FILES
   xinetd.conf
   rc.uda
   README.md
+  launchd.udaserver.plist
 )
 
 set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )

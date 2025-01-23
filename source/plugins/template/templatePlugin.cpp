@@ -27,6 +27,7 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
+#include <version.h>
 
 class TemplatePlugin
 {
@@ -149,7 +150,7 @@ int TemplatePlugin::help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int TemplatePlugin::version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
+    return setReturnDataString(idam_plugin_interface->data_block, UDA_BUILD_VERSION, "Plugin version number");
 }
 
 /**
