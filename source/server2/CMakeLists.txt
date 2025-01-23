@@ -1,32 +1,6 @@
-########################################################################################################################
-# Dependencies
-
-find_package( LibXml2 REQUIRED )
-find_package( OpenSSL REQUIRED )
-find_package( spdlog REQUIRED )
+find_package( Boost REQUIRED )
+#find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
-find_package( Boost REQUIRED COMPONENTS regex )
-
-set( LIBS LibXml2::LibXml2 OpenSSL::SSL OpenSSL::Crypto spdlog::spdlog fmt::fmt Boost::regex )
-
-if( WIN32 OR MINGW )
-  find_package( XDR REQUIRED )
-  find_package( dlfcn-win32 CONFIG REQUIRED )
-  list( APPEND LIBS XDR::XDR )
-  list( APPEND LIBS dlfcn-win32::dl )
-  list( APPEND LIBS ws2_32 )
-  if( MINGW )
-    list( APPEND LIBS stdc++ )
-  endif()
-else()
-  find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    list( APPEND LIBS TIRPC::TIRPC )
-  endif()
-endif()
-
-########################################################################################################################
-# Sources
 
 set( SRC_FILES
   apply_XML.cpp
@@ -39,216 +13,42 @@ set( SRC_FILES
   server_processing.cpp
   server_subset_data.cpp
   xdr_protocol.cpp
-  plugin_api.cpp
 )
 
-add_definitions( -DSERVERBUILD )
-
-########################################################################################################################
-# Targets
-
-add_library( server2-objects OBJECT
-  ${SRC_FILES}
+add_library( server ${SRC_FILES} )
+target_include_directories( server PRIVATE ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories( server
+  PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-target_link_libraries( server2-objects PRIVATE ${LIBS} )
-target_include_directories( server2-objects PRIVATE
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/source/include
-  ${CMAKE_BINARY_DIR}/include
-)
-target_compile_definitions( server2-objects PRIVATE -DSHARED_LIBRARY_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}" )
+target_link_libraries( server PRIVATE clientserver Boost::boost fmt::fmt structures config logging common cache )
+target_compile_definitions( server PRIVATE -DSHARED_LIBRARY_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}" )
 
-set( OBJECT_LIBS
-  server2-objects
-  clientserver-server-objects
-  logging-server-objects
-  structures-server-objects
-  authentication-server-objects
-  cache-objects
-)
-
-add_library( server2-static STATIC )
-if( BUILD_SHARED_LIBS )
-  add_library( server2-shared SHARED )
-endif()
-
-target_link_libraries( server2-static PRIVATE ${LIBS} ${OBJECT_LIBS} )
-if( BUILD_SHARED_LIBS )
-  target_link_libraries( server2-shared PRIVATE ${LIBS} ${OBJECT_LIBS} )
-endif()
-
-set( EXE_FLAG )
-if( WIN32 OR MINGW )
-  set( EXE_FLAG WIN32 )
-endif()
-
-add_executable( server2-exe ${EXE_FLAG} server_main.cpp)
-
-########################################################################################################################
-# Add libraries
-
-set( CLIENT_STATIC )
-if( BUILD_SHARED_LIBS )
-  set( CLIENT_STATIC client-shared )
-else()
-  set( CLIENT_STATIC client-static )
-endif()
-
-target_link_libraries( server2-static PRIVATE
-  ${CLIENT_STATIC}
-  ${CACHE_LIBRARIES}
-)
-
-if( BUILD_SHARED_LIBS )
-  target_link_libraries( server2-shared PRIVATE
-    client-shared
-    ${CACHE_LIBRARIES}
-  )
-endif()
-
-# Executable
-set( SERVER_LINKING )
-if( BUILD_SHARED_LIBS )
-  set( SERVER_LINKING client-shared server2-shared )
-else()
-  set( SERVER_LINKING client-static server2-static )
-endif()
-
-target_link_libraries( server2-exe PRIVATE
-  ${SERVER_LINKING}
-  ${LIBS}
-)
-target_include_directories( server2-exe PRIVATE
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/source/include
-  ${CMAKE_BINARY_DIR}/include
-)
-
-if( NOT WIN32 AND NOT MINGW )
-  target_link_libraries( server2-exe LINK_PRIVATE c )
-endif()
-
-if( NOT APPLE AND ( NOT WIN32 OR ( WIN32 AND MINGW ) ) )
-  target_link_libraries( server2-exe PRIVATE gcc_s )
-endif()
-
-########################################################################################################################
-# Set library properties
-
-set_target_properties( server2-static
+set_target_properties( server
   PROPERTIES
-  OUTPUT_NAME ${PROJECT_NAME}_server2
+  OUTPUT_NAME uda_server
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-install(
-  TARGETS server2-static
-  DESTINATION lib
+add_library( uda::server ALIAS server )
+
+install( TARGETS server
+  EXPORT udaServerTargets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
-
-if( BUILD_SHARED_LIBS )
-  set_target_properties( server2-shared
-      PROPERTIES
-        OUTPUT_NAME ${PROJECT_NAME}_server2
-        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-        SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( server2-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install(
-    TARGETS server2-shared
-    DESTINATION lib
-  )
-endif()
 
 ########################################################################################################################
-# Set executable properties
+# Server executable
 
-set_target_properties( server2-exe
-  PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_server2${EXE_EXT}
-)
+add_executable( server-exe ${EXE_FLAG} server_main.cpp )
+target_include_directories( server-exe PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_link_libraries( server-exe PRIVATE Boost::boost fmt::fmt server common config )
 
-if( WIN32 )
-  set_target_properties( server2-exe
-    PROPERTIES
-     COMPILE_FLAGS -DNOIMPLIB
-  )
-endif()
-
-install( TARGETS server2-exe
+install( TARGETS server-exe
   DESTINATION bin
-)
-
-########################################################################################################################
-# Configure server files
-
-string( REPLACE ";" ":" EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS}" )
-
-set( ETC_FILES
-  udaserver.sh
-  udaserver.cfg
-  xinetd.conf
-  rc.uda
-  README.md
-)
-
-set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
-
-foreach( ETC_FILE ${ETC_FILES} )
-  configure_file(
-    "${CMAKE_SOURCE_DIR}/source/etc/${ETC_FILE}.in"
-    "${CMAKE_BINARY_DIR}/etc/${ETC_FILE}"
-    @ONLY
-  )
-  list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
-endforeach()
-
-configure_file(
-  "${CMAKE_SOURCE_DIR}/source/etc/udagenstruct.conf"
-  "${CMAKE_BINARY_DIR}/etc/udagenstruct.conf"
-  COPYONLY
-)
-
-install(
-  FILES
-    ${GEN_ETC_FILES}
-  DESTINATION etc
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_BINARY_DIR}/lib/pkgconfig
-  DESTINATION lib
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_SOURCE_DIR}/source/etc/machine.d
-  DESTINATION etc
-)
-
-install(
-  FILES
-    ${CMAKE_BINARY_DIR}/etc/udaserver.sh
-    ${CMAKE_BINARY_DIR}/etc/rc.uda
-  DESTINATION etc
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_BINARY_DIR}/etc/plugins.d
-  DESTINATION etc
-)
-
-install(
-  FILES
-    ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
-  DESTINATION etc
 )

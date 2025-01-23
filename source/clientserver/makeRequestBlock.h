@@ -21,4 +21,6 @@ int name_value_pairs(const char* pairList, NameValueList* nameValueList, unsigne
 
 void free_name_value_list(NameValueList* nameValueList);
 
+void expand_environmental_variables(char* path);
+
 } // namespace uda::client_server

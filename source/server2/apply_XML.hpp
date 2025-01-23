@@ -5,7 +5,7 @@
 
 #  include "clientserver/parseXML.h"
 #  include "clientserver/udaStructs.h"
-#  include "include/uda/export.h"
+#  include <uda/export.h>
 
 namespace uda
 {

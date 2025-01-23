@@ -16,7 +16,7 @@
 #include <memory>
 #include <cxxabi.h>
 
-std::string uda::client_server::demangle(const char* name) {
+std::string uda::common::demangle(const char* name) {
 
     int status = -4; // some arbitrary value to eliminate the compiler warning
 
@@ -65,7 +65,7 @@ char* strcasestr(const char* haystack, const char* needle)
 
 // Reverse a String
 
-void uda::client_server::reverse_string(const char* in, char* out)
+void uda::common::reverse_string(const char* in, char* out)
 {
     int lstr = (int)strlen(in);
     out[lstr] = '\0';
@@ -76,7 +76,7 @@ void uda::client_server::reverse_string(const char* in, char* out)
 
 // Copy a String subject to a Maximum length constraint
 
-void uda::client_server::copy_string(const char* in, char* out, size_t maxlength)
+void uda::common::copy_string(const char* in, char* out, size_t maxlength)
 {
     size_t lstr = strlen(in);
     if (lstr < maxlength) {
@@ -87,7 +87,7 @@ void uda::client_server::copy_string(const char* in, char* out, size_t maxlength
     }
 }
 
-void uda::client_server::copy_string(const std::string& in, char* out, size_t maxlength)
+void uda::common::copy_string(const std::string& in, char* out, size_t maxlength)
 {
     size_t lstr = in.size();
     if (lstr < maxlength) {
@@ -98,7 +98,7 @@ void uda::client_server::copy_string(const std::string& in, char* out, size_t ma
     }
 }
 
-char* uda::client_server::format_string(const char* fmt, ...)
+char* uda::common::format_string(const char* fmt, ...)
 {
     va_list vargs;
     va_start(vargs, fmt);
@@ -118,7 +118,7 @@ char* uda::client_server::format_string(const char* fmt, ...)
 
 // Trim Trailing Space Characters from a String
 
-char* uda::client_server::trim_string(char* szSource)
+char* uda::common::trim_string(char* szSource)
 {
     char* pszEOS;
 
@@ -136,7 +136,7 @@ char* uda::client_server::trim_string(char* szSource)
 
 // Trim Leading Space Characters from a String
 
-char* uda::client_server::left_trim_string(char* str)
+char* uda::common::left_trim_string(char* str)
 {
     int trim = 0, lstr;
 
@@ -161,7 +161,7 @@ char* uda::client_server::left_trim_string(char* str)
 
 // Convert all LowerCase Characters to Upper Case
 
-char* uda::client_server::strupr(char* a)
+char* uda::common::strupr(char* a)
 {
     char* ret = a;
 
@@ -177,7 +177,7 @@ char* uda::client_server::strupr(char* a)
 
 // Convert all UpperCase Characters to Lower Case
 
-char* uda::client_server::strlwr(char* a)
+char* uda::common::strlwr(char* a)
 {
     char* ret = a;
 
@@ -195,7 +195,7 @@ char* uda::client_server::strlwr(char* a)
 
 // Trim Internal Space Characters from a String
 
-char* uda::client_server::mid_trim_string(char* str)
+char* uda::common::mid_trim_string(char* str)
 {
     int j = 0, lstr;
     lstr = (int)strlen(str);
@@ -210,7 +210,7 @@ char* uda::client_server::mid_trim_string(char* str)
 
 // Is the String an Integer Number? (Simple but not exhaustive Check)
 
-int uda::client_server::is_number(const char* a)
+int uda::common::is_number(const char* a)
 {
     const char* wrk = a;
     while (*wrk != '\0') {
@@ -224,7 +224,7 @@ int uda::client_server::is_number(const char* a)
 
 // Is the String a Simple Float Number?
 
-int uda::client_server::is_float(char* a)
+int uda::common::is_float(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
@@ -238,7 +238,7 @@ int uda::client_server::is_float(char* a)
 
 // Is the String a Number List (#,#,#,#;#;#;#)?
 
-int uda::client_server::is_number_list(char* a)
+int uda::common::is_number_list(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
@@ -254,7 +254,7 @@ int uda::client_server::is_number_list(char* a)
     return 1;
 }
 
-char* uda::client_server::convert_non_printable(char* str)
+char* uda::common::convert_non_printable(char* str)
 {
     // Remove CR & LF Characters from a Number List
 
@@ -268,7 +268,7 @@ char* uda::client_server::convert_non_printable(char* str)
     return ret;
 }
 
-char* uda::client_server::convert_non_printable2(char* str)
+char* uda::common::convert_non_printable2(char* str)
 {
     // Remove NonPrintable Characters from a String
 
@@ -282,7 +282,7 @@ char* uda::client_server::convert_non_printable2(char* str)
     return ret;
 }
 
-int uda::client_server::is_legal_file_path(const char* str)
+int uda::common::is_legal_file_path(const char* str)
 {
     // Basic check that the filename complies with good naming practice - some protection against malign embedded code!
     // Test against the Portable Filename Character Set A-Z, a-z, 0-9, <period>, <underscore> and <hyphen> and <plus>
@@ -359,7 +359,7 @@ int asprintf(char** strp, const char* fmt, ...) noexcept
 #  define strdup _strdup
 #endif
 
-char** uda::client_server::split_string(const char* string, const char* delims)
+char** uda::common::split_string(const char* string, const char* delims)
 {
     char** names = nullptr;
     char* tokptr = nullptr;
@@ -382,7 +382,7 @@ char** uda::client_server::split_string(const char* string, const char* delims)
     return names;
 }
 
-char* uda::client_server::string_replace_all(const char* string, const char* find, const char* replace)
+char* uda::common::string_replace_all(const char* string, const char* find, const char* replace)
 {
     char* prev_string = nullptr;
     char* new_string = strdup(string);
@@ -397,7 +397,7 @@ char* uda::client_server::string_replace_all(const char* string, const char* fin
     return new_string;
 }
 
-char* uda::client_server::string_replace(const char* string, const char* find, const char* replace)
+char* uda::common::string_replace(const char* string, const char* find, const char* replace)
 {
     if (find == nullptr || find[0] == '\0') {
         return strdup(string);
@@ -424,7 +424,7 @@ char* uda::client_server::string_replace(const char* string, const char* find, c
  * Free the token list generated by split_string().
  * @param tokens
  */
-void uda::client_server::free_split_string_tokens(char*** tokens)
+void uda::common::free_split_string_tokens(char*** tokens)
 {
     size_t i = 0;
     while ((*tokens)[i] != nullptr) {
@@ -435,7 +435,7 @@ void uda::client_server::free_split_string_tokens(char*** tokens)
     *tokens = nullptr;
 }
 
-bool uda::client_server::string_equals(const char* a, const char* b)
+bool uda::common::string_equals(const char* a, const char* b)
 {
     if (a == nullptr || b == nullptr) {
         return false;
@@ -452,7 +452,7 @@ bool uda::client_server::string_equals(const char* a, const char* b)
     return *a == *b;
 }
 
-bool uda::client_server::string_iequals(const char* a, const char* b)
+bool uda::common::string_iequals(const char* a, const char* b)
 {
     if (a == nullptr || b == nullptr) {
         return false;
@@ -469,7 +469,7 @@ bool uda::client_server::string_iequals(const char* a, const char* b)
     return *a == *b;
 }
 
-bool uda::client_server::string_ends_with(const char* str, const char* find)
+bool uda::common::string_ends_with(const char* str, const char* find)
 {
     if (str == nullptr || find == nullptr) {
         return false;

@@ -2,19 +2,11 @@
 
 #include <cstdlib>
 
-#include "client/udaClient.h"
-#include "clientserver/initStructs.h"
-#include "common/stringUtils.h"
-#include "include/uda/uda_plugin_base.hpp"
-#include "logging/logging.h"
-#include "server/serverPlugin.h"
-#include "uda/client.h"
+#include <uda/client.h>
+#include <uda/uda_plugin_base.hpp>
 
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
-
-using namespace uda::client_server;
-using namespace uda::client;
 
 namespace uda::plugins::uda
 {

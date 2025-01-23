@@ -31,6 +31,7 @@
 constexpr size_t HostNameLength = 20;
 
 using namespace uda::client_server;
+using namespace uda::common;
 
 void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlock request_block,
                                 ServerBlock server_block, unsigned int total_datablock_size)
@@ -146,11 +147,6 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
 
     for (int i = 0; i < request_block.num_requests; ++i) {
         auto request = request_block.requests[i];
-        std::stringstream ss;
-        ss << host << " - " << client_block.uid << " "
-           << "[" << access_date << "] "
-           << "[" << request.request << " "
-           << "";
 
         UDA_LOG(UDA_LOG_ACCESS, "{} - {} [{}] [{} {} {} {} {} {} {} {} {} {} {}] {} {} [{}] {} {} {} [{} {}] [{}]",
                 host                   // 1

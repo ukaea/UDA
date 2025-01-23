@@ -10,7 +10,7 @@
 #include "clientserver/parseXML.h"
 #include "clientserver/socketStructs.h"
 #include "clientserver/version.h"
-#include "include/uda/export.h"
+#include <uda/export.h>
 #include "config/config.h"
 
 #include <uda/version.h>

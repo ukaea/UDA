@@ -9,11 +9,11 @@
 #include <uda/client.h>
 #include <uda/plugins.h>
 #include <uda/uda_plugin_base.hpp>
-#include <serialisation/capnp_serialisation.h>
+#include <uda/serialisation/capnp_serialisation.h>
 
 #include "teststructs.h"
 
-//#define MAXELEMENTNAME 1024
+#define MAXELEMENTNAME 1024
 
 #ifdef TESTUDT
 #  include "udtc.h"
@@ -268,8 +268,6 @@ int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-#include "server2/server_plugin.h"
-
 int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     typedef struct Test4 {
@@ -281,8 +279,8 @@ int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
     int offset = 0;
 
     COMPOUNDFIELD* fields[1] = {nullptr};
-    auto p = (uda::server::UdaPluginInterface*)plugin_interface;
-    printf("%d", p->plugin_version);
+    const auto plugin_version = udaPluginGetVersion(plugin_interface);
+    printf("%d", plugin_version);
 
     int shape[1] = {56};
     fields[0] = udaNewCompoundFixedStringField("value", "string structure element", &offset, 1, shape);

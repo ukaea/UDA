@@ -13,6 +13,7 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::common;
 
 static int recursiveDepth = 0; // Keep count of recursive calls
 

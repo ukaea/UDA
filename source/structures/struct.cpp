@@ -70,6 +70,7 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::common;
 
 static unsigned int last_malloc_index = 0; // Malloc Log search index last value
 static unsigned int* last_malloc_index_value = &last_malloc_index; // Preserve Malloc Log search index last value in GENERAL_STRUCT

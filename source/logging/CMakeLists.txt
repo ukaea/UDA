@@ -1,47 +1,11 @@
-########################################################################################################################
-# Dependencies
+find_package( fmt REQUIRED )
+find_package( spdlog REQUIRED )
 
-find_package( LibXml2 REQUIRED )
-find_package( Boost REQUIRED )
-
-set( LIBS LibXml2::LibXml2 Boost::boost )
-
-if( WIN32 OR MINGW )
-  find_package( XDR REQUIRED )
-  list( APPEND LIBS XDR::XDR )
-else()
-  find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    list( APPEND LIBS TIRPC::TIRPC )
-  endif()
-endif()
-
-########################################################################################################################
-# Targets
-
-add_library( logging-client-objects OBJECT logging.cpp )
-target_link_libraries( logging-client-objects PUBLIC ${LIBS} )
-
-target_include_directories( logging-client-objects PRIVATE
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/source/include
+set( SRCS
+  access_log.cpp
+  logging.cpp
 )
 
-if( MINGW )
-  target_compile_options( logging-client-objects PRIVATE -Wno-error=pointer-sign )
-endif()
-
-if( NOT CLIENT_ONLY )
-  add_library( logging-server-objects OBJECT logging.cpp access_log.cpp )
-  target_compile_definitions( logging-server-objects PRIVATE -DSERVERBUILD )
-  target_link_libraries( logging-server-objects PUBLIC ${LIBS} )
-
-  target_include_directories( logging-server-objects PRIVATE
-    ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/source/include
-  )
-
-  if( MINGW )
-    target_compile_options( logging-server-objects PRIVATE -Wno-error=pointer-sign )
-  endif()
-endif()
+add_library( logging OBJECT ${SRCS} )
+target_include_directories( logging PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_link_libraries( logging PUBLIC fmt::fmt spdlog::spdlog )

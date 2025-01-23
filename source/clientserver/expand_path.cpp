@@ -61,6 +61,7 @@ void expandFilePath(char* path)
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::common;
 
 /**
  * The workstation (client host) name is obtained using the operating system command 'hostname'.

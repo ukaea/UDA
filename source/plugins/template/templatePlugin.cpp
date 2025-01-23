@@ -20,9 +20,7 @@
  *---------------------------------------------------------------------------------------------------------------*/
 #include "templatePlugin.h"
 
-#include "clientserver/initStructs.h"
-#include "common/stringUtils.h"
-#include "include/uda/uda_plugin_base.hpp"
+#include <uda/uda_plugin_base.hpp>
 
 #include <boost/filesystem.hpp>
 

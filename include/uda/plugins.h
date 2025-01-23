@@ -56,12 +56,12 @@ typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // W
 #define UDA_MAX_PATH 1024 // Same as StringLength
 
 LIBRARY_API void udaExpandEnvironmentalVariables(char* path);
-
 LIBRARY_API int udaCallPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request);
 LIBRARY_API int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source);
 
 LIBRARY_API int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface);
 LIBRARY_API int udaPluginCheckInterfaceVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int interface_version);
+LIBRARY_API int udaPluginGetVersion(UDA_PLUGIN_INTERFACE* plugin_interface);
 LIBRARY_API void udaPluginSetVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_version);
 LIBRARY_API const char* udaPluginFunction(UDA_PLUGIN_INTERFACE* plugin_interface);
 

@@ -18,6 +18,7 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::common;
 
 static void embedded_value_substitution(NameValueList* name_value_list);
 

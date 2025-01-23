@@ -5,7 +5,7 @@
 #include <hdf5.h>
 #include <H5Tpublic.h>
 
-#include "include/uda/uda_plugin_base.hpp"
+#include <uda/uda_plugin_base.hpp>
 
 class HDF5Plugin : public UDAPluginBase
 {

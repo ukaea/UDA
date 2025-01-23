@@ -1,19 +1,11 @@
-########################################################################################################################
-# Dependencies
+find_package( Boost REQUIRED headers )
+find_package( fmt REQUIRED )
 
-find_package( Boost REQUIRED )
-
-set( LIBS Boost::boost )
-
-########################################################################################################################
-# Targets
-
-add_library( config-objects OBJECT config.cpp )
-target_link_libraries( config-objects PUBLIC ${LIBS} PRIVATE common-objects )
-
-target_include_directories( config-objects PRIVATE
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/source/include
-  ${CMAKE_BINARY_DIR}/include
-  ${CMAKE_SOURCE_DIR}/extlib
+set( SRCS
+  config.cpp
 )
+
+add_library( config OBJECT ${SRCS} )
+target_include_directories( config PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories( config PRIVATE ${CMAKE_SOURCE_DIR}/extlib )
+target_link_libraries( config PRIVATE Boost::boost fmt::fmt )

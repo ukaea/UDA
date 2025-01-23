@@ -1,24 +1,15 @@
-########################################################################################################################
-# Dependencies
+find_package( Boost COMPONENTS filesystem REQUIRED )
+find_package( fmt REQUIRED )
 
-find_package( LibXml2 QUIET )
-
-if( NOT LIBXML2_FOUND )
-  message( WARNING "Libxml2 not found - skipping template plugin" )
-  return()
-endif()
-
-include( plugins )
+include( udaPlugins )
 
 uda_plugin(
-  NAME TEMPLATEPLUGIN
+  NAME TEMPLATE_PLUGIN
+  VERSION 1.0.0
   ENTRY_FUNC templatePlugin
   DESCRIPTION "Standardised Plugin Template"
-  EXAMPLE "TEMPLATEPLUGIN::functionName()"
+  EXAMPLE "TEMPLATE_PLUGIN::functionName()"
   LIBNAME template_plugin
   SOURCES templatePlugin.cpp
-  EXTRA_INCLUDE_DIRS
-    ${LIBXML2_INCLUDE_DIR}
-  EXTRA_LINK_LIBS
-    ${LIBXML2_LIBRARIES}
+  EXTRA_LINK_LIBS Boost::filesystem fmt::fmt
 )

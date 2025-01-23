@@ -2,7 +2,7 @@
 #define UDA_WRAPPERS_CPP_SIGNAL_H
 
 #include "array.hpp"
-#include "include/uda/export.h"
+#include <uda/export.h>
 
 #if defined(_WIN32)
 #  if !defined(__GNUC__)

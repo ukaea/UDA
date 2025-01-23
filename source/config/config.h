@@ -16,8 +16,8 @@ class ConfigError : public std::runtime_error
 
     template <typename T>
     static ConfigError cast_error(const std::string& name, const boost::any& value) {
-        auto arg_type_name = client_server::demangle(typeid(T).name());
-        auto value_type_name = client_server::demangle(value.type().name());
+        auto arg_type_name = common::demangle(typeid(T).name());
+        auto value_type_name = common::demangle(value.type().name());
         return ConfigError{ fmt::format("invalid cast for option '{}' - requested '{}' but actual type is '{}'", name, arg_type_name, value_type_name) };
     }
 };

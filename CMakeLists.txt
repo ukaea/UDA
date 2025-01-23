@@ -1,4 +1,146 @@
-cmake_minimum_required( VERSION 3.14 )
+########################################################################################################################
+# CMake configuration
+
+cmake_minimum_required( VERSION 3.25 )
+
+cmake_policy( SET CMP0140 NEW )
+cmake_policy( SET CMP0167 NEW )
+
+list( APPEND CMAKE_MODULE_PATH
+  ${CMAKE_SOURCE_DIR}/cmake
+  ${CMAKE_SOURCE_DIR}/cmake/Config
+  ${CMAKE_SOURCE_DIR}/cmake/Modules
+)
+
+########################################################################################################################
+# Version and Machine information
+
+# Set VERSION and FULL_VERSION from `git describe`
+# but use git export attribute for release tarballs
+set( GIT_ARCHIVE_DESCRIBE [[$Format:%(describe)$]] )
+include( DetermineVersion )
+
+project( uda VERSION ${VERSION} )
+
+########################################################################################################################
+# Build configuration
+
+set( CMAKE_CXX_STANDARD 17 )
+set( CMAKE_CXX_STANDARD_REQUIRED ON )
+# C++ extension = OFF to use STD instead GNU
+set( CMAKE_CXX_EXTENSIONS OFF )
+set( CMAKE_C_STANDARD 90 )
+set( CMAKE_C_STANDARD_REQUIRED ON )
+
+cmake_host_system_information( RESULT _Is64Bit QUERY IS_64BIT )
+
+if( _Is64Bit )
+  message( "-- 64 bit system detected" )
+  add_definitions( -DA64 )
+endif()
+
+message( "-- Including configuration for system '${CMAKE_SYSTEM_NAME}'" )
+include( Config${CMAKE_SYSTEM_NAME} OPTIONAL RESULT_VARIABLE _SystemConfig )
+if( "${_SystemConfig}" STREQUAL "NOTFOUND" )
+  message( "Config${CMAKE_SYSTEM_NAME}.cmake not found" )
+endif(  )
+
+message( "-- Including configuration for compiler '${CMAKE_CXX_COMPILER_ID}'" )
+include( Config${CMAKE_CXX_COMPILER_ID} OPTIONAL RESULT_VARIABLE _CompilerConfig )
+if( "${_CompilerConfig}" STREQUAL "NOTFOUND" )
+  message( "Config${CMAKE_CXX_COMPILER_ID}.cmake not found" )
+endif(  )
+
+cmake_host_system_information( RESULT _HostName QUERY HOSTNAME )
+
+message( "-- Including configuration for hostname '${_HostName}'" )
+include( Config${_HostName} OPTIONAL RESULT_VARIABLE _HostConfig )
+if( "${_HostConfig}" STREQUAL "NOTFOUND" )
+  message( "Config${_HostName}.cmake not found" )
+endif(  )
+
+########################################################################################################################
+# Build options
+
+option( UDA_CACHE_MEMCACHE "use memcache caching" OFF )
+option( NO_CXX_WRAPPER "Turn off building of C++ wrapper" OFF )
+option( NO_PYTHON_WRAPPER "Turn off building of Python wrapper" OFF )
+option( NO_IDL_WRAPPER "Turn off building of IDL wrapper" OFF )
+
+########################################################################################################################
+# Configure files
+
+string( TIMESTAMP BUILD_TIMESTAMP UTC )
+configure_file(
+  ${CMAKE_SOURCE_DIR}/include/uda/version.h.in
+  ${CMAKE_BINARY_DIR}/include/uda/version.h
+  @ONLY
+)
+
+########################################################################################################################
+# Source directories
+
+add_subdirectory( source )
+
+########################################################################################################################
+# Test directories
+
+add_subdirectory( test )
+
+########################################################################################################################
+# Create module
+
+configure_file(
+  ${CMAKE_SOURCE_DIR}/source/etc/module.in
+  ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
+  @ONLY
+)
+
+install(
+  FILES ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
+  DESTINATION modulefiles/uda
+)
+
+########################################################################################################################
+# Installation
+
+include( CMakePackageConfigHelpers )
+write_basic_package_version_file(
+  udaConfigVersion.cmake
+  VERSION ${PACKAGE_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+install( FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/udaConfigVersion.cmake
+  ${CMAKE_SOURCE_DIR}/cmake/udaConfig.cmake
+  ${CMAKE_SOURCE_DIR}/cmake/udaPlugins.cmake
+  DESTINATION lib/cmake/uda
+)
+
+install( EXPORT udaServerTargets
+  FILE udaServerTargets.cmake
+  NAMESPACE
+    uda::
+  DESTINATION
+    lib/cmake/uda
+)
+
+install( EXPORT udaClientTargets
+  FILE udaClientTargets.cmake
+  NAMESPACE
+    uda::
+  DESTINATION
+    lib/cmake/uda
+)
+
+install( EXPORT udaPluginTargets
+  FILE udaPluginTargets.cmake
+  NAMESPACE
+    uda::
+  DESTINATION
+    lib/cmake/uda
+)
 
 ########################################################################################################################
 # Macro used to convert Windows path to Unix
@@ -18,216 +160,6 @@ macro( CONVERT_LIN_PATH VarName )
     string( REGEX REPLACE "[\r\n]+" ";" ${VarName} "${${VarName}}" )
   endif()
 endmacro()
-
-########################################################################################################################
-# CMake configuration
-
-cmake_policy( SET CMP0048 NEW )
-if( CMAKE_VERSION VERSION_GREATER 3.12 )
-  cmake_policy( SET CMP0074 OLD )
-  cmake_policy( SET CMP0075 OLD )
-endif()
-
-# Extra cmake modules to find libraries
-set( CMAKE_MODULE_PATH
-  ${CMAKE_MODULE_PATH}
-  ${CMAKE_SOURCE_DIR}/cmake
-  ${CMAKE_SOURCE_DIR}/cmake/Modules
-  ${CMAKE_SOURCE_DIR}/cmake/Config
-)
-set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
-
-#include( ColourMessages )
-include_directories( /opt/local/include )
-
-set( Boost_USE_MULTITHREADED OFF )
-
-########################################################################################################################
-# Version and Machine information
-
-include( GetGitRevisionDescription )
-
-git_describe( GIT_TAG --tags )
-
-if( "${GIT_TAG}" MATCHES "^.*NOTFOUND$" )
-  message( WARNING "Failed to get git revision: ${GIT_TAG}" )
-  set( GIT_VERSION "0.0.0.0" )
-elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)$" )
-  set( GIT_VERSION "${GIT_TAG}.0" )
-elseif( "${GIT_TAG}" MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)-([0-9]+)-.*$" )
-  set( GIT_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
-else()
-  message( WARNING "invalid git tag for version parsing: ${GIT_TAG}" )
-  set( GIT_VERSION "0.0.0.0" )
-endif()
-
-project( uda VERSION ${GIT_VERSION} )
-
-set( USER $ENV{USER} )
-
-########################################################################################################################
-# Compiler configuration
-
-if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-  message( "64 bit compiler detected" )
-  set( EX_PLATFORM 64 )
-  set( EX_PLATFORM_NAME "x64" )
-  add_definitions( -DA64 )
-else()
-  message( "32 bit compiler detected" )
-  set( EX_PLATFORM 32 )
-  set( EX_PLATFORM_NAME "x86" )
-endif()
-
-if( "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang" )
-  set( CMAKE_MACOSX_RPATH ON )
-  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Qunused-arguments -undefined dynamic_lookup" )
-  set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Qunused-arguments" )
-endif()
-
-if( CMAKE_VERSION VERSION_GREATER 3.0.9 )
-  if( CMAKE_C_COMPILER_ID STREQUAL "Intel" )
-    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17" )
-  else()
-    set( CMAKE_CXX_STANDARD 17 )
-    set( CMAKE_CXX_STANDARD_REQUIRED ON )
-    # C++ extension = OFF to use STD instead GNU
-    set( CMAKE_CXX_EXTENSIONS OFF )
-    set( CMAKE_C_STANDARD 90 )
-    set( CMAKE_C_STANDARD_REQUIRED ON )
-  endif()
-else()
-  if( NOT WIN32 OR MINGW )
-    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
-
-    if( NOT APPLE )
-      set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-use-after-free" )
-    endif()
-  endif()
-endif()
-
-if( NOT WIN32 )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread -Wno-implicit-function-declaration" )
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -pthread" )
-  
-  if( MINGW )
-    add_definitions( -DMINGW )
-  endif()
-  
-  if( GOPTION )
-    message( "Compiling with g option to generate and embed debug information" )
-    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g" )
-  endif() 
-endif()
-
-if( WIN32 AND NOT MINGW )
-  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO" )
-  set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO /SUBSYSTEM:CONSOLE" )
-endif()
-
-add_definitions(
-  -DOSTYPE=${CMAKE_SYSTEM_NAME}
-  -DUDA_EXPORT
-)
-
-if( WIN32 OR MINGW )
-  add_definitions( -D_CRT_SECURE_NO_WARNINGS )
-  set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
-  set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".dll.lib" ".a" ".lib" )
-  if( MINGW )
-    set( IMPLIB_SUFFIX ".dll.a" )
-  else()
-    set( IMPLIB_SUFFIX ".dll.lib" )
-  endif()
-  find_package( XDR REQUIRED )
-  
-  # "-Wl,-z,defs" is an ELF instruction, not supported by Windows
-  string( REGEX REPLACE "-Wl,-z,defs" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}" )
-endif()
-
-if( ITER_CI )
-  add_definitions(
-    -D_XOPEN_SOURCE=700
-    -D_POSIX_C_SOURCE=200809L
-  )
-endif()
-
-########################################################################################################################
-# Build options
-
-include( StaticAnalyzers )
-
-option( CLIENT_ONLY "Only build UDA client" OFF )
-option( SERVER_ONLY "Only build UDA server" OFF )
-option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
-option( NO_MEMCACHE "Do not attempt to build with libmemcached support" ON )
-option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
-
-# Wrapper configuration
-option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
-option( NO_CXX_WRAPPER "Don't build C++ wrapper" OFF )
-option( NO_PYTHON_WRAPPER "Don't build Python wrapper" OFF )
-option( NO_JAVA_WRAPPER "Don't build Java wrapper" ON )
-option( NO_IDL_WRAPPER "Don't build IDL wrapper" OFF )
-option( FAT_IDL "Build IDL wrapper using fat-client" OFF )
-
-if( SERVER_ONLY )
-  if( CLIENT_ONLY OR NO_WRAPPERS OR FAT_IDL )
-    message( FATAL_ERROR "cannot use CLIENT_ONLY, NO_WRAPPERS or FAT_IDL when configuring with SERVER_ONLY" )
-  endif()
-endif()
-
-if( NOT CLIENT_ONLY AND NOT BUILD_SHARED_LIBS )
-  message( FATAL_ERROR "cannot compile client AND server when BUILD_SHARED_LIBS is not set" )
-endif()
-
-if( SSLAUTHENTICATION )
-  message( "Including SSL/RTL X509 User Authentication" )
-  add_definitions( -DSSLAUTHENTICATION )
-endif() 
-
-if( BUILD_SHARED_LIBS )
-  message( "Build shared libraries asked" )
-endif()
-
-# Server config options
-set( UDA_SERVER_PORT "56565" CACHE STRING "define port number in server configuration files" )
-set( UDA_SERVER_HOST "`hostname`" CACHE STRING "define hostname in server configuration files" )
-
-########################################################################################################################
-# Source directories
-
-add_subdirectory( source )
-if( NOT CLIENT_ONLY )
-  add_subdirectory( test )
-endif()
-
-########################################################################################################################
-# Create module
-
-configure_file(
-  ${CMAKE_SOURCE_DIR}/source/etc/module.in
-  ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
-  @ONLY
-)
-
-install(
-  FILES ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
-  DESTINATION modulefiles/uda
-)
-
-# Portablexdr 4.9.1 libraries
-if( WIN32 OR MINGW )
-  install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
-    DESTINATION lib
-      FILES_MATCHING PATTERN "*xdr*"
-  )
-  return()
-endif()
 
 ########################################################################################################################
 # Package creations
@@ -251,15 +183,15 @@ if( WIN32 OR MINGW )
   set( CMAKE_WIN_SOURCE_DIR ${CMAKE_SOURCE_DIR} )
   set( CMAKE_WIN_BINARY_DIR  ${CMAKE_BINARY_DIR} )
   if( MINGW )
-    CONVERT_LIN_PATH( CMAKE_WIN_CURRENT_SOURCE_DIR )
-    CONVERT_LIN_PATH( CMAKE_WIN_INSTALL_PREFIX )
-    CONVERT_LIN_PATH( CMAKE_WIN_SOURCE_DIR )
-    CONVERT_LIN_PATH( CMAKE_WIN_BINARY_DIR )
+    convert_lin_path( CMAKE_WIN_CURRENT_SOURCE_DIR )
+    convert_lin_path( CMAKE_WIN_INSTALL_PREFIX )
+    convert_lin_path( CMAKE_WIN_SOURCE_DIR )
+    convert_lin_path( CMAKE_WIN_BINARY_DIR )
     # For MinGW, it is required to use Windows style path for the NSIS command "File"
     # otherwise it is not able to find files
     set( CPACK_NSIS_FULL_INSTALL "File /r \\\"\\\${INST_DIR_WIN}\\\\*.*\\\"" )
   endif()
-  
+
   set( CPACK_TEMPORARY_INSTALL_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
   set( CPACK_PACKAGE_DIRECTORY "${CMAKE_WIN_BINARY_DIR}" )
   set( CPACK_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )

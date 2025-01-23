@@ -12,6 +12,7 @@
 #include "udaDefines.h"
 
 using namespace uda::client_server;
+using namespace uda::common;
 
 /**
  * Request userid from OS

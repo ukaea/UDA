@@ -90,7 +90,7 @@ int uda::client::synthetic_model(int model, int param_n, float* params, int data
             if (param_n == 2) {
                 gsl_rng_set(random, (unsigned long int)params[1]); // Change the Seed before Sampling
             }
-            for (i = 0; i < data_n; i++) {
+            for (int i = 0; i < data_n; i++) {
                 data[i] = data[i] + (float)gsl_ran_gaussian(random, (double)params[0]); // Random sample from PDF
             }
             break;
@@ -109,7 +109,7 @@ int uda::client::synthetic_model(int model, int param_n, float* params, int data
                 gsl_rng_set(random, (unsigned long int)params[1]); // Change the Seed before Sampling
             }
             shift = (float)gsl_ran_gaussian(random, (double)params[0]);
-            for (i = 0; i < data_n; i++) {
+            for (int i = 0; i < data_n; i++) {
                 data[i] = data[i] + shift; // Random linear shift of data array
             }
             break;
@@ -121,7 +121,7 @@ int uda::client::synthetic_model(int model, int param_n, float* params, int data
             if (param_n == 1) {
                 gsl_rng_set(random, (unsigned long int)params[0]); // Change the Seed before Sampling
             }
-            for (i = 0; i < data_n; i++) {
+            for (int i = 0; i < data_n; i++) {
                 data[i] = data[i] + (float)gsl_ran_poisson(random, (double)data[i]); // Randomly perturb data array
             }
             break;

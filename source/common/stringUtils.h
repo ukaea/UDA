@@ -10,7 +10,7 @@
 #  include <strings.h>
 #endif
 
-namespace uda::client_server
+namespace uda::common
 {
 
 std::string demangle(const char* name);
@@ -94,8 +94,8 @@ bool string_ends_with(const char* str, const char* find);
 #define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
 #define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
 
-#define STR_EQUALS(X, Y) uda::client_server::string_equals(X, Y)
-#define STR_IEQUALS(X, Y) uda::client_server::string_iequals(X, Y)
+#define STR_EQUALS(X, Y) uda::common::string_equals(X, Y)
+#define STR_IEQUALS(X, Y) uda::common::string_iequals(X, Y)
 
 // remove non printable characters
 static inline void convert_non_printable(std::string& str)

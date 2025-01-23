@@ -33,6 +33,7 @@
 
 using namespace uda::client_server;
 using namespace uda::structures;
+using namespace uda::common;
 
 int parseIncludeFile(UserDefinedTypeList* userdefinedtypelist, const char* header)
 {

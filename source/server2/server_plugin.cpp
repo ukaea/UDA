@@ -35,6 +35,7 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::config;
+using namespace uda::common;
 
 int uda::server::server_redirect_std_streams(const Config& config, int reset)
 {

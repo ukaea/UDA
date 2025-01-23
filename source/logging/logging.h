@@ -1,9 +1,13 @@
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
+#undef FMT_USE_CONSTEVAL
+
 #include <string>
+#include <string_view>
 #include <spdlog/spdlog.h>
+#include <fmt/format.h>
+
+#undef FMT_USE_CONSTEVAL
 
 #define UDA_LOG(LEVEL, FMT, ...) uda::logging::log(LEVEL, __FILE__, __LINE__, FMT, ##__VA_ARGS__);
 
@@ -54,7 +58,7 @@ void set_log_stdout(LogLevel mode);
 void set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode);
 
 template<typename... Args>
-void log(LogLevel mode, const char* file, int line, const std::string_view fmt, Args &&...args)
+void log(LogLevel mode, const char* file, int line, const std::string_view format_string, Args &&...args)
 {
     auto log_level = spdlog::get_level();
     if (log_level == spdlog::level::off) {
@@ -95,6 +99,7 @@ void log(LogLevel mode, const char* file, int line, const std::string_view fmt, 
         throw std::runtime_error{ "logging not configured" };
     }
 
+    fmt::fstring fmt = format_string.data();
     logger->log(loc, level, fmt, args...);
     if (mode == LogLevel::UDA_LOG_ERROR) {
         spdlog::get("debug")->log(loc, level, fmt, args...);

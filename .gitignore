@@ -1,7 +1,7 @@
 /cmake-build-*
 /build*
+/install*
 /bin
-/include
 /lib
 /modulefiles
 /etc

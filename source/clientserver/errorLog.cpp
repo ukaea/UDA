@@ -8,6 +8,7 @@
 #include "uda/client.h"
 
 using namespace uda::logging;
+using namespace uda::common;
 
 static std::vector<uda::client_server::UdaError> uda_error_stack;
 

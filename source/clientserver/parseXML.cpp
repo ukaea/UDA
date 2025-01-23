@@ -3,11 +3,6 @@
 #include <cstdlib>
 #include <sstream>
 
-#include "logging/logging.h"
-
-using namespace uda::client_server;
-using namespace uda::logging;
-
 #ifndef NOXMLPARSER
 
 #  include <libxml/parser.h>
@@ -16,6 +11,11 @@ using namespace uda::logging;
 #  include "clientserver/errorLog.h"
 #  include "clientserver/parseOperation.h"
 #  include "common/stringUtils.h"
+#  include "logging/logging.h"
+
+using namespace uda::client_server;
+using namespace uda::logging;
+using namespace uda::common;
 
 namespace {
 

@@ -1,50 +1,13 @@
-########################################################################################################################
-# Dependencies
+find_package( spdlog REQUIRED )
 
-find_package( LibXml2 REQUIRED )
-
-set( LIBS LibXml2::LibXml2 )
-
-if( WIN32 OR MINGW )
-  find_package( XDR REQUIRED )
-  list( APPEND LIBS XDR::XDR )
-else()
-  find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    list( APPEND LIBS TIRPC::TIRPC )
-  endif()
-endif()
-
-########################################################################################################################
-# Sources
-
-set( SRC_FILES
+set( SRCS
   parseIncludeFile.cpp
   struct.cpp
   accessors.cpp
   xdrUserDefinedData.cpp
 )
 
-########################################################################################################################
-# Targets
-
-add_library( structures-client-objects OBJECT ${SRC_FILES} )
-target_include_directories( structures-client-objects PRIVATE
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/source/include
-  ${CMAKE_BINARY_DIR}/include
-  ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
-)
-target_link_libraries( structures-client-objects PRIVATE ${LIBS} )
-
-if( NOT CLIENT_ONLY )
-  add_library( structures-server-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( structures-server-objects PRIVATE -DSERVERBUILD )
-  target_include_directories( structures-server-objects PRIVATE
-    ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/source/include
-    ${CMAKE_BINARY_DIR}/include
-    ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
-  )
-  target_link_libraries( structures-server-objects PRIVATE ${LIBS} )
-endif()
+add_library( structures OBJECT ${SRCS} )
+target_include_directories( structures PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories( structures PRIVATE ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include )
+target_link_libraries( structures PRIVATE spdlog::spdlog )

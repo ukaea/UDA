@@ -17,6 +17,7 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::common;
 
 int uda::server::swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmetry)
 {

@@ -37,6 +37,7 @@
 
 using namespace uda::client_server;
 using namespace uda::logging;
+using namespace uda::common;
 
 using namespace std::string_literals;
 
@@ -285,7 +286,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                 }
 
                 // Resolve any Serverside environment variables
-                udaExpandEnvironmentalVariables(request->path);
+                expand_environmental_variables(request->path);
 
                 UDA_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!")
                 break;
@@ -391,7 +392,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
             if (is_file) { // Resolve any Serverside environment variables
                 UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.")
-                udaExpandEnvironmentalVariables(request->path);
+                expand_environmental_variables(request->path);
                 break;
             }
 
@@ -1165,7 +1166,7 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
 //------------------------------------------------------------------------------
 // Does the Path contain with an Environment variable
 
-void udaExpandEnvironmentalVariables(char* path)
+void uda::client_server::expand_environmental_variables(char* path)
 {
     size_t lcwd = StringLength - 1;
     char work[StringLength];
