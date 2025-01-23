@@ -122,9 +122,10 @@ jobs:
       - name: Build manylinux2014 wheels
       # this is a slow-running build. Only execute on tag
         if: >
-          startswith(matrix.build-platform[2], 'manylinux2014') && 
-          github.event_name == 'push' && 
-          startsWith(github.ref, 'refs/tags/')
+          startswith(matrix.build-platform[2], 'manylinux2014') 
+          # && 
+          # github.event_name == 'push' && 
+          # startsWith(github.ref, 'refs/tags/')
         uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./source/wrappers/python
@@ -160,7 +161,7 @@ jobs:
             cmake --build build  &&
             cmake --install build &&
             cd /tmp  &&
-            wget https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz &&
+            wget https://sourceforge.net/projects/boost/files/boost/1.80.0/boost_1_80_0.tar.gz &&
             tar xzf boost_1_80_0.tar.gz  &&
             cd boost_1_80_0  &&
             ./bootstrap.sh --prefix=/usr/local  &&
