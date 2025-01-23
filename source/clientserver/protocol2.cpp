@@ -742,7 +742,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
 
             if ((err = allocData(data_block)) != 0) break;        // Allocate Heap Memory
 
-            if (!xdr_data_block2(xdrs, data_block)) {
+            if (!xdr_data_block2(xdrs, data_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_62;
                 break;
             }
@@ -838,7 +838,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 break;
             }
 
-            if (!xdr_data_block2(xdrs, data_block)) {
+            if (!xdr_data_block2(xdrs, data_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_62;
                 break;
             }

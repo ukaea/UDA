@@ -6,6 +6,7 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <plugins/udaPlugin.h>
+#include <version.h>
 
 namespace uda {
 namespace keyvalue {
@@ -170,20 +171,7 @@ int uda::keyvalue::Plugin::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
 int uda::keyvalue::Plugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
-    initDataBlock(data_block);
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    int* data = (int*)malloc(sizeof(int));
-    data[0] = THISPLUGIN_VERSION;
-    data_block->data = (char*)data;
-    strcpy(data_block->data_desc, "Plugin version number");
-    strcpy(data_block->data_label, "version");
-    strcpy(data_block->data_units, "");
-
-    return 0;
+    setReturnDataString(plugin_interface->data_block, UDA_BUILD_VERSION, "Plugin version number");
 }
 
 // Plugin Build Date

@@ -43,7 +43,7 @@ bool_t xdr_putdata_block1(XDR* xdrs, PUTDATA_BLOCK* str);
 bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str);
 bool_t xdr_data_block_list(XDR* xdrs, DATA_BLOCK_LIST* str, int protocolVersion);
 bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion);
-bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str, int protocolVersion);
 bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str);
 bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str);
 bool_t xdr_data_dim1(XDR* xdrs, DATA_BLOCK* str);

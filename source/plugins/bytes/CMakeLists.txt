@@ -24,6 +24,7 @@ uda_plugin(
   EXAMPLE "BYTES::read()"
   LIBNAME bytes_plugin
   SOURCES bytesPlugin.cpp readBytesNonOptimally.cpp md5Sum.cpp
+  CONFIG_FILE bytesPlugin.cfg
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS

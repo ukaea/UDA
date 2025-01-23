@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>Label</key>
+		<string>udaserver</string>
+		<key>Program</key>
+        <string>@CMAKE_INSTALL_PREFIX@/etc/udaserver.sh</string>
+        <key>Sockets</key>
+        <dict>
+            <key>sock1</key>
+            <dict>
+                <key>SockNodeName</key>
+                <string>localhost</string>
+                <key>SockPassive</key>
+                <true/>
+                <key>SockServiceName</key>
+                <string>@UDA_SERVER_PORT@</string>
+            </dict>
+        </dict>
+        <key>WorkingDirectory</key>
+        <string>@CMAKE_INSTALL_PREFIX@/etc</string>
+        <key>StandardOutPath</key>
+        <string>@CMAKE_INSTALL_PREFIX@/etc/launchd_out.log</string>
+        <key>StandardErrorPath</key>
+        <string>@CMAKE_INSTALL_PREFIX@/etc/launchd_err.log</string>
+        <key>inetdCompatibility</key>
+        <dict>
+            <key>Wait</key>
+            <false/>
+        </dict>
+	</dict>
+</plist>
