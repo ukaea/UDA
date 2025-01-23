@@ -121,11 +121,11 @@ jobs:
 
       - name: Build manylinux2014 wheels
       # this is a slow-running build. Only execute on tag
+      # && 
+      # github.event_name == 'push' && 
+      # startsWith(github.ref, 'refs/tags/')
         if: >
           startswith(matrix.build-platform[2], 'manylinux2014') 
-          # && 
-          # github.event_name == 'push' && 
-          # startsWith(github.ref, 'refs/tags/')
         uses: pypa/cibuildwheel@v2.22.0
         with:
           package-dir: ./source/wrappers/python
