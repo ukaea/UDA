@@ -30,6 +30,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+          fetch-tags: 'true'
 
       - uses: actions/github-script@v6
         with:
@@ -105,7 +108,6 @@ jobs:
           cmake -G Ninja -B build
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DNO_JAVA_WRAPPER=ON
 
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'
@@ -114,7 +116,6 @@ jobs:
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
           -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@3)"
-          -DNO_JAVA_WRAPPER=ON
 
       - name: Configure portable XDR
         if: matrix.os == 'windows-latest'
@@ -137,7 +138,6 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DNO_JAVA_WRAPPER=ON
 
       - name: Build
         run: cmake --build build --config ${{ matrix.release }}
