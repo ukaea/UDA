@@ -18,6 +18,7 @@
 #include "logging/logging.h"
 #include "uda/client.h"
 #include "clientserver/version.h"
+#include <algorithm>
 
 using namespace uda::client_server;
 using namespace uda::logging;
@@ -27,6 +28,8 @@ using namespace std::string_literals;
 
 namespace
 {
+
+constexpr int ClientVersion = UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
 
 void copy_data_block(DataBlock* str, DataBlock* in)
 {
@@ -114,7 +117,7 @@ void update_client_block(ClientBlock& client_block, const uda::client::ClientFla
 
 } // namespace
 
-uda::client::Client::Client() : _connection{_config}, _protocol_version{ClientVersion}
+uda::client::Client::Client() : version{ClientVersion}, _connection{_config}, _protocol_version{ClientVersion}
 {
     _host = DefaultHost;
     _port = DefaultPort;
@@ -340,10 +343,10 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     time_t tv_server_start = 0;
     time_t tv_server_end = 0;
 
-    auto server_reconnect = _config.get("client.server_reconnect").as_or_default(false);
-    auto server_change_socket = _config.get("client.server_change_socket").as_or_default(false);
+    // auto server_reconnect = _config.get("client.server_reconnect").as_or_default(false);
+    // auto server_change_socket = _config.get("client.server_change_socket").as_or_default(false);
 
-    if (server_reconnect || server_change_socket) {
+    if (_server_reconnect || _server_change_sockets) {
         int err = _connection.reconnect(&_client_input, &_client_output, &tv_server_start, &_client_flags.user_timeout);
         if (err) {
             return err;
@@ -657,11 +660,13 @@ std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std
 void uda::client::Client::set_host(std::string_view host)
 {
     _host = host;
+    _server_reconnect = true;
 }
 
 void uda::client::Client::set_port(int port)
 {
     _port = port;
+    _server_reconnect = true;
 }
 
 int uda::client::Client::test_connection()

@@ -13,7 +13,7 @@ cdef extern from "uda/client.h":
     void udaGetServerVersionString(char* version_string);
     const char* udaGetBuildDate();
     void udaFree(int handle);
-    void udaCloseAllConnections();
+    # void udaCloseAllConnections();
 
     int udaGetAPI(const char* data_object, const char* data_source);
     int udaGetBatchAPI(const char** signals, const char** sources, int count, int* handles);
