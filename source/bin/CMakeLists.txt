@@ -1,4 +1,4 @@
-find_package( Boost COMPONENTS program_options regex REQUIRED )
+find_package( Boost COMPONENTS program_options REQUIRED )
 
 option( UDA_CLI_BOOST_STATIC "compile commandline interface with static boost libraries" OFF )
 
@@ -14,7 +14,6 @@ target_compile_definitions( uda_cli PRIVATE CAPNP_ENABLED=1 )
 
 target_link_libraries( uda_cli PRIVATE client uda-cpp serialisation )
 target_link_libraries( uda_cli PRIVATE Boost::program_options )
-target_link_libraries( uda_cli PRIVATE Boost::regex )
 
 install(
   TARGETS uda_cli

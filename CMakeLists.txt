@@ -1,10 +1,14 @@
 ########################################################################################################################
 # CMake configuration
 
-cmake_minimum_required( VERSION 3.25 )
+cmake_minimum_required( VERSION 3.22 )
 
-cmake_policy( SET CMP0140 NEW )
-cmake_policy( SET CMP0167 NEW )
+if( ${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.25 )
+  cmake_policy( SET CMP0140 NEW )
+endif()
+if( ${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.30 )
+  cmake_policy( SET CMP0167 NEW )
+endif()
 
 list( APPEND CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake

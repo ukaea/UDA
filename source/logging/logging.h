@@ -99,7 +99,7 @@ void log(LogLevel mode, const char* file, int line, const std::string_view forma
         throw std::runtime_error{ "logging not configured" };
     }
 
-    fmt::fstring fmt = format_string.data();
+    auto fmt = format_string.data();
     logger->log(loc, level, fmt, args...);
     if (mode == LogLevel::UDA_LOG_ERROR) {
         spdlog::get("debug")->log(loc, level, fmt, args...);

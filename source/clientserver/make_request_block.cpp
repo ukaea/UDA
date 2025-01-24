@@ -5,7 +5,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range/adaptors.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 #include <fmt/format.h>
 #include <string>
 
@@ -15,12 +15,28 @@ using namespace uda::config;
 
 using namespace std::string_literals;
 
-static const boost::regex SOURCE_RE(
-    R"(^(?<device>(?:[a-z]+::)*)(((?<pulse>[0-9]+)(\/(?<pass>[0-9a-z]+))?)|(?<path>\/[a-z0-9\/\.]+)|((?<function>[a-z]+)\((?<args>.*)\)))$)",
-    boost::regex::icase);
-static const boost::regex SIGNAL_RE(
-    R"(^(?<archive>[a-z]+::)?($|((?<signal>[a-z]+)|((?<function>[a-z]+)\((?<args>.*)\)))(?<subsets>(\[([^\[\]]*)\])*)$))",
-    boost::regex::icase);
+static const std::regex SourceRegex(
+    R"(^((?:[a-z]+::)*)((([0-9]+)(\/([0-9a-z]+))?)|(\/[a-z0-9\/\.]+)|(([a-z]+)\((.*)\)))$)",
+    std::regex::icase);
+
+// std::regex doesn't support named capture groups
+constexpr int SourceDeviceCaptureIdx = 1;
+constexpr int SourcePulseCaptureIdx = 2;
+constexpr int SourcePassCaptureIdx = 3;
+constexpr int SourcePathCaptureIdx = 4;
+constexpr int SourceFunctionCaptureIdx = 5;
+// constexpr int SourceArgsCaptureIdx = 6;
+
+static const std::regex SignalRegex(
+    R"(^([a-z]+::)?($|(([a-z]+)|(([a-z]+)\((.*)\)))((\[([^\[\]]*)\])*)$))",
+    std::regex::icase);
+
+// std::regex doesn't support named capture groups
+constexpr int SignalArchiveCaptureIdx = 1;
+// constexpr int SignalSignalCaptureIdx = 2;
+constexpr int SignalFunctionCaptureIdx = 3;
+constexpr int SignalArgsCaptureIdx = 4;
+constexpr int SignalSubsetsCaptureIdx = 5;
 
 namespace uda
 {
@@ -239,14 +255,14 @@ std::string udaExpandEnvironmentalVariables(const std::string& path)
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "Direct substitution!");
 
-        boost::regex env_re{R"(\$\{([^}]+)\}|\$([^{}\/]+))"};
-        boost::sregex_iterator begin{new_path.begin(), new_path.end(), env_re};
-        boost::sregex_iterator end;
+        std::regex env_re{R"(\$\{([^}]+)\}|\$([^{}\/]+))"};
+        std::sregex_iterator begin{new_path.begin(), new_path.end(), env_re};
+        std::sregex_iterator end;
 
-        std::for_each(begin, end, [&](boost::sregex_iterator::reference match) {
+        std::for_each(begin, end, [&](std::sregex_iterator::reference match) {
             const auto& from = match[0];
-            std::string name = !match[1].str().empty() ? match[1].str() : match[2].str();
-            char* to = std::getenv(name.c_str());
+            const std::string name = !match[1].str().empty() ? match[1].str() : match[2].str();
+            const char* to = std::getenv(name.c_str());
             if (to != nullptr) {
                 new_path.replace(from.first, from.second, to);
             }
@@ -277,17 +293,23 @@ std::vector<uda::NameValue> uda::parse_args(std::string_view input, bool strip)
 
 void uda::parse_signal(RequestData& result, const std::string& signal, const std::vector<PluginData>& plugin_list)
 {
-    boost::smatch signal_match;
-    if (!boost::regex_search(signal, signal_match, SIGNAL_RE)) {
+    std::smatch signal_match;
+    if (!std::regex_search(signal, signal_match, SignalRegex)) {
         throw std::runtime_error{"invalid signal"};
     }
 
-    std::string function = signal_match["function"];
+    // device 1
+    // pulse 2
+    // pass 3
+    // path 4
+    // function 5
+    // args 6
+    std::string function = signal_match[SignalFunctionCaptureIdx];
     bool is_function = !function.empty();
 
     write_string(result.function, function, StringLength);
 
-    std::string archive = signal_match["archive"];
+    std::string archive = signal_match[SignalArchiveCaptureIdx];
     boost::trim_right_if(archive, boost::is_any_of(":"));
 
     std::string plugin;
@@ -302,12 +324,12 @@ void uda::parse_signal(RequestData& result, const std::string& signal, const std
 
     write_string(result.archive, archive, StringLength);
 
-    std::string args = signal_match["args"];
+    std::string args = signal_match[SignalArgsCaptureIdx];
     auto name_values = uda::parse_args(args, true);
 
     write_name_values(result.nameValueList, name_values);
 
-    std::string subsets = signal_match["subsets"];
+    std::string subsets = signal_match[SignalSubsetsCaptureIdx];
     write_string(result.subset, subsets, StringLength);
 
     std::vector<std::string> tokens;
@@ -324,28 +346,28 @@ void uda::parse_source(RequestData& result, const std::string& source)
 {
     bool no_source = !source.empty();
 
-    boost::smatch source_match;
-    if (!boost::regex_search(source, source_match, SOURCE_RE) && !no_source) {
+    std::smatch source_match;
+    if (!std::regex_search(source, source_match, SourceRegex) && !no_source) {
         throw std::runtime_error{"invalid source"};
     }
 
-    std::string function = source_match["function"];
+    std::string function = source_match[SourceFunctionCaptureIdx];
     bool is_function = !function.empty();
 
     write_string(result.function, function, StringLength);
 
-    std::string path = source_match["path"];
+    std::string path = source_match[SourcePathCaptureIdx];
     bool is_file = !path.empty();
 
     path = udaExpandEnvironmentalVariables(path);
     write_string(result.path, path, StringLength);
 
-    std::string s_pulse = source_match["pulse"];
+    std::string s_pulse = source_match[SourcePulseCaptureIdx];
     long pulse = std::stol(s_pulse);
 
     write_int(&result.exp_number, pulse);
 
-    std::string s_pass = source_match["pass"];
+    std::string s_pass = source_match[SourcePassCaptureIdx];
     char* end = nullptr;
     long pass = std::strtol(s_pass.c_str(), &end, 10);
 
@@ -354,7 +376,7 @@ void uda::parse_source(RequestData& result, const std::string& source)
         write_string(result.tpass, s_pass, StringLength);
     }
 
-    std::string device = source_match["device"];
+    std::string device = source_match[SourceDeviceCaptureIdx];
     std::vector<std::string> tokens;
     boost::split(tokens, device, boost::is_any_of("::"), boost::token_compress_on);
 

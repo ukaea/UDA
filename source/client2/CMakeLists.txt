@@ -21,7 +21,15 @@ target_include_directories( client
   "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-target_link_libraries( client PRIVATE fmt::fmt cache clientserver structures config logging common )
+target_link_libraries( client PRIVATE fmt::fmt )
+target_link_libraries( client PRIVATE
+  "$<BUILD_INTERFACE:clientserver>"
+  "$<BUILD_INTERFACE:structures>"
+  "$<BUILD_INTERFACE:config>"
+  "$<BUILD_INTERFACE:logging>"
+  "$<BUILD_INTERFACE:common>"
+  "$<BUILD_INTERFACE:cache>"
+)
 target_compile_definitions( client PRIVATE -DNO_GSL_LIB )
 
 set_target_properties( client

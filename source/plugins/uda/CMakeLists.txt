@@ -1,4 +1,4 @@
-find_package( Boost REQUIRED COMPONENTS filesystem )
+find_package( Boost COMPONENTS filesystem REQUIRED )
 find_package( fmt REQUIRED )
 
 include( udaPlugins )

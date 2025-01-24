@@ -1,5 +1,4 @@
 find_package( Boost REQUIRED )
-#find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 
 set( SRC_FILES
@@ -22,7 +21,15 @@ target_include_directories( server
   "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-target_link_libraries( server PRIVATE clientserver Boost::boost fmt::fmt structures config logging common cache )
+target_link_libraries( server PRIVATE Boost::boost fmt::fmt )
+target_link_libraries( server PRIVATE
+  "$<BUILD_INTERFACE:clientserver>"
+  "$<BUILD_INTERFACE:structures>"
+  "$<BUILD_INTERFACE:config>"
+  "$<BUILD_INTERFACE:logging>"
+  "$<BUILD_INTERFACE:common>"
+  "$<BUILD_INTERFACE:cache>"
+)
 target_compile_definitions( server PRIVATE -DSHARED_LIBRARY_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}" )
 
 set_target_properties( server
@@ -47,7 +54,7 @@ install( TARGETS server
 
 add_executable( server-exe ${EXE_FLAG} server_main.cpp )
 target_include_directories( server-exe PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( server-exe PRIVATE Boost::boost fmt::fmt server common config )
+target_link_libraries( server-exe PRIVATE Boost::boost fmt::fmt server common config ${RPC_LIB} )
 
 install( TARGETS server-exe
   DESTINATION bin

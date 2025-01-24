@@ -13,7 +13,7 @@ else()
 #  add_subdirectory( uda ) # this still needs updating to remove dependency on server internals
 endif()
 
-find_package( Boost REQUIRED COMPONENTS filesystem )
+find_package( Boost COMPONENTS filesystem REQUIRED )
 
 set( SRCS
   managePluginFiles.cpp
@@ -28,7 +28,12 @@ target_include_directories( plugins
   "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-target_link_libraries( plugins PRIVATE logging common server Boost::filesystem )
+target_link_libraries( plugins PRIVATE Boost::filesystem )
+target_link_libraries( plugins PRIVATE
+  "$<BUILD_INTERFACE:logging>"
+  "$<BUILD_INTERFACE:common>"
+  "$<BUILD_INTERFACE:server>"
+)
 
 set_target_properties( plugins
   PROPERTIES

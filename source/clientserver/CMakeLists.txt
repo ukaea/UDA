@@ -1,4 +1,4 @@
-find_package( Boost REQUIRED COMPONENTS headers )
+find_package( Boost COMPONENTS headers REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
@@ -32,4 +32,4 @@ set( SRCS
 
 add_library( clientserver OBJECT ${SRCS} )
 target_include_directories( clientserver PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( clientserver PRIVATE Boost::boost LibXml2::LibXml2 OpenSSL::SSL OpenSSL::Crypto common )
+target_link_libraries( clientserver PRIVATE Boost::boost LibXml2::LibXml2 OpenSSL::SSL OpenSSL::Crypto common ${RPC_LIB} )

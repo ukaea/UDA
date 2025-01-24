@@ -19,16 +19,8 @@ jobs:
     strategy:
       matrix:
 #        os: [ubuntu-latest, windows-latest, macos-latest]
-        os: [ubuntu-latest, macos-latest]
-        release: [Release]
-        ssl: [ON, OFF]
-        client-only: [OFF]
-        capnp: [ON, OFF]
-#        include:
-#          - client-only: ON
-#            ssl: OFF
-#          - client-only: OFF
-#            ssl: OFF
+        os: [macos-latest]
+        release: [Debug]
 
     runs-on: ${{ matrix.os }}
 
@@ -113,9 +105,6 @@ jobs:
           cmake -G Ninja -B build
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DSSLAUTHENTICATION=${{ matrix.ssl }}
-          -DCLIENT_ONLY=${{ matrix.client-only }}
-          -DENABLE_CAPNP=${{ matrix.capnp }}
           -DNO_JAVA_WRAPPER=ON
 
       - name: Configure CMake (macos)
@@ -124,9 +113,6 @@ jobs:
           cmake -G Ninja -B build
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DSSLAUTHENTICATION=${{ matrix.ssl }}
-          -DCLIENT_ONLY=${{ matrix.client-only }}
-          -DENABLE_CAPNP=${{ matrix.capnp }}
           -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@3)"
           -DNO_JAVA_WRAPPER=ON
 
@@ -151,9 +137,6 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DSSLAUTHENTICATION=${{ matrix.ssl }}
-          -DCLIENT_ONLY=${{ matrix.client-only }}
-          -DENABLE_CAPNP=${{ matrix.capnp }}
           -DNO_JAVA_WRAPPER=ON
 
       - name: Build

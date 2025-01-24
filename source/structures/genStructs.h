@@ -3,8 +3,6 @@
 // needs to be included before xdr.h
 #include <stdio.h>
 
-#include <rpc/types.h>
-#include <rpc/xdr.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -25,6 +23,8 @@
 
 typedef intptr_t VOIDTYPE;
 typedef uintptr_t UVOIDTYPE;
+
+typedef struct __rpc_xdr XDR;
 
 #ifdef A64
 #  define ALIGNMENT 1 // Default Byte Boundary used for Structure Packing
