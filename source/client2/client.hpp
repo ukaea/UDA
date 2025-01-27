@@ -7,7 +7,6 @@
 #include <string_view>
 #include <string>
 #include <vector>
-#include <rpc/rpc.h>
 
 #include "clientserver/udaStructs.h"
 #include "cache/memcache.hpp"
@@ -18,6 +17,8 @@
 
 constexpr auto DefaultHost = "localhost";
 constexpr auto DefaultPort = 56565;
+
+typedef struct __rpc_xdr XDR;
 
 namespace uda {
 namespace client {
