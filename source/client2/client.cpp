@@ -115,7 +115,7 @@ void update_client_block(ClientBlock& client_block, const uda::client::ClientFla
 
 } // namespace
 
-uda::client::Client::Client() : _connection{_config}, _protocol_version{ClientVersion}
+uda::client::Client::Client() : _config{}, _connection{_config}, _protocol_version{ClientVersion}
 {
     _host = DefaultHost;
     _port = DefaultPort;

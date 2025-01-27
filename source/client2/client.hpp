@@ -107,6 +107,7 @@ private:
     std::vector<uda::client_server::UdaError> _error_stack = {};
     XDR* _client_input = nullptr;
     XDR* _client_output = nullptr;
+    config::Config _config = {};
     Connection _connection;
     HostList _host_list = {};
     IoData _io_data = {};
@@ -121,7 +122,6 @@ private:
     uda::structures::LogStructList _log_struct_list = {};
     int _malloc_source = UDA_MALLOC_SOURCE_NONE;
     MetadataBlock _metadata = {};
-    config::Config _config;
 
     int send_putdata(const uda::client_server::RequestBlock& request_block);
     int send_request_block(uda::client_server::RequestBlock& request_block);

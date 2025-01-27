@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <openssl/evp.h>
 #include <sstream>
+#include <memory>
 
 #define BYTEFILEDOESNOTEXIST 100001
 #define BYTEFILEATTRIBUTEERROR 100002
@@ -91,11 +92,17 @@ std::string get_hash_sum(EVP_MD_CTX* context)
     return hash_string;
 }
 
+struct PCloseDeleter {
+    void operator()(FILE* file) const {
+        pclose(file);
+    }
+};
+
 std::string exec(const char* cmd)
 {
     std::array<char, 128> buffer;
     std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    std::unique_ptr<FILE, PCloseDeleter> pipe(popen(cmd, "r"));
     if (!pipe) {
         throw std::runtime_error("popen() failed!");
     }
