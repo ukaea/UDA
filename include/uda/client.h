@@ -305,8 +305,6 @@ LIBRARY_API int udaSetDataTree(int handle);
 
 LIBRARY_API NTREE* udaGetDataTree(int handle);
 
-LIBRARY_API NTREE* udaFindIdamNTreeStructureDefinition(NTREE* node, const char* target);
-
 #ifdef __cplusplus
 }
 #endif

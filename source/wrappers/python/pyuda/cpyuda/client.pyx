@@ -91,8 +91,8 @@ def set_server_port(port):
     uda.udaPutServerPort(port)
 
 
-def close_connection():
-    uda.udaCloseAllConnections()
+# def close_connection():
+#     uda.udaCloseAllConnections()
 
 
 def get_data(signal, source):

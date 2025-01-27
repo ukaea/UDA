@@ -11,6 +11,7 @@
 #include "clientserver/udaStructs.h"
 #include "cache/memcache.hpp"
 #include "config/config.h"
+#include "clientserver/version.h"
 
 #include "connection.hpp"
 #include "host_list.hpp"
@@ -23,7 +24,9 @@ typedef struct __rpc_xdr XDR;
 namespace uda {
 namespace client {
 
-constexpr int ClientVersion = 8;
+// constexpr int ProtocolVersion = 8;
+// constexpr int ClientVersion = UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
+
 
 struct MetadataBlock {
     uda::client_server::DataSource data_source;
@@ -67,7 +70,9 @@ public:
     int put(std::string_view put_instruction, uda::client_server::PutDataBlockList* putdata_block_list);
 
     void set_host(std::string_view host);
+    inline const std::string& get_host() const {return _host;}
     void set_port(int port);
+    inline int get_port() const {return _port;}
     void clear();
     uda::client_server::DataBlock* current_data_block();
     uda::client_server::DataBlock* data_block(int handle);
@@ -87,6 +92,8 @@ public:
 
     Client(const Client&) = delete;
     Client& operator=(const Client&) = delete;
+
+    const int version;
 
 private:
     int get_requests(uda::client_server::RequestBlock& request_block, int* indices);
@@ -115,13 +122,15 @@ private:
     bool _env_port = false;
     bool _reopen_logs = false;
     std::string _client_username = "client";
-    int _protocol_version = ClientVersion;
+    int _protocol_version;
     uda::structures::UserDefinedTypeList* _userdefinedtypelist = nullptr; // List of all known User Defined Structure Types
     uda::structures::LogMallocList* _logmalloclist = nullptr;             // List of all Heap Allocations for Data
     uda::structures::NTree* _full_ntree = nullptr;
     uda::structures::LogStructList _log_struct_list = {};
     int _malloc_source = UDA_MALLOC_SOURCE_NONE;
     MetadataBlock _metadata = {};
+    bool _server_reconnect = false;
+    bool _server_change_sockets = false;
 
     int send_putdata(const uda::client_server::RequestBlock& request_block);
     int send_request_block(uda::client_server::RequestBlock& request_block);
