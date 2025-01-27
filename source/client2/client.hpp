@@ -74,7 +74,8 @@ public:
     void set_port(int port);
     inline int get_port() const {return _port;}
     void clear();
-    uda::client_server::DataBlock* current_data_block();
+    const uda::client_server::DataBlock* current_data_block() const;
+    const uda::client_server::DataBlock* data_block(int handle) const;
     uda::client_server::DataBlock* data_block(int handle);
     int new_handle();
     void set_flag(unsigned int flag, bool private_flag=false);
@@ -83,9 +84,9 @@ public:
     int get_property(const char* property);
     void reset_property(const char* property);
     void reset_properties();
-    const uda::client_server::ClientBlock* client_block(int handle);
-    const CLIENT_FLAGS* client_flags();
-    const uda::client_server::ServerBlock* server_block();
+    const uda::client_server::ClientBlock* client_block(int handle) const;
+    const CLIENT_FLAGS* client_flags() const;
+    const uda::client_server::ServerBlock* server_block() const;
     void set_user_defined_type_list(uda::structures::UserDefinedTypeList* userdefinedtypelist);
     void set_log_malloc_list(uda::structures::LogMallocList* logmalloclist);
     void set_full_ntree(NTREE* full_ntree);
@@ -97,7 +98,7 @@ public:
 
 private:
     int get_requests(uda::client_server::RequestBlock& request_block, int* indices);
-    void concat_errors(uda::client_server::ErrorStack* error_stack);
+    void concat_errors(uda::client_server::ErrorStack* error_stack) const;
     const char* get_server_error_stack_record_msg(int record);
     int get_server_error_stack_record_code(int record);
 

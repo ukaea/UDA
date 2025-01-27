@@ -19,13 +19,11 @@
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/initStructs.h>
-// #include <clientserver/stringUtils.h>
 #include <clientserver/allocData.h>
 #include <clientserver/protocol.h>
 #include <clientserver/memstream.h>
 #include <clientserver/xdrlib.h>
 #include <structures/struct.h>
-#include <structures/accessors.h>
 #include <uda/version.h>
 
 #include "client2/generate_errors.hpp"
@@ -258,19 +256,24 @@ void udaPutErrorModel(int handle, int model, int param_n, const float* params)
     if (data_block == nullptr) {
         return;
     }
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) return;   // No valid Model
+    if (model <= static_cast<int>(ErrorModelType::Unknown)
+        || model >= static_cast<int>(ErrorModelType::Undefined)) {
+        return;   // No valid Model
+    }
 
     data_block->error_model = model;               // Model ID
     data_block->error_param_n = param_n;             // Number of parameters
 
-    if (param_n > MAXERRPARAMS) data_block->error_param_n = MAXERRPARAMS;
+    if (param_n > MaxErrParams) {
+        data_block->error_param_n = MaxErrParams;
+    }
 
     for (int i = 0; i < data_block->error_param_n; i++) {
         data_block->errparams[i] = params[i];
     }
 }
 
-void udaPutDimErrorModel(int handle, int ndim, int model, int param_n, const float* params)
+void udaPutDimErrorModel(int handle, int n_dim, int model, int param_n, const float* params)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
@@ -278,17 +281,20 @@ void udaPutDimErrorModel(int handle, int ndim, int model, int param_n, const flo
     if (data_block == nullptr) {
         return;
     }
-    if (ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
         return;                     // No Dim
     }
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) return;  // No valid Model
+    if (model <= static_cast<int>(ErrorModelType::Unknown)
+        || model >= static_cast<int>(ErrorModelType::Undefined)) {
+        return;  // No valid Model
+    }
 
-    data_block->dims[ndim].error_model = model;                        // Model ID
-    data_block->dims[ndim].error_param_n = param_n;                      // Number of parameters
+    data_block->dims[n_dim].error_model = model;                        // Model ID
+    data_block->dims[n_dim].error_param_n = param_n;                      // Number of parameters
 
-    if (param_n > MAXERRPARAMS) data_block->dims[ndim].error_param_n = MAXERRPARAMS;
-    for (int i = 0; i < data_block->dims[ndim].error_param_n; i++) {
-        data_block->dims[ndim].errparams[i] = params[i];
+    if (param_n > MaxErrParams) data_block->dims[n_dim].error_param_n = MaxErrParams;
+    for (int i = 0; i < data_block->dims[n_dim].error_param_n; i++) {
+        data_block->dims[n_dim].errparams[i] = params[i];
     }
 }
 
@@ -383,7 +389,7 @@ Select the server connection required.
 */
 const char* udaGetServerHost()
 {
-    auto& instance = uda::client::ThreadClient::instance();
+    const auto& instance = uda::client::ThreadClient::instance();
     // auto environment = instance.environment();
     // return environment->server_host;                             // Active UDA server's host name or IP address
     return instance.get_host().c_str();
@@ -395,7 +401,7 @@ const char* udaGetServerHost()
 */
 int udaGetServerPort()
 {
-    auto& instance = uda::client::ThreadClient::instance();
+    const auto& instance = uda::client::ThreadClient::instance();
     // auto environment = instance.environment();
     // return environment->server_port;                             // Active UDA server service port number
     return instance.get_port();
@@ -408,7 +414,7 @@ int udaGetServerPort()
 
 int udaGetClientVersion()
 {
-    auto& instance = uda::client::ThreadClient::instance();
+    const auto& instance = uda::client::ThreadClient::instance();
     return instance.version;
 }
 
@@ -416,10 +422,10 @@ int udaGetClientVersion()
 
 void udaGetServerVersionString(char* version_string)
 {
-    int major_version = udaGetServerVersionMajor();
-    int minor_version = udaGetServerVersionMinor();
-    int bugfix_version = udaGetServerVersionBugfix();
-    int delta_version = udaGetServerVersionDelta();
+    const int major_version = udaGetServerVersionMajor();
+    const int minor_version = udaGetServerVersionMinor();
+    const int bugfix_version = udaGetServerVersionBugfix();
+    const int delta_version = udaGetServerVersionDelta();
     snprintf(version_string, UDA_VERSION_STRING_LENGTH, "%d.%d.%d.%d", major_version, minor_version, bugfix_version, delta_version);
 }
 
@@ -435,33 +441,31 @@ int udaGetClientVersionDelta() { return UDA_VERSION_DELTA; }
 
 int udaGetServerVersionMajor() 
 {
-    auto& instance = uda::client::ThreadClient::instance();
+    const auto& instance = uda::client::ThreadClient::instance();
     const auto& server_block = instance.server_block();
     return UDA_GET_MAJOR_VERSION(server_block->version); 
 }
 
 int udaGetServerVersionMinor() 
 {
-    auto& instance = uda::client::ThreadClient::instance();
+    const auto& instance = uda::client::ThreadClient::instance();
     const auto& server_block = instance.server_block();
     return UDA_GET_MINOR_VERSION(server_block->version); 
 }
 
 int udaGetServerVersionBugfix() 
 {
-    auto& instance = uda::client::ThreadClient::instance();
+    const auto& instance = uda::client::ThreadClient::instance();
     const auto& server_block = instance.server_block();
     return UDA_GET_BUGFIX_VERSION(server_block->version); 
 }
 
 int udaGetServerVersionDelta() 
 {
-    auto& instance = uda::client::ThreadClient::instance();
+    const auto& instance = uda::client::ThreadClient::instance();
     const auto& server_block = instance.server_block();
     return UDA_GET_DELTA_VERSION(server_block->version); 
 }
-
-
 
 //! the UDA server connection socket ID
 /**
@@ -481,8 +485,8 @@ int udaGetServerVersionDelta()
 */
 int udaGetServerErrorStackRecordCode(int record)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto server_block = instance.server_block();
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto server_block = instance.server_block();
 
     if (record < 0 || (unsigned int)record >= server_block->idamerrorstack.nerrors) {
         return 0;
@@ -497,8 +501,8 @@ int udaGetServerErrorStackRecordCode(int record)
 */
 int udaGetErrorCode(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     // Error Code Returned from Server
     if (data_block == nullptr) {
@@ -515,9 +519,9 @@ int udaGetErrorCode(int handle)
 */
 const char* udaGetErrorMsg(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
-    auto server_block = instance.server_block();
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
+    const auto server_block = instance.server_block();
 
     // Error Message returned from server
     if (data_block == nullptr) {
@@ -538,8 +542,8 @@ const char* udaGetErrorMsg(int handle)
 */
 int udGetSourceStatus(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return 0;
@@ -554,8 +558,8 @@ int udGetSourceStatus(int handle)
 */
 int udaGetSignalStatus(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     // Signal Status
     if (data_block == nullptr) {
@@ -566,14 +570,14 @@ int udaGetSignalStatus(int handle)
 
 int udaGetDataStatus(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     // Data Status based on Standard Rule
     if (data_block == nullptr) {
         return 0;
     }
-    if (udaGetSignalStatus(handle) == DEFAULT_STATUS) {
+    if (udaGetSignalStatus(handle) == DefaultStatus) {
         // Signal Status Not Changed from Default - use Data Source Value
         return data_block->source_status;
     } else {
@@ -587,7 +591,7 @@ int udaGetDataStatus(int handle)
 */
 int udaGetLastHandle()
 {
-    auto& instance = uda::client::ThreadClient::instance();
+    const auto& instance = uda::client::ThreadClient::instance();
     return instance.current_data_block()->handle;
 }
 
@@ -598,8 +602,8 @@ int udaGetLastHandle()
 */
 int udaGetDataNum(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     // Data Array Size
     if (data_block == nullptr) {
@@ -615,14 +619,14 @@ int udaGetDataNum(int handle)
 */
 int udaGetRank(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     // Array Rank
     if (data_block == nullptr) {
         return 0;
     }
-    return (int)data_block->rank;
+    return static_cast<int>(data_block->rank);
 }
 
 //!  Returns the position of the time coordinate dimension in the data object
@@ -633,8 +637,8 @@ counted from left to right in c and from right to left in Fortran and IDL.
 */
 int udaGetOrder(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     // Time Dimension Order in Array
     if (data_block == nullptr) {
@@ -650,12 +654,12 @@ int udaGetOrder(int handle)
  */
 unsigned int udaGetCachePermission(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     // Permission to cache?
     if (data_block == nullptr) {
-        return UDA_PLUGIN_NOT_OK_TO_CACHE;
+        return static_cast<int>(PluginCachePermission::NotOkToCache);
     }
     return data_block->cachePermission;
 }
@@ -668,8 +672,8 @@ unsigned int udaGetCachePermission(int handle)
  */
 unsigned int udaGetTotalDataBlockSize(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return 0;
@@ -684,8 +688,8 @@ unsigned int udaGetTotalDataBlockSize(int handle)
 */
 int udaGetDataType(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return UDA_TYPE_UNKNOWN;
@@ -695,8 +699,8 @@ int udaGetDataType(int handle)
 
 int udaGetDataOpaqueType(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return UDA_TYPE_UNKNOWN;
@@ -706,8 +710,8 @@ int udaGetDataOpaqueType(int handle)
 
 void* udaGetDataOpaqueBlock(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
@@ -717,8 +721,8 @@ void* udaGetDataOpaqueBlock(int handle)
 
 int udaGetDataOpaqueCount(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return 0;
@@ -733,8 +737,8 @@ int udaGetDataOpaqueCount(int handle)
 */
 int udaGetErrorType(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return UDA_TYPE_UNKNOWN;
@@ -840,11 +844,11 @@ int udaGetDataTypeSize(int type)
 
 void udaGetErrorModel(int handle, int* model, int* param_n, float* params)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
-        *model = ERROR_MODEL_UNKNOWN;
+        *model = static_cast<int>(ErrorModelType::Unknown);
         *param_n = 0;
         return;
     }
@@ -857,8 +861,8 @@ void udaGetErrorModel(int handle, int* model, int* param_n, float* params)
 
 int udaGetErrorAsymmetry(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return 0;
@@ -870,50 +874,42 @@ int udaGetErrorAsymmetry(int handle)
 
 int udaGetErrorModelId(const char* model)
 {
-    for (int i = 1; i < ERROR_MODEL_UNDEFINED; i++) {
-        switch (i) {
-            case 1:
-                if (STR_IEQUALS(model, "default")) return ERROR_MODEL_DEFAULT;
-                break;
-            case 2:
-                if (STR_IEQUALS(model, "default_asymmetric")) return ERROR_MODEL_DEFAULT_ASYMMETRIC;
-                break;
-#ifdef NO_GSL_LIB
-            case 3:
-                if (STR_IEQUALS(model, "gaussian")) return ERROR_MODEL_GAUSSIAN;
-                break;
-            case 4:
-                if (STR_IEQUALS(model, "reseed")) return ERROR_MODEL_RESEED;
-                break;
-            case 5:
-                if (STR_IEQUALS(model, "gaussian_shift")) return ERROR_MODEL_GAUSSIAN_SHIFT;
-                break;
-            case 6:
-                if (STR_IEQUALS(model, "poisson")) return ERROR_MODEL_POISSON;
-                break;
-#endif
-            default:
-                return ERROR_MODEL_UNKNOWN;
-        }
+    if (STR_IEQUALS(model, "default")) {
+        return static_cast<int>(ErrorModelType::Default);
     }
-    return 0;
+    if (STR_IEQUALS(model, "default_asymmetric")) {
+        return static_cast<int>(ErrorModelType::DefaultAsymmetric);
+    }
+    if (STR_IEQUALS(model, "gaussian")) {
+        return static_cast<int>(ErrorModelType::Gaussian);
+    }
+    if (STR_IEQUALS(model, "reseed")) {
+        return static_cast<int>(ErrorModelType::Reseed);
+    }
+    if (STR_IEQUALS(model, "gaussian_shift")) {
+        return static_cast<int>(ErrorModelType::GaussianShift);
+    }
+    if (STR_IEQUALS(model, "poisson")) {
+        return static_cast<int>(ErrorModelType::Poisson);
+    }
+    return static_cast<int>(ErrorModelType::Unknown);
 }
 
-char* udaGetSyntheticDimData(int handle, int ndim)
+char* udaGetSyntheticDimData(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
     }
-    return data_block->dims[ndim].synthetic;
+    return data_block->dims[n_dim].synthetic;
 }
 
 void udaSetSyntheticData(int handle, char* data)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
@@ -921,24 +917,24 @@ void udaSetSyntheticData(int handle, char* data)
     data_block->synthetic = data;
 }
 
-void udaSetSyntheticDimData(int handle, int ndim, char* data)
+void udaSetSyntheticDimData(int handle, int n_dim, char* data)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
     }
-    data_block->dims[ndim].synthetic = data;
+    data_block->dims[n_dim].synthetic = data;
 }
 
 char* udaGetSyntheticData(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
-    auto client_flags = instance.client_flags();
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
+    const auto client_flags = instance.client_flags();
 
-    int status = udaGetDataStatus(handle);
+    const int status = udaGetDataStatus(handle);
     if (data_block == nullptr) {
         return nullptr;
     }
@@ -948,7 +944,7 @@ char* udaGetSyntheticData(int handle)
     if (status != MIN_STATUS && (data_block->client_block.get_bad || client_flags->get_bad)) {
         return nullptr;
     }
-    if (!client_flags->get_synthetic || data_block->error_model == ERROR_MODEL_UNKNOWN) {
+    if (!client_flags->get_synthetic || data_block->error_model == static_cast<int>(ErrorModelType::Unknown)) {
         return data_block->data;
     }
     uda::client::generate_synthetic_data(handle);
@@ -962,9 +958,9 @@ char* udaGetSyntheticData(int handle)
 */
 char* udaGetData(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
-    auto client_flags = instance.client_flags();
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
+    const auto client_flags = instance.client_flags();
 
     int status = udaGetDataStatus(handle);
     if (data_block == nullptr) {
@@ -991,8 +987,8 @@ char* udaGetData(int handle)
 */
 void udaGetDataTdi(int handle, char* data)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
@@ -1002,8 +998,8 @@ void udaGetDataTdi(int handle, char* data)
 
 char* udaGetDataErrLo(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
@@ -1013,8 +1009,8 @@ char* udaGetDataErrLo(int handle)
 
 char* udaGetDataErrHi(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
@@ -1024,8 +1020,8 @@ char* udaGetDataErrHi(int handle)
 
 int udaGetDataErrAsymmetry(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return 0;
@@ -1036,7 +1032,7 @@ int udaGetDataErrAsymmetry(int handle)
 void udaSetDataErrAsymmetry(int handle, int asymmetry)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
@@ -1047,7 +1043,7 @@ void udaSetDataErrAsymmetry(int handle, int asymmetry)
 void udaSetDataErrType(int handle, int type)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
@@ -1058,7 +1054,7 @@ void udaSetDataErrType(int handle, int type)
 void udaSetDataErrLo(int handle, char* errlo)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
@@ -1066,76 +1062,88 @@ void udaSetDataErrLo(int handle, char* errlo)
     data_block->errlo = errlo;
 };
 
-char* udaGetDimErrLo(int handle, int ndim)
+char* udaGetDimErrLo(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
     }
-    return data_block->dims[ndim].errlo;
+    return data_block->dims[n_dim].errlo;
 }
 
-char* udaGetDimErrHi(int handle, int ndim)
+char* udaGetDimErrHi(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
     }
-    return data_block->dims[ndim].errhi;
+    return data_block->dims[n_dim].errhi;
 }
 
-int udaGetDimErrAsymmetry(int handle, int ndim)
+int udaGetDimErrAsymmetry(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return 0;
     }
-    return data_block->dims[ndim].errasymmetry;
+    return data_block->dims[n_dim].errasymmetry;
 }
 
-void udaSetDimErrAsymmetry(int handle, int ndim, int asymmetry)
+void udaSetDimErrAsymmetry(int handle, int n_dim, int asymmetry)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
     }
-    data_block->dims[ndim].errasymmetry = asymmetry;
+    data_block->dims[n_dim].errasymmetry = asymmetry;
 };
 
-void udaSetDimErrType(int handle, int ndim, int type)
+void udaSetDimErrType(int handle, int n_dim, int type)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
     }
-    data_block->dims[ndim].error_type = type;
+    data_block->dims[n_dim].error_type = type;
 };
 
-void udaSetDimErrLo(int handle, int ndim, char* errlo)
+void udaSetDimErrLo(int handle, int n_dim, char* errlo)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
     }
-    data_block->dims[ndim].errlo = errlo;
+    data_block->dims[n_dim].errlo = errlo;
 };
+
+template <typename T>
+void generate_asymmetic_errror(DataBlock* data_block, int n_data) {
+    T* const low = data_block->errasymmetry ? reinterpret_cast<T*>(data_block->errlo) : nullptr;
+    T* const high = reinterpret_cast<T*>(data_block->errhi);
+    for (int i = 0; i < n_data; i++) {
+        high[i] = T{};
+        if (data_block->errasymmetry) {
+            low[i] = T{};
+        }
+    }
+}
 
 char* udaGetAsymmetricError(int handle, bool above)
 {
     auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
@@ -1151,7 +1159,7 @@ char* udaGetAsymmetricError(int handle, bool above)
             }     // otherwise the data array must have been returned by the server or generated
         }
     } else {
-        if (data_block->error_model != ERROR_MODEL_UNKNOWN) {
+        if (data_block->error_model != static_cast<int>(ErrorModelType::Unknown)) {
             uda::client::generate_data_error(handle);
             if (above) {
                 return data_block->errhi;
@@ -1162,184 +1170,78 @@ char* udaGetAsymmetricError(int handle, bool above)
             }
         } else {
 
-            char* errhi = nullptr;    // Regular Error Component
-            char* errlo = nullptr;    // Asymmetric Error Component
-            int ndata;
-
-            ndata = data_block->data_n;
+            char* err_hi = nullptr;    // Regular Error Component
+            char* err_lo = nullptr;    // Asymmetric Error Component
+            int n_data = data_block->data_n;
             data_block->error_type = data_block->data_type;  // Error Type is Unknown so Assume Data's Data Type
 
-            if (alloc_array(data_block->error_type, ndata, &errhi) != 0) {
+            if (alloc_array(data_block->error_type, n_data, &err_hi) != 0) {
                 // Allocate Heap for Regular Error Data
                 UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
                 data_block->errhi = nullptr;
             } else {
-                data_block->errhi = errhi;
+                data_block->errhi = err_hi;
             }
 
             if (data_block->errasymmetry) {           // Allocate Heap for the Asymmetric Error Data
-                if (alloc_array(data_block->error_type, ndata, &errlo) != 0) {
+                if (alloc_array(data_block->error_type, n_data, &err_lo) != 0) {
                     UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
                     UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
                     data_block->errlo = nullptr;
                     data_block->errasymmetry = 0;
                 } else {
-                    data_block->errlo = errlo;
+                    data_block->errlo = err_lo;
                 }
             }
 
             // Generate and return Zeros if this data is requested unless Error is Modelled
 
             switch (data_block->data_type) {
-                case UDA_TYPE_FLOAT: {
-                    float* fh, * fl = nullptr;
-                    fh = (float*)data_block->errhi;
-                    if (data_block->errasymmetry) fl = (float*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        *(fh + i) = (float)0.0;
-                        if (data_block->errasymmetry) *(fl + i) = (float)0.0;
-                    }
+                case UDA_TYPE_FLOAT:
+                    generate_asymmetic_errror<float>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_DOUBLE: {
-                    double* dh, * dl = nullptr;
-                    dh = (double*)data_block->errhi;
-                    if (data_block->errasymmetry) dl = (double*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        *(dh + i) = (double)0.0;
-                        if (data_block->errasymmetry) *(dl + i) = (double)0.0;
-                    }
+                case UDA_TYPE_DOUBLE:
+                    generate_asymmetic_errror<double>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_SHORT: {
-                    short* sh, * sl = nullptr;
-                    sh = (short*)data_block->errhi;
-                    if (data_block->errasymmetry) sl = (short*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        *(sh + i) = (short)0;
-                        if (data_block->errasymmetry) *(sl + i) = (short)0;
-                    }
+                case UDA_TYPE_SHORT:
+                    generate_asymmetic_errror<short>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_UNSIGNED_SHORT: {
-                    unsigned short* sh, * sl = nullptr;
-                    sh = (unsigned short*)data_block->errhi;
-                    if (data_block->errasymmetry) sl = (unsigned short*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        sh[i] = (unsigned short)0;
-                        if (data_block->errasymmetry) sl[i] = (unsigned short)0;
-                    }
+                case UDA_TYPE_UNSIGNED_SHORT:
+                    generate_asymmetic_errror<unsigned short>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_INT: {
-                    int* ih, * il = nullptr;
-                    ih = (int*)data_block->errhi;
-                    if (data_block->errasymmetry) il = (int*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        *(ih + i) = (int)0;
-                        if (data_block->errasymmetry) *(il + i) = (int)0;
-                    }
+                case UDA_TYPE_INT:
+                    generate_asymmetic_errror<int>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_UNSIGNED_INT: {
-                    unsigned int* uh, * ul = nullptr;
-                    uh = (unsigned int*)data_block->errhi;
-                    if (data_block->errasymmetry) ul = (unsigned int*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        *(uh + i) = (unsigned int)0;
-                        if (data_block->errasymmetry) *(ul + i) = (unsigned int)0;
-                    }
+                case UDA_TYPE_UNSIGNED_INT:
+                    generate_asymmetic_errror<unsigned int>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_LONG: {
-                    long* lh, * ll = nullptr;
-                    lh = (long*)data_block->errhi;
-                    if (data_block->errasymmetry) ll = (long*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        *(lh + i) = (long)0;
-                        if (data_block->errasymmetry) *(ll + i) = (long)0;
-                    }
+                case UDA_TYPE_LONG:
+                    generate_asymmetic_errror<long>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_UNSIGNED_LONG: {
-                    unsigned long* lh, * ll = nullptr;
-                    lh = (unsigned long*)data_block->errhi;
-                    if (data_block->errasymmetry) ll = (unsigned long*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        lh[i] = (unsigned long)0;
-                        if (data_block->errasymmetry) ll[i] = (unsigned long)0;
-                    }
+                case UDA_TYPE_UNSIGNED_LONG:
+                    generate_asymmetic_errror<unsigned long>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_LONG64: {
-                    long long int* lh, * ll = nullptr;
-                    lh = (long long int*)data_block->errhi;
-                    if (data_block->errasymmetry) ll = (long long int*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        *(lh + i) = (long long int)0;
-                        if (data_block->errasymmetry) *(ll + i) = (long long int)0;
-                    }
+                case UDA_TYPE_LONG64:
+                    generate_asymmetic_errror<long long>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_UNSIGNED_LONG64: {
-                    unsigned long long int* lh, * ll = nullptr;
-                    lh = (unsigned long long int*) data_block->errhi;
-                    if (data_block->errasymmetry) ll = (unsigned long long int*) data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        lh[i] = (unsigned long long int) 0;
-                        if (data_block->errasymmetry) ll[i] = (unsigned long long int) 0;
-                    }
+                case UDA_TYPE_UNSIGNED_LONG64:
+                    generate_asymmetic_errror<unsigned long long>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_CHAR: {
-                    char* ch, * cl = nullptr;
-                    ch = data_block->errhi;
-                    if (data_block->errasymmetry) cl = data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        ch[i] = (char)0;
-                        if (data_block->errasymmetry) cl[i] = (char)0;
-                    }
+                case UDA_TYPE_CHAR:
+                    generate_asymmetic_errror<char>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_UNSIGNED_CHAR: {
-                    unsigned char* ch, * cl = nullptr;
-                    ch = (unsigned char*)data_block->errhi;
-                    if (data_block->errasymmetry) cl = (unsigned char*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        ch[i] = (unsigned char)0;
-                        if (data_block->errasymmetry) cl[i] = (unsigned char)0;
-                    }
+                case UDA_TYPE_UNSIGNED_CHAR:
+                    generate_asymmetic_errror<unsigned char>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_DCOMPLEX: {
-                    DComplex* ch = nullptr; 
-                    DComplex* cl = nullptr;
-                    ch = (DComplex*)data_block->errhi;
-                    if (data_block->errasymmetry) cl = (DComplex*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        ch[i].real = (double)0.0;
-                        ch[i].imaginary = (double)0.0;
-                        if (data_block->errasymmetry) {
-                            cl[i].real = (double)0.0;
-                            cl[i].imaginary = (double)0.0;
-                        }
-                    }
+                case UDA_TYPE_DCOMPLEX:
+                    generate_asymmetic_errror<DComplex>(data_block, n_data);
                     break;
-                }
-                case UDA_TYPE_COMPLEX: {
-                    Complex* ch, * cl = nullptr;
-                    ch = (Complex*)data_block->errhi;
-                    if (data_block->errasymmetry) cl = (Complex*)data_block->errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        ch[i].real = (float)0.0;
-                        ch[i].imaginary = (float)0.0;
-                        if (data_block->errasymmetry) {
-                            cl[i].real = (float)0.0;
-                            cl[i].imaginary = (float)0.0;
-                        }
-                    }
+                case UDA_TYPE_COMPLEX:
+                    generate_asymmetic_errror<Complex>(data_block, n_data);
                     break;
-                }
+                default:
+                    UDA_LOG(UDA_LOG_ERROR, "Invalid Data Type\n");
+                    return nullptr;
             }
 
             if (above) {
@@ -1360,10 +1262,10 @@ char* udaGetAsymmetricError(int handle, bool above)
 */
 char* udaGetError(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    int above = 1;
+    constexpr bool above = 1;
     if (data_block == nullptr) {
         return nullptr;
     }
@@ -1379,38 +1281,37 @@ the property \b get_bad is set.
 */
 void udaGetDoubleData(int handle, double* fp)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
-    auto client_flags = instance.client_flags();
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
+    const auto client_flags = instance.client_flags();
 
     // Copy Data cast as double to User Provided Array
 
     // **** The double array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
-    int status = udaGetDataStatus(handle);
+    const int status = udaGetDataStatus(handle);
     if (data_block == nullptr) return;
     if (status == MIN_STATUS && !data_block->client_block.get_bad && !client_flags->get_bad) return;
     if (status != MIN_STATUS && (data_block->client_block.get_bad || client_flags->get_bad)) return;
 
     if (data_block->data_type == UDA_TYPE_DOUBLE) {
         if (!client_flags->get_synthetic)
-            memcpy((void*)fp, (void*)data_block->data, (size_t)data_block->data_n * sizeof(double));
+            memcpy((void*)fp, (void*)data_block->data, static_cast<size_t>(data_block->data_n) * sizeof(double));
         else {
             uda::client::generate_synthetic_data(handle);
             if (data_block->synthetic != nullptr)
                 memcpy((void*)fp, (void*)data_block->synthetic,
-                       (size_t)data_block->data_n * sizeof(double));
+                       static_cast<size_t>(data_block->data_n) * sizeof(double));
             else
                 memcpy((void*)fp, (void*)data_block->data,
-                       (size_t)data_block->data_n * sizeof(double));
+                       static_cast<size_t>(data_block->data_n) * sizeof(double));
             return;
         }
     } else {
 
         char* array;
-        int ndata;
 
-        ndata = udaGetDataNum(handle);
+        int n_data = udaGetDataNum(handle);
 
         if (!client_flags->get_synthetic) {
             array = data_block->data;
@@ -1425,88 +1326,87 @@ void udaGetDoubleData(int handle, double* fp)
 
         switch (data_block->data_type) {
             case UDA_TYPE_FLOAT: {
-                auto dp = (float*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)dp[i];
+                const auto dp = reinterpret_cast<float*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(dp[i]);
                 break;
             }
             case UDA_TYPE_SHORT: {
-                auto sp = (short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)sp[i];
+                const auto sp = reinterpret_cast<short*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(sp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_SHORT: {
-                auto sp = (unsigned short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)sp[i];
+                const auto sp = reinterpret_cast<unsigned short*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(sp[i]);
                 break;
             }
             case UDA_TYPE_INT: {
-                int* ip = (int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)ip[i];
+                const auto ip = reinterpret_cast<int*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(ip[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_INT: {
-                auto up = (unsigned int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)up[i];
+                const auto up = reinterpret_cast<unsigned int*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(up[i]);
                 break;
             }
             case UDA_TYPE_LONG: {
-                auto lp = (long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                const auto lp = reinterpret_cast<long*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(lp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG: {
-                auto lp = (unsigned long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                const auto lp = reinterpret_cast<unsigned long*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(lp[i]);
                 break;
             }
             case UDA_TYPE_LONG64: {
-                auto lp = (long long int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                const auto lp = reinterpret_cast<long long int*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(lp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG64: {
-                auto lp = (unsigned long long int*) array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                const auto lp = reinterpret_cast<unsigned long long int*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(lp[i]);
                 break;
             }
             case UDA_TYPE_CHAR: {
-                auto cp = (char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)cp[i];
+                const auto cp = array;
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(cp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_CHAR: {
-                auto cp = (unsigned char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)cp[i];
+                const auto cp = reinterpret_cast<unsigned char*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(cp[i]);
                 break;
             }
             case UDA_TYPE_UNKNOWN: {
-                for (int i = 0; i < ndata; i++) fp[i] = (double)0.0;  // No Data !
+                for (int i = 0; i < n_data; i++) fp[i] = 0.0;  // No Data !
                 break;
             }
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
-                auto dp = (DComplex*)array;
-                for (int i = 0; i < ndata; i++) {
-                    fp[j++] = (double)dp[i].real;
-                    fp[j++] = (double)dp[i].imaginary;
+                const auto dp = reinterpret_cast<DComplex*>(array);
+                for (int i = 0; i < n_data; i++) {
+                    fp[j++] = dp[i].real;
+                    fp[j++] = dp[i].imaginary;
                 }
                 break;
             }
             case UDA_TYPE_COMPLEX: {
                 int j = 0;
-                auto dp = (Complex*)array;
-                for (int i = 0; i < ndata; i++) {
-                    fp[j++] = (double)dp[i].real;
-                    fp[j++] = (double)dp[i].imaginary;
+                const auto dp = reinterpret_cast<Complex*>(array);
+                for (int i = 0; i < n_data; i++) {
+                    fp[j++] = static_cast<double>(dp[i].real);
+                    fp[j++] = static_cast<double>(dp[i].imaginary);
                 }
                 break;
             }
             default:
-                for (int i = 0; i < ndata; i++) fp[i] = (double)0.0;
+                for (int i = 0; i < n_data; i++) fp[i] = 0.0;
                 break;
 
         }
-        return;
     }
 }
 
@@ -1524,11 +1424,11 @@ void udaGetFloatData(int handle, float* fp)
 
     // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
-    auto client_flags = instance.client_flags();
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
+    const auto client_flags = instance.client_flags();
 
-    int status = udaGetDataStatus(handle);
+    const int status = udaGetDataStatus(handle);
     if (data_block == nullptr) {
         return;
     }
@@ -1537,23 +1437,22 @@ void udaGetFloatData(int handle, float* fp)
 
     if (data_block->data_type == UDA_TYPE_FLOAT) {
         if (!client_flags->get_synthetic)
-            memcpy((void*)fp, (void*)data_block->data, (size_t)data_block->data_n * sizeof(float));
+            memcpy((void*)fp, (void*)data_block->data, static_cast<size_t>(data_block->data_n) * sizeof(float));
         else {
             uda::client::generate_synthetic_data(handle);
             if (data_block->synthetic != nullptr)
                 memcpy((void*)fp, (void*)data_block->synthetic,
-                       (size_t)data_block->data_n * sizeof(float));
+                       static_cast<size_t>(data_block->data_n) * sizeof(float));
             else
                 memcpy((void*)fp, (void*)data_block->data,
-                       (size_t)data_block->data_n * sizeof(float));
+                       static_cast<size_t>(data_block->data_n) * sizeof(float));
             return;
         }
     } else {
 
         char* array;
-        int ndata;
 
-        ndata = udaGetDataNum(handle);
+        const int n_data = udaGetDataNum(handle);
 
         if (!client_flags->get_synthetic) {
             array = data_block->data;
@@ -1568,88 +1467,87 @@ void udaGetFloatData(int handle, float* fp)
 
         switch (data_block->data_type) {
             case UDA_TYPE_DOUBLE: {
-                double* dp = (double*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)dp[i];
+                const double* dp = reinterpret_cast<double*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(dp[i]);
                 break;
             }
             case UDA_TYPE_SHORT: {
-                auto sp = (short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+                const auto sp = reinterpret_cast<short*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(sp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_SHORT: {
-                auto sp = (unsigned short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+                const auto sp = reinterpret_cast<unsigned short*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(sp[i]);
                 break;
             }
             case UDA_TYPE_INT: {
-                int* ip = (int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)ip[i];
+                const auto ip = reinterpret_cast<int*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(ip[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_INT: {
-                auto up = (unsigned int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)up[i];
+                const auto up = reinterpret_cast<unsigned int*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(up[i]);
                 break;
             }
             case UDA_TYPE_LONG: {
-                auto lp = (long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                const auto lp = reinterpret_cast<long*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(lp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG: {
-                auto lp = (unsigned long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                const auto lp = reinterpret_cast<unsigned long*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(lp[i]);
                 break;
             }
             case UDA_TYPE_LONG64: {
-                auto lp = (long long int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                const auto lp = reinterpret_cast<long long int*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(lp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG64: {
-                auto lp = (unsigned long long int*) array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                const auto lp = reinterpret_cast<unsigned long long int*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(lp[i]);
                 break;
             }
             case UDA_TYPE_CHAR: {
-                auto cp = (char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+                const auto cp = array;
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(cp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_CHAR: {
-                auto cp = (unsigned char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+                const auto cp = reinterpret_cast<unsigned char*>(array);
+                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(cp[i]);
                 break;
             }
             case UDA_TYPE_UNKNOWN: {
-                for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;   // No Data !
+                for (int i = 0; i < n_data; i++) fp[i] = 0.0f;   // No Data !
                 break;
             }
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
-                auto dp = (DComplex*)array;
-                for (int i = 0; i < ndata; i++) {
-                    fp[j++] = (float)dp[i].real;
-                    fp[j++] = (float)dp[i].imaginary;
+                const auto dp = reinterpret_cast<DComplex*>(array);
+                for (int i = 0; i < n_data; i++) {
+                    fp[j++] = static_cast<float>(dp[i].real);
+                    fp[j++] = static_cast<float>(dp[i].imaginary);
                 }
                 break;
             }
             case UDA_TYPE_COMPLEX: {
                 int j = 0;
-                auto dp = (Complex*)array;
-                for (int i = 0; i < ndata; i++) {
-                    fp[j++] = (float)dp[i].real;
-                    fp[j++] = (float)dp[i].imaginary;
+                const auto dp = reinterpret_cast<Complex*>(array);
+                for (int i = 0; i < n_data; i++) {
+                    fp[j++] = dp[i].real;
+                    fp[j++] = dp[i].imaginary;
                 }
                 break;
             }
             default:
-                for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;
+                for (int i = 0; i < n_data; i++) fp[i] = 0.0f;
                 break;
 
         }
-        return;
     }
 }
 
@@ -1663,65 +1561,80 @@ void udaGetGenericData(int handle, void* data)
 {
     switch (udaGetDataType(handle)) {
         case UDA_TYPE_FLOAT:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(float));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(float));
             break;
         case UDA_TYPE_DOUBLE:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(double));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(double));
             break;
         case UDA_TYPE_INT:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(int));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(int));
             break;
         case UDA_TYPE_UNSIGNED_INT:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned int));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(unsigned int));
             break;
         case UDA_TYPE_LONG:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(long));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(long));
             break;
         case UDA_TYPE_UNSIGNED_LONG:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned long));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(unsigned long));
             break;
         case UDA_TYPE_LONG64:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(long long int));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(long long int));
             break;
         case UDA_TYPE_UNSIGNED_LONG64:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned long long int));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(unsigned long long int));
             break;
         case UDA_TYPE_SHORT:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(short));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(short));
             break;
         case UDA_TYPE_UNSIGNED_SHORT:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned short));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(unsigned short));
             break;
         case UDA_TYPE_CHAR:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(char));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(char));
             break;
         case UDA_TYPE_UNSIGNED_CHAR:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned char));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(unsigned char));
             break;
         case UDA_TYPE_DCOMPLEX:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(DComplex));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(DComplex));
             break;
         case UDA_TYPE_COMPLEX:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(Complex));
+            memcpy(data, udaGetData(handle), static_cast<size_t>(udaGetDataNum(handle)) * sizeof(Complex));
             break;
     }
 }
 
+template <typename T>
+void get_float_asymmetric_error(const bool above, const DataBlock* data_block, const int n_data, float* out)
+{
+    T* err;
+    if (above) {
+        err = reinterpret_cast<T*>(data_block->errhi);
+    } else if (!data_block->errasymmetry) {
+        err = reinterpret_cast<T*>(data_block->errhi);
+    } else {
+        err = reinterpret_cast<T*>(data_block->errlo);
+    }
+    for (int i = 0; i < n_data; i++) {
+        out[i] = static_cast<float>(err[i]);
+    }
+}
 
-void udaGetFloatAsymmetricError(int handle, int above, float* fp)
+void udaGetFloatAsymmetricError(int handle, bool above, float* fp)
 {
     // Copy Error Data cast as float to User Provided Array
 
     // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
     }
 
-    int ndata = data_block->data_n;
+    const int n_data = data_block->data_n;
 
     if (data_block->error_type == UDA_TYPE_UNKNOWN) {
         udaGetAsymmetricError(handle, above);
@@ -1729,163 +1642,65 @@ void udaGetFloatAsymmetricError(int handle, int above, float* fp)
 
     switch (data_block->error_type) {
         case UDA_TYPE_UNKNOWN:
-            for (int i = 0; i < ndata; i++) fp[i] = (float)0.0; // No Error Data
+            for (int i = 0; i < n_data; i++) {
+                fp[i] = 0.0f; // No Error Data
+            }
             break;
         case UDA_TYPE_FLOAT:
-            if (above)
-                memcpy((void*)fp, (void*)data_block->errhi,
-                       (size_t)data_block->data_n * sizeof(float));
-            else if (!data_block->errasymmetry)
-                memcpy((void*)fp, (void*)data_block->errhi,
-                       (size_t)data_block->data_n * sizeof(float));
-            else
-                memcpy((void*)fp, (void*)data_block->errlo,
-                       (size_t)data_block->data_n * sizeof(float));
-            break;
-        case UDA_TYPE_DOUBLE: {
-            double* dp;
             if (above) {
-                dp = (double*)data_block->errhi;
+                memcpy(fp, data_block->errhi, static_cast<size_t>(data_block->data_n) * sizeof(float));
             } else if (!data_block->errasymmetry) {
-                dp = (double*)data_block->errhi;
+                memcpy(fp, data_block->errhi, static_cast<size_t>(data_block->data_n) * sizeof(float));
             } else {
-                dp = (double*)data_block->errlo;
+                memcpy(fp, data_block->errlo, static_cast<size_t>(data_block->data_n) * sizeof(float));
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)dp[i];
             break;
-        }
-        case UDA_TYPE_SHORT: {
-            short* sp;
-            if (above) {
-                sp = (short*)data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                sp = (short*)data_block->errhi;
-            } else {
-                sp = (short*)data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+        case UDA_TYPE_DOUBLE:
+            get_float_asymmetric_error<double>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_UNSIGNED_SHORT: {
-            unsigned short* sp;
-            if (above) {
-                sp = (unsigned short*)data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                sp = (unsigned short*)data_block->errhi;
-            } else {
-                sp = (unsigned short*)data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+        case UDA_TYPE_SHORT:
+            get_float_asymmetric_error<short>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_INT: {
-            int* ip;
-            if (above) {
-                ip = (int*)data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                ip = (int*)data_block->errhi;
-            } else {
-                ip = (int*)data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)ip[i];
+        case UDA_TYPE_UNSIGNED_SHORT:
+            get_float_asymmetric_error<unsigned short>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_UNSIGNED_INT: {
-            unsigned int* up;
-            if (above) {
-                up = (unsigned int*)data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                up = (unsigned int*)data_block->errhi;
-            } else {
-                up = (unsigned int*)data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)up[i];
+        case UDA_TYPE_INT:
+            get_float_asymmetric_error<int>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_LONG: {
-            long* lp;
-            if (above) {
-                lp = (long*)data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                lp = (long*)data_block->errhi;
-            } else {
-                lp = (long*)data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+        case UDA_TYPE_UNSIGNED_INT:
+            get_float_asymmetric_error<unsigned int>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_UNSIGNED_LONG: {
-            unsigned long* lp;
-            if (above) {
-                lp = (unsigned long*)data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                lp = (unsigned long*)data_block->errhi;
-            } else {
-                lp = (unsigned long*)data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+        case UDA_TYPE_LONG:
+            get_float_asymmetric_error<long>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_LONG64: {
-            long long int* lp;
-            if (above) {
-                lp = (long long int*)data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                lp = (long long int*)data_block->errhi;
-            } else {
-                lp = (long long int*)data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+        case UDA_TYPE_UNSIGNED_LONG:
+            get_float_asymmetric_error<unsigned long>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_UNSIGNED_LONG64: {
-            unsigned long long int* lp;
-            if (above)
-                lp = (unsigned long long int*) data_block->errhi;
-            else if (!data_block->errasymmetry)
-                lp = (unsigned long long int*) data_block->errhi;
-            else
-                lp = (unsigned long long int*) data_block->errlo;
-            for (int i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+        case UDA_TYPE_LONG64:
+            get_float_asymmetric_error<long long>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_CHAR: {
-            char* cp;
-            if (above) {
-                cp = data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                cp = data_block->errhi;
-            } else {
-                cp = data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+        case UDA_TYPE_UNSIGNED_LONG64:
+            get_float_asymmetric_error<unsigned long long>(above, data_block, n_data, fp);
             break;
-        }
-        case UDA_TYPE_UNSIGNED_CHAR: {
-            unsigned char* cp;
-            if (above) {
-                cp = (unsigned char*)data_block->errhi;
-            } else if (!data_block->errasymmetry) {
-                cp = (unsigned char*)data_block->errhi;
-            } else {
-                cp = (unsigned char*)data_block->errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+        case UDA_TYPE_CHAR:
+            get_float_asymmetric_error<char>(above, data_block, n_data, fp);
             break;
-        }
+        case UDA_TYPE_UNSIGNED_CHAR:
+            get_float_asymmetric_error<unsigned char>(above, data_block, n_data, fp);
+            break;
         case UDA_TYPE_DCOMPLEX: {
             int j = 0;
             DComplex* cp;
             if (above) {
-                cp = (DComplex*)data_block->errhi;
+                cp = reinterpret_cast<DComplex*>(data_block->errhi);
             } else if (!data_block->errasymmetry) {
-                cp = (DComplex*)data_block->errhi;
+                cp = reinterpret_cast<DComplex*>(data_block->errhi);
             } else {
-                cp = (DComplex*)data_block->errlo;
+                cp = reinterpret_cast<DComplex*>(data_block->errlo);
             }
-            for (int i = 0; i < ndata; i++) {
-                fp[j++] = (float)cp[i].real;
-                fp[j++] = (float)cp[i].imaginary;
+            for (int i = 0; i < n_data; i++) {
+                fp[j++] = static_cast<float>(cp[i].real);
+                fp[j++] = static_cast<float>(cp[i].imaginary);
             }
             break;
         }
@@ -1893,20 +1708,22 @@ void udaGetFloatAsymmetricError(int handle, int above, float* fp)
             int j = 0;
             Complex* cp;
             if (above) {
-                cp = (Complex*)data_block->errhi;
+                cp = reinterpret_cast<Complex*>(data_block->errhi);
             } else if (!data_block->errasymmetry) {
-                cp = (Complex*)data_block->errhi;
+                cp = reinterpret_cast<Complex*>(data_block->errhi);
             } else {
-                cp = (Complex*)data_block->errlo;
+                cp = reinterpret_cast<Complex*>(data_block->errlo);
             }
-            for (int i = 0; i < ndata; i++) {
-                fp[j++] = (float)cp[i].real;
-                fp[j++] = (float)cp[i].imaginary;
+            for (int i = 0; i < n_data; i++) {
+                fp[j++] = cp[i].real;
+                fp[j++] = cp[i].imaginary;
             }
             break;
         }
         default:
-            for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;
+            for (int i = 0; i < n_data; i++) {
+                fp[i] = 0.0f;
+            }
             break;
 
     }
@@ -1920,7 +1737,7 @@ void udaGetFloatAsymmetricError(int handle, int above, float* fp)
 */
 void udaGetFloatError(int handle, float* fp)
 {
-    int above = 1;
+    constexpr bool above = 1;
     udaGetFloatAsymmetricError(handle, above, fp);
 }
 
@@ -1941,22 +1758,6 @@ void udaGetFloatError(int handle, float* fp)
 //     *db = *data_block;
 // }
 
-//!  Returns the DATA_BLOCK data structure - the data, dimension coordinates and associated meta data.
-/**
-\param   handle   The data object handle
-\return  DATA_BLOCK pointer
-*/
-DataBlock* getDataBlock(int handle)
-{
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return nullptr;
-    }
-    return data_block;
-}
-
 //!  Returns the data label of a data object
 /**
 \param   handle   The data object handle
@@ -1964,8 +1765,8 @@ DataBlock* getDataBlock(int handle)
 */
 const char* udaGetDataLabel(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
@@ -1981,8 +1782,8 @@ const char* udaGetDataLabel(int handle)
 */
 void udaGetDataLabelTdi(int handle, char* label)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
@@ -1997,8 +1798,8 @@ void udaGetDataLabelTdi(int handle, char* label)
 */
 const char* udaGetDataUnits(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
@@ -2014,8 +1815,8 @@ const char* udaGetDataUnits(int handle)
 */
 void udaGetDataUnitsTdi(int handle, char* units)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
@@ -2030,8 +1831,8 @@ void udaGetDataUnitsTdi(int handle, char* units)
 */
 const char* udaGetDataDesc(int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return nullptr;
@@ -2047,8 +1848,8 @@ const char* udaGetDataDesc(int handle)
 */
 void udaGetDataDescTdi(int handle, char* desc)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return;
@@ -2061,750 +1862,503 @@ void udaGetDataDescTdi(int handle, char* desc)
 //! Returns the coordinate dimension size
 /** the number of elements in the coordinate array
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  the dimension size
 */
-int udaGetDimNum(int handle, int ndim)
+int udaGetDimNum(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return 0;
     }
-    return data_block->dims[ndim].dim_n;
+    return data_block->dims[n_dim].dim_n;
 }
 
 //! Returns the coordinate dimension data type
 /**
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  the data type id
 */
-int udaGetDimType(int handle, int ndim)
+int udaGetDimType(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return UDA_TYPE_UNKNOWN;
     }
-    return data_block->dims[ndim].data_type;
+    return data_block->dims[n_dim].data_type;
 }
 
 //! Returns the coordinate dimension error data type
 /**
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  the data type id
 */
-int udaGetDimErrorType(int handle, int ndim)
+int udaGetDimErrorType(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return UDA_TYPE_UNKNOWN;
     }
-    return data_block->dims[ndim].error_type;
+    return data_block->dims[n_dim].error_type;
 }
 
 //! Returns whether or not coordinate error data are asymmetric.
 /**
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  boolean true or false i.e. 1 or 0
 */
-int udaGetDimErrorAsymmetry(int handle, int ndim)
+int udaGetDimErrorAsymmetry(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return 0;
     }
-    return data_block->dims[ndim].errasymmetry;
+    return data_block->dims[n_dim].errasymmetry;
 }
 
-void udaGetDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params)
+void udaGetDimErrorModel(int handle, int n_dim, int* model, int* param_n, float* params)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
-        *model = ERROR_MODEL_UNKNOWN;
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
+        *model = static_cast<int>(ErrorModelType::Unknown);
         *param_n = 0;
         return;
     }
 
-    *model = data_block->dims[ndim].error_model;      // Model ID
-    *param_n = data_block->dims[ndim].error_param_n;    // Number of parameters
-    for (int i = 0; i < data_block->dims[ndim].error_param_n; i++) {
-        params[i] = data_block->dims[ndim].errparams[i];
+    *model = data_block->dims[n_dim].error_model;      // Model ID
+    *param_n = data_block->dims[n_dim].error_param_n;    // Number of parameters
+    for (int i = 0; i < data_block->dims[n_dim].error_param_n; i++) {
+        params[i] = data_block->dims[n_dim].errparams[i];
     }
-    // *params  = data_block->dims[ndim].errparams;        // Array of Model Parameters
+    // *params  = data_block->dims[n_dim].errparams;        // Array of Model Parameters
 }
 
-char* udaGenerateSyntheticDimData(int handle, int ndim)
+char* udaGenerateSyntheticDimData(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return nullptr;
     }
 
-    auto client_flags = instance.client_flags();
-    if (!client_flags->get_synthetic || data_block->dims[ndim].error_model == ERROR_MODEL_UNKNOWN) {
-        return data_block->dims[ndim].dim;
+    const auto client_flags = instance.client_flags();
+    if (!client_flags->get_synthetic || data_block->dims[n_dim].error_model == static_cast<int>(ErrorModelType::Unknown)) {
+        return data_block->dims[n_dim].dim;
     }
-    uda::client::generate_synthetic_dim_data(handle, ndim);
-    return data_block->dims[ndim].synthetic;
+    uda::client::generate_synthetic_dim_data(handle, n_dim);
+    return data_block->dims[n_dim].synthetic;
 }
 
 ///!  Returns a pointer to the requested coordinate data
 /** The data may be synthetically generated.
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  pointer to the data
 */
-char* udaGetDimData(int handle, int ndim)
+char* udaGetDimData(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
         return nullptr;
     }
 
-    auto client_flags = instance.client_flags();
+    const auto client_flags = instance.client_flags();
     if (!client_flags->get_synthetic) {
-        return data_block->dims[ndim].dim;
+        return data_block->dims[n_dim].dim;
     }
-    return udaGetSyntheticDimData(handle, ndim);
+    return udaGetSyntheticDimData(handle, n_dim);
 }
 
 //! Returns the data label of a coordinate dimension
 /**
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  pointer to the data label
 */
-const char* udaGetDimLabel(int handle, int ndim)
+const char* udaGetDimLabel(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return nullptr;
     }
-    return data_block->dims[ndim].dim_label;
+    return data_block->dims[n_dim].dim_label;
 }
 //! Returns the data units of a coordinate dimension
 /**
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  pointer to the data units
 */
-const char* udaGetDimUnits(int handle, int ndim)
+const char* udaGetDimUnits(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return nullptr;
     }
-    return data_block->dims[ndim].dim_units;
+    return data_block->dims[n_dim].dim_units;
 }
 
 //!  Returns the data label of a coordinate dimension for use in MDS+ TDI functions
 /**
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \param   label   preallocated string buffer to receive the copy of the data label
 \return  void
 */
-void udaGetDimLabelTdi(int handle, int ndim, char* label)
+void udaGetDimLabelTdi(int handle, int n_dim, char* label)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return;
     }
-    strcpy(label, data_block->dims[ndim].dim_label);
+    strcpy(label, data_block->dims[n_dim].dim_label);
 }
 
 //!  Returns the data units of a coordinate dimension for use in MDS+ TDI functions
 /**
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \param   units   preallocated string buffer to receive the copy of the data units
 \return  void
 */
-void udaGetDimUnitsTdi(int handle, int ndim, char* units)
+void udaGetDimUnitsTdi(int handle, int n_dim, char* units)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return;
     }
-    strcpy(units, data_block->dims[ndim].dim_units);
+    strcpy(units, data_block->dims[n_dim].dim_units);
+}
+
+template <typename T>
+void get_double_dim_data(const char* array, const int n_data, double* out) {
+    const auto ptr = reinterpret_cast<const T*>(array);
+    for (int i = 0; i < n_data; i++) {
+        out[i] = static_cast<double>(ptr[i]);
+    }
 }
 
 //!  Returns coordinate data cast to double precision
 /** The copy buffer must be preallocated and sized for the data type.
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \param   fp A \b double pointer to a preallocated data buffer
 \return  void
 */
-void udaGetDoubleDimData(int handle, int ndim, double* fp)
+void udaGetDoubleDimData(int handle, int n_dim, double* fp)
 {
     // **** The double array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return;
     }
 
-    auto client_flags = instance.client_flags();
-    if (data_block->dims[ndim].data_type == UDA_TYPE_DOUBLE) {
-        if (!client_flags->get_synthetic)
-            memcpy((void*)fp, (void*)data_block->dims[ndim].dim,
-                   (size_t)data_block->dims[ndim].dim_n * sizeof(double));
-        else {
-            uda::client::generate_synthetic_dim_data(handle, ndim);
-            if (data_block->dims[ndim].synthetic != nullptr)
-                memcpy((void*)fp, (void*)data_block->dims[ndim].synthetic,
-                       (size_t)data_block->dims[ndim].dim_n * sizeof(double));
-            else
-                memcpy((void*)fp, (void*)data_block->dims[ndim].dim,
-                       (size_t)data_block->dims[ndim].dim_n * sizeof(double));
-            return;
+    const auto client_flags = instance.client_flags();
+    if (data_block->dims[n_dim].data_type == UDA_TYPE_DOUBLE) {
+        if (!client_flags->get_synthetic) {
+            memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
+        } else {
+            uda::client::generate_synthetic_dim_data(handle, n_dim);
+            if (data_block->dims[n_dim].synthetic != nullptr) {
+                memcpy(fp, data_block->dims[n_dim].synthetic, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
+            } else {
+                memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
+            }
         }
     } else {
         char* array;
 
-        int ndata = data_block->dims[ndim].dim_n;
+        const int n_data = data_block->dims[n_dim].dim_n;
         if (!client_flags->get_synthetic) {
-            array = data_block->dims[ndim].dim;
+            array = data_block->dims[n_dim].dim;
         } else {
-            uda::client::generate_synthetic_dim_data(handle, ndim);
-            if (data_block->dims[ndim].synthetic != nullptr) {
-                array = data_block->dims[ndim].synthetic;
+            uda::client::generate_synthetic_dim_data(handle, n_dim);
+            if (data_block->dims[n_dim].synthetic != nullptr) {
+                array = data_block->dims[n_dim].synthetic;
             } else {
-                array = data_block->dims[ndim].dim;
+                array = data_block->dims[n_dim].dim;
             }
         }
 
-        switch (data_block->dims[ndim].data_type) {
-            case UDA_TYPE_FLOAT: {
-                auto dp = (float*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)dp[i];
-                break;
-            }
-            case UDA_TYPE_SHORT: {
-                auto sp = (short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)sp[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_SHORT: {
-                auto sp = (unsigned short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)sp[i];
-                break;
-            }
-            case UDA_TYPE_INT: {
-                int* ip = (int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)ip[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_INT: {
-                auto up = (unsigned int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)up[i];
-                break;
-            }
-            case UDA_TYPE_LONG: {
-                auto lp = (long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_LONG: {
-                auto lp = (unsigned long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
-                break;
-            }
-            case UDA_TYPE_LONG64: {
-                auto lp = (long long int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_LONG64: {
-                auto lp = (unsigned long long int*) array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double) lp[i];
-                break;
-            }
-            case UDA_TYPE_CHAR: {
-                auto cp = (char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)cp[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_CHAR: {
-                auto cp = (unsigned char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)cp[i];
-                break;
-            }
+        switch (data_block->dims[n_dim].data_type) {
+            case UDA_TYPE_FLOAT: get_double_dim_data<float>(array, n_data, fp); break;
+            case UDA_TYPE_SHORT: get_double_dim_data<short>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_SHORT: get_double_dim_data<unsigned short>(array, n_data, fp); break;
+            case UDA_TYPE_INT: get_double_dim_data<int>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_INT: get_double_dim_data<unsigned int>(array, n_data, fp); break;
+            case UDA_TYPE_LONG: get_double_dim_data<long>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_LONG: get_double_dim_data<unsigned long>(array, n_data, fp); break;
+            case UDA_TYPE_LONG64: get_double_dim_data<long long>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_LONG64: get_double_dim_data<unsigned long long>(array, n_data, fp); break;
+            case UDA_TYPE_CHAR: get_double_dim_data<char>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_CHAR: get_double_dim_data<unsigned char>(array, n_data, fp); break;
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
-                auto cp = (DComplex*)array;
-                for (int i = 0; i < ndata; i++) {
-                    fp[j++] = (double)cp[i].real;
-                    fp[j++] = (double)cp[i].imaginary;
+                const auto cp = reinterpret_cast<DComplex*>(array);
+                for (int i = 0; i < n_data; i++) {
+                    fp[j++] = cp[i].real;
+                    fp[j++] = cp[i].imaginary;
                 }
                 break;
             }
             case UDA_TYPE_COMPLEX: {
                 int j = 0;
-                auto cp = (Complex*)array;
-                for (int i = 0; i < ndata; i++) {
-                    fp[j++] = (double)cp[i].real;
-                    fp[j++] = (double)cp[i].imaginary;
+                const auto cp = reinterpret_cast<Complex*>(array);
+                for (int i = 0; i < n_data; i++) {
+                    fp[j++] = static_cast<double>(cp[i].real);
+                    fp[j++] = static_cast<double>(cp[i].imaginary);
                 }
                 break;
             }
             case UDA_TYPE_UNKNOWN:
-                for (int i = 0; i < ndata; i++) fp[i] = (double)0.0;
-                break;
             default:
-                for (int i = 0; i < ndata; i++) fp[i] = (double)0.0;
+                for (int i = 0; i < n_data; i++) fp[i] = 0.0;
                 break;
 
         }
-        return;
+    }
+}
+
+template <typename T>
+void get_float_dim_data(const char* array, const int n_data, float* out) {
+    const auto ptr = reinterpret_cast<const T*>(array);
+    for (int i = 0; i < n_data; i++) {
+        out[i] = static_cast<float>(ptr[i]);
     }
 }
 
 //!  Returns coordinate data cast to single precision
 /** The copy buffer must be preallocated and sized for the data type.
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \param   fp A \b float pointer to a preallocated data buffer
 \return  void
 */
-void udaGetFloatDimData(int handle, int ndim, float* fp)
+void udaGetFloatDimData(int handle, int n_dim, float* fp)
 {
     // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
             return;
     }
 
-    auto client_flags = instance.client_flags();
-    if (data_block->dims[ndim].data_type == UDA_TYPE_FLOAT) {
+    const auto client_flags = instance.client_flags();
+    if (data_block->dims[n_dim].data_type == UDA_TYPE_FLOAT) {
         if (!client_flags->get_synthetic)
-            memcpy((void*)fp, (void*)data_block->dims[ndim].dim,
-                   (size_t)data_block->dims[ndim].dim_n * sizeof(float));
+            memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
         else {
-            uda::client::generate_synthetic_dim_data(handle, ndim);
-            if (data_block->dims[ndim].synthetic != nullptr)
-                memcpy((void*)fp, (void*)data_block->dims[ndim].synthetic,
-                       (size_t)data_block->dims[ndim].dim_n * sizeof(float));
-            else
-                memcpy((void*)fp, (void*)data_block->dims[ndim].dim,
-                       (size_t)data_block->dims[ndim].dim_n * sizeof(float));
-            return;
+            uda::client::generate_synthetic_dim_data(handle, n_dim);
+            if (data_block->dims[n_dim].synthetic != nullptr) {
+                memcpy(fp, data_block->dims[n_dim].synthetic, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
+            } else {
+                memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
+            }
         }
     } else {
         char* array;
 
-        int ndata = data_block->dims[ndim].dim_n;
+        const int n_data = data_block->dims[n_dim].dim_n;
         if (!client_flags->get_synthetic) {
-            array = data_block->dims[ndim].dim;
+            array = data_block->dims[n_dim].dim;
         } else {
-            uda::client::generate_synthetic_dim_data(handle, ndim);
-            if (data_block->dims[ndim].synthetic != nullptr) {
-                array = data_block->dims[ndim].synthetic;
+            uda::client::generate_synthetic_dim_data(handle, n_dim);
+            if (data_block->dims[n_dim].synthetic != nullptr) {
+                array = data_block->dims[n_dim].synthetic;
             } else {
-                array = data_block->dims[ndim].dim;
+                array = data_block->dims[n_dim].dim;
             }
         }
 
-        switch (data_block->dims[ndim].data_type) {
-            case UDA_TYPE_DOUBLE: {
-                auto dp = (double*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)dp[i];
-                break;
-            }
-            case UDA_TYPE_SHORT: {
-                auto sp = (short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_SHORT: {
-                auto sp = (unsigned short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
-                break;
-            }
-            case UDA_TYPE_INT: {
-                auto ip = (int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)ip[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_INT: {
-                auto up = (unsigned int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)up[i];
-                break;
-            }
-            case UDA_TYPE_LONG: {
-                auto lp = (long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_LONG: {
-                auto lp = (unsigned long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
-                break;
-            }
-            case UDA_TYPE_LONG64: {
-                auto lp = (long long int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_LONG64: {
-                auto lp = (unsigned long long int*) array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float) lp[i];
-                break;
-            }
-            case UDA_TYPE_CHAR: {
-                auto cp = (char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
-                break;
-            }
-            case UDA_TYPE_UNSIGNED_CHAR: {
-                auto cp = (unsigned char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
-                break;
-            }
+        switch (data_block->dims[n_dim].data_type) {
+            case UDA_TYPE_DOUBLE: get_float_dim_data<double>(array, n_data, fp); break;
+            case UDA_TYPE_SHORT: get_float_dim_data<short>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_SHORT: get_float_dim_data<unsigned short>(array, n_data, fp); break;
+            case UDA_TYPE_INT: get_float_dim_data<int>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_INT: get_float_dim_data<unsigned int>(array, n_data, fp); break;
+            case UDA_TYPE_LONG: get_float_dim_data<long>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_LONG: get_float_dim_data<unsigned long>(array, n_data, fp); break;
+            case UDA_TYPE_LONG64: get_float_dim_data<long long>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_LONG64: get_float_dim_data<unsigned long long>(array, n_data, fp); break;
+            case UDA_TYPE_CHAR: get_float_dim_data<char>(array, n_data, fp); break;
+            case UDA_TYPE_UNSIGNED_CHAR: get_float_dim_data<unsigned char>(array, n_data, fp); break;
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
-                auto cp = (DComplex*)array;
-                for (int i = 0; i < ndata; i++) {
-                    fp[j++] = (float)cp[i].real;
-                    fp[j++] = (float)cp[i].imaginary;
+                const auto cp = reinterpret_cast<DComplex*>(array);
+                for (int i = 0; i < n_data; i++) {
+                    fp[j++] = static_cast<float>(cp[i].real);
+                    fp[j++] = static_cast<float>(cp[i].imaginary);
                 }
                 break;
             }
             case UDA_TYPE_COMPLEX: {
                 int j = 0;
-                auto cp = (Complex*)array;
-                for (int i = 0; i < ndata; i++) {
-                    fp[j++] = (float)cp[i].real;
-                    fp[j++] = (float)cp[i].imaginary;
+                const auto cp = reinterpret_cast<Complex*>(array);
+                for (int i = 0; i < n_data; i++) {
+                    fp[j++] = cp[i].real;
+                    fp[j++] = cp[i].imaginary;
                 }
                 break;
             }
             case UDA_TYPE_UNKNOWN:
-                for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;
-                break;
             default:
-                for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;
+                for (int i = 0; i < n_data; i++) fp[i] = 0.0f;
                 break;
         }
-        return;
     }
 }
 
 //!  Returns coordinate data as void type
 /** The copy buffer must be preallocated and sized for the correct data type.
 \param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \param   data  A \b void pointer to a preallocated data buffer
 \return  void
 */
-void udaGetGenericDimData(int handle, int ndim, void* data)
+void udaGetGenericDimData(int handle, int n_dim, void* data)
 {
-    switch (udaGetDimType(handle, ndim)) {
-        case UDA_TYPE_FLOAT:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(float));
-            break;
-        case UDA_TYPE_DOUBLE:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(double));
-            break;
-        case UDA_TYPE_INT:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(int));
-            break;
-        case UDA_TYPE_LONG:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(long));
-            break;
-        case UDA_TYPE_LONG64:
-            memcpy(data, (void*)udaGetDimData(handle, ndim),
-                   (size_t)udaGetDimNum(handle, ndim) * sizeof(long long int));
-            break;
-        case UDA_TYPE_SHORT:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(short));
-            break;
-        case UDA_TYPE_CHAR:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(char));
-            break;
-        case UDA_TYPE_UNSIGNED_INT:
-            memcpy(data, (void*)udaGetDimData(handle, ndim),
-                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned int));
-            break;
-        case UDA_TYPE_UNSIGNED_LONG:
-            memcpy(data, (void*)udaGetDimData(handle, ndim),
-                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned long));
-            break;
-        case UDA_TYPE_UNSIGNED_LONG64:
-            memcpy(data, (void*)udaGetDimData(handle, ndim),
-                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned long long int));
-            break;
-        case UDA_TYPE_UNSIGNED_SHORT:
-            memcpy(data, (void*)udaGetDimData(handle, ndim),
-                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned short));
-            break;
-        case UDA_TYPE_UNSIGNED_CHAR:
-            memcpy(data, (void*)udaGetDimData(handle, ndim),
-                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned char));
-            break;
-        case UDA_TYPE_DCOMPLEX:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(DComplex));
-            break;
-        case UDA_TYPE_COMPLEX:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(Complex));
-            break;
+    const auto type = static_cast<UdaType>(udaGetDimType(handle, n_dim));
+    const auto dim_data = udaGetDimData(handle, n_dim);
+    const auto count = static_cast<size_t>(udaGetDimNum(handle, n_dim));
+    memcpy(data, dim_data, count * getSizeOf(type));
+}
+
+template <typename T>
+void generate_dim_asymmetric_error(DataBlock* data_block, int n_dim, int n_data) {
+    const int err_asymmetry = data_block->dims[n_dim].errasymmetry;
+    T* low = err_asymmetry ? reinterpret_cast<T*>(data_block->dims[n_dim].errlo) : nullptr;
+    T* high = reinterpret_cast<T*>(data_block->dims[n_dim].errhi);
+    for (int i = 0; i < n_data; i++) {
+        high[i] = 0.0f;
+        if (err_asymmetry) {
+            low[i] = 0.0f;
+        }
     }
 }
 
-//!  Returns the coordinate dimension's Dims data structure - the coordinate data and associated meta data.
-/**
-\param   handle   The data object handle
-\param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  Dims pointer
-*/
-Dims* udaGetDimBlock(int handle, int ndim)
+char* udaGetDimAsymmetricError(int handle, int n_dim, bool above)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
             return nullptr;
     }
-    return data_block->dims + ndim;
-}
-
-
-char* udaGetDimAsymmetricError(int handle, int ndim, int above)
-{
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
-            return nullptr;
-    }
-    if (data_block->dims[ndim].error_type != UDA_TYPE_UNKNOWN) {
+    if (data_block->dims[n_dim].error_type != UDA_TYPE_UNKNOWN) {
         if (above) {
-            return data_block->dims[ndim].errhi;    // return the default error array
+            return data_block->dims[n_dim].errhi;    // return the default error array
         } else {
-            if (!data_block->dims[ndim].errasymmetry) {
-                return data_block->dims[ndim].errhi;   // return the default error array if symmetric errors
+            if (!data_block->dims[n_dim].errasymmetry) {
+                return data_block->dims[n_dim].errhi;   // return the default error array if symmetric errors
             } else {
-                return data_block->dims[ndim].errlo;
+                return data_block->dims[n_dim].errlo;
             }   // otherwise the data array must have been returned by the server
         }                           // or generated in a previous call
     } else {
-        if (data_block->dims[ndim].error_model != ERROR_MODEL_UNKNOWN) {
-            uda::client::generate_dim_data_error(handle, ndim);
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                return data_block->dims[ndim].errhi;
+        if (data_block->dims[n_dim].error_model != static_cast<int>(ErrorModelType::Unknown)) {
+            uda::client::generate_dim_data_error(handle, n_dim);
+            if (above || !data_block->dims[n_dim].errasymmetry) {
+                return data_block->dims[n_dim].errhi;
             } else {
-                return data_block->dims[ndim].errlo;
+                return data_block->dims[n_dim].errlo;
             }
         } else {
-            char* errhi = nullptr;
-            char* errlo = nullptr;
+            char* err_hi = nullptr;
+            char* err_lo = nullptr;
 
-            int ndata = data_block->dims[ndim].dim_n;
-            data_block->dims[ndim].error_type = data_block->dims[ndim].data_type; // Error Type is Unknown so Assume Data's Data Type
+            const int n_data = data_block->dims[n_dim].dim_n;
+            data_block->dims[n_dim].error_type = data_block->dims[n_dim].data_type; // Error Type is Unknown so Assume Data's Data Type
 
-            if (alloc_array(data_block->dims[ndim].error_type, ndata, &errhi) != 0) {
+            if (alloc_array(data_block->dims[n_dim].error_type, n_data, &err_hi) != 0) {
                 UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
-                data_block->dims[ndim].errhi = nullptr;
+                data_block->dims[n_dim].errhi = nullptr;
             } else {
-                data_block->dims[ndim].errhi = errhi;
+                data_block->dims[n_dim].errhi = err_hi;
             }
 
-            if (data_block->dims[ndim].errasymmetry) {               // Allocate Heap for the Asymmetric Error Data
-                if (alloc_array(data_block->dims[ndim].error_type, ndata, &errlo) != 0) {
+            if (data_block->dims[n_dim].errasymmetry) {               // Allocate Heap for the Asymmetric Error Data
+                if (alloc_array(data_block->dims[n_dim].error_type, n_data, &err_lo) != 0) {
                     UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
                     UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
-                    data_block->dims[ndim].errlo = errlo;
-                    data_block->dims[ndim].errasymmetry = 0;
+                    data_block->dims[n_dim].errlo = err_lo;
+                    data_block->dims[n_dim].errasymmetry = 0;
                 } else {
-                    data_block->dims[ndim].errlo = errlo;
+                    data_block->dims[n_dim].errlo = err_lo;
                 }
             }
 
-            switch (data_block->dims[ndim].data_type) {
-                case UDA_TYPE_FLOAT: {
-                    float* fl = nullptr;
-                    auto fh = (float*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) fl = (float*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        fh[i] = (float)0.0;
-                        if (data_block->dims[ndim].errasymmetry) fl[i] = (float)0.0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_DOUBLE: {
-                    double* dl = nullptr;
-                    auto dh = (double*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) dl = (double*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        dh[i] = (double)0.0;
-                        if (data_block->dims[ndim].errasymmetry) dl[i] = (double)0.0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_SHORT: {
-                    short* sl = nullptr;
-                    auto sh = (short*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) sl = (short*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        sh[i] = (short)0;
-                        if (data_block->dims[ndim].errasymmetry) sl[i] = (short)0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_UNSIGNED_SHORT: {
-                    unsigned short* sl = nullptr;
-                    auto sh = (unsigned short*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) sl = (unsigned short*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        sh[i] = (unsigned short)0;
-                        if (data_block->dims[ndim].errasymmetry) sl[i] = (unsigned short)0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_INT: {
-                    int* il = nullptr;
-                    auto ih = (int*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) il = (int*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        ih[i] = (int)0;
-                        if (data_block->dims[ndim].errasymmetry) il[i] = (int)0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_UNSIGNED_INT: {
-                    unsigned int* ul = nullptr;
-                    auto uh = (unsigned int*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) ul = (unsigned int*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        uh[i] = (unsigned int)0;
-                        if (data_block->dims[ndim].errasymmetry) ul[i] = (unsigned int)0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_LONG: {
-                    long* ll = nullptr;
-                    auto lh = (long*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) ll = (long*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        lh[i] = (long)0;
-                        if (data_block->dims[ndim].errasymmetry) ll[i] = (long)0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_UNSIGNED_LONG: {
-                    unsigned long* ll = nullptr;
-                    auto lh = (unsigned long*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) ll = (unsigned long*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        lh[i] = (unsigned long)0;
-                        if (data_block->dims[ndim].errasymmetry) ll[i] = (unsigned long)0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_LONG64: {
-                    long long int* ll = nullptr;
-                    auto lh = (long long int*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) ll = (long long int*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        lh[i] = (long long int)0;
-                        if (data_block->dims[ndim].errasymmetry) ll[i] = (long long int)0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_UNSIGNED_LONG64: {
-                    unsigned long long int* ll = nullptr;
-                    auto lh = (unsigned long long int*) data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) ll = (unsigned long long int*) data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        lh[i] = (unsigned long long int) 0;
-                        if (data_block->dims[ndim].errasymmetry) ll[i] = (unsigned long long int) 0;
-                    }
-                    break;
-                }
-                case UDA_TYPE_CHAR: {
-                    char* cl = nullptr;
-                    auto ch = data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) cl = data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        *(ch + i) = ' ';
-                        if (data_block->dims[ndim].errasymmetry) *(cl + i) = ' ';
-                    }
-                    break;
-                }
-                case UDA_TYPE_UNSIGNED_CHAR: {
-                    unsigned char* cl = nullptr;
-                    auto ch = (unsigned char*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) cl = (unsigned char*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        ch[i] = (unsigned char)0;
-                        if (data_block->dims[ndim].errasymmetry) cl[i] = (unsigned char)0;
-                    }
-                    break;
-                }
+            switch (data_block->dims[n_dim].data_type) {
+                case UDA_TYPE_FLOAT: generate_dim_asymmetric_error<float>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_DOUBLE: generate_dim_asymmetric_error<double>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_SHORT: generate_dim_asymmetric_error<short>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_UNSIGNED_SHORT: generate_dim_asymmetric_error<unsigned short>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_INT: generate_dim_asymmetric_error<int>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_UNSIGNED_INT: generate_dim_asymmetric_error<unsigned int>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_LONG: generate_dim_asymmetric_error<long>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_UNSIGNED_LONG: generate_dim_asymmetric_error<unsigned long>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_LONG64: generate_dim_asymmetric_error<long long>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_UNSIGNED_LONG64: generate_dim_asymmetric_error<unsigned long long>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_CHAR: generate_dim_asymmetric_error<char>(data_block, n_dim, n_data); break;
+                case UDA_TYPE_UNSIGNED_CHAR: generate_dim_asymmetric_error<unsigned char>(data_block, n_dim, n_data); break;
                 case UDA_TYPE_DCOMPLEX: {
                     DComplex* cl = nullptr;
-                    auto ch = (DComplex*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) cl = (DComplex*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        ch[i].real = (double)0.0;
-                        ch[i].imaginary = (double)0.0;
-                        if (data_block->dims[ndim].errasymmetry) {
-                            cl[i].real = (double)0.0;
-                            cl[i].imaginary = (double)0.0;
+                    const auto ch = reinterpret_cast<DComplex*>(data_block->dims[n_dim].errhi);
+                    if (data_block->dims[n_dim].errasymmetry) cl = reinterpret_cast<DComplex*>(data_block->dims[n_dim].errlo);
+                    for (int i = 0; i < n_data; i++) {
+                        ch[i].real = 0.0;
+                        ch[i].imaginary = 0.0;
+                        if (data_block->dims[n_dim].errasymmetry) {
+                            cl[i].real = 0.0;
+                            cl[i].imaginary = 0.0;
                         }
                     }
                     break;
                 }
                 case UDA_TYPE_COMPLEX: {
                     Complex* cl = nullptr;
-                    auto ch = (Complex*)data_block->dims[ndim].errhi;
-                    if (data_block->dims[ndim].errasymmetry) cl = (Complex*)data_block->dims[ndim].errlo;
-                    for (int i = 0; i < ndata; i++) {
-                        ch[i].real = (float)0.0;
-                        ch[i].imaginary = (float)0.0;
-                        if (data_block->dims[ndim].errasymmetry) {
-                            cl[i].real = (float)0.0;
-                            cl[i].imaginary = (float)0.0;
+                    const auto ch = reinterpret_cast<Complex*>(data_block->dims[n_dim].errhi);
+                    if (data_block->dims[n_dim].errasymmetry) cl = reinterpret_cast<Complex*>(data_block->dims[n_dim].errlo);
+                    for (int i = 0; i < n_data; i++) {
+                        ch[i].real = 0.0f;
+                        ch[i].imaginary = 0.0f;
+                        if (data_block->dims[n_dim].errasymmetry) {
+                            cl[i].real = 0.0f;
+                            cl[i].imaginary = 0.0f;
                         }
                     }
                     break;
                 }
             }
-            return data_block->dims[ndim].errhi;    // Errors are Symmetric at this point
+            return data_block->dims[n_dim].errhi;    // Errors are Symmetric at this point
         }
     }
 }
@@ -2812,188 +2366,121 @@ char* udaGetDimAsymmetricError(int handle, int ndim, int above)
 //!  Returns a pointer to the requested coordinate error data
 /**
 \param   handle   The data object handle
-\param   ndim  the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim  the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  a pointer to the data
 */
-char* udaGetDimError(int handle, int ndim)
+char* udaGetDimError(int handle, int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
             return nullptr;
     }
-    return udaGetDimAsymmetricError(handle, ndim, true);
+    return udaGetDimAsymmetricError(handle, n_dim, true);
 }
 
-void udaGetFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
+template <typename T>
+void get_float_dim_asymmetric_error(const bool above, const DataBlock* data_block, const int n_dim, const int n_data, float* out) {
+    T* dp;
+    if (above || !data_block->dims[n_dim].errasymmetry) {
+        dp = reinterpret_cast<T*>(data_block->dims[n_dim].errhi);
+    } else {
+        dp = reinterpret_cast<T*>(data_block->dims[n_dim].errlo);
+    }
+    for (int i = 0; i < n_data; i++) {
+        out[i] = static_cast<float>(dp[i]);
+    }
+}
+
+void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* fp)
 {
     // Copy Error Data cast as float to User Provided Array
 
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
             return;
     }
 
-    int ndata = data_block->dims[ndim].dim_n;
+    const int n_data = data_block->dims[n_dim].dim_n;
 
-    if (data_block->dims[ndim].error_type == UDA_TYPE_UNKNOWN) {
-        udaGetDimAsymmetricError(handle, ndim, above);
+    if (data_block->dims[n_dim].error_type == UDA_TYPE_UNKNOWN) {
+        udaGetDimAsymmetricError(handle, n_dim, above);
     }     // Create the Error Data prior to Casting
 
-    switch (data_block->dims[ndim].error_type) {
-        case UDA_TYPE_UNKNOWN:
-            for (int i = 0; i < ndata; i++) fp[i] = (float)0.0; // No Error Data
-            break;
+    switch (data_block->dims[n_dim].error_type) {
         case UDA_TYPE_FLOAT:
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                memcpy((void*)fp, (void*)data_block->dims[ndim].errhi,
-                       (size_t)data_block->dims[ndim].dim_n * sizeof(float));
+            if (above || !data_block->dims[n_dim].errasymmetry) {
+                memcpy(fp, data_block->dims[n_dim].errhi, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
             } else {
-                memcpy((void*)fp, (void*)data_block->dims[ndim].errlo,
-                       (size_t)data_block->dims[ndim].dim_n * sizeof(float));
+                memcpy(fp, data_block->dims[n_dim].errlo, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
             }
             break;
-        case UDA_TYPE_DOUBLE: {
-            double* dp;                          // Return Zeros if this data is requested unless Error is Modelled
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                dp = (double*)data_block->dims[ndim].errhi;
-            } else {
-                dp = (double*)data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)dp[i];
-            break;
-        }
-        case UDA_TYPE_SHORT: {
-            short* sp;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                sp = (short*)data_block->dims[ndim].errhi;
-            } else {
-                sp = (short*)data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_SHORT: {
-            unsigned short* sp;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                sp = (unsigned short*)data_block->dims[ndim].errhi;
-            } else {
-                sp = (unsigned short*)data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
-            break;
-        }
-        case UDA_TYPE_INT: {
-            int* ip;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                ip = (int*)data_block->dims[ndim].errhi;
-            } else {
-                ip = (int*)data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)ip[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_INT: {
-            unsigned int* up;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                up = (unsigned int*)data_block->dims[ndim].errhi;
-            } else {
-                up = (unsigned int*)data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)up[i];
-            break;
-        }
-        case UDA_TYPE_LONG: {
-            long* lp;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                lp = (long*)data_block->dims[ndim].errhi;
-            } else {
-                lp = (long*)data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_LONG: {
-            unsigned long* lp;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                lp = (unsigned long*)data_block->dims[ndim].errhi;
-            } else {
-                lp = (unsigned long*)data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
-            break;
-        }
-        case UDA_TYPE_CHAR: {
-            char* cp;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                cp = data_block->dims[ndim].errhi;
-            } else {
-                cp = data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_CHAR: {
-            unsigned char* cp;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                cp = (unsigned char*)data_block->dims[ndim].errhi;
-            } else {
-                cp = (unsigned char*)data_block->dims[ndim].errlo;
-            }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
-            break;
-        }
+        case UDA_TYPE_DOUBLE: get_float_dim_asymmetric_error<double>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_SHORT: get_float_dim_asymmetric_error<short>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_UNSIGNED_SHORT: get_float_dim_asymmetric_error<unsigned short>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_INT: get_float_dim_asymmetric_error<int>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_UNSIGNED_INT: get_float_dim_asymmetric_error<unsigned int>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_LONG: get_float_dim_asymmetric_error<long>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_UNSIGNED_LONG: get_float_dim_asymmetric_error<unsigned long>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_CHAR: get_float_dim_asymmetric_error<char>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_UNSIGNED_CHAR: get_float_dim_asymmetric_error<unsigned char>(above, data_block, n_dim, n_data, fp); break;
         case UDA_TYPE_DCOMPLEX: {
             int j = 0;
             DComplex* cp;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                cp = (DComplex*)data_block->dims[ndim].errhi;
+            if (above || !data_block->dims[n_dim].errasymmetry) {
+                cp = reinterpret_cast<DComplex*>(data_block->dims[n_dim].errhi);
             } else {
-                cp = (DComplex*)data_block->dims[ndim].errlo;
+                cp = reinterpret_cast<DComplex*>(data_block->dims[n_dim].errlo);
             }
-            for (int i = 0; i < ndata; i++) {
-                fp[j++] = (float)cp[i].real;
-                fp[j++] = (float)cp[i].imaginary;
+            for (int i = 0; i < n_data; i++) {
+                fp[j++] = static_cast<float>(cp[i].real);
+                fp[j++] = static_cast<float>(cp[i].imaginary);
             }
             break;
         }
         case UDA_TYPE_COMPLEX: {
             int j = 0;
             Complex* cp;
-            if (above || !data_block->dims[ndim].errasymmetry) {
-                cp = (Complex*)data_block->dims[ndim].errhi;
+            if (above || !data_block->dims[n_dim].errasymmetry) {
+                cp = reinterpret_cast<Complex*>(data_block->dims[n_dim].errhi);
             } else {
-                cp = (Complex*)data_block->dims[ndim].errlo;
+                cp = reinterpret_cast<Complex*>(data_block->dims[n_dim].errlo);
             }
-            for (int i = 0; i < ndata; i++) {
-                fp[j++] = (float)cp[i].real;
-                fp[j++] = (float)cp[i].imaginary;
+            for (int i = 0; i < n_data; i++) {
+                fp[j++] = cp[i].real;
+                fp[j++] = cp[i].imaginary;
             }
             break;
         }
+        case UDA_TYPE_UNKNOWN:
+        default:
+            for (int i = 0; i < n_data; i++) {
+                fp[i] = 0.0f; // No Error Data
+            }
+            break;
     }
 }
 
 //!  Returns coordinate error data cast to single precision
 /** The copy buffer must be preallocated and sized for the data type.
 \param   handle   The data object handle
-\param   ndim  the position of the dimension in the data array - numbering is as data[0][1][2]
+\param   n_dim  the position of the dimension in the data array - numbering is as data[0][1][2]
 \param   fp A \b float pointer to a preallocated data buffer
 \return  void
 */
-void udaGetFloatDimError(int handle, int ndim, float* fp)
+void udaGetFloatDimError(int handle, int n_dim, float* fp)
 {
-    udaGetFloatDimAsymmetricError(handle, ndim, true, fp);
+    udaGetFloatDimAsymmetricError(handle, n_dim, true, fp);
 }
 
-//!  Returns a pointer to the DATA_SYSTEM Meta Data structure
-/** A copy of the \b Data_System database table record
-\param   handle   The data object handle
-\return  DATA_SYSTEM pointer
-*/
+// //!  Returns a pointer to the DATA_SYSTEM Meta Data structure
+// /** A copy of the \b Data_System database table record
+// \param   handle   The data object handle
+// \return  DATA_SYSTEM pointer
+// */
 // DATA_SYSTEM* udaGetDataSystem(int handle)
 // {
 //     auto& instance = uda::client::ThreadClient::instance();
@@ -3005,11 +2492,11 @@ void udaGetFloatDimError(int handle, int ndim, float* fp)
 //     return data_block->data_system;
 // }
 
-//!  Returns a pointer to the SYSTEM_CONFIG Meta Data structure
-/** A copy of the \b system_config database table record
-\param   handle   The data object handle
-\return  SYSTEM_CONFIG pointer
-*/
+// //!  Returns a pointer to the SYSTEM_CONFIG Meta Data structure
+// /** A copy of the \b system_config database table record
+// \param   handle   The data object handle
+// \return  SYSTEM_CONFIG pointer
+// */
 // SYSTEM_CONFIG* udaGetSystemConfig(int handle)
 // {
 //     auto& instance = uda::client::ThreadClient::instance();
@@ -3021,11 +2508,11 @@ void udaGetFloatDimError(int handle, int ndim, float* fp)
 //     return data_block->system_config;
 // }
 
-//!  Returns a pointer to the DATA_SOURCE Meta Data structure
-/** A copy of the \b data_source database table record - the location of data
-\param   handle   The data object handle
-\return  DATA_SOURCE pointer
-*/
+// //!  Returns a pointer to the DATA_SOURCE Meta Data structure
+// /** A copy of the \b data_source database table record - the location of data
+// \param   handle   The data object handle
+// \return  DATA_SOURCE pointer
+// */
 // DATA_SOURCE* udaGetDataSource(int handle)
 // {
 //     auto& instance = uda::client::ThreadClient::instance();
@@ -3037,11 +2524,11 @@ void udaGetFloatDimError(int handle, int ndim, float* fp)
 //     return data_block->data_source;
 // }
 
-//!  Returns a pointer to the SIGNAL Meta Data structure
-/** A copy of the \b signal database table record
-\param   handle   The data object handle
-\return  SIGNAL pointer
-*/
+// //!  Returns a pointer to the SIGNAL Meta Data structure
+// /** A copy of the \b signal database table record
+// \param   handle   The data object handle
+// \return  SIGNAL pointer
+// */
 // SIGNAL* udaGetSignal(int handle)
 // {
 //     auto& instance = uda::client::ThreadClient::instance();
@@ -3053,11 +2540,11 @@ void udaGetFloatDimError(int handle, int ndim, float* fp)
 //     return data_block->signal_rec;
 // }
 
-//!  Returns a pointer to the SIGNAL_DESC Meta Data structure
-/** A copy of the \b signal_desc database table record - a description of the data signal/object
-\param   handle   The data object handle
-\return  SIGNAL_DESC pointer
-*/
+// //!  Returns a pointer to the SIGNAL_DESC Meta Data structure
+// /** A copy of the \b signal_desc database table record - a description of the data signal/object
+// \param   handle   The data object handle
+// \return  SIGNAL_DESC pointer
+// */
 // SIGNAL_DESC* udaGetSignalDesc(int handle)
 // {
 //     auto& instance = uda::client::ThreadClient::instance();
@@ -3069,11 +2556,11 @@ void udaGetFloatDimError(int handle, int ndim, float* fp)
 //     return data_block->signal_desc;
 // }
 
-//!  Returns a pointer to the File Format string returned in the DATA_SOURCE metadata record
-/** Dependent on the server property \b get_meta
-\param   handle   The data object handle
-\return  pointer to the data file format
-*/
+// //!  Returns a pointer to the File Format string returned in the DATA_SOURCE metadata record
+// /** Dependent on the server property \b get_meta
+// \param   handle   The data object handle
+// \return  pointer to the data file format
+// */
 // const char* udaGetFileFormat(int handle)
 // {
 //     auto& instance = uda::client::ThreadClient::instance();
@@ -3100,97 +2587,74 @@ void udaGetFloatDimError(int handle, int ndim, float* fp)
 //     initRequestBlock(str);
 // }
 
-int udaDataCheckSum(void* data, int data_n, int type)
+template <typename T>
+std::enable_if_t<std::is_floating_point_v<T>, int>
+data_check_sum(const char* data, const int data_n) {
+    T t_sum = 0.0;
+    auto dp = reinterpret_cast<const T*>(data);
+    for (int i = 0; i < data_n; i++) {
+        if (std::isfinite(dp[i])) {
+            t_sum = t_sum + dp[i];
+        }
+    }
+    int sum = static_cast<int>(t_sum);
+    if (sum == 0) {
+        sum = static_cast<int>(1000000.0 * t_sum);      // Rescale
+    }
+    return sum;
+}
+
+template <typename T>
+std::enable_if_t<!std::is_floating_point_v<T>, int>
+data_check_sum(const char* data, const int data_n) {
+    auto dp = reinterpret_cast<const T*>(data);
+    int sum = 0;
+    for (int i = 0; i < data_n; i++) {
+        sum = sum + static_cast<int>(dp[i]);
+    }
+    return sum;
+}
+
+int udaDataCheckSum(const char* data, const int data_n, const int type)
 {
     int sum = 0;
     switch (type) {
-        case UDA_TYPE_FLOAT: {
-            float fsum = 0.0;
-            auto dp = (float*)data;
-            for (int i = 0; i < data_n; i++) if (std::isfinite(dp[i])) fsum = fsum + dp[i];
-            sum = (int)fsum;
-            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
-            break;
-        }
-        case UDA_TYPE_DOUBLE: {
-            double fsum = 0.0;
-            auto dp = (double*)data;
-            for (int i = 0; i < data_n; i++) if (std::isfinite(dp[i])) fsum = fsum + dp[i];
-            sum = (int)fsum;
-            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
-            break;
-        }
+        case UDA_TYPE_FLOAT: data_check_sum<float>(data, data_n); break;
+        case UDA_TYPE_DOUBLE: data_check_sum<double>(data, data_n); break;
+        case UDA_TYPE_CHAR: data_check_sum<char>(data, data_n); break;
+        case UDA_TYPE_SHORT: data_check_sum<short>(data, data_n); break;
+        case UDA_TYPE_INT: data_check_sum<int>(data, data_n); break;
+        case UDA_TYPE_LONG: data_check_sum<long>(data, data_n); break;
+        case UDA_TYPE_LONG64: data_check_sum<long long>(data, data_n); break;
+        case UDA_TYPE_UNSIGNED_CHAR: data_check_sum<unsigned char>(data, data_n); break;
+        case UDA_TYPE_UNSIGNED_SHORT: data_check_sum<unsigned short>(data, data_n); break;
+        case UDA_TYPE_UNSIGNED_INT: data_check_sum<unsigned int>(data, data_n); break;
+        case UDA_TYPE_UNSIGNED_LONG: data_check_sum<unsigned long>(data, data_n); break;
+        case UDA_TYPE_UNSIGNED_LONG64: data_check_sum<unsigned long long>(data, data_n); break;
         case UDA_TYPE_COMPLEX: {
-            float fsum = 0.0;
-            auto dp = (Complex*)data;
+            float f_sum = 0.0;
+            const auto dp = reinterpret_cast<const Complex*>(data);
             for (int i = 0; i < data_n; i++)
                 if (std::isfinite(dp[i].real) && std::isfinite(dp[i].imaginary)) {
-                    fsum = fsum + dp[i].real + dp[i].imaginary;
+                    f_sum = f_sum + dp[i].real + dp[i].imaginary;
                 }
-            sum = (int)fsum;
-            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
+            sum = static_cast<int>(f_sum);
+            if (sum == 0) {
+                sum = static_cast<int>(1000000.0 * f_sum);      // Rescale
+            }
             break;
         }
         case UDA_TYPE_DCOMPLEX: {
-            double fsum = 0.0;
-            auto dp = (DComplex*)data;
+            double f_sum = 0.0;
+            const auto dp = reinterpret_cast<const DComplex*>(data);
             for (int i = 0; i < data_n; i++)
                 if (std::isfinite(dp[i].real) && std::isfinite(dp[i].imaginary)) {
-                    fsum = fsum + dp[i].real + dp[i].imaginary;
+                    f_sum = f_sum + dp[i].real + dp[i].imaginary;
                 }
-            sum = (int)fsum;
-            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
-            break;
-        }
-
-        case UDA_TYPE_CHAR: {
-            char* dp = (char*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_SHORT: {
-            auto dp = (short int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_INT: {
-            int* dp = (int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_LONG: {
-            auto dp = (long*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_LONG64: {
-            auto dp = (long long int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_CHAR: {
-            auto dp = (unsigned char*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_SHORT: {
-            auto dp = (unsigned short int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_INT: {
-            auto dp = (unsigned int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_LONG: {
-            auto dp = (unsigned long*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
-            break;
-        }
-        case UDA_TYPE_UNSIGNED_LONG64: {
-            auto dp = (unsigned long long int*) data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            sum = static_cast<int>(f_sum);
+            if (sum == 0) {
+                sum = static_cast<int>(1000000.0 * f_sum);      // Rescale
+            }
             break;
         }
         default:
@@ -3199,103 +2663,41 @@ int udaDataCheckSum(void* data, int data_n, int type)
     return sum;
 }
 
-int udaGetDataCheckSum(int handle)
+int udaGetDataCheckSum(const int handle)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return 0;
     }
     if (data_block->errcode != 0) return 0;
 
-    return (udaDataCheckSum((void*)data_block->data, data_block->data_n,
-                            data_block->data_type));
+    return udaDataCheckSum(data_block->data, data_block->data_n, data_block->data_type);
 }
 
-int udaGetDimDataCheckSum(int handle, int ndim)
+int udaGetDimDataCheckSum(const int handle, const int n_dim)
 {
-    auto& instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr) {
         return 0;
     }
     if (data_block->errcode != 0) return 0;
-    if (ndim < 0 || (unsigned int)ndim >= data_block->rank) {
+    if (n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
         return 0;
     }
 
-    return (udaDataCheckSum((void*)data_block->dims[ndim].dim, data_block->dims[ndim].dim_n,
-                            data_block->dims[ndim].data_type));
-}
-
-//===========================================================================================================
-// Access to (De)Serialiser
-
-void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize,
-                                      int protocolVersion, NTREE* full_ntree, LogStructList* log_struct_list,
-                                      int private_flags, int malloc_source)
-{
-    // Extract the serialised Data Block from Cache or serialise it if not cached (hash key in Data Block, empty if not cached)
-    // Use Case: extract data in object form for storage in external data object store, e.g. CEPH, HDF5
-    /*
-     * TODO
-     *
-     * 1> Add cache key to DATA_BLOCK
-     * 2> Investigate creation of cache key when REQUEST_BLOCK is out of scope!
-     * 3> is keySize useful if the key is always a string!
-     */
-
-#ifndef _WIN32
-    char* buffer;
-    size_t bufsize = 0;
-    FILE* memfile = open_memstream(&buffer, &bufsize);
-#else
-    FILE* memfile = tmpfile();
-#endif
-
-    XDR xdrs;
-    xdrstdio_create(&xdrs, memfile, XDR_ENCODE);
-
-    int token;
-
-    auto userdefinedtypelist = static_cast<UserDefinedTypeList*>(udaGetUserDefinedTypeList(handle));
-    auto logmalloclist = static_cast<LogMallocList*>(udaGetLogMallocList(handle));
-    DataBlockList data_block_list;
-
-    data_block_list.count = 1;
-    data_block_list.data = getDataBlock(handle);
-    protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
-              &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
-
-#ifdef _WIN32
-    fflush(memfile);
-    fseek(memfile, 0, SEEK_END);
-    long fsize = ftell(memfile);
-    rewind(memfile);
-
-    size_t bufsize = (size_t)fsize;
-    char* buffer = (char*)malloc(bufsize);
-    fread(buffer, bufsize, 1, memfile);
-#endif
-
-    xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
-    fclose(memfile);
-
-    // return the serialised data object and key
-
-    *object = buffer;
-    *objectSize = bufsize;
-    *key = nullptr;
-    *keySize = 0;
+    return udaDataCheckSum(data_block->dims[n_dim].dim, data_block->dims[n_dim].dim_n,
+                            data_block->dims[n_dim].data_type);
 }
 
 //---------------------------------------------------------------
 // Accessor Functions to General/Arbitrary Data Structures
 //----------------------------------------------------------------
 
-int udaSetDataTree(int handle)
+int udaSetDataTree(const int handle)
 {
     auto& instance = uda::client::ThreadClient::instance();
 
@@ -3306,47 +2708,47 @@ int udaSetDataTree(int handle)
         return 0;
     }
 
-    instance.set_full_ntree((NTREE*)udaGetData(handle));
+    instance.set_full_ntree(reinterpret_cast<NTREE*>(udaGetData(handle)));
     void* opaque_block = udaGetDataOpaqueBlock(handle);
 
     auto general_block = static_cast<GeneralBlock*>(opaque_block);
     instance.set_user_defined_type_list(general_block->userdefinedtypelist);
     instance.set_log_malloc_list(general_block->logmalloclist);
-    udaSetLastMallocIndexValue(&(general_block->lastMallocIndex));
+    udaSetLastMallocIndexValue(&general_block->lastMallocIndex);
     return 1; // Return TRUE
 }
 
 // Return a specific data tree
 
-NTREE* udaGetDataTree(int handle)
+NTREE* udaGetDataTree(const int handle)
 {
     if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
         return nullptr;
     }
-    return (NTREE*)udaGetData(handle);
+    return reinterpret_cast<NTREE*>(udaGetData(handle));
 }
 
 // Return a user defined data structure definition
 
-USERDEFINEDTYPE* udaGetUserDefinedType(int handle)
+USERDEFINEDTYPE* udaGetUserDefinedType(const int handle)
 {
     if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
     void* opaque_block = udaGetDataOpaqueBlock(handle);
-    return ((GeneralBlock*)opaque_block)->userdefinedtype;
+    return static_cast<GeneralBlock*>(opaque_block)->userdefinedtype;
 }
 
-USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle)
+USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(const int handle)
 {
     if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
     void* opaque_block = udaGetDataOpaqueBlock(handle);
-    return ((GeneralBlock*)opaque_block)->userdefinedtypelist;
+    return static_cast<GeneralBlock*>(opaque_block)->userdefinedtypelist;
 }
 
 LOGMALLOCLIST* udaGetLogMallocList(int handle)
 {
     if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
     void* opaque_block = udaGetDataOpaqueBlock(handle);
-    return ((GeneralBlock*)opaque_block)->logmalloclist;
+    return static_cast<GeneralBlock*>(opaque_block)->logmalloclist;
 }
 
 // NTREE* udaFindNTreeStructureDefinition(const char* target, NTREE* full_ntree)

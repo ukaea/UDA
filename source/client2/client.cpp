@@ -17,7 +17,8 @@
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
 #include "uda/client.h"
-#include "clientserver/version.h"
+
+#include <uda/version.h>
 #include <algorithm>
 
 using namespace uda::client_server;
@@ -1139,9 +1140,9 @@ void uda::client::Client::reset_properties()
     _client_flags.alt_rank = 0;
 }
 
-DataBlock* uda::client::Client::data_block(int handle)
+const DataBlock* uda::client::Client::data_block(int handle) const
 {
-    auto idx = static_cast<size_t>(handle);
+    const auto idx = static_cast<size_t>(handle);
     if (idx < _data_blocks.size()) {
         return &_data_blocks[idx];
     } else {
@@ -1149,12 +1150,22 @@ DataBlock* uda::client::Client::data_block(int handle)
     }
 }
 
-const ClientBlock* uda::client::Client::client_block(int handle)
+DataBlock* uda::client::Client::data_block(int handle)
+{
+    const auto idx = static_cast<size_t>(handle);
+    if (idx < _data_blocks.size()) {
+        return &_data_blocks[idx];
+    } else {
+        return nullptr;
+    }
+}
+
+const ClientBlock* uda::client::Client::client_block(int handle) const
 {
     return &_client_block;
 }
 
-void uda::client::Client::concat_errors(uda::client_server::ErrorStack* error_stack)
+void uda::client::Client::concat_errors(uda::client_server::ErrorStack* error_stack) const
 {
     if (_error_stack.empty()) {
         return;
@@ -1171,12 +1182,12 @@ void uda::client::Client::concat_errors(uda::client_server::ErrorStack* error_st
     error_stack->nerrors = inew;
 }
 
-const uda::client::ClientFlags* uda::client::Client::client_flags()
+const uda::client::ClientFlags* uda::client::Client::client_flags() const
 {
     return &_client_flags;
 }
 
-DataBlock* uda::client::Client::current_data_block()
+const DataBlock* uda::client::Client::current_data_block() const
 {
     if (!_data_blocks.empty()) {
         return &_data_blocks.back();
@@ -1185,7 +1196,7 @@ DataBlock* uda::client::Client::current_data_block()
     }
 }
 
-const ServerBlock* uda::client::Client::server_block()
+const ServerBlock* uda::client::Client::server_block() const
 {
     return &_server_block;
 }

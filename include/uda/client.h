@@ -107,6 +107,8 @@ LIBRARY_API void udaFreePutDataBlock(PUTDATA_BLOCK* putdata_block);
 
 LIBRARY_API LOGMALLOCLIST* udaGetLogMallocList(int handle);
 
+LIBRARY_API USERDEFINEDTYPE* udaGetUserDefinedType(const int handle);
+
 LIBRARY_API USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);
 
 #define UDA_NUM_CLIENT_THREADS 30
@@ -152,6 +154,10 @@ LIBRARY_API const char* udaGetErrorMsg(int handle);
 LIBRARY_API int udaGetSourceStatus(int handle);
 
 LIBRARY_API int udaGetSignalStatus(int handle);
+
+LIBRARY_API int udaGetLastHandle();
+
+LIBRARY_API char* udaGenerateSyntheticDimData(int handle, int ndim);
 
 LIBRARY_API int udaGetDataStatus(int handle);
 
@@ -199,8 +205,6 @@ LIBRARY_API char* udaGetSyntheticData(int handle);
 
 LIBRARY_API char* udaGetData(int handle);
 
-LIBRARY_API char* udaGetAsymmetricError(int handle, int above);
-
 LIBRARY_API char* udaGetDataErrLo(int handle);
 
 LIBRARY_API char* udaGetDataErrHi(int handle);
@@ -225,6 +229,8 @@ LIBRARY_API void udaSetDimErrType(int handle, int ndim, int type);
 
 LIBRARY_API void udaSetDimErrLo(int handle, int ndim, char* errlo);
 
+LIBRARY_API char* udaGetAsymmetricError(int handle, bool above);
+
 LIBRARY_API char* udaGetError(int handle);
 
 LIBRARY_API void udaGetDoubleData(int handle, double* fp);
@@ -233,7 +239,7 @@ LIBRARY_API void udaGetFloatData(int handle, float* fp);
 
 LIBRARY_API void udaGetGenericData(int handle, void* data);
 
-LIBRARY_API void udaGetFloatAsymmetricError(int handle, int above, float* fp);
+LIBRARY_API void udaGetFloatAsymmetricError(int handle, bool above, float* fp);
 
 LIBRARY_API void udaGetFloatError(int handle, float* fp);
 
@@ -277,15 +283,15 @@ LIBRARY_API void udaGetFloatDimData(int handle, int ndim, float* fp);
 
 LIBRARY_API void udaGetGenericDimData(int handle, int ndim, void* data);
 
-LIBRARY_API char* udaGetDimAsymmetricError(int handle, int ndim, int above);
+LIBRARY_API char* udaGetDimAsymmetricError(int handle, int ndim, bool above);
 
 LIBRARY_API char* udaGetDimError(int handle, int ndim);
 
-LIBRARY_API void udaGetFloatDimAsymmetricError(int handle, int ndim, int above, float* fp);
+LIBRARY_API void udaGetFloatDimAsymmetricError(int handle, int ndim, bool above, float* fp);
 
 LIBRARY_API void udaGetFloatDimError(int handle, int ndim, float* fp);
 
-LIBRARY_API int udaDataCheckSum(void* data, int data_n, int type);
+LIBRARY_API int udaDataCheckSum(const char* data, int data_n, int type);
 
 LIBRARY_API int udaGetDataCheckSum(int handle);
 
