@@ -1,7 +1,7 @@
 ########################################################################################################################
 # CMake configuration
 
-cmake_minimum_required( VERSION 3.22 )
+cmake_minimum_required( VERSION 3.23 )
 
 if( ${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.25 )
   cmake_policy( SET CMP0140 NEW )
@@ -66,10 +66,12 @@ endif(  )
 ########################################################################################################################
 # Build options
 
-option( UDA_CACHE_MEMCACHE "use memcache caching" OFF )
-option( NO_CXX_WRAPPER "Turn off building of C++ wrapper" OFF )
-option( NO_PYTHON_WRAPPER "Turn off building of Python wrapper" OFF )
-option( NO_IDL_WRAPPER "Turn off building of IDL wrapper" OFF )
+option( ENABLE_CACHE_MEMCACHE "use memcache caching" OFF )
+option( ENABLE_CAPNP "disable capnproto serialisation" ON )
+
+option( ENABLE_CXX_WRAPPER "Turn off building of C++ wrapper" ON )
+option( ENABLE_PYTHON_WRAPPER "Turn off building of Python wrapper" ON )
+option( ENABLE_IDL_WRAPPER "Turn off building of IDL wrapper" OFF )
 
 ########################################################################################################################
 # Configure files
@@ -115,19 +117,28 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion
 )
 
+set( HEADERS
+  include/uda.h
+  include/uda/client.h
+  include/uda/export.h
+  include/uda/legacy.h
+  include/uda/plugins.h
+  include/uda/structured.h
+  include/uda/types.h
+  include/uda/uda_plugin_base.hpp
+  include/uda/portability.h
+  ${CMAKE_BINARY_DIR}/include/uda/version.h
+)
+if( ENABLE_CAPNP )
+  install( FILES include/uda/serialisation/capnp_serialisation.h DESTINATION include/uda/serialisation )
+endif()
+install( FILES ${HEADERS} DESTINATION include/uda )
+
 install( FILES
   ${CMAKE_CURRENT_BINARY_DIR}/udaConfigVersion.cmake
   ${CMAKE_SOURCE_DIR}/cmake/udaConfig.cmake
   ${CMAKE_SOURCE_DIR}/cmake/udaPlugins.cmake
   DESTINATION lib/cmake/uda
-)
-
-install( EXPORT udaServerTargets
-  FILE udaServerTargets.cmake
-  NAMESPACE
-    uda::
-  DESTINATION
-    lib/cmake/uda
 )
 
 install( EXPORT udaClientTargets
@@ -145,6 +156,16 @@ install( EXPORT udaPluginTargets
   DESTINATION
     lib/cmake/uda
 )
+
+if( ENABLE_CXX_WRAPPER )
+  install( EXPORT udaCxxTargets
+    FILE udaCxxTargets.cmake
+    NAMESPACE
+      uda::
+    DESTINATION
+      lib/cmake/uda
+  )
+endif()
 
 ########################################################################################################################
 # Macro used to convert Windows path to Unix

@@ -77,6 +77,8 @@ public:
     const uda::client_server::DataBlock* current_data_block() const;
     const uda::client_server::DataBlock* data_block(int handle) const;
     uda::client_server::DataBlock* data_block(int handle);
+    void free_handle(int handle_idx);
+    void free_all();
     int new_handle();
     void set_flag(unsigned int flag, bool private_flag=false);
     void reset_flag(unsigned int flag, bool private_flag=false);

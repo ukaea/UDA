@@ -33,6 +33,10 @@ target_link_libraries( plugins PRIVATE
   "$<BUILD_INTERFACE:logging>"
   "$<BUILD_INTERFACE:common>"
   "$<BUILD_INTERFACE:server>"
+  "$<BUILD_INTERFACE:structures>"
+  "$<BUILD_INTERFACE:client_server>"
+  "$<BUILD_INTERFACE:cache>"
+  "$<BUILD_INTERFACE:config>"
 )
 
 set_target_properties( plugins

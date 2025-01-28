@@ -178,7 +178,7 @@ void udaSetProperty(const char* property)
 * @param property the name of the property.
 * @return Void.
 */
-int udGetProperty(const char* property, int user_timeout, int alt_rank)
+int udaGetProperty(const char* property)
 {
     auto& instance = uda::client::ThreadClient::instance();
     return instance.get_property(property);
@@ -467,6 +467,16 @@ int udaGetServerVersionDelta()
     return UDA_GET_DELTA_VERSION(server_block->version); 
 }
 
+void udaFree(int handle) {
+    auto& instance = uda::client::ThreadClient::instance();
+    instance.free_handle(handle);
+}
+
+void udaFreeAll() {
+    auto& instance = uda::client::ThreadClient::instance();
+    instance.free_all();
+}
+
 //! the UDA server connection socket ID
 /**
 * @return the connection socket ID
@@ -477,6 +487,12 @@ int udaGetServerVersionDelta()
 //     auto environment = instance.environment();
 //     return environment->server_socket;           // Active UDA server service socket number
 // }
+
+int udaGetServerErrorStackSize() {
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto server_block = instance.server_block();
+    return server_block->idamerrorstack.nerrors;
+}
 
 //! the Error code of a specific server error record
 /**
@@ -492,6 +508,28 @@ int udaGetServerErrorStackRecordCode(int record)
         return 0;
     }
     return server_block->idamerrorstack.idamerror[record].code;  // Server Error Stack Record Code
+}
+
+const char* udaGetServerErrorStackRecordLocation(int record)
+{
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto server_block = instance.server_block();
+
+    if (record < 0 || (unsigned int)record >= server_block->idamerrorstack.nerrors) {
+        return 0;
+    }
+    return server_block->idamerrorstack.idamerror[record].location;  // Server Error Stack Record Code
+}
+
+const char* udaGetServerErrorStackRecordMsg(int record)
+{
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto server_block = instance.server_block();
+
+    if (record < 0 || (unsigned int)record >= server_block->idamerrorstack.nerrors) {
+        return 0;
+    }
+    return server_block->idamerrorstack.idamerror[record].msg;  // Server Error Stack Record Code
 }
 
 //!  returns the data access error code
@@ -540,7 +578,7 @@ const char* udaGetErrorMsg(int handle)
 \param   handle   The data object handle.
 \return   Quality status.
 */
-int udGetSourceStatus(int handle)
+int udaGetSourceStatus(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);

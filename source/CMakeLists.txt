@@ -1,5 +1,5 @@
 add_subdirectory( authentication )
-#add_subdirectory( bin )
+add_subdirectory( bin )
 #add_subdirectory( c_api )
 add_subdirectory( c_api2 )
 add_subdirectory( cache )

@@ -3,7 +3,7 @@
 import os
 import sys
 import sysconfig
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 from Cython.Build import cythonize
 from Cython.Compiler.Main import default_options
 import numpy
@@ -29,19 +29,20 @@ elif sys.platform.lower() == 'darwin':
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
 
-uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
+lib_ext = (dynlib_ext if '@BUILD_SHARED_LIBS@' == 'ON' else stalib_ext)
+
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
 if build_fat:
     uda_libs = [
-        'libfat@PROJECT_NAME@_client2.' + stalib_ext,
-        'lib@PROJECT_NAME@_plugins.' + stalib_ext,
-    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+        'libfat@PROJECT_NAME@_client.' + lib_ext,
+        'lib@PROJECT_NAME@_plugins.' + lib_ext,
+    ]
     extra_libs = ['xml2', 'pq']
     extra_macros = [('FATCLIENT', None)]
 else:
     uda_libs = [
-        'lib@PROJECT_NAME@_client2.' + stalib_ext,
-    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+        'lib@PROJECT_NAME@_client.' + lib_ext,
+    ]
     extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []
 
@@ -87,6 +88,6 @@ setup(
     url='https://github.com/ukaea/UDA',
     packages=['pyuda'],
     ext_modules=cythonize([ext]),
-    setup_requires=['numpy>=1.7', 'Cython>=0.29', 'six'],
-    install_requires=['numpy>=1.7', 'six'],
+    setup_requires=['numpy>=1.7', 'Cython>=0.29', 'setuptools', 'wheel'],
+    install_requires=['numpy>=1.7'],
 )

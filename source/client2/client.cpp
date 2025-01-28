@@ -868,6 +868,18 @@ int uda::client::Client::new_handle()
     return static_cast<int>(_data_blocks.size() - 1);
 }
 
+void uda::client::Client::free_handle(int handle_idx) {
+    if (handle_idx < 0 || handle_idx >= static_cast<int>(_data_blocks.size())) {
+        UDA_LOG(UDA_LOG_ERROR, "Invalid handle index");
+        return;
+    }
+    _data_blocks.at(handle_idx) = {};
+}
+
+void uda::client::Client::free_all() {
+    _data_blocks.clear();
+}
+
 void uda::client::Client::set_flag(unsigned int flag, bool private_flag)
 {
     if (private_flag) {

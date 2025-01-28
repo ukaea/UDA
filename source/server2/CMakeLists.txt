@@ -14,7 +14,7 @@ set( SRC_FILES
   xdr_protocol.cpp
 )
 
-add_library( server ${SRC_FILES} )
+add_library( server OBJECT ${SRC_FILES} )
 target_include_directories( server PRIVATE ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
 target_include_directories( server
   PUBLIC
@@ -23,7 +23,7 @@ target_include_directories( server
 )
 target_link_libraries( server PRIVATE Boost::boost fmt::fmt )
 target_link_libraries( server PRIVATE
-  "$<BUILD_INTERFACE:clientserver>"
+  "$<BUILD_INTERFACE:client_server>"
   "$<BUILD_INTERFACE:structures>"
   "$<BUILD_INTERFACE:config>"
   "$<BUILD_INTERFACE:logging>"
@@ -32,29 +32,13 @@ target_link_libraries( server PRIVATE
 )
 target_compile_definitions( server PRIVATE -DSHARED_LIBRARY_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}" )
 
-set_target_properties( server
-  PROPERTIES
-  OUTPUT_NAME uda_server
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-)
-
-add_library( uda::server ALIAS server )
-
-install( TARGETS server
-  EXPORT udaServerTargets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
 ########################################################################################################################
 # Server executable
 
 add_executable( server-exe ${EXE_FLAG} server_main.cpp )
 target_include_directories( server-exe PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( server-exe PRIVATE Boost::boost fmt::fmt server common config ${RPC_LIB} )
+target_link_libraries( server-exe PRIVATE Boost::boost fmt::fmt ${RPC_LIB} )
+target_link_libraries( server-exe PRIVATE server common config structures logging client_server cache )
 
 install( TARGETS server-exe
   DESTINATION bin

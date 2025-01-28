@@ -30,6 +30,6 @@ set( SRCS
   xdrlib.cpp
 )
 
-add_library( clientserver OBJECT ${SRCS} )
-target_include_directories( clientserver PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( clientserver PRIVATE Boost::boost LibXml2::LibXml2 OpenSSL::SSL OpenSSL::Crypto common ${RPC_LIB} )
+add_library( client_server OBJECT ${SRCS} )
+target_include_directories( client_server PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_link_libraries( client_server PRIVATE Boost::boost LibXml2::LibXml2 OpenSSL::SSL OpenSSL::Crypto common ${RPC_LIB} )

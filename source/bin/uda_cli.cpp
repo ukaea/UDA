@@ -1,6 +1,6 @@
 #include <serialisation/capnp_serialisation.h>
 #include <uda/types.h>
-#include <wrappers/c++/UDA.hpp>
+#include <uda/c++/UDA.hpp>
 
 #include <boost/program_options.hpp>
 #include <boost/range/combine.hpp>

@@ -14,7 +14,7 @@ set( SRC_FILES
   exceptions.cpp
 )
 
-add_library( client ${SRC_FILES} )
+add_library( client OBJECT ${SRC_FILES} )
 target_include_directories( client PRIVATE ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
 target_include_directories( client
   PUBLIC
@@ -22,29 +22,5 @@ target_include_directories( client
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
 target_link_libraries( client PRIVATE fmt::fmt )
-target_link_libraries( client PRIVATE
-  "$<BUILD_INTERFACE:clientserver>"
-  "$<BUILD_INTERFACE:structures>"
-  "$<BUILD_INTERFACE:config>"
-  "$<BUILD_INTERFACE:logging>"
-  "$<BUILD_INTERFACE:common>"
-  "$<BUILD_INTERFACE:cache>"
-)
+target_link_libraries( client PRIVATE client_server structures config logging common cache )
 target_compile_definitions( client PRIVATE -DNO_GSL_LIB )
-
-set_target_properties( client
-  PROPERTIES
-    OUTPUT_NAME uda_client
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-)
-
-add_library( uda::client ALIAS client )
-
-install( TARGETS client
-  EXPORT udaClientTargets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)

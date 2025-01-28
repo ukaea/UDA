@@ -2,7 +2,7 @@ find_package( fmt REQUIRED )
 
 set( LIBS fmt::fmt )
 
-if( UDA_CACHE_MEMCACHE )
+if( ENABLE_CACHE_MEMCACHE )
   find_package( LibMemcached REQUIRED )
   list( APPEND LIBS LibMemcached::memcached )
 else()
