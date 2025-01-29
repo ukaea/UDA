@@ -22,6 +22,7 @@
 
 #include <uda/version.h>
 #include <algorithm>
+#include <filesystem>
 
 using namespace uda::client_server;
 using namespace uda::logging;
@@ -113,12 +114,12 @@ uda::client::Client::Client()
     client_flags_.alt_rank = 0;
     client_flags_.user_timeout = TimeOut;
 
-    const char* timeout = getenv("UDA_TIMEOUT");
-    if (timeout != nullptr) {
-        client_flags_.user_timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
-    }
+    // const char* timeout = getenv("UDA_TIMEOUT");
+    // if (timeout != nullptr) {
+    //     client_flags_.user_timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
+    // }
 
-    config_.print();
+    config_.load("uda-client.toml");
 
     //----------------------------------------------------------------
     // Client set Property Flags (can be changed via property accessor functions)
@@ -137,9 +138,11 @@ uda::client::Client::Client()
             alt_rank_ = alt_rank.as<int>();
         }
     }
-    catch (config::ConfigError&)
+    catch (const config::ConfigError& e)
     {
         // do nothing, no config loaded
+        std::cout << "error loading config" << std::endl;
+        std::cout << e.what() << std::endl;
     }
 
 
@@ -164,16 +167,21 @@ uda::client::Client::Client()
 
     try
     {
-        auto log_level = (LogLevel)config_.get("logging.level").as_or_default((int)UDA_LOG_NONE);
+        constexpr int default_log_level = static_cast<int>(UDA_LOG_NONE);
+        auto log_level = static_cast<LogLevel>(config_.get("logging.level")
+                                                      .as_or_default(default_log_level));
 
-        set_log_level(log_level);
         if (log_level == UDA_LOG_NONE) {
             return;
         }
+        init_logging();
+        set_log_level(log_level);
     }
-    catch (config::ConfigError&)
+    catch (const config::ConfigError& e)
     {
         // no config loaded. Set logging to default: UDA_LOG_NONE
+        std::cout << "error loading config" << std::endl;
+        std::cout << e.what() << std::endl;
         return;
     }
 
@@ -182,10 +190,10 @@ uda::client::Client::Client()
 
     errno = 0;
 
-    auto log_dir = config_.get("logging.path").as_or_default(""s);
-    auto log_mode = config_.get("logging.mode").as_or_default("a"s);
+    const auto log_dir = config_.get("logging.path").as_or_default(""s);
+    const auto log_mode = config_.get("logging.mode").as_or_default("a"s);
 
-    std::string file_name = log_dir + "Debug.dbg";
+    auto file_name = (std::filesystem::path(log_dir) / "Debug.dbg").string();
 
     set_log_file(UDA_LOG_WARN, file_name, log_mode);
     set_log_file(UDA_LOG_DEBUG, file_name, log_mode);
@@ -198,7 +206,7 @@ uda::client::Client::Client()
     }
 
     if (get_log_level() <= UDA_LOG_ERROR) {
-        file_name = log_dir + "Error.err";
+        file_name = (std::filesystem::path(log_dir) / "Error.err").string();
         set_log_file(UDA_LOG_ERROR, file_name, log_mode);
     }
 
@@ -207,6 +215,8 @@ uda::client::Client::Client()
         close_logging();
         return;
     }
+
+    config_.print();
 }
 
 int uda::client::Client::fetch_meta()
