@@ -74,7 +74,11 @@ endif()
 
 get_filename_component( FMT_ROOT_DIR "${fmt_CONFIG}/../../../../" ABSOLUTE )
 set( FMT_INCLUDE_DIR ${FMT_ROOT_DIR}/include )
-set( FMT_LIB_DIR ${FMT_ROOT_DIR}/lib64 )
+find_library( FMT_LIB_FILE NAMES fmt
+    HINTS
+    ${FMT_ROOT_DIR}
+    PATH_SUFFIXES lib lib64 )
+get_filename_component( FMT_LIB_DIR ${FMT_LIB_FILE} DIRECTORY )
 
 if( DEFINED TIRPC_INCLUDE_DIR )
   get_filename_component( MAYBE_TIRPC "${TIRPC_INCLUDE_DIR}" NAME )

@@ -41,7 +41,7 @@ if build_fat:
     extra_macros = [('FATCLIENT', None)]
 else:
     uda_libs = [
-        'lib@PROJECT_NAME@_client.' + lib_ext,
+        'lib@PROJECT_NAME@_c.' + lib_ext,
     ]
     extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []

@@ -425,6 +425,11 @@ void udaGetServerVersionString(char* version_string)
     snprintf(version_string, UDA_VERSION_STRING_LENGTH, "%d.%d.%d.%d", major_version, minor_version, bugfix_version, delta_version);
 }
 
+void udaGetClientVersionString(char* version_string)
+{
+    snprintf(version_string, UDA_VERSION_STRING_LENGTH, "%s", UDA_BUILD_VERSION);
+}
+
 const char* udaGetBuildDate()
 {
     return UDA_BUILD_DATE;
@@ -435,7 +440,14 @@ int udaGetClientVersionMinor() { return UDA_VERSION_MINOR; }
 int udaGetClientVersionBugfix() { return UDA_VERSION_BUGFIX; }
 int udaGetClientVersionDelta() { return UDA_VERSION_DELTA; }
 
-int udaGetServerVersionMajor() 
+int udaGetServerVersion()
+{
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto& server_block = instance.server_block();
+    return server_block->version;
+}
+
+int udaGetServerVersionMajor()
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto& server_block = instance.server_block();
@@ -553,6 +565,20 @@ const char* udaGetServerErrorStackRecordMsg(int record)
         return nullptr;
     }
     return server_block->error_stack[record].msg;  // Server Error Stack Record Code
+}
+
+int udaGetServerErrorStackRecordType(int record)
+{
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto server_block = instance.server_block();
+
+    if (record < 0 || static_cast<size_t>(record) >= server_block->idamerrorstack.nerrors) {
+        return 0;
+    }
+
+    // cast from unisgned int to int from enum class ErrorType which only has a handful of values
+    // (ie max value << INT_MAX )
+    return static_cast<int>(server_block->error_stack[record].type);  // Server Error Stack Record Code
 }
 
 //!  returns the data access error code
@@ -2816,3 +2842,9 @@ LOGMALLOCLIST* udaGetLogMallocList(int handle)
 // {
 //     return findNTreeStructureDefinition(full_ntree, target);
 // }
+
+void udaCloseAllConnections()
+{
+    auto& instance = uda::client::ThreadClient::instance();
+    instance.close_all_connections();
+}

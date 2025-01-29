@@ -32,23 +32,23 @@ cdef extern from "uda/client.h":
     const char* udaGetDataUnits(int handle);
     const char* udaGetDataDesc(int handle);
     int udaGetRank(int handle);
-    int udaGetDimNum(int handle, int ndim);
-    int udaGetDimType(int handle, int ndim);
-    int udaGetDimErrorType(int handle, int ndim);
-    const char* udaGetDimLabel(int handle, int ndim);
-    const char* udaGetDimUnits(int handle, int ndim);
-    char* udaGetDimData(int handle, int ndim);
-    char* udaGetDimError(int handle, int ndim);
-    int udaSetDataTree(int handle);
+    int udaGetDimNum(int handle, int n_dim);
+    int udaGetDimType(int handle, int n_dim);
+    int udaGetDimErrorType(int handle, int n_dim);
+    const char* udaGetDimLabel(int handle, int n_dim);
+    const char* udaGetDimUnits(int handle, int n_dim);
+    char* udaGetDimData(int handle, int n_dim);
+    char* udaGetDimError(int handle, int n_dim);
+    int udaSetDataTree(const int handle);
     const char* udaGetErrorMsg(int handle);
     int udaGetErrorCode(int handle);
     int udaGetOrder(int handle);
-    NTREE* udaGetDataTree(int handle);
+    NTREE* udaGetDataTree(const int handle);
     LOGMALLOCLIST* udaGetLogMallocList(int handle);
 
     PUTDATA_BLOCK* udaNewPutDataBlock(UdaType data_type, int count, int rank, int* shape, const char* data);
-    void udaFreePutDataBlock(PUTDATA_BLOCK* putdata_block);
-    int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
+    void udaFreePutDataBlock(PUTDATA_BLOCK*);
+    int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK*);
 
 cdef extern from "uda/structured.h":
     ctypedef struct NTREE

@@ -88,6 +88,8 @@ public:
     void set_full_ntree(NTREE* full_ntree);
     [[nodiscard]] std::vector<client_server::UdaError>& error_stack();
     [[nodiscard]] const std::vector<client_server::UdaError>& error_stack() const;
+    void close_all_connections();
+    void close_sockets();
 
     Client(const Client&) = delete;
     Client& operator=(const Client&) = delete;

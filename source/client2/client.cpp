@@ -1,6 +1,7 @@
 #include "client.hpp"
 
 #include "client_xdr_stream.hpp"
+#include "closedown.hpp"
 #include "exceptions.hpp"
 #include "make_request_block.hpp"
 
@@ -123,16 +124,24 @@ uda::client::Client::Client()
     // Client set Property Flags (can be changed via property accessor functions)
     // Coded user properties changes have priority
 
-    auto client_flags = config_.get("client.flags");
-    auto alt_rank = config_.get("client.alt_rank");
+    try
+    {
+        auto client_flags = config_.get("client.flags");
+        auto alt_rank = config_.get("client.alt_rank");
 
-    if (client_flags) {
-        flags_ |= client_flags.as<int>();
+        if (client_flags) {
+            flags_ |= client_flags.as<int>();
+        }
+
+        if (alt_rank) {
+            alt_rank_ = alt_rank.as<int>();
+        }
+    }
+    catch (config::ConfigError&)
+    {
+        // do nothing, no config loaded
     }
 
-    if (alt_rank) {
-        alt_rank_ = alt_rank.as<int>();
-    }
 
     //----------------------------------------------------------------
     // X.509 Security Certification
@@ -153,10 +162,18 @@ uda::client::Client::Client()
     //----------------------------------------------------------------
     // Check if Output Requested
 
-    auto log_level = (LogLevel)config_.get("logging.level").as_or_default((int)UDA_LOG_NONE);
+    try
+    {
+        auto log_level = (LogLevel)config_.get("logging.level").as_or_default((int)UDA_LOG_NONE);
 
-    set_log_level(log_level);
-    if (log_level == UDA_LOG_NONE) {
+        set_log_level(log_level);
+        if (log_level == UDA_LOG_NONE) {
+            return;
+        }
+    }
+    catch (config::ConfigError&)
+    {
+        // no config loaded. Set logging to default: UDA_LOG_NONE
         return;
     }
 
@@ -1196,7 +1213,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source");
             add_error(error_stack_, ErrorType::Code, __func__, 999, "Error identifying the Data Source");
         }
-        throw uda::exceptions::ClientError("Error identifying the Data Source");
+        throw exceptions::ClientError("Error identifying the Data Source");
     }
 
     print_request_block(request_block);
@@ -1225,7 +1242,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source");
             add_error(error_stack_, ErrorType::Code, __func__, 999, "Error identifying the Data Source");
         }
-        throw uda::exceptions::ClientError("Error identifying the Data Source");
+        throw exceptions::ClientError("Error identifying the Data Source");
     }
 
     print_request_block(request_block);
@@ -1238,3 +1255,14 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
 
     return indices[0];
 }
+
+void uda::client::Client::close_all_connections()
+{
+    connection_.close_down(ClosedownType::CLOSE_ALL);
+}
+
+void uda::client::Client::close_sockets()
+{
+    connection_.close_down(ClosedownType::CLOSE_SOCKETS);
+}
+

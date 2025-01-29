@@ -4,7 +4,7 @@
 #include "client2/thread_client.hpp"
 #include "client2/exceptions.hpp"
 
-int udaGetAPI(const char *data_object, const char *data_source)
+int udaGetAPI(const char* data_object, const char* data_source)
 {
     auto& client = uda::client::ThreadClient::instance();
     try {
@@ -33,7 +33,7 @@ int udaGetBatchAPI(const char** data_signals, const char** data_sources, int cou
     }
 }
 
-int udaGetAPIWithHost(const char *data_object, const char *data_source, const char *host, int port)
+int udaGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
 {
     auto& client = uda::client::ThreadClient::instance();
     client.set_host(host);
