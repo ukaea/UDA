@@ -51,7 +51,7 @@ endif()
 find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
 get_filename_component( STDCXX_LIB_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
 
-list( APPEND EXTRA_LIBS fmt )
+list( APPEND EXTRA_LIBS fmt spdlog )
 
 if( ENABLE_CACHE_MEMCACHE )
   list( APPEND EXTRA_LIBS memcached )

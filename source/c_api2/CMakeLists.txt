@@ -21,6 +21,12 @@ target_link_libraries( c_api PRIVATE
   "$<BUILD_INTERFACE:structures>"
 )
 
+if ( ENABLE_CAPNP )
+    target_link_libraries( c_api PRIVATE
+        "$<BUILD_INTERFACE:serialisation>"
+    )
+endif()
+
 set_target_properties( c_api
   PROPERTIES
     OUTPUT_NAME uda_c
