@@ -82,6 +82,76 @@ install(
   DESTINATION etc
 )
 
+install(
+  DIRECTORY ${CMAKE_BINARY_DIR}/lib/pkgconfig
+  DESTINATION lib
+)
+
+install(
+  DIRECTORY ${CMAKE_SOURCE_DIR}/source/etc/machine.d
+  DESTINATION etc
+)
+
+install(
+  FILES
+    ${CMAKE_BINARY_DIR}/etc/udaserver.sh
+    ${CMAKE_BINARY_DIR}/etc/rc.uda
+  DESTINATION etc
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ
+)
+
+install(
+  DIRECTORY ${CMAKE_BINARY_DIR}/etc/plugins.d
+  DESTINATION etc
+)
+
+install(
+  FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
+  DESTINATION etc
+)
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/server
+)
+
+########################################################################################################################
+# Configure server files
+
+string( REPLACE ";" ":" EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS}" )
+
+set( ETC_FILES
+  udaserver.sh
+  udaserver.cfg
+  xinetd.conf
+  rc.uda
+  README.md
+  uda.socket
+  uda@.service
+  uda.plist
+)
+
+set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
+
+foreach( ETC_FILE ${ETC_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/source/etc/${ETC_FILE}.in"
+    "${CMAKE_BINARY_DIR}/etc/${ETC_FILE}"
+    @ONLY
+  )
+  list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
+endforeach()
+
+configure_file(
+  "${CMAKE_SOURCE_DIR}/source/etc/udagenstruct.conf"
+  "${CMAKE_BINARY_DIR}/etc/udagenstruct.conf"
+  COPYONLY
+)
+
+install(
+  FILES ${GEN_ETC_FILES}
+  DESTINATION etc
+)
+
 set( PC_FILES
   uda-client.pc
   uda-cpp.pc
