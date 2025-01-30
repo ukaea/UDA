@@ -3,6 +3,10 @@
 #include "client2/client.hpp"
 #include "client2/thread_client.hpp"
 #include "client2/exceptions.hpp"
+#include "logging/logging.h"
+
+#include <unordered_map>
+#include <iostream>
 
 int udaGetAPI(const char* data_object, const char* data_source)
 {
@@ -10,6 +14,16 @@ int udaGetAPI(const char* data_object, const char* data_source)
     try {
         return client.get(data_object, data_source);
     } catch (uda::exceptions::UDAException& ex) {
+        UDA_LOG(uda::logging::LogLevel::UDA_LOG_ERROR, ex.what());
+        std::cout << "UDAException: " << ex.what() << std::endl;
+        return -1;
+    } catch (std::exception& ex){
+        UDA_LOG(uda::logging::LogLevel::UDA_LOG_ERROR, ex.what());
+        std::cout << "std::excpetion: " << ex.what() << std::endl;
+        return -1;
+    } catch (...)
+    {
+        std::cout << "unnknown error occurred? ¯\\_(ツ)_/¯ " << std::endl;
         return -1;
     }
 }

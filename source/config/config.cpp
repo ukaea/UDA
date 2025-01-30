@@ -362,7 +362,8 @@ void Config::load(std::string_view file_name)
 Option Config::get(std::string_view name) const
 {
     if (!_impl) {
-        throw ConfigError{"config has not been loaded"};
+        // throw ConfigError{"config has not been loaded"};
+        return Option(std::string(name));
     }
     return _impl->get(name);
 }

@@ -24,7 +24,7 @@ class UDAException : std::exception
     std::string msg_;
 };
 
-class ClientError : UDAException
+class ClientError : public UDAException
 {
   public:
     ClientError(std::string_view msg) : UDAException(msg) {}
@@ -32,7 +32,7 @@ class ClientError : UDAException
     template <class... Args> ClientError(std::string_view msg, Args... args) : UDAException(msg, args...) {}
 };
 
-class ServerError : UDAException
+class ServerError : public UDAException
 {
   public:
     ServerError(std::string_view msg) : UDAException(msg) {}

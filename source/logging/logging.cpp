@@ -17,6 +17,11 @@ void uda::logging::init_logging()
     g_initialised = true;
 }
 
+bool uda::logging::logging_initialised()
+{
+    return g_initialised;
+}
+
 void uda::logging::set_log_level(LogLevel level)
 {
     spdlog::level::level_enum spdlog_level;

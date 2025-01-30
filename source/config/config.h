@@ -102,6 +102,10 @@ class Config
     void set(std::string_view name, bool value);
     void set(std::string_view name, int value);
     void print() const;
+    inline explicit operator bool() const
+    {
+        return _impl != nullptr;
+    }
 
   private:
     std::unique_ptr<ConfigImpl> _impl;

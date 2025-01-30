@@ -47,6 +47,8 @@ typedef void (*logFunc)(FILE*);
 
 void init_logging();
 
+bool logging_initialised();
+
 void set_log_level(LogLevel level);
 
 LogLevel get_log_level();
@@ -60,6 +62,9 @@ void set_log_file(LogLevel mode, const std::string& file_name, const std::string
 template<typename... Args>
 void log(LogLevel mode, const char* file, int line, const std::string_view format_string, Args &&...args)
 {
+    if (!logging_initialised()) {
+        return;
+    }
     auto log_level = spdlog::get_level();
     if (log_level == spdlog::level::off) {
         return;

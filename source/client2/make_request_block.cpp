@@ -2,6 +2,7 @@
 
 #include <boost/format.hpp>
 #include <string>
+#include <string_view>
 
 #include "clientserver/error_log.h"
 #include "clientserver/expand_path.h"
@@ -11,9 +12,13 @@
 
 using namespace uda::client_server;
 using namespace uda::config;
+using namespace std::string_literals;
 
 namespace
 {
+
+constexpr std::string_view DefaultApiDelimiter = "::";
+
 int make_request_data(std::vector<UdaError>& error_stack, const Config& config, const char* data_object, const char* data_source, RequestData* request)
 {
     //------------------------------------------------------------------------------------------------------------------
@@ -39,7 +44,7 @@ int make_request_data(std::vector<UdaError>& error_stack, const Config& config, 
      * interpret the data access request.
      */
 
-    auto api_delim = config.get("request.delim").as_or_default<std::string>({});
+    auto api_delim = config.get("request.delim").as_or_default<std::string>(std::string(DefaultApiDelimiter));
 
     strcpy(request->api_delim, api_delim.c_str()); // Server needs to know how to parse the arguments
 
