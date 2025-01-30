@@ -66,6 +66,17 @@ using namespace uda::logging;
 
 using namespace std::string_literals;
 
+uda::client::Connection::Connection(config::Config& config)
+    : _socket_list{}
+{
+    _port = config.get("connection.port").as_or_default(DefaultPort);
+    _host = config.get("connection.host").as_or_default(DefaultHost);
+    _max_socket_delay = config.get("connection.max_socket_delay").as_or_default(DefaultMaxSocketDelay);
+    _max_socket_attempts = config.get("connection.max_socket_attempts").as_or_default(DefaultMaxSocketAttempts);
+    _failover_port = config.get("connection.failover_port").as_or_default(0);
+    _failover_host = config.get("connection.failover_host").as_or_default(""s);
+}
+
 int uda::client::Connection::open()
 {
     return _client_socket != -1;
@@ -102,20 +113,16 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
 
     // Instance a new server if the Client has changed the host and/or port number
 
-    auto server_reconnect = config_.get("client.server_reconnect").as_or_default(false);
-    auto server_change_socket = config_.get("client.server_change_socket").as_or_default(false);
-
-    if (server_reconnect) {
+    if (_server_reconnect) {
         time(tv_server_start);                // Start a New Server AGE timer
         _client_socket = -1;                   // Flags no Socket is open
-        config_.set("client.server_reconnect", false);
+        _server_reconnect = false;
     }
 
     // Client manages connections through the Socket id and specifies which running server to connect to
 
-    if (server_change_socket) {
-        auto server_socket = config_.get("client.server_socket").as_or_default(-1);
-        if ((socketId = find_socket(server_socket)) < 0) {
+    if (_server_change_socket) {
+        if ((socketId = find_socket(_client_socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
             add_error(error_stack_, ErrorType::Code, __func__, err, "The User Specified Socket Connection does not exist");
             return err;
@@ -129,10 +136,9 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
         *client_input = socket_list_[socketId].Input;
         *client_output = socket_list_[socketId].Output;
 
-        config_.set("client.server_change_socket", false);
-        config_.set("client.server_socket", socket_list_[socketId].fh);
-        config_.set("client.server_port", socket_list_[socketId].port);
-        config_.set("client.server_host", std::string{socket_list_[socketId].host});
+        _server_change_socket = false;
+        _port = _socket_list[socketId].port;
+        _host = std::string{_socket_list[socketId].host};
     }
 
     // save Previous data if a previous socket existed
@@ -209,31 +215,87 @@ void setHints(struct addrinfo* hints, const char* host_name)
     }
 }
 
+bool uda::client::Connection::reconnect_required() const
+{
+    return _server_reconnect;
+}
+
+int uda::client::Connection::get_port() const
+{
+    return _port;
+}
+
+const std::string& uda::client::Connection::get_host() const
+{
+    return _host;
+}
+
+void uda::client::Connection::set_port(int port)
+{
+    if (port == _port) return;
+    _port = port;
+    _server_reconnect = true;
+}
+
+
+void uda::client::Connection::set_host_from_host_list(std::string_view host, const HostList& host_list)
+{
+    if (host == _host) return;
+    auto host_list_record = host_list.find_by_alias(host);
+    if (host_list_record != nullptr)
+    {
+        if (host_list_record->host_name != _host)
+        {
+            _host = host_list_record->host_name;
+            _server_reconnect = true;
+        }
+        int port = host_list_record->port;
+        if (port > 0 && _port != port)
+        {
+            _port = port;
+            _server_reconnect = true;
+        }
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+        putUdaClientSSLProtocol(host_list_record->isSSL);
+#endif
+    }
+    else if ((host_list_record = host_list.find_by_name(host)) != nullptr)
+    {
+        _host = host;
+        _server_reconnect = true;
+        int port = host_list_record->port;
+        if (port > 0 && _port != port)
+        {
+            // Replace if found and different
+            _port = port;
+        }
+    }
+    else
+    {
+    // Does the host name contain the SSL protocol prefix? If so strip this off
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+    if (boost::starts_with(host, "SSL://"))
+    {
+        auto new_host = host.substr(6);
+        if (new_host == _host) return
+        _host = new_host;
+        putUdaClientSSLProtocol(1);
+    }
+    else
+    {
+        _host = host;
+    }
+#else
+        _host = host;
+#endif
+        _server_reconnect = true;
+    }
+}
+
 int uda::client::Connection::create(XDR* client_input, XDR* client_output, const HostList& host_list)
 {
     int window_size = DBReadBlockSize; // 128K
     int rc;
-
-    static int max_socket_delay = -1;
-    static int max_socket_attempts = -1;
-
-    if (max_socket_delay < 0) {
-        char* env = getenv("UDA_MAX_SOCKET_DELAY");
-        if (env == nullptr) {
-            max_socket_delay = 10;
-        } else {
-            max_socket_delay = (int)strtol(env, nullptr, 10);
-        }
-    }
-
-    if (max_socket_attempts < 0) {
-        char* env = getenv("UDA_MAX_SOCKET_ATTEMPTS");
-        if (env == nullptr) {
-            max_socket_attempts = 3;
-        } else {
-            max_socket_attempts = (int)strtol(env, nullptr, 10);
-        }
-    }
 
     if (_client_socket >= 0) {
         // Check Already Opened?
@@ -257,61 +319,17 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     // Identify the UDA server host and is the socket IPv4 or IPv6?
 
-    auto host_name = config_.get("client.server_host").as_or_default(""s);
     char service_port[PORT_STRING];
-
-    // Check if the host_name is an alias for an IP address or domain name in the client configuration - replace if
-    // found
-
-    auto server_host = config_.get("client.server_host").as_or_default(""s);
-    auto server_port = config_.get("client.server_port").as_or_default(0);
-
-    auto host = host_list.find_by_alias(host_name);
-    if (host != nullptr) {
-        if (host->host_name != server_host) {
-            config_.set("client.server_host", host->host_name); // Replace
-        }
-        int port = host->port;
-        if (port > 0 && server_port != port) {
-            config_.set("client.server_port", port);
-            server_port = port;
-        }
-    } else if ((host = host_list.find_by_name(host_name)) != nullptr) {
-        // No alias found, maybe the domain name or ip address is listed
-        int port = host->port;
-        if (port > 0 && server_port != port) {
-            // Replace if found and different
-            config_.set("client.server_port", port);
-            server_port = port;
-        }
-    }
-    snprintf(service_port, PORT_STRING, "%d", server_port);
-
-    // Does the host name contain the SSL protocol prefix? If so strip this off
-
-#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    if (boost::starts_with(host_name, "SSL://")) {
-        // Should be stripped already if via the HOST client configuration file
-        auto new_host = host_name.substr(6);
-        config_.set("client.server_host", new_host);
-        putUdaClientSSLProtocol(1);
-    } else {
-        if (host != nullptr && host->isSSL) {
-            putUdaClientSSLProtocol(1);
-        } else {
-            putUdaClientSSLProtocol(0);
-        }
-    }
-#endif
+    snprintf(service_port, PORT_STRING, "%d", _port);
 
     // Resolve the Host and the IP protocol to be used (Hints not used)
 
     struct addrinfo* result = nullptr;
     struct addrinfo hints = {0};
-    setHints(&hints, host_name.c_str());
+    setHints(&hints, _host.c_str());
 
     errno = 0;
-    if ((rc = getaddrinfo(host_name.c_str(), service_port, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
+    if ((rc = getaddrinfo(_host.c_str(), service_port, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
         add_error(error_stack_, ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
         if (rc == EAI_SYSTEM || errno != 0) {
             add_error(error_stack_, ErrorType::System, __func__, errno, "");
@@ -361,30 +379,28 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
         int ps;
         ps = getpid();
         srand((unsigned int)ps); // Seed the random number generator with the process id
-        unsigned int delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0; // random delay
+        unsigned int delay = _max_socket_delay > 0 ? (unsigned int)(rand() % _max_socket_delay) : 0; // random delay
         sleep(delay);
         errno = 0;                                      // wait period
-        for (int i = 0; i < max_socket_attempts; i++) { // try again
+        for (int i = 0; i < _max_socket_attempts; i++) { // try again
             while ((rc = connect(_client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
 
             if (rc == 0 && errno == 0) {
                 break;
             }
 
-            delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;
+            delay = _max_socket_delay > 0 ? (unsigned int)(rand() % _max_socket_delay) : 0;
             sleep(delay); // wait period
         }
 
         if (rc != 0 || errno != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Connect errno = {}", errno);
             UDA_LOG(UDA_LOG_DEBUG, "Connect rc = {}", rc);
-            UDA_LOG(UDA_LOG_DEBUG, "Unable to connect to primary host: {} on port {}", host_name, service_port);
+            UDA_LOG(UDA_LOG_DEBUG, "Unable to connect to primary host: {} on port {}", _host, service_port);
         }
 
-        auto server_host2 = config_.get("client.server_host2").as_or_default(""s);
-
         // Abandon the principal Host - attempt to connect to the secondary host
-        if (rc < 0 && !server_host2.empty() && server_host != server_host2) {
+        if (rc < 0 && !_failover_host.empty() && _host != _failover_host) {
 
             freeaddrinfo(result);
             result = nullptr;
@@ -394,52 +410,36 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
             ::closesocket(_client_socket);
 #endif
             _client_socket = -1;
-            host_name = server_host2;
+            // TODO: check this is correct intent: principal host becomes the failover host too
+            _host = _failover_host;
 
             // Check if the host_name is an alias for an IP address or name in the client configuration - replace if
             // found
 
-            auto server_port2 = config_.get("server_port2").as_or_default(0);
+            snprintf(service_port, PORT_STRING, "%d", _failover_port);
 
-            host = host_list.find_by_alias(host_name);
-            if (host != nullptr) {
-                if (host->host_name != server_host2) {
-                    server_host2 = host->host_name;
-                }
-                int port = host->port;
-                if (port > 0 && server_port2 != port) {
-                    server_port2 = port;
-                }
-            } else if ((host = host_list.find_by_name(host_name)) != nullptr) { // No alias found
-                int port = host->port;
-                if (port > 0 && server_port2 != port) {
-                    server_port2 = port;
-                }
-            }
-            snprintf(service_port, PORT_STRING, "%d", server_port2);
-
-            // Does the host name contain the SSL protocol prefix? If so strip this off
-
-#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-            if (boost::starts_with(host_name, "SSL://")) {
-                // Should be stripped already if via the HOST client configuration file
-                server_host2 = host_name.substr(6);
-                putUdaClientSSLProtocol(1);
-            } else {
-                if (host != nullptr && host->isSSL) {
-                    putUdaClientSSLProtocol(1);
-                } else {
-                    putUdaClientSSLProtocol(0);
-                }
-            }
-#endif
+//             // Does the host name contain the SSL protocol prefix? If so strip this off
+//
+// #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+//             if (boost::starts_with(host_name, "SSL://")) {
+//                 // Should be stripped already if via the HOST client configuration file
+//                 _failover_host = host_name.substr(6);
+//                 putUdaClientSSLProtocol(1);
+//             } else {
+//                 if (host != nullptr && host->isSSL) {
+//                     putUdaClientSSLProtocol(1);
+//                 } else {
+//                     putUdaClientSSLProtocol(0);
+//                 }
+//             }
+// #endif
 
             // Resolve the Host and the IP protocol to be used (Hints not used)
 
-            setHints(&hints, host_name.c_str());
+            setHints(&hints, _host.c_str());
 
             errno = 0;
-            if ((rc = getaddrinfo(host_name.c_str(), service_port, &hints, &result)) != 0 || errno != 0) {
+            if ((rc = getaddrinfo(_host.c_str(), service_port, &hints, &result)) != 0 || errno != 0) {
                 add_error(error_stack_, ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
                 if (rc == EAI_SYSTEM || errno != 0) {
                     add_error(error_stack_, ErrorType::System, __func__, errno, "");
@@ -470,14 +470,14 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
                 return -1;
             }
 
-            for (int i = 0; i < max_socket_attempts; i++) {
+            for (int i = 0; i < _max_socket_attempts; i++) {
                 while ((rc = connect(_client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
                 if (rc == 0) {
-                    std::swap(server_port2, server_port);
-                    std::swap(server_host2, server_host);
+                    std::swap(_failover_port, _port);
+                    std::swap(_failover_host, _host);
                     break;
                 }
-                delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;
+                delay = _max_socket_delay > 0 ? (unsigned int)(rand() % _max_socket_delay) : 0;
                 sleep(delay); // wait period
             }
         }
@@ -537,8 +537,8 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     socket.open = true;
     socket.fh = _client_socket;
-    socket.port = server_port;
-    socket.host = server_host;
+    socket.port = _port;
+    socket.host = _host;
     socket.tv_server_start = 0;
     socket.user_timeout = 0;
     socket.Input = client_input;
@@ -546,9 +546,8 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     socket_list_.push_back(socket);
 
-    config_.set("client.server_reconnect", false);
-    config_.set("client.server_change_socket", false);
-    config_.set("client.server_socket", _client_socket);
+    _server_reconnect = false;
+    _server_change_socket = false;
 
     // Write the socket number to the SSL functions
 

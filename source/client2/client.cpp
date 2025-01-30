@@ -114,35 +114,42 @@ uda::client::Client::Client()
     client_flags_.alt_rank = 0;
     client_flags_.user_timeout = TimeOut;
 
-    // const char* timeout = getenv("UDA_TIMEOUT");
-    // if (timeout != nullptr) {
-    //     client_flags_.user_timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
-    // }
+    _cache = uda::cache::open_cache();
 
-    config_.load("uda-client.toml");
+    char username[StringLength];
+    user_id(username);
+    _client_username = username;
+
+    init_client_block(&_client_block, ClientVersion, _client_username.c_str());
+}
+
+uda::client::Client::Client(std::string_view config_path)
+    : Client()
+{
+    // TODO: this will throw if the config path is illegal
+    // what behaviour do we want? ignore silently and fallback to default constructed client
+    // or let it crash here?
+    _config.load(config_path);
+    _connection = Connection(_config);
+
+    // TODO:
+    // - timeout from config
+    // - parse client flags fromn config
+    // - initialise other any structs from config?
 
     //----------------------------------------------------------------
     // Client set Property Flags (can be changed via property accessor functions)
     // Coded user properties changes have priority
 
-    try
-    {
-        auto client_flags = config_.get("client.flags");
-        auto alt_rank = config_.get("client.alt_rank");
+    auto client_flags = _config.get("client.flags");
+    auto alt_rank = _config.get("client.alt_rank");
 
-        if (client_flags) {
-            flags_ |= client_flags.as<int>();
-        }
-
-        if (alt_rank) {
-            alt_rank_ = alt_rank.as<int>();
-        }
+    if (client_flags) {
+        _flags |= client_flags.as<int>();
     }
-    catch (const config::ConfigError& e)
-    {
-        // do nothing, no config loaded
-        std::cout << "error loading config" << std::endl;
-        std::cout << e.what() << std::endl;
+
+    if (alt_rank) {
+        _alt_rank = alt_rank.as<int>();
     }
 
 
@@ -165,36 +172,36 @@ uda::client::Client::Client()
     //----------------------------------------------------------------
     // Check if Output Requested
 
-    try
-    {
-        constexpr int default_log_level = static_cast<int>(UDA_LOG_NONE);
-        auto log_level = static_cast<LogLevel>(config_.get("logging.level")
-                                                      .as_or_default(default_log_level));
+    constexpr int default_log_level = static_cast<int>(UDA_LOG_NONE);
+    auto log_level = static_cast<LogLevel>(_config.get("logging.level")
+            .as_or_default(default_log_level));
 
-        if (log_level == UDA_LOG_NONE) {
-            return;
-        }
-        init_logging();
-        set_log_level(log_level);
-    }
-    catch (const config::ConfigError& e)
-    {
-        // no config loaded. Set logging to default: UDA_LOG_NONE
-        std::cout << "error loading config" << std::endl;
-        std::cout << e.what() << std::endl;
+    if (log_level == UDA_LOG_NONE) {
         return;
     }
 
     //---------------------------------------------------------------
     // Open the Log File
 
+    const auto log_dir = _config.get("logging.path").as_or_default(""s);
+    const auto log_mode = _config.get("logging.mode").as_or_default("a"s);
+    initialise_logging(log_dir, log_level, log_mode);
+
+    errno = 0;
+    if (errno == 0)
+    {
+        _config.print();
+    }
+}
+
+void uda::client::Client::initialise_logging(const std::string& log_dir, LogLevel log_level, const std::string& log_mode)
+{
+    init_logging();
+    set_log_level(log_level);
+
     errno = 0;
 
-    const auto log_dir = config_.get("logging.path").as_or_default(""s);
-    const auto log_mode = config_.get("logging.mode").as_or_default("a"s);
-
     auto file_name = (std::filesystem::path(log_dir) / "Debug.dbg").string();
-
     set_log_file(UDA_LOG_WARN, file_name, log_mode);
     set_log_file(UDA_LOG_DEBUG, file_name, log_mode);
     set_log_file(UDA_LOG_INFO, file_name, log_mode);
@@ -215,8 +222,6 @@ uda::client::Client::Client()
         close_logging();
         return;
     }
-
-    config_.print();
 }
 
 int uda::client::Client::fetch_meta()
@@ -617,14 +622,18 @@ std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std
 
 void uda::client::Client::set_host(std::string_view host)
 {
-    host_ = host;
-    server_reconnect_ = true;
+    _connection.set_host_from_host_list(host, _host_list);
+    _host = _connection.get_host();
+    _port = _connection.get_port();
+
+    _server_reconnect = _connection.reconnect_required();
 }
 
 void uda::client::Client::set_port(int port)
 {
-    port_ = port;
-    server_reconnect_ = true;
+    _connection.set_port(port);
+    _port = _connection.get_port();
+    _server_reconnect = _connection.reconnect_required();
 }
 
 int uda::client::Client::test_connection()

@@ -11,12 +11,13 @@
 #include "clientserver/uda_structs.h"
 #include "cache/memcache.hpp"
 #include "config/config.h"
+#include "logging/logging.h"
 
 #include "connection.hpp"
 #include "host_list.hpp"
 
-constexpr auto DefaultHost = "localhost";
-constexpr auto DefaultPort = 56565;
+// constexpr auto DefaultHost = "localhost";
+// constexpr auto DefaultPort = 56565;
 
 using XDR = struct __rpc_xdr;
 
@@ -52,6 +53,9 @@ class Client
 public:
     Client();
     ~Client() = default;
+    explicit Client(std::string_view config_path);
+
+    void initialise_logging(const std::string& log_dir, logging::LogLevel log_level, const std::string& log_mode);
 
     int get(std::string_view data_signal, std::string_view data_source);
     std::vector<int> get(std::vector<std::pair<std::string, std::string>>& requests);
