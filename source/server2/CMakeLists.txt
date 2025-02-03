@@ -82,6 +82,20 @@ install(
   DESTINATION etc
 )
 
+set( PC_FILES
+  uda-client.pc
+  uda-cpp.pc
+  uda-plugins.pc
+)
+
+foreach( PC_FILE ${PC_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/source/etc/${PC_FILE}.in"
+    "${CMAKE_BINARY_DIR}/lib/pkgconfig/${PC_FILE}"
+    @ONLY
+  )
+endforeach()
+
 install(
   DIRECTORY ${CMAKE_BINARY_DIR}/lib/pkgconfig
   DESTINATION lib
