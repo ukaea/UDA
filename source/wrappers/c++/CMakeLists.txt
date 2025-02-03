@@ -30,7 +30,10 @@ set( HDR_FILES
 
 add_library( uda_cpp ${SRC_FILES} )
 target_include_directories( uda_cpp PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR}/include/uda/c++ )
-target_link_libraries( uda_cpp PRIVATE c_api client Boost::boost )
+target_link_libraries( uda_cpp PRIVATE c_api Boost::boost )
+target_link_libraries( uda_cpp PRIVATE
+  "$<BUILD_INTERFACE:client>"
+)
 
 set_target_properties( uda_cpp
   PROPERTIES

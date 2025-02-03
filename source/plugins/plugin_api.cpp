@@ -303,9 +303,10 @@ int udaPluginArgumentCount(const UDA_PLUGIN_INTERFACE* plugin_interface)
 
 const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int num)
 {
+    size_t s_num = num;
     auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
-    if (num > 0 && num < interface->request_data->name_value_list.size()) {
-        return interface->request_data->name_value_list.name(num).c_str();
+    if (s_num > 0 && s_num < interface->request_data->name_value_list.size()) {
+        return interface->request_data->name_value_list.name(s_num).c_str();
     }
     return nullptr;
 }

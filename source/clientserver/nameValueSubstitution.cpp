@@ -31,11 +31,11 @@ static void embedded_value_substitution(NameValueList& name_value_list);
 
 int identify_placeholders(NameValueList& name_value_list, NameValueList& new_name_value_list) {
 
-    int placeholder_count = 0;
-    int tpass_position = 0;
+    size_t placeholder_count = 0;
+    size_t tpass_position = 0;
 
     std::vector<int> placeholder_indices(name_value_list.size());
-    std::vector<int> tpass_index(name_value_list.size());
+    std::vector<size_t> tpass_index(name_value_list.size());
 
     int i = 0;
     for (auto& [_1, name, value] : name_value_list) {
@@ -94,7 +94,7 @@ int identify_placeholders(NameValueList& name_value_list, NameValueList& new_nam
     // Replace placeholders with identified values
     // Replacement values can be used multiple times
 
-    for (int i = 0; i < placeholder_count; i++) {
+    for (size_t i = 0; i < placeholder_count; i++) {
         if (tpass_index[i] < 0 || tpass_index[i] > new_name_value_list.size()) {
             UDA_LOG(UDA_LOG_DEBUG, "Placeholder numbering is Inconsistent with Placeholder Count!");
             UDA_LOG(UDA_LOG_DEBUG, "tpass_index[{}] = {}  ({})", i, tpass_index[i], placeholder_count);

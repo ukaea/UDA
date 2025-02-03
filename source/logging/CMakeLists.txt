@@ -8,4 +8,4 @@ set( SRCS
 
 add_library( logging OBJECT ${SRCS} )
 target_include_directories( logging PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( logging PUBLIC fmt::fmt spdlog::spdlog )
+target_link_libraries( logging PRIVATE fmt::fmt spdlog::spdlog )

@@ -8,8 +8,9 @@ set( SRCS
 
 add_library( c_api ${SRCS} )
 target_include_directories( c_api PRIVATE ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( c_api PRIVATE spdlog::spdlog logging client ${RPC_LIB} )
+target_link_libraries( c_api PRIVATE spdlog::spdlog ${RPC_LIB} )
 target_link_libraries( c_api PRIVATE
+  "$<BUILD_INTERFACE:client>"
   "$<BUILD_INTERFACE:client_server>"
   "$<BUILD_INTERFACE:structures>"
   "$<BUILD_INTERFACE:config>"

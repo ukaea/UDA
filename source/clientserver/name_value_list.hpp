@@ -46,10 +46,10 @@ public:
 
     const std::string& operator[](const std::string& name) const { return _mapping.at(name); }
 
-    const std::string& name(const int idx) const { return _items.at(idx).name; }
-    const std::string& value(const int idx) const { return _items.at(idx).value; }
+    const std::string& name(const size_t idx) const { return _items.at(idx).name; }
+    const std::string& value(const size_t idx) const { return _items.at(idx).value; }
 
-    void set_value(const int idx, const std::string& value) {
+    void set_value(const size_t idx, const std::string& value) {
         _items.at(idx).value = value;
         _mapping.at(_items.at(idx).name) = value;
     }
