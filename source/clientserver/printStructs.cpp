@@ -32,10 +32,11 @@ void uda::client_server::print_request_data(RequestData str)
         UDA_LOG(UDA_LOG_DEBUG, "[{}] {}   {}   {}   {}", i, str.datasubset.dimid[i], str.datasubset.lbindex[i].value,
                 str.datasubset.ubindex[i].value, str.datasubset.stride[i].value);
     }
-    UDA_LOG(UDA_LOG_DEBUG, "nameValueCount : {}", str.nameValueList.pairCount);
-    for (int i = 0; i < str.nameValueList.pairCount; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[{}] {},   {},   {}", i, str.nameValueList.nameValue[i].pair,
-                str.nameValueList.nameValue[i].name, str.nameValueList.nameValue[i].value);
+    UDA_LOG(UDA_LOG_DEBUG, "nameValueCount : {}", str.name_value_list.size());
+    int i = 0;
+    for (const auto& [pair, name, value] : str.name_value_list) {
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] {},   {},   {}", i, pair, name, value);
+        ++i;
     }
 }
 

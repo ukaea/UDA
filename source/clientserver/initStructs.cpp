@@ -14,13 +14,6 @@
 #include <cstring>
 #include <uda/types.h>
 
-void uda::client_server::init_name_value_list(NameValueList* nameValueList)
-{
-    nameValueList->pairCount = 0;
-    nameValueList->listSize = 0;
-    nameValueList->nameValue = nullptr;
-}
-
 void uda::client_server::init_request_data(RequestData* str)
 {
     str->request = 0;
@@ -39,7 +32,7 @@ void uda::client_server::init_request_data(RequestData* str)
     str->source[0] = '\0';
     str->subset[0] = '\0';
     str->datasubset.nbound = 0;
-    init_name_value_list(&str->nameValueList);
+    str->name_value_list = {};
 
     str->put = 0;
     init_put_data_block_list(&str->putDataBlockList);

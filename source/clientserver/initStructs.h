@@ -5,8 +5,6 @@
 namespace uda::client_server
 {
 
-void init_name_value_list(NameValueList* nameValueList);
-
 void init_request_data(RequestData* str);
 
 void init_request_block(RequestBlock* str);

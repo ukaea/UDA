@@ -52,17 +52,6 @@ static int generic_request_test(const char* source, RequestData* request);
 
 static int extract_subset(RequestData* request);
 
-namespace uda
-{
-struct NameValue {
-    std::string pair;
-    std::string name;
-    std::string value;
-};
-
-std::vector<uda::NameValue> name_value_pairs(std::string_view input, bool strip);
-} // namespace uda
-
 static int find_plugin_id_by_format(const std::string& name, const std::vector<PluginData>& plugin_list)
 {
     auto lower_name = boost::to_lower_copy(name);
@@ -309,8 +298,9 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
                     // Extract Name Value pairs
 
-                    if (name_value_pairs(work2, &request->nameValueList, strip) == -1) {
-                        UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!")
+                    auto pairs = NameValueList::parse(work2, strip);
+                    for (const auto& pair : pairs) {
+                        request->name_value_list.append(pair);
                     }
 
                     // Test for external library functions using the Archive name as the library name identifier
@@ -427,8 +417,9 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
                 // Extract Name Value pairs
 
-                if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
-                    UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!")
+                auto pairs = NameValueList::parse(work, strip);
+                for (const auto& pair : pairs) {
+                    request->name_value_list.append(pair);
                 }
 
                 // ToDo: Extract Data subset operations specified as a named value pair, tagged 'subset'
@@ -525,8 +516,9 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
             left_trim_string(work);
             trim_string(work);
             is_function = true;
-            if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
-                UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!")
+            auto pairs = NameValueList::parse(work, strip);
+            for (const auto& pair : pairs) {
+                request->name_value_list.append(pair);
             }
             extract_function_name(request->signal, request);
         }
@@ -1400,317 +1392,8 @@ int extract_subset(RequestData* request)
         }
     }
 
-    std::string subset = boost::join(subsets, "");
+    const std::string subset = boost::join(subsets, "");
     strcpy(request->subset, subset.c_str());
     return 1;
 }
 
-// name value pairs take the general form: name1=value1, name2=value2, ...
-// values can be enclosed in single or double quotes, or none at all.
-// All enclosing quotes are optionaly removed/ignored using the 'strip' argument. Usage is always context specific.
-//
-// name value pair delimiter has the special case insensitive name delimiter=character
-// this is searched for first then used to parse all name value pairs. The default is ','
-//
-// The returned value is the count of the name value pairs. If an error occurs, the returned value of the
-// pair count is -1.
-void uda::client_server::free_name_value_list(NameValueList* nameValueList)
-{
-    if (nameValueList->nameValue != nullptr) {
-        for (int i = 0; i < nameValueList->pairCount; i++) {
-            if (nameValueList->nameValue[i].pair != nullptr) {
-                free(nameValueList->nameValue[i].pair);
-            }
-            if (nameValueList->nameValue[i].name != nullptr) {
-                free(nameValueList->nameValue[i].name);
-            }
-            if (nameValueList->nameValue[i].value != nullptr) {
-                free(nameValueList->nameValue[i].value);
-            }
-        }
-    }
-    free(nameValueList->nameValue);
-    nameValueList->pairCount = 0;
-    nameValueList->listSize = 0;
-    nameValueList->nameValue = nullptr;
-}
-
-void parse_name_value(const char* pair, NameValue* nameValue, unsigned short strip)
-{
-    int lstr;
-    char *p, *copy;
-    lstr = (int)strlen(pair) + 1;
-    copy = (char*)malloc(lstr * sizeof(char));
-    strcpy(copy, pair);
-    left_trim_string(copy);
-    trim_string(copy);
-    nameValue->pair = (char*)malloc(lstr * sizeof(char));
-    strcpy(nameValue->pair, copy);
-    left_trim_string(nameValue->pair);
-    UDA_LOG(UDA_LOG_DEBUG, "Pair: {}", pair)
-    if ((p = strchr(copy, '=')) != nullptr) {
-        *p = '\0';
-        lstr = (int)strlen(copy) + 1;
-        nameValue->name = (char*)malloc(lstr * sizeof(char));
-        strcpy(nameValue->name, copy);
-        lstr = (int)strlen(&p[1]) + 1;
-        nameValue->value = (char*)malloc(lstr * sizeof(char));
-        strcpy(nameValue->value, &p[1]);
-    } else { // Mimic IDL keyword passing or stand alone values for placeholder substitution
-        UDA_LOG(UDA_LOG_DEBUG, "Keyword or placeholder value: {}", copy)
-        lstr = (int)strlen(copy) + 1;
-        nameValue->name = (char*)malloc(lstr * sizeof(char));
-        if (copy[0] == '/') {
-            strcpy(nameValue->name, &copy[1]); // Ignore leader forward slash
-        } else {
-            strcpy(nameValue->name, copy);
-        }
-        lstr = 5;
-        nameValue->value = (char*)malloc(lstr * sizeof(char));
-        strcpy(nameValue->value, "true");
-        UDA_LOG(UDA_LOG_DEBUG, "Placeholder name: {}, value: {}", nameValue->name, nameValue->value)
-    }
-    left_trim_string(nameValue->name);
-    left_trim_string(nameValue->value);
-    trim_string(nameValue->name);
-    trim_string(nameValue->value);
-    UDA_LOG(UDA_LOG_DEBUG, "Name: {}     Value: {}", nameValue->name, nameValue->value)
-
-    // Regardless of whether or not the Value is not enclosed in quotes, strip out a possible closing parenthesis
-    // character (seen in placeholder value substitution) This would not be a valid value unless at the end of a string
-    // enclosed in quotes!
-    lstr = (int)strlen(nameValue->value);
-    if (nameValue->value[lstr - 1] == ')' && strchr(nameValue->value, '(') == nullptr) {
-        nameValue->value[lstr - 1] = '\0';
-    }
-    UDA_LOG(UDA_LOG_DEBUG, "Name: {}     Value: {}", nameValue->name, nameValue->value)
-
-    if (strip) { // remove enclosing single or double quotes
-        lstr = (int)strlen(nameValue->name);
-        if ((nameValue->name[0] == '\'' && nameValue->name[lstr - 1] == '\'') ||
-            (nameValue->name[0] == '"' && nameValue->name[lstr - 1] == '"')) {
-            nameValue->name[0] = ' ';
-            nameValue->name[lstr - 1] = ' ';
-            left_trim_string(nameValue->name);
-            trim_string(nameValue->name);
-        }
-        lstr = (int)strlen(nameValue->value);
-        if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
-            (nameValue->value[0] == '"' && nameValue->value[lstr - 1] == '"')) {
-            nameValue->value[0] = ' ';
-            nameValue->value[lstr - 1] = ' ';
-            left_trim_string(nameValue->value);
-            trim_string(nameValue->value);
-        }
-        UDA_LOG(UDA_LOG_DEBUG, "Name: {}     Value: {}", nameValue->name, nameValue->value);
-    }
-
-    free(copy);
-}
-
-uda::NameValue parse_name_value(std::string_view argument, bool strip)
-{
-    std::vector<std::string> tokens;
-    boost::split(tokens, argument, boost::is_any_of("="), boost::token_compress_on);
-
-    for (auto& token : tokens) {
-        boost::trim(token);
-    }
-
-    uda::NameValue name_value = {};
-    name_value.pair = argument;
-
-    if (tokens.size() == 2) {
-        // argument is name=value
-        name_value.name = tokens[0];
-        name_value.value = tokens[1];
-    } else if (tokens.size() == 1) {
-        // argument is name or /name
-        if (boost::starts_with(tokens[0], "/")) {
-            name_value.name = tokens[0].substr(1);
-        } else {
-            name_value.name = tokens[0];
-        }
-    } else {
-        throw std::runtime_error{"invalid token"};
-    }
-
-    if (strip) {
-        boost::trim_if(name_value.value, boost::is_any_of("'\""));
-    }
-
-    return name_value;
-}
-
-std::vector<uda::NameValue> uda::name_value_pairs(std::string_view input, bool strip)
-{
-    std::vector<uda::NameValue> name_values;
-
-    std::vector<std::string> tokens;
-    boost::split(tokens, input, boost::is_any_of(","), boost::token_compress_on);
-
-    name_values.reserve(tokens.size());
-    for (const auto& token : tokens) {
-        name_values.push_back(parse_name_value(token, strip));
-    }
-
-    return name_values;
-}
-
-int uda::client_server::name_value_pairs(const char* pairList, NameValueList* nameValueList, unsigned short strip)
-{
-    // Ignore delimiter in anything enclosed in single or double quotes
-    // Recognise /name as name=TRUE
-    // if strip then remove all enclosing quotes (single or double)
-
-    int lstr, pair_count = 0;
-    char proposal, delimiter = ',', substitute = 1;
-    char *p, *p2, *p3 = nullptr, *buffer, *copy;
-    NameValue name_value;
-    lstr = (int)strlen(pairList);
-
-    if (lstr == 0) {
-        return pair_count; // Nothing to Parse
-    }
-
-    // Placeholder substitution is neither a name-value pair nor a keyword so bypass this test
-    // if (strchr(pairList, '=') == nullptr && pairList[0] != '/')
-    //    return pairCount;        // Not a Name Value list or Keyword
-
-    if (pairList[0] == '=') {
-        return -1; // Syntax error
-    }
-    if (pairList[lstr - 1] == '=') {
-        return -1; // Syntax error
-    }
-
-    lstr = lstr + 1;
-    buffer = (char*)malloc(lstr * sizeof(char));
-    copy = (char*)malloc(lstr * sizeof(char));
-
-    strcpy(copy, pairList); // working copy
-
-    UDA_LOG(UDA_LOG_DEBUG, "Parsing name values from argument: {}", pairList)
-
-    // Locate the delimiter name value pair if present - use default character ',' if not
-
-    if ((p = strcasestr(copy, "delimiter")) != nullptr) {
-        strcpy(buffer, &p[9]);
-        left_trim_string(buffer);
-        if (buffer[0] == '=' && buffer[1] != '\0') {
-            buffer[0] = ' ';
-            left_trim_string(buffer); // remove whitespace
-            if (strlen(buffer) >= 3 &&
-                ((buffer[0] == '\'' && buffer[2] == '\'') || (buffer[0] == '"' && buffer[2] == '"'))) {
-                proposal = buffer[1]; // proposal delimiter
-                lstr = (int)(p - copy);
-                if (lstr == 0) {                   // delimiter name value pair coincident with start of list
-                    delimiter = proposal;          // new delimiter
-                    p3 = strchr(&p[9], delimiter); // change delimiter to avert incorrect parse
-                    *p3 = '#';
-                } else {
-                    copy_string(copy, buffer, lstr); // check 'delimiter' is not part of another name value pair
-                    trim_string(buffer);
-                    lstr = (int)strlen(buffer);
-                    if (buffer[lstr - 1] == proposal) { // must be an immediately preceeding delimiter character
-                        delimiter = proposal;           // new delimiter accepted
-                        p3 = strchr(&p[9], delimiter);  // change delimiter temporarily to avert incorrect parse
-                        *p3 = '#';
-                    } else {
-                        trim_string(buffer); // Check for non alpha-numeric character
-                        lstr = (int)strlen(buffer);
-                        if (!isalpha(buffer[lstr - 1]) && !isdigit(buffer[lstr - 1])) { // Probable syntax error!
-                            free(buffer);
-                            free(copy);
-                            return -1; // Flag an Error
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // lists are enclosed in either single or double quotes. If the list elements are
-    // separated using the delimiter character, replace them with a temporary character
-
-    lstr = lstr - 1;
-    int is_list = 0;
-    int is_list_delim = 0;
-    for (int i = 0; i < lstr; i++) {
-        if (copy[i] == '\'' || copy[i] == '"') {
-            if (is_list) {
-                is_list = 0; // Switch substitution off
-            } else {
-                is_list = 1;
-            } // Switch substitution on
-        } else {
-            if (is_list && copy[i] == delimiter) {
-                is_list_delim = 1;
-                copy[i] = substitute;
-            }
-        }
-    }
-
-    // separate each name value pair
-
-    p = copy;
-    do {
-        if ((p2 = strchr(p, delimiter)) != nullptr) {
-            strncpy(buffer, p, p2 - p);
-            buffer[p2 - p] = '\0';
-            p = p2 + 1;
-        } else {
-            strcpy(buffer, p);
-        }
-
-        UDA_LOG(UDA_LOG_DEBUG, "Parsing name value: {}", buffer)
-        parse_name_value(buffer, &name_value, strip);
-        UDA_LOG(UDA_LOG_DEBUG, "Name {}, Value: {}", name_value.name, name_value.value)
-
-        // if (nameValue.name != nullptr && nameValue.value != nullptr) {
-        if (name_value.name != nullptr) { // Values may be nullptr for use case where placeholder substitution is used
-            pair_count++;
-            if (pair_count > nameValueList->listSize) {
-                nameValueList->nameValue = (NameValue*)realloc((void*)nameValueList->nameValue,
-                                                               (nameValueList->listSize + 10) * sizeof(NameValue));
-                nameValueList->listSize = nameValueList->listSize + 10;
-            }
-            nameValueList->pairCount = pair_count;
-            nameValueList->nameValue[pair_count - 1] = name_value;
-        }
-    } while (p2 != nullptr);
-
-    // housekeeping
-
-    free(buffer);
-    free(copy);
-
-    for (int i = 0; i < nameValueList->pairCount; i++) {
-        if (STR_IEQUALS(nameValueList->nameValue[i].name, "delimiter")) { // replace with correct delimiter value
-            p = strchr(nameValueList->nameValue[i].value, '#');
-            *p = delimiter;
-            p = strrchr(nameValueList->nameValue[i].pair, '#');
-            *p = delimiter;
-            break;
-        }
-    }
-
-    // Replace substituted delimiters in lists
-
-    if (is_list_delim) {
-        for (int i = 0; i < nameValueList->pairCount; i++) {
-            if ((p = strchr(nameValueList->nameValue[i].value, substitute)) != nullptr) {
-                do {
-                    p[0] = delimiter;
-                } while ((p = strchr(nameValueList->nameValue[i].value, substitute)) != nullptr);
-            }
-            if ((p = strchr(nameValueList->nameValue[i].pair, substitute)) != nullptr) {
-                do {
-                    p[0] = delimiter;
-                } while ((p = strchr(nameValueList->nameValue[i].pair, substitute)) != nullptr);
-            }
-        }
-    }
-
-    return pair_count;
-}

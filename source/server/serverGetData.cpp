@@ -1072,7 +1072,7 @@ int read_data(const Config& config, RequestData* request, ClientBlock client_blo
     // Modifies HEAP in request_block
 
     {
-        int err = name_value_substitution(&request->nameValueList, request->tpass);
+        int err = name_value_substitution(&request->name_value_list, request->tpass);
         if (err != 0) {
             return err;
         }

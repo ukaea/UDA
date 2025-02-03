@@ -5,6 +5,6 @@
 namespace uda::client_server
 {
 
-int name_value_substitution(NameValueList* nameValueList, const char* tpass);
+int name_value_substitution(NameValueList& name_value_list, const char* tpass);
 
 }

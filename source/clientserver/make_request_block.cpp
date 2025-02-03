@@ -40,13 +40,6 @@ constexpr int SignalSubsetsCaptureIdx = 5;
 
 namespace uda
 {
-struct NameValue {
-    std::string pair;
-    std::string name;
-    std::string value;
-};
-
-std::vector<uda::NameValue> parse_args(std::string_view input, bool strip);
 
 void parse_signal(RequestData& result, const std::string& signal, const std::vector<PluginData>& plugin_list);
 
@@ -83,52 +76,11 @@ void write_int(int* out, std::size_t in)
     *out = static_cast<int>(in);
 }
 
-void write_name_values(NameValueList& name_value_list, const std::vector<uda::NameValue>& name_values)
+void write_name_values(NameValueList& name_value_list, const std::vector<NameValueList::NameValue>& name_values)
 {
-    write_int(&name_value_list.listSize, name_values.size());
-    write_int(&name_value_list.pairCount, name_values.size());
-    name_value_list.nameValue = static_cast<::NameValue*>(malloc(name_values.size() * sizeof(NameValue)));
-    size_t i = 0;
     for (const auto& name_value : name_values) {
-        name_value_list.nameValue[i].pair = strdup(name_value.pair.c_str());
-        name_value_list.nameValue[i].name = strdup(name_value.name.c_str());
-        name_value_list.nameValue[i].value = strdup(name_value.value.c_str());
-        ++i;
+        name_value_list.append(name_value);
     }
-}
-
-uda::NameValue parse_name_value(std::string_view argument, bool strip)
-{
-    std::vector<std::string> tokens;
-    boost::split(tokens, argument, boost::is_any_of("="), boost::token_compress_on);
-
-    for (auto& token : tokens) {
-        boost::trim(token);
-    }
-
-    uda::NameValue name_value = {};
-    name_value.pair = argument;
-
-    if (tokens.size() == 2) {
-        // argument is name=value
-        name_value.name = tokens[0];
-        name_value.value = tokens[1];
-    } else if (tokens.size() == 1) {
-        // argument is name or /name
-        if (boost::starts_with(tokens[0], "/")) {
-            name_value.name = tokens[0].substr(1);
-        } else {
-            name_value.name = tokens[0];
-        }
-    } else {
-        throw std::runtime_error{"invalid token"};
-    }
-
-    if (strip) {
-        boost::trim_if(name_value.value, boost::is_any_of("'\""));
-    }
-
-    return name_value;
 }
 
 OptionalLong parse_integer(const std::string& value)
@@ -276,21 +228,6 @@ std::string udaExpandEnvironmentalVariables(const std::string& path)
 
 } // namespace uda
 
-std::vector<uda::NameValue> uda::parse_args(std::string_view input, bool strip)
-{
-    std::vector<uda::NameValue> name_values;
-
-    std::vector<std::string> tokens;
-    boost::split(tokens, input, boost::is_any_of(","), boost::token_compress_on);
-
-    name_values.reserve(tokens.size());
-    for (const auto& token : tokens) {
-        name_values.push_back(parse_name_value(token, strip));
-    }
-
-    return name_values;
-}
-
 void uda::parse_signal(RequestData& result, const std::string& signal, const std::vector<PluginData>& plugin_list)
 {
     std::smatch signal_match;
@@ -319,15 +256,15 @@ void uda::parse_signal(RequestData& result, const std::string& signal, const std
 
         result.request = find_plugin_id_by_format(plugin, plugin_list);
     } else {
-        result.request = (int)Request::ReadGeneric;
+        result.request = static_cast<int>(Request::ReadGeneric);
     }
 
     write_string(result.archive, archive, StringLength);
 
     std::string args = signal_match[SignalArgsCaptureIdx];
-    auto name_values = uda::parse_args(args, true);
+    auto name_values = NameValueList::parse(args, true);
 
-    write_name_values(result.nameValueList, name_values);
+    write_name_values(result.name_value_list, name_values);
 
     std::string subsets = signal_match[SignalSubsetsCaptureIdx];
     write_string(result.subset, subsets, StringLength);

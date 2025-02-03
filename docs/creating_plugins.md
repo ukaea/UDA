@@ -47,7 +47,7 @@ entry function as a C-string (`const char*`) via:
 The arguments that where passed to the plugin function is passed a list of name-value pairs
 via:
 
-`plugin_interface->request->nameValueList`
+`plugin_interface->request->name_value_list`
 
 You can the provided helper functions to find the argument in the list and return the value:
 

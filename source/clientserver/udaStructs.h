@@ -10,6 +10,7 @@
 #include <uda/types.h>
 
 #include "udaDefines.h"
+#include "name_value_list.hpp"
 
 typedef struct CUdaErrorStack {
 } UDA_ERROR_STACK;
@@ -334,18 +335,6 @@ struct ServerBlock {
     securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
 
-struct NameValue {
-    char* pair;  // The name value pair string
-    char* name;  // The name
-    char* value; // The value
-};
-
-struct NameValueList {
-    int pairCount;        // Number of name value pairs in list
-    int listSize;         // Allocated Size of the List
-    NameValue* nameValue; // List of individual name value pairs in parse order
-};
-
 enum class Request {
     Shutdown = -30,
     ReadGeneric, // Generic Signal via the UDA Database
@@ -435,7 +424,7 @@ struct RequestData {
     char api_delim[MaxName];         // Delimiter string to use decoding the signal and source arguments
     char subset[StringLength];      // Subset instructions
     Subset datasubset;               // Parsed subset instructions (Server Side)
-    NameValueList nameValueList;     // Set of Name-Value pairs (Server Side Function)
+    NameValueList name_value_list;     // Set of Name-Value pairs (Server Side Function)
 
     int put;                           // flag to set the server to a put state
     PutDataBlockList putDataBlockList; // Data to be put on the server

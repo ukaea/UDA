@@ -13,6 +13,7 @@ set( SRCS
   make_request_block.cpp
   manageSockets.cpp
   nameValueSubstitution.cpp
+  name_value_list.cpp
   parseOperation.cpp
   parseXML.cpp
   printStructs.cpp

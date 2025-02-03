@@ -298,56 +298,53 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
 int udaPluginArgumentCount(const UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
-    return interface->request_data->nameValueList.listSize;
+    return interface->request_data->name_value_list.size();
 }
 
 const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int num)
 {
     auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
-    if (num > 0 && num < interface->request_data->nameValueList.pairCount) {
-        return interface->request_data->nameValueList.nameValue[num].name;
+    if (num > 0 && num < interface->request_data->name_value_list.size()) {
+        return interface->request_data->name_value_list.name(num).c_str();
     }
     return nullptr;
 }
 
 /**
- * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associated value.
+ * Look for an argument with the given name in the provided name_value_list and return it's associated value.
  *
  * If the argument is found the value associated with the argument is provided via the value parameter and the function
  * returns 1. Otherwise value is set to nullptr and the function returns 0.
- * @param namevaluelist
+ * @param name_value_list
  * @param value
  * @param name
  * @return
  */
 bool udaPluginFindStringArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name)
 {
-    auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
-    auto name_value_list = &interface->request_data->nameValueList;
+    const auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
+    const auto name_value_list = &interface->request_data->name_value_list;
 
-    char** names = split_string(name, "|");
-    *value = nullptr;
+    std::vector<std::string> names;
+    boost::split(names, name, boost::is_any_of("|"));
 
-    bool found = 0;
-    for (int i = 0; i < name_value_list->pairCount; i++) {
-        size_t n;
-        for (n = 0; names[n] != nullptr; ++n) {
-            if (STR_IEQUALS(name_value_list->nameValue[i].name, names[n])) {
-                *value = name_value_list->nameValue[i].value;
-                found = 1;
-                break;
-            }
+    bool found = false;
+    for (const auto& el : names) {
+        *value = name_value_list->find(el);
+        if (*value != nullptr) {
+            found = true;
+            break;
         }
     }
 
-    free_split_string_tokens(&names);
     return found;
 }
 
-template <typename T> bool findArg(const UDA_PLUGIN_INTERFACE* plugin_interface, T* value, const char* name)
+template <typename T>
+bool findArg(const UDA_PLUGIN_INTERFACE* plugin_interface, T* value, const char* name)
 {
     const char* str;
-    bool found = udaPluginFindStringArg(plugin_interface, &str, name);
+    const bool found = udaPluginFindStringArg(plugin_interface, &str, name);
     if (found) {
         std::stringstream ss(str);
         ss >> *value;
@@ -359,11 +356,11 @@ template <typename T>
 bool findArrayArg(const UDA_PLUGIN_INTERFACE* plugin_interface, T** values, size_t* nvalues, const char* name)
 {
     const char* str;
-    bool found = udaPluginFindStringArg(plugin_interface, &str, name);
+    const bool found = udaPluginFindStringArg(plugin_interface, &str, name);
     if (found) {
         std::vector<std::string> tokens;
         boost::split(tokens, str, boost::is_any_of(";"), boost::token_compress_on);
-        *values = (T*)calloc(tokens.size(), sizeof(T));
+        *values = static_cast<T*>(calloc(tokens.size(), sizeof(T)));
         size_t n = 0;
         for (const auto& token : tokens) {
             std::stringstream ss(token);
@@ -399,23 +396,20 @@ UDA_IMPL_FIND_FUNCS(ULong, unsigned long)
 
 bool udaPluginFindArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name)
 {
-    auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
-    auto namevaluelist = &interface->request_data->nameValueList;
-    char** names = split_string(name, "|");
+    const auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
+    const auto name_value_list = &interface->request_data->name_value_list;
+
+    std::vector<std::string> names;
+    boost::split(names, name, boost::is_any_of("|"));
 
     bool found = false;
-    for (int i = 0; i < namevaluelist->pairCount; i++) {
-        size_t n = 0;
-        while (names[n] != nullptr) {
-            if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
-                found = 1;
-                break;
-            }
-            ++n;
+    for (const auto& el : names) {
+        if (name_value_list->contains(el)) {
+            found = true;
+            break;
         }
     }
 
-    free_split_string_tokens(&names);
     return found;
 }
 

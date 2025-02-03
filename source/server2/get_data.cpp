@@ -1051,7 +1051,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     // Modifies HEAP in request_block
 
     {
-        int err = name_value_substitution(&request->nameValueList, request->tpass);
+        int err = name_value_substitution(request->name_value_list, request->tpass);
         if (err != 0) {
             return err;
         }

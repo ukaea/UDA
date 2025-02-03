@@ -382,8 +382,6 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
 
     UDA_LOG(UDA_LOG_DEBUG, "housekeeping")
 
-    free_name_value_list(&request.nameValueList);
-
     UDA_LOG(UDA_LOG_DEBUG, "testing for bug!!!")
     if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN || data_block.opaque_count != 0 ||
         data_block.opaque_block != nullptr) {
