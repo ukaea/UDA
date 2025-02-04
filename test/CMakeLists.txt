@@ -1,35 +1,17 @@
 enable_testing()
 
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/setup.inc.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/setup.inc"
-  @ONLY
+Include( FetchContent )
+
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.8.0 # or a later release
 )
 
-function( BUILD_TEST NAME SOURCE )
-  set( LINK_PROJECT ${PROJECT_NAME}_cpp-static )
-  if( BUILD_SHARED_LIBS )
-    set( LINK_PROJECT ${PROJECT_NAME}_cpp-shared )
-  endif()
+FetchContent_MakeAvailable( Catch2 )
 
-  add_executable( ${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
-  target_link_libraries( ${NAME} PRIVATE )
-  target_include_directories( ${NAME} PRIVATE ${CMAKE_SOURCE_DIR}/test uda-cpp )
-  target_compile_definitions( ${NAME} PRIVATE -DCAPNP_ENABLED=1 )
+add_executable( test_clientserver test_clientserver.cpp )
+target_include_directories( test_clientserver PRIVATE ${CMAKE_SOURCE_DIR}/source/clientserver )
+target_link_libraries( test_clientserver PRIVATE Catch2::Catch2WithMain client_server structures config common )
 
-  set_target_properties( ${NAME}
-    PROPERTIES
-    OUTPUT_NAME ${NAME}
-  )
-
-  if( WIN32 )
-    set_target_properties( ${NAME}
-      PROPERTIES
-      COMPILE_FLAGS -DNOIMPLIB
-    )
-  endif()
-
-  add_test( ${NAME} ${NAME} -r junit -o ${NAME}_out.xml )
-endfunction( BUILD_TEST )
-
-#add_subdirectory( plugins )
+add_test( NAME TestClientserver COMMAND test_clientserver )

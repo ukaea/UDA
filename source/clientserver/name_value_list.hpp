@@ -3,7 +3,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <tuple>
 #include <boost/range/adaptor/map.hpp>
 
 class NameValueList {
@@ -15,14 +14,14 @@ public:
     };
 
     NameValueList() {}
-    NameValueList(const std::string_view input, const bool strip) {
-        const auto values = parse(input, strip);
+    NameValueList(const std::string_view input, const bool strip) : input_{input} {
+        const auto values = parse(input_, strip);
         for (const auto& value : values) {
             append(value);
         }
     }
 
-    static std::vector<NameValue> parse(std::string_view input, bool strip);
+    static std::vector<NameValue> parse(std::string input, bool strip);
 
     void add_value(const std::string& pair, bool strip);
 
@@ -90,6 +89,7 @@ private:
         const NameValueList& _list;
     };
 
+    std::string input_;
     std::vector<NameValue> _items;
     std::unordered_map<std::string, std::string> _mapping;
 
