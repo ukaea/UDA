@@ -73,24 +73,8 @@ bool_t xdr_data_object1(XDR* xdrs, DataObject* str);
 
 bool_t xdr_data_object2(XDR* xdrs, DataObject* str);
 
-//-----------------------------------------------------------------------
-// From DataSystem Table
-bool_t xdr_data_system(XDR* xdrs, DataSystem* str);
+bool_t xdr_metadata(XDR* xdrs, MetaData* str);
 
-//-----------------------------------------------------------------------
-// From SystemConfig Table
-bool_t xdr_system_config(XDR* xdrs, SystemConfig* str);
-
-//-----------------------------------------------------------------------
-// From DataSource Table
-bool_t xdr_data_source(XDR* xdrs, DataSource* str);
-
-//-----------------------------------------------------------------------
-// From Signal Table
-bool_t xdr_signal(XDR* xdrs, Signal* str);
-
-//-----------------------------------------------------------------------
-// From SignalDesc Table
-bool_t xdr_signal_desc(XDR* xdrs, SignalDesc* str);
+bool_t xdr_metadata_field(XDR* xdrs, MetaDataField* str);
 
 } // namespace uda::client_server

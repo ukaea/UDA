@@ -56,11 +56,7 @@ std::string uda::client_server::format_as(ProtocolId protocol)
         case ProtocolId::RequestBlock: return "ProtocolId::RequestBlock";
         case ProtocolId::DataBlockList: return "ProtocolId::DataBlockList";
         case ProtocolId::NextProtocol: return "ProtocolId::NextProtocol";
-        case ProtocolId::DataSystem: return "ProtocolId::DataSystem";
-        case ProtocolId::SystemConfig: return "ProtocolId::SystemConfig";
-        case ProtocolId::DataSource: return "ProtocolId::DataSource";
-        case ProtocolId::Signal: return "ProtocolId::Signal";
-        case ProtocolId::SignalDesc: return "ProtocolId::SignalDesc";
+        case ProtocolId::MetaData: return "ProtocolId::MetaData";
         case ProtocolId::Spare1: return "ProtocolId::Spare1";
         case ProtocolId::ClientBlock: return "ProtocolId::ClientBlock";
         case ProtocolId::ServerBlock: return "ProtocolId::ServerBlock";
@@ -521,10 +517,10 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDir
         }
 
         //----------------------------------------------------------------------------
-        // Data System record
+        // Meta Data
 
-        if (protocol_id == ProtocolId::DataSystem) {
-            auto data_system = (DataSystem*)str;
+        if (protocol_id == ProtocolId::MetaData) {
+            auto data_system = static_cast<MetaData*>(str);
 
             switch (direction) {
                 case XDRStreamDirection::Receive: // From Client to Server
@@ -532,15 +528,14 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDir
                         err = (int)ProtocolError::Error5;
                         break;
                     }
-                    if (!xdr_data_system(xdrs, data_system)) {
+                    if (!xdr_metadata(xdrs, data_system)) {
                         err = (int)ProtocolError::Error10;
                         break;
                     }
                     break;
 
                 case XDRStreamDirection::Send:
-
-                    if (!xdr_data_system(xdrs, data_system)) {
+                    if (!xdr_metadata(xdrs, data_system)) {
                         err = (int)ProtocolError::Error10;
                         break;
                     }
@@ -551,200 +546,8 @@ int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDir
                     break;
 
                 case XDRStreamDirection::FreeHeap:
-
-                    if (!xdr_data_system(xdrs, data_system)) {
+                    if (!xdr_metadata(xdrs, data_system)) {
                         err = (int)ProtocolError::Error11;
-                        break;
-                    }
-                    break;
-
-                default:
-                    err = (int)ProtocolError::Error4;
-                    break;
-            }
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // System Configuration record
-
-        if (protocol_id == ProtocolId::SystemConfig) {
-
-            auto system_config = (SystemConfig*)str;
-
-            switch (direction) {
-                case XDRStreamDirection::Receive:
-                    // From Client to Server
-                    if (!xdrrec_skiprecord(xdrs)) {
-                        err = (int)ProtocolError::Error5;
-                        break;
-                    }
-                    if (!xdr_system_config(xdrs, system_config)) {
-                        err = (int)ProtocolError::Error12;
-                        break;
-                    }
-                    break;
-
-                case XDRStreamDirection::Send:
-
-                    if (!xdr_system_config(xdrs, system_config)) {
-                        err = (int)ProtocolError::Error12;
-                        break;
-                    }
-                    if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = (int)ProtocolError::Error7;
-                        break;
-                    }
-                    break;
-
-                case XDRStreamDirection::FreeHeap:
-
-                    if (!xdr_system_config(xdrs, system_config)) {
-                        err = (int)ProtocolError::Error13;
-                        break;
-                    }
-                    break;
-
-                default:
-                    err = (int)ProtocolError::Error4;
-                    break;
-            }
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Data Source record
-
-        if (protocol_id == ProtocolId::DataSource) {
-
-            auto data_source = (DataSource*)str;
-
-            switch (direction) {
-                case XDRStreamDirection::Receive:
-                    // From Client to Server
-                    if (!xdrrec_skiprecord(xdrs)) {
-                        err = (int)ProtocolError::Error5;
-                        break;
-                    }
-                    if (!xdr_data_source(xdrs, data_source)) {
-                        err = (int)ProtocolError::Error14;
-                        break;
-                    }
-                    break;
-
-                case XDRStreamDirection::Send:
-
-                    if (!xdr_data_source(xdrs, data_source)) {
-                        err = (int)ProtocolError::Error14;
-                        break;
-                    }
-                    if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = (int)ProtocolError::Error7;
-                        break;
-                    }
-                    break;
-
-                case XDRStreamDirection::FreeHeap:
-
-                    if (!xdr_data_source(xdrs, data_source)) {
-                        err = (int)ProtocolError::Error15;
-                        break;
-                    }
-                    break;
-
-                default:
-                    err = (int)ProtocolError::Error4;
-                    break;
-            }
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Signal record
-
-        if (protocol_id == ProtocolId::Signal) {
-
-            auto signal = (Signal*)str;
-
-            switch (direction) {
-
-                case XDRStreamDirection::Receive:
-                    // From Client to Server
-                    if (!xdrrec_skiprecord(xdrs)) {
-                        err = (int)ProtocolError::Error5;
-                        break;
-                    }
-                    if (!xdr_signal(xdrs, signal)) {
-                        err = (int)ProtocolError::Error16;
-                        break;
-                    }
-                    break;
-
-                case XDRStreamDirection::Send:
-
-                    if (!xdr_signal(xdrs, signal)) {
-                        err = (int)ProtocolError::Error16;
-                        break;
-                    }
-                    if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = (int)ProtocolError::Error7;
-                        break;
-                    }
-                    break;
-
-                case XDRStreamDirection::FreeHeap:
-
-                    if (!xdr_signal(xdrs, signal)) {
-                        err = (int)ProtocolError::Error17;
-                        break;
-                    }
-                    break;
-
-                default:
-                    err = (int)ProtocolError::Error4;
-                    break;
-            }
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Signal Description record
-
-        if (protocol_id == ProtocolId::SignalDesc) {
-
-            auto signal_desc = (SignalDesc*)str;
-
-            switch (direction) {
-
-                case XDRStreamDirection::Receive:
-                    // From Client to Server
-                    if (!xdrrec_skiprecord(xdrs)) {
-                        err = (int)ProtocolError::Error5;
-                        break;
-                    }
-                    if (!xdr_signal_desc(xdrs, signal_desc)) {
-                        err = (int)ProtocolError::Error18;
-                        break;
-                    }
-
-                    break;
-
-                case XDRStreamDirection::Send:
-
-                    if (!xdr_signal_desc(xdrs, signal_desc)) {
-                        err = (int)ProtocolError::Error18;
-                        break;
-                    }
-                    if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = (int)ProtocolError::Error7;
-                        break;
-                    }
-                    break;
-
-                case XDRStreamDirection::FreeHeap:
-
-                    if (!xdr_signal_desc(xdrs, signal_desc)) {
-                        err = (int)ProtocolError::Error19;
                         break;
                     }
                     break;

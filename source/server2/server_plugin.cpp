@@ -27,9 +27,9 @@
 #include "uda/plugins.h"
 #include "config/config.h"
 
-#define REQUEST_READ_START 1000
-#define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered
-#define REQUEST_PLUGIN_MSTEP 10   // Increase heap by 10 records once the maximum is exceeded
+// constexpr int RequestReadStart = 1000;
+// constexpr int RequestReadMCount = 100; // Maximum initial number of plugins that can be registered
+// constexpr int RequestReadMStep = 10;   // Increase heap by 10 records once the maximum is exceeded
 
 using namespace uda::client_server;
 using namespace uda::logging;
@@ -170,8 +170,7 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
 // 5. open the library
 // 6. get plugin function address
 // 7. close the file
-int uda::server::server_plugin(const Config& config, RequestData *request, DataSource *data_source,
-                               SignalDesc *signal_desc, const Plugins& plugins)
+int uda::server::server_plugin(const Config& config, RequestData* request, MetaData* meta_data, const Plugins& plugins)
 {
     int err = 0;
 
@@ -192,7 +191,7 @@ int uda::server::server_plugin(const Config& config, RequestData *request, DataS
     // Does the Path to Private Files contain hierarchical components not seen by the server?
     // If so make a substitution to resolve path problems.
 
-    if (strlen(request->server) == 0 && request->request != (int)Request::ReadServerside) {
+    if (strlen(request->server) == 0 && request->request != static_cast<int>(Request::ReadServerside)) {
         // Must be a File plugin
         if ((err = path_replacement(config, request->path)) != 0) {
             return err;
@@ -202,21 +201,17 @@ int uda::server::server_plugin(const Config& config, RequestData *request, DataS
     //----------------------------------------------------------------------
     // Copy request details into the data_source structure mimicking a SQL query
 
-    strcpy(data_source->source_alias, trim_string(request->file));
-    strcpy(data_source->filename, trim_string(request->file));
-    strcpy(data_source->path, trim_string(request->path));
-
-    copy_string(trim_string(request->signal), signal_desc->signal_name, MaxName);
-
-    strcpy(data_source->server, trim_string(request->server));
-
-    strcpy(data_source->format, trim_string(request->format));
-    strcpy(data_source->archive, trim_string(request->archive));
-    strcpy(data_source->device_name, trim_string(request->device_name));
-
-    data_source->exp_number = request->exp_number;
-    data_source->pass = request->pass;
-    data_source->type = ' ';
+    meta_data->set("source_alias", trim_string(request->file));
+    meta_data->set("filename", trim_string(request->file));
+    meta_data->set("path", trim_string(request->path));
+    meta_data->set("signal_name", trim_string(request->signal));
+    meta_data->set("server", trim_string(request->server));
+    meta_data->set("format", trim_string(request->format));
+    meta_data->set("archive", trim_string(request->archive));
+    meta_data->set("device_name", trim_string(request->device_name));
+    meta_data->set("exp_number", request->exp_number);
+    meta_data->set("pass", request->pass);
+    meta_data->set("type", ' ');
 
     UDA_LOG(UDA_LOG_DEBUG, "End")
 
@@ -237,11 +232,11 @@ int uda::server::server_plugin(const Config& config, RequestData *request, DataS
 //    delete all closed records for a specific client DOI
 //
 // changePlugin option disabled in this context
-// private malloc log and userdefinedtypelist
+// private malloc log and user_defined_type_list
 
 int uda::server::provenance_plugin(const Config& config, ClientBlock *client_block,
                                    RequestData *original_request,
-                                   const Plugins& plugins, const char* logRecord, MetadataBlock& metadata)
+                                   const Plugins& plugins, const char* logRecord, MetaData& meta_data)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {
@@ -266,10 +261,10 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
         // On initialisation
         auto provenance_plugin = config.get("plugins.provenance_plugin");
         if (provenance_plugin) {
-            std::string plugin_name = provenance_plugin.as<std::string>();
+            auto plugin_name = provenance_plugin.as<std::string>();
             // Must be set in the server startup script
             UDA_LOG(UDA_LOG_DEBUG, "Plugin name: {}", plugin_name.c_str())
-            auto [id, maybe_plugin] = plugins.find_by_name(plugin_name.c_str());
+            auto [id, maybe_plugin] = plugins.find_by_name(plugin_name);
             if (maybe_plugin) {
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION = {}",
                         maybe_plugin->type == UDA_PLUGIN_CLASS_FUNCTION)
@@ -311,7 +306,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
                  "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
                  "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
                  plugin->name.c_str(), client_block->DOI, original_request->signal, original_request->source,
-                 metadata.signal_desc.signal_name, metadata.data_source.path, "", exec_method);
+                 meta_data.find("signal_name").data(), meta_data.find("path").data(), "", exec_method);
     } else {
 
         // need 2> record the server log record
@@ -324,7 +319,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
 
     UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: {}", request.signal)
 
-    auto& plugin_list = plugins.plugin_list();
+    const auto& plugin_list = plugins.plugin_list();
     make_request_data(config, &request, plugin_list);
 
     int err, rc, reset;
@@ -343,21 +338,20 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
         UDA_THROW_ERROR(999, "The Provenance Plugin's Interface Version is not Implemented.")
     }
 
-    UserDefinedTypeList user_defined_type_list;
+    UserDefinedTypeList user_defined_type_list{};
     init_user_defined_type_list(&user_defined_type_list);
 
-    LogMallocList log_malloc_list;
+    LogMallocList log_malloc_list{};
     init_log_malloc_list(&log_malloc_list);
 
     plugin_interface.interface_version = 1;
     plugin_interface.data_block = &data_block;
     plugin_interface.client_block = client_block;
     plugin_interface.request_data = &request;
-    plugin_interface.data_source = &metadata.data_source;
-    plugin_interface.signal_desc = &metadata.signal_desc;
+    plugin_interface.meta_data = &meta_data;
     plugin_interface.config = &config;
-    plugin_interface.house_keeping = 0;
-    plugin_interface.change_plugin = 0;
+    plugin_interface.house_keeping = false;
+    plugin_interface.change_plugin = false;
     plugin_interface.pluginList = &plugin_list;
     plugin_interface.user_defined_type_list = &user_defined_type_list;
     plugin_interface.log_malloc_list = &log_malloc_list;
@@ -432,13 +426,13 @@ boost::optional<const PluginData&> uda::server::find_metadata_plugin(const Confi
 
     // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
-    auto external_user = bool(config.get("server.external_user"));
+    auto external_user = static_cast<bool>(config.get("server.external_user"));
 
     auto metadata_plugin = config.get("plugins.metadata_plugin");
 
     if (metadata_plugin) {
         size_t _;
-        std::tie(_, plugin) = plugins.find_by_name(metadata_plugin.as<std::string>().c_str());
+        std::tie(_, plugin) = plugins.find_by_name(metadata_plugin.as<std::string>());
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin specified")
     }
@@ -481,7 +475,7 @@ boost::optional<const PluginData&> uda::server::find_metadata_plugin(const Confi
 
 int uda::server::call_metadata_plugin(const Config& config, const uda::client_server::PluginData& plugin,
                                       RequestData* request_block, const Plugins& plugins,
-                                      MetadataBlock& metadata)
+                                      MetaData& meta_data)
 {
     int err, reset, rc;
     UdaPluginInterface plugin_interface = {};
@@ -494,27 +488,25 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::client_se
 
     DataBlock data_block = {};
     init_data_block(&data_block);
-    data_block.signal_rec = &metadata.signal_rec;
 
-    UserDefinedTypeList userdefinedtypelist = {};
-    init_user_defined_type_list(&userdefinedtypelist);
+    UserDefinedTypeList user_defined_type_list = {};
+    init_user_defined_type_list(&user_defined_type_list);
 
-    LogMallocList logmalloclist = {};
-    init_log_malloc_list(&logmalloclist);
+    LogMallocList log_malloc_list = {};
+    init_log_malloc_list(&log_malloc_list);
 
-    auto& plugin_list = plugins.plugin_list();
+    const auto& plugin_list = plugins.plugin_list();
     plugin_interface.interface_version = 1;
     plugin_interface.data_block = &data_block;
     plugin_interface.client_block = nullptr;
     plugin_interface.request_data = request_block;
-    plugin_interface.data_source = &metadata.data_source;
-    plugin_interface.signal_desc = &metadata.signal_desc;
+    plugin_interface.meta_data = &meta_data;
     plugin_interface.config = &config;
-    plugin_interface.house_keeping = 0;
-    plugin_interface.change_plugin = 0;
+    plugin_interface.house_keeping = false;
+    plugin_interface.change_plugin = false;
     plugin_interface.pluginList = &plugin_list;
-    plugin_interface.user_defined_type_list = &userdefinedtypelist;
-    plugin_interface.log_malloc_list = &logmalloclist;
+    plugin_interface.user_defined_type_list = &user_defined_type_list;
+    plugin_interface.log_malloc_list = &log_malloc_list;
     plugin_interface.error_stack = {};
 
     // Redirect Output to temporary file if no file handles passed

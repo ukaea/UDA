@@ -50,15 +50,11 @@ static int handle_putdata_block_list(XDR* xdrs, XDRStreamDirection direction, Pr
                                      UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
                                      LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 static int handle_next_protocol(XDR* xdrs, XDRStreamDirection direction, ProtocolId* token);
-static int handle_data_system(XDR* xdrs, XDRStreamDirection direction, const void* str);
-static int handle_system_config(XDR* xdrs, XDRStreamDirection direction, const void* str);
-static int handle_data_source(XDR* xdrs, XDRStreamDirection direction, const void* str);
-static int handle_signal(XDR* xdrs, XDRStreamDirection direction, const void* str);
-static int handle_signal_desc(XDR* xdrs, XDRStreamDirection direction, const void* str);
 static int handle_client_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
 static int handle_server_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
 static int handle_dataobject(XDR* xdrs, XDRStreamDirection direction, const void* str);
 static int handle_dataobject_file(XDRStreamDirection direction, const void* str);
+static int handle_meta_data(XDR* xdrs, XDRStreamDirection direction, void* str);
 
 #ifdef SECURITYENABLED
 static int handle_security_block(XDR* xdrs, XDRStreamDirection direction, const void* str);
@@ -84,20 +80,8 @@ int uda::client_server::protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDi
         case ProtocolId::NextProtocol:
             err = handle_next_protocol(xdrs, direction, token);
             break;
-        case ProtocolId::DataSystem:
-            err = handle_data_system(xdrs, direction, str);
-            break;
-        case ProtocolId::SystemConfig:
-            err = handle_system_config(xdrs, direction, str);
-            break;
-        case ProtocolId::DataSource:
-            err = handle_data_source(xdrs, direction, str);
-            break;
-        case ProtocolId::Signal:
-            err = handle_signal(xdrs, direction, str);
-            break;
-        case ProtocolId::SignalDesc:
-            err = handle_signal_desc(xdrs, direction, str);
+        case ProtocolId::MetaData:
+            err = handle_meta_data(xdrs, direction, str);
             break;
 #ifdef SECURITYENABLED
         case ProtocolId::SecurityBlock:
@@ -349,22 +333,19 @@ static int handle_client_block(XDR* xdrs, XDRStreamDirection direction, const vo
     return err;
 }
 
-static int handle_signal_desc(XDR* xdrs, XDRStreamDirection direction, const void* str)
-{
+static int handle_meta_data(XDR* xdrs, XDRStreamDirection direction, void* str) {
     int err = 0;
-    auto signal_desc = (SignalDesc*)str;
-
+    auto* meta_data = static_cast<MetaData*>(str);
     switch (direction) {
         case XDRStreamDirection::Receive:
-            if (!xdr_signal_desc(xdrs, signal_desc)) {
-                err = (int)ProtocolError::Error18;
+            if (!xdr_metadata(xdrs, meta_data)) {
+                err = (int)ProtocolError::Error25;
                 break;
             }
             break;
-
         case XDRStreamDirection::Send:
-            if (!xdr_signal_desc(xdrs, signal_desc)) {
-                err = (int)ProtocolError::Error18;
+            if (!xdr_metadata(xdrs, meta_data)) {
+                err = (int)ProtocolError::Error25;
                 break;
             }
             break;
@@ -373,128 +354,7 @@ static int handle_signal_desc(XDR* xdrs, XDRStreamDirection direction, const voi
             break;
 
         default:
-            err = (int)ProtocolError::Error4;
-            break;
-    }
-    return err;
-}
-
-static int handle_signal(XDR* xdrs, XDRStreamDirection direction, const void* str)
-{
-    int err = 0;
-    auto signal = (Signal*)str;
-
-    switch (direction) {
-        case XDRStreamDirection::Receive:
-            if (!xdr_signal(xdrs, signal)) {
-                err = (int)ProtocolError::Error16;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::Send:
-            if (!xdr_signal(xdrs, signal)) {
-                err = (int)ProtocolError::Error16;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::FreeHeap:
-            break;
-
-        default:
-            err = (int)ProtocolError::Error4;
-            break;
-    }
-    return err;
-}
-
-static int handle_data_source(XDR* xdrs, XDRStreamDirection direction, const void* str)
-{
-    int err = 0;
-    auto data_source = (DataSource*)str;
-
-    switch (direction) {
-
-        case XDRStreamDirection::Receive:
-            if (!xdr_data_source(xdrs, data_source)) {
-                err = (int)ProtocolError::Error14;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::Send:
-            if (!xdr_data_source(xdrs, data_source)) {
-                err = (int)ProtocolError::Error14;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::FreeHeap:
-            break;
-
-        default:
-            err = (int)ProtocolError::Error4;
-            break;
-    }
-    return err;
-}
-
-static int handle_system_config(XDR* xdrs, XDRStreamDirection direction, const void* str)
-{
-    int err = 0;
-    auto system_config = (SystemConfig*)str;
-
-    switch (direction) {
-        case XDRStreamDirection::Receive:
-            if (!xdr_system_config(xdrs, system_config)) {
-                err = (int)ProtocolError::Error12;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::Send:
-            if (!xdr_system_config(xdrs, system_config)) {
-                err = (int)ProtocolError::Error12;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::FreeHeap:
-            break;
-
-        default:
-            err = (int)ProtocolError::Error4;
-            break;
-    }
-    return err;
-}
-
-static int handle_data_system(XDR* xdrs, XDRStreamDirection direction, const void* str)
-{
-    int err = 0;
-    auto data_system = (DataSystem*)str;
-
-    switch (direction) {
-        case XDRStreamDirection::Receive:
-            if (!xdr_data_system(xdrs, data_system)) {
-                err = (int)ProtocolError::Error10;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::Send:
-            if (!xdr_data_system(xdrs, data_system)) {
-                err = (int)ProtocolError::Error10;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::FreeHeap:
-            break;
-
-        default:
-            err = (int)ProtocolError::Error4;
+            err = static_cast<int>(ProtocolError::Error4);
             break;
     }
     return err;

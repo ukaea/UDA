@@ -19,16 +19,6 @@ void init_data_block_list(DataBlockList* str);
 
 void init_dim_block(Dims* str);
 
-void init_data_system(DataSystem* str);
-
-void init_system_config(SystemConfig* str);
-
-void init_data_source(DataSource* str);
-
-void init_signal(Signal* str);
-
-void init_signal_desc(SignalDesc* str);
-
 void init_put_data_block(PutDataBlock* str);
 
 void init_put_data_block_list(PutDataBlockList* putDataBlockList);

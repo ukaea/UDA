@@ -103,31 +103,6 @@ void uda::client::free_handle(int handle)
         data_block->synthetic = nullptr;
     }
 
-    if (data_block->data_system != nullptr) {
-        free(data_block->data_system);
-        data_block->data_system = nullptr;
-    }
-
-    if (data_block->system_config != nullptr) {
-        free(data_block->system_config);
-        data_block->system_config = nullptr;
-    }
-
-    if (data_block->data_source != nullptr) {
-        free(data_block->data_source);
-        data_block->data_source = nullptr;
-    }
-
-    if (data_block->signal_rec != nullptr) {
-        free(data_block->signal_rec);
-        data_block->signal_rec = nullptr;
-    }
-
-    if (data_block->signal_desc != nullptr) {
-        free(data_block->signal_desc);
-        data_block->signal_desc = nullptr;
-    }
-
     if (ddims != nullptr && rank > 0) {
         for (int i = 0; i < rank; i++) {
             if ((cptr = data_block->dims[i].dim) != nullptr) {

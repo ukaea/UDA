@@ -6,6 +6,24 @@
 
 using namespace uda::logging;
 
+bool uda::client_server::MetaData::contains(const std::string_view name) const {
+    for (const auto& field : fields) {
+        if (name == field.name.data()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string_view uda::client_server::MetaData::find(const std::string_view name) const {
+    for (const auto& field : fields) {
+        if (name == field.name.data()) {
+            return {field.name.data(), strnlen(field.name.data(), field.name.size() - 1)};
+        }
+    }
+    return {nullptr, 0};
+}
+
 void uda::client_server::free_put_data_block_list(PutDataBlockList* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {

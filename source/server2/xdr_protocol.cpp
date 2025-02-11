@@ -133,6 +133,8 @@ uda::server::XdrProtocol::XdrProtocol()
     , _server_tot_block_time{0}
     , _server_timeout{TimeOut}
     , _io_data{}
+    , _log_struct_list{}
+    , _private_flags{}
 {
     _io_data.server_socket = 0;
     _io_data.server_tot_block_time = &_server_tot_block_time;
@@ -276,68 +278,16 @@ void uda::server::XdrProtocol::reset()
     _log_struct_list = {};
 }
 
-int uda::server::XdrProtocol::send_meta_data(MetadataBlock& metadata_block, LogMallocList* log_malloc_list,
+int uda::server::XdrProtocol::send_meta_data(MetaData& meta_data, LogMallocList* log_malloc_list,
                                              UserDefinedTypeList* user_defined_type_list)
 {
-    //----------------------------------------------------------------------------
-    // Send the Data System Structure
-
-    ProtocolId protocol_id = ProtocolId::DataSystem;
+    constexpr auto protocol_id = ProtocolId::MetaData;
     int err = 0;
 
     if ((err = protocol2(&_server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.data_system, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
+                         &meta_data, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure");
         add_error(ErrorType::Code, __func__, err, "Protocol 4 Error");
-        return err;
-    }
-
-    //----------------------------------------------------------------------------
-    // Send the System Configuration Structure
-
-    protocol_id = ProtocolId::SystemConfig;
-
-    if ((err = protocol2(&_server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.system_config, _protocol_version, &_log_struct_list, 0, _malloc_source)) !=
-        0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure");
-        add_error(ErrorType::Code, __func__, err, "Protocol 5 Error");
-        return err;
-    }
-
-    //----------------------------------------------------------------------------
-    // Send the Data Source Structure
-
-    protocol_id = ProtocolId::DataSource;
-
-    if ((err = protocol2(&_server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.data_source, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure");
-        add_error(ErrorType::Code, __func__, err, "Protocol 6 Error");
-        return err;
-    }
-
-    //----------------------------------------------------------------------------
-    // Send the Signal Structure
-
-    protocol_id = ProtocolId::Signal;
-
-    if ((err = protocol2(&_server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.signal_rec, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure");
-        add_error(ErrorType::Code, __func__, err, "Protocol 7 Error");
-        return err;
-    }
-
-    //----------------------------------------------------------------------------
-    // Send the Signal Description Structure
-
-    protocol_id = ProtocolId::SignalDesc;
-
-    if ((err = protocol2(&_server_output, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list, user_defined_type_list,
-                         &metadata_block.signal_desc, _protocol_version, &_log_struct_list, 0, _malloc_source)) != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure");
-        add_error(ErrorType::Code, __func__, err, "Protocol 8 Error");
         return err;
     }
 
@@ -373,7 +323,7 @@ int uda::server::XdrProtocol::send_hierachical_data(const DataBlock& data_block,
 {
     if (data_block.data_type == UDA_TYPE_COMPOUND && data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
 
-        ProtocolId protocol_id = ProtocolId::Start;
+        auto protocol_id = ProtocolId::Start;
 
         if (data_block.opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
             protocol_id = ProtocolId::Meta;
@@ -476,16 +426,16 @@ int uda::server::XdrProtocol::eof()
     return 0;
 }
 
-DataBlock* uda::server::XdrProtocol::read_from_cache(config::Config& config, cache::UdaCache* cache, RequestData* request,
-                                                     LogMallocList* log_malloc_list,
+DataBlock* uda::server::XdrProtocol::read_from_cache(const config::Config& config, cache::UdaCache* cache,
+                                                     const RequestData* request, LogMallocList* log_malloc_list,
                                                      UserDefinedTypeList* user_defined_type_list)
 {
     return cache_read(config, cache, request, log_malloc_list, user_defined_type_list, _protocol_version,
                       client_flags::Cache, &_log_struct_list, _private_flags, _malloc_source);
 }
 
-void uda::server::XdrProtocol::write_to_cache(config::Config& config, cache::UdaCache* cache, RequestData* request,
-                                              DataBlock* data_block,
+void uda::server::XdrProtocol::write_to_cache(const config::Config& config, cache::UdaCache* cache,
+                                              const RequestData* request, DataBlock* data_block,
                                               LogMallocList* log_malloc_list,
                                               UserDefinedTypeList* user_defined_type_list)
 {

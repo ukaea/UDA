@@ -70,7 +70,7 @@ int uda::client_server::wrap_string(XDR* xdrs, char* sp)
 
 int uda::client_server::wrap_xdr_string(XDR* xdrs, const char* sp, int maxlen)
 {
-    return xdr_string(xdrs, (char**)&sp, (unsigned int)maxlen);
+    return xdr_string(xdrs, (char**)&sp, static_cast<unsigned int>(maxlen));
 }
 
 //-----------------------------------------------------------------------
@@ -418,6 +418,32 @@ bool_t uda::client_server::xdr_putdata_block2(XDR* xdrs, PutDataBlock* str)
         default:
             return 0;
     }
+}
+
+bool_t uda::client_server::xdr_metadata(XDR* xdrs, MetaData* str) {
+    bool_t rc = 1;
+    if (xdrs->x_op == XDR_ENCODE) {
+        uint64_t len = str->fields.size();
+        rc = rc && xdr_u_int64_t(xdrs, &len);
+        for (auto& field : str->fields) {
+            rc = rc && xdr_metadata_field(xdrs, &field);
+        }
+    } else {
+        uint64_t len = 0;
+        rc |= xdr_u_int64_t(xdrs, &len);
+        str->fields.resize(len);
+        for (auto& field : str->fields) {
+            rc |= xdr_metadata_field(xdrs, &field);
+        }
+    }
+    return rc;
+}
+
+bool_t uda::client_server::xdr_metadata_field(XDR* xdrs, MetaDataField* str) {
+    bool_t rc = 1;
+    rc |= wrap_xdr_string(xdrs, str->name.data(), StringLength);
+    rc |= wrap_xdr_string(xdrs, str->value.data(), StringLength);
+    return rc;
 }
 
 //-----------------------------------------------------------------------
@@ -1376,95 +1402,4 @@ bool_t uda::client_server::xdr_data_dim4(XDR* xdrs, DataBlock* str)
     }
 
     return 1;
-}
-
-//-----------------------------------------------------------------------
-// From DataSystem Table
-
-bool_t uda::client_server::xdr_data_system(XDR* xdrs, DataSystem* str)
-{
-    return xdr_int(xdrs, &str->system_id) && xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->meta_id) &&
-           xdr_char(xdrs, &str->type) && wrap_xdr_string(xdrs, (char*)str->device_name, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->system_name, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->system_desc, MaxStringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->creation, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->xml, MaxMeta) &&
-           wrap_xdr_string(xdrs, (char*)str->xml_creation, DateLength);
-}
-
-//-----------------------------------------------------------------------
-// From SystemConfig Table
-
-bool_t uda::client_server::xdr_system_config(XDR* xdrs, SystemConfig* str)
-{
-    return xdr_int(xdrs, &str->config_id) && xdr_int(xdrs, &str->system_id) && xdr_int(xdrs, &str->meta_id) &&
-           wrap_xdr_string(xdrs, (char*)str->config_name, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->config_desc, MaxStringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->creation, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->xml, MaxMeta) &&
-           wrap_xdr_string(xdrs, (char*)str->xml_creation, DateLength);
-}
-
-//-----------------------------------------------------------------------
-// From DataSource Table
-
-bool_t uda::client_server::xdr_data_source(XDR* xdrs, DataSource* str)
-{
-    return xdr_int(xdrs, &str->source_id) && xdr_int(xdrs, &str->config_id) && xdr_int(xdrs, &str->reason_id) &&
-           xdr_int(xdrs, &str->run_id) && xdr_int(xdrs, &str->meta_id) && xdr_int(xdrs, &str->status_desc_id) &&
-           xdr_int(xdrs, &str->exp_number) && xdr_int(xdrs, &str->pass) && xdr_int(xdrs, &str->status) &&
-           xdr_int(xdrs, &str->status_reason_code) && xdr_int(xdrs, &str->status_impact_code) &&
-           xdr_char(xdrs, &str->access) && xdr_char(xdrs, &str->reprocess) && xdr_char(xdrs, &str->type) &&
-           wrap_xdr_string(xdrs, (char*)str->source_alias, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->pass_date, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->archive, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->device_name, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->format, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->path, MaxStringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->filename, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->server, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->userid, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->reason_desc, MaxStringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->status_desc, MaxMeta) &&
-           wrap_xdr_string(xdrs, (char*)str->run_desc, MaxMeta) &&
-           wrap_xdr_string(xdrs, (char*)str->creation, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->modified, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->xml, MaxMeta) &&
-           wrap_xdr_string(xdrs, (char*)str->xml_creation, DateLength);
-}
-
-//-----------------------------------------------------------------------
-// From Signal Table
-
-bool_t uda::client_server::xdr_signal(XDR* xdrs, Signal* str)
-{
-    return xdr_int(xdrs, &str->source_id) && xdr_int(xdrs, &str->signal_desc_id) && xdr_int(xdrs, &str->meta_id) &&
-           xdr_int(xdrs, &str->status_desc_id) && xdr_int(xdrs, &str->status) &&
-           xdr_int(xdrs, &str->status_reason_code) && xdr_int(xdrs, &str->status_impact_code) &&
-           xdr_char(xdrs, &str->access) && xdr_char(xdrs, &str->reprocess) &&
-           wrap_xdr_string(xdrs, (char*)str->status_desc, MaxMeta) &&
-           wrap_xdr_string(xdrs, (char*)str->creation, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->modified, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->xml, MaxMeta) &&
-           wrap_xdr_string(xdrs, (char*)str->xml_creation, DateLength);
-}
-
-//-----------------------------------------------------------------------
-// From SignalDesc Table
-
-bool_t uda::client_server::xdr_signal_desc(XDR* xdrs, SignalDesc* str)
-{
-    return xdr_int(xdrs, &str->signal_desc_id) && xdr_int(xdrs, &str->meta_id) && xdr_int(xdrs, &str->rank) &&
-           xdr_int(xdrs, &str->range_start) && xdr_int(xdrs, &str->range_stop) && xdr_char(xdrs, &str->type) &&
-           wrap_xdr_string(xdrs, (char*)str->source_alias, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->signal_alias, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->signal_name, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->generic_name, StringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->description, MaxStringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->signal_class, MaxStringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->signal_owner, MaxStringLength) &&
-           wrap_xdr_string(xdrs, (char*)str->creation, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->modified, DateLength) &&
-           wrap_xdr_string(xdrs, (char*)str->xml, MaxMeta) &&
-           wrap_xdr_string(xdrs, (char*)str->xml_creation, DateLength);
 }

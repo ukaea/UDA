@@ -26,9 +26,7 @@
 using namespace uda::logging;
 using namespace uda::client_server;
 
-int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda::client_server::Signal signal,
-                                 uda::client_server::SignalDesc signal_desc, uda::client_server::Actions* actions_desc,
-                                 uda::client_server::Actions* actions_sig)
+int uda::server_parse_signal_xml(MetaData meta_data, Actions* actions_desc, Actions* actions_sig)
 {
 
     // return -1 if No Qualifying Actionable XML otherwise return 0
@@ -40,7 +38,7 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
     //----------------------------------------------------------------------
     // Anything to Parse?
 
-    if (strlen(signal.xml) == 0 && strlen(signal_desc.xml) == 0) {
+    if (meta_data.contains("xml")) {
         return -1; // No XML to parse or switched off!
     }
 
@@ -53,8 +51,8 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
     //----------------------------------------------------------------------
     // Parse Signal XML
 
-    if (strlen(signal.xml) > 0) { // If this Signal level XML exists then populated components takes priority.
-        if ((rc = parse_doc(signal.xml, actions_sig)) != 0) {
+    if (meta_data.contains("xml")) { // If this Signal level XML exists then populated components takes priority.
+        if ((rc = parse_doc(meta_data.find("xml").data(), actions_sig)) != 0) {
             return 1;
         }
         UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed");
@@ -64,8 +62,8 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
     //----------------------------------------------------------------------
     // Parse Signal_Desc XML
 
-    if (strlen(signal_desc.xml) > 0) {
-        if ((rc = parse_doc(signal_desc.xml, actions_desc)) != 0) {
+    if (meta_data.contains("xml")) {
+        if ((rc = parse_doc(meta_data.find("xml").data(), actions_desc)) != 0) {
             return 1;
         }
 
@@ -80,6 +78,9 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
         actions_sig->action[i].inRange = 1; // Always in Range
     }
 
+    const int exp_number = meta_data.find_as<int>("exp_number");
+    const int pass = meta_data.find_as<int>("pass", -1);
+
     ndesc = 0;
     for (int i = 0; i < actions_desc->nactions; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "Range Test on Record {}", i);
@@ -87,33 +88,33 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
         UDA_LOG(UDA_LOG_DEBUG, "#1 {}",
                 (actions_desc->action[i].exp_range[0] == 0 ||
                  (actions_desc->action[i].exp_range[0] > 0 &&
-                  actions_desc->action[i].exp_range[0] <= data_source.exp_number)));
+                  actions_desc->action[i].exp_range[0] <= exp_number)));
 
         UDA_LOG(UDA_LOG_DEBUG, "#2 {}",
                 (actions_desc->action[i].exp_range[1] == 0 ||
                  (actions_desc->action[i].exp_range[1] > 0 &&
-                  actions_desc->action[i].exp_range[1] >= data_source.exp_number)));
+                  actions_desc->action[i].exp_range[1] >= exp_number)));
 
         UDA_LOG(UDA_LOG_DEBUG, "#3 {}",
-                (data_source.pass = -1 || ((actions_desc->action[i].pass_range[0] == -1 ||
+                (pass == -1 || ((actions_desc->action[i].pass_range[0] == -1 ||
                                             (actions_desc->action[i].pass_range[0] > -1 &&
-                                             actions_desc->action[i].pass_range[0] <= data_source.pass)) &&
+                                             actions_desc->action[i].pass_range[0] <= pass)) &&
                                            (actions_desc->action[i].pass_range[1] == -1 ||
                                             (actions_desc->action[i].pass_range[1] > -1 &&
-                                             actions_desc->action[i].pass_range[1] >= data_source.pass)))));
+                                             actions_desc->action[i].pass_range[1] >= pass)))));
 
         if ((actions_desc->action[i].exp_range[0] == 0 ||
              (actions_desc->action[i].exp_range[0] > 0 &&
-              actions_desc->action[i].exp_range[0] <= data_source.exp_number)) &&
+              actions_desc->action[i].exp_range[0] <= exp_number)) &&
             (actions_desc->action[i].exp_range[1] == 0 ||
              (actions_desc->action[i].exp_range[1] > 0 &&
-              actions_desc->action[i].exp_range[1] >= data_source.exp_number)) &&
-            (data_source.pass == -1 || ((actions_desc->action[i].pass_range[0] == -1 ||
+              actions_desc->action[i].exp_range[1] >= exp_number)) &&
+            (pass == -1 || ((actions_desc->action[i].pass_range[0] == -1 ||
                                          (actions_desc->action[i].pass_range[0] > -1 &&
-                                          actions_desc->action[i].pass_range[0] <= data_source.pass)) &&
+                                          actions_desc->action[i].pass_range[0] <= pass)) &&
                                         (actions_desc->action[i].pass_range[1] == -1 ||
                                          (actions_desc->action[i].pass_range[1] > -1 &&
-                                          actions_desc->action[i].pass_range[1] >= data_source.pass))))) {
+                                          actions_desc->action[i].pass_range[1] >= pass))))) {
             ndesc++;
             actions_desc->action[i].inRange = 1;
         } else {
@@ -134,7 +135,7 @@ int uda::server_parse_signal_xml(uda::client_server::DataSource data_source, uda
 namespace
 {
 
-void applyCalibration(int type, int ndata, double factor, double offset, int invert, char* array)
+void apply_calibration(int type, int ndata, double factor, double offset, int invert, char* array)
 {
     float* fp;
     double* dp;
@@ -284,12 +285,8 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 
 } // namespace
 
-void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
-                                  uda::client_server::DataSource* data_source, uda::client_server::Signal* signal,
-                                  uda::client_server::SignalDesc* signal_desc,
-                                  uda::client_server::DataBlock* data_block, uda::client_server::Actions actions)
+void uda::server_apply_signal_xml(ClientBlock client_block, MetaData* meta_data, DataBlock* data_block, Actions actions)
 {
-
     int ndata, dimid;
 
     float* fp;
@@ -783,21 +780,21 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
                             strcpy(data_block->data_units, actions.action[i].calibration.units);
                         }
 
-                        applyCalibration(data_block->data_type, data_block->data_n,
+                        apply_calibration(data_block->data_type, data_block->data_n,
                                          actions.action[i].calibration.factor, actions.action[i].calibration.offset,
                                          actions.action[i].calibration.invert, data_block->data);
                     }
 
                     if (STR_EQUALS("error", actions.action[i].calibration.target) ||
                         STR_EQUALS("all", actions.action[i].calibration.target)) {
-                        applyCalibration(data_block->error_type, data_block->data_n,
+                        apply_calibration(data_block->error_type, data_block->data_n,
                                          actions.action[i].calibration.factor, actions.action[i].calibration.offset,
                                          actions.action[i].calibration.invert, data_block->errhi);
                     }
 
                     if (STR_EQUALS("aserror", actions.action[i].calibration.target) ||
                         STR_EQUALS("all", actions.action[i].calibration.target)) {
-                        applyCalibration(data_block->error_type, data_block->data_n,
+                        apply_calibration(data_block->error_type, data_block->data_n,
                                          actions.action[i].calibration.factor, actions.action[i].calibration.offset,
                                          actions.action[i].calibration.invert, data_block->errlo);
                     }
@@ -1488,7 +1485,7 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
 
                                     } else {
 
-                                        applyCalibration(
+                                        apply_calibration(
                                             data_block->dims[dimid].data_type, data_block->dims[dimid].dim_n,
                                             actions.action[i].calibration.dimensions[j].dimcalibration.factor,
                                             actions.action[i].calibration.dimensions[j].dimcalibration.offset,
@@ -1510,7 +1507,7 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
 
                                 if (STR_EQUALS("error", actions.action[i].calibration.target) ||
                                     STR_EQUALS("all", actions.action[i].calibration.target)) {
-                                    applyCalibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
+                                    apply_calibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.factor,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.offset,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.invert,
@@ -1519,7 +1516,7 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
 
                                 if (STR_EQUALS("aserror", actions.action[i].calibration.target) ||
                                     STR_EQUALS("all", actions.action[i].calibration.target)) {
-                                    applyCalibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
+                                    apply_calibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.factor,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.offset,
                                                      actions.action[i].calibration.dimensions[j].dimcalibration.invert,
@@ -1539,10 +1536,8 @@ void uda::server_apply_signal_xml(uda::client_server::ClientBlock client_block,
 
 // Combine the set of Actions from both sources with Signal XML having Priority of Signal_Desc XML
 
-void uda::server_deselect_signal_xml(uda::client_server::Actions* actions_desc,
-                                     uda::client_server::Actions* actions_sig)
+void uda::server_deselect_signal_xml(Actions* actions_desc, Actions* actions_sig)
 {
-
     int type;
 
     UDA_LOG(UDA_LOG_DEBUG, "Deselecting Conflicting XML");

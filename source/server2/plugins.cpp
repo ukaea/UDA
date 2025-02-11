@@ -11,7 +11,7 @@
 #include "config/config.h"
 #include "uda/plugins.h"
 
-#define REQUEST_READ_START 1000
+// constexpr int RequestReadStart = 1000;
 
 using namespace uda::client_server;
 using namespace uda::logging;
@@ -51,7 +51,7 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
     }
 
     using info_function_t = UdaPluginInfo(*)();
-    auto info_function = (info_function_t)dlsym(handle, info_function_name);
+    auto info_function = reinterpret_cast<info_function_t>(dlsym(handle, info_function_name));
 
     const char* err_str = dlerror();
 
@@ -60,7 +60,7 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
     if (err_str == nullptr) {
         auto plugin_info = info_function();
 
-        auto entry_func = (UDA_PLUGIN_ENTRY_FUNC)dlsym(handle, plugin_info.entry_function);
+        auto entry_func = reinterpret_cast<UDA_PLUGIN_ENTRY_FUNC>(dlsym(handle, plugin_info.entry_function));
 
         err_str = dlerror();
         if (err_str != nullptr) {
@@ -72,7 +72,9 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
         plugin.name = plugin_info.name;
         boost::to_lower(plugin.name);
 
-        plugin.handle = {handle, dl_close};
+        std::unique_ptr<void, DLCloseDeleter> ptr{handle};
+
+        plugin.handle = std::move(ptr);
         plugin.library_name = library;
         plugin.entry_func_name = plugin_info.entry_function;
         plugin.entry_func = entry_func;
@@ -134,20 +136,20 @@ void uda::server::Plugins::close()
     _initialised = false;
 }
 
-std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> uda::server::Plugins::find_by_name(const std::string& name) const
+std::pair<size_t, boost::optional<const PluginData&>> uda::server::Plugins::find_by_name(std::string name) const
 {
-    std::string name_lower = boost::to_lower_copy(name);
+    boost::to_lower(name);
     size_t i = 0;
-    for (auto& plugin : _plugins) {
-        if (plugin.name == name_lower) {
-            return std::make_pair(i, boost::optional<const uda::client_server::PluginData&>{plugin});
+    for (const auto& plugin : _plugins) {
+        if (plugin.name == name) {
+            return std::make_pair(i, boost::optional<const PluginData&>{plugin});
         }
         ++i;
     }
-    return std::make_pair(0, boost::optional<const uda::client_server::PluginData&>{});
+    return std::make_pair(0, boost::optional<const PluginData&>{});
 }
 
-[[nodiscard]] boost::optional<const uda::client_server::PluginData&> uda::server::Plugins::find_by_id(size_t id) const
+[[nodiscard]] boost::optional<const PluginData&> uda::server::Plugins::find_by_id(const size_t id) const
 {
     if (_plugins.empty() || id > _plugins.size() - 1) {
         return {};

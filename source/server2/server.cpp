@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <filesystem>
 #include <boost/asio.hpp>
+#include <wrappers/c++/include/uda/c++/signal.hpp>
 
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
@@ -83,7 +84,7 @@ unsigned int count_data_block_size(const DataBlock& data_block, ClientBlock* cli
     }
 
     if (client_block->get_meta) {
-        count += sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
+        count += sizeof(MetaData) + data_block.meta_data.fields.size() * sizeof(MetaDataField);
     }
 
     return count;
@@ -695,13 +696,6 @@ int uda::server::Server::handle_request()
 
     uda_access_log(TRUE, _client_block, _request_block, _server_block, _total_data_block_size);
 
-    //----------------------------------------------------------------------
-    // Initialise Data Structures
-
-    init_data_source(&_metadata_block.data_source);
-    init_signal_desc(&_metadata_block.signal_desc);
-    init_signal(&_metadata_block.signal_rec);
-
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
 
@@ -728,11 +722,11 @@ int uda::server::Server::handle_request()
     for (int i = 0; i < _request_block.num_requests; ++i) {
         auto request = &_request_block.requests[i];
         if (protocol_version >= 6) {
-            if ((err = server_plugin(_config, request, &_metadata_block.data_source, &_metadata_block.signal_desc, _plugins)) != 0) {
+            if ((err = server_plugin(_config, request, &_meta_data, _plugins)) != 0) {
                 return err;
             }
         } else {
-            throw uda::server::ProtocolVersionError{"Unsupported protocol version"};
+            throw ProtocolVersionError{"Unsupported protocol version"};
         }
     }
 
@@ -765,22 +759,18 @@ int uda::server::Server::handle_request()
         _request_block.requests[i].function[0] = '\0';
     }
 
-    DataSource* data_source = &_metadata_block.data_source;
-    SignalDesc* signal_desc = &_metadata_block.signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", data_source->archive);
-    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", data_source->device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", signal_desc->signal_name);
-    UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", data_source->path);
-    UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", data_source->filename);
-    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", data_source->exp_number);
-    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", data_source->pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : {} ", _meta_data.find("archive"));
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : {} ", _meta_data.find("device_name"));
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : {} ", _meta_data.find("signal_name"));
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : {} ", _meta_data.find("path"));
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : {} ", _meta_data.find("filename"));
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : {} ", _meta_data.find("exp_number"));
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : {} ", _meta_data.find("pass"));
     UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : {} ", depth);
     print_request_block(_request_block);
-    print_data_source(*data_source);
-    print_signal(_metadata_block.signal_rec);
-    print_signal_desc(*signal_desc);
+    print_meta_data(_meta_data);
     print_data_block_list(_data_blocks);
     print_error_stack();
     UDA_LOG(UDA_LOG_DEBUG,
@@ -897,9 +887,9 @@ int uda::server::Server::report_to_client()
 
     if (_client_block.get_meta) {
         _total_data_block_size +=
-            sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
+            sizeof(MetaData) + _meta_data.fields.size() * sizeof(MetaData);
 
-        err = _protocol.send_meta_data(_metadata_block, _log_malloc_list, _user_defined_type_list);
+        err = _protocol.send_meta_data(_meta_data, _log_malloc_list, _user_defined_type_list);
         if (err != 0) {
             return err;
         }

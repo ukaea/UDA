@@ -1300,10 +1300,10 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
 
 } // anon namespace
 
-int uda::client_server::parse_doc(char* docname, Actions* actions)
+int uda::client_server::parse_doc(const char* doc_name, Actions* actions)
 {
-    xmlDocPtr doc;
-    xmlNodePtr cur;
+    xmlDocPtr doc = nullptr;
+    xmlNodePtr cur = nullptr;
 
 #  ifdef TIMETEST
     struct timeval tv_start;
@@ -1314,7 +1314,7 @@ int uda::client_server::parse_doc(char* docname, Actions* actions)
 
     xmlInitParser();
 
-    if ((doc = xmlParseDoc((xmlChar*)docname)) == nullptr) {
+    if ((doc = xmlParseDoc(reinterpret_cast<const xmlChar*>(doc_name))) == nullptr) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
         add_error(ErrorType::Code, "parseDoc", 1, "XML Not Parsed");
@@ -1328,7 +1328,7 @@ int uda::client_server::parse_doc(char* docname, Actions* actions)
         return 1;
     }
 
-    if (xmlStrcmp(cur->name, (const xmlChar*)"action")) { // If No Action Tag then Nothing to be done!
+    if (xmlStrcmp(cur->name, reinterpret_cast<const xmlChar*>("action"))) { // If No Action Tag then Nothing to be done!
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return 1;
@@ -1337,7 +1337,7 @@ int uda::client_server::parse_doc(char* docname, Actions* actions)
     cur = cur->xmlChildrenNode;
     while (cur != nullptr) {
 
-        if ((!xmlStrcmp(cur->name, (const xmlChar*)"signal"))) {
+        if (!xmlStrcmp(cur->name, (const xmlChar*)"signal")) {
 
             parse_composite(doc, cur, actions); // Composite can have Subset as a child
             parse_documentation(doc, cur, actions);

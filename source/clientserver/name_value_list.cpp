@@ -45,8 +45,8 @@ NameValueList::NameValue NameValueList::parse_name_value(std::string pair, const
 
 void NameValueList::add_value(const std::string& pair, bool strip) {
     auto item = parse_name_value(pair, strip);
-    _mapping.emplace(item.name, item.value);
-    _items.push_back(item);
+    mapping_.emplace(item.name, item.value);
+    items_.push_back(item);
 }
 
 namespace {

@@ -18,14 +18,6 @@
 namespace uda::server
 {
 
-struct MetadataBlock {
-    uda::client_server::DataSource data_source;
-    uda::client_server::Signal signal_rec;
-    uda::client_server::SignalDesc signal_desc;
-    uda::client_server::SystemConfig system_config;
-    uda::client_server::DataSystem data_system;
-};
-
 class Server
 {
   public:
@@ -62,7 +54,7 @@ class Server
     bool _server_closedown = false;
     std::vector<uda::client_server::DataBlock> _data_blocks;
     size_t _total_data_block_size;
-    MetadataBlock _metadata_block;
+    client_server::MetaData _meta_data;
     int _server_timeout = client_server::TimeOut;
     int _server_tot_block_time;
     bool _fatal_error = false;

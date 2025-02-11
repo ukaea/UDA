@@ -14,6 +14,7 @@
 #include "clientserver/udaDefines.h"
 #include "clientserver/udaErrors.h"
 #include "clientserver/userid.h"
+#include "clientserver/version.h"
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
 #include "uda/client.h"
@@ -60,28 +61,6 @@ void copy_client_block(ClientBlock* str, const uda::client::ClientFlags* client_
     str->get_uncal = client_flags->get_uncal;
     str->get_notoff = client_flags->get_notoff;
     str->get_nodimdata = client_flags->get_nodimdata;
-}
-
-int alloc_meta(DataSystem** data_system, SystemConfig** system_config, DataSource** data_source, Signal** signal_rec,
-               SignalDesc** signal_desc)
-{
-    int err = 0;
-
-    // Allocate memory for the Meta Data
-    *data_system = (DataSystem*)malloc(sizeof(DataSystem));
-    *system_config = (SystemConfig*)malloc(sizeof(SystemConfig));
-    *data_source = (DataSource*)malloc(sizeof(DataSource));
-    *signal_rec = (Signal*)malloc(sizeof(Signal));
-    *signal_desc = (SignalDesc*)malloc(sizeof(SignalDesc));
-
-    if (*data_system == nullptr || *system_config == nullptr || *data_source == nullptr || *signal_rec == nullptr ||
-        *signal_desc == nullptr) {
-        err = (int)ServerSideError::ErrorAllocatingMetaDataHeap;
-        add_error(ErrorType::Code, __func__, err, "Error Allocating Heap for Meta Data");
-        return err;
-    }
-
-    return err;
 }
 
 void update_client_block(ClientBlock& client_block, const uda::client::ClientFlags& client_flags,
@@ -216,50 +195,15 @@ int uda::client::Client::fetch_meta()
     int err = 0;
 
 #ifndef FATCLIENT // <========================== Client Server Code Only
-    DataSystem* data_system = &_metadata.data_system;
-    SystemConfig* system_config = &_metadata.system_config;
-    DataSource* data_source = &_metadata.data_source;
-    Signal* signal_rec = &_metadata.signal_rec;
-    SignalDesc* signal_desc = &_metadata.signal_desc;
 
-    if ((err = protocol2(_client_input, ProtocolId::DataSystem, XDRStreamDirection::Receive, nullptr, _logmalloclist,
-                         _userdefinedtypelist, data_system, _protocol_version, &_log_struct_list, _private_flags,
+    if ((err = protocol2(_client_input, ProtocolId::MetaData, XDRStreamDirection::Receive, nullptr, _logmalloclist,
+                         _userdefinedtypelist, &_metadata, _protocol_version, &_log_struct_list, _private_flags,
                          _malloc_source)) != 0) {
         add_error(ErrorType::Code, __func__, err, "Protocol 4 Error (Data System)");
         return err;
     }
-    print_data_system(*data_system);
+    print_meta_data(_metadata);
 
-    if ((err = protocol2(_client_input, ProtocolId::SystemConfig, XDRStreamDirection::Receive, nullptr, _logmalloclist,
-                         _userdefinedtypelist, system_config, _protocol_version, &_log_struct_list, _private_flags,
-                         _malloc_source)) != 0) {
-        add_error(ErrorType::Code, __func__, err, "Protocol 5 Error (System Config)");
-        return err;
-    }
-    print_system_config(*system_config);
-
-    if ((err = protocol2(_client_input, ProtocolId::DataSource, XDRStreamDirection::Receive, nullptr, _logmalloclist,
-                         _userdefinedtypelist, data_source, _protocol_version, &_log_struct_list, _private_flags,
-                         _malloc_source)) != 0) {
-        add_error(ErrorType::Code, __func__, err, "Protocol 6 Error (Data Source)");
-        return err;
-    }
-    print_data_source(*data_source);
-
-    if ((err = protocol2(_client_input, ProtocolId::Signal, XDRStreamDirection::Receive, nullptr, _logmalloclist, _userdefinedtypelist,
-                         signal_rec, _protocol_version, &_log_struct_list, _private_flags, _malloc_source)) != 0) {
-        add_error(ErrorType::Code, __func__, err, "Protocol 7 Error (Signal)");
-        return err;
-    }
-    print_signal(*signal_rec);
-
-    if ((err = protocol2(_client_input, ProtocolId::SignalDesc, XDRStreamDirection::Receive, nullptr, _logmalloclist,
-                         _userdefinedtypelist, signal_desc, _protocol_version, &_log_struct_list, _private_flags,
-                         _malloc_source)) != 0) {
-        add_error(ErrorType::Code, __func__, err, "Protocol 8 Error (Signal Desc)");
-        return err;
-    }
-    print_signal_desc(*signal_desc);
 #endif
 
     return err;
@@ -473,20 +417,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         copy_client_block(&data_block->client_block, &_client_flags);
 
         if (_client_block.get_meta) {
-            data_block->data_system = (DataSystem*)malloc(sizeof(DataSystem));
-            data_block->system_config = (SystemConfig*)malloc(sizeof(SystemConfig));
-            data_block->data_source = (DataSource*)malloc(sizeof(DataSource));
-            data_block->signal_rec = (Signal*)malloc(sizeof(Signal));
-            data_block->signal_desc = (SignalDesc*)malloc(sizeof(SignalDesc));
-            if ((err = alloc_meta(&data_block->data_system, &data_block->system_config, &data_block->data_source,
-                                  &data_block->signal_rec, &data_block->signal_desc)) != 0) {
-                break;
-            }
-            *data_block->data_system = _metadata.data_system;
-            *data_block->system_config = _metadata.system_config;
-            *data_block->data_source = _metadata.data_source;
-            *data_block->signal_rec = _metadata.signal_rec;
-            *data_block->signal_desc = _metadata.signal_desc;
+            data_block->meta_data = _metadata;
         }
 
         fetch_hierarchical_data(data_block);

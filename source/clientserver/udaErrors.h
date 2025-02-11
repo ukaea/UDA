@@ -34,6 +34,7 @@ enum class ProtocolError : int {
     Error22 = 22,
     Error23 = 23,
     Error24 = 24,
+    Error25 = 25,
     Error9999 = 9999,
 };
 

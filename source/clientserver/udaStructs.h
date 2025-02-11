@@ -4,20 +4,17 @@
 #  include <sys/time.h>
 #endif
 
-#include <stdbool.h>
 #include <iostream>
+#include <sstream>
 
 #include <uda/types.h>
 
 #include "udaDefines.h"
 #include "name_value_list.hpp"
 
-typedef struct CUdaErrorStack {
-} UDA_ERROR_STACK;
-typedef struct CPutDataBlockList {
-} PUTDATA_BLOCK_LIST;
-typedef struct CPutDataBlock {
-} PUTDATA_BLOCK;
+using UDA_ERROR_STACK = struct CUdaErrorStack {};
+using PUTDATA_BLOCK_LIST = struct CPutDataBlockList {};
+using PUTDATA_BLOCK = struct CPutDataBlock {};
 
 namespace uda::client_server
 {
@@ -48,106 +45,6 @@ struct DComplex {
 struct Complex {
     float real;
     float imaginary;
-};
-
-struct DataSystem {
-    int system_id;
-    int version;
-    int meta_id;
-    char type;
-    char device_name[MaxName];
-    char system_name[MaxName];
-    char system_desc[MaxDesc];
-    char creation[MaxDate];
-    char xml[MaxMeta];
-    char xml_creation[MaxDate];
-    char _padding[3];
-};
-
-struct SystemConfig {
-    int config_id;
-    int system_id;
-    int meta_id;
-    char config_name[MaxName];
-    char config_desc[MaxDesc];
-    char creation[MaxDate];
-    char xml[MaxMeta];
-    char xml_creation[MaxDate];
-};
-
-struct DataSource {
-    int source_id;
-    int config_id;
-    int reason_id;
-    int run_id;
-    int meta_id;
-    int status_desc_id;
-    int exp_number;
-    int pass;
-    int status;
-    int status_reason_code;
-    int status_impact_code;
-    char access;
-    char reprocess;
-    char type;
-    char source_alias[MaxName];
-    char pass_date[MaxDate];
-    char archive[MaxName];
-    char device_name[MaxName];
-    char format[MaxFormat];
-    char path[MaxPath];
-    char filename[MaxFilename];
-    char server[MaxServer];
-    char userid[MaxName];
-    char reason_desc[MaxDesc];
-    char run_desc[MaxMeta];
-    char status_desc[MaxMeta];
-    char creation[MaxDate];
-    char modified[MaxDate];
-    char xml[MaxMeta];
-    char xml_creation[MaxDate];
-    char _padding[1];
-};
-
-struct Signal {
-    int source_id;
-    int signal_desc_id;
-    int meta_id;
-    int status_desc_id;
-    int status;
-    int status_reason_code;
-    int status_impact_code;
-    char access;
-    char reprocess;
-    char status_desc[MaxMeta];
-    char creation[MaxDate];
-    char modified[MaxDate];
-    char xml[MaxMeta];
-    char xml_creation[MaxDate];
-    char _padding[2];
-};
-
-struct SignalDesc {
-    int signal_desc_id;
-    int meta_id;
-    int rank;
-    int range_start;
-    int range_stop;
-    char type;
-    char source_alias[MaxName];
-    char signal_alias[MaxName];
-    char signal_name[MaxName];
-    char generic_name[MaxName];
-    char description[MaxDesc];
-    char signal_class[MaxDesc];
-    char signal_owner[MaxDesc];
-    char creation[MaxDate];
-    char modified[MaxDate];
-    char xml[MaxMeta];
-    char xml_creation[MaxDate];
-    char _padding[3];
-    int signal_alias_type;
-    int signal_map_id;
 };
 
 struct Dims {
@@ -231,6 +128,57 @@ struct ClientBlock {
         securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
 
+struct MetaDataField {
+    std::array<char, StringLength> name;
+    std::array<char, StringLength> value;
+};
+
+struct MetaData {
+    std::vector<MetaDataField> fields = {};
+    [[nodiscard]] std::string_view find(std::string_view name) const;
+    [[nodiscard]] bool contains(std::string_view name) const;
+    template <typename T>
+    T find_as(const std::string_view name, T default_ = T{}) const {
+        auto value = find(name);
+        if (value.empty()) {
+            return default_;
+        }
+        std::stringstream stream{value.data()};
+        T result;
+        stream >> result;
+        return result;
+    }
+    template <typename T>
+    void set(const std::string_view name, T value) {
+        const auto capped_name = name.substr(0, StringLength - 1);
+        const std::string capped_value = std::to_string(value).substr(0, StringLength - 1);
+        MetaDataField field;
+        std::copy(capped_name.begin(), capped_name.end(), field.name.begin());
+        std::copy(capped_value.begin(), capped_value.end(), field.value.begin());
+        fields.push_back(field);
+    }
+};
+
+template <>
+inline void MetaData::set<const char*>(const std::string_view name, const char* value) {
+    const auto capped_name = name.substr(0, StringLength - 1);
+    const std::string capped_value = std::string{value}.substr(0, StringLength - 1);
+    MetaDataField field;
+    std::copy(capped_name.begin(), capped_name.end(), field.name.begin());
+    std::copy(capped_value.begin(), capped_value.end(), field.value.begin());
+    fields.push_back(field);
+}
+
+template <>
+inline void MetaData::set<std::string>(const std::string_view name, std::string value) {
+    set(name, value.c_str());
+}
+
+template <>
+inline void MetaData::set<char*>(const std::string_view name, char* value) {
+    set(name, const_cast<const char*>(value));
+}
+
 struct DataBlock {
     int handle;
     int errcode;
@@ -260,11 +208,7 @@ struct DataBlock {
     char error_msg[StringLength];
 
     Dims* dims;
-    DataSystem* data_system;
-    SystemConfig* system_config;
-    DataSource* data_source;
-    Signal* signal_rec;
-    SignalDesc* signal_desc;
+    MetaData meta_data;
 
     ClientBlock client_block; // Used to pass properties into data reader plugins
 

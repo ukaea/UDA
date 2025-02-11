@@ -136,7 +136,7 @@ struct Actions {
 
 #ifndef NOXMLPARSER
 
-int parse_doc(char* docname, Actions* actions);
+int parse_doc(const char* doc_name, Actions* actions);
 
 #endif
 

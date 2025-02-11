@@ -17,14 +17,6 @@ void print_data_block_list(DataBlockList str);
 
 void print_data_block(DataBlock str);
 
-void print_system_config(SystemConfig str);
-
-void print_data_system(DataSystem str);
-
-void print_data_source(DataSource str);
-
-void print_signal(Signal str);
-
-void print_signal_desc(SignalDesc str);
+void print_meta_data(MetaData str);
 
 } // namespace uda::client_server

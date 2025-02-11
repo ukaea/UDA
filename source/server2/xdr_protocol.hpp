@@ -5,7 +5,6 @@
 
 #include "cache/memcache.hpp"
 #include "clientserver/protocol.h"
-#include "clientserver/udaDefines.h"
 #include "clientserver/udaStructs.h"
 #include "structures/genStructs.h"
 
@@ -17,8 +16,6 @@ struct IoData : client_server::IoData {
     int* server_tot_block_time;
     int* server_timeout;
 };
-
-struct MetadataBlock;
 
 class XdrProtocol
 {
@@ -43,16 +40,16 @@ class XdrProtocol
     int flush();
     int eof();
 
-    client_server::DataBlock* read_from_cache(config::Config& config, cache::UdaCache* cache,
-                                                   client_server::RequestData* request,
+    client_server::DataBlock* read_from_cache(const config::Config& config, cache::UdaCache* cache,
+                                                   const client_server::RequestData* request,
                                                    structures::LogMallocList* log_malloc_list,
                                                    structures::UserDefinedTypeList* user_defined_type_list);
-    void write_to_cache(config::Config& config, cache::UdaCache* cache, client_server::RequestData* request,
+    void write_to_cache(const config::Config& config, cache::UdaCache* cache, const client_server::RequestData* request,
                         client_server::DataBlock* data_block,
                         structures::LogMallocList* log_malloc_list,
                         structures::UserDefinedTypeList* user_defined_type_list);
 
-    int send_meta_data(MetadataBlock& metadata_block, structures::LogMallocList* log_malloc_list,
+    int send_meta_data(client_server::MetaData& meta_data, structures::LogMallocList* log_malloc_list,
                        structures::UserDefinedTypeList* user_defined_type_list);
     int send_data_blocks(const std::vector<client_server::DataBlock>& data_blocks,
                          structures::LogMallocList* log_malloc_list,

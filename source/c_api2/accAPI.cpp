@@ -20,8 +20,7 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/allocData.h>
-#include <clientserver/protocol.h>
-#include <clientserver/memstream.h>
+#include <clientserver/version.h>
 #include <clientserver/xdrlib.h>
 #include <structures/struct.h>
 #include <uda/version.h>

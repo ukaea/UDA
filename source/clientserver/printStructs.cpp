@@ -300,108 +300,13 @@ void uda::client_server::print_data_block(DataBlock str)
     }
 }
 
-void uda::client_server::print_system_config(SystemConfig str)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "System Configuration Record");
-    UDA_LOG(UDA_LOG_DEBUG, "config_id   : {}", str.config_id);
-    UDA_LOG(UDA_LOG_DEBUG, "system_id   : {}", str.system_id);
-    UDA_LOG(UDA_LOG_DEBUG, "config_name : {}", str.config_name);
-    UDA_LOG(UDA_LOG_DEBUG, "config_desc : {}", str.config_desc);
-    UDA_LOG(UDA_LOG_DEBUG, "creation    : {}", str.creation);
-    UDA_LOG(UDA_LOG_DEBUG, "meta_id     : {}", str.meta_id);
-    UDA_LOG(UDA_LOG_DEBUG, "xml         : {}", str.xml);
-    UDA_LOG(UDA_LOG_DEBUG, "xml_creation: {}", str.xml_creation);
+void uda::client_server::print_meta_data(MetaData str) {
+    UDA_LOG(UDA_LOG_DEBUG, "Meta Data Contents");
+    int i = 0;
+    for (const auto& [name, value] : str.fields) {
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] field name  : {}", i, name.data());
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] field value : {}", i, name.data());
+        ++i;
+    }
 }
 
-void uda::client_server::print_data_system(DataSystem str)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "Data System Record");
-    UDA_LOG(UDA_LOG_DEBUG, "system_id   : {}", str.system_id);
-    UDA_LOG(UDA_LOG_DEBUG, "version     : {}", str.version);
-    UDA_LOG(UDA_LOG_DEBUG, "type        : {}", str.type);
-    UDA_LOG(UDA_LOG_DEBUG, "device_name : {}", str.device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "system_name : {}", str.system_name);
-    UDA_LOG(UDA_LOG_DEBUG, "system_desc : {}", str.system_desc);
-    UDA_LOG(UDA_LOG_DEBUG, "creation    : {}", str.creation);
-    UDA_LOG(UDA_LOG_DEBUG, "meta_id     : {}", str.meta_id);
-    UDA_LOG(UDA_LOG_DEBUG, "xml         : {}", str.xml);
-    UDA_LOG(UDA_LOG_DEBUG, "xml_creation: {}", str.xml_creation);
-}
-
-void uda::client_server::print_data_source(DataSource str)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "Data Source Record");
-    UDA_LOG(UDA_LOG_DEBUG, "source_id     : {}", str.source_id);
-    UDA_LOG(UDA_LOG_DEBUG, "config_id     : {}", str.config_id);
-    UDA_LOG(UDA_LOG_DEBUG, "reason_id     : {}", str.reason_id);
-    UDA_LOG(UDA_LOG_DEBUG, "run_id        : {}", str.run_id);
-    UDA_LOG(UDA_LOG_DEBUG, "status_desc_id: {}", str.status_desc_id);
-    UDA_LOG(UDA_LOG_DEBUG, "exp_number    : {}", str.exp_number);
-    UDA_LOG(UDA_LOG_DEBUG, "pass          : {}", str.pass);
-    UDA_LOG(UDA_LOG_DEBUG, "status        : {}", str.status);
-    UDA_LOG(UDA_LOG_DEBUG, "status_reason_code: {}", str.status_reason_code);
-    UDA_LOG(UDA_LOG_DEBUG, "status_impact_code: {}", str.status_impact_code);
-    UDA_LOG(UDA_LOG_DEBUG, "access        : {}", str.access);
-    UDA_LOG(UDA_LOG_DEBUG, "reprocess     : {}", str.reprocess);
-    UDA_LOG(UDA_LOG_DEBUG, "type          : {}", str.type);
-    UDA_LOG(UDA_LOG_DEBUG, "source_alias  : {}", str.source_alias);
-    UDA_LOG(UDA_LOG_DEBUG, "pass_date     : {}", str.pass_date);
-    UDA_LOG(UDA_LOG_DEBUG, "archive       : {}", str.archive);
-    UDA_LOG(UDA_LOG_DEBUG, "device_name   : {}", str.device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "format        : {}", str.format);
-    UDA_LOG(UDA_LOG_DEBUG, "path          : {}", str.path);
-    UDA_LOG(UDA_LOG_DEBUG, "filename      : {}", str.filename);
-    UDA_LOG(UDA_LOG_DEBUG, "server        : {}", str.server);
-    UDA_LOG(UDA_LOG_DEBUG, "userid        : {}", str.userid);
-    UDA_LOG(UDA_LOG_DEBUG, "reason_desc   : {}", str.reason_desc);
-    UDA_LOG(UDA_LOG_DEBUG, "run_desc      : {}", str.run_desc);
-    UDA_LOG(UDA_LOG_DEBUG, "status_desc   : {}", str.status_desc);
-    UDA_LOG(UDA_LOG_DEBUG, "creation      : {}", str.creation);
-    UDA_LOG(UDA_LOG_DEBUG, "modified      : {}", str.modified);
-    UDA_LOG(UDA_LOG_DEBUG, "meta_id       : {}", str.meta_id);
-    UDA_LOG(UDA_LOG_DEBUG, "xml           : {}", str.xml);
-    UDA_LOG(UDA_LOG_DEBUG, "xml_creation  : {}", str.xml_creation);
-}
-
-void uda::client_server::print_signal(Signal str)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Record");
-    UDA_LOG(UDA_LOG_DEBUG, "source_id         : {}", str.source_id);
-    UDA_LOG(UDA_LOG_DEBUG, "signal_desc_id    : {}", str.signal_desc_id);
-    UDA_LOG(UDA_LOG_DEBUG, "status_desc_id    : {}", str.status_desc_id);
-    UDA_LOG(UDA_LOG_DEBUG, "status            : {}", str.status);
-    UDA_LOG(UDA_LOG_DEBUG, "status_reason_code: {}", str.status_reason_code);
-    UDA_LOG(UDA_LOG_DEBUG, "status_impact_code: {}", str.status_impact_code);
-    UDA_LOG(UDA_LOG_DEBUG, "status_desc       : {}", str.status_desc);
-    UDA_LOG(UDA_LOG_DEBUG, "access            : {}", str.access);
-    UDA_LOG(UDA_LOG_DEBUG, "reprocess         : {}", str.reprocess);
-    UDA_LOG(UDA_LOG_DEBUG, "creation          : {}", str.creation);
-    UDA_LOG(UDA_LOG_DEBUG, "modified          : {}", str.modified);
-    UDA_LOG(UDA_LOG_DEBUG, "meta_id           : {}", str.meta_id);
-    UDA_LOG(UDA_LOG_DEBUG, "xml               : {}", str.xml);
-    UDA_LOG(UDA_LOG_DEBUG, "xml_creation      : {}", str.xml_creation);
-}
-
-void uda::client_server::print_signal_desc(SignalDesc str)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "Signal Description Record");
-    UDA_LOG(UDA_LOG_DEBUG, "signal_desc_id: {}", str.signal_desc_id);
-    UDA_LOG(UDA_LOG_DEBUG, "signal_alias  : {}", str.signal_alias);
-    UDA_LOG(UDA_LOG_DEBUG, "signal_name   : {}", str.signal_name);
-    UDA_LOG(UDA_LOG_DEBUG, "generic_name  : {}", str.generic_name);
-    UDA_LOG(UDA_LOG_DEBUG, "rank          : {}", str.rank);
-    UDA_LOG(UDA_LOG_DEBUG, "range_start   : {}", str.range_start);
-    UDA_LOG(UDA_LOG_DEBUG, "range_stop    : {}", str.range_stop);
-    UDA_LOG(UDA_LOG_DEBUG, "signal_alias_type: {}", str.signal_alias_type);
-    UDA_LOG(UDA_LOG_DEBUG, "signal_map_id : {}", str.signal_map_id);
-    UDA_LOG(UDA_LOG_DEBUG, "type          : {}", str.type);
-    UDA_LOG(UDA_LOG_DEBUG, "source_alias  : {}", str.source_alias);
-    UDA_LOG(UDA_LOG_DEBUG, "description   : {}", str.description);
-    UDA_LOG(UDA_LOG_DEBUG, "signal_class  : {}", str.signal_class);
-    UDA_LOG(UDA_LOG_DEBUG, "signal_owner  : {}", str.signal_owner);
-    UDA_LOG(UDA_LOG_DEBUG, "modified      : {}", str.modified);
-    UDA_LOG(UDA_LOG_DEBUG, "creation      : {}", str.creation);
-    UDA_LOG(UDA_LOG_DEBUG, "meta_id       : {}", str.meta_id);
-    UDA_LOG(UDA_LOG_DEBUG, "xml           : {}", str.xml);
-    UDA_LOG(UDA_LOG_DEBUG, "xml_creation  : {}", str.xml_creation);
-}

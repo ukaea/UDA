@@ -127,11 +127,7 @@ void uda::client_server::init_data_block(DataBlock* str)
     str->errlo = nullptr;
     memset(str->errparams, '\0', sizeof(str->errparams[0]) * MaxErrParams);
     str->dims = nullptr;
-    str->data_system = nullptr;
-    str->system_config = nullptr;
-    str->data_source = nullptr;
-    str->signal_rec = nullptr;
-    str->signal_desc = nullptr;
+    str->meta_data = {};
     memset(str->data_units, '\0', StringLength);
     memset(str->data_label, '\0', StringLength);
     memset(str->data_desc, '\0', StringLength);
@@ -164,107 +160,6 @@ void uda::client_server::init_dim_block(Dims* str)
     }
     str->dim_units[0] = '\0';
     str->dim_label[0] = '\0';
-}
-
-void uda::client_server::init_data_system(DataSystem* str)
-{
-    str->system_id = 0;
-    str->version = 0;
-    str->meta_id = 0;
-    str->type = ' ';
-    str->device_name[0] = '\0';
-    str->system_name[0] = '\0';
-    str->system_desc[0] = '\0';
-    str->creation[0] = '\0';
-    str->xml[0] = '\0';
-    str->xml_creation[0] = '\0';
-}
-
-void uda::client_server::init_system_config(SystemConfig* str)
-{
-    str->config_id = 0;
-    str->system_id = 0;
-    str->meta_id = 0;
-    str->config_name[0] = '\0';
-    str->config_desc[0] = '\0';
-    str->creation[0] = '\0';
-    str->xml[0] = '\0';
-    str->xml_creation[0] = '\0';
-}
-
-void uda::client_server::init_data_source(DataSource* str)
-{
-    str->source_id = 0;
-    str->config_id = 0;
-    str->reason_id = 0;
-    str->run_id = 0;
-    str->meta_id = 0;
-    str->status_desc_id = 0;
-    str->exp_number = 0;
-    str->pass = 0;
-    str->access = ' ';
-    str->reprocess = ' ';
-    str->status = 1;
-    str->status_reason_code = 0;
-    str->status_impact_code = 0;
-    str->type = ' ';
-    str->source_alias[0] = '\0';
-    str->pass_date[0] = '\0';
-    str->archive[0] = '\0';
-    str->device_name[0] = '\0';
-    str->format[0] = '\0';
-    str->path[0] = '\0';
-    str->filename[0] = '\0';
-    str->server[0] = '\0';
-    str->userid[0] = '\0';
-    str->reason_desc[0] = '\0';
-    str->status_desc[0] = '\0';
-    str->run_desc[0] = '\0';
-    str->creation[0] = '\0';
-    str->modified[0] = '\0';
-    str->xml[0] = '\0';
-    str->xml_creation[0] = '\0';
-}
-
-void uda::client_server::init_signal(Signal* str)
-{
-    str->source_id = 0;
-    str->signal_desc_id = 0;
-    str->meta_id = 0;
-    str->status_desc_id = 0;
-    str->access = ' ';
-    str->reprocess = ' ';
-    str->status = 1;
-    str->status_reason_code = 0;
-    str->status_impact_code = 0;
-    str->status_desc[0] = '\0';
-    str->creation[0] = '\0';
-    str->modified[0] = '\0';
-    str->xml[0] = '\0';
-    str->xml_creation[0] = '\0';
-}
-
-void uda::client_server::init_signal_desc(SignalDesc* str)
-{
-    str->signal_desc_id = 0;
-    str->meta_id = 0;
-    str->rank = 0;
-    str->range_start = 0;
-    str->range_stop = 0;
-    str->signal_alias_type = 0;
-    str->signal_map_id = 0;
-    str->type = ' ';
-    str->source_alias[0] = '\0';
-    str->signal_alias[0] = '\0';
-    str->signal_name[0] = '\0';
-    str->generic_name[0] = '\0';
-    str->description[0] = '\0';
-    str->signal_class[0] = '\0';
-    str->signal_owner[0] = '\0';
-    str->creation[0] = '\0';
-    str->modified[0] = '\0';
-    str->xml[0] = '\0';
-    str->xml_creation[0] = '\0';
 }
 
 void uda::client_server::init_put_data_block(PutDataBlock* str)

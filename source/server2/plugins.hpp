@@ -26,16 +26,15 @@ struct UdaPluginInterface : UDA_PLUGIN_INTERFACE {
     int plugin_version;
     bool house_keeping;                   // Housekeeping Directive
     bool change_plugin;                   // Use a different Plugin to access the data
-    uda::client_server::DataBlock* data_block;
-    uda::client_server::RequestData* request_data;
-    uda::client_server::ClientBlock* client_block;
-    uda::client_server::DataSource* data_source;
-    uda::client_server::SignalDesc* signal_desc;
-    uda::structures::LogMallocList* log_malloc_list;
-    uda::structures::UserDefinedTypeList* user_defined_type_list;
+    client_server::DataBlock* data_block;
+    client_server::RequestData* request_data;
+    client_server::ClientBlock* client_block;
+    client_server::MetaData* meta_data;
+    structures::LogMallocList* log_malloc_list;
+    structures::UserDefinedTypeList* user_defined_type_list;
     const std::vector<client_server::PluginData>* pluginList; // List of data readers, filters, models, and servers
     std::vector<client_server::UdaError> error_stack;
-    const uda::config::Config* config;
+    const config::Config* config;
 };
 
 struct PluginList {};
@@ -43,16 +42,22 @@ struct PluginList {};
 class Plugins
 {
   public:
-    Plugins(const config::Config& config) : _config{config} {}
+    explicit Plugins(const config::Config& config) : _config{config} {}
 
     void init();
     void close();
-    const std::vector<client_server::PluginData>& plugin_list() const {
+    [[nodiscard]] const std::vector<client_server::PluginData>& plugin_list() const {
         return _plugins;
     }
 
-    [[nodiscard]] std::pair<size_t, boost::optional<const uda::client_server::PluginData&>> find_by_name(const std::string& name) const;
-    [[nodiscard]] boost::optional<const uda::client_server::PluginData&> find_by_id(size_t id) const;
+    [[nodiscard]] std::pair<size_t, boost::optional<const client_server::PluginData&>> find_by_name(const std::string_view name) const {
+        return find_by_name(std::string(name));
+    }
+    [[nodiscard]] std::pair<size_t, boost::optional<const client_server::PluginData&>> find_by_name(const char* name) const {
+        return find_by_name(std::string(name));
+    }
+    [[nodiscard]] std::pair<size_t, boost::optional<const client_server::PluginData&>> find_by_name(std::string name) const;
+    [[nodiscard]] boost::optional<const client_server::PluginData&> find_by_id(size_t id) const;
 
 #if UDA_TEST
     void add_plugin(client_server::PluginData&& plugin) { _plugins.emplace_back(std::move(plugin)); }

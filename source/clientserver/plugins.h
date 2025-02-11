@@ -9,11 +9,9 @@
 
 namespace uda::client_server {
 
-inline int dl_close(void* ptr)
-{
-    return 0;
-//    return (ptr != nullptr) ? dlclose(ptr) : 0;
-}
+struct DLCloseDeleter {
+    void operator()(void* handle) const { if (handle != nullptr) { dlclose(handle); } }
+};
 
 struct PluginData {
     std::string name;
@@ -24,15 +22,16 @@ struct PluginData {
     std::string extension;
     std::string description;
     std::string example;
-    UdaPluginClass type;
-    UdaPluginCacheMode cache_mode;
-    bool is_private;
-    int interface_version;
-    std::unique_ptr<void, int (*)(void*)> handle;
-    UDA_PLUGIN_ENTRY_FUNC entry_func;
+    UdaPluginClass type = UDA_PLUGIN_CLASS_UNKNOWN;
+    UdaPluginCacheMode cache_mode = UDA_PLUGIN_CACHE_MODE_NONE;
+    bool is_private = false;
+    int interface_version = 0;
+    std::unique_ptr<void, DLCloseDeleter> handle;
+    UDA_PLUGIN_ENTRY_FUNC entry_func = nullptr;
 
-    PluginData() : handle{nullptr, dl_close} {};
-    explicit PluginData(void* _handle) : handle{_handle, dl_close} {};
+    PluginData() = default;
+    ~PluginData() = default;
+    explicit PluginData(void* _handle) : handle{_handle} {};
     PluginData(const PluginData&) = delete;
     PluginData& operator=(const PluginData&) = delete;
     PluginData(PluginData&&) = default;

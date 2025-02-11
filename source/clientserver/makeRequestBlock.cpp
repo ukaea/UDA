@@ -24,9 +24,6 @@
 #include "plugins.h"
 #include "config/config.h"
 
-// TODO: remove this!
-#include "server/serverPlugin.h"
-
 #if !defined(__GNUC__) && defined(_WIN32)
 #  include <direct.h>
 #  define strcasecmp _stricmp
