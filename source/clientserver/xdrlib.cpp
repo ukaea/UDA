@@ -16,7 +16,7 @@
 #include "logging/logging.h"
 
 #include "errorLog.h"
-#include "printStructs.h"
+#include "print_structs.h"
 #include "common/stringUtils.h"
 #include "structures/struct.h"
 

@@ -1,8 +1,4 @@
-// Print the Contents of the database Record Structures
-//
-//----------------------------------------------------------------------------------
-
-#include "printStructs.h"
+#include "print_structs.h"
 
 #include "clientserver/errorLog.h"
 #include "logging/logging.h"

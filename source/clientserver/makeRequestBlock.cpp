@@ -1,4 +1,4 @@
-#include "makeRequestBlock.h"
+#include "make_request_block.h"
 
 #include <boost/algorithm/string.hpp>
 #include <cerrno>
@@ -17,7 +17,7 @@
 #include <fmt/format.h>
 
 #include "errorLog.h"
-#include "parseXML.h"
+#include "parse_xml.h"
 #include "common/stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"

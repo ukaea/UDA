@@ -31,7 +31,7 @@
 #include "allocData.h"
 #include "compressDim.h"
 #include "initStructs.h"
-#include "printStructs.h"
+#include "print_structs.h"
 #include "protocolXML2.h"
 #include "xdrlib.h"
 

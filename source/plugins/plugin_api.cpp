@@ -1,24 +1,23 @@
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <string>
-#include <../../include/uda/plugins.h>
-#include <../../include/uda/structured.h>
-#include <../../include/uda/types.h>
 #include <vector>
+#include <uda/plugins.h>
+#include <uda/structured.h>
+#include <uda/types.h>
 
-#include "../clientserver/errorLog.h"
-#include "../clientserver/initStructs.h"
-#include "../clientserver/makeRequestBlock.h"
-#include "../common/stringUtils.h"
-#include "../clientserver/type_convertor.hpp"
-#include "../logging/logging.h"
-#include "../structures/accessors.h"
-#include "../structures/struct.h"
-#include "../config/config.h"
-
-#include "../server2/plugins.hpp"
-#include "../clientserver/parseXML.h"
-#include "../server2/server_subset_data.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
+#include "clientserver/make_request_block.h"
+#include "clientserver/parse_xml.h"
+#include "clientserver/type_convertor.hpp"
+#include "common/stringUtils.h"
+#include "config/config.h"
+#include "logging/logging.h"
+#include "server2/plugins.hpp"
+#include "server2/server_subset_data.h"
+#include "structures/accessors.h"
+#include "structures/struct.h"
 
 using namespace uda::client_server;
 using namespace uda::server;

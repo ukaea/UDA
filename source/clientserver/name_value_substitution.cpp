@@ -1,4 +1,4 @@
-#include "nameValueSubstitution.h"
+#include "name_value_substitution.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -9,11 +9,10 @@
 #endif
 
 #include "clientserver/errorLog.h"
-#include "clientserver/makeRequestBlock.h"
+#include "clientserver/make_request_block.h"
 #include "common/stringUtils.h"
-#include "initStructs.h"
 #include "logging/logging.h"
-#include "udaErrors.h"
+
 #include <fmt/format.h>
 
 using namespace uda::client_server;

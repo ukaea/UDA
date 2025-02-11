@@ -1,9 +1,6 @@
 #pragma once
 
-#ifndef UDA_SERVER_APPLYXML_H
-#define UDA_SERVER_APPLYXML_H
-
-#include "clientserver/parseXML.h"
+#include "clientserver/parse_xml.h"
 #include "clientserver/udaStructs.h"
 
 namespace uda
@@ -18,5 +15,3 @@ void server_apply_signal_xml(client_server::ClientBlock client_block, client_ser
 void server_deselect_signal_xml(client_server::Actions* actions_desc, client_server::Actions* actions_sig);
 
 } // namespace uda
-
-#endif // UDA_SERVER_APPLYXML_H

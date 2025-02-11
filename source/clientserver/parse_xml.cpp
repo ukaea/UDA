@@ -1,4 +1,4 @@
-#include "parseXML.h"
+#include "parse_xml.h"
 
 #include <cstdlib>
 #include <sstream>
@@ -9,7 +9,7 @@
 #  include <libxml/xmlmemory.h>
 
 #  include "clientserver/errorLog.h"
-#  include "clientserver/parseOperation.h"
+#  include "clientserver/parse_operation.h"
 #  include "common/stringUtils.h"
 #  include "logging/logging.h"
 

@@ -2,9 +2,7 @@
 
 #include "client2/thread_client.hpp"
 #include "clientserver/allocData.h"
-#include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
-#include "clientserver/printStructs.h"
 #include "logging/logging.h"
 
 using namespace uda::client_server;

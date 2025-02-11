@@ -1,6 +1,6 @@
 #pragma once
 
-#include "clientserver/parseXML.h"
+#include "clientserver/parse_xml.h"
 #include "clientserver/udaStructs.h"
 #include "structures/genStructs.h"
 #include "config/config.h"

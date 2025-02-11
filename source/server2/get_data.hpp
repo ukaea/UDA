@@ -1,11 +1,7 @@
 #pragma once
 
-#  include "clientserver/parseXML.h"
-#  include "clientserver/udaStructs.h"
-
-#  include "clientserver/udaStructs.h"
-#  include "plugins.hpp"
-#  include "xdr_protocol.hpp"
+#include "clientserver/parse_xml.h"
+#include "clientserver/udaStructs.h"
 
 namespace uda::server {
 

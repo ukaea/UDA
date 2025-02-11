@@ -19,7 +19,7 @@
 #include "clientserver/compressDim.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
-#include "clientserver/printStructs.h"
+#include "clientserver/print_structs.h"
 #include "common/stringUtils.h"
 #include "logging/logging.h"
 #include "uda/structured.h"

@@ -10,7 +10,7 @@
 
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
-#include "clientserver/printStructs.h"
+#include "clientserver/print_structs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
 #include "logging/accessLog.h"

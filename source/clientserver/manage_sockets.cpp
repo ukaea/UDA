@@ -27,9 +27,9 @@ uda::client_server::Socket uda::client_server::get_socket(const std::vector<Sock
 
 int uda::client_server::get_socket_record_id(const std::vector<Socket>& sockets, const int fh)
 {
-    for (int i = 0; i < sockets.size(); i++) {
+    for (size_t i = 0; i < sockets.size(); i++) {
         if (sockets[i].fh == fh) {
-            return i;
+            return static_cast<int>(i);
         }
     }
     return -1; // Failed - No Socket

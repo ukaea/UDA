@@ -13,11 +13,11 @@ set( SRCS
   makeRequestBlock.cpp
   make_request_block.cpp
   manage_sockets.cpp
-  nameValueSubstitution.cpp
+  name_value_substitution.cpp
   name_value_list.cpp
-  parseOperation.cpp
-  parseXML.cpp
-  printStructs.cpp
+  parse_operation.cpp
+  parse_xml.cpp
+  print_structs.cpp
   protocol.cpp
   protocol2.cpp
   protocolXML.cpp

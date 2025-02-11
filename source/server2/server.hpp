@@ -7,7 +7,7 @@
 #include "xdr_protocol.hpp"
 
 #include "cache/memcache.hpp"
-#include "clientserver/parseXML.h"
+#include "clientserver/parse_xml.h"
 #include "clientserver/socket_structs.h"
 #include "clientserver/version.h"
 #include <uda/export.h>

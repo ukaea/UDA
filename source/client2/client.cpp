@@ -8,7 +8,7 @@
 #include "clientserver/allocData.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
-#include "clientserver/printStructs.h"
+#include "clientserver/print_structs.h"
 #include "clientserver/protocol.h"
 #include "common/stringUtils.h"
 #include "clientserver/udaDefines.h"

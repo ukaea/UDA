@@ -3,8 +3,8 @@
 #include "apply_XML.hpp"
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
-#include "clientserver/nameValueSubstitution.h"
-#include "clientserver/printStructs.h"
+#include "clientserver/name_value_substitution.h"
+#include "clientserver/print_structs.h"
 #include "common/stringUtils.h"
 #include "logging/logging.h"
 #include "make_server_request_block.hpp"
@@ -12,10 +12,10 @@
 #include "server.hpp"
 #include "server_plugin.h"
 #include "server_subset_data.h"
-#include "uda/plugins.h"
 
 #include <boost/algorithm/string.hpp>
 #include <uda/types.h>
+#include <uda/plugins.h>
 
 using namespace uda::client_server;
 using namespace uda::logging;
