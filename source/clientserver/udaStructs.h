@@ -4,8 +4,8 @@
 #  include <sys/time.h>
 #endif
 
-#include <iostream>
 #include <sstream>
+#include <array>
 
 #include <uda/types.h>
 
