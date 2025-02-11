@@ -324,17 +324,31 @@ bool_t uda::client_server::xdr_request(XDR* xdrs, RequestBlock* str, int protoco
     return rc;
 }
 
-bool_t uda::client_server::xdr_data_block_list(XDR* xdrs, DataBlockList* str, int protocolVersion)
+bool_t uda::client_server::xdr_data_block_list(XDR* xdrs, std::vector<DataBlock>* str, int protocol_version)
 {
     int rc = 1;
 
-    if (protocolVersion <= 7) {
-        str->count = 1;
+    if (protocol_version <= 7) {
+        str->resize(1);
     } else {
-        rc = rc && xdr_int(xdrs, &str->count);
+        switch (xdrs->x_op) {
+            case XDR_ENCODE: {
+                int size = static_cast<int>(str->size());
+                rc = rc && xdr_int(xdrs, &size);
+            }
+            case XDR_DECODE: {
+                int size = 0;
+                rc = rc && xdr_int(xdrs, &size);
+                if (rc) {
+                    str->resize(size);
+                }
+            }
+            default:
+                throw std::runtime_error("invalid operation");
+        }
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "number of data blocks: {}", str->count);
+    UDA_LOG(UDA_LOG_DEBUG, "number of data blocks: {}", str->size());
     return rc;
 }
 

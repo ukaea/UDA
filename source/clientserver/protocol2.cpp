@@ -750,21 +750,20 @@ static int handle_data_block(XDR* xdrs, XDRStreamDirection direction, const void
 static int handle_data_block_list(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion)
 {
     int err = 0;
-    auto data_block_list = (DataBlockList*)str;
+    auto data_block_list = (std::vector<DataBlock>*)str;
 
     switch (direction) {
         case XDRStreamDirection::Receive:
             if (!xdr_data_block_list(xdrs, data_block_list, protocolVersion)) {
-                err = (int)ProtocolError::Error1;
+                err = static_cast<int>(ProtocolError::Error1);
                 break;
             }
-            data_block_list->data = (DataBlock*)malloc(data_block_list->count * sizeof(DataBlock));
-            for (int i = 0; i < data_block_list->count; ++i) {
-                DataBlock* data_block = &data_block_list->data[i];
+            for (size_t i = 0; i < data_block_list->size(); ++i) {
+                DataBlock* data_block = &(*data_block_list)[i];
                 init_data_block(data_block);
                 err = handle_data_block(xdrs, XDRStreamDirection::Receive, data_block, protocolVersion);
                 if (err != 0) {
-                    err = (int)ProtocolError::Error2;
+                    err = static_cast<int>(ProtocolError::Error2);
                     break;
                 }
             }
@@ -775,14 +774,14 @@ static int handle_data_block_list(XDR* xdrs, XDRStreamDirection direction, const
 
         case XDRStreamDirection::Send: {
             if (!xdr_data_block_list(xdrs, data_block_list, protocolVersion)) {
-                err = (int)ProtocolError::Error2;
+                err = static_cast<int>(ProtocolError::Error2);
                 break;
             }
-            for (int i = 0; i < data_block_list->count; ++i) {
-                DataBlock* data_block = &data_block_list->data[i];
+            for (size_t i = 0; i < data_block_list->size(); ++i) {
+                const DataBlock* data_block = &(*data_block_list)[i];
                 int rc = handle_data_block(xdrs, XDRStreamDirection::Send, data_block, protocolVersion);
                 if (rc != 0) {
-                    err = (int)ProtocolError::Error2;
+                    err = static_cast<int>(ProtocolError::Error2);
                     break;
                 }
             }
@@ -796,7 +795,7 @@ static int handle_data_block_list(XDR* xdrs, XDRStreamDirection direction, const
             break;
 
         default:
-            err = (int)ProtocolError::Error4;
+            err = static_cast<int>(ProtocolError::Error4);
             break;
     }
     return err;

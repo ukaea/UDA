@@ -392,7 +392,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     //------------------------------------------------------------------------------
     // Fetch the data Block
 
-    DataBlockList recv_data_block_list;
+    std::vector<DataBlock> recv_data_block_list;
 
     if ((err = protocol2(_client_input, ProtocolId::DataBlockList, XDRStreamDirection::Receive, nullptr, _logmalloclist,
                          _userdefinedtypelist, &recv_data_block_list, _protocol_version, &_log_struct_list,
@@ -413,7 +413,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         auto data_block_idx = _data_blocks.size() - 1;
         DataBlock* data_block = &_data_blocks.back();
 
-        copy_data_block(data_block, &recv_data_block_list.data[i]);
+        copy_data_block(data_block, &recv_data_block_list[i]);
         copy_client_block(&data_block->client_block, &_client_flags);
 
         if (_client_block.get_meta) {
@@ -438,8 +438,6 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         data_block_indices[i] = data_block_idx;
         data_received = true;
     }
-
-    free(recv_data_block_list.data);
 
     if (data_received) {
         if (err != 0) {

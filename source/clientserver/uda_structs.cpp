@@ -215,14 +215,12 @@ void uda::client_server::free_data_block(DataBlock* data_block)
     UDA_LOG(UDA_LOG_DEBUG, "Exit");
 }
 
-void uda::client_server::free_data_block_list(DataBlockList* data_block_list)
+void uda::client_server::free_data_block_list(std::vector<DataBlock>& data_block_list)
 {
-    for (int i = 0; i < data_block_list->count; ++i) {
-        free_data_block(&data_block_list->data[i]);
+    for (size_t i = 0; i < data_block_list.size(); ++i) {
+        free_data_block(&data_block_list[i]);
     }
-    free(data_block_list->data);
-    data_block_list->count = 0;
-    data_block_list->data = nullptr;
+    data_block_list.clear();
 }
 
 // Free Heap Memory & Zero all Integer values

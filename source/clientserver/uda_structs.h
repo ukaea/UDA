@@ -135,6 +135,7 @@ struct MetaDataField {
 
 struct MetaData {
     std::vector<MetaDataField> fields = {};
+
     [[nodiscard]] std::string_view find(std::string_view name) const;
     [[nodiscard]] bool contains(std::string_view name) const;
     template <typename T>
@@ -217,11 +218,6 @@ struct DataBlock {
     void* opaque_block;              // Opaque pointer to Hierarchical Data Structures
     unsigned int totalDataBlockSize; // The amount of data within this structure.
     unsigned int cachePermission;    // Permission for the Client to cache this structure.
-};
-
-struct DataBlockList {
-    int count;
-    DataBlock* data;
 };
 
 struct DataObject {
@@ -383,7 +379,7 @@ void free_client_put_data_block_list(PutDataBlockList* putDataBlockList);
 
 void free_data_block(DataBlock* data_block);
 
-void free_data_block_list(DataBlockList* data_block_list);
+void free_data_block_list(std::vector<DataBlock>& data_block_list);
 
 void free_reduced_data_block(DataBlock* data_block);
 

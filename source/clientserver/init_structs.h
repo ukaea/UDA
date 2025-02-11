@@ -15,8 +15,6 @@ void init_server_block(ServerBlock* str, int version);
 
 void init_data_block(DataBlock* str);
 
-void init_data_block_list(DataBlockList* str);
-
 void init_dim_block(Dims* str);
 
 void init_put_data_block(PutDataBlock* str);

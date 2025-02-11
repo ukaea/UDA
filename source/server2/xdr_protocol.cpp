@@ -300,13 +300,9 @@ int uda::server::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& dat
 {
     UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client");
 
-    DataBlockList data_block_list = {};
-    data_block_list.count = static_cast<int>(data_blocks.size());
-    data_block_list.data = const_cast<DataBlock*>(data_blocks.data());
-
     int err = 0;
     if ((err = protocol2(&_server_output, ProtocolId::DataBlockList, XDRStreamDirection::Send, nullptr, log_malloc_list,
-                         user_defined_type_list, (void*)&data_block_list, _protocol_version, &_log_struct_list, 0,
+                         user_defined_type_list, (void*)&data_blocks, _protocol_version, &_log_struct_list, 0,
                          _malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure");
         add_error(ErrorType::Code, __func__, err, "Protocol 2 Error");

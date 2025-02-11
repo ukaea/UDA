@@ -93,12 +93,6 @@ void uda::client_server::init_server_block(ServerBlock* str, int version)
 #endif
 }
 
-void uda::client_server::init_data_block_list(DataBlockList* str)
-{
-    str->count = 0;
-    str->data = nullptr;
-}
-
 void uda::client_server::init_data_block(DataBlock* str)
 {
     str->handle = 0;

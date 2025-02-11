@@ -6,7 +6,7 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 
-void uda::client_server::print_request_data(RequestData str)
+void uda::client_server::print_request_data(const RequestData& str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "request     : {}", str.request);
     UDA_LOG(UDA_LOG_DEBUG, "exp_number  : {}", str.exp_number);
@@ -36,7 +36,7 @@ void uda::client_server::print_request_data(RequestData str)
     }
 }
 
-void uda::client_server::print_request_block(RequestBlock str)
+void uda::client_server::print_request_block(const RequestBlock& str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Client Request Block");
     UDA_LOG(UDA_LOG_DEBUG, "# requests  : {}", str.num_requests);
@@ -46,7 +46,7 @@ void uda::client_server::print_request_block(RequestBlock str)
     }
 }
 
-void uda::client_server::print_client_block(ClientBlock str)
+void uda::client_server::print_client_block(const ClientBlock& str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Client State Block");
     UDA_LOG(UDA_LOG_DEBUG, "version      : {}", str.version);
@@ -77,7 +77,7 @@ void uda::client_server::print_client_block(ClientBlock str)
     UDA_LOG(UDA_LOG_DEBUG, "Study DOI    : {}", str.DOI);
 }
 
-void uda::client_server::print_server_block(ServerBlock str)
+void uda::client_server::print_server_block(const ServerBlock& str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Server State Block");
     UDA_LOG(UDA_LOG_DEBUG, "version          : {}", str.version);
@@ -89,17 +89,17 @@ void uda::client_server::print_server_block(ServerBlock str)
     print_error_stack();
 }
 
-void uda::client_server::print_data_block_list(DataBlockList str)
+void uda::client_server::print_data_block_list(const std::vector<DataBlock>& str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Blocks");
-    UDA_LOG(UDA_LOG_DEBUG, "count        : {}", str.count);
-    for (int i = 0; i < str.count; ++i) {
+    UDA_LOG(UDA_LOG_DEBUG, "count        : {}", str.size());
+    for (size_t i = 0; i < str.size(); ++i) {
         UDA_LOG(UDA_LOG_DEBUG, "block number : {}", i);
-        print_data_block(str.data[i]);
+        print_data_block(str[i]);
     }
 }
 
-void uda::client_server::print_data_block(DataBlock str)
+void uda::client_server::print_data_block(const DataBlock& str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Block Contents");
     UDA_LOG(UDA_LOG_DEBUG, "handle       : {}", str.handle);
@@ -296,7 +296,7 @@ void uda::client_server::print_data_block(DataBlock str)
     }
 }
 
-void uda::client_server::print_meta_data(MetaData str) {
+void uda::client_server::print_meta_data(const MetaData& str) {
     UDA_LOG(UDA_LOG_DEBUG, "Meta Data Contents");
     int i = 0;
     for (const auto& [name, value] : str.fields) {

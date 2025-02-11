@@ -1445,9 +1445,8 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DataBlock* 
 
         // Serialise the structure and create the data object
 
-        DataBlockList data_block_list;
-        data_block_list.count = 1;
-        data_block_list.data = data_block;
+        std::vector<DataBlock> data_block_list;
+        data_block_list.push_back(*data_block);
         err = protocol2(&xdrObject, ProtocolId::DataBlockList, XDRStreamDirection::Send, nullptr, logmalloclist, userdefinedtypelist,
                         &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
@@ -1488,9 +1487,8 @@ int unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DataBlock
 
         // Deserialise the object and create the data_block structure
 
-        DataBlockList data_block_list;
-        data_block_list.count = 1;
-        data_block_list.data = data_block;
+        std::vector<DataBlock> data_block_list;
+        data_block_list.push_back(*data_block);
         err = protocol2(&xdrObject, ProtocolId::DataBlockList, XDRStreamDirection::Receive, nullptr, logmalloclist,
                         userdefinedtypelist, &data_block_list, protocolVersion, log_struct_list, private_flags,
                         malloc_source);

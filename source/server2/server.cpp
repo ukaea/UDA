@@ -113,18 +113,6 @@ void close_sockets(std::vector<Socket>& sockets)
     sockets.clear();
 }
 
-void print_data_block_list(const std::vector<DataBlock>& data_blocks)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "Data Blocks");
-    UDA_LOG(UDA_LOG_DEBUG, "count        : {}", data_blocks.size());
-    int i = 0;
-    for (auto& data_block : data_blocks) {
-        UDA_LOG(UDA_LOG_DEBUG, "block number : {}", i);
-        print_data_block(data_block);
-        ++i;
-    }
-}
-
 uda::server::Server::Server(Config config)
     : _config{std::move(config)}
     , _error_stack{}

@@ -51,7 +51,7 @@ bool_t xdr_putdata_block1(XDR* xdrs, PutDataBlock* str);
 
 bool_t xdr_putdata_block2(XDR* xdrs, PutDataBlock* str);
 
-bool_t xdr_data_block_list(XDR* xdrs, DataBlockList* str, int protocolVersion);
+bool_t xdr_data_block_list(XDR* xdrs, std::vector<DataBlock>* str, int protocolVersion);
 
 bool_t xdr_data_block1(XDR* xdrs, DataBlock* str, int protocolVersion);
 
