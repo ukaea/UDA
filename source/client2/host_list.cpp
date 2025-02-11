@@ -12,7 +12,6 @@
 #  include <strings.h>
 #endif
 
-#include "client/udaClientHostList.h"
 #include "logging/logging.h"
 
 using namespace uda::logging;
@@ -93,7 +92,7 @@ uda::client::HostList::HostList()
     // if the host IP address or name is prefixed with SSL:// this is stripped off and the isSSL bool set true
     // if the certificates and private key are defined, the isSSL bool set true
 
-    bool newHost = false;
+    bool new_host = false;
     uda::client_server::HostData new_data = {};
 
     std::string line;
@@ -111,39 +110,39 @@ uda::client::HostList::HostList()
 
         if (boost::iequals(name, "hostName")) {
             // Trigger a new set of attributes
-            if (newHost) {
+            if (new_host) {
                 hosts_.push_back(new_data);
                 new_data = {};
             }
-            newHost = false;
+            new_host = false;
             if (tokens.size() > 1 && !tokens[1].empty()) {
                 new_data.host_name = tokens[1];
-                newHost = true;
+                new_host = true;
             }
-        } else if (newHost && boost::iequals(name, "hostAlias")) {
+        } else if (new_host && boost::iequals(name, "hostAlias")) {
             if (tokens.size() > 1 && !tokens[1].empty()) {
                 new_data.host_alias = tokens[1];
             }
-        } else if (newHost && boost::iequals(name, "port")) {
+        } else if (new_host && boost::iequals(name, "port")) {
             if (tokens.size() > 1 && !tokens[1].empty()) {
                 new_data.port = std::stoi(tokens[1]);
             }
-        } else if (newHost && boost::iequals(name, "certificate")) {
+        } else if (new_host && boost::iequals(name, "certificate")) {
             if (tokens.size() > 1 && !tokens[1].empty()) {
                 new_data.certificate = tokens[1];
             }
-        } else if (newHost && boost::iequals(name, "privateKey")) {
+        } else if (new_host && boost::iequals(name, "privateKey")) {
             if (tokens.size() > 1 && !tokens[1].empty()) {
                 new_data.key = tokens[1];
             }
-        } else if (newHost && boost::iequals(name, "CA-Certificate")) {
+        } else if (new_host && boost::iequals(name, "CA-Certificate")) {
             if (tokens.size() > 1 && !tokens[1].empty()) {
                 new_data.ca_certificate = tokens[1];
             }
         }
     }
 
-    if (newHost) {
+    if (new_host) {
         hosts_.push_back(new_data);
     }
 
@@ -161,7 +160,7 @@ uda::client::HostList::HostList()
 
     // Extract and Strip the port number from the host name (a.b.c:9999, localhost:9999)
     for (auto& data : hosts_) {
-        size_t p;
+        size_t p = 0;
         if ((boost::iequals(data.host_name, "localhost") || data.host_name.find('.') != std::string::npos) &&
             (p = data.host_name.find(':')) != std::string::npos && data.host_name.size() + 1 < p) {
             data.port = atoi(&data.host_name[p]);

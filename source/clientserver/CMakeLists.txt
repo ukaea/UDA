@@ -12,7 +12,7 @@ set( SRCS
   initStructs.cpp
   makeRequestBlock.cpp
   make_request_block.cpp
-  manageSockets.cpp
+  manage_sockets.cpp
   nameValueSubstitution.cpp
   name_value_list.cpp
   parseOperation.cpp

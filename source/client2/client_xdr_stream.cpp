@@ -17,7 +17,7 @@ using namespace uda::authentication;
 using namespace uda::logging;
 using namespace uda::client_server;
 
-std::pair<XDR*, XDR*> uda::client::createXDRStream(IoData* io_data)
+std::pair<XDR*, XDR*> uda::client::create_xdr_stream(IoData* io_data)
 {
     static XDR client_input = {};
     static XDR client_output = {};

@@ -41,7 +41,7 @@
 #endif
 
 #include "clientserver/errorLog.h"
-#include "clientserver/manageSockets.h"
+#include "clientserver/manage_sockets.h"
 #include "logging/logging.h"
 #include "config/config.h"
 
@@ -533,13 +533,12 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     // Add New Socket to the Socket's List
 
-    Sockets socket = {};
+    Socket socket = {};
 
-    socket.type = SocketType::UDA;
-    socket.status = 1;
+    socket.open = true;
     socket.fh = _client_socket;
     socket.port = server_port;
-    strcpy(socket.host, server_host.c_str());
+    socket.host = server_host;
     socket.tv_server_start = 0;
     socket.user_timeout = 0;
     socket.Input = client_input;
@@ -560,18 +559,16 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
     return 0;
 }
 
-void uda::client::Connection::close_socket(int fh)
+void uda::client::Connection::close_socket(const int fh)
 {
     for (auto& socket : _socket_list) {
-        if (socket.fh == fh && socket.fh >= 0) {
-            if (socket.type == SocketType::UDA) {
+        if (socket.open && socket.fh == fh && socket.fh >= 0) {
 #ifndef _WIN32
-                ::close(fh); // Only Genuine Sockets!
+            ::close(fh); // Only Genuine Sockets!
 #else
-                ::closesocket(fh);
+            ::closesocket(fh);
 #endif
-            }
-            socket.status = 0;
+            socket.open = false;
             socket.fh = -1;
             break;
         }
@@ -583,7 +580,7 @@ void uda::client::Connection::close_down(ClosedownType type)
     if (_client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {
         close_socket(_client_socket);
     } else {
-        for (auto& socket : _socket_list) {
+        for (const auto& socket : _socket_list) {
             close_socket(socket.fh);
         }
     }

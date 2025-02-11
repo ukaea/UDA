@@ -106,12 +106,10 @@ void free_data_blocks(std::vector<DataBlock>& data_blocks)
     data_blocks.clear();
 }
 
-void close_sockets(std::vector<Sockets>& sockets)
+void close_sockets(std::vector<Socket>& sockets)
 {
-    for (auto& socket : sockets) {
-        if (socket.type == SocketType::UDA) {
-            close(socket.fh);
-        }
+    for (const auto& socket : sockets) {
+        close(socket.fh);
     }
     sockets.clear();
 }

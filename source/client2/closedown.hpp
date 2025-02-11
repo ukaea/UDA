@@ -1,12 +1,8 @@
 #pragma once
 
-#ifndef UDA_CLIENT_CLOSEDOWN_H
-#define UDA_CLIENT_CLOSEDOWN_H
+using XDR = struct __rpc_xdr;
 
-#include "clientserver/socketStructs.h"
-
-namespace uda {
-namespace client {
+namespace uda::client {
 
 enum class ClosedownType {
     CLOSE_SOCKETS = 0,
@@ -18,7 +14,4 @@ class Connection;
 int closedown(ClosedownType type, Connection* connection, XDR* client_input, XDR* client_output, bool* reopen_logs,
               bool* env_host, bool* env_port);
 
-} // namespace client
-} // namespace uda
-
-#endif // UDA_CLIENT_CLOSEDOWN_H
+} // namespace uda::client

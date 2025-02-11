@@ -4,6 +4,8 @@
 
 #include "connection.hpp"
 
+#include <rpc/xdr.h>
+
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>
 

@@ -8,7 +8,7 @@
 
 #include "cache/memcache.hpp"
 #include "clientserver/parseXML.h"
-#include "clientserver/socketStructs.h"
+#include "clientserver/socket_structs.h"
 #include "clientserver/version.h"
 #include <uda/export.h>
 #include "config/config.h"
@@ -36,12 +36,12 @@ class Server
     int report_to_client();
     void handshake_client();
     void start_logs();
-    int get_data(int* depth, uda::client_server::RequestData* request_data, uda::client_server::DataBlock* data_block,
+    int get_data(int* depth, client_server::RequestData* request_data, client_server::DataBlock* data_block,
                  int protocol_version);
-    int read_data(uda::client_server::RequestData* request, uda::client_server::DataBlock* data_block);
+    int read_data(client_server::RequestData* request, client_server::DataBlock* data_block);
 
     config::Config _config;
-    std::vector<uda::client_server::UdaError> _error_stack;
+    std::vector<client_server::UdaError> _error_stack;
     client_server::RequestBlock _request_block;
     client_server::ServerBlock _server_block;
     client_server::ClientBlock _client_block;
@@ -49,10 +49,10 @@ class Server
     client_server::Actions _actions_sig;
     cache::UdaCache* _cache;
     XdrProtocol _protocol;
-    std::vector<uda::client_server::Sockets> _sockets;
+    std::vector<client_server::Socket> _sockets;
     Plugins _plugins;
     bool _server_closedown = false;
-    std::vector<uda::client_server::DataBlock> _data_blocks;
+    std::vector<client_server::DataBlock> _data_blocks;
     size_t _total_data_block_size;
     client_server::MetaData _meta_data;
     int _server_timeout = client_server::TimeOut;

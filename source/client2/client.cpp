@@ -337,7 +337,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         }
 
         _io_data = _connection.io_data();
-        std::tie(_client_input, _client_output) = createXDRStream(&_io_data);
+        std::tie(_client_input, _client_output) = create_xdr_stream(&_io_data);
         time(&tv_server_start); // Start the Clock again: Age of Server
     }
 

@@ -1,21 +1,13 @@
 #pragma once
 
-#ifndef UDA_CLIENT_CLIENTXDRSTREAM_H
-#define UDA_CLIENT_CLIENTXDRSTREAM_H
-
 #include <rpc/rpc.h>
-#include <utility>
 
 #include "connection.hpp"
 
-namespace uda
-{
-namespace client
+namespace uda::client
 {
 
-std::pair<XDR*, XDR*> createXDRStream(IoData* io_data);
+std::pair<XDR*, XDR*> create_xdr_stream(IoData* io_data);
 
 }
-} // namespace uda
 
-#endif // UDA_CLIENT_CLIENTXDRSTREAM_H

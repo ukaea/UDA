@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include "clientserver/socketStructs.h"
+#include "clientserver/socket_structs.h"
 #include "clientserver/udaStructs.h"
 
 #include "closedown.hpp"
@@ -38,7 +38,7 @@ public:
 private:
     int _client_socket = -1;
     config::Config& _config;
-    std::vector<uda::client_server::Sockets> _socket_list; // List of open sockets
+    std::vector<client_server::Socket> _socket_list; // List of open sockets
 
     int find_socket(int fh);
     void close_socket(int fh);
