@@ -24,7 +24,7 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "logging/logging.h"
 #include "uda/structured.h"
 #include "server_config.h"

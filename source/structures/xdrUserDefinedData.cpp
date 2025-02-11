@@ -3,9 +3,9 @@
 #include <cstdlib>
 #include <uda/structured.h>
 
-#include "clientserver/errorLog.h"
+#include "clientserver/error_log.h"
 #include "clientserver/protocol.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "clientserver/xdrlib.h"
 #include "genStructs.h"
 #include "logging/logging.h"

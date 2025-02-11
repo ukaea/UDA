@@ -3,10 +3,10 @@
 #include <boost/format.hpp>
 #include <string>
 
-#include "clientserver/errorLog.h"
+#include "clientserver/error_log.h"
 #include "clientserver/expand_path.h"
-#include "clientserver/initStructs.h"
-#include "clientserver/udaErrors.h"
+#include "clientserver/init_structs.h"
+#include "clientserver/uda_errors.h"
 #include "config/config.h"
 
 using namespace uda::client_server;

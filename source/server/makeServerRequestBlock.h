@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 #include "serverPlugin.h"
 #include "config/config.h"
 

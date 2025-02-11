@@ -40,7 +40,7 @@
 #  endif
 #endif
 
-#include "clientserver/errorLog.h"
+#include "clientserver/error_log.h"
 #include "clientserver/manage_sockets.h"
 #include "logging/logging.h"
 #include "config/config.h"

@@ -1,8 +1,8 @@
 #include "xdr_protocol.hpp"
-#include "clientserver/errorLog.h"
+#include "clientserver/error_log.h"
 #include "clientserver/print_structs.h"
 #include "clientserver/protocol.h"
-#include "clientserver/udaErrors.h"
+#include "clientserver/uda_errors.h"
 #include "clientserver/xdrlib.h"
 #include <uda/types.h>
 
@@ -13,7 +13,7 @@
 #include <cerrno>
 #include <unistd.h>
 
-#include "clientserver/udaDefines.h"
+#include "clientserver/uda_defines.h"
 #include "logging/logging.h"
 
 #include "server.hpp"

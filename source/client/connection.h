@@ -1,7 +1,7 @@
 #pragma once
 
 #include "clientserver/socketStructs.h"
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 #include "config/config.h"
 
 #include "closedown.h"

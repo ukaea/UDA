@@ -52,7 +52,7 @@ int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_b
 #  include <string>
 #  include <vector>
 
-#  include "clientserver/errorLog.h"
+#  include "clientserver/error_log.h"
 #  include <sstream>
 
 using namespace uda::client_server;

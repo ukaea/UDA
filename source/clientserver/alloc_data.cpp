@@ -1,20 +1,10 @@
-/*---------------------------------------------------------------
- * Allocate Memory for the Data and Dim Blocks and Data Error Block
- *
- * Arguments:    DataBlock *        Data Block Structure
- *
- * Returns:    allocData        0 if heap allocation was successful
- *        DataBlock->data    Pointer to Memory Block
- *
- *--------------------------------------------------------------*/
-
-#include "allocData.h"
+#include "alloc_data.h"
 
 #include "logging/logging.h"
 #include <uda/types.h>
 
-#include "initStructs.h"
-#include "udaErrors.h"
+#include "init_structs.h"
+#include "uda_errors.h"
 
 using namespace uda::logging;
 

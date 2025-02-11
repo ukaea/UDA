@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 #include "clientserver/manageSockets.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 
 using namespace uda::client_server;
 

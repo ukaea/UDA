@@ -26,8 +26,8 @@ Interprets the API arguments and assembles a Request data structure.
 #include "clientserver/expand_path.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/makeRequestBlock.h"
-#include "common/stringUtils.h"
-#include "clientserver/udaErrors.h"
+#include "common/string_utils.h"
+#include "clientserver/uda_errors.h"
 #include "config/config.h"
 #include <fmt/format.h>
 

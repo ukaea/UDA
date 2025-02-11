@@ -8,8 +8,8 @@
 
 #include <cstdlib>
 
-#include "common/stringUtils.h"
-#include "udaDefines.h"
+#include "common/string_utils.h"
+#include "uda_defines.h"
 
 using namespace uda::client_server;
 using namespace uda::common;

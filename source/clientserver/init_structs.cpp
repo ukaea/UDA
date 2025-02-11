@@ -1,9 +1,4 @@
-
-// Initialise Data Structures
-//
-//----------------------------------------------------------------------------------
-
-#include "initStructs.h"
+#include "init_structs.h"
 
 #ifdef __GNUC__
 #  include <unistd.h>

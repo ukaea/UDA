@@ -26,12 +26,12 @@
 #include "logging/logging.h"
 #include <cstdlib>
 
-#include "allocData.h"
-#include "compressDim.h"
-#include "errorLog.h"
-#include "initStructs.h"
+#include "alloc_data.h"
+#include "compress_dim.h"
+#include "error_log.h"
+#include "init_structs.h"
 #include "protocolXML.h"
-#include "udaErrors.h"
+#include "uda_errors.h"
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD
@@ -94,7 +94,7 @@ void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timev
     FD_ZERO(rfds);
     FD_SET(fd, rfds);
     if (server_tot_block_time < MaxBlock) {
-        // (ms) For the First blocking period have rapid response (clientserver/udaDefines.h == 1000)
+        // (ms) For the First blocking period have rapid response (clientserver/uda_defines.h == 1000)
         tv->tv_sec = 0;
         tv->tv_usec = MinBlockTime; // minimum wait (1ms)
     } else {

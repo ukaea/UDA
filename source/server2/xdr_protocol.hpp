@@ -5,7 +5,7 @@
 
 #include "cache/memcache.hpp"
 #include "clientserver/protocol.h"
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 #include "structures/genStructs.h"
 
 namespace uda::server

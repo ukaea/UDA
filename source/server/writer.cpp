@@ -2,7 +2,7 @@
 
 #include <cerrno>
 
-#include "clientserver/udaDefines.h"
+#include "clientserver/uda_defines.h"
 #include "logging/logging.h"
 
 #include "createXDRStream.h"

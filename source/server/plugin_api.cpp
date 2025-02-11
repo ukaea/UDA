@@ -9,7 +9,7 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/makeRequestBlock.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "clientserver/type_convertor.hpp"
 #include "logging/logging.h"
 #include "structures/accessors.h"

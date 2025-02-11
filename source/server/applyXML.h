@@ -1,7 +1,7 @@
 #pragma once
 
 #include "clientserver/parseXML.h"
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 
 namespace uda::server
 {

@@ -6,7 +6,7 @@
 
 #include "plugins.hpp"
 
-#include "clientserver/errorLog.h"
+#include "clientserver/error_log.h"
 #include "logging/logging.h"
 #include "config/config.h"
 #include "uda/plugins.h"

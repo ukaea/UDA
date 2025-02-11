@@ -1,12 +1,11 @@
-#include "compressDim.h"
+#include "compress_dim.h"
 
 #include <cfloat>
-#include <cstdint>
 #include <cstdlib>
 
 #include <uda/types.h>
 
-#include "udaErrors.h"
+#include "uda_errors.h"
 
 using namespace uda::client_server;
 

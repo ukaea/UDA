@@ -6,12 +6,12 @@
 #include <uda/structured.h>
 #include <uda/types.h>
 
-#include "clientserver/errorLog.h"
-#include "clientserver/initStructs.h"
+#include "clientserver/error_log.h"
+#include "clientserver/init_structs.h"
 #include "clientserver/make_request_block.h"
 #include "clientserver/parse_xml.h"
 #include "clientserver/type_convertor.hpp"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "config/config.h"
 #include "logging/logging.h"
 #include "server2/plugins.hpp"

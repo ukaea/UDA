@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "clientserver/socketStructs.h"
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 #include "serverPlugin.h"
 #include "structures/genStructs.h"
 #include "uda/types.h"

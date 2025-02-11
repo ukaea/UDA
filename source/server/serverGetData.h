@@ -2,7 +2,7 @@
 
 #include "clientserver/parseXML.h"
 #include "clientserver/socketStructs.h"
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 #include "serverPlugin.h"
 #include "structures/genStructs.h"
 

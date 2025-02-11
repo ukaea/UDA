@@ -16,12 +16,12 @@
 #  define dup2 _dup2
 #endif
 
-#include "clientserver/errorLog.h"
+#include "clientserver/error_log.h"
 #include "clientserver/expand_path.h"
-#include "clientserver/initStructs.h"
+#include "clientserver/init_structs.h"
 #include "clientserver/make_request_block.h"
 #include "clientserver/print_structs.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "logging/logging.h"
 #include "structures/struct.h"
 #include "uda/plugins.h"

@@ -93,7 +93,7 @@ LIBRARY_API const char* udaGetServerErrorStackRecordMsg(int record);
 
 LIBRARY_API void udaCloseAllConnections();
 
-LIBRARY_API int udaNumErrors(void);
+LIBRARY_API int udaNumErrors();
 
 LIBRARY_API const char* udaGetErrorMessage(int err_num);
 

@@ -1,5 +1,5 @@
 set( SRCS
-  stringUtils.cpp
+  string_utils.cpp
 )
 
 add_library( common OBJECT ${SRCS} )

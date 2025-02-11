@@ -19,7 +19,7 @@
 #include <filesystem>
 
 #include "clientserver/errorLog.h"
-#include "clientserver/udaErrors.h"
+#include "clientserver/uda_errors.h"
 #include "logging/logging.h"
 
 #include "udaClient.h"

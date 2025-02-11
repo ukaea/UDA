@@ -22,13 +22,13 @@
 #include "parseIncludeFile.h"
 
 #include <cerrno>
-#include <string.h>
+#include <string>
 
 #include <uda/structured.h>
 
-#include "clientserver/errorLog.h"
-#include "common/stringUtils.h"
-#include "clientserver/udaDefines.h"
+#include "clientserver/error_log.h"
+#include "common/string_utils.h"
+#include "clientserver/uda_defines.h"
 #include "struct.h"
 
 using namespace uda::client_server;

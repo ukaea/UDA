@@ -1,8 +1,8 @@
 #include <uda/client.h>
 
 #include "client2/thread_client.hpp"
-#include "clientserver/allocData.h"
-#include "clientserver/initStructs.h"
+#include "clientserver/alloc_data.h"
+#include "clientserver/init_structs.h"
 #include "logging/logging.h"
 
 using namespace uda::client_server;

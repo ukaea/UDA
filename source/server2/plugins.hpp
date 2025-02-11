@@ -4,8 +4,8 @@
 #include <vector>
 #include <filesystem>
 
-#include "clientserver/udaDefines.h"
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_defines.h"
+#include "clientserver/uda_structs.h"
 #include "structures/genStructs.h"
 #include "clientserver/plugins.h"
 #include <uda/plugins.h>

@@ -3,7 +3,7 @@
 #include <cerrno>
 
 #include "clientserver/errorLog.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 
 #include "security.h"
 

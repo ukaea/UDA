@@ -1,7 +1,7 @@
 #ifndef UDA_CACHE_CACHE_H
 #define UDA_CACHE_CACHE_H
 
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 #include "structures/genStructs.h"
 #include <cstdio>
 

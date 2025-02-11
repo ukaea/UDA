@@ -6,10 +6,9 @@
 #include <unistd.h>
 #include <filesystem>
 #include <boost/asio.hpp>
-#include <wrappers/c++/include/uda/c++/signal.hpp>
 
-#include "clientserver/errorLog.h"
-#include "clientserver/initStructs.h"
+#include "clientserver/error_log.h"
+#include "clientserver/init_structs.h"
 #include "clientserver/print_structs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"

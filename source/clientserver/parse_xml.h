@@ -1,7 +1,7 @@
 #pragma once
 
-#include "udaDefines.h"
-#include "udaStructs.h"
+#include "uda_defines.h"
+#include "uda_structs.h"
 
 namespace uda::client_server
 {

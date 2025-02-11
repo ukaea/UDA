@@ -1,6 +1,6 @@
 #include <uda/types.h>
 
-#include "udaStructs.h"
+#include "uda_structs.h"
 
 size_t getSizeOf(UDA_TYPE data_type)
 {

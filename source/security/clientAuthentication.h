@@ -1,7 +1,7 @@
 #ifndef UDA_SECURITY_CLIENTAUTHENTICATION_H
 #define UDA_SECURITY_CLIENTAUTHENTICATION_H
 
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 #include "structures/genStructs.h"
 
 #include "security.h"

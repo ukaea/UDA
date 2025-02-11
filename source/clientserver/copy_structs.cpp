@@ -1,4 +1,4 @@
-#include "copyStructs.h"
+#include "copy_structs.h"
 
 #include <cstdlib>
 #include <cstring>

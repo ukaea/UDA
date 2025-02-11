@@ -9,7 +9,7 @@
 
 #include <uda/types.h>
 
-#include "udaDefines.h"
+#include "uda_defines.h"
 #include "name_value_list.hpp"
 
 using UDA_ERROR_STACK = struct CUdaErrorStack {};

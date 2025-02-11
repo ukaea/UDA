@@ -15,9 +15,9 @@
 #include "clientserver/protocolXML2.h"
 #include "logging/logging.h"
 
-#include "errorLog.h"
+#include "error_log.h"
 #include "print_structs.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "structures/struct.h"
 
 using namespace uda::client_server;

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 #include "cache/memcache.hpp"
 #include "config/config.h"
 

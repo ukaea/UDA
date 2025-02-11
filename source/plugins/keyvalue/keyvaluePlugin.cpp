@@ -4,7 +4,7 @@
 
 #include <boost/filesystem.hpp>
 
-//#include "common/stringUtils.h"
+//#include "common/string_utils.h"
 #include <uda/types.h>
 #include <uda/uda_plugin_base.hpp>
 

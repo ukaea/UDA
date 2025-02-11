@@ -28,10 +28,10 @@
 
 #include "logging/logging.h"
 #include "config/config.h"
-#include "udaErrors.h"
 
-#include "errorLog.h"
-#include "common/stringUtils.h"
+#include "error_log.h"
+#include "common/string_utils.h"
+
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"
 #endif

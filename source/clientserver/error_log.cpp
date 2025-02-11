@@ -1,9 +1,9 @@
-#include "errorLog.h"
+#include "error_log.h"
 
 #include <cstdlib>
 #include <vector>
 
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "logging/logging.h"
 #include "uda/client.h"
 
@@ -12,7 +12,7 @@ using namespace uda::common;
 
 static std::vector<uda::client_server::UdaError> uda_error_stack;
 
-int udaNumErrors(void)
+int udaNumErrors()
 {
     return static_cast<int>(uda_error_stack.size());
 }

@@ -54,9 +54,9 @@
 #  define strcasecmp _stricmp
 #endif
 
-#include "clientserver/errorLog.h"
+#include "clientserver/error_log.h"
 #include "clientserver/protocolXML2Put.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
 

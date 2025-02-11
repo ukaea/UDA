@@ -6,7 +6,7 @@
 #endif
 
 #include "clientserver/errorLog.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "logging/logging.h"
 
 using namespace uda::client_server;

@@ -28,16 +28,15 @@
 #include "logging/logging.h"
 #include <uda/types.h>
 
-#include "allocData.h"
-#include "compressDim.h"
-#include "initStructs.h"
+#include "alloc_data.h"
+#include "compress_dim.h"
+#include "error_log.h"
+#include "init_structs.h"
 #include "print_structs.h"
 #include "protocolXML2.h"
-#include "xdrlib.h"
-
-#include "errorLog.h"
 #include "protocolXML2Put.h"
-#include "udaErrors.h"
+#include "uda_errors.h"
+#include "xdrlib.h"
 
 using namespace uda::client_server;
 using namespace uda::logging;

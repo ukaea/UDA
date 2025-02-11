@@ -17,12 +17,9 @@
 #endif
 
 #include <logging/logging.h>
-#include <clientserver/errorLog.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/allocData.h>
+#include <clientserver/alloc_data.h>
 #include <clientserver/version.h>
 #include <clientserver/xdrlib.h>
-#include <structures/struct.h>
 #include <uda/version.h>
 
 #include "client2/generate_errors.hpp"

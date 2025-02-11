@@ -13,7 +13,7 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/nameValueSubstitution.h"
 #include "clientserver/printStructs.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "logging/logging.h"
 
 #include "applyXML.h"

@@ -10,7 +10,7 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
-#include "clientserver/udaErrors.h"
+#include "clientserver/uda_errors.h"
 #include "clientserver/userid.h"
 #include "logging/logging.h"
 #include "structures/struct.h"

@@ -6,7 +6,7 @@
 
 #include "cache/memcache.hpp"
 #include "clientserver/errorLog.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "server/serverPlugin.h"
 #include "uda/plugins.h"
 

@@ -1,6 +1,6 @@
 #include "print_structs.h"
 
-#include "clientserver/errorLog.h"
+#include "clientserver/error_log.h"
 #include "logging/logging.h"
 
 using namespace uda::client_server;

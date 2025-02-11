@@ -19,7 +19,7 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/memstream.h"
 #include "clientserver/protocol.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
 #include "client/client_config.h"

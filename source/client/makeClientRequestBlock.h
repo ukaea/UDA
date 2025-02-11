@@ -1,6 +1,6 @@
 #pragma once
 
-#include "clientserver/udaStructs.h"
+#include "clientserver/uda_structs.h"
 
 namespace uda::client
 {

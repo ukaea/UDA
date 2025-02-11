@@ -4,7 +4,7 @@
 #include <string_view>
 #include <fmt/format.h>
 
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 
 namespace uda::config
 {

@@ -17,7 +17,7 @@
 #include "clientserver/manageSockets.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
-#include "clientserver/udaErrors.h"
+#include "clientserver/uda_errors.h"
 #include "clientserver/xdrlib.h"
 #include "logging/accessLog.h"
 #include "logging/logging.h"

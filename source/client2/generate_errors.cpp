@@ -1,10 +1,9 @@
 #include "generate_errors.hpp"
 
-#include <cmath>
 #include <cstdlib>
 
-#include "clientserver/allocData.h"
-#include "clientserver/errorLog.h"
+#include "clientserver/alloc_data.h"
+#include "clientserver/error_log.h"
 #include <uda/types.h>
 
 #include "thread_client.hpp"

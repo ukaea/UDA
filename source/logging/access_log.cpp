@@ -24,8 +24,8 @@
 #include <sstream>
 #include <fmt/format.h>
 
-#include "clientserver/errorLog.h"
-#include "common/stringUtils.h"
+#include "clientserver/error_log.h"
+#include "common/string_utils.h"
 #include "logging.h"
 
 constexpr size_t HostNameLength = 20;

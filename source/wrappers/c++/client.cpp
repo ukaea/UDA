@@ -2,12 +2,10 @@
 
 #include <fmt/format.h>
 #include <complex>
-#include <iterator>
 #include <uda/client.h>
 
-#include "clientserver/initStructs.h"
+#include "clientserver/init_structs.h"
 
-#include "data.hpp"
 #include "result.hpp"
 #include "signal.hpp"
 

@@ -8,9 +8,9 @@
 #  include <libxml/parser.h>
 #  include <libxml/xmlmemory.h>
 
-#  include "clientserver/errorLog.h"
+#  include "clientserver/error_log.h"
 #  include "clientserver/parse_operation.h"
-#  include "common/stringUtils.h"
+#  include "common/string_utils.h"
 #  include "logging/logging.h"
 
 using namespace uda::client_server;

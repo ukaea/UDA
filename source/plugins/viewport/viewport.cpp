@@ -18,7 +18,7 @@
 #  include <strings.h>
 #endif
 
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include <uda/uda_plugin_base.hpp>
 #include <uda/client.h>
 

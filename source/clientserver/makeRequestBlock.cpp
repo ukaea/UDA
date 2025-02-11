@@ -16,11 +16,11 @@
 #include "logging/logging.h"
 #include <fmt/format.h>
 
-#include "errorLog.h"
+#include "error_log.h"
 #include "parse_xml.h"
-#include "common/stringUtils.h"
-#include "udaErrors.h"
-#include "udaStructs.h"
+#include "common/string_utils.h"
+#include "uda_errors.h"
+#include "uda_structs.h"
 #include "plugins.h"
 #include "config/config.h"
 

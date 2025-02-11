@@ -4,12 +4,12 @@ find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 
 set( SRCS
-  allocData.cpp
-  compressDim.cpp
-  copyStructs.cpp
-  errorLog.cpp
+  alloc_data.cpp
+  compress_dim.cpp
+  copy_structs.cpp
+  error_log.cpp
   expand_path.cpp
-  initStructs.cpp
+  init_structs.cpp
   makeRequestBlock.cpp
   make_request_block.cpp
   manage_sockets.cpp
@@ -24,9 +24,9 @@ set( SRCS
   protocolXML2.cpp
   protocolXML2Put.cpp
   readXDRFile.cpp
-  udaDefines.cpp
-  udaStructs.cpp
-  udaTypes.cpp
+  uda_defines.cpp
+  uda_structs.cpp
+  uda_types.cpp
   userid.cpp
   version.cpp
   xdrlib.cpp

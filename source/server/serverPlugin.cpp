@@ -21,7 +21,7 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/makeRequestBlock.h"
 #include "clientserver/printStructs.h"
-#include "common/stringUtils.h"
+#include "common/string_utils.h"
 #include "logging/logging.h"
 #include "structures/struct.h"
 #include "uda/plugins.h"

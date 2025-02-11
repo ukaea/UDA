@@ -4,7 +4,7 @@
 #include <cerrno>
 #include <cstdlib>
 
-#include "errorLog.h"
+#include "error_log.h"
 
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"
