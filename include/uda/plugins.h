@@ -55,6 +55,10 @@ typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // W
 
 #define UDA_MAX_PATH 1024 // Same as StringLength
 
+LIBRARY_API void udaSetMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key, const char* value);
+LIBRARY_API const char* udaGetMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key);
+LIBRARY_API bool udaHasMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key);
+
 LIBRARY_API void udaExpandEnvironmentalVariables(char* path);
 LIBRARY_API int udaCallPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request);
 LIBRARY_API int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source);
