@@ -45,7 +45,7 @@ TEST_CASE( "logging can be re-initialised after spdlog::shutdown", "[init-loggin
 
     init_logging();
     REQUIRE( logging_initialised() );
-    std::this_thread::sleep_for(std::chrono::miliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     // some of these calls used to segfault after shutdown/reinit
     auto expected_result = LogLevel::UDA_LOG_DEBUG;
