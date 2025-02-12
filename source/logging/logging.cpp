@@ -16,6 +16,7 @@ void uda::logging::init_logging()
         return;
     }
     auto debug_logger = spdlog::stdout_logger_mt("debug");
+    spdlog::register_logger(debug_logger);
     auto error_logger = spdlog::stdout_logger_mt("error");
     auto access_logger = spdlog::stdout_logger_mt("access");
     // default logger required to avoid segfaults if logging is reopened after shutdown
