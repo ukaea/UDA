@@ -73,7 +73,7 @@ void uda::client::Connection::load_config(config::Config& config)
     }
     // TODO: what is precedence here if host is from host-list (with associated port?)
     // TODO: should connection class always have reference to host list?
-    auto port = config.get("connection.port").as_or_default<int>(uda::client::DefaultPort);
+    auto port = config.get("connection.port").as_or_default<int64_t>(uda::client::DefaultPort);
     if (port != _port){
         set_port(port);
     }
@@ -97,7 +97,7 @@ void uda::client::Connection::load_config(config::Config& config)
 
     //TODO: currently no _host_list searching for failover connection details.
     //TODO: how to determine if currently connected to failover server and signal reconnect on update?
-    _failover_port = config.get("connection.failover_port").as_or_default<int>(0);
+    _failover_port = config.get("connection.failover_port").as_or_default<int64_t>(0);
     _failover_host = config.get("connection.failover_host").as_or_default<std::string>(""s);
 
     const auto host_list_config_path = config.get("connection._host_list").as_or_default<std::string>(""s);

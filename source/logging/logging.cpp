@@ -5,6 +5,7 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/sinks/ostream_sink.h>
 #include <ostream>
+#include <stdexcept>
 
 //TODO: should this global sit in the logging (or private) namespace or have a more logging-specific name instead of what it is currently?
 static bool g_initialised = false;
@@ -14,6 +15,7 @@ void uda::logging::init_logging()
     if (g_initialised) {
         return;
     }
+    spdlog::drop_all();
     auto debug_logger = spdlog::stdout_logger_st("debug");
     auto error_logger = spdlog::stdout_logger_st("error");
     auto access_logger = spdlog::stdout_logger_st("access");
@@ -30,6 +32,11 @@ bool uda::logging::logging_initialised()
 
 void uda::logging::set_log_level(LogLevel level)
 {
+    if (!g_initialised)
+    {
+        throw std::runtime_error("set log level error: logging not initialised");
+    }
+
     spdlog::level::level_enum spdlog_level;
 
     switch (level) {
@@ -54,14 +61,40 @@ void uda::logging::set_log_level(LogLevel level)
     }
 
     //TODO: consider calling get and set separately to catch nullptr errors
+    if (!spdlog::default_logger())
+    {
+        throw std::runtime_error("Logging error: no default logger set");
+    }
     spdlog::set_level(spdlog_level);
-    spdlog::get("debug")->set_level(spdlog_level);
-    spdlog::get("error")->set_level(spdlog_level);
-    spdlog::get("access")->set_level(spdlog_level);
+
+    auto debug_logger = spdlog::get("debug");
+    if(!debug_logger)
+    {
+        throw std::runtime_error("Logging error: no debug logger available");
+    }
+    debug_logger->set_level(spdlog_level);
+
+    auto error_logger = spdlog::get("error");
+    if(!error_logger)
+    {
+        throw std::runtime_error("Logging error: no error logger available");
+    }
+    error_logger->set_level(spdlog_level);
+
+    auto access_logger = spdlog::get("access");
+    if(!access_logger)
+    {
+        throw std::runtime_error("Logging error: no access logger available");
+    }
+    access_logger->set_level(spdlog_level);
 }
 
 uda::logging::LogLevel uda::logging::get_log_level()
 {
+    if (!g_initialised)
+    {
+        throw std::runtime_error("get log level error: logging not initialised");
+    }
     auto level = spdlog::get_level();
     switch (level) {
         case spdlog::level::debug:

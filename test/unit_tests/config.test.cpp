@@ -85,7 +85,7 @@ TEST_CASE( "values of all required types are retrievable from a toml config file
     const auto boolean_value = config.get("test.boolean").as<bool>();
     REQUIRE( boolean_value == true );
 
-    const auto integer_value = config.get("test.integer").as<int>();
+    const auto integer_value = config.get("test.integer").as<int64_t>();
     REQUIRE( integer_value == 1);
 
     const auto float_value = config.get("test.float").as<double>();
