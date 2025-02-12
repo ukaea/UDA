@@ -541,7 +541,7 @@ void Config::set(std::string_view name, const std::string& value)
     return _impl->set(name, value);
 }
 
-void Config::set(std::string_view name, int value)
+void Config::set(std::string_view name, int64_t value)
 {
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};
@@ -549,7 +549,7 @@ void Config::set(std::string_view name, int value)
     return _impl->set(name, value);
 }
 
-void Config::set(std::string_view name, float value)
+void Config::set(std::string_view name, double value)
 {
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};

@@ -85,7 +85,7 @@ TEST_CASE( "values of all required types are retrievable from a toml config file
     const auto boolean_value = config.get("test.boolean").as<bool>();
     REQUIRE( boolean_value == true );
 
-    const auto integer_value = config.get("test.integer").as<int32_t>();
+    const auto integer_value = config.get("test.integer").as<int>();
     REQUIRE( integer_value == 1);
 
     const auto float_value = config.get("test.float").as<double>();
@@ -121,9 +121,9 @@ TEST_CASE( "values of all required types can be set in the in-memory representat
     config.load_in_memory();
     REQUIRE(config);
     REQUIRE_NOTHROW( config.set("test.boolean", true) );
-    int integer_value {};
+    int64_t integer_value {};
     REQUIRE_NOTHROW( config.set("test.integer", integer_value) );
-    float float_value {};
+    double float_value {};
     REQUIRE_NOTHROW( config.set("test.float", float_value) );
     REQUIRE_NOTHROW( config.set("test.string", "some text"s) );
     REQUIRE_NOTHROW( config.set("test.char", "a"s) );
@@ -151,7 +151,7 @@ TEST_CASE( "validation fails when trying to set incorrectly typed data for a giv
     config.load_in_memory();
     REQUIRE(config);
     REQUIRE_THROWS_AS( config.set("test.char", "not a char"),  uda::config::ConfigError );
-    int int_not_string {};
+    int64_t int_not_string {};
     REQUIRE_THROWS_AS( config.set("test.string", int_not_string),  uda::config::ConfigError );
     bool bool_not_int {};
     REQUIRE_THROWS_AS( config.set("test.integer", bool_not_int),  uda::config::ConfigError );

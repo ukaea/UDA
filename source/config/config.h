@@ -42,7 +42,7 @@ class Option
             }
             throw ConfigError::cast_error<std::string>(_name, _value);
         } else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
-            if (is<long long>()) {
+            if (is<int64_t>()) {
                 auto value = boost::any_cast<long long>(_value);
                 return static_cast<T>(value);
             }
@@ -106,8 +106,8 @@ class Config
     void set(std::string_view name, const std::string& value);
     void set(std::string_view name, const char* value);
     void set(std::string_view name, bool value);
-    void set(std::string_view name, int value);
-    void set(std::string_view name, float value);
+    void set(std::string_view name, int64_t value);
+    void set(std::string_view name, double value);
     void print() const;
     inline explicit operator bool() const
     {

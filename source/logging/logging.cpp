@@ -15,7 +15,6 @@ void uda::logging::init_logging()
     if (g_initialised) {
         return;
     }
-    spdlog::drop_all();
     auto debug_logger = spdlog::stdout_logger_st("debug");
     auto error_logger = spdlog::stdout_logger_st("error");
     auto access_logger = spdlog::stdout_logger_st("access");
@@ -27,6 +26,7 @@ void uda::logging::init_logging()
 
 bool uda::logging::logging_initialised()
 {
+    // return spdlog::default_logger() != nullptr;
     return g_initialised;
 }
 
@@ -210,6 +210,6 @@ void uda::logging::capture_log_output(LogLevel mode, std::ostream& oss)
 
     auto& sinks = logger->sinks();
     sinks.clear();
-    sinks.push_back(std::make_shared<spdlog::sinks::ostream_sink_st>(oss));
+    sinks.push_back(std::make_shared<spdlog::sinks::ostream_sink_mt>(oss));
 }
 
