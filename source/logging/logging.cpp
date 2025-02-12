@@ -15,13 +15,17 @@ void uda::logging::init_logging()
     if (g_initialised) {
         return;
     }
-    auto debug_logger = spdlog::stdout_logger_st("debug");
-    auto error_logger = spdlog::stdout_logger_st("error");
-    auto access_logger = spdlog::stdout_logger_st("access");
+    auto debug_logger = spdlog::stdout_logger_mt("debug");
+    auto error_logger = spdlog::stdout_logger_mt("error");
+    auto access_logger = spdlog::stdout_logger_mt("access");
     // default logger required to avoid segfaults if logging is reopened after shutdown
     // e.g. in calls to spdlog::get_level()
     spdlog::set_default_logger(debug_logger);
     g_initialised = true;
+    if (!spdlog::get("debug"))
+    {
+        throw std::runtime_error("logging initilisation error: no debug logger");
+    }
 }
 
 bool uda::logging::logging_initialised()
@@ -157,14 +161,14 @@ void uda::logging::set_log_stdout(LogLevel mode)
     // only add file sink if it doesn't exist
     bool found = false;
     for (const auto& sink : sinks) {
-        auto stdout_sink = dynamic_cast<spdlog::sinks::stdout_sink_st*>(sink.get());
+        auto stdout_sink = dynamic_cast<spdlog::sinks::stdout_sink_mt*>(sink.get());
         if (stdout_sink) {
             found = true;
             break;
         }
     }
     if (!found) {
-        sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+        sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
     }
 }
 
@@ -181,21 +185,21 @@ void uda::logging::set_log_file(LogLevel mode, const std::string& file_name, con
 
     // remove existing stdout sink
     auto to_remove = std::remove_if(sinks.begin(), sinks.end(), [](const auto& sink){
-        return dynamic_cast<spdlog::sinks::stdout_sink_st*>(sink.get()) != nullptr;
+        return dynamic_cast<spdlog::sinks::stdout_sink_mt*>(sink.get()) != nullptr;
     });
     sinks.erase(to_remove, sinks.end());
 
     // only add file sink if it doesn't exist
     bool found = false;
     for (const auto& sink : sinks) {
-        auto file_sink = dynamic_cast<spdlog::sinks::basic_file_sink_st*>(sink.get());
+        auto file_sink = dynamic_cast<spdlog::sinks::basic_file_sink_mt*>(sink.get());
         if (file_sink && file_sink->filename() == file_name) {
             found = true;
             break;
         }
     }
     if (!found) {
-        sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_st>(file_name, truncate));
+        sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(file_name, truncate));
     }
 }
 
