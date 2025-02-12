@@ -13,8 +13,17 @@ using namespace uda::logging;
 
 //NOTE: need to call close_logging() to teardown each test due to global state
 
+void reset_logging_if_required()
+{
+    if(logging_initialised())
+    {
+        close_logging();
+    }
+}
+
 TEST_CASE( "logging initialisaiton status can be checked", "[init-logging]")
 {
+    reset_logging_if_required();
     REQUIRE_FALSE( logging_initialised() );
     init_logging();
     REQUIRE( logging_initialised() );
@@ -24,6 +33,7 @@ TEST_CASE( "logging initialisaiton status can be checked", "[init-logging]")
 
 TEST_CASE( "init can be called multiple times without error", "[init-logging]")
 {
+    reset_logging_if_required();
     REQUIRE_FALSE( logging_initialised() );
     init_logging();
     REQUIRE( logging_initialised() );
@@ -37,6 +47,7 @@ TEST_CASE( "init can be called multiple times without error", "[init-logging]")
 
 TEST_CASE( "logging can be re-initialised after spdlog::shutdown", "[init-logging]")
 {
+    reset_logging_if_required();
     REQUIRE_FALSE( logging_initialised() );
     init_logging();
     REQUIRE( logging_initialised() );
@@ -59,6 +70,7 @@ TEST_CASE( "logging can be re-initialised after spdlog::shutdown", "[init-loggin
 
 TEST_CASE( "log level can be set and queried", "[init-logging]")
 {
+    reset_logging_if_required();
     REQUIRE_FALSE( logging_initialised() );
     init_logging();
     REQUIRE( logging_initialised() );
@@ -105,6 +117,7 @@ TEST_CASE( "log level can be set and queried", "[init-logging]")
 
 TEST_CASE( "log function doesn't segfault when logs are uninitialised", "[uda-log]")
 {
+    reset_logging_if_required();
     REQUIRE_FALSE( logging_initialised() );
     // REQUIRE_NOTHROW( UDA_LOG(LogLevel::UDA_LOG_ERROR, "A test message") );
     REQUIRE_NOTHROW( log(LogLevel::UDA_LOG_ERROR, __FILE__, __LINE__, "A test message") );
@@ -126,6 +139,7 @@ TEST_CASE( "log function doesn't segfault when logs are uninitialised", "[uda-lo
 
 TEST_CASE( "No logging output generated when log level is UDA_LOG_NONE", "[uda-log]")
 {
+    reset_logging_if_required();
     REQUIRE_FALSE( logging_initialised() );
     init_logging();
     REQUIRE( logging_initialised() );
@@ -142,6 +156,7 @@ TEST_CASE( "No logging output generated when log level is UDA_LOG_NONE", "[uda-l
 
 TEST_CASE( "Error logging output generated when log level is not UDA_LOG_NONE", "[uda-log]")
 {
+    reset_logging_if_required();
     REQUIRE_FALSE( logging_initialised() );
     init_logging();
     REQUIRE( logging_initialised() );

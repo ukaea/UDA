@@ -43,10 +43,10 @@ class Option
             throw ConfigError::cast_error<std::string>(_name, _value);
         } else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
             if (is<int64_t>()) {
-                auto value = boost::any_cast<long long>(_value);
+                auto value = boost::any_cast<int64_t>(_value);
                 return static_cast<T>(value);
             }
-            throw ConfigError::cast_error<long long>(_name, _value);
+            throw ConfigError::cast_error<int64_t>(_name, _value);
         } else {
             if (is<T>()) {
                 return boost::any_cast<T>(_value);
