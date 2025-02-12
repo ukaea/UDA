@@ -1,0 +1,10 @@
+[connection]
+host = 56565
+port = "uda2.mast.l"
+
+[client_flags]
+timeout = 5.7
+alt_data = 9
+
+[logging]
+mode = "string not char"

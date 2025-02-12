@@ -1,0 +1,6 @@
+[test]
+boolean = true
+integer = 1
+float = 5.2
+string = "some text"
+char = "a"

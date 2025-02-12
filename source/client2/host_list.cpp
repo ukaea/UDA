@@ -46,7 +46,7 @@ const uda::client_server::HostData* uda::client::HostList::find_by_name(std::str
 uda::client::HostList::HostList()
 {
     //----------------------------------------------------------------------------------------------------------------------
-    // Read the host configuration file: No error if the file does not exist
+    // Read the host configuration file from default locations: No error if the file does not exist
 
     // Locate the hosts registration file
 
@@ -71,7 +71,16 @@ uda::client::HostList::HostList()
     }
 
     // Read the hosts file
+    load_config_file(config_file);
+}
 
+uda::client::HostList::HostList(std::string_view config_file)
+{
+    load_config_file(config_file);
+}
+
+void uda::client::HostList::load_config_file(std::string_view config_file)
+{
     std::ifstream conf(config_file);
     if (!conf) {
         return;

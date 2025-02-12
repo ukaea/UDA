@@ -4,7 +4,9 @@
 #include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
 #include <toml++/toml.hpp>
+#include <type_traits>
 #include <vector>
+#include <unordered_map>
 
 #ifdef __GNUC__ // GCC 4.8+, Clang, Intel and other compilers compatible with GCC (-std=c++0x or above)
 [[noreturn]] inline __attribute__((always_inline)) void unreachable() { __builtin_unreachable(); }
@@ -24,6 +26,32 @@ enum class ValueType {
     Boolean,
     Char,
 };
+
+template<typename T>
+ValueType get_value_type(T value)
+{
+    if constexpr(std::is_same_v<T, std::string>)
+    {
+        if (value.size() == 1)
+        {
+            return ValueType::Char;
+        }
+        return ValueType::String;
+    }
+    else if constexpr(std::is_same_v<T, bool>)
+    {
+        return ValueType::Boolean;
+    }
+    else if constexpr(std::is_integral_v<T>)
+    {
+        return ValueType::Integer;
+    }
+    else if constexpr(std::is_floating_point_v<T>)
+    {
+        return ValueType::Float;
+    }
+    throw uda::config::ConfigError{"Unrecognised value type"};
+}
 
 std::string to_string(ValueType type)
 {
@@ -101,6 +129,15 @@ class ValueValidator
         }
     }
 
+    void validate(ValueType type) const
+    {
+        if (type != _type) 
+        {
+            throw uda::config::ConfigError{
+                fmt::format("invalid type for option {}, should be {}", _name, to_string(_type))};
+        }
+    }
+
   private:
     std::string _name;
     ValueType _type;
@@ -114,18 +151,39 @@ class SectionValidator
     {
     }
 
+    void validate(std::string_view field_name, ValueType type) const
+    {
+        bool found = false;
+        for (const auto& validator : _value_validators) 
+        {
+            if (validator.name() == field_name) 
+            {
+                found = true;
+                validator.validate(type);
+            }
+        }
+        if (!found) 
+        {
+            throw uda::config::ConfigError{fmt::format("invalid option {} in section {}", field_name, _name)};
+        }
+    }
+
     void validate(const toml::table& table) const
     {
-        for (const auto& entry : table) {
+        for (const auto& entry : table) 
+        {
             const auto& name = entry.first;
             bool found = false;
-            for (const auto& validator : _value_validators) {
-                if (validator.name() == name) {
+            for (const auto& validator : _value_validators) 
+            {
+                if (validator.name() == name) 
+                {
                     found = true;
                     validator.validate(entry.second);
                 }
             }
-            if (!found) {
+            if (!found) 
+            {
                 throw uda::config::ConfigError{fmt::format("invalid option {} in section {}", name.data(), _name)};
             }
         }
@@ -174,6 +232,7 @@ const std::vector<SectionValidator> Validators = {
         {
             {"host", ValueType::String},
             {"port", ValueType::Integer},
+            {"host_list", ValueType::String},
             {"max_socket_delay", ValueType::Integer},
             {"max_socket_attempts", ValueType::Integer},
             {"failover_host", ValueType::String},
@@ -201,6 +260,31 @@ const std::vector<SectionValidator> Validators = {
             {"reuse_last_handle", ValueType::Boolean},
             {"free_and_reuse_last_handle", ValueType::Boolean},
             {"file_cache", ValueType::Boolean},
+            {"full_reset", ValueType::Boolean},
+            {"xdr_file", ValueType::Boolean},
+            {"closedown", ValueType::Boolean},
+            {"xdr_object", ValueType::Boolean},
+            {"cache", ValueType::Boolean},
+        }},
+    SectionValidator{"client",
+        {
+            {"DOI", ValueType::String},
+        }},
+    SectionValidator{"private_flags",
+        {
+            {"full_reset", ValueType::Boolean},
+            {"xdr_file", ValueType::Boolean},
+            {"external", ValueType::Boolean},
+            {"cache", ValueType::Boolean},
+            {"xdr_object", ValueType::Boolean},
+        }},
+    SectionValidator{"test",
+        {
+            {"boolean", ValueType::Boolean},
+            {"integer", ValueType::Integer},
+            {"float", ValueType::Float},
+            {"string", ValueType::String},
+            {"char", ValueType::Char},
         }},
 };
 
@@ -223,6 +307,23 @@ void validate(toml::table& table)
             throw uda::config::ConfigError{fmt::format("invalid section name {}", name.data())};
         }
     }
+}
+
+void validate(std::string_view section_name, std::string_view field_name, ValueType type)
+{
+    bool found = false;
+            for (const auto& validator : Validators) 
+            {
+            if (validator.name() == section_name) 
+            {
+                found = true;
+                validator.validate(field_name, type);
+            }
+        }
+        if (!found) 
+        {
+            throw uda::config::ConfigError{fmt::format("invalid section name {}", section_name)};
+        }
 }
 
 } // namespace
@@ -259,6 +360,7 @@ char Option::as_or_default<char>(char default_value) const
 class ConfigImpl
 {
   public:
+    ConfigImpl() : _table{} {};
     ConfigImpl(std::string_view file_name) : _table{} { load(file_name); };
 
     Option get(std::string_view name) const
@@ -298,6 +400,7 @@ class ConfigImpl
         }
         auto& section_name = tokens[0];
         auto& option_name = tokens[1];
+        validate(section_name, option_name, get_value_type(value));
         auto section = _table[section_name];
         if (section) {
             auto sec = section.as_table();
@@ -340,6 +443,39 @@ class ConfigImpl
         }
     }
 
+    std::unordered_map<std::string, Option>
+    get_section_as_map(std::string_view section_name) const
+    {
+        std::unordered_map<std::string, Option> result {};
+
+        toml::node_view section_option = _table[section_name];
+        if (!section_option or !section_option.is_table()) {
+            return result;
+        }
+        auto section_table = section_option.as_table();
+        for (const auto& [key, value] : *section_table)
+        {
+            switch (value.type()) 
+            {
+                case toml::node_type::string:
+                    result.insert({key.data(), Option{key.data(), value.ref<std::string>()}});
+                    break;
+                case toml::node_type::integer:
+                    result.insert({key.data(), Option{key.data(), value.ref<int64_t>()}});
+                    break;
+                case toml::node_type::floating_point:
+                    result.insert({key.data(), Option{key.data(), value.ref<double>()}});
+                    break;
+                case toml::node_type::boolean:
+                    result.insert({key.data(), Option{key.data(), value.ref<bool>()}});
+                    break;
+                default:
+                    throw ConfigError{fmt::format("invalid option type {}", to_string(value.type()))};
+            }
+        }
+        return result;
+    }
+
   private:
     toml::table _table;
 
@@ -359,6 +495,11 @@ void Config::load(std::string_view file_name)
     _impl = std::make_unique<ConfigImpl>(file_name);
 }
 
+void Config::load_in_memory()
+{
+    _impl = std::make_unique<ConfigImpl>();
+}
+
 Option Config::get(std::string_view name) const
 {
     if (!_impl) {
@@ -366,6 +507,14 @@ Option Config::get(std::string_view name) const
         return Option(std::string(name));
     }
     return _impl->get(name);
+}
+
+std::unordered_map<std::string, Option> Config::get_section_as_map(std::string_view section_name) const
+{
+    if (!_impl) {
+        return {};
+    }
+    return _impl->get_section_as_map(section_name);
 }
 
 void Config::set(std::string_view name, bool value)
@@ -393,6 +542,14 @@ void Config::set(std::string_view name, const std::string& value)
 }
 
 void Config::set(std::string_view name, int value)
+{
+    if (!_impl) {
+        throw ConfigError{"config has not been loaded"};
+    }
+    return _impl->set(name, value);
+}
+
+void Config::set(std::string_view name, float value)
 {
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};

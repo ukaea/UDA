@@ -43,6 +43,11 @@ enum LogLevel {
     UDA_LOG_NONE = 6
 };
 
+enum class LogOpenMode{
+    APPEND = 1,
+    CLEAR = 2
+};
+
 typedef void (*logFunc)(FILE*);
 
 void init_logging();
@@ -58,6 +63,9 @@ void close_logging();
 void set_log_stdout(LogLevel mode);
 
 void set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode);
+
+void capture_log_output(LogLevel mode, std::ostream& oss);
+
 
 template<typename... Args>
 void log(LogLevel mode, const char* file, int line, const std::string_view format_string, Args &&...args)

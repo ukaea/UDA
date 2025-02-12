@@ -44,8 +44,8 @@
 #include "clientserver/manage_sockets.h"
 #include "logging/logging.h"
 #include "config/config.h"
+#include "exceptions.hpp"
 
-#include "host_list.hpp"
 #include "uda/client.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
@@ -66,15 +66,50 @@ using namespace uda::logging;
 
 using namespace std::string_literals;
 
-uda::client::Connection::Connection(config::Config& config)
-    : _socket_list{}
+void uda::client::Connection::load_config(config::Config& config)
 {
-    _port = config.get("connection.port").as_or_default(DefaultPort);
-    _host = config.get("connection.host").as_or_default(DefaultHost);
-    _max_socket_delay = config.get("connection.max_socket_delay").as_or_default(DefaultMaxSocketDelay);
-    _max_socket_attempts = config.get("connection.max_socket_attempts").as_or_default(DefaultMaxSocketAttempts);
-    _failover_port = config.get("connection.failover_port").as_or_default(0);
-    _failover_host = config.get("connection.failover_host").as_or_default(""s);
+    if (!config){
+        return;
+    }
+    // TODO: what is precedence here if host is from host-list (with associated port?)
+    // TODO: should connection class always have reference to host list?
+    auto port = config.get("connection.port").as_or_default<int>(uda::client::DefaultPort);
+    if (port != _port){
+        set_port(port);
+    }
+    auto host = config.get("connection.host").as_or_default<std::string>(uda::client::DefaultHost);
+    if (host != _host){
+        set_host(host);
+    }
+
+    auto max_socket_delay = config.get("connection.max_socket_delay").as_or_default<int>(uda::client::DefaultMaxSocketDelay);
+    if (max_socket_delay != _max_socket_delay)
+    {
+        _max_socket_delay = max_socket_delay;
+        _server_reconnect = true;
+    }
+    auto max_socket_attempts = config.get("connection.max_socket_attempts").as_or_default<int>(uda::client::DefaultMaxSocketAttempts);
+    if (max_socket_attempts != _max_socket_attempts)
+    {
+        _max_socket_attempts = max_socket_delay;
+        _server_reconnect = true;
+    }
+
+    //TODO: currently no _host_list searching for failover connection details.
+    //TODO: how to determine if currently connected to failover server and signal reconnect on update?
+    _failover_port = config.get("connection.failover_port").as_or_default<int>(0);
+    _failover_host = config.get("connection.failover_host").as_or_default<std::string>(""s);
+
+    const auto host_list_config_path = config.get("connection._host_list").as_or_default<std::string>(""s);
+    if (!host_list_config_path.empty())
+    {
+        _host_list = HostList(host_list_config_path);
+    }
+}
+
+void uda::client::Connection::load_host_list(std::string_view config_file)
+{
+    _host_list = HostList(config_file);
 }
 
 int uda::client::Connection::open()
@@ -85,8 +120,8 @@ int uda::client::Connection::open()
 int uda::client::Connection::find_socket(int fh)
 {
     int i = 0;
-    for (const auto& socket : socket_list_) {
-        if (socket.fh == _client_socket) {
+    for (const auto& socket : _socket_list) {
+        if (socket.fh == fh) {
             return i;
         }
         ++i;
@@ -94,9 +129,106 @@ int uda::client::Connection::find_socket(int fh)
     return -1;
 }
 
+int uda::client::Connection::find_socket()
+{
+    return find_socket(_client_socket);
+}
+
+int uda::client::Connection::find_socket_by_properties(std::string_view host, int port)
+{
+    int i = 0;
+    for (const auto& socket : _socket_list)
+    {
+        if (std::string(socket.host) == host and socket.port == port)
+        {
+            return i;
+        }
+        ++i;
+    }
+    return -1;
+}
+
+const uda::client_server::Sockets& uda::client::Connection::get_current_connection_data() const
+{
+    if (_client_socket == -1)
+    {
+        throw uda::exceptions::ClientError("No open socket connection");
+    }
+    for (const auto& socket: _socket_list)
+    {
+       if (socket.fh == _client_socket)
+        {
+            return socket;
+        }
+    }
+    throw uda::exceptions::ClientError("Client socket file handle not found in socket list. Connection state is corrupted");
+}
+
+
+uda::client_server::Sockets& uda::client::Connection::get_current_socket()
+{
+    if (_client_socket == -1)
+    {
+        throw uda::exceptions::ClientError("No open socket connection");
+    }
+
+    for (auto& socket: _socket_list)
+    {
+       if (socket.fh == _client_socket)
+        {
+           return socket;
+        }
+    }
+    throw uda::exceptions::ClientError("Client socket file handle not found in socket list. Connection state is corrupted");
+}
+
+//TODO: is it worth using chrono to improve precision of this?
+time_t uda::client::Connection::get_current_socket_age() const
+{
+    if (_client_socket == -1)
+    {
+        return 0;
+    }
+
+    // note precision of ctime::time is 1s only
+    const auto& socket = get_current_connection_data();
+    time_t current_time = time(nullptr);
+    return (current_time - socket.tv_server_start);
+}
+
+bool uda::client::Connection::current_socket_timeout() const
+{
+    if (_client_socket == -1)
+    {
+        return true;
+    }
+
+    const auto& socket = get_current_connection_data();
+    time_t age = get_current_socket_age();
+    return age >= socket.user_timeout;
+}
+
+void uda::client::Connection::set_maximum_socket_age(int age)
+{
+    if (_client_socket == -1)
+    {
+        return;
+    }
+    auto& socket = get_current_socket();
+    socket.user_timeout = age;
+}
+
 int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start,
                                        int* user_timeout)
 {
+    // TODO: this doesn't look right... this invalidates the client_socket handle but doesn't
+    // call e.g. ::create to actually create the new connection and register the socket
+    // relies on a later call to ::open() to check _client_socket!=-1
+    // -- Basically this signals to create a new connection later
+
+    // TODO: the in/out args feels a bit like side-effects? I don't like this signature.
+    // is the intention to establish a new connection, or to extract the connection details?
+
     int err = 0;
 
     // Save current client and server timer settings, Socket and XDR handles
@@ -108,47 +240,44 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
     XDR* clientOutput0 = *client_output;
 
     // Identify the current Socket connection in the Socket List
+    int socket_id = find_socket();
 
-    int socketId = find_socket(_client_socket);
+    //TODO: missing the change_socket logic here, which says (in client1) that if another (live) connection exists
+    // just change to that one
+    int candidate_socket_id = find_socket_by_properties(_host, _port);
+    if (candidate_socket_id != -1 and _socket_list[candidate_socket_id].status == 1)
+    {
+        _client_socket = _socket_list[candidate_socket_id].fh;
+
+        // replace with previous timer settings and XDR handles
+        *tv_server_start = _socket_list[candidate_socket_id].tv_server_start;
+        *user_timeout = _socket_list[candidate_socket_id].user_timeout;
+        _client_socket = _socket_list[candidate_socket_id].fh;
+        *client_input = _socket_list[candidate_socket_id].Input;
+        *client_output = _socket_list[candidate_socket_id].Output;
+
+        _port = _socket_list[candidate_socket_id].port;
+        _host = std::string{_socket_list[candidate_socket_id].host};
+    }
 
     // Instance a new server if the Client has changed the host and/or port number
 
-    if (_server_reconnect) {
+    else if (_server_reconnect)
+    {
         time(tv_server_start);                // Start a New Server AGE timer
         _client_socket = -1;                   // Flags no Socket is open
-        _server_reconnect = false;
+        // _server_change_socket = false;
     }
 
     // Client manages connections through the Socket id and specifies which running server to connect to
 
-    if (_server_change_socket) {
-        if ((socketId = find_socket(_client_socket)) < 0) {
-            err = NO_SOCKET_CONNECTION;
-            add_error(error_stack_, ErrorType::Code, __func__, err, "The User Specified Socket Connection does not exist");
-            return err;
-        }
-
-        // replace with previous timer settings and XDR handles
-
-        *tv_server_start = socket_list_[socketId].tv_server_start;
-        *user_timeout = socket_list_[socketId].user_timeout;
-        _client_socket = socket_list_[socketId].fh;
-        *client_input = socket_list_[socketId].Input;
-        *client_output = socket_list_[socketId].Output;
-
-        _server_change_socket = false;
-        _port = _socket_list[socketId].port;
-        _host = std::string{_socket_list[socketId].host};
-    }
-
     // save Previous data if a previous socket existed
-
-    if (socketId >= 0) {
-        socket_list_[socketId].tv_server_start = tv_server_start0;
-        socket_list_[socketId].user_timeout = user_timeout0;
-        socket_list_[socketId].fh = clientSocket0;
-        socket_list_[socketId].Input = clientInput0;
-        socket_list_[socketId].Output = clientOutput0;
+    if (socket_id >= 0) {
+        _socket_list[socket_id].tv_server_start = tv_server_start0;
+        _socket_list[socket_id].user_timeout = user_timeout0;
+        _socket_list[socket_id].fh = clientSocket0;
+        _socket_list[socket_id].Input = clientInput0;
+        _socket_list[socket_id].Output = clientOutput0;
     }
 
     return err;
@@ -237,12 +366,11 @@ void uda::client::Connection::set_port(int port)
     _server_reconnect = true;
 }
 
-
-void uda::client::Connection::set_host_from_host_list(std::string_view host, const HostList& host_list)
+void uda::client::Connection::set_host(std::string_view host)
 {
     if (host == _host) return;
-    auto host_list_record = host_list.find_by_alias(host);
-    if (host_list_record != nullptr)
+    auto host_list_record = _host_list.find_by_alias(host);
+    if (host_list_record != nullptr) 
     {
         if (host_list_record->host_name != _host)
         {
@@ -258,8 +386,8 @@ void uda::client::Connection::set_host_from_host_list(std::string_view host, con
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         putUdaClientSSLProtocol(host_list_record->isSSL);
 #endif
-    }
-    else if ((host_list_record = host_list.find_by_name(host)) != nullptr)
+    } 
+    else if ((host_list_record = _host_list.find_by_name(host)) != nullptr)
     {
         _host = host;
         _server_reconnect = true;
@@ -292,7 +420,7 @@ void uda::client::Connection::set_host_from_host_list(std::string_view host, con
     }
 }
 
-int uda::client::Connection::create(XDR* client_input, XDR* client_output, const HostList& host_list)
+int uda::client::Connection::create(XDR* client_input, XDR* client_output)
 {
     int window_size = DBReadBlockSize; // 128K
     int rc;
@@ -539,15 +667,12 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
     socket.fh = _client_socket;
     socket.port = _port;
     socket.host = _host;
-    socket.tv_server_start = 0;
+    socket.tv_server_start = time(nullptr);
     socket.user_timeout = 0;
     socket.Input = client_input;
     socket.Output = client_output;
 
     socket_list_.push_back(socket);
-
-    _server_reconnect = false;
-    _server_change_socket = false;
 
     // Write the socket number to the SSL functions
 
@@ -558,7 +683,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
     return 0;
 }
 
-void uda::client::Connection::close_socket(const int fh)
+//T ODO: should the closed socket also be popped from the _socket_list?
+// no records ever deleted currently
+void uda::client::Connection::close_socket(int fh)
 {
     for (auto& socket : socket_list_) {
         if (socket.open && socket.fh == fh && socket.fh >= 0) {

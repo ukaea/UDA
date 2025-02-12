@@ -5,6 +5,7 @@
 /lib
 /modulefiles
 /etc
+/Testing
 /.cproject
 /.project
 /Debug.dbg

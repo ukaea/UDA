@@ -15,3 +15,6 @@ target_include_directories( test_clientserver PRIVATE ${CMAKE_SOURCE_DIR}/source
 target_link_libraries( test_clientserver PRIVATE Catch2::Catch2WithMain client_server structures config common protocol )
 
 add_test( NAME TestClientserver COMMAND test_clientserver )
+
+#add_subdirectory( plugins )
+add_subdirectory( unit_tests )

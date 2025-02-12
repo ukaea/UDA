@@ -1,0 +1,17 @@
+# [logging]
+  # path = "/Users/sdixon/uda/uda-3.0/install-api-2/python_installer"
+  # mode = 'a'
+  # level = 1
+
+[connection]
+  host = "uda2.mast.l"
+  port = 56565
+  max_socket_delay = 10
+  max_socket_attempts = 3
+
+[request]
+  delim = "::"
+
+[client_flags] 
+  get_bad = true
+  get_meta = true

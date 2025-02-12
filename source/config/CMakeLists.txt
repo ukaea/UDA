@@ -8,4 +8,5 @@ set( SRCS
 add_library( config OBJECT ${SRCS} )
 target_include_directories( config PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
 target_include_directories( config PRIVATE ${CMAKE_SOURCE_DIR}/extlib )
-target_link_libraries( config PRIVATE Boost::boost fmt::fmt )
+target_link_libraries( config PUBLIC Boost::boost fmt::fmt )
+# target_include_directories( config PUBLIC Boost::boost )

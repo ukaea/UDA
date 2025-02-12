@@ -3,6 +3,7 @@
 #include <boost/any.hpp>
 #include <string_view>
 #include <fmt/format.h>
+#include <unordered_map>
 
 #include "common/string_utils.h"
 
@@ -93,19 +94,26 @@ class Config
 {
   public:
     Config();
+    // inline explicit Config(std::string_view file_path)
+    // {
+    //     load(file_path);
+    // }
     Config(Config&& other);
     ~Config();
     void load(std::string_view file_name);
+    void load_in_memory();
     Option get(std::string_view name) const;
     void set(std::string_view name, const std::string& value);
     void set(std::string_view name, const char* value);
     void set(std::string_view name, bool value);
     void set(std::string_view name, int value);
+    void set(std::string_view name, float value);
     void print() const;
     inline explicit operator bool() const
     {
         return _impl != nullptr;
     }
+    std::unordered_map<std::string, Option> get_section_as_map(std::string_view section_name) const;
 
   private:
     std::unique_ptr<ConfigImpl> _impl;

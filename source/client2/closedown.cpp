@@ -15,7 +15,7 @@ using namespace uda::authentication;
 using namespace uda::logging;
 
 int uda::client::closedown(ClosedownType type, Connection* connection, XDR* client_input, XDR* client_output,
-                           bool* reopen_logs, bool* env_host, bool* env_port)
+                           bool* reopen_logs)
 {
     int rc = 0;
 
@@ -26,6 +26,8 @@ int uda::client::closedown(ClosedownType type, Connection* connection, XDR* clie
         UDA_LOG(UDA_LOG_DEBUG, "Closing Streams and Sockets");
     }
 
+    //TODO: why are logs closed here? Is there another context except server reconnects (after timepout etc). 
+    // where this is called? because for those cases we expect to just reconnect. 
     if (type == ClosedownType::CLOSE_ALL) {
         close_logging();
         *reopen_logs = true; // In case the User calls the IDAM API again!
@@ -48,9 +50,6 @@ int uda::client::closedown(ClosedownType type, Connection* connection, XDR* clie
     if (connection != nullptr) {
         connection->close_down(type);
     }
-
-    *env_host = true; // Initialise at Startup
-    *env_port = true;
 
     // Close the SSL binding and context
 

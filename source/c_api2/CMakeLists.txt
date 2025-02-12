@@ -22,7 +22,7 @@ target_link_libraries( c_api PRIVATE
 )
 
 if ( ENABLE_CAPNP )
-    target_link_libraries( c_api PRIVATE
+    target_link_libraries( c_api PUBLIC
         "$<BUILD_INTERFACE:serialisation>"
     )
 endif()

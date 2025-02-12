@@ -3,7 +3,6 @@
 #ifndef UDA_SOURCE_CLIENT2_CLIENT_H
 #define UDA_SOURCE_CLIENT2_CLIENT_H
 
-#include <exception>
 #include <string_view>
 #include <string>
 #include <vector>
@@ -48,6 +47,17 @@ struct ClientFlags {
     int alt_rank;
 };
 
+struct LoggingOptions
+{
+    std::string log_dir = "";
+    uda::logging::LogLevel log_level = uda::logging::LogLevel::UDA_LOG_NONE;
+    uda::logging::LogOpenMode open_mode = uda::logging::LogOpenMode::APPEND;
+    bool log_to_stdout = false;
+    bool log_to_file = true;
+};
+
+//TODO: make interfaces mockable (connection, config, and protocol) for unit testing
+
 class Client
 {
 public:
@@ -55,7 +65,10 @@ public:
     ~Client() = default;
     explicit Client(std::string_view config_path);
 
-    void initialise_logging(const std::string& log_dir, logging::LogLevel log_level, const std::string& log_mode);
+    void load_config(std::string_view path);
+    void initialise_logging(const std::string& log_dir, logging::LogLevel log_level, uda::logging::LogOpenMode log_mode);
+    inline void initialise_logging();
+    void load_host_list(std::string_view file_path);
 
     int get(std::string_view data_signal, std::string_view data_source);
     std::vector<int> get(std::vector<std::pair<std::string, std::string>>& requests);
@@ -64,9 +77,9 @@ public:
     int put(std::string_view put_instruction, client_server::PutDataBlockList* putdata_block_list);
 
     void set_host(std::string_view host);
-    [[nodiscard]] const std::string& get_host() const {return host_;}
+    [[nodiscard]] const std::string& get_host() const {return _connection.get_host();}
     void set_port(int port);
-    [[nodiscard]] int get_port() const {return port_;}
+    [[nodiscard]] int get_port() const {return _connection.get_port();}
     void clear();
     [[nodiscard]] const client_server::DataBlock* current_data_block() const;
     [[nodiscard]] const client_server::DataBlock* data_block(int handle) const;
@@ -106,36 +119,75 @@ private:
     const char* get_server_error_stack_record_msg(int record);
     int get_server_error_stack_record_code(int record);
 
-    std::string host_;
-    int port_ = 0;
-    uint32_t flags_ = 0;
-    int alt_rank_ = 0;
-    ClientFlags client_flags_ = {};
-    uint32_t private_flags_ = 0;
-    client_server::ClientBlock client_block_ = {};
-    client_server::ServerBlock server_block_ = {};
-    std::vector<client_server::DataBlock> data_blocks_;
-    cache::UdaCache* cache_ = nullptr;
-    std::vector<client_server::UdaError> error_stack_;
-    XDR* client_input_ = nullptr;
-    XDR* client_output_ = nullptr;
-    config::Config config_;
-    Connection connection_;
-    HostList host_list_;
-    IoData io_data_ = {};
-    bool env_host_ = false;
-    bool env_port_ = false;
-    bool reopen_logs_ = false;
-    std::string client_username_ = "client";
-    int protocol_version_;
-    structures::UserDefinedTypeList* user_defined_type_list_ = nullptr; // List of all known User Defined Structure Types
-    structures::LogMallocList* log_malloc_list_ = nullptr;             // List of all Heap Allocations for Data
-    structures::NTree* full_ntree_ = nullptr;
-    structures::LogStructList log_struct_list_ = {};
-    int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
-    client_server::MetaData metadata_;
-    bool server_reconnect_ = false;
-    bool server_change_sockets_ = false;
+    void set_client_flags_from_config();
+    void initialise_logging_from_config();
+
+    // -------------------------------------------------
+    //   configuration options and state
+    // -------------------------------------------------
+
+    // std::string _host = {};
+    // int _port = 0;
+    uint32_t _flags = 0;
+    int _alt_rank = 0;
+    ClientFlags _client_flags = {};
+    uint32_t _private_flags = 0;
+
+    LoggingOptions _logging_options = {};
+
+    std::string _client_username = "client";
+    int _protocol_version;
+
+    // -------------------------------------------------
+    //   idam struct stuff
+    // -------------------------------------------------
+
+    client_server::ClientBlock _client_block = {};
+    client_server::ServerBlock _server_block = {};
+    std::vector<client_server::DataBlock> _data_blocks = {};
+    cache::UdaCache* _cache = nullptr;
+    std::vector<client_server::UdaError> _error_stack = {};
+
+    // -------------------------------------------------
+    //   interface classes (mockable / testable?)
+    // -------------------------------------------------
+
+    config::Config _config = {};
+    Connection _connection = {};
+    HostList _host_list = {};
+
+    // -------------------------------------------------
+    //   xdr stuff
+    // -------------------------------------------------
+
+    // required by protocol functions for data transport
+    // and by the connection methods for establishing connections
+    XDR* _client_input = nullptr;
+    XDR* _client_output = nullptr;
+
+    // connection.io_data -> IoData{&connection._client_socket}
+    // required by createXDRStream only? need to cache?
+    IoData _io_data = {};
+
+    // -------------------------------------------------
+    //   don't know
+    // -------------------------------------------------
+
+    // reopen_flags set after server timeout, but nothing ever done with it
+    bool _reopen_logs = false;
+
+    //TODO: _env_var flags never used. intention?
+    // bool _env_host = false;
+    // bool _env_port = false;
+
+    // -------------------------------------------------
+    //   legacy structured data stuff
+    // -------------------------------------------------
+    structures::UserDefinedTypeList* _userdefinedtypelist = nullptr; // List of all known User Defined Structure Types
+    structures::LogMallocList* _logmalloclist = nullptr;             // List of all Heap Allocations for Data
+    structures::NTree* _full_ntree = nullptr;
+    structures::LogStructList _log_struct_list = {};
+    int _malloc_source = UDA_MALLOC_SOURCE_NONE;
 
     int send_putdata(const client_server::RequestBlock& request_block);
     int send_request_block(client_server::RequestBlock& request_block);
