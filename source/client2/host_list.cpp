@@ -81,7 +81,7 @@ uda::client::HostList::HostList(std::string_view config_file)
 
 void uda::client::HostList::load_config_file(std::string_view config_file)
 {
-    std::ifstream conf(config_file);
+    std::ifstream conf( (std::string(config_file)) );
     if (!conf) {
         return;
     }
