@@ -26,7 +26,8 @@ add_test( NAME TestConfig COMMAND test_config)
 add_executable( test_logging logging.test.cpp )
 target_include_directories( test_logging PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/include )
 target_link_libraries( test_logging PRIVATE Catch2::Catch2WithMain c_api )
-add_test( NAME TestLogging COMMAND test_logging RUN_SERIAL TRUE )
+add_test( NAME TestLogging COMMAND test_logging )
+set_tests_properties(TestLogging PROPERTIES RUN_SERIAL TRUE)
 
 install(
   DIRECTORY
