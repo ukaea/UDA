@@ -16,18 +16,18 @@
 //    return static_cast<typename std::underlying_type<T>::type>(t);
 //}
 
-namespace uda::client_server {
+namespace uda::protocol {
 enum class ProtocolId;
 }
 
 template<>
-struct fmt::formatter<uda::client_server::ProtocolId> : fmt::formatter<std::underlying_type_t<uda::client_server::ProtocolId>>
+struct fmt::formatter<uda::protocol::ProtocolId> : fmt::formatter<std::underlying_type_t<uda::protocol::ProtocolId>>
 {
     // Forwards the formatting by casting the enum to it's underlying type
-    auto format(const uda::client_server::ProtocolId& enumValue, format_context& ctx) const
+    auto format(const uda::protocol::ProtocolId& enumValue, format_context& ctx) const
     {
-        return fmt::formatter<std::underlying_type_t<uda::client_server::ProtocolId>>::format(
-                static_cast<std::underlying_type_t<uda::client_server::ProtocolId>>(enumValue), ctx);
+        return fmt::formatter<std::underlying_type_t<uda::protocol::ProtocolId>>::format(
+                static_cast<std::underlying_type_t<uda::protocol::ProtocolId>>(enumValue), ctx);
     }
 };
 

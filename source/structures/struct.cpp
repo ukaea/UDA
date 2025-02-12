@@ -71,6 +71,7 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::common;
+using namespace uda::protocol;
 
 static unsigned int last_malloc_index = 0; // Malloc Log search index last value
 static unsigned int* last_malloc_index_value = &last_malloc_index; // Preserve Malloc Log search index last value in GENERAL_STRUCT
@@ -2158,7 +2159,7 @@ int uda::structures::xdrAtomicData(LogMallocList* log_malloc_list, XDR* xdrs, co
 
 // Send/Receive Array of Structures
 
-int uda::client_server::xdr_user_defined_type_data(XDR* xdrs, LogMallocList* log_malloc_list,
+int uda::protocol::xdr_user_defined_type_data(XDR* xdrs, LogMallocList* log_malloc_list,
                                                    UserDefinedTypeList* user_defined_type_list,
                                                    UserDefinedType* user_defined_type, void** data, int protocolVersion,
                                                    bool xdr_stdio_flag, LogStructList* log_struct_list,
@@ -2346,7 +2347,7 @@ bool_t xdr_compoundfield(XDR* xdrs, CompoundField* str)
     return rc;
 }
 
-bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, UserDefinedTypeList* user_defined_type_list,
+bool_t uda::protocol::xdr_user_defined_type(XDR* xdrs, UserDefinedTypeList* user_defined_type_list,
                                                  UserDefinedType* str)
 {
     // Send/Receive a single user defined type
@@ -2465,7 +2466,7 @@ bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, UserDefinedTypeList*
     return rc;
 }
 
-bool_t uda::client_server::xdr_user_defined_type_list(XDR* xdrs, UserDefinedTypeList* str, bool xdr_stdio_flag)
+bool_t uda::protocol::xdr_user_defined_type_list(XDR* xdrs, UserDefinedTypeList* str, bool xdr_stdio_flag)
 {
     // Send/Receive the list of userdefined types
 

@@ -11,7 +11,7 @@
 namespace uda::server
 {
 
-struct IoData : client_server::IoData {
+struct IoData : protocol::IoData {
     int server_socket;
     int* server_tot_block_time;
     int* server_timeout;

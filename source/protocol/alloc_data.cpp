@@ -7,6 +7,7 @@
 #include "clientserver/uda_errors.h"
 
 using namespace uda::logging;
+using namespace uda::client_server;
 
 /**
  * Generic function to (Re)Allocate Memory for a typed Array
@@ -15,7 +16,7 @@ using namespace uda::logging;
  * @param ap
  * @return
  */
-int uda::client_server::alloc_array(int data_type, size_t n_data, char** ap)
+int uda::protocol::alloc_array(int data_type, size_t n_data, char** ap)
 {
     if (n_data == 0) {
         return 0; // Insufficient Data to Allocate!
@@ -42,7 +43,7 @@ int uda::client_server::alloc_array(int data_type, size_t n_data, char** ap)
  * @param data_block
  * @return
  */
-int uda::client_server::alloc_data(DataBlock* data_block)
+int uda::protocol::alloc_data(DataBlock* data_block)
 {
     //------------------------------------------------------------------------
     // Allocate Memory for data Dimensions
@@ -117,7 +118,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
     return 0;
 }
 
-int uda::client_server::alloc_dim(DataBlock* data_block)
+int uda::protocol::alloc_dim(DataBlock* data_block)
 {
     // This routine is only called by the Client if data
     // are NOT in a compressed form, when Heap is
@@ -198,7 +199,7 @@ int uda::client_server::alloc_dim(DataBlock* data_block)
  * @param putData
  * @return
  */
-int uda::client_server::alloc_put_data(PutDataBlock* putData)
+int uda::protocol::alloc_put_data(PutDataBlock* putData)
 {
     unsigned int count;
     char* db = nullptr;
@@ -210,11 +211,11 @@ int uda::client_server::alloc_put_data(PutDataBlock* putData)
         return 1; // Insufficient Data to Allocate!
     }
 
-    size_t data_size = getSizeOf((UDA_TYPE)putData->data_type);
+    size_t data_size = getSizeOf(static_cast<UDA_TYPE>(putData->data_type));
     if (data_size > 0) {
-        db = (char*)malloc(count * data_size);
+        db = static_cast<char*>(malloc(count * data_size));
     } else {
-        return (int)ServerSideError::UnknownDataType;
+        return static_cast<int>(ServerSideError::UnknownDataType);
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "allocPutData :");
@@ -225,7 +226,7 @@ int uda::client_server::alloc_put_data(PutDataBlock* putData)
 
     if (db == nullptr && putData->data_type != UDA_TYPE_COMPOUND) {
         UDA_LOG(UDA_LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data");
-        return (int)ServerSideError::ErrorAllocatingHeap;
+        return static_cast<int>(ServerSideError::ErrorAllocatingHeap);
     }
 
     putData->data = db;
@@ -233,13 +234,13 @@ int uda::client_server::alloc_put_data(PutDataBlock* putData)
     // Shape of data
 
     if (putData->rank > 0) {
-        putData->shape = (int*)malloc(putData->rank * sizeof(int));
+        putData->shape = static_cast<int*>(malloc(putData->rank * sizeof(int)));
     }
 
     // Name of data
 
     if (putData->blockNameLength > 0) {
-        putData->blockName = (char*)malloc((putData->blockNameLength + 1) * sizeof(char));
+        putData->blockName = static_cast<char*>(malloc((putData->blockNameLength + 1) * sizeof(char)));
     } else {
         putData->blockName = nullptr;
     }
@@ -247,7 +248,7 @@ int uda::client_server::alloc_put_data(PutDataBlock* putData)
     return 0;
 }
 
-void uda::client_server::add_put_data_block_list(PutDataBlock* putDataBlock, PutDataBlockList* putDataBlockList)
+void uda::protocol::add_put_data_block_list(PutDataBlock* putDataBlock, PutDataBlockList* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock == nullptr ||
         putDataBlockList->blockCount + 1 >= putDataBlockList->blockListSize) {

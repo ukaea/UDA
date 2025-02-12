@@ -24,10 +24,11 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::common;
+using namespace uda::protocol;
 
 static int recursiveDepthPut = 0; // Keep count of recursive calls
 
-int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logmalloclist,
+int uda::protocol::xdr_user_defined_data_put(XDR* xdrs, LogMallocList* logmalloclist,
                                                   LogStructList* log_struct_list,
                                                   UserDefinedTypeList* userdefinedtypelist,
                                                   UserDefinedType* userdefinedtype, void** data, int datacount,
@@ -1525,7 +1526,7 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LogMallocList* logmalloclist, UserDe
     return rc;
 }
 
-bool_t uda::client_server::xdr_user_defined_type_list_put(XDR* xdrs, UserDefinedTypeList* str)
+bool_t uda::protocol::xdr_user_defined_type_list_put(XDR* xdrs, UserDefinedTypeList* str)
 {
 
     // Send/Receive the list of userdefined types
@@ -1554,7 +1555,7 @@ bool_t uda::client_server::xdr_user_defined_type_list_put(XDR* xdrs, UserDefined
     return rc;
 }
 
-int uda::client_server::protocol_xml2_put(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
+int uda::protocol::protocol_xml2_put(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                                           LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                                           void* str, int protocolVersion, LogStructList* log_struct_list,
                                           unsigned int private_flags, int malloc_source)

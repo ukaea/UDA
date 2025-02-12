@@ -6,6 +6,7 @@
 
 using namespace uda::client_server;
 using namespace uda::structures;
+using namespace uda::protocol;
 
 void writeCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                     const DataBlock* data_block, int protocolVersion, LogStructList* log_struct_list,

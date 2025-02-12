@@ -33,6 +33,8 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::protocol;
+
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 using namespace uda::authentication;
 #endif

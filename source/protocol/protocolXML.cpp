@@ -75,7 +75,7 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 
-int uda::client_server::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
+int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                                      LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
                                      int protocolVersion, LogStructList* log_struct_list, IoData* io_data,
                                      unsigned int private_flags, int malloc_source, CreateXDRStreams create_xdr_streams)

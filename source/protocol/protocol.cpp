@@ -50,7 +50,7 @@ constexpr int MaxBlockTime = 10000;
 
 } // anon namespace
 
-std::string uda::client_server::format_as(ProtocolId protocol)
+std::string uda::protocol::format_as(ProtocolId protocol)
 {
     switch (protocol) {
         case ProtocolId::Start: return "ProtocolId::Start";
@@ -81,7 +81,7 @@ std::string uda::client_server::format_as(ProtocolId protocol)
     return "";
 }
 
-void uda::client_server::set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
+void uda::protocol::set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
 {
     FD_ZERO(rfds);    // Initialise the File Descriptor set
     FD_SET(fd, rfds); // Identify the Socket in the FD set
@@ -90,7 +90,7 @@ void uda::client_server::set_select_params(int fd, fd_set* rfds, struct timeval*
     *server_tot_block_time = 0;
 }
 
-void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time)
+void uda::protocol::update_select_params(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time)
 {
     FD_ZERO(rfds);
     FD_SET(fd, rfds);
@@ -104,7 +104,7 @@ void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timev
     }
 }
 
-int uda::client_server::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
+int uda::protocol::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                  UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                  LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
                                  int malloc_source)

@@ -26,11 +26,12 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::protocol;
 
 //-----------------------------------------------------------------------
 // Test version's type passing capability
 
-int uda::client_server::protocol_version_type_test(int protocol_version, int type)
+int uda::protocol::protocol_version_type_test(int protocol_version, int type)
 {
     // If this client/server version cannot pass/receive a specific type, then return TRUE
 
@@ -66,12 +67,12 @@ int uda::client_server::protocol_version_type_test(int protocol_version, int typ
 //-----------------------------------------------------------------------
 // Strings
 
-int uda::client_server::wrap_string(XDR* xdrs, char* sp)
+int uda::protocol::wrap_string(XDR* xdrs, char* sp)
 {
     return xdr_string(xdrs, &sp, MaxStringLength);
 }
 
-int uda::client_server::wrap_xdr_string(XDR* xdrs, const char* sp, int maxlen)
+int uda::protocol::wrap_xdr_string(XDR* xdrs, const char* sp, int maxlen)
 {
     return xdr_string(xdrs, (char**)&sp, static_cast<unsigned int>(maxlen));
 }
@@ -79,7 +80,7 @@ int uda::client_server::wrap_xdr_string(XDR* xdrs, const char* sp, int maxlen)
 //-----------------------------------------------------------------------
 // Meta Data
 
-bool_t uda::client_server::xdr_meta(XDR* xdrs, DataBlock* str)
+bool_t uda::protocol::xdr_meta(XDR* xdrs, DataBlock* str)
 {
     int rc = wrap_xdr_string(xdrs, (char*)str->opaque_block, str->opaque_count + 1);
     return rc;
@@ -88,7 +89,7 @@ bool_t uda::client_server::xdr_meta(XDR* xdrs, DataBlock* str)
 //-----------------------------------------------------------------------
 // Security block
 
-bool_t uda::client_server::xdr_security_block1(XDR* xdrs, SecurityBlock* str)
+bool_t uda::protocol::xdr_security_block1(XDR* xdrs, SecurityBlock* str)
 {
     int rc = xdr_u_short(xdrs, &str->structVersion) && xdr_u_short(xdrs, &str->encryptionMethod) &&
              xdr_u_short(xdrs, &str->authenticationStep) && xdr_u_short(xdrs, &str->client_ciphertextLength) &&
@@ -97,7 +98,7 @@ bool_t uda::client_server::xdr_security_block1(XDR* xdrs, SecurityBlock* str)
     return rc;
 }
 
-bool_t uda::client_server::xdr_security_block2(XDR* xdrs, SecurityBlock* str)
+bool_t uda::protocol::xdr_security_block2(XDR* xdrs, SecurityBlock* str)
 {
     int rc = 1;
 
@@ -151,7 +152,7 @@ bool_t uda::client_server::xdr_security_block2(XDR* xdrs, SecurityBlock* str)
 //        get_uncal
 //        get_notoff
 
-bool_t uda::client_server::xdr_client(XDR* xdrs, ClientBlock* str, int protocolVersion)
+bool_t uda::protocol::xdr_client(XDR* xdrs, ClientBlock* str, int protocolVersion)
 {
     int rc = xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->pid) && xdr_int(xdrs, &str->timeout) &&
              wrap_xdr_string(xdrs, (char*)str->uid, StringLength);
@@ -211,7 +212,7 @@ bool_t uda::client_server::xdr_client(XDR* xdrs, ClientBlock* str, int protocolV
 //-----------------------------------------------------------------------
 // Server State Block
 
-bool_t uda::client_server::xdr_server1(XDR* xdrs, ServerBlock* str, int protocolVersion)
+bool_t uda::protocol::xdr_server1(XDR* xdrs, ServerBlock* str, int protocolVersion)
 {
 
     int rc = 0;
@@ -258,7 +259,7 @@ bool_t uda::client_server::xdr_server1(XDR* xdrs, ServerBlock* str, int protocol
     return rc;
 }
 
-bool_t uda::client_server::xdr_server2(XDR* xdrs, ServerBlock* str)
+bool_t uda::protocol::xdr_server2(XDR* xdrs, ServerBlock* str)
 {
     int rc = 1;
     for (unsigned int i = 0; i < str->idamerrorstack.nerrors; i++) {
@@ -275,7 +276,7 @@ bool_t uda::client_server::xdr_server2(XDR* xdrs, ServerBlock* str)
     return rc;
 }
 
-bool_t uda::client_server::xdr_server(XDR* xdrs, ServerBlock* str)
+bool_t uda::protocol::xdr_server(XDR* xdrs, ServerBlock* str)
 {
     return xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->error) &&
            wrap_xdr_string(xdrs, (char*)str->msg, StringLength);
@@ -284,7 +285,7 @@ bool_t uda::client_server::xdr_server(XDR* xdrs, ServerBlock* str)
 //-----------------------------------------------------------------------
 // Client Data Request Block
 
-bool_t uda::client_server::xdr_request_data(XDR* xdrs, RequestData* str, int protocolVersion)
+bool_t uda::protocol::xdr_request_data(XDR* xdrs, RequestData* str, int protocolVersion)
 {
     int request = static_cast<int>(str->request);
     int rc = xdr_int(xdrs, &request);
@@ -313,7 +314,7 @@ bool_t uda::client_server::xdr_request_data(XDR* xdrs, RequestData* str, int pro
     return rc;
 }
 
-bool_t uda::client_server::xdr_request(XDR* xdrs, RequestBlock* str, int protocolVersion)
+bool_t uda::protocol::xdr_request(XDR* xdrs, RequestBlock* str, int protocolVersion)
 {
     int rc = 1;
 
@@ -327,7 +328,7 @@ bool_t uda::client_server::xdr_request(XDR* xdrs, RequestBlock* str, int protoco
     return rc;
 }
 
-bool_t uda::client_server::xdr_data_block_list(XDR* xdrs, std::vector<DataBlock>* str, int protocol_version)
+bool_t uda::protocol::xdr_data_block_list(XDR* xdrs, std::vector<DataBlock>* str, int protocol_version)
 {
     int rc = 1;
 
@@ -358,13 +359,13 @@ bool_t uda::client_server::xdr_data_block_list(XDR* xdrs, std::vector<DataBlock>
 //-----------------------------------------------------------------------
 // Put Data
 
-bool_t uda::client_server::xdr_putdatablocklist_block(XDR* xdrs, PutDataBlockList* str)
+bool_t uda::protocol::xdr_putdatablocklist_block(XDR* xdrs, PutDataBlockList* str)
 {
     int rc = xdr_u_int(xdrs, &str->blockCount);
     return rc;
 }
 
-bool_t uda::client_server::xdr_putdata_block1(XDR* xdrs, PutDataBlock* str)
+bool_t uda::protocol::xdr_putdata_block1(XDR* xdrs, PutDataBlock* str)
 {
     int rc = 1;
     rc = rc && xdr_u_int(xdrs, &str->rank) && xdr_u_int(xdrs, &str->count) && xdr_int(xdrs, &str->data_type) &&
@@ -373,7 +374,7 @@ bool_t uda::client_server::xdr_putdata_block1(XDR* xdrs, PutDataBlock* str)
     return rc;
 }
 
-bool_t uda::client_server::xdr_putdata_block2(XDR* xdrs, PutDataBlock* str)
+bool_t uda::protocol::xdr_putdata_block2(XDR* xdrs, PutDataBlock* str)
 {
     int rc = 1;
     if (str->rank > 0) {
@@ -437,7 +438,7 @@ bool_t uda::client_server::xdr_putdata_block2(XDR* xdrs, PutDataBlock* str)
     }
 }
 
-bool_t uda::client_server::xdr_metadata(XDR* xdrs, MetaData* str) {
+bool_t uda::protocol::xdr_metadata(XDR* xdrs, MetaData* str) {
     bool_t rc = 1;
     if (xdrs->x_op == XDR_ENCODE) {
         uint64_t len = str->fields.size();
@@ -456,7 +457,7 @@ bool_t uda::client_server::xdr_metadata(XDR* xdrs, MetaData* str) {
     return rc;
 }
 
-bool_t uda::client_server::xdr_metadata_field(XDR* xdrs, MetaDataField* str) {
+bool_t uda::protocol::xdr_metadata_field(XDR* xdrs, MetaDataField* str) {
     bool_t rc = 1;
     rc |= wrap_xdr_string(xdrs, str->name.data(), StringLength);
     rc |= wrap_xdr_string(xdrs, str->value.data(), StringLength);
@@ -466,14 +467,14 @@ bool_t uda::client_server::xdr_metadata_field(XDR* xdrs, MetaDataField* str) {
 //-----------------------------------------------------------------------
 // Data Objects
 
-bool_t uda::client_server::xdr_data_object1(XDR* xdrs, DataObject* str)
+bool_t uda::protocol::xdr_data_object1(XDR* xdrs, DataObject* str)
 {
     int rc =
         xdr_u_short(xdrs, &str->objectType) && xdr_u_int(xdrs, &str->objectSize) && xdr_u_short(xdrs, &str->hashLength);
     return rc;
 }
 
-bool_t uda::client_server::xdr_data_object2(XDR* xdrs, DataObject* str)
+bool_t uda::protocol::xdr_data_object2(XDR* xdrs, DataObject* str)
 {
     int rc = xdr_opaque(xdrs, str->object, (unsigned int)str->objectSize) &&
              xdr_vector(xdrs, str->md, str->hashLength, sizeof(char), (xdrproc_t)xdr_char);
@@ -606,7 +607,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LogMallocList* logmalloclist, UserDefined
 //-----------------------------------------------------------------------
 // Data from File Source
 
-bool_t uda::client_server::xdr_data_block1(XDR* xdrs, DataBlock* str, int protocolVersion)
+bool_t uda::protocol::xdr_data_block1(XDR* xdrs, DataBlock* str, int protocolVersion)
 {
     int rc = xdr_int(xdrs, &str->data_n);
     rc = rc && xdr_u_int(xdrs, &str->rank);
@@ -641,7 +642,7 @@ bool_t uda::client_server::xdr_data_block1(XDR* xdrs, DataBlock* str, int protoc
     return rc;
 }
 
-bool_t uda::client_server::xdr_data_block2(XDR* xdrs, DataBlock* str)
+bool_t uda::protocol::xdr_data_block2(XDR* xdrs, DataBlock* str)
 {
     switch (str->data_type) {
         case UDA_TYPE_FLOAT:
@@ -694,7 +695,7 @@ bool_t uda::client_server::xdr_data_block2(XDR* xdrs, DataBlock* str)
     }
 }
 
-bool_t uda::client_server::xdr_data_block3(XDR* xdrs, DataBlock* str)
+bool_t uda::protocol::xdr_data_block3(XDR* xdrs, DataBlock* str)
 {
 
     if (str->error_param_n > 0) {
@@ -741,7 +742,7 @@ bool_t uda::client_server::xdr_data_block3(XDR* xdrs, DataBlock* str)
     }
 }
 
-bool_t uda::client_server::xdr_data_block4(XDR* xdrs, DataBlock* str)
+bool_t uda::protocol::xdr_data_block4(XDR* xdrs, DataBlock* str)
 {
     if (!str->errasymmetry) {
         return 1; // Nothing New to Pass or Receive (same as errhi!)
@@ -787,7 +788,7 @@ bool_t uda::client_server::xdr_data_block4(XDR* xdrs, DataBlock* str)
     }
 }
 
-bool_t uda::client_server::xdr_data_dim1(XDR* xdrs, DataBlock* str)
+bool_t uda::protocol::xdr_data_dim1(XDR* xdrs, DataBlock* str)
 {
     int rc = 1;
     for (unsigned int i = 0; i < str->rank; i++) {
@@ -804,7 +805,7 @@ bool_t uda::client_server::xdr_data_dim1(XDR* xdrs, DataBlock* str)
     return rc;
 }
 
-bool_t uda::client_server::xdr_data_dim2(XDR* xdrs, DataBlock* str)
+bool_t uda::protocol::xdr_data_dim2(XDR* xdrs, DataBlock* str)
 {
     for (unsigned int i = 0; i < str->rank; i++) {
         if (str->dims[i].compressed == 0) {
@@ -1262,7 +1263,7 @@ bool_t uda::client_server::xdr_data_dim2(XDR* xdrs, DataBlock* str)
     return 1;
 }
 
-bool_t uda::client_server::xdr_data_dim3(XDR* xdrs, DataBlock* str)
+bool_t uda::protocol::xdr_data_dim3(XDR* xdrs, DataBlock* str)
 {
     int rc, arc = 1;
     for (unsigned int i = 0; i < str->rank; i++) {
@@ -1342,7 +1343,7 @@ bool_t uda::client_server::xdr_data_dim3(XDR* xdrs, DataBlock* str)
     return 1;
 }
 
-bool_t uda::client_server::xdr_data_dim4(XDR* xdrs, DataBlock* str)
+bool_t uda::protocol::xdr_data_dim4(XDR* xdrs, DataBlock* str)
 {
     int arc = 1, rc;
     for (unsigned int i = 0; i < str->rank; i++) {

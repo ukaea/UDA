@@ -35,7 +35,7 @@ class Server
     int handle_request();
     int report_to_client();
     void handshake_client();
-    void start_logs();
+    void start_logs() const;
     int get_data(int* depth, client_server::RequestData* request_data, client_server::DataBlock* data_block,
                  int protocol_version);
     int read_data(client_server::RequestData* request, client_server::DataBlock* data_block);

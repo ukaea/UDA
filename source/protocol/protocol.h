@@ -11,7 +11,7 @@
 //-------------------------------------------------------
 // Client Server Conversation Protocols
 
-namespace uda::client_server {
+namespace uda::protocol {
 
 enum class ProtocolId : int {
     Start = 0,
@@ -48,13 +48,8 @@ enum class ProtocolId : int {
 
 std::string format_as(ProtocolId protocol);
 
-}
-
 //---------------------------------------------------------------------------------------------------
 // Client Server XDR data Streams (DON'T CHANGE ORDER or Legacy client won't work!)
-
-namespace uda::client_server
-{
 
 struct IoData {
 };

@@ -31,21 +31,22 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::config;
+using namespace uda::protocol;
 
 using boost::asio::ip::tcp;
 
-unsigned int count_data_block_size(const DataBlock& data_block, ClientBlock* client_block) {
+unsigned int count_data_block_size(const DataBlock& data_block, const ClientBlock* client_block) {
     int factor;
     Dims dim;
     unsigned int count = sizeof(DataBlock);
 
-    count += (unsigned int) (getSizeOf((UDA_TYPE) data_block.data_type) * data_block.data_n);
+    count += static_cast<unsigned int>(getSizeOf(static_cast<UDA_TYPE>(data_block.data_type)) * data_block.data_n);
 
     if (data_block.error_type != UDA_TYPE_UNKNOWN) {
-        count += (unsigned int) (getSizeOf((UDA_TYPE) data_block.error_type) * data_block.data_n);
+        count += static_cast<unsigned int>(getSizeOf(static_cast<UDA_TYPE>(data_block.error_type)) * data_block.data_n);
     }
     if (data_block.errasymmetry) {
-        count += (unsigned int) (getSizeOf((UDA_TYPE) data_block.error_type) * data_block.data_n);
+        count += static_cast<unsigned int>(getSizeOf(static_cast<UDA_TYPE>(data_block.error_type)) * data_block.data_n);
     }
 
     if (data_block.rank > 0) {
@@ -53,13 +54,13 @@ unsigned int count_data_block_size(const DataBlock& data_block, ClientBlock* cli
             count += sizeof(Dims);
             dim = data_block.dims[k];
             if (!dim.compressed) {
-                count += (unsigned int) (getSizeOf((UDA_TYPE) dim.data_type) * dim.dim_n);
+                count += static_cast<unsigned int>(getSizeOf(static_cast<UDA_TYPE>(dim.data_type)) * dim.dim_n);
                 factor = 1;
                 if (dim.errasymmetry) {
                     factor = 2;
                 }
                 if (dim.error_type != UDA_TYPE_UNKNOWN) {
-                    count += (unsigned int) (factor * getSizeOf((UDA_TYPE) dim.error_type) * dim.dim_n);
+                    count += static_cast<unsigned int>(factor * getSizeOf(static_cast<UDA_TYPE>(dim.error_type)) * dim.dim_n);
                 }
             } else {
                 switch (dim.method) {
@@ -68,14 +69,14 @@ unsigned int count_data_block_size(const DataBlock& data_block, ClientBlock* cli
                         break;
                     case 1:
                         for (unsigned int i = 0; i < dim.udoms; i++) {
-                            count += (unsigned int) (*((long*) dim.sams + i) * getSizeOf((UDA_TYPE) dim.data_type));
+                            count += static_cast<unsigned int>(*((long*) dim.sams + i) * getSizeOf(static_cast<UDA_TYPE>(dim.data_type)));
                         }
                         break;
                     case 2:
-                        count += dim.udoms * getSizeOf((UDA_TYPE) dim.data_type);
+                        count += dim.udoms * getSizeOf(static_cast<UDA_TYPE>(dim.data_type));
                         break;
                     case 3:
-                        count += dim.udoms * getSizeOf((UDA_TYPE) dim.data_type);
+                        count += dim.udoms * getSizeOf(static_cast<UDA_TYPE>(dim.data_type));
                         break;
                 }
             }
@@ -89,7 +90,7 @@ unsigned int count_data_block_size(const DataBlock& data_block, ClientBlock* cli
     return count;
 }
 
-unsigned int count_data_block_list_size(const std::vector<uda::client_server::DataBlock>& data_block_list, ClientBlock* client_block) {
+unsigned int count_data_block_list_size(const std::vector<DataBlock>& data_block_list, ClientBlock* client_block) {
     unsigned int total = 0;
     for (const auto& data_block : data_block_list) {
         total += count_data_block_size(data_block, client_block);
@@ -127,8 +128,7 @@ uda::server::Server::Server(Config config)
     _cache = cache::open_cache();
 }
 
-void uda::server::Server::start_logs()
-{
+void uda::server::Server::start_logs() const {
     auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
     auto log_dir = _config.get("logging.path").as_or_default(""s);
 
@@ -183,7 +183,7 @@ void uda::server::Server::initialise()
     _server_timeout = TimeOut;
     _fatal_error = false;
 
-    auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
+    auto log_level = static_cast<LogLevel>(_config.get("logging.level").as_or_default((int) UDA_LOG_NONE));
 
     init_logging();
     set_log_level((LogLevel)log_level);

@@ -34,6 +34,7 @@ using namespace uda::client_server;
 // using namespace uda::client;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::protocol;
 
 
 //--------------------------------------------------------------------------------------

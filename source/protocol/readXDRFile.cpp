@@ -15,7 +15,7 @@ constexpr size_t MaxDoLoopLimit = 500; // ~50MB file
 using namespace uda::client_server;
 using namespace uda::logging;
 
-int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
+int uda::protocol::send_xdr_file(XDR* xdrs, const char* xdrfile)
 {
 
     int err = 0, rc = 1, nchar, buf_size, count;
@@ -103,7 +103,7 @@ int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
     return err;
 }
 
-int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
+int uda::protocol::receive_xdr_file(XDR* xdrs, const char* xdrfile)
 {
     int err = 0, rc = 1, nchar, buf_size, count;
     size_t do_loop_limit = 0;

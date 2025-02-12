@@ -13,6 +13,7 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::protocol;
 
 //--------------------------------------------------------------------------------------------------------------
 // Generate Error Data

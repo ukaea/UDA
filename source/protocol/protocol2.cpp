@@ -39,9 +39,10 @@
 #include "clientserver/uda_errors.h"
 #include "logging/logging.h"
 
-using namespace uda::client_server;
+using namespace uda::protocol;
 using namespace uda::logging;
 using namespace uda::structures;
+using namespace uda::client_server;
 
 static int handle_request_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
 static int handle_data_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
@@ -60,7 +61,7 @@ static int handle_meta_data(XDR* xdrs, XDRStreamDirection direction, void* str);
 static int handle_security_block(XDR* xdrs, XDRStreamDirection direction, const void* str);
 #endif
 
-int uda::client_server::protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
+int uda::protocol::protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                   UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                   LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {

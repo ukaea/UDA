@@ -82,6 +82,7 @@
 using namespace uda::client_server;
 using namespace uda::structures;
 using namespace uda::logging;
+using namespace uda::protocol;
 
 extern "C" {
 
@@ -92,7 +93,7 @@ int sha1File(char* name, FILE* fh, unsigned char* md);
 
 constexpr int MaxElementSha1 = 20;
 
-int uda::client_server::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
+int uda::protocol::protocol_xml2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                                       LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
                                       int protocolVersion, LogStructList* log_struct_list, unsigned int private_flags,
                                       int malloc_source)
