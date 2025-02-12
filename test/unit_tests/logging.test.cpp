@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <strstream>
+#include <sstream>
 // #include <catch2/catch_approx.hpp>
 #include "logging/logging.h"
 
