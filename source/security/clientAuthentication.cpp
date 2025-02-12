@@ -2,11 +2,11 @@
 
 #include "clientserver/errorLog.h"
 #include "clientserver/printStructs.h"
-#include "clientserver/protocol.h"
+#include "protocol/protocol.h"
 #include "logging/logging.h"
 #ifndef TESTIDAMSECURITY
 #  include "clientserver/uda_errors.h"
-#  include "clientserver/xdrlib.h"
+#  include "protocol/xdrlib.h"
 #  include "include/client.h"
 #endif
 

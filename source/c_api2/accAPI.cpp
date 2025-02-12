@@ -16,14 +16,13 @@
 #  define strlwr _strlwr
 #endif
 
-#include <logging/logging.h>
-#include <clientserver/alloc_data.h>
-#include <clientserver/version.h>
-#include <clientserver/xdrlib.h>
 #include <uda/version.h>
 
 #include "client2/generate_errors.hpp"
 #include "client2/thread_client.hpp"
+#include "clientserver/version.h"
+#include "logging/logging.h"
+#include "protocol/alloc_data.h"
 
 #ifdef __APPLE__
 #  include <cstdlib>

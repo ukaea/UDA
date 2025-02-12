@@ -4,7 +4,6 @@ find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 
 set( SRCS
-  alloc_data.cpp
   compress_dim.cpp
   copy_structs.cpp
   error_log.cpp
@@ -18,18 +17,11 @@ set( SRCS
   parse_operation.cpp
   parse_xml.cpp
   print_structs.cpp
-  protocol.cpp
-  protocol2.cpp
-  protocolXML.cpp
-  protocolXML2.cpp
-  protocolXML2Put.cpp
-  readXDRFile.cpp
   uda_defines.cpp
   uda_structs.cpp
   uda_types.cpp
   userid.cpp
   version.cpp
-  xdrlib.cpp
 )
 
 add_library( client_server OBJECT ${SRCS} )

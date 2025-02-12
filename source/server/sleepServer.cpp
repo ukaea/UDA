@@ -8,8 +8,8 @@
 #include "sleepServer.h"
 
 #include "clientserver/errorLog.h"
-#include "clientserver/protocol.h"
-#include "clientserver/xdrlib.h"
+#include "protocol/protocol.h"
+#include "protocol/xdrlib.h"
 #include "logging/logging.h"
 #include "server/udaServer.h"
 

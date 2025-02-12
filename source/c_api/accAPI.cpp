@@ -18,9 +18,9 @@
 #include "clientserver/allocData.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/memstream.h"
-#include "clientserver/protocol.h"
+#include "protocol/protocol.h"
 #include "common/string_utils.h"
-#include "clientserver/xdrlib.h"
+#include "protocol/xdrlib.h"
 #include "logging/logging.h"
 #include "client/client_config.h"
 

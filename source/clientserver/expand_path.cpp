@@ -56,9 +56,6 @@ void expandFilePath(char* path)
 #  include <boost/algorithm/string.hpp>
 #  include <fmt/format.h>
 
-#  define MAXPATHSUBS 10
-#  define MAXPATHSUBSLENGTH 256
-
 using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::common;

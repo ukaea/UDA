@@ -9,7 +9,7 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
-#include "clientserver/protocol.h"
+#include "protocol/protocol.h"
 #include "clientserver/uda_errors.h"
 #include "clientserver/userid.h"
 #include "logging/logging.h"
@@ -31,7 +31,7 @@
 #  include "config/config.h"
 #else
 #  include "clientXDRStream.h"
-#  include "clientserver/xdrlib.h"
+#  include "protocol/xdrlib.h"
 
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>

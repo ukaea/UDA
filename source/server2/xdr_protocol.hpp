@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "cache/memcache.hpp"
-#include "clientserver/protocol.h"
+#include "protocol/protocol.h"
 #include "clientserver/uda_structs.h"
 #include "structures/genStructs.h"
 

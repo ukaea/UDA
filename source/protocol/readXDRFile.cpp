@@ -1,10 +1,10 @@
 #include "readXDRFile.h"
 
-#include "logging/logging.h"
 #include <cerrno>
 #include <cstdlib>
 
-#include "error_log.h"
+#include "clientserver/error_log.h"
+#include "logging/logging.h"
 
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"

@@ -5,18 +5,18 @@
 #include "make_request_block.hpp"
 
 #include "cache/fileCache.h"
-#include "clientserver/alloc_data.h"
 #include "clientserver/error_log.h"
 #include "clientserver/init_structs.h"
 #include "clientserver/print_structs.h"
-#include "clientserver/protocol.h"
-#include "common/string_utils.h"
 #include "clientserver/uda_defines.h"
 #include "clientserver/uda_errors.h"
 #include "clientserver/userid.h"
 #include "clientserver/version.h"
-#include "clientserver/xdrlib.h"
+#include "common/string_utils.h"
 #include "logging/logging.h"
+#include "protocol/alloc_data.h"
+#include "protocol/protocol.h"
+#include "protocol/xdrlib.h"
 #include "uda/client.h"
 
 #include <uda/version.h>

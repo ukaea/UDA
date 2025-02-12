@@ -7,9 +7,9 @@
 #  include "server/udaServer.h"
 #  ifndef TESTIDAMSECURITY
 #    include "clientserver/printStructs.h"
-#    include "clientserver/protocol.h"
+#    include "protocol/protocol.h"
 #    include "clientserver/uda_errors.h"
-#    include "clientserver/xdrlib.h"
+#    include "protocol/xdrlib.h"
 #  endif
 
 #  include "authenticationUtils.h"

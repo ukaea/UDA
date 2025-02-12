@@ -3,17 +3,21 @@
 #include <cstdlib>
 #include <uda/structured.h>
 
-#include "logging/logging.h"
-#include <structures/xdrUserDefinedData.h>
-
-#include "error_log.h"
-#include "protocol.h"
+#include "clientserver/error_log.h"
 #include "common/string_utils.h"
+#include "logging/logging.h"
 #include "structures/struct.h"
+#include "structures/xdrUserDefinedData.h"
+
+#include "protocol.h"
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"
+#endif
+
+#ifdef __APPLE__
+#  define xdr_uint64_t xdr_u_int64_t
 #endif
 
 using namespace uda::client_server;

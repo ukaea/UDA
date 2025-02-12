@@ -30,13 +30,14 @@ target_include_directories( plugins
 )
 target_link_libraries( plugins PRIVATE Boost::filesystem )
 target_link_libraries( plugins PRIVATE
-  "$<BUILD_INTERFACE:logging>"
+  "$<BUILD_INTERFACE:cache>"
+  "$<BUILD_INTERFACE:client_server>"
   "$<BUILD_INTERFACE:common>"
+  "$<BUILD_INTERFACE:config>"
+  "$<BUILD_INTERFACE:logging>"
+  "$<BUILD_INTERFACE:protocol>"
   "$<BUILD_INTERFACE:server>"
   "$<BUILD_INTERFACE:structures>"
-  "$<BUILD_INTERFACE:client_server>"
-  "$<BUILD_INTERFACE:cache>"
-  "$<BUILD_INTERFACE:config>"
 )
 
 set_target_properties( plugins

@@ -1,9 +1,9 @@
 #include "xdr_protocol.hpp"
 #include "clientserver/error_log.h"
 #include "clientserver/print_structs.h"
-#include "clientserver/protocol.h"
+#include "protocol/protocol.h"
 #include "clientserver/uda_errors.h"
-#include "clientserver/xdrlib.h"
+#include "protocol/xdrlib.h"
 #include <uda/types.h>
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)

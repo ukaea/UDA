@@ -38,7 +38,7 @@ target_compile_definitions( server PRIVATE -DSHARED_LIBRARY_SUFFIX="${CMAKE_SHAR
 add_executable( server-exe ${EXE_FLAG} server_main.cpp )
 target_include_directories( server-exe PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
 target_link_libraries( server-exe PRIVATE Boost::boost fmt::fmt ${RPC_LIB} )
-target_link_libraries( server-exe PRIVATE server common config structures logging client_server cache )
+target_link_libraries( server-exe PRIVATE server common config structures logging client_server cache protocol )
 
 install( TARGETS server-exe
   DESTINATION bin

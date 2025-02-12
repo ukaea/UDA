@@ -42,30 +42,11 @@ char* path_id(char* path);
         $ENVAR/abc/$ENVAR/filename    expand with the specified environment variable
 
 @param path The file path to be resolved and expanded.
-@returns An integer Error Code: If non zero, a problem occured.
+@returns An integer Error Code: If non-zero, a problem occurred.
 */
-int expand_file_path(const uda::config::Config& config, char* path);
+int expand_file_path(const config::Config& config, char* path);
 
 #ifndef NO_EXPAND_PATH
-
-#  define MAXPATHSUBS 10
-#  define MAXPATHSUBSLENGTH 256
-
-/*! Free heap memory allocated to generate lists of target path elements and substitute path elements.
-
-@param tokenList A Pointer to an array of token strings
-@param tokenCount The number of tokens in the list.
-*/
-void free_token_list(char*** tokenListArray, int* tokenCount);
-
-/*! Generate a lists of path elements tokens.
-
-@param delims An array of character delimiters used to separate path elements
-@param input The list of path elements to be parsed into individual token strings.
-@param tokenList A pointer to an array of token strings. This must be freed using free_token_list when no longer needed.
-returns A count of the tokens parsed from input.
-*/
-int token_list(const char* delims, char* input, char*** tokenListArray);
 
 /*! Substitute/Replace file path name elements for server side name resolution.
 
@@ -93,7 +74,7 @@ The number of wildcards must match
 If there are more wildcards in the substitute string than in the target string, an error will occur.
 
 @param path The path to be tested for targeted name element replacement.
-@returns An integer Error Code: If non zero, a problem occured.
+@returns An integer Error Code: If non-zero, a problem occurred.
 */
 int path_replacement(const config::Config& config, char* path);
 

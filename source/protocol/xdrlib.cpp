@@ -11,14 +11,17 @@
 #include <memory.h>
 #include <uda/structured.h>
 
-#include "clientserver/protocol.h"
-#include "clientserver/protocolXML2.h"
-#include "logging/logging.h"
-
-#include "error_log.h"
-#include "print_structs.h"
+#include "clientserver/error_log.h"
+#include "clientserver/print_structs.h"
 #include "common/string_utils.h"
+#include "logging/logging.h"
+#include "protocol/protocol.h"
+#include "protocol/protocolXML2.h"
 #include "structures/struct.h"
+
+#ifdef __APPLE__
+#  define xdr_uint64_t xdr_u_int64_t
+#endif
 
 using namespace uda::client_server;
 using namespace uda::logging;

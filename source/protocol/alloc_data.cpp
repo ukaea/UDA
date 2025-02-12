@@ -3,8 +3,8 @@
 #include "logging/logging.h"
 #include <uda/types.h>
 
-#include "init_structs.h"
-#include "uda_errors.h"
+#include "clientserver/init_structs.h"
+#include "clientserver/uda_errors.h"
 
 using namespace uda::logging;
 
@@ -50,7 +50,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
     if (data_block->rank > 0) {
         data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
         if (data_block->dims == nullptr) {
-            return (int)ServerSideError::ErrorAllocatingHeap;
+            return static_cast<int>(ServerSideError::ErrorAllocatingHeap);
         }
         for (unsigned int i = 0; i < data_block->rank; i++) {
             init_dim_block(&data_block->dims[i]);
@@ -61,7 +61,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
     // Allocate Memory for data and errors
 
     unsigned int ndata;
-    if ((ndata = (unsigned int)data_block->data_n) == 0) {
+    if ((ndata = static_cast<unsigned int>(data_block->data_n)) == 0) {
         // Insufficient Data to Allocate!
         return 1;
     }
@@ -70,7 +70,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
     char* ebh = nullptr;
     char* ebl = nullptr;
 
-    size_t data_size = getSizeOf((UDA_TYPE)data_block->data_type);
+    size_t data_size = getSizeOf(static_cast<UDA_TYPE>(data_block->data_type));
     if (data_size > 0) {
         db = (char*)malloc(ndata * data_size);
         if (data_block->error_type == UDA_TYPE_UNKNOWN) {
@@ -94,7 +94,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
 
     if (db == nullptr && data_block->data_type != UDA_TYPE_COMPOUND) {
         UDA_LOG(UDA_LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data");
-        return (int)ServerSideError::ErrorAllocatingHeap;
+        return static_cast<int>(ServerSideError::ErrorAllocatingHeap);
     }
 
     size_t error_size = getSizeOf((UDA_TYPE)data_block->error_type);
@@ -107,7 +107,7 @@ int uda::client_server::alloc_data(DataBlock* data_block)
 
     if ((ebh == nullptr || (ebl == nullptr && data_block->errasymmetry)) &&
         (data_block->error_type != UDA_TYPE_COMPOUND && data_block->error_type != UDA_TYPE_UNKNOWN)) {
-        return (int)ServerSideError::ErrorAllocatingHeap;
+        return static_cast<int>(ServerSideError::ErrorAllocatingHeap);
     }
 
     data_block->data = db;
@@ -125,22 +125,20 @@ int uda::client_server::alloc_dim(DataBlock* data_block)
     //
     // It may or may not be called by a Server Plugin.
 
-    unsigned int ndata;
-    char* db = nullptr;
-    char* ebh = nullptr;
-    char* ebl = nullptr;
-
     for (unsigned int i = 0; i < data_block->rank; i++) {
 
-        ndata = (unsigned int)data_block->dims[i].dim_n;
+        auto ndata = static_cast<unsigned int>(data_block->dims[i].dim_n);
 
         if (ndata == 0) {
             return 1; // Insufficient Data to Allocate!
         }
 
-        size_t data_size = getSizeOf((UDA_TYPE)data_block->dims[i].data_type);
+        size_t data_size = getSizeOf(static_cast<UDA_TYPE>(data_block->dims[i].data_type));
 
-        db = (char*)malloc(ndata * data_size);
+        auto db = (char*)malloc(ndata * data_size);
+
+        char* ebh = nullptr;
+        char* ebl = nullptr;
 
         if (data_block->dims[i].error_type == UDA_TYPE_UNKNOWN) {
             ebh = (char*)malloc(ndata * data_size);
@@ -148,7 +146,7 @@ int uda::client_server::alloc_dim(DataBlock* data_block)
                 ebl = (char*)malloc(ndata * data_size);
             }
         } else {
-            size_t error_size = getSizeOf((UDA_TYPE)data_block->dims[i].error_type);
+            const size_t error_size = getSizeOf(static_cast<UDA_TYPE>(data_block->dims[i].error_type));
 
             ebh = (char*)malloc(ndata * error_size);
             if (data_block->dims[i].errasymmetry) {
@@ -157,10 +155,10 @@ int uda::client_server::alloc_dim(DataBlock* data_block)
         }
 
         if (db == nullptr) {
-            return (int)ServerSideError::ErrorAllocatingHeap;
+            return static_cast<int>(ServerSideError::ErrorAllocatingHeap);
         }
         if (ebh == nullptr || (ebl == nullptr && data_block->dims[i].errasymmetry)) {
-            return (int)ServerSideError::ErrorAllocatingHeap;
+            return static_cast<int>(ServerSideError::ErrorAllocatingHeap);
         }
 
         data_block->dims[i].dim = db;

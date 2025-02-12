@@ -10,13 +10,14 @@ add_library( c_api ${SRCS} )
 target_include_directories( c_api PRIVATE ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
 target_link_libraries( c_api PRIVATE spdlog::spdlog ${RPC_LIB} )
 target_link_libraries( c_api PRIVATE
+  "$<BUILD_INTERFACE:cache>"
   "$<BUILD_INTERFACE:client>"
   "$<BUILD_INTERFACE:client_server>"
-  "$<BUILD_INTERFACE:structures>"
+  "$<BUILD_INTERFACE:common>"
   "$<BUILD_INTERFACE:config>"
   "$<BUILD_INTERFACE:logging>"
-  "$<BUILD_INTERFACE:common>"
-  "$<BUILD_INTERFACE:cache>"
+  "$<BUILD_INTERFACE:protocol>"
+  "$<BUILD_INTERFACE:structures>"
 )
 
 set_target_properties( c_api

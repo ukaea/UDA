@@ -51,7 +51,7 @@ struct Dims {
     int data_type;     // Type of data
     int error_type;    // Type of error data
     int error_model;   // Identify the Error Model
-    int errasymmetry;  // Flags whether or not error data are asymmetrical
+    int errasymmetry;  // Flags whether error data are asymmetrical
     int error_param_n; // the Number of Model Parameters
     int dim_n;         // Array lengths
 

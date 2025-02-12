@@ -57,14 +57,13 @@
 #include <cstdlib>
 #include <uda/structured.h>
 
-#include "clientserver/memstream.h"
+#include "clientserver/error_log.h"
+#include "common/string_utils.h"
 #include "logging/logging.h"
 #include "structures/struct.h"
 
-#include "error_log.h"
 #include "protocol.h"
 #include "readXDRFile.h"
-#include "common/string_utils.h"
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD
@@ -74,7 +73,7 @@
 #endif
 
 #ifndef FATCLIENT
-#  include "uda_errors.h"
+#  include "clientserver/uda_errors.h"
 #endif
 
 #include <fmt/format.h>

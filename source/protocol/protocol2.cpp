@@ -25,18 +25,19 @@
 
 #include <cstdlib>
 
-#include "logging/logging.h"
 #include <uda/types.h>
 
 #include "alloc_data.h"
-#include "compress_dim.h"
-#include "error_log.h"
-#include "init_structs.h"
-#include "print_structs.h"
 #include "protocolXML2.h"
 #include "protocolXML2Put.h"
-#include "uda_errors.h"
 #include "xdrlib.h"
+
+#include "clientserver/compress_dim.h"
+#include "clientserver/error_log.h"
+#include "clientserver/init_structs.h"
+#include "clientserver/print_structs.h"
+#include "clientserver/uda_errors.h"
+#include "logging/logging.h"
 
 using namespace uda::client_server;
 using namespace uda::logging;

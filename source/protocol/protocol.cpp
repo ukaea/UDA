@@ -23,16 +23,17 @@
 
 #include "protocol.h"
 
-#include "logging/logging.h"
 #include <cstdlib>
 
 #include "alloc_data.h"
-#include "compress_dim.h"
-#include "error_log.h"
-#include "init_structs.h"
 #include "protocolXML.h"
-#include "uda_errors.h"
 #include "xdrlib.h"
+
+#include "clientserver/compress_dim.h"
+#include "clientserver/error_log.h"
+#include "clientserver/init_structs.h"
+#include "clientserver/uda_errors.h"
+#include "logging/logging.h"
 
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"

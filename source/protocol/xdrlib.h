@@ -1,13 +1,9 @@
 #pragma once
 
-#include "uda_structs.h"
+#include "clientserver/uda_structs.h"
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
-
-#ifdef __APPLE__
-#  define xdr_uint64_t xdr_u_int64_t
-#endif
 
 namespace uda::client_server
 {

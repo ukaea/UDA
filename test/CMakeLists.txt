@@ -12,6 +12,6 @@ FetchContent_MakeAvailable( Catch2 )
 
 add_executable( test_clientserver test_clientserver.cpp )
 target_include_directories( test_clientserver PRIVATE ${CMAKE_SOURCE_DIR}/source/clientserver )
-target_link_libraries( test_clientserver PRIVATE Catch2::Catch2WithMain client_server structures config common )
+target_link_libraries( test_clientserver PRIVATE Catch2::Catch2WithMain client_server structures config common protocol )
 
 add_test( NAME TestClientserver COMMAND test_clientserver )

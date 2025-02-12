@@ -59,17 +59,17 @@ namespace uda::client_server
 struct IoData {
 };
 
-void set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
+void set_select_params(int fd, fd_set* rfds, timeval* tv, int* server_tot_block_time);
 
-void update_select_params(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
+void update_select_params(int fd, fd_set* rfds, timeval* tv, int server_tot_block_time);
 
-int protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, uda::structures::LogMallocList* logmalloclist,
-             uda::structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
-             uda::structures::LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
+int protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
+             structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
+             structures::LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
              int malloc_source);
 
-int protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, uda::structures::LogMallocList* logmalloclist,
-              uda::structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
-              uda::structures::LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
+int protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
+              structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
+              structures::LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 
 } // namespace uda::client_server

@@ -1,10 +1,10 @@
 #include "generate_errors.hpp"
 
 #include <cstdlib>
-
-#include "clientserver/alloc_data.h"
-#include "clientserver/error_log.h"
 #include <uda/types.h>
+
+#include "clientserver/error_log.h"
+#include "protocol/alloc_data.h"
 
 #include "thread_client.hpp"
 
@@ -22,7 +22,7 @@ int uda::client::error_model(int model, int param_n, float* params, int data_n, 
 {
     *asymmetry = 0; // No Error Asymmetry for most models
 
-    switch ((ErrorModelType)model) {
+    switch (static_cast<ErrorModelType>(model)) {
 
         case ErrorModelType::Default:
             if (param_n != 2) {

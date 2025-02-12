@@ -1,6 +1,6 @@
 #pragma once
 
-#include "clientserver/protocol.h"
+#include "protocol/protocol.h"
 
 #include <rpc/rpc.h>
 #include <utility>

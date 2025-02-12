@@ -62,13 +62,13 @@
 #include "logging/logging.h"
 #include <fmt/format.h>
 
-#include "error_log.h"
+#include "clientserver/error_log.h"
 #include "protocol.h"
 #include "protocolXML2.h"
 #include "readXDRFile.h"
 #include "common/string_utils.h"
 #include "structures/struct.h"
-#include "uda_errors.h"
+#include "clientserver/uda_errors.h"
 #include "xdrlib.h"
 
 using namespace uda::client_server;

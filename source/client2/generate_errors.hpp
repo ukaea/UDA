@@ -1,10 +1,6 @@
 #pragma once
 
-#ifndef UDA_CLIENT_GENERATEERRORS_H
-#define UDA_CLIENT_GENERATEERRORS_H
-
-namespace uda {
-namespace client {
+namespace uda::client {
 
 int error_model(int model, int param_n, float* params, int data_n, float* data, int* asymmetry, float* errhi,
                 float* errlo);
@@ -14,7 +10,4 @@ int generate_synthetic_dim_data(int handle, int ndim);
 int generate_data_error(int handle);
 int generate_dim_data_error(int handle, int ndim);
 
-} // namespace client
-} // namespace uda
-
-#endif // UDA_CLIENT_GENERATEERRORS_H
+} // namespace uda::client
