@@ -15,17 +15,18 @@ void uda::logging::init_logging()
     if (g_initialised) {
         return;
     }
-    auto debug_logger = spdlog::stdout_logger_mt("debug");
+    spdlog::stdout_logger_mt("debug");
     auto error_logger = spdlog::stdout_logger_mt("error");
     auto access_logger = spdlog::stdout_logger_mt("access");
     // default logger required to avoid segfaults if logging is reopened after shutdown
     // e.g. in calls to spdlog::get_level()
-    spdlog::set_default_logger(debug_logger);
-    if (!spdlog::get("debug"))
+    auto debug_logger = spdlog::get("debug");
+    if (!debug_logger)
     {
-        spdlog::register_logger(debug_logger);
-        // throw std::runtime_error("logging initilisation error: no debug logger");
+        // spdlog::register_logger(debug_logger);
+        throw std::runtime_error("logging initilisation error: no debug logger");
     }
+    spdlog::set_default_logger(debug_logger);
     g_initialised = true;
 }
 
