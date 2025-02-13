@@ -15,6 +15,8 @@ enum class ErrorType : int {
     Plugin = 3,
 };
 
+const char* format_as(ErrorType error_type);
+
 class UdaException : public std::exception {
 public:
     UdaException(const char* location, const int code, const char* msg)
@@ -26,12 +28,12 @@ public:
     }
 
 protected:
-    UdaException(ErrorType error_type, const char* location, const int code, const char* msg)
+    UdaException(const ErrorType error_type, const char* location, const int code, const char* msg)
         : error_type_{error_type}
         , location_{location}
         , code_{code}
         , msg_{msg} {
-        what_ = fmt::format("UdaException {} ({}) {} {}", error_type_, location_, code_, msg_);
+        what_ = fmt::format("UdaException {} ({}) {} {}", format_as(error_type_), location_, code_, msg_);
     }
 
     std::string what_;
@@ -53,8 +55,6 @@ public:
     }
 
 };
-
-std::string format_as(ErrorType error_type);
 
 void print_errors(const std::vector<UdaError>& error_stack, ClientBlock client_block, RequestBlock request_block);
 

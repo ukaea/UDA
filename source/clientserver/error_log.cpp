@@ -10,7 +10,7 @@
 using namespace uda::logging;
 using namespace uda::common;
 
-std::string uda::client_server::format_as(ErrorType error_type)
+const char* uda::client_server::format_as(ErrorType error_type)
 {
     switch (error_type) {
         case ErrorType::None:

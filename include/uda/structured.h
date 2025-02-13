@@ -1,6 +1,10 @@
 #ifndef UDA_STRUCTURED_H
 #define UDA_STRUCTURED_H
 
+#ifdef __GNUC__
+#  include <stdint.h>
+#endif
+
 #include <uda/export.h>
 #include <uda/types.h>
 
