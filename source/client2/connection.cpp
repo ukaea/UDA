@@ -74,7 +74,7 @@ int uda::client::Connection::open()
 int uda::client::Connection::find_socket(int fh)
 {
     int i = 0;
-    for (const auto& socket : _socket_list) {
+    for (const auto& socket : socket_list_) {
         if (socket.fh == _client_socket) {
             return i;
         }
@@ -102,47 +102,47 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
 
     // Instance a new server if the Client has changed the host and/or port number
 
-    auto server_reconnect = _config.get("client.server_reconnect").as_or_default(false);
-    auto server_change_socket = _config.get("client.server_change_socket").as_or_default(false);
+    auto server_reconnect = config_.get("client.server_reconnect").as_or_default(false);
+    auto server_change_socket = config_.get("client.server_change_socket").as_or_default(false);
 
     if (server_reconnect) {
         time(tv_server_start);                // Start a New Server AGE timer
         _client_socket = -1;                   // Flags no Socket is open
-        _config.set("client.server_reconnect", false);
+        config_.set("client.server_reconnect", false);
     }
 
     // Client manages connections through the Socket id and specifies which running server to connect to
 
     if (server_change_socket) {
-        auto server_socket = _config.get("client.server_socket").as_or_default(-1);
+        auto server_socket = config_.get("client.server_socket").as_or_default(-1);
         if ((socketId = find_socket(server_socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
-            add_error(ErrorType::Code, __func__, err, "The User Specified Socket Connection does not exist");
+            add_error(error_stack_, ErrorType::Code, __func__, err, "The User Specified Socket Connection does not exist");
             return err;
         }
 
         // replace with previous timer settings and XDR handles
 
-        *tv_server_start = _socket_list[socketId].tv_server_start;
-        *user_timeout = _socket_list[socketId].user_timeout;
-        _client_socket = _socket_list[socketId].fh;
-        *client_input = _socket_list[socketId].Input;
-        *client_output = _socket_list[socketId].Output;
+        *tv_server_start = socket_list_[socketId].tv_server_start;
+        *user_timeout = socket_list_[socketId].user_timeout;
+        _client_socket = socket_list_[socketId].fh;
+        *client_input = socket_list_[socketId].Input;
+        *client_output = socket_list_[socketId].Output;
 
-        _config.set("client.server_change_socket", false);
-        _config.set("client.server_socket", _socket_list[socketId].fh);
-        _config.set("client.server_port", _socket_list[socketId].port);
-        _config.set("client.server_host", std::string{_socket_list[socketId].host});
+        config_.set("client.server_change_socket", false);
+        config_.set("client.server_socket", socket_list_[socketId].fh);
+        config_.set("client.server_port", socket_list_[socketId].port);
+        config_.set("client.server_host", std::string{socket_list_[socketId].host});
     }
 
     // save Previous data if a previous socket existed
 
     if (socketId >= 0) {
-        _socket_list[socketId].tv_server_start = tv_server_start0;
-        _socket_list[socketId].user_timeout = user_timeout0;
-        _socket_list[socketId].fh = clientSocket0;
-        _socket_list[socketId].Input = clientInput0;
-        _socket_list[socketId].Output = clientOutput0;
+        socket_list_[socketId].tv_server_start = tv_server_start0;
+        socket_list_[socketId].user_timeout = user_timeout0;
+        socket_list_[socketId].fh = clientSocket0;
+        socket_list_[socketId].Input = clientInput0;
+        socket_list_[socketId].Output = clientOutput0;
     }
 
     return err;
@@ -257,23 +257,23 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     // Identify the UDA server host and is the socket IPv4 or IPv6?
 
-    auto host_name = _config.get("client.server_host").as_or_default(""s);
+    auto host_name = config_.get("client.server_host").as_or_default(""s);
     char service_port[PORT_STRING];
 
     // Check if the host_name is an alias for an IP address or domain name in the client configuration - replace if
     // found
 
-    auto server_host = _config.get("client.server_host").as_or_default(""s);
-    auto server_port = _config.get("client.server_port").as_or_default(0);
+    auto server_host = config_.get("client.server_host").as_or_default(""s);
+    auto server_port = config_.get("client.server_port").as_or_default(0);
 
     auto host = host_list.find_by_alias(host_name);
     if (host != nullptr) {
         if (host->host_name != server_host) {
-            _config.set("client.server_host", host->host_name); // Replace
+            config_.set("client.server_host", host->host_name); // Replace
         }
         int port = host->port;
         if (port > 0 && server_port != port) {
-            _config.set("client.server_port", port);
+            config_.set("client.server_port", port);
             server_port = port;
         }
     } else if ((host = host_list.find_by_name(host_name)) != nullptr) {
@@ -281,7 +281,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
         int port = host->port;
         if (port > 0 && server_port != port) {
             // Replace if found and different
-            _config.set("client.server_port", port);
+            config_.set("client.server_port", port);
             server_port = port;
         }
     }
@@ -293,7 +293,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
     if (boost::starts_with(host_name, "SSL://")) {
         // Should be stripped already if via the HOST client configuration file
         auto new_host = host_name.substr(6);
-        _config.set("client.server_host", new_host);
+        config_.set("client.server_host", new_host);
         putUdaClientSSLProtocol(1);
     } else {
         if (host != nullptr && host->isSSL) {
@@ -312,9 +312,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     errno = 0;
     if ((rc = getaddrinfo(host_name.c_str(), service_port, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
-        add_error(ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
+        add_error(error_stack_, ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
         if (rc == EAI_SYSTEM || errno != 0) {
-            add_error(ErrorType::System, __func__, errno, "");
+            add_error(error_stack_, ErrorType::System, __func__, errno, "");
         }
         if (result) {
             freeaddrinfo(result);
@@ -333,9 +333,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     if (_client_socket < 0 || errno != 0) {
         if (errno != 0) {
-            add_error(ErrorType::System, __func__, errno, "");
+            add_error(error_stack_, ErrorType::System, __func__, errno, "");
         } else {
-            add_error(ErrorType::Code, __func__, -1, "Problem Opening Socket");
+            add_error(error_stack_, ErrorType::Code, __func__, -1, "Problem Opening Socket");
         }
         if (_client_socket != -1) {
 #ifndef _WIN32
@@ -381,7 +381,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
             UDA_LOG(UDA_LOG_DEBUG, "Unable to connect to primary host: {} on port {}", host_name, service_port);
         }
 
-        auto server_host2 = _config.get("client.server_host2").as_or_default(""s);
+        auto server_host2 = config_.get("client.server_host2").as_or_default(""s);
 
         // Abandon the principal Host - attempt to connect to the secondary host
         if (rc < 0 && !server_host2.empty() && server_host != server_host2) {
@@ -399,7 +399,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
             // Check if the host_name is an alias for an IP address or name in the client configuration - replace if
             // found
 
-            auto server_port2 = _config.get("server_port2").as_or_default(0);
+            auto server_port2 = config_.get("server_port2").as_or_default(0);
 
             host = host_list.find_by_alias(host_name);
             if (host != nullptr) {
@@ -440,9 +440,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
             errno = 0;
             if ((rc = getaddrinfo(host_name.c_str(), service_port, &hints, &result)) != 0 || errno != 0) {
-                add_error(ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
+                add_error(error_stack_, ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
                 if (rc == EAI_SYSTEM || errno != 0) {
-                    add_error(ErrorType::System, __func__, errno, "");
+                    add_error(error_stack_, ErrorType::System, __func__, errno, "");
                 }
                 if (result) {
                     freeaddrinfo(result);
@@ -454,9 +454,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
             if (_client_socket < 0 || errno != 0) {
                 if (errno != 0) {
-                    add_error(ErrorType::System, __func__, errno, "");
+                    add_error(error_stack_, ErrorType::System, __func__, errno, "");
                 } else {
-                    add_error(ErrorType::Code, __func__, -1, "Problem Opening Socket");
+                    add_error(error_stack_, ErrorType::Code, __func__, -1, "Problem Opening Socket");
                 }
                 if (_client_socket != -1) {
 #ifndef _WIN32
@@ -484,9 +484,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
         if (rc < 0) {
             if (errno != 0) {
-                add_error(ErrorType::System, __func__, errno, "");
+                add_error(error_stack_, ErrorType::System, __func__, errno, "");
             } else {
-                add_error(ErrorType::Code, __func__, -1, "Unable to Connect to Server Stream Socket");
+                add_error(error_stack_, ErrorType::Code, __func__, -1, "Unable to Connect to Server Stream Socket");
             }
             if (_client_socket != -1)
 #ifndef _WIN32
@@ -518,14 +518,14 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     int on = 1;
     if (setsockopt(_client_socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
-        add_error(ErrorType::Code, __func__, -1, "Error Setting KEEPALIVE on Socket");
+        add_error(error_stack_, ErrorType::Code, __func__, -1, "Error Setting KEEPALIVE on Socket");
         ::close(_client_socket);
         _client_socket = -1;
         return -1;
     }
     on = 1;
     if (setsockopt(_client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
-        add_error(ErrorType::Code, __func__, -1, "Error Setting NODELAY on Socket");
+        add_error(error_stack_, ErrorType::Code, __func__, -1, "Error Setting NODELAY on Socket");
         ::close(_client_socket);
         _client_socket = -1;
         return -1;
@@ -544,11 +544,11 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
     socket.Input = client_input;
     socket.Output = client_output;
 
-    _socket_list.push_back(socket);
+    socket_list_.push_back(socket);
 
-    _config.set("client.server_reconnect", false);
-    _config.set("client.server_change_socket", false);
-    _config.set("client.server_socket", _client_socket);
+    config_.set("client.server_reconnect", false);
+    config_.set("client.server_change_socket", false);
+    config_.set("client.server_socket", _client_socket);
 
     // Write the socket number to the SSL functions
 
@@ -561,7 +561,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
 void uda::client::Connection::close_socket(const int fh)
 {
-    for (auto& socket : _socket_list) {
+    for (auto& socket : socket_list_) {
         if (socket.open && socket.fh == fh && socket.fh >= 0) {
 #ifndef _WIN32
             ::close(fh); // Only Genuine Sockets!
@@ -580,7 +580,7 @@ void uda::client::Connection::close_down(ClosedownType type)
     if (_client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {
         close_socket(_client_socket);
     } else {
-        for (const auto& socket : _socket_list) {
+        for (const auto& socket : socket_list_) {
             close_socket(socket.fh);
         }
     }
@@ -607,7 +607,8 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
     fd_set wfds;
     struct timeval tv = {};
 
-    auto io_data = reinterpret_cast<IoData*>(iohandle);
+    auto* io_data = static_cast<IoData*>(iohandle);
+    auto* error_stack = io_data->error_stack;
 
     update_select_params(*io_data->client_socket, &wfds, &tv);
 
@@ -618,17 +619,17 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
                 UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!");
-                add_error(ErrorType::Code, __func__, -2,
+                add_error(*error_stack, ErrorType::Code, __func__, -2,
                           "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
                     UDA_LOG(UDA_LOG_DEBUG, "ENETUNREACH error!");
-                    add_error(ErrorType::Code, __func__, -3, "Server Unavailable: ENETUNREACH");
+                    add_error(*error_stack, ErrorType::Code, __func__, -3, "Server Unavailable: ENETUNREACH");
                     return -3;
                 } else {
                     UDA_LOG(UDA_LOG_DEBUG, "ECONNREFUSED error!");
-                    add_error(ErrorType::Code, __func__, -4, "Server Unavailable: ECONNREFUSED");
+                    add_error(*error_stack, ErrorType::Code, __func__, -4, "Server Unavailable: ECONNREFUSED");
                     return -4;
                 }
             }
@@ -647,16 +648,16 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
 
 #ifndef _WIN32
     if ((OldSIGPIPEHandler = signal(SIGPIPE, SIG_IGN)) == SIG_ERR) {
-        add_error(ErrorType::Code, __func__, -1, "Error attempting to ignore SIG_PIPE");
+        add_error(*error_stack, ErrorType::Code, __func__, -1, "Error attempting to ignore SIG_PIPE");
         return -1;
     }
 #endif
 
     // Write to socket, checking for EINTR, as happens if called from IDL
 
-    while (BytesSent < (unsigned int)count) {
+    while (BytesSent < static_cast<unsigned int>(count)) {
 #ifndef _WIN32
-        while (((rc = (int)write(*io_data->client_socket, buf, count)) == -1) && (errno == EINTR)) {}
+        while (((rc = static_cast<int>(write(*io_data->client_socket, buf, count))) == -1) && (errno == EINTR)) {}
 #else
         while (((rc = send(*io_data->_client_socket, buf, count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
@@ -668,7 +669,7 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
 
 #ifndef _WIN32
     if (signal(SIGPIPE, OldSIGPIPEHandler) == SIG_ERR) {
-        add_error(ErrorType::Code, __func__, -1, "Error attempting to restore SIG_PIPE handler");
+        add_error(*error_stack, ErrorType::Code, __func__, -1, "Error attempting to restore SIG_PIPE handler");
         return -1;
     }
 #endif
@@ -684,7 +685,8 @@ int uda::client::readin(void* iohandle, char* buf, int count)
 
     int maxloop = 0;
 
-    auto io_data = reinterpret_cast<IoData*>(iohandle);
+    auto* io_data = static_cast<IoData*>(iohandle);
+    auto* error_stack = io_data->error_stack;
 
     errno = 0;
 
@@ -710,9 +712,9 @@ int uda::client::readin(void* iohandle, char* buf, int count)
     if (!rc) {
         rc = -1;
         if (errno != 0 && errno != EINTR) {
-            add_error(ErrorType::System, __func__, rc, "");
+            add_error(*error_stack, ErrorType::System, __func__, rc, "");
         }
-        add_error(ErrorType::Code, __func__, rc, "No Data waiting at Socket when Data Expected!");
+        add_error(*error_stack, ErrorType::Code, __func__, rc, "No Data waiting at Socket when Data Expected!");
     }
 
     return rc;

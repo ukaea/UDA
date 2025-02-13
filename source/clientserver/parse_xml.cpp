@@ -35,7 +35,7 @@ void parse_time_offset(xmlDocPtr doc, xmlNodePtr cur, Actions* actions);
 
 void parse_error_model(xmlDocPtr doc, xmlNodePtr cur, Actions* actions);
 
-void parse_subset(xmlDocPtr doc, xmlNodePtr cur, Actions* actions);
+void parse_subset(std::vector<UdaError>& error_stack, xmlDocPtr doc, xmlNodePtr cur, Actions* actions);
 
 void print_dimensions(int ndim, Dimension* dims);
 
@@ -482,7 +482,7 @@ void parse_time_offset(xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
     actions->action = str; // Array of Actions bounded by a Ranges
 }
 
-void parse_composite_subset(xmlDocPtr doc, xmlNodePtr cur, Composite* comp)
+void parse_composite_subset(std::vector<UdaError>& error_stack, xmlDocPtr doc, xmlNodePtr cur, Composite* comp)
 {
 
     xmlChar* att; // General Input of tag attribute values
@@ -553,7 +553,7 @@ void parse_composite_subset(xmlDocPtr doc, xmlNodePtr cur, Composite* comp)
             parse_fixed_length_array(cur, "bound", (void*)str[n - 1].bound, UDA_TYPE_DOUBLE, &n0);
             parse_fixed_length_array(cur, "dimid", (void*)str[n - 1].dimid, UDA_TYPE_INT, &n1);
 
-            if (parse_operation(&str[n - 1]) != 0) {
+            if (parse_operation(error_stack, &str[n - 1]) != 0) {
                 return;
             }
 
@@ -655,7 +655,7 @@ void parse_dim_composite(xmlDocPtr doc, xmlNodePtr cur, Composite* comp)
     comp->dimensions = str; // Array of Composite Signal Actions on Dimensions
 }
 
-void parse_composite(xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
+void parse_composite(std::vector<UdaError>& error_stack, xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
 {
 
     xmlChar* att; // General Input of tag attribute values
@@ -773,7 +773,7 @@ void parse_composite(xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
             // Child Tags
 
             parse_dim_composite(doc, cur, &str[n - 1].composite);
-            parse_composite_subset(doc, cur, &str[n - 1].composite);
+            parse_composite_subset(error_stack, doc, cur, &str[n - 1].composite);
 
             // Consolidate Composite Signal name with Subset Signal Name (the Composite record has precedence)
 
@@ -1194,7 +1194,7 @@ void parse_calibration(xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
     actions->action = str; // Array of Actions bounded by a Ranges
 }
 
-void parse_subset(xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
+void parse_subset(std::vector<UdaError>& error_stack, xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
 {
     xmlChar* att; // General Input of tag attribute values
 
@@ -1278,7 +1278,7 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
             parse_fixed_length_array(cur, "bound", (void*)sub->bound, UDA_TYPE_DOUBLE, &n0);
             parse_fixed_length_array(cur, "dimid", (void*)sub->dimid, UDA_TYPE_INT, &n1);
 
-            if (parse_operation(sub) != 0) {
+            if (parse_operation(error_stack, sub) != 0) {
                 return;
             }
 
@@ -1300,7 +1300,7 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, Actions* actions)
 
 } // anon namespace
 
-int uda::client_server::parse_doc(const char* doc_name, Actions* actions)
+int uda::client_server::parse_doc(std::vector<UdaError>& error_stack, const char* doc_name, Actions* actions)
 {
     xmlDocPtr doc = nullptr;
     xmlNodePtr cur = nullptr;
@@ -1317,12 +1317,12 @@ int uda::client_server::parse_doc(const char* doc_name, Actions* actions)
     if ((doc = xmlParseDoc(reinterpret_cast<const xmlChar*>(doc_name))) == nullptr) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
-        add_error(ErrorType::Code, "parseDoc", 1, "XML Not Parsed");
+        add_error(error_stack, ErrorType::Code, "parseDoc", 1, "XML Not Parsed");
         return 1;
     }
 
     if ((cur = xmlDocGetRootElement(doc)) == nullptr) {
-        add_error(ErrorType::Code, "parseDoc", 1, "Empty XML Document");
+        add_error(error_stack, ErrorType::Code, "parseDoc", 1, "Empty XML Document");
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return 1;
@@ -1339,13 +1339,13 @@ int uda::client_server::parse_doc(const char* doc_name, Actions* actions)
 
         if (!xmlStrcmp(cur->name, (const xmlChar*)"signal")) {
 
-            parse_composite(doc, cur, actions); // Composite can have Subset as a child
+            parse_composite(error_stack, doc, cur, actions); // Composite can have Subset as a child
             parse_documentation(doc, cur, actions);
             parse_calibration(doc, cur, actions);
             parse_time_offset(doc, cur, actions);
             parse_error_model(doc, cur, actions);
 
-            parse_subset(doc, cur, actions); // Single Subset
+            parse_subset(error_stack, doc, cur, actions); // Single Subset
         }
         cur = cur->next;
     }

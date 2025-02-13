@@ -42,7 +42,6 @@ set( SRC_FILES
   writer.cpp
   createXDRStream.cpp
   server_config.cpp
-  plugin_api.cpp
 )
 
 add_definitions( -DSERVERBUILD )

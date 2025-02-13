@@ -15,28 +15,27 @@ constexpr size_t MaxDoLoopLimit = 500; // ~50MB file
 using namespace uda::client_server;
 using namespace uda::logging;
 
+struct FCloseDeleter {
+    void operator()(FILE* file) const {fclose(file);}
+};
+
 int uda::protocol::send_xdr_file(XDR* xdrs, const char* xdrfile)
 {
 
-    int err = 0, rc = 1, nchar, buf_size, count;
-    FILE* fh;
-    char* bp = nullptr;
+    int err = 0;
+    int rc = 1;
 
     //----------------------------------------------------------------------
     // Open the File as a Binary Stream
 
     errno = 0;
-    fh = fopen(xdrfile, "rb");
+    std::unique_ptr<FILE, FCloseDeleter> fh{fopen(xdrfile, "rb")};
 
-    if (fh == nullptr || errno != 0 || ferror(fh)) {
-        err = 999;
+    if (fh == nullptr || errno != 0 || ferror(fh.get())) {
         if (errno != 0) {
-            add_error(ErrorType::System, "sendXDRFile", errno, "");
+            UDA_SYS_THROW("");
         }
-        add_error(ErrorType::Code, "sendXDRFile", err, "Unable to Open the XDR File for Read Access");
-        if (fh != nullptr) {
-            fclose(fh);
-        }
+        UDA_THROW(err, "Unable to Open the XDR File for Read Access");
         return err;
     }
 
@@ -45,36 +44,30 @@ int uda::protocol::send_xdr_file(XDR* xdrs, const char* xdrfile)
     //----------------------------------------------------------------------
     // Error Trap Loop
 
+    int nchar = 0;
+
     do {
 
         //----------------------------------------------------------------------
         // Read File and write to xdr data stream
 
-        nchar = 0;
-        buf_size = 100 * 1024;
-        rc = 1;
-        count = 0;
+        int buf_size = 100 * 1024;
+        int count = 0;
 
-        if ((bp = (char*)malloc(buf_size * sizeof(char))) == nullptr) {
-            err = 999;
-            add_error(ErrorType::Code, "sendXDRFile", err, "Unable to Allocate Heap Memory for the XDR File");
-            buf_size = 0;
-            rc = xdr_int(xdrs, &buf_size);
-            break;
-        }
+        auto bp = std::make_unique<char[]>(buf_size);
 
         rc = xdr_int(xdrs, &buf_size); // Send Server buffer size, e.g., 100k bytes
 
         UDA_LOG(UDA_LOG_DEBUG, "Buffer size {}", buf_size);
 
-        while (!feof(fh)) {
-            nchar = (int)fread(bp, sizeof(char), buf_size, fh);
+        while (!feof(fh.get())) {
+            nchar = static_cast<int>(fread(bp.get(), sizeof(char), buf_size, fh.get()));
             rc = rc && xdr_int(xdrs, &nchar); // Number of Bytes to send
 
             UDA_LOG(UDA_LOG_DEBUG, "File block size {}", nchar);
 
             if (nchar > 0) { // Send the bytes
-                rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char);
+                rc = rc && xdr_vector(xdrs, bp.get(), nchar, sizeof(char), reinterpret_cast<xdrproc_t>(xdr_char));
             }
 
             rc = rc && xdrrec_endofrecord(xdrs, 1);
@@ -90,16 +83,6 @@ int uda::protocol::send_xdr_file(XDR* xdrs, const char* xdrfile)
     rc = rc && xdr_int(xdrs, &nchar);
     rc = rc && xdrrec_endofrecord(xdrs, 1);
 
-    // *** Send count to client as a check all data received
-    // *** Send hash sum to client as a test data is accurate - another reason to use files and cache rather than a data
-    // stream
-
-    //----------------------------------------------------------------------
-    // Housekeeping
-
-    fclose(fh); // Close the File
-    free(bp);
-
     return err;
 }
 
@@ -107,25 +90,18 @@ int uda::protocol::receive_xdr_file(XDR* xdrs, const char* xdrfile)
 {
     int err = 0, rc = 1, nchar, buf_size, count;
     size_t do_loop_limit = 0;
-    FILE* fh;
-    char* bp = nullptr;
 
     //----------------------------------------------------------------------
     // Open the File as a Binary Stream
 
     errno = 0;
-    fh = fopen(xdrfile, "wb");
+    std::unique_ptr<FILE, FCloseDeleter> fh{fopen(xdrfile, "wb")};
 
-    if (fh == nullptr || errno != 0 || ferror(fh)) {
-        err = 999;
+    if (fh == nullptr || errno != 0 || ferror(fh.get())) {
         if (errno != 0) {
-            add_error(ErrorType::System, "receiveXDRFile", errno, "");
+            UDA_SYS_THROW("");
         }
-        add_error(ErrorType::Code, "receiveXDRFile", err, "Unable to Open the XDR File for Write Access");
-        if (fh != nullptr) {
-            fclose(fh);
-        }
-        return err;
+        UDA_THROW(999, "Unable to Open the XDR File for Write Access");
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: writing temporary XDR file {}", xdrfile);
@@ -146,16 +122,10 @@ int uda::protocol::receive_xdr_file(XDR* xdrs, const char* xdrfile)
         UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Buffer size {}", buf_size);
 
         if (buf_size <= 0 || buf_size > 100 * 1024) {
-            err = 999;
-            add_error(ErrorType::Code, "receiveXDRFile", err, "Zero buffer size: Server failure");
-            break;
+            UDA_THROW(999, "Zero buffer size: Server failure");
         }
 
-        if ((bp = (char*)malloc(buf_size * sizeof(char))) == nullptr) {
-            err = 999;
-            add_error(ErrorType::Code, "receiveXDRFile", err, "Unable to Allocate Heap Memory for the XDR File");
-            break;
-        }
+        auto bp = std::make_unique<char[]>(buf_size);
 
         count = 0;
 
@@ -171,21 +141,17 @@ int uda::protocol::receive_xdr_file(XDR* xdrs, const char* xdrfile)
             UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: [{}] File block size {}", do_loop_limit, nchar);
 
             if (nchar > buf_size) {
-                err = 999;
-                add_error(ErrorType::Code, "receiveXDRFile", err, "File block size inconsistent with buffer size");
-                break;
+                UDA_THROW(999, "File block size inconsistent with buffer size");
             }
 
             if (nchar > 0) {
-                rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char); // Bytes
-                count = count + (int)fwrite(bp, sizeof(char), nchar, fh);
+                rc = rc && xdr_vector(xdrs, bp.get(), nchar, sizeof(char), (xdrproc_t)xdr_char); // Bytes
+                count = count + (int)fwrite(bp.get(), sizeof(char), nchar, fh.get());
             }
         } while (nchar > 0 && errno == 0 && do_loop_limit++ < MaxDoLoopLimit);
 
         if (do_loop_limit >= MaxDoLoopLimit) {
-            err = 999;
-            add_error(ErrorType::Code, "receiveXDRFile", err, "Maximum XDR file size reached: ~50MBytes");
-            break;
+            UDA_THROW(999, "Maximum XDR file size reached: ~50MBytes");
         }
 
         // *** Read count from server to check all data received
@@ -195,18 +161,10 @@ int uda::protocol::receive_xdr_file(XDR* xdrs, const char* xdrfile)
         UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Total File size {}", count);
 
         if (errno != 0) {
-            err = 999;
-            add_error(ErrorType::System, "receiveXDRFile", errno, "Problem receiving XDR File");
-            break;
+            UDA_THROW(999, "Problem receiving XDR File");
         }
 
     } while (0);
-
-    //----------------------------------------------------------------------
-    // Housekeeping
-
-    fclose(fh); // Close the File
-    free(bp);
 
     return err;
 }

@@ -5735,9 +5735,9 @@ std::string serializeFilters( std::vector<std::string> const& container );
 template<typename DerivedT>
 struct StreamingReporterBase : IStreamingReporter {
 
-    StreamingReporterBase( ReporterConfig const& _config )
-            :   m_config( _config.fullConfig() ),
-                stream( _config.stream() )
+    StreamingReporterBase( ReporterConfig const& config_ )
+            :   m_config( config_.fullConfig() ),
+                stream( config_.stream() )
     {
         m_reporterPrefs.shouldRedirectStdOut = false;
         if( !DerivedT::getSupportedVerbosities().count( m_config->verbosity() ) )
@@ -5852,9 +5852,9 @@ struct CumulativeReporterBase : IStreamingReporter {
     using TestGroupNode = Node<TestGroupStats, TestCaseNode>;
     using TestRunNode = Node<TestRunStats, TestGroupNode>;
 
-    CumulativeReporterBase( ReporterConfig const& _config )
-            :   m_config( _config.fullConfig() ),
-                stream( _config.stream() )
+    CumulativeReporterBase( ReporterConfig const& config_ )
+            :   m_config( config_.fullConfig() ),
+                stream( config_.stream() )
     {
         m_reporterPrefs.shouldRedirectStdOut = false;
         if( !DerivedT::getSupportedVerbosities().count( m_config->verbosity() ) )
@@ -5972,7 +5972,7 @@ char const* getLineOfChars() {
 }
 
 struct TestEventListenerBase : StreamingReporterBase<TestEventListenerBase> {
-    TestEventListenerBase( ReporterConfig const& _config );
+    TestEventListenerBase( ReporterConfig const& config_ );
 
     static std::set<Verbosity> getSupportedVerbosities();
 
@@ -6326,7 +6326,7 @@ namespace Catch {
 
 class JunitReporter : public CumulativeReporterBase<JunitReporter> {
 public:
-    JunitReporter(ReporterConfig const& _config);
+    JunitReporter(ReporterConfig const& config_);
 
     ~JunitReporter() override;
 
@@ -6375,7 +6375,7 @@ public:
 namespace Catch {
 class XmlReporter : public StreamingReporterBase<XmlReporter> {
 public:
-    XmlReporter(ReporterConfig const& _config);
+    XmlReporter(ReporterConfig const& config_);
 
     ~XmlReporter() override;
 
@@ -8064,7 +8064,7 @@ public:
     RunContext( RunContext const& ) = delete;
     RunContext& operator =( RunContext const& ) = delete;
 
-    explicit RunContext( IConfigPtr const& _config, IStreamingReporterPtr&& reporter );
+    explicit RunContext( IConfigPtr const& config_, IStreamingReporterPtr&& reporter );
 
     ~RunContext() override;
 
@@ -12714,10 +12714,10 @@ struct GeneratorTracker : TestCaseTracking::TrackerBase, IGeneratorTracker {
 GeneratorTracker::~GeneratorTracker() {}
 }
 
-RunContext::RunContext(IConfigPtr const& _config, IStreamingReporterPtr&& reporter)
-        :   m_runInfo(_config->name()),
+RunContext::RunContext(IConfigPtr const& config_, IStreamingReporterPtr&& reporter)
+        :   m_runInfo(config_->name()),
             m_context(getCurrentMutableContext()),
-            m_config(_config),
+            m_config(config_),
             m_reporter(std::move(reporter)),
             m_lastAssertionInfo{ StringRef(), SourceLineInfo("",0), StringRef(), ResultDisposition::Normal },
             m_includeSuccessfulResults( m_config->includeSuccessfulResults() || m_reporter->getPreferences().shouldReportAllAssertions )
@@ -15819,8 +15819,8 @@ std::string serializeFilters( std::vector<std::string> const& container ) {
     return oss.str();
 }
 
-TestEventListenerBase::TestEventListenerBase(ReporterConfig const & _config)
-        :StreamingReporterBase(_config) {}
+TestEventListenerBase::TestEventListenerBase(ReporterConfig const & config_)
+        :StreamingReporterBase(config_) {}
 
 std::set<Verbosity> TestEventListenerBase::getSupportedVerbosities() {
     return { Verbosity::Quiet, Verbosity::Normal, Verbosity::High };
@@ -16856,9 +16856,9 @@ std::string formatDuration( double seconds ) {
 
 } // anonymous namespace
 
-JunitReporter::JunitReporter( ReporterConfig const& _config )
-        :   CumulativeReporterBase( _config ),
-            xml( _config.stream() )
+JunitReporter::JunitReporter( ReporterConfig const& config_ )
+        :   CumulativeReporterBase( config_ ),
+            xml( config_.stream() )
 {
     m_reporterPrefs.shouldRedirectStdOut = true;
     m_reporterPrefs.shouldReportAllAssertions = true;
@@ -17249,9 +17249,9 @@ bool ListeningReporter::isMulti() const {
 #endif
 
 namespace Catch {
-XmlReporter::XmlReporter( ReporterConfig const& _config )
-        :   StreamingReporterBase( _config ),
-            m_xml(_config.stream())
+XmlReporter::XmlReporter( ReporterConfig const& config_ )
+        :   StreamingReporterBase( config_ ),
+            m_xml(config_.stream())
 {
     m_reporterPrefs.shouldRedirectStdOut = true;
     m_reporterPrefs.shouldReportAllAssertions = true;

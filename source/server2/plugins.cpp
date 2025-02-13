@@ -6,7 +6,6 @@
 
 #include "plugins.hpp"
 
-#include "clientserver/error_log.h"
 #include "logging/logging.h"
 #include "config/config.h"
 #include "uda/plugins.h"
@@ -112,7 +111,7 @@ void uda::server::Plugins::discover_plugins_in_directory(const std::filesystem::
 
 void uda::server::Plugins::discover_plugins()
 {
-    auto directories_string = _config.get("plugins.directories").as_or_default(""s);
+    auto directories_string = config_.get("plugins.directories").as_or_default(""s);
     std::vector<std::filesystem::path> directories;
     boost::split(directories, directories_string, boost::is_any_of(";"), boost::token_compress_on);
 

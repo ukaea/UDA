@@ -95,16 +95,16 @@ struct CacheEntry {
 
 } // namespace
 
-static int set_db_file_lock_state(FILE* db, LockActionType type);
+static int set_db_file_lock_state(std::vector<UdaError>& error_stack, FILE* db, LockActionType type);
 static bool is_cache_time_valid(unsigned long long timestamp);
 static bool is_cache_locked_time_valid(unsigned long long timestamp);
 static bool is_cache_file_valid(const std::string& filename);
-static boost::optional<CacheStats> get_cache_stats(FILE* db);
-static int update_cache_stats(FILE* db, CacheStats stats);
-static boost::optional<CacheStats> purge_cache(FILE* db);
-static boost::optional<CacheEntry> find_cache_entry(const RequestData* request);
+static boost::optional<CacheStats> get_cache_stats(std::vector<UdaError>& error_stack, FILE* db);
+static int update_cache_stats(std::vector<UdaError>& error_stack, FILE* db, CacheStats stats);
+static boost::optional<CacheStats> purge_cache(std::vector<UdaError>& error_stack, FILE* db);
+static boost::optional<CacheEntry> find_cache_entry(std::vector<UdaError>& error_stack, const RequestData* request);
 static unsigned int xcrc32(const unsigned char* buf, int len, unsigned int init);
-static int set_entry_state(const CacheEntry& entry, EntryState state);
+static int set_entry_state(std::vector<UdaError>& error_stack, const CacheEntry& entry, EntryState state);
 static std::string get_file_path(const std::string& filename);
 
 constexpr const char* delimiter = ";";
@@ -148,7 +148,7 @@ FILE* open_db_file(bool create)
     return fh;
 }
 
-int set_db_file_lock_state(FILE* db, LockActionType type)
+int set_db_file_lock_state(std::vector<UdaError>& error_stack, FILE* db, LockActionType type)
 {
     int fd = fileno(db);
 
@@ -167,7 +167,7 @@ int set_db_file_lock_state(FILE* db, LockActionType type)
 
     if (type == LockActionType::UNLOCK) {
         int err = 999;
-        add_error(ErrorType::Code, __func__, err, "cache file lock not released indicating problem with cache");
+        add_error(error_stack, ErrorType::Code, __func__, err, "cache file lock not released indicating problem with cache");
         return err;
     }
 
@@ -187,7 +187,7 @@ int set_db_file_lock_state(FILE* db, LockActionType type)
 
     if (rc == -1 || count >= CACHE_MAXCOUNT) {
         int err = 999;
-        add_error(ErrorType::Code, __func__, err, "unable to lock the cache database");
+        add_error(error_stack, ErrorType::Code, __func__, err, "unable to lock the cache database");
         return err;
     }
 
@@ -233,14 +233,14 @@ bool is_cache_file_valid(const std::string& filename)
 
 // Current table statistics
 
-boost::optional<CacheStats> get_cache_stats(FILE* db)
+boost::optional<CacheStats> get_cache_stats(std::vector<UdaError>& error_stack, FILE* db)
 {
     rewind(db);
     char buffer[CACHE_STATSLENGTH + 1];
     if (fgets(buffer, CACHE_STATSLENGTH, db) == nullptr) {
         fseek(db, 0, SEEK_END);
         if (ftell(db) == 0) {
-            update_cache_stats(db, {});
+            update_cache_stats(error_stack, db, {});
             return CacheStats{};
         }
         return {};
@@ -256,9 +256,9 @@ boost::optional<CacheStats> get_cache_stats(FILE* db)
 
     // If there are too many dead records, then compact the database table
     if (stats.deadCount >= CACHE_MAXDEADRECORDS) {
-        auto maybe_updated_stats = purge_cache(db);
+        auto maybe_updated_stats = purge_cache(error_stack, db);
         if (!maybe_updated_stats) {
-            add_error(ErrorType::Code, __func__, 999, "failed to purge cache");
+            add_error(error_stack, ErrorType::Code, __func__, 999, "failed to purge cache");
             return {};
         }
         stats = maybe_updated_stats.get();
@@ -273,7 +273,7 @@ boost::optional<CacheStats> get_cache_stats(FILE* db)
  * @param stats
  * @return 0 on success, else error code
  */
-int update_cache_stats(FILE* db, CacheStats stats)
+int update_cache_stats(std::vector<UdaError>& error_stack, FILE* db, CacheStats stats)
 {
     std::stringstream ss;
     ss << stats.recordCount << delimiter << stats.deadCount << delimiter << stats.endOffset;
@@ -290,7 +290,7 @@ int update_cache_stats(FILE* db, CacheStats stats)
         }
         fputc('\n', db);
     } else {
-        UDA_THROW_ERROR(999, "invalid cache stats record");
+        UDA_THROW_ERROR(error_stack, 999, "invalid cache stats record");
     }
 
     fflush(db);
@@ -302,7 +302,7 @@ int update_cache_stats(FILE* db, CacheStats stats)
  * @param db
  * @return
  */
-boost::optional<CacheStats> purge_cache(FILE* db)
+boost::optional<CacheStats> purge_cache(std::vector<UdaError>& error_stack, FILE* db)
 {
     // rewind the file to the beginning of the records
     fseek(db, CACHE_STATSLENGTH, SEEK_SET);
@@ -359,7 +359,7 @@ boost::optional<CacheStats> purge_cache(FILE* db)
         const auto& record = pair.second;
         size_t count = fwrite(record.c_str(), sizeof(char), record.size(), db);
         if (count != record.size() || errno != 0) {
-            add_error(ErrorType::Code, __func__, 999, "Failed to write cache record");
+            add_error(error_stack, ErrorType::Code, __func__, 999, "Failed to write cache record");
             return {};
         }
     }
@@ -369,16 +369,16 @@ boost::optional<CacheStats> purge_cache(FILE* db)
     stats.recordCount = table.size();
     stats.deadCount = 0;
 
-    update_cache_stats(db, stats);
+    update_cache_stats(error_stack, db, stats);
 
     return stats;
 }
 
-DataBlock* udaFileCacheRead(const RequestData* request, LogMallocList* logmalloclist,
+DataBlock* uda::cache::udaFileCacheRead(std::vector<UdaError>& error_stack, const RequestData* request, LogMallocList* logmalloclist,
                             UserDefinedTypeList* userdefinedtypelist, int protocolVersion,
                             LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
-    auto maybe_entry = find_cache_entry(request);
+    auto maybe_entry = find_cache_entry(error_stack, request);
     if (!maybe_entry) {
         return nullptr;
     }
@@ -388,10 +388,10 @@ DataBlock* udaFileCacheRead(const RequestData* request, LogMallocList* logmalloc
     if (!is_cache_file_valid(entry.filename) ||
         (entry.state == EntryState::LIVE && !is_cache_time_valid(entry.timestamp)) ||
         (entry.state == EntryState::LOCKED && !is_cache_locked_time_valid(entry.timestamp))) {
-        set_entry_state(entry, EntryState::DEAD);
+        set_entry_state(error_stack, entry, EntryState::DEAD);
         return nullptr;
     } else {
-        set_entry_state(entry, EntryState::LOCKED);
+        set_entry_state(error_stack, entry, EntryState::LOCKED);
     }
 
     std::string path = get_file_path(entry.filename);
@@ -400,15 +400,15 @@ DataBlock* udaFileCacheRead(const RequestData* request, LogMallocList* logmalloc
 
     FILE* xdrfile;
     if ((xdrfile = fopen(path.c_str(), "rb")) == nullptr || errno != 0) {
-        UDA_THROW_ERROR(0, "Unable to Open the Cached Data File");
+        UDA_THROW_ERROR(error_stack, 0, "Unable to Open the Cached Data File");
     }
 
-    auto data_block = readCacheData(xdrfile, logmalloclist, userdefinedtypelist, protocolVersion, log_struct_list,
+    auto data_block = readCacheData(error_stack, xdrfile, logmalloclist, userdefinedtypelist, protocolVersion, log_struct_list,
                                     private_flags, malloc_source);
 
     fclose(xdrfile);
 
-    set_entry_state(entry, EntryState::LIVE);
+    set_entry_state(error_stack, entry, EntryState::LIVE);
 
     return data_block;
 }
@@ -476,11 +476,11 @@ unsigned int generate_hash_key(const RequestData* request)
     return key;
 }
 
-int set_entry_state(const CacheEntry& entry, EntryState state)
+int set_entry_state(std::vector<UdaError>& error_stack, const CacheEntry& entry, EntryState state)
 {
     int rc = 0;
     FILE* db = open_db_file(false);
-    if (db == nullptr || (rc = set_db_file_lock_state(db, LockActionType::WRITE)) != 0) {
+    if (db == nullptr || (rc = set_db_file_lock_state(error_stack, db, LockActionType::WRITE)) != 0) {
         return rc;
     }
 
@@ -489,18 +489,18 @@ int set_entry_state(const CacheEntry& entry, EntryState state)
     snprintf(buffer, 3, "%d%c", static_cast<int>(state), delimiter[0]);
     fwrite(buffer, sizeof(char), 2, db);
 
-    rc = set_db_file_lock_state(db, LockActionType::UNLOCK); // release lock
+    rc = set_db_file_lock_state(error_stack, db, LockActionType::UNLOCK); // release lock
     fclose(db);
 
     return rc;
 }
 
 // Identify the name of the required cache file
-boost::optional<CacheEntry> find_cache_entry(const RequestData* request)
+boost::optional<CacheEntry> find_cache_entry(std::vector<UdaError>& error_stack, const RequestData* request)
 {
     // Lock the database
     FILE* db = open_db_file(false);
-    if (db == nullptr || set_db_file_lock_state(db, LockActionType::READ) != 0) {
+    if (db == nullptr || set_db_file_lock_state(error_stack, db, LockActionType::READ) != 0) {
         return {};
     }
 
@@ -533,13 +533,13 @@ boost::optional<CacheEntry> find_cache_entry(const RequestData* request)
     }
 
     free(line);
-    set_db_file_lock_state(db, LockActionType::UNLOCK);
+    set_db_file_lock_state(error_stack, db, LockActionType::UNLOCK);
     fclose(db);
 
     return found_entry;
 }
 
-int add_cache_record(const RequestData* request, const char* filename)
+int add_cache_record(std::vector<UdaError>& error_stack, const RequestData* request, const char* filename)
 {
     // Generate a Hash Key (not guaranteed unique)
     unsigned int key = 0;
@@ -565,15 +565,15 @@ int add_cache_record(const RequestData* request, const char* filename)
     // Append the new record to the database table
     int rc = 0;
     FILE* db = open_db_file(true);
-    if (db == nullptr || (rc = set_db_file_lock_state(db, LockActionType::WRITE)) != 0) {
-        UDA_THROW_ERROR(rc, "unable to get lock cache file");
+    if (db == nullptr || (rc = set_db_file_lock_state(error_stack, db, LockActionType::WRITE)) != 0) {
+        UDA_THROW_ERROR(error_stack, rc, "unable to get lock cache file");
     }
 
     // Current table statistics
-    auto maybe_stats = get_cache_stats(db);
+    auto maybe_stats = get_cache_stats(error_stack, db);
     if (!maybe_stats) {
-        rc = set_db_file_lock_state(db, LockActionType::UNLOCK); // Free the Lock and File
-        UDA_THROW_ERROR(rc, "unable to get cache stats");
+        rc = set_db_file_lock_state(error_stack, db, LockActionType::UNLOCK); // Free the Lock and File
+        UDA_THROW_ERROR(error_stack, rc, "unable to get cache stats");
     }
     CacheStats stats = maybe_stats.get();
 
@@ -590,12 +590,12 @@ int add_cache_record(const RequestData* request, const char* filename)
     fflush(db);
     stats.recordCount++;
 
-    rc = update_cache_stats(db, stats);
+    rc = update_cache_stats(error_stack, db, stats);
     if (rc != 0) {
-        UDA_THROW_ERROR(rc, "unable to update cache stats");
+        UDA_THROW_ERROR(error_stack, rc, "unable to update cache stats");
     }
 
-    return set_db_file_lock_state(db, LockActionType::UNLOCK);
+    return set_db_file_lock_state(error_stack, db, LockActionType::UNLOCK);
 }
 
 std::string generate_cache_filename(const RequestData* request)
@@ -604,13 +604,13 @@ std::string generate_cache_filename(const RequestData* request)
     return std::string{"uda_"} + std::to_string(key) + ".cache";
 }
 
-int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_block, LogMallocList* logmalloclist,
+int uda::cache::udaFileCacheWrite(std::vector<UdaError>& error_stack, const DataBlock* data_block, const RequestBlock* request_block, LogMallocList* logmalloclist,
                       UserDefinedTypeList* userdefinedtypelist, int protocolVersion, LogStructList* log_struct_list,
                       unsigned int private_flags, int malloc_source)
 {
     RequestData* request = &request_block->requests[0];
 
-    auto maybe_entry = find_cache_entry(request);
+    auto maybe_entry = find_cache_entry(error_stack, request);
     if (maybe_entry) {
         // Entry already exists, do not add another
         return 0;
@@ -622,17 +622,17 @@ int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_b
     FILE* xdrfile;
     errno = 0;
     if ((xdrfile = fopen(path.c_str(), "wb")) == nullptr || errno != 0) {
-        UDA_THROW_ERROR(0, "unable to create the Cached Data File");
+        UDA_THROW_ERROR(error_stack, 0, "unable to create the Cached Data File");
     }
 
-    writeCacheData(xdrfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion, log_struct_list,
+    writeCacheData(error_stack, xdrfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion, log_struct_list,
                    private_flags, malloc_source);
 
     fclose(xdrfile);
 
-    int rc = add_cache_record(request, filename.c_str());
+    int rc = add_cache_record(error_stack, request, filename.c_str());
     if (rc != 0) {
-        UDA_THROW_ERROR(rc, "unable to add cache record");
+        UDA_THROW_ERROR(error_stack, rc, "unable to add cache record");
     }
 
     return 0;

@@ -104,7 +104,7 @@ void uda::protocol::update_select_params(int fd, fd_set* rfds, struct timeval* t
     }
 }
 
-int uda::protocol::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
+int uda::protocol::protocol(std::vector<UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                  UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                  LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
                                  int malloc_source)
@@ -626,19 +626,14 @@ int uda::protocol::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirectio
                         break;
                     }
 
-                    close_error(); // Free Heap associated with Previous Data Access
+                    server_block->error_stack.clear();
 
                     if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                         err = (int)ProtocolError::Error22;
                         break;
                     }
 
-                    if (server_block->idamerrorstack.nerrors > 0) { // No Data to Receive?
-
-                        server_block->idamerrorstack.idamerror =
-                            (UdaError*)malloc(server_block->idamerrorstack.nerrors * sizeof(UdaError));
-                        init_error_records(&server_block->idamerrorstack);
-
+                    if (!server_block->error_stack.empty()) {
                         if (!xdr_server2(xdrs, server_block)) {
                             err = (int)ProtocolError::Error22;
                             break;
@@ -653,7 +648,7 @@ int uda::protocol::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirectio
                         break;
                     }
 
-                    if (server_block->idamerrorstack.nerrors > 0) { // No Data to Send?
+                    if (!server_block->error_stack.empty()) { // No Data to Send?
                         if (!xdr_server2(xdrs, server_block)) {
                             err = (int)ProtocolError::Error22;
                             break;
@@ -686,7 +681,7 @@ int uda::protocol::protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirectio
         // Hierarchical or Meta Data Structures
 
         if (protocol_id > ProtocolId::OpaqueStart && protocol_id < ProtocolId::OpaqueStop) {
-            err = protocol_xml(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
+            err = protocol_xml(error_stack, xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
                                protocolVersion, log_struct_list, io_data, private_flags, malloc_source, nullptr);
         }
 

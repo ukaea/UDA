@@ -42,7 +42,7 @@ struct PluginList {};
 class Plugins
 {
   public:
-    explicit Plugins(const config::Config& config) : _config{config} {}
+    explicit Plugins(const config::Config& config) : config_{config} {}
 
     void init();
     void close();
@@ -64,7 +64,7 @@ class Plugins
 #endif
 
   private:
-    const config::Config& _config;
+    const config::Config& config_;
     std::vector<client_server::PluginData> _plugins;
 
     bool _initialised = false;

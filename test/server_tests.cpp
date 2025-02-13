@@ -26,7 +26,7 @@ public:
     TestServer() : Server(uda::config::Config{}) {
         std::filesystem::path path{ __FILE__ };
         auto config_path = path.parent_path() / "test_server.toml";
-        _config.load(config_path.string());
+        config_.load(config_path.string());
         uda::logging::init_logging();
         uda::logging::set_log_level(uda::logging::LogLevel::UDA_LOG_NONE);
 
@@ -45,7 +45,7 @@ public:
 
         strcpy(request_data.signal, request.c_str());
 
-        uda::client_server::make_request_data(_config, &request_data, _plugins.plugin_list());
+        uda::client_server::make_request_data(config_, &request_data, _plugins.plugin_list());
 
         return request_data;
     }

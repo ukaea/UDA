@@ -14,19 +14,19 @@ using namespace uda::config;
 
 namespace
 {
-int make_request_data(const Config& config, const char* data_object, const char* data_source, RequestData* request)
+int make_request_data(std::vector<UdaError>& error_stack, const Config& config, const char* data_object, const char* data_source, RequestData* request)
 {
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
 
     if (strlen(data_object) >= MaxMeta) {
-        UDA_THROW_ERROR((int)RequestError::SignalArgTooLong, "The Signal/Data Object Argument string is too long!");
+        UDA_THROW_ERROR(error_stack, (int)RequestError::SignalArgTooLong, "The Signal/Data Object Argument string is too long!");
     } else {
         strcpy(request->signal, data_object); // Passed to the server without modification
     }
 
     if (strlen(data_source) >= StringLength) {
-        UDA_THROW_ERROR((int)RequestError::SourceArgTooLong, "The Data Source Argument string is too long!");
+        UDA_THROW_ERROR(error_stack, (int)RequestError::SourceArgTooLong, "The Data Source Argument string is too long!");
     } else {
         strcpy(request->source, data_source); // Passed to the server without modification
     }
@@ -56,7 +56,7 @@ int make_request_data(const Config& config, const char* data_object, const char*
     if (!device.empty() && strstr(request->source, request->api_delim) == nullptr) {
         auto source = fmt::format("{}{}{}", device, request->api_delim, request->source);
         if (source.length() >= StringLength) {
-            UDA_THROW_ERROR((int)RequestError::SourceArgTooLong,
+            UDA_THROW_ERROR(error_stack, (int)RequestError::SourceArgTooLong,
                             "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
         strcpy(request->source, source.c_str());
@@ -65,7 +65,7 @@ int make_request_data(const Config& config, const char* data_object, const char*
     if (!archive.empty() && strstr(request->signal, request->api_delim) == nullptr) {
         auto signal = fmt::format("{}{}{}", archive, request->api_delim, request->signal);
         if (signal.length() >= StringLength) {
-            UDA_THROW_ERROR((int)RequestError::SignalArgTooLong,
+            UDA_THROW_ERROR(error_stack, (int)RequestError::SignalArgTooLong,
                             "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
         strcpy(request->signal, signal.c_str());
@@ -120,17 +120,17 @@ int make_request_data(const Config& config, const char* data_object, const char*
 }
 } // namespace
 
-int uda::client::make_request_block(const config::Config& config, const char** signals, const char** sources,
-                                    int count, RequestBlock* request_block)
+int uda::client::make_request_block(std::vector<UdaError>& error_stack, const Config& config,
+                                    const char** signals, const char** sources, int count, RequestBlock* request_block)
 {
-    request_block->num_requests = (int)count;
+    request_block->num_requests = count;
     request_block->requests = (RequestData*)malloc(count * sizeof(RequestData));
 
     int err = 0;
     for (int i = 0; i < count; ++i) {
         RequestData* request = &request_block->requests[i];
         init_request_data(request);
-        if ((err = make_request_data(config, signals[i], sources[i], request))) {
+        if ((err = make_request_data(error_stack, config, signals[i], sources[i], request))) {
             return err;
         }
     }

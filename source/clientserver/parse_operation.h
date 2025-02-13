@@ -5,6 +5,6 @@
 namespace uda::client_server
 {
 
-int parse_operation(Subset* sub);
+int parse_operation(std::vector<UdaError>& error_stack, Subset* sub);
 
 }

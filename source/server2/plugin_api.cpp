@@ -1,23 +1,19 @@
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <string>
-#include "include/uda/plugins.h"
-#include "include/uda/structured.h"
-#include "include/uda/types.h"
 #include <vector>
 
-#include "clientserver/errorLog.h"
-#include "clientserver/initStructs.h"
-#include "clientserver/makeRequestBlock.h"
 #include "common/string_utils.h"
 #include "clientserver/type_convertor.hpp"
+#include "clientserver/init_structs.h"
 #include "logging/logging.h"
 #include "structures/accessors.h"
 #include "structures/struct.h"
 #include "config/config.h"
+#include "common/string_utils.h"
+#include "common/make_request_block.h"
 
 #include "plugins.hpp"
-#include "clientserver/parseXML.h"
 #include "server_subset_data.h"
 
 using namespace uda::client_server;
@@ -25,6 +21,7 @@ using namespace uda::server;
 using namespace uda::logging;
 using namespace uda::structures;
 using namespace uda::config;
+using namespace uda::common;
 
 static int find_plugin_id_by_format(std::string_view format, const std::vector<PluginData>& plugin_list)
 {
@@ -71,9 +68,9 @@ void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     free(interface->request_data);
-    udaFreeUserDefinedTypeList(interface->user_defined_type_list);
+    free_user_defined_type_list(interface->user_defined_type_list);
     free(interface->user_defined_type_list);
-    udaFreeMallocLogList(interface->log_malloc_list);
+    free_log_malloc_list(interface->log_malloc_list);
     free(interface->log_malloc_list);
     free(plugin_interface);
 }
@@ -322,7 +319,7 @@ const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int 
 bool udaPluginFindStringArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name)
 {
     auto interface = static_cast<const UdaPluginInterface*>(plugin_interface);
-    auto name_value_list = &interface->request_data->nameValueList;
+    auto name_value_list = &interface->request_data->name_value_list;
 
     char** names = split_string(name, "|");
     *value = nullptr;

@@ -1,5 +1,7 @@
 #include "handle.hpp"
 
+#include <structures/struct.h>
+
 #include "clientserver/init_structs.h"
 #include "clientserver/uda_structs.h"
 #include "uda/structured.h"
@@ -42,12 +44,12 @@ void uda::client::free_handle(int handle)
                 auto general_block = (GeneralBlock*)data_block->opaque_block;
 
                 if (general_block->userdefinedtypelist != nullptr) {
-                    udaFreeUserDefinedTypeList(general_block->userdefinedtypelist);
+                    free_user_defined_type_list(general_block->userdefinedtypelist);
                     free(general_block->userdefinedtypelist);
                 }
 
                 if (general_block->logmalloclist != nullptr) {
-                    udaFreeMallocLogList(general_block->logmalloclist);
+                    free_malloc_log_list(general_block->logmalloclist);
                     free(general_block->logmalloclist);
                 }
             }

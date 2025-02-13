@@ -4,8 +4,6 @@
 #include "client2/thread_client.hpp"
 #include "client2/exceptions.hpp"
 
-#include <unordered_map>
-
 int udaGetAPI(const char *data_object, const char *data_source)
 {
     auto& client = uda::client::ThreadClient::instance();

@@ -20,7 +20,7 @@ struct IoData : protocol::IoData {
 class XdrProtocol
 {
   public:
-    XdrProtocol();
+    explicit XdrProtocol(std::vector<client_server::UdaError>& error_stack);
     void create();
     void set_version(int protocol_version);
     void set_socket(int socket_fd);
@@ -54,7 +54,7 @@ class XdrProtocol
     int send_data_blocks(const std::vector<client_server::DataBlock>& data_blocks,
                          structures::LogMallocList* log_malloc_list,
                          structures::UserDefinedTypeList* user_defined_type_list);
-    int send_hierachical_data(const client_server::DataBlock& data_block,
+    int send_hierarchical_data(const client_server::DataBlock& data_block,
                               structures::LogMallocList* log_malloc_list,
                               structures::UserDefinedTypeList* user_defined_type_list);
     int recv_client_block(client_server::ServerBlock& server_block, client_server::ClientBlock* client_block,
@@ -65,15 +65,16 @@ class XdrProtocol
     void reset();
 
   private:
-    int _protocol_version = 8;
+    std::vector<client_server::UdaError>& error_stack_;
+    int protocol_version_ = 8;
     XDR _server_input;
     XDR _server_output;
     int _server_tot_block_time;
     int _server_timeout;
-    server::IoData _io_data;
-    structures::LogStructList _log_struct_list;
-    int _malloc_source = UDA_MALLOC_SOURCE_NONE;
-    int _private_flags;
+    server::IoData io_data_;
+    structures::LogStructList log_struct_list_;
+    int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
+    int private_flags_;
 
     void create_streams();
 };

@@ -270,7 +270,7 @@ int fat_client_return(ServerBlock* server_block, DataBlockList* data_blocks, Dat
     int err = 0;
 
     if (server_block->idamerrorstack.nerrors > 0) {
-        err = server_block->idamerrorstack.idamerror[0].code;
+        err = server_block->error_stack[0].code;
         return err;
     }
 

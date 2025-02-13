@@ -28,7 +28,7 @@ static void embedded_value_substitution(NameValueList& name_value_list);
 // shot/tpass data source pattern: "12345/a,b,c, name=value, name=value, d, e, delimiter=',', placeholder='$'"
 //
 
-int identify_placeholders(NameValueList& name_value_list, NameValueList& new_name_value_list) {
+int identify_placeholders(std::vector<UdaError>& error_stack, NameValueList& name_value_list, NameValueList& new_name_value_list) {
 
     size_t placeholder_count = 0;
     size_t tpass_position = 0;
@@ -85,7 +85,7 @@ int identify_placeholders(NameValueList& name_value_list, NameValueList& new_nam
         // Too many placeholders for the available substitutions
         UDA_LOG(UDA_LOG_DEBUG, "Inconsistent count of placeholders and available substitutions!");
         constexpr int err = 999;
-        add_error(ErrorType::Code, "nameValueSubstitution", err,
+        add_error(error_stack, ErrorType::Code, "nameValueSubstitution", err,
                   "Inconsistent count of placeholders and available substitutions!");
         return err;
     }
@@ -98,7 +98,7 @@ int identify_placeholders(NameValueList& name_value_list, NameValueList& new_nam
             UDA_LOG(UDA_LOG_DEBUG, "Placeholder numbering is Inconsistent with Placeholder Count!");
             UDA_LOG(UDA_LOG_DEBUG, "tpass_index[{}] = {}  ({})", i, tpass_index[i], placeholder_count);
             constexpr int err = 999;
-            add_error(ErrorType::Code, "nameValueSubstitution", err,
+            add_error(error_stack, ErrorType::Code, "nameValueSubstitution", err,
                       "Placeholder numbering is Inconsistent with Placeholder Count!");
             return err;
         }
@@ -114,7 +114,7 @@ int identify_placeholders(NameValueList& name_value_list, NameValueList& new_nam
     return 0;
 }
 
-int uda::client_server::name_value_substitution(NameValueList& name_value_list, const char* tpass)
+int uda::client_server::name_value_substitution(std::vector<UdaError>& error_stack, NameValueList& name_value_list, const char* tpass)
 {
     if (!tpass && strlen(tpass) == 0) {
         return 0; // nothing to substitute and no new NV pairs
@@ -146,7 +146,7 @@ int uda::client_server::name_value_substitution(NameValueList& name_value_list, 
 
     if (!name_value_list.empty()) {
         // Identify and Count Placeholders
-        int err = identify_placeholders(name_value_list, new_name_value_list);
+        int err = identify_placeholders(error_stack, name_value_list, new_name_value_list);
         if (err) {
             return err;
         }

@@ -82,9 +82,8 @@ void uda::client_server::init_server_block(ServerBlock* str, int version)
     str->version = version;
     str->error = 0;
     str->msg[0] = '\0';
-    str->pid = (int)getpid();
-    str->idamerrorstack.nerrors = 0;
-    str->idamerrorstack.idamerror = nullptr;
+    str->pid = getpid();
+    str->error_stack = {};
     str->OSName[0] = '\0'; // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (server configuration)
 

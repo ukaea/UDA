@@ -864,7 +864,7 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
             protocol_version = std::min(get_protocol_version(client_block.version), get_protocol_version(server_block.version));
 
             if (server_block.idamerrorstack.nerrors > 0) {
-                err = server_block.idamerrorstack.idamerror[0].code; // Problem on the Server Side!
+                err = server_block.error_stack[0].code; // Problem on the Server Side!
                 break;
             }
 
@@ -1011,7 +1011,7 @@ int uda::client::udaClient(RequestBlock* request_block, int* indices)
 
         if (server_block.idamerrorstack.nerrors > 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State {}", err);
-            err = server_block.idamerrorstack.idamerror[0].code; // Problem on the Server Side!
+            err = server_block.error_stack[0].code; // Problem on the Server Side!
             UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State {}", err);
             serverside = 1; // Most Server Side errors are benign so don't close the server
             break;
@@ -1719,7 +1719,7 @@ int udaGetServerErrorStackRecordType(int record)
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return 0;
     }
-    return (int)server_block.idamerrorstack.idamerror[record].type; // Server Error Stack Record Type
+    return (int)server_block.error_stack[record].type; // Server Error Stack Record Type
 }
 
 //! the Error code of a specific server error record
@@ -1732,7 +1732,7 @@ int udaGetServerErrorStackRecordCode(int record)
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return 0;
     }
-    return server_block.idamerrorstack.idamerror[record].code; // Server Error Stack Record Code
+    return server_block.error_stack[record].code; // Server Error Stack Record Code
 }
 
 //! the Server error Location name of a specific error record
@@ -1745,7 +1745,7 @@ const char* udaGetServerErrorStackRecordLocation(int record)
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return nullptr;
     }
-    return server_block.idamerrorstack.idamerror[record].location; // Server Error Stack Record Location
+    return server_block.error_stack[record].location; // Server Error Stack Record Location
 }
 
 //! the Server error message of a specific error record
@@ -1760,5 +1760,5 @@ const char* udaGetServerErrorStackRecordMsg(int record)
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return nullptr;
     }
-    return server_block.idamerrorstack.idamerror[record].msg; // Server Error Stack Record Message
+    return server_block.error_stack[record].msg; // Server Error Stack Record Message
 }

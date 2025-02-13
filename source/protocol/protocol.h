@@ -58,12 +58,12 @@ void set_select_params(int fd, fd_set* rfds, timeval* tv, int* server_tot_block_
 
 void update_select_params(int fd, fd_set* rfds, timeval* tv, int server_tot_block_time);
 
-int protocol(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
+int protocol(std::vector<client_server::UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
              structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
              structures::LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
              int malloc_source);
 
-int protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
+int protocol2(std::vector<client_server::UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
               structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
               structures::LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 

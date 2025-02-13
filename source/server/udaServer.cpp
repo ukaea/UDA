@@ -261,8 +261,8 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
     int err = 0;
 
     if (server_block->idamerrorstack.nerrors > 0) {
-        server_block->error = server_block->idamerrorstack.idamerror[0].code;
-        strcpy(server_block->msg, server_block->idamerrorstack.idamerror[0].msg);
+        server_block->error = server_block->error_stack[0].code;
+        strcpy(server_block->msg, server_block->error_stack[0].msg);
     }
 
     //------------------------------------------------------------------------------------------------
@@ -287,7 +287,7 @@ int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, 
     UDA_LOG(UDA_LOG_DEBUG, "Server Block Sent to Client without error");
 
     if (server_block->idamerrorstack.nerrors > 0) {
-        err = server_block->idamerrorstack.idamerror[0].code;
+        err = server_block->error_stack[0].code;
     } else {
         err = trap1Err;
     }
@@ -518,8 +518,8 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
     UDA_LOG(UDA_LOG_DEBUG, "external?    {}", external_user);
 
     if (server_block->idamerrorstack.nerrors > 0) {
-        server_block->error = server_block->idamerrorstack.idamerror[0].code;
-        strcpy(server_block->msg, server_block->idamerrorstack.idamerror[0].msg);
+        server_block->error = server_block->error_stack[0].code;
+        strcpy(server_block->msg, server_block->error_stack[0].msg);
     }
 
     // Test the client version is compatible with this server version
@@ -530,7 +530,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
 
     if (*fatal) {
         if (server_block->idamerrorstack.nerrors > 0) {
-            err = server_block->idamerrorstack.idamerror[0].code;
+            err = server_block->error_stack[0].code;
         } else {
             err = 1;
         }

@@ -484,10 +484,37 @@ void udaFreeAll() {
 //     return environment->server_socket;           // Active UDA server service socket number
 // }
 
+int udaNumErrors()
+{
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto& error_stack = instance.error_stack();
+    return static_cast<int>(error_stack.size());
+}
+
+const char* udaGetErrorMessage(int err_num)
+{
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto& error_stack = instance.error_stack();
+    if (err_num > 0 && err_num < static_cast<int>(error_stack.size())) {
+        return error_stack[err_num].msg;
+    }
+    return "no error found";
+}
+
+const char* udaGetErrorLocation(int err_num)
+{
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto& error_stack = instance.error_stack();
+    if (err_num > 0 && err_num < static_cast<int>(error_stack.size())) {
+        return error_stack[err_num].location;
+    }
+    return "no error found";
+}
+
 int udaGetServerErrorStackSize() {
     const auto& instance = uda::client::ThreadClient::instance();
-    const auto server_block = instance.server_block();
-    return server_block->idamerrorstack.nerrors;
+    const auto* server_block = instance.server_block();
+    return server_block->error_stack.size();
 }
 
 //! the Error code of a specific server error record
@@ -500,10 +527,10 @@ int udaGetServerErrorStackRecordCode(int record)
     const auto& instance = uda::client::ThreadClient::instance();
     const auto server_block = instance.server_block();
 
-    if (record < 0 || (unsigned int)record >= server_block->idamerrorstack.nerrors) {
+    if (record < 0 || static_cast<size_t>(record) >= server_block->error_stack.size()) {
         return 0;
     }
-    return server_block->idamerrorstack.idamerror[record].code;  // Server Error Stack Record Code
+    return server_block->error_stack[record].code;  // Server Error Stack Record Code
 }
 
 const char* udaGetServerErrorStackRecordLocation(int record)
@@ -511,10 +538,10 @@ const char* udaGetServerErrorStackRecordLocation(int record)
     const auto& instance = uda::client::ThreadClient::instance();
     const auto server_block = instance.server_block();
 
-    if (record < 0 || (unsigned int)record >= server_block->idamerrorstack.nerrors) {
-        return 0;
+    if (record < 0 || static_cast<size_t>(record) >= server_block->error_stack.size()) {
+        return nullptr;
     }
-    return server_block->idamerrorstack.idamerror[record].location;  // Server Error Stack Record Code
+    return server_block->error_stack[record].location;  // Server Error Stack Record Code
 }
 
 const char* udaGetServerErrorStackRecordMsg(int record)
@@ -522,10 +549,10 @@ const char* udaGetServerErrorStackRecordMsg(int record)
     const auto& instance = uda::client::ThreadClient::instance();
     const auto server_block = instance.server_block();
 
-    if (record < 0 || (unsigned int)record >= server_block->idamerrorstack.nerrors) {
-        return 0;
+    if (record < 0 || static_cast<size_t>(record) >= server_block->error_stack.size()) {
+        return nullptr;
     }
-    return server_block->idamerrorstack.idamerror[record].msg;  // Server Error Stack Record Code
+    return server_block->error_stack[record].msg;  // Server Error Stack Record Code
 }
 
 //!  returns the data access error code
@@ -559,8 +586,8 @@ const char* udaGetErrorMsg(int handle)
 
     // Error Message returned from server
     if (data_block == nullptr) {
-        if (server_block->idamerrorstack.nerrors > 0) {
-            return server_block->idamerrorstack.idamerror[0].msg;
+        if (server_block->error_stack.size() > 0) {
+            return server_block->error_stack[0].msg;
         } else {
             return "Unknown server error";
         }
@@ -964,7 +991,7 @@ void udaSetSyntheticDimData(int handle, int n_dim, char* data)
 
 char* udaGetSyntheticData(int handle)
 {
-    const auto& instance = uda::client::ThreadClient::instance();
+    auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
     const auto client_flags = instance.client_flags();
 
@@ -981,7 +1008,7 @@ char* udaGetSyntheticData(int handle)
     if (!client_flags->get_synthetic || data_block->error_model == static_cast<int>(ErrorModelType::Unknown)) {
         return data_block->data;
     }
-    uda::client::generate_synthetic_data(handle);
+    uda::client::generate_synthetic_data(instance.error_stack(), handle);
     return data_block->synthetic;
 }
 
@@ -1194,7 +1221,7 @@ char* udaGetAsymmetricError(int handle, bool above)
         }
     } else {
         if (data_block->error_model != static_cast<int>(ErrorModelType::Unknown)) {
-            uda::client::generate_data_error(handle);
+            uda::client::generate_data_error(instance.error_stack(), handle);
             if (above) {
                 return data_block->errhi;
             } else if (!data_block->errasymmetry) {
@@ -1315,7 +1342,7 @@ the property \b get_bad is set.
 */
 void udaGetDoubleData(int handle, double* fp)
 {
-    const auto& instance = uda::client::ThreadClient::instance();
+    auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
     const auto client_flags = instance.client_flags();
 
@@ -1332,7 +1359,7 @@ void udaGetDoubleData(int handle, double* fp)
         if (!client_flags->get_synthetic)
             memcpy((void*)fp, (void*)data_block->data, static_cast<size_t>(data_block->data_n) * sizeof(double));
         else {
-            uda::client::generate_synthetic_data(handle);
+            uda::client::generate_synthetic_data(instance.error_stack(), handle);
             if (data_block->synthetic != nullptr)
                 memcpy((void*)fp, (void*)data_block->synthetic,
                        static_cast<size_t>(data_block->data_n) * sizeof(double));
@@ -1350,7 +1377,7 @@ void udaGetDoubleData(int handle, double* fp)
         if (!client_flags->get_synthetic) {
             array = data_block->data;
         } else {
-            uda::client::generate_synthetic_data(handle);
+            uda::client::generate_synthetic_data(instance.error_stack(), handle);
             if (data_block->synthetic != nullptr) {
                 array = data_block->synthetic;
             } else {
@@ -1458,7 +1485,7 @@ void udaGetFloatData(int handle, float* fp)
 
     // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
-    const auto& instance = uda::client::ThreadClient::instance();
+    auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
     const auto client_flags = instance.client_flags();
 
@@ -1473,7 +1500,7 @@ void udaGetFloatData(int handle, float* fp)
         if (!client_flags->get_synthetic)
             memcpy((void*)fp, (void*)data_block->data, static_cast<size_t>(data_block->data_n) * sizeof(float));
         else {
-            uda::client::generate_synthetic_data(handle);
+            uda::client::generate_synthetic_data(instance.error_stack(), handle);
             if (data_block->synthetic != nullptr)
                 memcpy((void*)fp, (void*)data_block->synthetic,
                        static_cast<size_t>(data_block->data_n) * sizeof(float));
@@ -1491,7 +1518,7 @@ void udaGetFloatData(int handle, float* fp)
         if (!client_flags->get_synthetic) {
             array = data_block->data;
         } else {
-            uda::client::generate_synthetic_data(handle);
+            uda::client::generate_synthetic_data(instance.error_stack(), handle);
             if (data_block->synthetic != nullptr) {
                 array = data_block->synthetic;
             } else {
@@ -1982,7 +2009,7 @@ void udaGetDimErrorModel(int handle, int n_dim, int* model, int* param_n, float*
 
 char* udaGenerateSyntheticDimData(int handle, int n_dim)
 {
-    const auto& instance = uda::client::ThreadClient::instance();
+    auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
@@ -1993,7 +2020,7 @@ char* udaGenerateSyntheticDimData(int handle, int n_dim)
     if (!client_flags->get_synthetic || data_block->dims[n_dim].error_model == static_cast<int>(ErrorModelType::Unknown)) {
         return data_block->dims[n_dim].dim;
     }
-    uda::client::generate_synthetic_dim_data(handle, n_dim);
+    uda::client::generate_synthetic_dim_data(instance.error_stack(), handle, n_dim);
     return data_block->dims[n_dim].synthetic;
 }
 
@@ -2107,7 +2134,7 @@ void udaGetDoubleDimData(int handle, int n_dim, double* fp)
 {
     // **** The double array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
-    const auto& instance = uda::client::ThreadClient::instance();
+    auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
@@ -2119,7 +2146,7 @@ void udaGetDoubleDimData(int handle, int n_dim, double* fp)
         if (!client_flags->get_synthetic) {
             memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
         } else {
-            uda::client::generate_synthetic_dim_data(handle, n_dim);
+            uda::client::generate_synthetic_dim_data(instance.error_stack(), handle, n_dim);
             if (data_block->dims[n_dim].synthetic != nullptr) {
                 memcpy(fp, data_block->dims[n_dim].synthetic, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
             } else {
@@ -2133,7 +2160,7 @@ void udaGetDoubleDimData(int handle, int n_dim, double* fp)
         if (!client_flags->get_synthetic) {
             array = data_block->dims[n_dim].dim;
         } else {
-            uda::client::generate_synthetic_dim_data(handle, n_dim);
+            uda::client::generate_synthetic_dim_data(instance.error_stack(), handle, n_dim);
             if (data_block->dims[n_dim].synthetic != nullptr) {
                 array = data_block->dims[n_dim].synthetic;
             } else {
@@ -2199,7 +2226,7 @@ void udaGetFloatDimData(int handle, int n_dim, float* fp)
 {
     // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
-    const auto& instance = uda::client::ThreadClient::instance();
+    auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
 
     if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
@@ -2211,7 +2238,7 @@ void udaGetFloatDimData(int handle, int n_dim, float* fp)
         if (!client_flags->get_synthetic)
             memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
         else {
-            uda::client::generate_synthetic_dim_data(handle, n_dim);
+            uda::client::generate_synthetic_dim_data(instance.error_stack(), handle, n_dim);
             if (data_block->dims[n_dim].synthetic != nullptr) {
                 memcpy(fp, data_block->dims[n_dim].synthetic, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
             } else {
@@ -2225,7 +2252,7 @@ void udaGetFloatDimData(int handle, int n_dim, float* fp)
         if (!client_flags->get_synthetic) {
             array = data_block->dims[n_dim].dim;
         } else {
-            uda::client::generate_synthetic_dim_data(handle, n_dim);
+            uda::client::generate_synthetic_dim_data(instance.error_stack(), handle, n_dim);
             if (data_block->dims[n_dim].synthetic != nullptr) {
                 array = data_block->dims[n_dim].synthetic;
             } else {
@@ -2319,7 +2346,7 @@ char* udaGetDimAsymmetricError(int handle, int n_dim, bool above)
         }                           // or generated in a previous call
     } else {
         if (data_block->dims[n_dim].error_model != static_cast<int>(ErrorModelType::Unknown)) {
-            uda::client::generate_dim_data_error(handle, n_dim);
+            uda::client::generate_dim_data_error(instance.error_stack(), handle, n_dim);
             if (above || !data_block->dims[n_dim].errasymmetry) {
                 return data_block->dims[n_dim].errhi;
             } else {

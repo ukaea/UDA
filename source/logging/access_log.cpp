@@ -120,9 +120,9 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
     // Error Code & Message
 
     const char* msg;
-    if (server_block.idamerrorstack.nerrors > 0) {
-        err = server_block.idamerrorstack.idamerror[0].code;
-        msg = server_block.idamerrorstack.idamerror[0].msg;
+    if (!server_block.error_stack.empty()) {
+        err = server_block.error_stack[0].code;
+        msg = server_block.error_stack[0].msg;
     } else {
         err = 0;
         msg = "";

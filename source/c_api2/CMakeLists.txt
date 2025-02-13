@@ -4,6 +4,7 @@ set( SRCS
   udaGetAPI.cpp
   accAPI.cpp
   udaPutAPI.cpp
+  udaStructured.cpp
 )
 
 add_library( c_api ${SRCS} )

@@ -20,7 +20,8 @@ struct IoData;
 
 using CreateXDRStreams = std::pair<XDR*, XDR*> (*)(IoData*);
 
-int protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
+int protocol_xml(std::vector<client_server::UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id,
+                 XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
                  structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                  structures::LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
                  int malloc_source, CreateXDRStreams create_xdr_streams);

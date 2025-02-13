@@ -105,7 +105,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                      STR_IEQUALS(request->source, work2));                    // default device name + delimiting string
 
     if ((request->signal[0] == '\0' || STR_IEQUALS(request->signal, work)) && no_source) {
-        UDA_THROW_ERROR(999, "Neither Data Object nor Source specified!")
+        UDA_THROW(999, "Neither Data Object nor Source specified!");
     }
 
     //------------------------------------------------------------------------------
@@ -239,10 +239,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                 (p0 != nullptr && p != nullptr && p0 < p) || (p1 != nullptr && p2 != nullptr && p1 > p2)) {
 
                 if ((p0 != nullptr || p1 != nullptr) && (p != nullptr || p2 != nullptr)) {
-                    err = 999;
-                    add_error(ErrorType::Code, "make_server_request_block", err,
-                              "Source syntax: path with parenthesis () is incorrect!");
-                    return err;
+                    UDA_THROW(999, "Source syntax: path with parenthesis () is incorrect!");
                 }
 
                 // Request must be a private file format. It cannot be a local/remote server protocol.
@@ -267,8 +264,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 #endif
 
                 if (rc <= 0) {
-                    UDA_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!")
-                    UDA_THROW_ERROR(999, "No File Format identified: Please specify.")
+                    UDA_THROW(999, "No File Format identified: Please specify.");
                 }
 
                 // Resolve any Serverside environment variables
@@ -316,7 +312,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                     break;
 
                 } else {
-                    UDA_THROW_ERROR(999, "No Data Access Plugin Identified!")
+                    UDA_THROW(999, "No Data Access Plugin Identified!");
                 }
             }
 
@@ -398,7 +394,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
             if (p == nullptr || p2 == nullptr || (p != nullptr && p2 == nullptr) || (p == nullptr && p2 != nullptr) ||
                 (p0 != nullptr && p != nullptr && p0 < p) || (p1 != nullptr && p2 != nullptr && p1 > p2)) {
-                UDA_THROW_ERROR(999, "Not a function when one is expected! - A Library plugin has been specified.")
+                UDA_THROW(999, "Not a function when one is expected! - A Library plugin has been specified.");
             }
 
             // ToDo: Extract Data subset operations specified within the source argument
@@ -422,7 +418,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
                 // ToDo: Extract Data subset operations specified as a named value pair, tagged 'subset'
 
             } else {
-                UDA_THROW_ERROR(999, "Function syntax error - please correct")
+                UDA_THROW(999, "Function syntax error - please correct");
             }
         }
     } while (0);
@@ -463,7 +459,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
 
     int rc = 0;
     if ((rc = extract_subset(request)) == -1) {
-        UDA_THROW_ERROR(999, "Subset operation is incorrect!")
+        UDA_THROW(999, "Subset operation is incorrect!");
     }
 
     // as at 19Apr2011 no signals recorded in the UDA database use either [ or { characters
@@ -647,8 +643,8 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
         }
 
         if (err != 0) {
-            UDA_THROW_ERROR((int)RequestError::NoServerSpecified, "The MDSPlus Data Source does not comply with the naming models: "
-                                                 "server/tree/number or server/path/to/data/tree/number")
+            UDA_THROW((int)RequestError::NoServerSpecified,
+                "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
         }
     }
 
@@ -798,16 +794,15 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
         errno = 0;
         if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
             if (errno != 0) {
-                add_error(ErrorType::System, "sourceFileFormatTest", errno, "");
+                UDA_SYS_THROW("");
             }
-            add_error(ErrorType::Code, "sourceFileFormatTest", 999, "Unable to Identify the File's Format");
-            return -999;
+            UDA_THROW(999, "Unable to Identify the File's Format");
         }
 
         char buffer[StringLength];
         if (!feof(ph)) {
             if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                UDA_THROW_ERROR(-999, "failed to read command")
+                UDA_THROW(-999, "failed to read command");
             }
         }
         pclose(ph);
@@ -827,17 +822,17 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
                     errno = 0;
                     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
                         if (errno != 0) {
-                            add_error(ErrorType::System, "sourceFileFormatTest", errno, "");
+                            UDA_SYS_THROW("");
                         }
-                        add_error(ErrorType::Code, "sourceFileFormatTest", 999,
-                                  "Unable to Identify the File's Format");
+                        UDA_THROW(999, "Unable to Identify the File's Format");
+
                         return -999;
                     }
 
                     buffer[0] = '\0';
                     if (!feof(ph)) {
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command")
+                            UDA_THROW(-999, "failed to read command");
                         }
                     }
                     pclose(ph);
@@ -860,41 +855,40 @@ int source_file_format_test(const uda::config::Config& config, const char* sourc
                     errno = 0;
                     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
                         if (errno != 0) {
-                            UDA_ADD_SYS_ERROR("");
+                            UDA_SYS_THROW("");
                         }
-                        UDA_ADD_ERROR(999, "Unable to Identify the File's Format");
-                        return -999;
+                        UDA_THROW(999, "Unable to Identify the File's Format");
                     }
 
                     buffer[0] = '\0';
                     if (!feof(ph)) {
                         // IDA3 interface version V3.13 with file structure IDA3.1
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output")
+                            UDA_THROW(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Build JW Jan 25 2007 09:08:47
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output")
+                            UDA_THROW(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Compiled without high level read/write CUTS
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output")
+                            UDA_THROW(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Opening ida file
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output")
+                            UDA_THROW(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // ida_open error ?
                         if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output")
+                            UDA_THROW(-999, "failed to read command output");
                         }
                     }
                     pclose(ph);
@@ -1095,8 +1089,7 @@ int extract_archive(const uda::config::Config& config, RequestData* request, int
         if ((test = strstr(request->signal, request->api_delim)) != nullptr) {
 
             if (test - request->signal >= StringLength - 1 || strlen(test + ldelim) >= MaxMeta - 1) {
-                UDA_ADD_ERROR((int)RequestError::ArchiveNameTooLong, "The ARCHIVE Name is too long!");
-                return err;
+                UDA_THROW(static_cast<int>(RequestError::ArchiveNameTooLong), "The ARCHIVE Name is too long!");
             }
             copy_string(request->signal, request->archive, test - request->signal + 1);
             trim_string(request->archive);
@@ -1289,12 +1282,10 @@ int parse_element(Subset& subset, const std::string& element)
                 subset.stride[index] = parse_integer(tokens[2]);
                 break;
             default:
-                UDA_ADD_ERROR(999, "Invalid number of elements in subset operation");
-                return 999;
+                UDA_THROW(999, "Invalid number of elements in subset operation");
         }
     } catch (std::runtime_error& ex) {
-        UDA_ADD_ERROR(999, ex.what());
-        return 999;
+        UDA_THROW(999, ex.what());
     }
 
     subset.nbound += 1;

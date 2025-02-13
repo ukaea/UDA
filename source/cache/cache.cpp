@@ -8,7 +8,7 @@ using namespace uda::client_server;
 using namespace uda::structures;
 using namespace uda::protocol;
 
-void writeCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+void uda::cache::writeCacheData(std::vector<UdaError>& error_stack, FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                     const DataBlock* data_block, int protocolVersion, LogStructList* log_struct_list,
                     unsigned int private_flags, int malloc_source)
 {
@@ -18,13 +18,13 @@ void writeCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList*
     ProtocolId token;
     std::vector<DataBlock> data_blocks;
     data_blocks.push_back(*data_block);
-    protocol2(&xdrs, ProtocolId::DataBlockList, XDRStreamDirection::Send, &token, logmalloclist, userdefinedtypelist,
+    protocol2(error_stack, &xdrs, ProtocolId::DataBlockList, XDRStreamDirection::Send, &token, logmalloclist, userdefinedtypelist,
               &data_blocks, protocolVersion, log_struct_list, private_flags, malloc_source);
 
     xdr_destroy(&xdrs); // Destroy before the  file otherwise a segmentation error occurs
 }
 
-DataBlock* readCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
+DataBlock* uda::cache::readCacheData(std::vector<UdaError>& error_stack, FILE* fp, LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist,
                          int protocolVersion, LogStructList* log_struct_list, unsigned int private_flags,
                          int malloc_source)
 {
@@ -34,7 +34,7 @@ DataBlock* readCacheData(FILE* fp, LogMallocList* logmalloclist, UserDefinedType
     std::vector<DataBlock> data_blocks;
 
     ProtocolId token;
-    protocol2(&xdrs, ProtocolId::DataBlockList, XDRStreamDirection::Receive, &token, logmalloclist, userdefinedtypelist,
+    protocol2(error_stack, &xdrs, ProtocolId::DataBlockList, XDRStreamDirection::Receive, &token, logmalloclist, userdefinedtypelist,
               &data_blocks, protocolVersion, log_struct_list, private_flags, malloc_source);
 
     xdr_destroy(&xdrs); // Destroy before the  file otherwise a segmentation error occurs

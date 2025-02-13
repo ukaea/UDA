@@ -26,7 +26,7 @@
 using namespace uda::logging;
 using namespace uda::client_server;
 
-int uda::server_parse_signal_xml(MetaData meta_data, Actions* actions_desc, Actions* actions_sig)
+int uda::server_parse_signal_xml(std::vector<UdaError>& error_stack, MetaData meta_data, Actions* actions_desc, Actions* actions_sig)
 {
 
     // return -1 if No Qualifying Actionable XML otherwise return 0
@@ -52,7 +52,7 @@ int uda::server_parse_signal_xml(MetaData meta_data, Actions* actions_desc, Acti
     // Parse Signal XML
 
     if (meta_data.contains("xml")) { // If this Signal level XML exists then populated components takes priority.
-        if ((rc = parse_doc(meta_data.find("xml").data(), actions_sig)) != 0) {
+        if ((rc = parse_doc(error_stack, meta_data.find("xml").data(), actions_sig)) != 0) {
             return 1;
         }
         UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed");
@@ -63,7 +63,7 @@ int uda::server_parse_signal_xml(MetaData meta_data, Actions* actions_desc, Acti
     // Parse Signal_Desc XML
 
     if (meta_data.contains("xml")) {
-        if ((rc = parse_doc(meta_data.find("xml").data(), actions_desc)) != 0) {
+        if ((rc = parse_doc(error_stack, meta_data.find("xml").data(), actions_desc)) != 0) {
             return 1;
         }
 

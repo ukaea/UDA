@@ -57,7 +57,6 @@
 #include <cstdlib>
 #include <memory.h>
 #include <tuple>
-#include <uda/structured.h>
 
 #include "logging/logging.h"
 #include <fmt/format.h>
@@ -75,7 +74,7 @@ using namespace uda::client_server;
 using namespace uda::logging;
 using namespace uda::structures;
 
-int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
+int uda::protocol::protocol_xml(std::vector<UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token,
                                      LogMallocList* logmalloclist, UserDefinedTypeList* userdefinedtypelist, void* str,
                                      int protocolVersion, LogStructList* log_struct_list, IoData* io_data,
                                      unsigned int private_flags, int malloc_source, CreateXDRStreams create_xdr_streams)
@@ -130,7 +129,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
                     auto udt = (UserDefinedType*)data_block->opaque_block; // The data's structure definition
                     auto u = static_cast<UserDefinedType*>(
-                        udaFindUserDefinedType(userdefinedtypelist, "SArray",
+                        find_user_defined_type(userdefinedtypelist, "SArray",
                                                0)); // Locate the carrier structure definition
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client");
@@ -139,7 +138,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                         err = 999;
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: nullptr SArray User defined data Structure Definition");
                         print_user_defined_type_list_table(*userdefinedtypelist);
-                        add_error(ErrorType::Code, "protocolXML", err,
+                        add_error(error_stack, ErrorType::Code, "protocolXML", err,
                                   "nullptr User defined data Structure Definition");
                         break;
                     }
@@ -153,7 +152,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                     sarray.data = (void*)data_block->data; // Pointer to the data to be passed
                     strcpy(sarray.type, udt->name);        // The name of the type
                     data = (void*)&psarray;                // Pointer to the SArray array pointer
-                    udaAddNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
+                    add_non_malloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: sending Structure Definitions");
 
@@ -189,13 +188,13 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                             if (errno != 0) {
                                 err = errno;
                             }
-                            add_error(ErrorType::System, "protocolXML", err,
+                            add_error(error_stack, ErrorType::System, "protocolXML", err,
                                       "Unable to Obtain a Temporary/Cache File Name");
                             break;
                         }
                         if ((xdrfile = fopen(temp_file.c_str(), "wb")) == nullptr) {
                             err = 999;
-                            add_error(ErrorType::System, "protocolXML", err,
+                            add_error(error_stack, ErrorType::System, "protocolXML", err,
                                       "Unable to Open a Temporary/Cache XDR File for Writing");
                             break;
                         }
@@ -228,14 +227,14 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
                     // send the Data
                     rc = rc &&
-                         xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
+                         xdr_user_defined_type_data(error_stack, xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
                                                     protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = {}", rc);
 
                     if (!rc) {
                         err = 999;
-                        add_error(ErrorType::Code, "protocolXML", err, "Bad Return Code passing data structures");
+                        add_error(error_stack, ErrorType::Code, "protocolXML", err, "Bad Return Code passing data structures");
                         break;
                     }
 
@@ -322,7 +321,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
                     if (option == 4) {
                         err = 999;
-                        add_error(ErrorType::System, "protocolXML", err, "Unknown package Type control option");
+                        add_error(error_stack, ErrorType::System, "protocolXML", err, "Unknown package Type control option");
                         break;
                     }
 
@@ -341,10 +340,10 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                             if (errno != 0) {
                                 err = errno;
                             }
-                            add_error(ErrorType::System, "protocolXML", err,
+                            add_error(error_stack, ErrorType::System, "protocolXML", err,
                                       "Unable to Obtain a Temporary File Name [3]");
                             err = 998;
-                            add_error(ErrorType::Code, "protocolXML", err, tempFile);
+                            add_error(error_stack, ErrorType::Code, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[{}]",
                                     tempFile);
                             break;
@@ -389,10 +388,10 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                                 if (errno != 0) {
                                     err = errno;
                                 }
-                                add_error(ErrorType::System, "protocolXML", err,
+                                add_error(error_stack, ErrorType::System, "protocolXML", err,
                                           " Unable to Obtain a Temporary File Name [2]");
                                 err = 997;
-                                add_error(ErrorType::Code, "protocolXML", err, tempFile);
+                                add_error(error_stack, ErrorType::Code, "protocolXML", err, tempFile);
                                 UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[{}]",
                                         tempFile);
                                 break;
@@ -404,7 +403,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
-                                add_error(ErrorType::System, "protocolXML", err,
+                                add_error(error_stack, ErrorType::System, "protocolXML", err,
                                           " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
@@ -422,21 +421,21 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
                         if (!rc) {
                             err = 999;
-                            add_error(ErrorType::Code, "protocolXML", err,
+                            add_error(error_stack, ErrorType::Code, "protocolXML", err,
                                       "Failure receiving Structure Definitions");
                             break;
                         }
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #A");
                         init_user_defined_type(udt_received);
 
-                        rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                        rc = rc && xdr_user_defined_type_data(error_stack, xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                               &data, protocolVersion, xdr_stdio_flag, log_struct_list,
                                                               malloc_source); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #B");
                         if (!rc) {
                             err = 999;
-                            add_error(ErrorType::Code, "protocolXML", err,
+                            add_error(error_stack, ErrorType::Code, "protocolXML", err,
                                       "Failure receiving Data and Structure Definition");
                             break;
                         }
@@ -470,11 +469,11 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                             auto s = (SArray*)data;
                             if (s->count != data_block->data_n) { // check for consistency
                                 err = 999;
-                                add_error(ErrorType::Code, "protocolXML", err, "Inconsistent S Array Counts");
+                                add_error(error_stack, ErrorType::Code, "protocolXML", err, "Inconsistent S Array Counts");
                                 break;
                             }
                             data_block->data =
-                                (char*)udaGetFullNTree(); // Global Root Node with the Carrier Structure containing data
+                                (char*)get_full_ntree(); // Global Root Node with the Carrier Structure containing data
                             data_block->opaque_block = (void*)general_block;
                             general_block->userdefinedtype = udt_received;
                             general_block->userdefinedtypelist = userdefinedtypelist;
@@ -483,7 +482,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
                         } else {
                             err = 999;
-                            add_error(ErrorType::Code, "protocolXML", err,
+                            add_error(error_stack, ErrorType::Code, "protocolXML", err,
                                       "Name of Received Data Structure Incorrect");
                             break;
                         }
@@ -494,7 +493,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
             } else {
                 err = 999;
-                add_error(ErrorType::Code, "protocolXML", err, "Unknown Opaque type");
+                add_error(error_stack, ErrorType::Code, "protocolXML", err, "Unknown Opaque type");
                 break;
             }
         }
@@ -526,10 +525,10 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                             if (errno != 0) {
                                 err = errno;
                             }
-                            add_error(ErrorType::System, "protocolXML", err,
+                            add_error(error_stack, ErrorType::System, "protocolXML", err,
                                       " Unable to Obtain a Temporary File Name");
                             err = 996;
-                            add_error(ErrorType::Code, "protocolXML", err, tempFile);
+                            add_error(error_stack, ErrorType::Code, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[{}]", tempFile);
                             break;
                         }
@@ -565,7 +564,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
-                                add_error(ErrorType::System, "protocolXML", err,
+                                add_error(error_stack, ErrorType::System, "protocolXML", err,
                                           " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
@@ -580,7 +579,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
                             if (!rc) {
                                 err = 999;
-                                add_error(ErrorType::Code, "protocolXML", err,
+                                add_error(error_stack, ErrorType::Code, "protocolXML", err,
                                           "Failure receiving Structure Definitions");
                                 break;
                             }
@@ -588,13 +587,13 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                             init_user_defined_type(udt_received);
 
                             rc = rc &&
-                                 xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                 xdr_user_defined_type_data(error_stack, xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                             &data, protocolVersion, xdr_stdio_flag, log_struct_list,
                                                             malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;
-                                add_error(ErrorType::Code, "protocolXML", err,
+                                add_error(error_stack, ErrorType::Code, "protocolXML", err,
                                           "Failure receiving Data and Structure Definition");
                                 break;
                             }
@@ -622,11 +621,11 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                                 auto s = (SArray*)data;
                                 if (s->count != data_block->data_n) { // check for consistency
                                     err = 999;
-                                    add_error(ErrorType::Code, "protocolXML", err, "Inconsistent S Array Counts");
+                                    add_error(error_stack, ErrorType::Code, "protocolXML", err, "Inconsistent S Array Counts");
                                     break;
                                 }
                                 data_block->data = (char*)
-                                    udaGetFullNTree(); // Global Root Node with the Carrier Structure containing data
+                                    get_full_ntree(); // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
                                 data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
@@ -636,7 +635,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
 
                             } else {
                                 err = 999;
-                                add_error(ErrorType::Code, "protocolXML", err,
+                                add_error(error_stack, ErrorType::Code, "protocolXML", err,
                                           "Name of Received Data Structure Incorrect");
                                 break;
                             }
@@ -644,7 +643,7 @@ int uda::protocol::protocol_xml(XDR* xdrs, ProtocolId protocol_id, XDRStreamDire
                     }
                 } else {
                     err = 999;
-                    add_error(ErrorType::Code, "protocolXML", err, "Unknown Opaque type");
+                    add_error(error_stack, ErrorType::Code, "protocolXML", err, "Unknown Opaque type");
                     break;
                 }
             }

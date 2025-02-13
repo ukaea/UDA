@@ -86,7 +86,7 @@ void uda::client_server::print_server_block(const ServerBlock& str)
     UDA_LOG(UDA_LOG_DEBUG, "Server PID       : {}", str.pid);
     UDA_LOG(UDA_LOG_DEBUG, "OS Name          : {}", str.OSName);
     UDA_LOG(UDA_LOG_DEBUG, "Configuration DOI: {}", str.DOI);
-    print_error_stack();
+    print_error_stack(str.error_stack);
 }
 
 void uda::client_server::print_data_block_list(const std::vector<DataBlock>& str)

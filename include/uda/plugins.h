@@ -49,8 +49,6 @@ typedef int (*UDA_PLUGIN_ENTRY_FUNC)(UDA_PLUGIN_INTERFACE*); // Plugin function 
 #define UDA_PLUGIN_LOG_S(INTERFACE, FMT, ARG) udaPluginLog_s(INTERFACE, __FILE__, __LINE__, FMT, ARG);
 #define UDA_PLUGIN_LOG_I(INTERFACE, FMT, ARG) udaPluginLog_i(INTERFACE, __FILE__, __LINE__, FMT, ARG);
 
-typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // Write to the Error Log
-
 // Prototypes
 
 #define UDA_MAX_PATH 1024 // Same as StringLength

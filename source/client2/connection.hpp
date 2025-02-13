@@ -20,25 +20,28 @@ namespace client {
 class HostList;
 
 struct IoData {
+    std::vector<client_server::UdaError>* error_stack;
     int* client_socket;
 };
 
 class Connection {
 public:
-    explicit Connection(config::Config& config)
-        : _config{config}
-        , _socket_list{}
+    explicit Connection(std::vector<client_server::UdaError>& error_stack, config::Config& config)
+        : error_stack_{error_stack}
+        , config_{config}
+        , socket_list_{}
     {}
     int open();
     int reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start, int* user_timeout);
     int create(XDR* client_input, XDR* client_output, const HostList& host_list);
     void close_down(ClosedownType type);
-    IoData io_data() { return IoData{&_client_socket}; }
+    IoData io_data() { return IoData{&error_stack_, &_client_socket}; }
 
 private:
     int _client_socket = -1;
-    config::Config& _config;
-    std::vector<client_server::Socket> _socket_list; // List of open sockets
+    std::vector<client_server::UdaError>& error_stack_;
+    config::Config& config_;
+    std::vector<client_server::Socket> socket_list_; // List of open sockets
 
     int find_socket(int fh);
     void close_socket(int fh);

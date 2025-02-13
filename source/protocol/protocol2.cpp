@@ -47,7 +47,8 @@ using namespace uda::client_server;
 static int handle_request_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
 static int handle_data_block(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
 static int handle_data_block_list(XDR* xdrs, XDRStreamDirection direction, const void* str, int protocolVersion);
-static int handle_putdata_block_list(XDR* xdrs, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
+static int handle_putdata_block_list(std::vector<UdaError>& error_stack, XDR* xdrs, XDRStreamDirection direction,
+                                     ProtocolId* token, LogMallocList* logmalloclist,
                                      UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
                                      LogStructList* log_struct_list, unsigned int private_flags, int malloc_source);
 static int handle_next_protocol(XDR* xdrs, XDRStreamDirection direction, ProtocolId* token);
@@ -61,7 +62,7 @@ static int handle_meta_data(XDR* xdrs, XDRStreamDirection direction, void* str);
 static int handle_security_block(XDR* xdrs, XDRStreamDirection direction, const void* str);
 #endif
 
-int uda::protocol::protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
+int uda::protocol::protocol2(std::vector<UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                   UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                   LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
@@ -75,7 +76,7 @@ int uda::protocol::protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirecti
             err = handle_data_block_list(xdrs, direction, str, protocolVersion);
             break;
         case ProtocolId::PutdataBlockList:
-            err = handle_putdata_block_list(xdrs, direction, token, logmalloclist, userdefinedtypelist, str,
+            err = handle_putdata_block_list(error_stack, xdrs, direction, token, logmalloclist, userdefinedtypelist, str,
                                             protocolVersion, log_struct_list, private_flags, malloc_source);
             break;
         case ProtocolId::NextProtocol:
@@ -104,7 +105,7 @@ int uda::protocol::protocol2(XDR* xdrs, ProtocolId protocol_id, XDRStreamDirecti
             break;
         default:
             if (protocol_id > ProtocolId::OpaqueStart && protocol_id < ProtocolId::OpaqueStop) {
-                err = protocol_xml2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
+                err = protocol_xml2(error_stack, xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
                                     protocolVersion, log_struct_list, private_flags, malloc_source);
             }
     }
@@ -258,19 +259,14 @@ static int handle_server_block(XDR* xdrs, XDRStreamDirection direction, const vo
 
     switch (direction) {
         case XDRStreamDirection::Receive:
-            close_error(); // Free Heap associated with Previous Data Access
+            server_block->error_stack.clear();
 
             if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                 err = (int)ProtocolError::Error22;
                 break;
             }
 
-            if (server_block->idamerrorstack.nerrors > 0) { // No Data to Receive?
-
-                server_block->idamerrorstack.idamerror =
-                    (UdaError*)malloc(server_block->idamerrorstack.nerrors * sizeof(UdaError));
-                init_error_records(&server_block->idamerrorstack);
-
+            if (!server_block->error_stack.empty()) { // No Data to Receive?
                 if (!xdr_server2(xdrs, server_block)) {
                     err = (int)ProtocolError::Error22;
                     break;
@@ -285,7 +281,7 @@ static int handle_server_block(XDR* xdrs, XDRStreamDirection direction, const vo
                 break;
             }
 
-            if (server_block->idamerrorstack.nerrors > 0) { // No Data to Send?
+            if (!server_block->error_stack.empty()) { // No Data to Send?
                 if (!xdr_server2(xdrs, server_block)) {
                     err = (int)ProtocolError::Error22;
                     break;
@@ -398,7 +394,8 @@ static int handle_next_protocol(XDR* xdrs, XDRStreamDirection direction, Protoco
     return err;
 }
 
-static int handle_putdata_block_list(XDR* xdrs, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
+static int handle_putdata_block_list(std::vector<UdaError>& error_stack, XDR* xdrs, XDRStreamDirection direction,
+                                     ProtocolId* token, LogMallocList* logmalloclist,
                                      UserDefinedTypeList* userdefinedtypelist, const void* str, int protocolVersion,
                                      LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
@@ -465,7 +462,7 @@ static int handle_putdata_block_list(XDR* xdrs, XDRStreamDirection direction, Pr
                     data_block->opaque_block = put_data.opaque_block; // User Defined Type
 
                     ProtocolId protocol_id = ProtocolId::Structures;
-                    if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist,
+                    if ((err = protocol_xml2_put(error_stack, xdrs, protocol_id, direction, token, logmalloclist,
                                                  userdefinedtypelist, data_block, protocolVersion, log_struct_list,
                                                  private_flags, malloc_source)) != 0) {
                         // Fetch Structured data
@@ -530,7 +527,7 @@ static int handle_putdata_block_list(XDR* xdrs, XDRStreamDirection direction, Pr
                         (char*)putDataBlockList->putDataBlock[i].data; // Compact memory block with structures
 
                     ProtocolId protocol_id = ProtocolId::Structures;
-                    if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist,
+                    if ((err = protocol_xml2_put(error_stack, xdrs, protocol_id, direction, token, logmalloclist,
                                                  userdefinedtypelist, &data_block, protocolVersion, log_struct_list,
                                                  private_flags, malloc_source)) != 0) {
                         // Send Structured data

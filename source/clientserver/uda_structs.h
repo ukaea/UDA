@@ -258,21 +258,15 @@ struct UdaError {
     char msg[StringLength];      // Message
 };
 
-struct ErrorStack : UDA_ERROR_STACK {
-    unsigned int nerrors; // Number of Errors
-    UdaError* idamerror;  // Array of Errors
-};
-
 struct ServerBlock {
     int version;
     int error;
     char msg[StringLength];
     int pid; // Server Application process id
-    ErrorStack idamerrorstack;
+    std::vector<UdaError> error_stack;
     char OSName[StringLength]; // Name of the Server's Operating System, e.g. OSX
     char DOI[StringLength];    // Server version/implementation DOI - to be logged with all data consumers
-    SecurityBlock
-    securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
+    SecurityBlock security_block; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
 
 enum class Request {

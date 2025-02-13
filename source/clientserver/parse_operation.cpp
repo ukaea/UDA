@@ -8,7 +8,7 @@
 
 using namespace uda::client_server;
 
-int uda::client_server::parse_operation(Subset* sub)
+int uda::client_server::parse_operation(std::vector<UdaError>& error_stack, Subset* sub)
 {
     //-------------------------------------------------------------------------------------------------------------
     // Extract the Value Component from each separate Operation
@@ -43,7 +43,7 @@ int uda::client_server::parse_operation(Subset* sub)
             boost::split(tokens, operation, boost::is_any_of(":"), boost::token_compress_off);
 
             if (tokens.size() < 2 || tokens.size() > 3) {
-                UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Too Many :");
+                UDA_THROW_ERROR(error_stack, 9999, "Server Side Operation Syntax Error: Too Many :");
             }
 
             sub->isindex[i] = true;
@@ -56,7 +56,7 @@ int uda::client_server::parse_operation(Subset* sub)
                 size_t n = 0;
                 long num = std::stol(tokens[0], &n, 10);
                 if (n != tokens[0].size()) {
-                    UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Lower Index Bound");
+                    UDA_THROW_ERROR(error_stack, 9999, "Server Side Operation Syntax Error: Invalid Lower Index Bound");
                 }
                 sub->lbindex[i] = {.init = true, .value = num};
             }
@@ -65,7 +65,7 @@ int uda::client_server::parse_operation(Subset* sub)
                 size_t n = 0;
                 long num = std::stol(tokens[1], &n, 10);
                 if (n != tokens[1].size()) {
-                    UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Upper Index Bound");
+                    UDA_THROW_ERROR(error_stack, 9999, "Server Side Operation Syntax Error: Invalid Upper Index Bound");
                 }
                 sub->ubindex[i] = {.init = true, .value = num};
             }
@@ -74,7 +74,7 @@ int uda::client_server::parse_operation(Subset* sub)
                 size_t n = 0;
                 long num = std::stol(tokens[2], &n, 10);
                 if (n != tokens[2].size()) {
-                    UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Stride");
+                    UDA_THROW_ERROR(error_stack, 9999, "Server Side Operation Syntax Error: Invalid Stride");
                 }
                 sub->stride[i] = {.init = true, .value = num};
             }
@@ -95,7 +95,7 @@ int uda::client_server::parse_operation(Subset* sub)
             long num = std::stol(operation, &n, 10);
 
             if (n != operation.size()) {
-                UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Single Index Bound");
+                UDA_THROW_ERROR(error_stack, 9999, "Server Side Operation Syntax Error: Single Index Bound");
             }
 
             sub->isindex[i] = true;

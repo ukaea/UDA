@@ -98,13 +98,13 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
         int fd = mkstemp(temp_file);
         if (fd < 0 || errno != 0) {
             int err = (errno != 0) ? errno : 994;
-            UDA_THROW_ERROR(err, "Unable to Obtain a Temporary File Name")
+            UDA_THROW(err, "Unable to Obtain a Temporary File Name");
         }
 
         mdsmsg_fh = fdopen(fd, "a");
 
         if (mdsmsg_fh == nullptr || errno != 0) {
-            UDA_THROW_ERROR(999, "Unable to Trap Plugin Error Messages.")
+            UDA_THROW(999, "Unable to Trap Plugin Error Messages.");
         }
 
         // Multi platform compliance
@@ -122,7 +122,7 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
                     int rc = fclose(mdsmsg_fh);
                     if (rc) {
                         int err = errno;
-                        UDA_THROW_ERROR(err, strerror(err))
+                        UDA_THROW(err, strerror(err));
                     }
                 }
                 mdsmsg_fh = nullptr;
@@ -132,7 +132,7 @@ int uda::server::server_redirect_std_streams(const Config& config, int reset)
                     int rc = remove(temp_file); // Delete the temporary file
                     if (rc) {
                         int err = errno;
-                        UDA_THROW_ERROR(err, strerror(err))
+                        UDA_THROW(err, strerror(err));
                     }
                     temp_file[0] = '\0';
                 }
@@ -335,7 +335,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
     // Check the Interface Compliance
 
     if (plugin->interface_version > 1) {
-        UDA_THROW_ERROR(999, "The Provenance Plugin's Interface Version is not Implemented.")
+        UDA_THROW(999, "The Provenance Plugin's Interface Version is not Implemented.");
     }
 
     UserDefinedTypeList user_defined_type_list{};
@@ -361,7 +361,7 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
 
     reset = 0;
     if ((err = server_redirect_std_streams(config, reset)) != 0) {
-        UDA_THROW_ERROR(err, "Error Redirecting Plugin Message Output")
+        UDA_THROW(err, "Error Redirecting Plugin Message Output");
     }
 
     // Call the plugin
@@ -388,9 +388,9 @@ int uda::server::provenance_plugin(const Config& config, ClientBlock *client_blo
     // Reset Redirected Output
 
     reset = 1;
-    if ((rc = uda::server::server_redirect_std_streams(config, reset)) != 0 || err != 0) {
+    if ((rc = server_redirect_std_streams(config, reset)) != 0 || err != 0) {
         if (rc != 0) {
-            add_error(ErrorType::Code, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            UDA_THROW(rc, "Error Redirecting Plugin Message Output");
         }
         if (err != 0) {
             return err;
@@ -473,7 +473,7 @@ boost::optional<const PluginData&> uda::server::find_metadata_plugin(const Confi
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int uda::server::call_metadata_plugin(const Config& config, const uda::client_server::PluginData& plugin,
+int uda::server::call_metadata_plugin(const Config& config, const PluginData& plugin,
                                       RequestData* request_block, const Plugins& plugins,
                                       MetaData& meta_data)
 {
@@ -483,7 +483,7 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::client_se
     // Check the Interface Compliance
 
     if (plugin.interface_version > 1) {
-        UDA_THROW_ERROR(999, "The Plugin's Interface Version is not Implemented.")
+        UDA_THROW(999, "The Plugin's Interface Version is not Implemented.");
     }
 
     DataBlock data_block = {};
@@ -513,7 +513,7 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::client_se
 
     reset = 0;
     if ((err = server_redirect_std_streams(config, reset)) != 0) {
-        UDA_THROW_ERROR(err, "Error Redirecting Plugin Message Output")
+        UDA_THROW(err, "Error Redirecting Plugin Message Output");
     }
 
     // Call the plugin (Error handling is managed within)
@@ -525,7 +525,7 @@ int uda::server::call_metadata_plugin(const Config& config, const uda::client_se
     reset = 1;
     if ((rc = server_redirect_std_streams(config, reset)) != 0 || err != 0) {
         if (rc != 0) {
-            add_error(ErrorType::Code, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            UDA_THROW(rc, "Error Redirecting Plugin Message Output");
         }
         if (err != 0) {
             return err;

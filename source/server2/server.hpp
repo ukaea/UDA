@@ -35,24 +35,24 @@ class Server
     int handle_request();
     int report_to_client();
     void handshake_client();
-    void start_logs() const;
+    void start_logs();
     int get_data(int* depth, client_server::RequestData* request_data, client_server::DataBlock* data_block,
                  int protocol_version);
     int read_data(client_server::RequestData* request, client_server::DataBlock* data_block);
 
-    config::Config _config;
-    std::vector<client_server::UdaError> _error_stack;
+    config::Config config_;
+    std::vector<client_server::UdaError> error_stack_;
     client_server::RequestBlock _request_block;
-    client_server::ServerBlock _server_block;
-    client_server::ClientBlock _client_block;
+    client_server::ServerBlock server_block_;
+    client_server::ClientBlock client_block_;
     client_server::Actions _actions_desc;
     client_server::Actions _actions_sig;
-    cache::UdaCache* _cache;
+    cache::UdaCache* cache_;
     XdrProtocol _protocol;
     std::vector<client_server::Socket> _sockets;
     Plugins _plugins;
     bool _server_closedown = false;
-    std::vector<client_server::DataBlock> _data_blocks;
+    std::vector<client_server::DataBlock> data_blocks_;
     size_t _total_data_block_size;
     client_server::MetaData _meta_data;
     int _server_timeout = client_server::TimeOut;

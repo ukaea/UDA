@@ -190,7 +190,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
 
                 if (fatal) {
                     if (server_block.idamerrorstack.nerrors > 0) {
-                        err = server_block.idamerrorstack.idamerror[0].code;
+                        err = server_block.error_stack[0].code;
                     } else {
                         err = 1;
                     }
@@ -466,8 +466,8 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             print_server_block(server_block);
 
             if (server_block.idamerrorstack.nerrors > 0) {
-                server_block.error = server_block.idamerrorstack.idamerror[0].code;
-                strcpy(server_block.msg, server_block.idamerrorstack.idamerror[0].msg);
+                server_block.error = server_block.error_stack[0].code;
+                strcpy(server_block.msg, server_block.error_stack[0].msg);
             }
 
             protocol_id = ProtocolId::ServerBlock;
@@ -481,7 +481,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             }
 
             if (server_block.idamerrorstack.nerrors > 0) {
-                err = server_block.idamerrorstack.idamerror[0].code;
+                err = server_block.error_stack[0].code;
             } else {
                 err = 0;
             }
