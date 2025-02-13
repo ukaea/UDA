@@ -24,6 +24,7 @@ void uda::logging::init_logging()
     if (!debug_logger)
     {
         // spdlog::register_logger(debug_logger);
+        close_logging();
         throw std::runtime_error("logging initilisation error: no debug logger");
     }
     spdlog::set_default_logger(debug_logger);

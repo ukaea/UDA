@@ -7,6 +7,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable( Catch2 )
+# find_package( spdlog REQUIRED )
 
 add_executable( test_client client.test.cpp )
 target_include_directories( test_client PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/include )

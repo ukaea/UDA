@@ -1,5 +1,3 @@
-find_package( spdlog REQUIRED )
-
 set( SRCS
   udaGetAPI.cpp
   accAPI.cpp
@@ -9,7 +7,6 @@ set( SRCS
 
 add_library( c_api ${SRCS} )
 target_include_directories( c_api PRIVATE ${CMAKE_BINARY_DIR}/include ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( c_api PRIVATE spdlog::spdlog ${RPC_LIB} )
 target_link_libraries( c_api PRIVATE
   "$<BUILD_INTERFACE:cache>"
   "$<BUILD_INTERFACE:client>"
