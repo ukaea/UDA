@@ -67,6 +67,7 @@ jobs:
           python3-dev
           python3-pip
           python3-venv
+          libcurl4-openssl-dev
 
       - name: Install Intel compiler
         if: matrix.os == 'ubuntu-22.04'
