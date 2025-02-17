@@ -153,6 +153,7 @@ target_link_libraries( server-static PRIVATE
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
   ${LINK_DL}
+  curl
 )
 
 if( BUILD_SHARED_LIBS )
@@ -171,6 +172,7 @@ if( BUILD_SHARED_LIBS )
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
     ${LINK_DL}
+    curl
   )
 endif()
 
@@ -190,6 +192,7 @@ target_link_libraries( server-exe PRIVATE
   ${LINK_M}
   ${LINK_DL}
   ${LINK_XDR}
+  curl
 )
 
 if( NOT WIN32 AND NOT MINGW )

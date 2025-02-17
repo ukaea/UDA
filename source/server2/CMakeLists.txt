@@ -78,12 +78,12 @@ elseif(TIRPC_FOUND )
   set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
 endif()
 
-target_link_libraries( server2-static PRIVATE ${LINK_XDR} fmt::fmt )
+target_link_libraries( server2-static PRIVATE ${LINK_XDR} fmt::fmt curl )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server2-shared PRIVATE ${LINK_XDR} fmt::fmt )
+  target_link_libraries( server2-shared PRIVATE ${LINK_XDR} fmt::fmt curl )
 endif()
 
-add_executable( server2-exe ${EXE_FLAG} server_main.cpp)
+add_executable( server2-exe ${EXE_FLAG} server_main.cpp )
 
 ########################################################################################################################
 # Add libraries
