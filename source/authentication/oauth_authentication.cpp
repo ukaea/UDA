@@ -1,8 +1,10 @@
-    /*
-        Things to do:
-        - Check for token expiry using `exp` claim
-        - Make sure curl is using HTTPS
-    */
+#include "oauth_authentication.h"
+
+/*
+    Things to do:
+    - Check for token expiry using `exp` claim
+    - Make sure curl is using HTTPS
+*/
 
 #include <iostream>
 #include <stdexcept>
@@ -12,6 +14,9 @@
 
 #include "logging/logging.h"
 
+namespace uda {
+namespace authentication {
+namespace detail {
 using json = nlohmann::json;
 
 // Callback function to handle the response data
@@ -138,11 +143,43 @@ public:
         }
     }
 
-    private:
-        std::string client_id_;
-        std::string issuer_;
-        std::string openid_configuration_endpoint_;
-        std::string token_endpoint_;
-        std::string jwks_uri_;
-        json jwks_;
+private:
+    std::string client_id_;
+    std::string issuer_;
+    std::string openid_configuration_endpoint_;
+    std::string token_endpoint_;
+    std::string jwks_uri_;
+    json jwks_;
 };
+
+} // namespace detail
+} // namespace authentication
+} // namespace uda
+
+void uda::authentication::authenticate(const std::string& token) {
+    if (!getenv("UDA_SERVER_KEYCLOAK_AUTHENTICATION")) {
+        return;
+    }
+
+    const auto maybe_realm = getenv("UDA_SERVER_KEYCLOAK_REALM");
+    if (maybe_realm == nullptr) {
+        UDA_LOG(UDA_LOG_ERROR, "Keycloak: Authentication is enabled, but UDA_SERVER_KEYCLOAK_REALM is missing\n");
+        throw std::runtime_error("Keycloak: Authentication is enabled, but UDA_SERVER_KEYCLOAK_REALM is missing\n");
+    }
+
+    const auto maybe_client = getenv("UDA_SERVER_KEYCLOAK_CLIENT_ID");
+    if (maybe_client == nullptr) {
+        UDA_LOG(UDA_LOG_ERROR, "Keycloak: Authentication is enabled, but UDA_SERVER_KEYCLOAK_CLIENT_ID is missing\n");
+        throw std::runtime_error("Keycloak: Authentication is enabled, but UDA_SERVER_KEYCLOAK_CLIENT_ID is missing\n");
+    }
+
+    if (token.empty()) {
+        UDA_LOG(UDA_LOG_ERROR, "Keycloak: Authentication is enabled, but token is missing from URI\n");
+        throw std::runtime_error("Keycloak: Authentication is enabled, but token is missing from URI\n");
+    }
+
+    const auto realm = std::string(maybe_realm);
+    const auto client = std::string(maybe_client);
+    const auto auth = detail::OAuthCTX(realm, client);
+    auth.verify_token_signature(token);
+}

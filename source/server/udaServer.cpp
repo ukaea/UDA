@@ -8,6 +8,7 @@
 
 #include <tuple>
 
+#include <authentication/oauth_authentication.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/manageSockets.h>
@@ -17,7 +18,6 @@
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
-#include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
 #include <cache/memcache.hpp>
 
@@ -45,6 +45,7 @@
 constexpr int server_version = 10;
 static int protocol_version = 10;
 static int legacy_server_version = 6;
+constexpr int oauth_authentication = 7;
 
 static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;            // User Defined Structure Types from Data Files & Plugins
 static LOGMALLOCLIST* log_malloc_list = nullptr;                        // List of all Heap Allocations for Data: Freed after data is dispatched
@@ -104,8 +105,7 @@ handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* ser
 int udaServer(CLIENT_BLOCK client_block)
 {
     int err = 0;
-    METADATA_BLOCK metadata_block;
-    memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
+    METADATA_BLOCK metadata_block = {};
 
     REQUEST_BLOCK request_block;
     SERVER_BLOCK server_block;
@@ -140,7 +140,9 @@ int udaServer(CLIENT_BLOCK client_block)
 
     static unsigned int total_datablock_size = 0;
 
-    if ((err = startupServer(&server_block, server_input, server_output, &io_data)) != 0) return err;
+    if ((err = startupServer(&server_block, server_input, server_output, &io_data)) != 0) {
+        return err;
+    }
 
 #ifdef SECURITYENABLED
     err = authenticateClient(&client_block, &server_block);
@@ -1064,6 +1066,16 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
     }
 
     if (err != 0) return err;
+
+    if (client_block->securityBlock.encryptionMethod == oauth_authentication) {
+        std::string token{reinterpret_cast<const char*>(client_block->securityBlock.client_ciphertext), client_block->securityBlock.client_ciphertextLength};
+        try {
+            uda::authentication::authenticate(token);
+        } catch (const std::exception& e) {
+            UDA_LOG(UDA_LOG_ERROR, "Client Block authentication failed: %s\n", e.what());
+            UDA_THROW_ERROR(err, "Failed to authenticate");
+        }
+    }
 
     // Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
 

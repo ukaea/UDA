@@ -27,6 +27,10 @@ namespace filesystem = std::filesystem;
 #define BYTEFILEOPENERROR           100004
 #define BYTEFILEHEAPERROR           100005
 
+struct FCloseDeleter {
+    void operator()(FILE* file) {fclose(file);}
+};
+
 class BytesPlugin
 {
 public:
@@ -60,7 +64,7 @@ public:
     int size(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 private:
-    using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
+    using file_ptr = std::unique_ptr<FILE, FCloseDeleter>;
 
     bool init_ = false;
     std::unordered_map<std::string, file_ptr> file_map_ = {};
@@ -274,7 +278,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     FILE* file = nullptr;
     if (file_map_.count(tmp_path) == 0) {
-        file_ptr ptr = {fopen(tmp_path, "rb"), fclose};
+        file_ptr ptr{fopen(tmp_path, "rb")};
         file = ptr.get();
         file_map_.emplace(tmp_path, std::move(ptr));
     } else {
