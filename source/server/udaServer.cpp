@@ -1066,16 +1066,31 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
 
     if (err != 0) return err;
 
-    if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
-        std::string token{
-            reinterpret_cast<const char*>(client_block->authenticationBlock.payload),
-            client_block->authenticationBlock.payload_length
-        };
-        try {
-            uda::authentication::authenticate(token);
-        } catch (const std::exception& e) {
-            UDA_LOG(UDA_LOG_ERROR, "Client Block authentication failed: %s\n", e.what());
-            UDA_THROW_ERROR(err, "Failed to authenticate");
+    const char* auth = getenv("UDA_SERVER_AUTHENTICATION");
+
+    if (auth != nullptr) {
+        if (std::string{auth} != "OAUTH") {
+            UDA_LOG(UDA_LOG_ERROR, "Invalid value for UDA_SERVER_AUTHENTICATION: %s\n", auth);
+            UDA_ADD_ERROR(999, "Invalid authorisation option set on server");
+            concatUdaError(&server_block->idamerrorstack);
+        } else {
+            if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
+                std::string token{
+                    reinterpret_cast<const char*>(client_block->authenticationBlock.payload),
+                    client_block->authenticationBlock.payload_length
+                };
+                try {
+                    uda::authentication::authenticate(token);
+                } catch (const std::exception& e) {
+                    UDA_LOG(UDA_LOG_ERROR, "Client Block authentication failed: %s\n", e.what());
+                    UDA_ADD_ERROR(999, "Failed to authenticate");
+                    concatUdaError(&server_block->idamerrorstack);
+                }
+            } else {
+                UDA_LOG(UDA_LOG_ERROR, "No token received\n");
+                UDA_ADD_ERROR(999, "No authorisation token provided");
+                concatUdaError(&server_block->idamerrorstack);
+            }
         }
     }
 

@@ -157,10 +157,6 @@ private:
 } // namespace uda
 
 void uda::authentication::authenticate(const std::string& token) {
-    if (!getenv("UDA_SERVER_KEYCLOAK_AUTHENTICATION")) {
-        return;
-    }
-
     const auto maybe_realm = getenv("UDA_SERVER_KEYCLOAK_REALM");
     if (maybe_realm == nullptr) {
         UDA_LOG(UDA_LOG_ERROR, "Keycloak: Authentication is enabled, but UDA_SERVER_KEYCLOAK_REALM is missing\n");
