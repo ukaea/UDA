@@ -187,9 +187,9 @@ typedef struct SecurityBlock {
 } SECURITY_BLOCK;
 
 typedef struct AuthenticationBlock {
-    unsigned int authentication_type;
-    unsigned int payload_length;
-    unsigned char* payload;
+    unsigned int authentication_type = UDA_AUTHENTICATION_UNKNOWN;
+    unsigned int payload_length = 0;
+    unsigned char* payload = nullptr;
 } AUTHENTICATION_BLOCK;
 
 typedef struct ClientBlock {

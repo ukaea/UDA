@@ -88,9 +88,6 @@ void initClientBlock(CLIENT_BLOCK* str, const int version, const char* client_na
     initSecurityBlock(&(str->securityBlock));
 #endif
 
-    if (str->authenticationBlock.authentication_type != 0) {
-        free(str->authenticationBlock.payload);
-    }
     str->authenticationBlock = {};
 }
 

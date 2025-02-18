@@ -93,6 +93,7 @@ extern "C" {
 //--------------------------------------------------------
 // Authentication
 
+#define UDA_AUTHENTICATION_UNKNOWN 0
 #define UDA_AUTHENTICATION_OAUTH 1
 
 //--------------------------------------------------------
