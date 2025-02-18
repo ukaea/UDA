@@ -76,11 +76,14 @@ bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str) {
     int rc = xdr_u_int(xdrs, &str->authentication_type)
          && xdr_u_int(xdrs, &str->payload_length);
 
-
     if (str->payload_length > 0) {
-        rc = rc && xdr_vector(xdrs, (char*)str->payload,
-                              (int)str->payload_length,
-                              sizeof(unsigned char), (xdrproc_t)xdr_u_char);
+        if (xdrs->x_op == XDR_DECODE) {
+            str->payload = static_cast<unsigned char*>(malloc(str->payload_length));
+        }
+
+        rc = rc && xdr_vector(xdrs, reinterpret_cast<char*>(str->payload),
+                              static_cast<int>(str->payload_length),
+                              sizeof(unsigned char), reinterpret_cast<xdrproc_t>(xdr_u_char));
     }
 
     return rc;
