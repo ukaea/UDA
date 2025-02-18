@@ -72,6 +72,20 @@ bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str)
     return rc;
 }
 
+bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str) {
+    int rc = xdr_u_int(xdrs, &str->authentication_type)
+         && xdr_u_int(xdrs, &str->payload_length);
+
+
+    if (str->payload_length > 0) {
+        rc = rc && xdr_vector(xdrs, (char*)str->payload,
+                              (int)str->payload_length,
+                              sizeof(unsigned char), (xdrproc_t)xdr_u_char);
+    }
+
+    return rc;
+}
+
 //-----------------------------------------------------------------------
 // Security block
 
@@ -207,7 +221,10 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 #ifdef SECURITYENABLED
         rc = rc && WrapXDRString(xdrs, (char *)str->uid2, STRING_LENGTH);
 #endif
+    }
 
+    if (protocolVersion >= 10 && str->clientFlags & CLIENTFLAG_AUTHENTICATE) {
+        xdr_authentication_block(xdrs, &str->authenticationBlock);
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "protocolVersion %d\n", protocolVersion);

@@ -11,7 +11,7 @@ extern "C" {
 LIBRARY_API void initNameValueList(NAMEVALUELIST* nameValueList);
 LIBRARY_API void initRequestData(REQUEST_DATA* str);
 LIBRARY_API void initRequestBlock(REQUEST_BLOCK* str);
-LIBRARY_API void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname);
+LIBRARY_API void initClientBlock(CLIENT_BLOCK* str, int version, const char* client_name);
 LIBRARY_API void initServerBlock(SERVER_BLOCK* str, int version);
 LIBRARY_API void initDataBlock(DATA_BLOCK* str);
 LIBRARY_API void initDataBlockList(DATA_BLOCK_LIST* str);

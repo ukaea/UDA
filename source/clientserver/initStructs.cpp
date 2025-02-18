@@ -55,15 +55,15 @@ void initRequestBlock(REQUEST_BLOCK* str)
 #  define getpid _getpid
 #endif
 
-void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
+void initClientBlock(CLIENT_BLOCK* str, const int version, const char* client_name)
 {
     str->version = version;
     str->timeout = TIMEOUT;
     if (getenv("UDA_TIMEOUT")) {
-        str->timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
+        str->timeout = static_cast<int>(strtol(getenv("UDA_TIMEOUT"), nullptr, 10));
     }
     str->pid = (int)getpid();
-    strcpy(str->uid, clientname);        // Global userid
+    strcpy(str->uid, client_name);        // Global userid
     str->compressDim = COMPRESS_DIM;
 
     str->clientFlags = 0;
@@ -87,9 +87,14 @@ void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
 #ifdef SECURITYENABLED
     initSecurityBlock(&(str->securityBlock));
 #endif
+
+    if (str->authenticationBlock.authentication_type != 0) {
+        free(str->authenticationBlock.payload);
+    }
+    str->authenticationBlock = {};
 }
 
-void initServerBlock(SERVER_BLOCK* str, int version)
+void initServerBlock(SERVER_BLOCK* str, const int version)
 {
     str->version = version;
     str->error = 0;

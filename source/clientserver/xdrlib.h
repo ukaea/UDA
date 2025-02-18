@@ -29,6 +29,7 @@ int wrap_string(XDR* xdrs, char* sp);
 
 int WrapXDRString(XDR* xdrs, const char* sp, int maxlen);
 
+bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str);
 bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str);
 bool_t xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str);
 bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str);

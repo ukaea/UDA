@@ -186,6 +186,12 @@ typedef struct SecurityBlock {
     unsigned char* client2_X509;
 } SECURITY_BLOCK;
 
+typedef struct AuthenticationBlock {
+    unsigned int authentication_type;
+    unsigned int payload_length;
+    unsigned char* payload;
+} AUTHENTICATION_BLOCK;
+
 typedef struct ClientBlock {
     int version;
     int pid;                        // Client Application process id
@@ -220,6 +226,7 @@ typedef struct ClientBlock {
     char uid2[STRING_LENGTH];       // Who the Client is (claim of identity to the last server)
     SECURITY_BLOCK securityBlock;   // Contains encrypted tokens exchanged between client and server for mutual authentication
 
+    AUTHENTICATION_BLOCK authenticationBlock;
 } CLIENT_BLOCK;
 
 typedef struct DataBlock {

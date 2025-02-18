@@ -45,7 +45,6 @@
 constexpr int server_version = 10;
 static int protocol_version = 10;
 static int legacy_server_version = 6;
-constexpr int oauth_authentication = 7;
 
 static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;            // User Defined Structure Types from Data Files & Plugins
 static LOGMALLOCLIST* log_malloc_list = nullptr;                        // List of all Heap Allocations for Data: Freed after data is dispatched
@@ -1067,8 +1066,11 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
 
     if (err != 0) return err;
 
-    if (client_block->securityBlock.encryptionMethod == oauth_authentication) {
-        std::string token{reinterpret_cast<const char*>(client_block->securityBlock.client_ciphertext), client_block->securityBlock.client_ciphertextLength};
+    if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
+        std::string token{
+            reinterpret_cast<const char*>(client_block->authenticationBlock.payload),
+            client_block->authenticationBlock.payload_length
+        };
         try {
             uda::authentication::authenticate(token);
         } catch (const std::exception& e) {
