@@ -22,6 +22,8 @@ using XDR = struct __rpc_xdr;
 
 namespace uda::client {
 
+constexpr int DefaultTimeout = 600;
+
 // constexpr int ProtocolVersion = 8;
 // constexpr int ClientVersion = UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
 
@@ -56,7 +58,7 @@ struct LoggingOptions
     bool log_to_file = true;
 };
 
-//TODO: make interfaces mockable (connection, config, and protocol) for unit testing
+// TODO: make interfaces mock-able (connection, config, and protocol) for unit testing
 
 class Client
 {
@@ -147,6 +149,7 @@ private:
     std::vector<client_server::DataBlock> _data_blocks = {};
     cache::UdaCache* _cache = nullptr;
     std::vector<client_server::UdaError> _error_stack = {};
+    client_server::MetaData _metadata = {};
 
     // -------------------------------------------------
     //   interface classes (mockable / testable?)
