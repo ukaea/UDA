@@ -15,8 +15,8 @@ class HostList
     explicit HostList(std::string_view config_file);
     ~HostList() = default;
 
-    [[nodiscard]] const client_server::HostData* find_by_alias(std::string_view alias) const;
-    [[nodiscard]] const client_server::HostData* find_by_name(std::string_view name) const;
+    // [[nodiscard]] const client_server::HostData* find_by_alias(std::string_view alias) const;
+    // [[nodiscard]] const client_server::HostData* find_by_name(std::string_view name) const;
     [[nodiscard]] const uda::client_server::HostData* find_by_alias(std::string_view alias) const;
     [[nodiscard]] const uda::client_server::HostData* find_by_name(std::string_view name) const;
 

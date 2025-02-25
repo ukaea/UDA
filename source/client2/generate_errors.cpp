@@ -131,7 +131,7 @@ int uda::client::synthetic_model(std::vector<UdaError>& error_stack, int model, 
 #endif
 }
 
-char* getSyntheticData(int handle)
+char* get_synthetic_data(int handle)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
@@ -289,7 +289,7 @@ int uda::client::generate_synthetic_data(std::vector<client_server::UdaError>& e
     //--------------------------------------------------------------------------------------------------------------
     // Return the Synthetic Data
 
-    if (getSyntheticData(handle) == nullptr) {
+    if (get_synthetic_data(handle) == nullptr) {
         if ((err = alloc_array(get_data_type(handle), get_data_num(handle), &synthetic))) {
             add_error(error_stack, ErrorType::Code, "generate_synthetic_data", err,
                       "Problem Allocating Heap Memory for Synthetic Data");
@@ -300,84 +300,84 @@ int uda::client::generate_synthetic_data(std::vector<client_server::UdaError>& e
 
     switch (get_data_type(handle)) {
         case UDA_TYPE_FLOAT: {
-            auto fp = (float*)getSyntheticData(handle);
+            auto fp = (float*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 fp[i] = data[i]; // Overwrite the Data
             }
             break;
         }
         case UDA_TYPE_DOUBLE: {
-            auto dp = (double*)getSyntheticData(handle);
+            auto dp = (double*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 dp[i] = (double)data[i];
             }
             break;
         }
         case UDA_TYPE_SHORT: {
-            auto sp = (short*)getSyntheticData(handle);
+            auto sp = (short*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 sp[i] = (short)data[i];
             }
             break;
         }
         case UDA_TYPE_INT: {
-            auto ip = (int*)getSyntheticData(handle);
+            auto ip = (int*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 ip[i] = (int)data[i];
             }
             break;
         }
         case UDA_TYPE_LONG: {
-            auto lp = (long*)getSyntheticData(handle);
+            auto lp = (long*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 lp[i] = (long)data[i];
             }
             break;
         }
         case UDA_TYPE_LONG64: {
-            auto lp = (long long int*)getSyntheticData(handle);
+            auto lp = (long long int*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 lp[i] = (long long int)data[i];
             }
             break;
         }
         case UDA_TYPE_UNSIGNED_SHORT: {
-            auto sp = (unsigned short*)getSyntheticData(handle);
+            auto sp = (unsigned short*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 sp[i] = (unsigned short)data[i];
             }
             break;
         }
         case UDA_TYPE_UNSIGNED_INT: {
-            auto up = (unsigned int*)getSyntheticData(handle);
+            auto up = (unsigned int*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 up[i] = (unsigned int)data[i];
             }
             break;
         }
         case UDA_TYPE_UNSIGNED_LONG: {
-            auto lp = (unsigned long*)getSyntheticData(handle);
+            auto lp = (unsigned long*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 lp[i] = (unsigned long)data[i];
             }
             break;
         }
         case UDA_TYPE_UNSIGNED_LONG64: {
-            auto lp = (unsigned long long int*)getSyntheticData(handle);
+            auto lp = (unsigned long long int*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 lp[i] = (unsigned long long int)data[i];
             }
             break;
         }
         case UDA_TYPE_CHAR: {
-            auto cp = (char*)getSyntheticData(handle);
+            auto cp = (char*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 cp[i] = (char)data[i];
             }
             break;
         }
         case UDA_TYPE_UNSIGNED_CHAR: {
-            auto cp = (unsigned char*)getSyntheticData(handle);
+            auto cp = (unsigned char*)get_synthetic_data(handle);
             for (int i = 0; i < get_data_num(handle); i++) {
                 cp[i] = (unsigned char)data[i];
             }

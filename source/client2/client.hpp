@@ -79,9 +79,9 @@ public:
     int put(std::string_view put_instruction, client_server::PutDataBlockList* putdata_block_list);
 
     void set_host(std::string_view host);
-    [[nodiscard]] const std::string& get_host() const {return _connection.get_host();}
+    [[nodiscard]] const std::string& get_host() const {return connection_.get_host();}
     void set_port(int port);
-    [[nodiscard]] int get_port() const {return _connection.get_port();}
+    [[nodiscard]] int get_port() const {return connection_.get_port();}
     void clear();
     [[nodiscard]] const client_server::DataBlock* current_data_block() const;
     [[nodiscard]] const client_server::DataBlock* data_block(int handle) const;
@@ -130,34 +130,34 @@ private:
 
     // std::string _host = {};
     // int _port = 0;
-    uint32_t _flags = 0;
-    int _alt_rank = 0;
-    ClientFlags _client_flags = {};
-    uint32_t _private_flags = 0;
+    uint32_t flags_ = 0;
+    int alt_rank_ = 0;
+    ClientFlags client_flags_ = {};
+    uint32_t private_flags_ = 0;
 
-    LoggingOptions _logging_options = {};
+    LoggingOptions logging_options_ = {};
 
-    std::string _client_username = "client";
-    int _protocol_version;
+    std::string client_username_ = "client";
+    int protocol_version_;
 
     // -------------------------------------------------
     //   idam struct stuff
     // -------------------------------------------------
 
-    client_server::ClientBlock _client_block = {};
-    client_server::ServerBlock _server_block = {};
-    std::vector<client_server::DataBlock> _data_blocks = {};
-    cache::UdaCache* _cache = nullptr;
-    std::vector<client_server::UdaError> _error_stack = {};
-    client_server::MetaData _metadata = {};
+    client_server::ClientBlock client_block_ = {};
+    client_server::ServerBlock server_block_ = {};
+    std::vector<client_server::DataBlock> data_blocks_ = {};
+    cache::UdaCache* cache_ = nullptr;
+    std::vector<client_server::UdaError> error_stack_ = {};
+    client_server::MetaData metadata_ = {};
 
     // -------------------------------------------------
     //   interface classes (mockable / testable?)
     // -------------------------------------------------
 
-    config::Config _config = {};
-    Connection _connection = {};
-    HostList _host_list = {};
+    config::Config config_ = {};
+    Connection connection_ = {error_stack_};
+    HostList host_list_ = {};
 
     // -------------------------------------------------
     //   xdr stuff
@@ -165,19 +165,19 @@ private:
 
     // required by protocol functions for data transport
     // and by the connection methods for establishing connections
-    XDR* _client_input = nullptr;
-    XDR* _client_output = nullptr;
+    XDR* client_input_ = nullptr;
+    XDR* client_output_ = nullptr;
 
     // connection.io_data -> IoData{&connection._client_socket}
     // required by createXDRStream only? need to cache?
-    IoData _io_data = {};
+    IoData io_data_ = {};
 
     // -------------------------------------------------
     //   don't know
     // -------------------------------------------------
 
     // reopen_flags set after server timeout, but nothing ever done with it
-    bool _reopen_logs = false;
+    bool reopen_logs_ = false;
 
     //TODO: _env_var flags never used. intention?
     // bool _env_host = false;
@@ -186,11 +186,11 @@ private:
     // -------------------------------------------------
     //   legacy structured data stuff
     // -------------------------------------------------
-    structures::UserDefinedTypeList* _userdefinedtypelist = nullptr; // List of all known User Defined Structure Types
-    structures::LogMallocList* _logmalloclist = nullptr;             // List of all Heap Allocations for Data
-    structures::NTree* _full_ntree = nullptr;
-    structures::LogStructList _log_struct_list = {};
-    int _malloc_source = UDA_MALLOC_SOURCE_NONE;
+    structures::UserDefinedTypeList* user_defined_type_list_ = nullptr; // List of all known User Defined Structure Types
+    structures::LogMallocList* log_malloc_list_ = nullptr;             // List of all Heap Allocations for Data
+    structures::NTree* full_ntree_ = nullptr;
+    structures::LogStructList log_struct_list_ = {};
+    int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
 
     int send_putdata(const client_server::RequestBlock& request_block);
     int send_request_block(client_server::RequestBlock& request_block);

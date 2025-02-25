@@ -1,7 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include "client2/connection.hpp"
 #include "config/config.h"
-#include "clientserver/socketStructs.h"
+#include "clientserver/socket_structs.h"
+#include "clientserver/uda_structs.h"
 #include <string>
 #include <rpc/rpc.h>
 #include <utility>
@@ -11,15 +12,17 @@
 
 TEST_CASE( "connection object can be default constructed without supplying a config file", "[client-instantiation]" )
 {
-    REQUIRE_NOTHROW(uda::client::Connection());
+    std::vector<uda::client_server::UdaError> error_stack;
+    REQUIRE_NOTHROW(uda::client::Connection(error_stack));
 }
 
 TEST_CASE( "connection object can be constructed with a config file", "[client-instantiation]" )
 {
+    std::vector<uda::client_server::UdaError> error_stack;
     std::string file_path = "test_files/uda-client-config.toml";
     uda::config::Config config = {};
     config.load(file_path);
-    REQUIRE_NOTHROW(uda::client::Connection(config));
+    REQUIRE_NOTHROW(uda::client::Connection(error_stack, config));
 }
 
 // TEST_CASE( "connection options can be set from a config file", "[option-parsing]" )
@@ -34,26 +37,26 @@ class MockConnection : public uda::client::Connection
     public:
     int create(XDR* client_input, XDR* client_output)
     {
-        _client_socket = _socket_list.size();
-        uda::client_server::Sockets socket = {};
+        client_socket_ = socket_list_.size();
+        uda::client_server::Socket socket = {};
 
-        socket.type = uda::client_server::SocketType::UDA;
-        socket.status = 1;
-        socket.fh = _client_socket;
-        socket.port = _port;
-        strcpy(socket.host, _host.c_str());
+        // socket.type = uda::client_server::SocketType::UDA;
+        socket.open = true;
+        socket.fh = client_socket_;
+        socket.port = port_;
+        socket.host = host_;
         socket.tv_server_start = time(nullptr);
         socket.user_timeout = 0;
         socket.Input = client_input;
         socket.Output = client_output;
 
-        _socket_list.push_back(socket);
+        socket_list_.push_back(socket);
         return 0;
     }
 
-    const std::vector<uda::client_server::Sockets>& get_socket_list() const
+    const std::vector<uda::client_server::Socket>& get_socket_list() const
     {
-        return _socket_list;
+        return socket_list_;
     }
  
 };
@@ -74,11 +77,13 @@ TEST_CASE( "Current socket connection details can be queried", "[socket-data]" )
     XDR* client_input;
     XDR* client_output;
     std::tie(client_input, client_output) = createXDRStream();
-    MockConnection connection {};
+
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
     connection.create(client_input, client_output);
 
     const auto& socket = connection.get_current_connection_data();
-    REQUIRE( socket.status == 1 );
+    REQUIRE( socket.open == true );
     // TODO: should we use an actual filehandle from a call to open(whatever)
     // here to avoid any other issues when close(fh) is called in close_down()?
     // fh = 0 technically corresponds to stdin...
@@ -99,7 +104,9 @@ TEST_CASE( "Maximum age of the current socket connection can be modified", "[soc
     XDR* client_input;
     XDR* client_output;
     std::tie(client_input, client_output) = createXDRStream();
-    MockConnection connection {};
+
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
     connection.create(client_input, client_output);
     connection.set_maximum_socket_age(expected_result);
 
@@ -112,7 +119,9 @@ TEST_CASE ( "Current socket connection age can be queried", "[socket-data]")
     XDR* client_input;
     XDR* client_output;
     std::tie(client_input, client_output) = createXDRStream();
-    MockConnection connection {};
+
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
     connection.create(client_input, client_output);
 
     //NOTE: precision of age is 1s minimum so we have to wait for an entire second here
@@ -131,7 +140,9 @@ TEST_CASE( "Current socket connection timeout status can be queried", "[socket-d
     XDR* client_input;
     XDR* client_output;
     std::tie(client_input, client_output) = createXDRStream();
-    MockConnection connection {};
+
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
     connection.create(client_input, client_output);
 
     connection.set_maximum_socket_age(100);
@@ -143,7 +154,9 @@ TEST_CASE( "Current socket connection timeout status can be queried", "[socket-d
 
 TEST_CASE( "Port can be set which also flags that reconnection is required" "[set-connection-options]")
 {
-    uda::client::Connection connection {}; 
+    std::vector<uda::client_server::UdaError> error_stack;
+    uda::client::Connection connection {error_stack}; 
+
     auto port_number = connection.get_port();
     REQUIRE( port_number == uda::client::DefaultPort );
     int expected_result = 12345;
@@ -163,7 +176,9 @@ TEST_CASE( "Current socket connection can be closed", "[close-socket]" )
     XDR* client_input;
     XDR* client_output;
     std::tie(client_input, client_output) = createXDRStream();
-    MockConnection connection {};
+
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
     const auto& socket_list = connection.get_socket_list();
     REQUIRE( socket_list.size() == 0 );
     REQUIRE_FALSE( connection.open() );

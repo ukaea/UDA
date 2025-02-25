@@ -572,7 +572,7 @@ int udaGetServerErrorStackRecordType(int record)
     const auto& instance = uda::client::ThreadClient::instance();
     const auto server_block = instance.server_block();
 
-    if (record < 0 || static_cast<size_t>(record) >= server_block->idamerrorstack.nerrors) {
+    if (record < 0 || static_cast<size_t>(record) >= server_block->error_stack.size()) {
         return 0;
     }
 

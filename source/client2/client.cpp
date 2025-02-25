@@ -22,9 +22,9 @@
 #include "protocol/xdrlib.h"
 #include "uda/client.h"
 
-#include <uda/version.h>
 #include <algorithm>
 #include <filesystem>
+#include <uda/version.h>
 
 using namespace uda::client_server;
 using namespace uda::logging;
@@ -37,7 +37,8 @@ using namespace std::string_literals;
 namespace
 {
 
-constexpr int ClientVersion = UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
+constexpr int ClientVersion =
+    UDA_GET_VERSION(UDA_VERSION_MAJOR, UDA_VERSION_MINOR, UDA_VERSION_BUGFIX, UDA_VERSION_DELTA);
 
 void copy_data_block(DataBlock* str, DataBlock* in)
 {
@@ -96,10 +97,7 @@ void update_client_block(ClientBlock& client_block, const uda::client::ClientFla
 
 } // namespace
 
-uda::client::Client::Client()
-    : version{ClientVersion}
-    , connection_{error_stack_, config_}
-    , protocol_version_{ClientVersion}
+uda::client::Client::Client() : version{ClientVersion}, protocol_version_{ClientVersion}, connection_{error_stack_}
 {
     // host_ = DefaultHost;
     // port_ = DefaultPort;
@@ -109,27 +107,27 @@ uda::client::Client::Client()
     client_flags_.alt_rank = 0;
     client_flags_.user_timeout = TimeOut;
 
-    _cache = uda::cache::open_cache();
+    cache_ = uda::cache::open_cache();
 
     char username[StringLength];
     user_id(username);
-    _client_username = username;
+    client_username_ = username;
 
-    init_client_block(&_client_block, ClientVersion, _client_username.c_str());
+    init_client_block(&client_block_, ClientVersion, client_username_.c_str());
 }
 
-uda::client::Client::Client(std::string_view config_path)
-    : Client()
+uda::client::Client::Client(std::string_view config_path) : Client()
 {
-    // load config throws on error, no need to check _config has read a valid file
+    // load config throws on error, no need to check config_ has read a valid file
     load_config(config_path);
-    _connection = Connection(_config);
+    // connection_ = Connection(error_stack_, config_);
+    connection_.load_config(config_);
 
     // TODO: this will throw if the config path is illegal
     // what behaviour do we want? ignore silently and fallback to default constructed client
     // or let it crash here?
-    // _config.load(config_path);
-    // _connection = Connection(_config);
+    // config_.load(config_path);
+    // connection_ = Connection(config_);
     //
     // // TODO:
     // // - timeout from config
@@ -140,15 +138,15 @@ uda::client::Client::Client(std::string_view config_path)
     // // Client set Property Flags (can be changed via property accessor functions)
     // // Coded user properties changes have priority
     //
-    // auto client_flags = _config.get("client.flags");
-    // auto alt_rank = _config.get("client.alt_rank");
+    // auto client_flags = config_.get("client.flags");
+    // auto alt_rank = config_.get("client.alt_rank");
     //
     // if (client_flags) {
-    //     _flags |= client_flags.as<int>();
+    //     flags_ |= client_flags.as<int>();
     // }
     //
     // if (alt_rank) {
-    //     _alt_rank = alt_rank.as<int>();
+    //     alt_rank_ = alt_rank.as<int>();
     // }
 
     //----------------------------------------------------------------
@@ -159,55 +157,51 @@ uda::client::Client::Client(std::string_view config_path)
     //    return(-1);
     // }
 
-//     //----------------------------------------------------------------
-//     // Check if Output Requested
-//
-//     constexpr int default_log_level = static_cast<int>(UDA_LOG_NONE);
-//     auto log_level = static_cast<LogLevel>(_config.get("logging.level")
-//             .as_or_default(default_log_level));
-//
-//     if (log_level == UDA_LOG_NONE) {
-//         return;
-//     }
-//
-//     //---------------------------------------------------------------
-//     // Open the Log File
-//
-//     const auto log_dir = _config.get("logging.path").as_or_default(""s);
-//     const auto log_mode = _config.get("logging.mode").as_or_default("a"s);
-//     initialise_logging(log_dir, log_level, log_mode);
-//
-//     errno = 0;
-//     if (errno == 0)
-//     {
-//         _config.print();
-//     }
+    //     //----------------------------------------------------------------
+    //     // Check if Output Requested
+    //
+    //     constexpr int default_log_level = static_cast<int>(UDA_LOG_NONE);
+    //     auto log_level = static_cast<LogLevel>(config_.get("logging.level")
+    //             .as_or_default(default_log_level));
+    //
+    //     if (log_level == UDA_LOG_NONE) {
+    //         return;
+    //     }
+    //
+    //     //---------------------------------------------------------------
+    //     // Open the Log File
+    //
+    //     const auto log_dir = config_.get("logging.path").as_or_default(""s);
+    //     const auto log_mode = config_.get("logging.mode").as_or_default("a"s);
+    //     initialise_logging(log_dir, log_level, log_mode);
+    //
+    //     errno = 0;
+    //     if (errno == 0)
+    //     {
+    //         config_.print();
+    //     }
 }
 
 void uda::client::Client::load_config(std::string_view path)
 {
     // load step throws on error
-    _config.load(path);
+    config_.load(path);
     set_client_flags_from_config();
     initialise_logging_from_config();
-    _connection = Connection(_config);
+    // connection_ = Connection(config_);
+    connection_.load_config(config_);
 }
 
 void uda::client::Client::set_client_flags_from_config()
 {
-    if (!_config)
-    {
+    if (!config_) {
         return;
     }
 
-    for (const auto& [key, value] : _config.get_section_as_map("client_flags"))
-    {
-        if (key == "timeout" and value)
-        {
-             _client_flags.user_timeout = value.as_or_default<int>(DefaultTimeout);
-        }
-        else if (value and value.is<bool>())
-        {
+    for (const auto& [key, value] : config_.get_section_as_map("client_flags")) {
+        if (key == "timeout" and value) {
+            client_flags_.user_timeout = value.as_or_default<int>(DefaultTimeout);
+        } else if (value and value.is<bool>()) {
             set_property(key.c_str());
         }
     }
@@ -219,35 +213,31 @@ void uda::client::Client::Client::initialise_logging_from_config()
     // Check if Output Requested
 
     constexpr int default_log_level = static_cast<int>(UDA_LOG_NONE);
-    auto log_level = static_cast<LogLevel>(_config.get("logging.level")
-            .as_or_default(default_log_level));
+    auto log_level = static_cast<LogLevel>(config_.get("logging.level").as_or_default(default_log_level));
 
     if (log_level == UDA_LOG_NONE) {
         return;
     }
-    _logging_options.log_level = log_level;
+    logging_options_.log_level = log_level;
 
     //---------------------------------------------------------------
     // Open the Log File
 
-    const auto log_dir = _config.get("logging.path").as_or_default<std::string>(""s);
-    if (!log_dir.empty())
-    {
-        _logging_options.log_dir = log_dir;
+    const auto log_dir = config_.get("logging.path").as_or_default<std::string>(""s);
+    if (!log_dir.empty()) {
+        logging_options_.log_dir = log_dir;
     }
-    const auto log_mode = _config.get("logging.mode").as_or_default<std::string>("a"s);
-    if (log_mode != "a"s)
-    {
-        _logging_options.open_mode = LogOpenMode::CLEAR;
+    const auto log_mode = config_.get("logging.mode").as_or_default<std::string>("a"s);
+    if (log_mode != "a"s) {
+        logging_options_.open_mode = LogOpenMode::CLEAR;
     }
 
     errno = 0;
 
-    initialise_logging(_logging_options.log_dir, _logging_options.log_level, _logging_options.open_mode);
+    initialise_logging(logging_options_.log_dir, logging_options_.log_level, logging_options_.open_mode);
 
-    if (errno == 0)
-    {
-        _config.print();
+    if (errno == 0) {
+        config_.print();
     }
 }
 
@@ -289,7 +279,7 @@ void uda::client::Client::initialise_logging(const std::string& log_dir, LogLeve
 
 void uda::client::Client::initialise_logging()
 {
-    initialise_logging(_logging_options.log_dir, _logging_options.log_level, _logging_options.open_mode);
+    initialise_logging(logging_options_.log_dir, logging_options_.log_level, logging_options_.open_mode);
 }
 
 int uda::client::Client::fetch_meta()
@@ -298,9 +288,9 @@ int uda::client::Client::fetch_meta()
 
 #ifndef FATCLIENT // <========================== Client Server Code Only
 
-    if ((err = protocol2(error_stack_, client_input_, ProtocolId::MetaData, XDRStreamDirection::Receive, nullptr, log_malloc_list_,
-                         user_defined_type_list_, &metadata_, protocol_version_, &log_struct_list_, private_flags_,
-                         malloc_source_)) != 0) {
+    if ((err = protocol2(error_stack_, client_input_, ProtocolId::MetaData, XDRStreamDirection::Receive, nullptr,
+                         log_malloc_list_, user_defined_type_list_, &metadata_, protocol_version_, &log_struct_list_,
+                         private_flags_, malloc_source_)) != 0) {
         add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 4 Error (Data System)");
         return err;
     }
@@ -327,9 +317,11 @@ int uda::client::Client::fetch_hierarchical_data(DataBlock* data_block)
         UDA_LOG(UDA_LOG_DEBUG, "Receiving Hierarchical Data Structure from Server");
 
         int err = 0;
-        if ((err = protocol2(error_stack_, client_input_, protocol_id, XDRStreamDirection::Receive, nullptr, log_malloc_list_, user_defined_type_list_,
-                             data_block, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
-            add_error(error_stack_, ErrorType::Code, __func__, err, "Client Side Protocol Error (Opaque Structure Type)");
+        if ((err = protocol2(error_stack_, client_input_, protocol_id, XDRStreamDirection::Receive, nullptr,
+                             log_malloc_list_, user_defined_type_list_, data_block, protocol_version_,
+                             &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+            add_error(error_stack_, ErrorType::Code, __func__, err,
+                      "Client Side Protocol Error (Opaque Structure Type)");
             return err;
         }
     }
@@ -390,18 +382,18 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         initialise_logging();
     }
 
-    init_server_block(&_server_block, 0);
+    init_server_block(&server_block_, 0);
     error_stack_.clear();
 
-    //note: tv_server_start is a global in client1... this needs re-writing a little bit
-    // TODO: can ctime be swapped out for std::chrono?
-    // TODO: clock needs to be started here...
+    // note: tv_server_start is a global in client1... this needs re-writing a little bit
+    //  TODO: can ctime be swapped out for std::chrono?
+    //  TODO: clock needs to be started here...
     time_t tv_server_start = 0;
 
-    _connection.set_maximum_socket_age(_client_flags.user_timeout);
+    connection_.set_maximum_socket_age(client_flags_.user_timeout);
 
-    if (_connection.reconnect_required()) {
-        int err = _connection.reconnect(&_client_input, &_client_output, &tv_server_start, &_client_flags.user_timeout);
+    if (connection_.reconnect_required()) {
+        int err = connection_.reconnect(&client_input_, &client_output_, &tv_server_start, &client_flags_.user_timeout);
         if (err) {
             return err;
         }
@@ -411,27 +403,27 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     // age is always basically zero for subsequent requests?
     // tv_server_end = time(nullptr);
     // long age = (long)tv_server_end - (long)tv_server_start;
-    auto age = _connection.get_current_socket_age();
+    auto age = connection_.get_current_socket_age();
 
     // UDA_LOG(UDA_LOG_DEBUG, "Start: {}    End: {}", (long)tv_server_start, (long)tv_server_end);
     // UDA_LOG(UDA_LOG_DEBUG, "Server Age: {}", age);
 
     bool init_server = true;
-    //TODO: what does 2 mean here?
-    // if (age >= _client_flags.user_timeout - 2)
-    if (_connection.current_socket_timeout()) {
+    // TODO: what does 2 mean here?
+    //  if (age >= client_flags_.user_timeout - 2)
+    if (connection_.current_socket_timeout()) {
         // Assume the Server has Self-Destructed so Instantiate a New Server
         UDA_LOG(UDA_LOG_DEBUG, "Server Age Limit Reached {}", (long)age);
         UDA_LOG(UDA_LOG_DEBUG, "Server Closed and New Instance Started");
 
         // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
-        closedown(ClosedownType::CLOSE_SOCKETS, &_connection, _client_input, _client_output, &_reopen_logs);
-    } else if (_connection.open()) {
+        closedown(ClosedownType::CLOSE_SOCKETS, &connection_, client_input_, client_output_, &reopen_logs_);
+    } else if (connection_.open()) {
         // Assume the Server is Still Alive
         if (client_output_->x_ops == nullptr || client_input_->x_ops == nullptr) {
             add_error(error_stack_, ErrorType::Code, __func__, 999, "XDR Streams are Closed!");
             UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!");
-            closedown(ClosedownType::CLOSE_SOCKETS, &_connection, _client_input, _client_output, &_reopen_logs);
+            closedown(ClosedownType::CLOSE_SOCKETS, &connection_, client_input_, client_output_, &reopen_logs_);
         } else {
             init_server = false;
             xdrrec_eof(client_input_); // Flush input socket
@@ -443,8 +435,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     if (init_server) {
         // authentication_needed = true;
         startup_states = true;
-        if (_connection.create(_client_input, _client_output) != 0)
-        {
+        if (connection_.create(client_input_, client_output_) != 0) {
             int err = NO_SOCKET_CONNECTION;
             add_error(error_stack_, ErrorType::Code, __func__, err, "No Socket Connection to Server");
             return err;
@@ -455,8 +446,8 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         time(&tv_server_start); // Start the Clock again: Age of Server
     }
 
-    update_client_block(_client_block, _client_flags, _private_flags);
-    print_client_block(_client_block);
+    update_client_block(client_block_, client_flags_, private_flags_);
+    print_client_block(client_block_);
 
     //-------------------------------------------------------------------------
     // Client and Server States at Startup only (1 RTT)
@@ -502,9 +493,9 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 
     std::vector<DataBlock> recv_data_block_list;
 
-    if ((err = protocol2(error_stack_, client_input_, ProtocolId::DataBlockList, XDRStreamDirection::Receive, nullptr, log_malloc_list_,
-                         user_defined_type_list_, &recv_data_block_list, protocol_version_, &log_struct_list_,
-                         private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(error_stack_, client_input_, ProtocolId::DataBlockList, XDRStreamDirection::Receive, nullptr,
+                         log_malloc_list_, user_defined_type_list_, &recv_data_block_list, protocol_version_,
+                         &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)");
 
         add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
@@ -533,14 +524,15 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         //------------------------------------------------------------------------------
         // Cache the data if the server has passed permission and the application (client) has enabled caching
         if (client_flags_.flags & client_flags::FileCache) {
-            cache::udaFileCacheWrite(error_stack_, data_block, &request_block, log_malloc_list_, user_defined_type_list_, protocol_version_,
-                              &log_struct_list_, private_flags_, malloc_source_);
+            cache::udaFileCacheWrite(error_stack_, data_block, &request_block, log_malloc_list_,
+                                     user_defined_type_list_, protocol_version_, &log_struct_list_, private_flags_,
+                                     malloc_source_);
         }
 
         if (cache_ != nullptr && client_flags_.flags & client_flags::Cache) {
-            cache_write(config_, cache_, &request_block.requests[i], data_block, log_malloc_list_, user_defined_type_list_,
-                        protocol_version_, client_flags_.flags, &log_struct_list_, private_flags_,
-                        malloc_source_);
+            cache_write(config_, cache_, &request_block.requests[i], data_block, log_malloc_list_,
+                        user_defined_type_list_, protocol_version_, client_flags_.flags, &log_struct_list_,
+                        private_flags_, malloc_source_);
         }
 
         data_block_indices[i] = data_block_idx;
@@ -550,7 +542,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     if (data_received) {
         if (err != 0) {
             // Close Socket & XDR Streams but Not Files
-            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, _client_input, _client_output, &_reopen_logs);
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input_, client_output_, &reopen_logs_);
         }
 
         for (auto data_block_idx : data_block_indices) {
@@ -601,7 +593,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error {}", err);
 
         if (err != 0) {
-            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, _client_input, _client_output, &_reopen_logs);
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input_, client_output_, &reopen_logs_);
         }
 
         concat_errors(server_block_);
@@ -626,9 +618,9 @@ int uda::client::Client::send_putdata(const RequestBlock& request_block)
         if (request->put) {
             ProtocolId protocol_id = ProtocolId::PutdataBlockList;
             int err = 0;
-            if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_, user_defined_type_list_,
-                                 &(request->putDataBlockList), protocol_version_, &log_struct_list_, private_flags_,
-                                 malloc_source_)) != 0) {
+            if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr,
+                                 log_malloc_list_, user_defined_type_list_, &(request->putDataBlockList),
+                                 protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
                 add_error(error_stack_, ErrorType::Code, __func__, err,
                           "Protocol 1 Error (sending putDataBlockList from Request Block)");
                 throw uda::exceptions::ClientError("Protocol 1 Error (sending putDataBlockList from Request Block)");
@@ -676,7 +668,8 @@ std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std
     std::transform(requests.begin(), requests.end(), std::back_inserter(sources),
                    [](const std::pair<std::string, std::string>& p) { return p.second.c_str(); });
 
-    if (make_request_block(error_stack_, config_, signals.data(), sources.data(), requests.size(), &request_block) != 0) {
+    if (make_request_block(error_stack_, config_, signals.data(), sources.data(), requests.size(), &request_block) !=
+        0) {
         if (error_stack_.empty()) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source");
             add_error(error_stack_, ErrorType::Code, __func__, 999, "Error identifying the Data Source");
@@ -694,17 +687,17 @@ std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std
 
 void uda::client::Client::set_host(std::string_view host)
 {
-    _connection.set_host(host);
+    connection_.set_host(host);
 }
 
 void uda::client::Client::load_host_list(std::string_view file_path)
 {
-    _connection.load_host_list(file_path);
+    connection_.load_host_list(file_path);
 }
 
 void uda::client::Client::set_port(int port)
 {
-    _connection.set_port(port);
+    connection_.set_port(port);
 }
 
 int uda::client::Client::test_connection()
@@ -726,8 +719,8 @@ int uda::client::Client::test_connection()
         } while (rc && count < 64);
 
         if (count > 0) { // Error if data is waiting
-            add_error(error_stack_,
-                ErrorType::Code, __func__, 999,
+            add_error(
+                error_stack_, ErrorType::Code, __func__, 999,
                 "Data waiting in the input data buffer when none expected! Please contact the system administrator.");
             UDA_LOG(UDA_LOG_DEBUG, "[{}] excess data bytes waiting in input buffer!", count++);
             throw uda::exceptions::ClientError(
@@ -760,8 +753,9 @@ int uda::client::Client::send_request_block(RequestBlock& request_block)
 {
     ProtocolId protocol_id = ProtocolId::RequestBlock; // This is what the Client Wants
     int err = 0;
-    if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_, user_defined_type_list_,
-                         &request_block, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_,
+                         user_defined_type_list_, &request_block, protocol_version_, &log_struct_list_, private_flags_,
+                         malloc_source_)) != 0) {
         add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 1 Error (Request Block)");
         throw uda::exceptions::ClientError("Protocol 1 Error (Request Block)");
     }
@@ -773,8 +767,9 @@ int uda::client::Client::send_client_block()
 {
     ProtocolId protocol_id = ProtocolId::ClientBlock; // Send Client Block
     int err = 0;
-    if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_, user_defined_type_list_,
-                         &client_block_, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_,
+                         user_defined_type_list_, &client_block_, protocol_version_, &log_struct_list_, private_flags_,
+                         malloc_source_)) != 0) {
         add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 10 Error (Client Block)");
         throw uda::exceptions::ClientError("Protocol 10 Error (Client Block)");
     }
@@ -789,8 +784,9 @@ int uda::client::Client::perform_handshake()
     ProtocolId protocol_id = ProtocolId::ClientBlock; // Send Client Block (proxy for authenticationStep = 6)
 
     int err = 0;
-    if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_, user_defined_type_list_,
-                         &client_block_, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_,
+                         user_defined_type_list_, &client_block_, protocol_version_, &log_struct_list_, private_flags_,
+                         malloc_source_)) != 0) {
         add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 10 Error (Client Block)");
         UDA_LOG(UDA_LOG_DEBUG, "Error Sending Client Block");
         throw uda::exceptions::ClientError("Protocol 10 Error (Client Block)");
@@ -816,8 +812,9 @@ int uda::client::Client::perform_handshake()
     protocol_id =
         ProtocolId::ServerBlock; // Receive Server Block: Server Aknowledgement (proxy for authenticationStep = 8)
 
-    if ((err = protocol2(error_stack_, client_input_, protocol_id, XDRStreamDirection::Receive, nullptr, log_malloc_list_, user_defined_type_list_,
-                         &server_block_, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(error_stack_, client_input_, protocol_id, XDRStreamDirection::Receive, nullptr,
+                         log_malloc_list_, user_defined_type_list_, &server_block_, protocol_version_,
+                         &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 11 Error (Server Block #1)");
         // Assuming the server_block is corrupted, replace with a clean copy to avoid concatenation problems
         server_block_.error_stack.clear();
@@ -836,7 +833,8 @@ int uda::client::Client::perform_handshake()
     // Protocol Version: Lower of the client and server version numbers
     // This defines the set of elements within data structures passed between client and server
     // Must be the same on both sides of the socket
-    protocol_version_ = std::min(get_protocol_version(client_block_.version), get_protocol_version(server_block_.version));
+    protocol_version_ =
+        std::min(get_protocol_version(client_block_.version), get_protocol_version(server_block_.version));
 
     if (!server_block_.error_stack.empty()) {
         err = server_block_.error_stack[0].code; // Problem on the Server Side!
@@ -879,9 +877,9 @@ int uda::client::Client::receive_server_block()
     UDA_LOG(UDA_LOG_DEBUG, "Waiting for Server Status Block");
 
     int err = 0;
-    if ((err = protocol2(error_stack_, client_input_, ProtocolId::ServerBlock, XDRStreamDirection::Receive, nullptr, log_malloc_list_,
-                         user_defined_type_list_, &server_block_, protocol_version_, &log_struct_list_, private_flags_,
-                         malloc_source_)) != 0) {
+    if ((err = protocol2(error_stack_, client_input_, ProtocolId::ServerBlock, XDRStreamDirection::Receive, nullptr,
+                         log_malloc_list_, user_defined_type_list_, &server_block_, protocol_version_,
+                         &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = {}", err);
         add_error(error_stack_, ErrorType::Code, __func__, err, " Protocol 11 Error (Server Block #2)");
         // Assuming the server_block is corrupted, replace with a clean copy to avoid future concatonation problems
@@ -906,7 +904,8 @@ int uda::client::Client::new_handle()
     return static_cast<int>(data_blocks_.size() - 1);
 }
 
-void uda::client::Client::free_handle(int handle_idx) {
+void uda::client::Client::free_handle(int handle_idx)
+{
     if (handle_idx < 0 || handle_idx >= static_cast<int>(data_blocks_.size())) {
         UDA_LOG(UDA_LOG_ERROR, "Invalid handle index");
         return;
@@ -914,7 +913,8 @@ void uda::client::Client::free_handle(int handle_idx) {
     data_blocks_.at(handle_idx) = {};
 }
 
-void uda::client::Client::free_all() {
+void uda::client::Client::free_all()
+{
     data_blocks_.clear();
 }
 
@@ -1078,10 +1078,10 @@ int uda::client::Client::get_property(const char* property)
             return alt_rank_;
         }
         if (STR_IEQUALS(property, "reuseLastHandle")) {
-            return static_cast<int>(_client_flags.flags & client_flags::ReuseLastHandle);
+            return static_cast<int>(client_flags_.flags & client_flags::ReuseLastHandle);
         }
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
-            return static_cast<int>(_client_flags.flags & client_flags::FreeReuseLastHandle);
+            return static_cast<int>(client_flags_.flags & client_flags::FreeReuseLastHandle);
         }
         if (STR_IEQUALS(property, "verbose")) {
             return get_log_level() == UDA_LOG_INFO;
@@ -1090,10 +1090,10 @@ int uda::client::Client::get_property(const char* property)
             return get_log_level() == UDA_LOG_DEBUG;
         }
         if (STR_IEQUALS(property, "altData")) {
-            return static_cast<int>(_client_flags.flags & client_flags::AltData);
+            return static_cast<int>(client_flags_.flags & client_flags::AltData);
         }
         if (STR_IEQUALS(property, "fileCache")) {
-            return static_cast<int>(_client_flags.flags & client_flags::FileCache);
+            return static_cast<int>(client_flags_.flags & client_flags::FileCache);
         }
     }
     return 0;
@@ -1182,9 +1182,9 @@ void uda::client::Client::reset_properties()
     client_flags_.get_bytes = 0;
     client_flags_.get_nodimdata = 0;
     set_log_level(UDA_LOG_NONE);
-    _client_flags.user_timeout = TimeOut;
-    _client_flags.flags = 0;
-    _client_flags.alt_rank = 0;
+    client_flags_.user_timeout = TimeOut;
+    client_flags_.flags = 0;
+    client_flags_.alt_rank = 0;
 }
 
 const DataBlock* uda::client::Client::data_block(int handle) const

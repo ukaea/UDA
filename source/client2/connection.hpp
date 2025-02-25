@@ -43,14 +43,13 @@ struct ConnectionOptions
 
 class Connection {
 public:
-    explicit Connection(std::vector<client_server::UdaError>& error_stack, config::Config& config)
+    inline Connection(std::vector<client_server::UdaError>& error_stack)
         : error_stack_{error_stack}
-        , config_{config}
         , socket_list_{}
-        , _host_list{}
+        , host_list_{}
     {}
-    explicit inline Connection(config::Config& config)
-        : Connection()
+    inline Connection(std::vector<client_server::UdaError>& error_stack, config::Config& config)
+        : Connection(error_stack)
     {
         load_config(config);
     }
@@ -59,13 +58,13 @@ public:
     int create(XDR* client_input, XDR* client_output);
     void close_down(ClosedownType type);
 
-    const uda::client_server::Sockets& get_current_connection_data() const;
+    const uda::client_server::Socket& get_current_connection_data() const;
     bool current_socket_timeout() const;
     time_t get_current_socket_age() const;
     void set_maximum_socket_age(int age);
 
     // TODO: this returns (writeable) pointer to private member variable. intention?
-    IoData io_data() { return IoData{&error_stack_, &_client_socket}; }
+    IoData io_data() { return IoData{&error_stack_, &client_socket_}; }
 
     void set_port(int port);
     void set_host(std::string_view host);
@@ -76,38 +75,38 @@ public:
     bool reconnect_required() const;
     inline const ConnectionOptions get_options() const
     {
-        return ConnectionOptions {_max_socket_delay, _max_socket_attempts, _port, _failover_port,
-            _host, _failover_host};
+        return ConnectionOptions {max_socket_delay_, max_socket_attempts_, port_, failover_port_,
+            host_, failover_host_};
     }
 
     void load_config(config::Config& config);
 
 
 protected:
-    int _client_socket = -1;
-    std::vector<uda::client_server::Sockets> _socket_list; // List of open sockets
-    HostList _host_list = {};
+    int client_socket_ = -1;
     std::vector<client_server::UdaError>& error_stack_;
-    config::Config& config_;
-    std::vector<client_server::Socket> socket_list_; // List of open sockets
+    std::vector<uda::client_server::Socket> socket_list_; // List of open sockets
+    HostList host_list_ = {};
+    // currently unused. could have a reset-to-config method
+    // config::Config& config_;
 
-    int _port = DefaultPort;
-    std::string _host = DefaultHost;
-    int _max_socket_delay = DefaultMaxSocketDelay;
-    int _max_socket_attempts = DefaultMaxSocketAttempts;
+    int port_ = DefaultPort;
+    std::string host_ = DefaultHost;
+    int max_socket_delay_ = DefaultMaxSocketDelay;
+    int max_socket_attempts_ = DefaultMaxSocketAttempts;
 
-    int _failover_port = 0;
-    std::string _failover_host = {};
+    int failover_port_ = 0;
+    std::string failover_host_ = {};
 
-    mutable bool _server_reconnect = false;
-    mutable bool _server_change_socket = false;
+    mutable bool server_reconnect_ = false;
+    // mutable bool server_change_socket_ = false;
 
     int find_socket(int fh);
     int find_socket();
     int find_socket_by_properties(std::string_view host, int port);
     void close_socket(int fh);
     void unpack_config();
-    uda::client_server::Sockets& get_current_socket();
+    uda::client_server::Socket& get_current_socket();
 };
 
 int writeout(void* iohandle, char* buf, int count);

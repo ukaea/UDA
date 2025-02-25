@@ -203,7 +203,6 @@ inline void acc_free_data_blocks()
 inline char* acc_getSyntheticData(int handle)
 {
     return udaGetSyntheticData(handle);
-    ;
 }
 
 inline char* acc_getSyntheticDimData(int handle, int ndim)
