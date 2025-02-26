@@ -370,11 +370,11 @@ int uda::protocol::protocol(std::vector<UdaError>& error_stack, XDR* xdrs, Proto
         if (protocol_id == ProtocolId::PutdataBlockList) {
 
             auto put_data_block_list = (PutDataBlockList*)str;
-            PutDataBlock put_data;
 
             switch (direction) {
 
                 case XDRStreamDirection::Receive: {
+                    PutDataBlock put_data;
 
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = (int)ProtocolError::Error5;
@@ -417,7 +417,7 @@ int uda::protocol::protocol(std::vector<UdaError>& error_stack, XDR* xdrs, Proto
                                 break;
                             }
 
-                            add_put_data_block_list(&put_data, put_data_block_list); // Add to the growing list
+                            put_data_block_list->push_back(put_data);
                         }
                     }
 
@@ -426,32 +426,34 @@ int uda::protocol::protocol(std::vector<UdaError>& error_stack, XDR* xdrs, Proto
 
                 case XDRStreamDirection::Send: {
 
-                    UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: {}", put_data_block_list->blockCount);
+                    unsigned int size = put_data_block_list->size();
+                    UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: {}", size);
 
-                    int rc = xdr_u_int(xdrs, &(put_data_block_list->blockCount));
+                    int rc = xdr_u_int(xdrs, &size);
 
                     if (!rc) {
                         err = (int)ProtocolError::Error61;
                         break;
                     }
 
-                    for (unsigned int i = 0; i < put_data_block_list->blockCount; i++) { // Send multiple put blocks
+                    for (unsigned int i = 0; i < size; i++) {
+                        // Send multiple put blocks
+                        auto* put_data = &(*put_data_block_list)[i];
 
-                        if (!xdr_putdata_block1(xdrs, &(put_data_block_list->putDataBlock[i]))) {
+                        if (!xdr_putdata_block1(xdrs, put_data)) {
                             err = (int)ProtocolError::Error61;
                             break;
                         }
 
-                        if (protocol_version_type_test(protocolVersion,
-                                                       put_data_block_list->putDataBlock[i].data_type)) {
+                        if (protocol_version_type_test(protocolVersion, put_data->data_type)) {
                             err = (int)ProtocolError::Error9999;
                             break;
                         }
 
-                        if (put_data_block_list->putDataBlock[i].count > 0 ||
-                            put_data_block_list->putDataBlock[i].blockNameLength > 0) { // Data to Send?
+                        if (put_data->count > 0 || put_data->blockNameLength > 0) {
+                            // Data to Send?
 
-                            if (!xdr_putdata_block2(xdrs, &(put_data_block_list->putDataBlock[i]))) {
+                            if (!xdr_putdata_block2(xdrs, &put_data_block_list->at(i))) {
                                 err = (int)ProtocolError::Error62;
                                 break;
                             }

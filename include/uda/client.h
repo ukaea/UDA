@@ -36,7 +36,7 @@ LIBRARY_API int udaGetAPIWithHost(const char* data_object, const char* data_sour
 LIBRARY_API int udaGetBatchAPIWithHost(const char** uda_signals, const char** sources, int count, int* handles,
                                        const char* host, int port);
 
-LIBRARY_API int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK_LIST*);
+LIBRARY_API int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK*, size_t count);
 
 LIBRARY_API int udaPutAPI(const char* put_instruction, PUTDATA_BLOCK*);
 

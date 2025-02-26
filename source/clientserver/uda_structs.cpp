@@ -24,20 +24,6 @@ std::string_view uda::client_server::MetaData::find(const std::string_view name)
     return {nullptr, 0};
 }
 
-void uda::client_server::free_put_data_block_list(PutDataBlockList* putDataBlockList)
-{
-    if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
-        free(putDataBlockList->putDataBlock);
-    }
-    //    init_put_data_block_list(putDataBlockList);
-}
-
-// void freeRequestData(RequestData* request_data)
-//{
-//     free_name_value_list(&request_data->nameValueList);
-//     free_put_data_block_list(&request_data->putDataBlockList);
-// }
-
 void uda::client_server::free_request_block(RequestBlock* request_block)
 {
     //    for (int i = 0; i < request_block->num_requests; ++i) {
@@ -46,14 +32,6 @@ void uda::client_server::free_request_block(RequestBlock* request_block)
     //    free(request_block->requests);
     //    request_block->num_requests = 0;
     //    request_block->requests = nullptr;
-}
-
-void uda::client_server::free_client_put_data_block_list(PutDataBlockList* putDataBlockList)
-{
-    if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
-        free(putDataBlockList->putDataBlock);
-    }
-    //    init_put_data_block_list(putDataBlockList);
 }
 
 void uda::client_server::free_data_block(DataBlock* data_block)

@@ -410,7 +410,7 @@ int uda::server::XdrProtocol::recv_putdata_block_list(client_server::PutDataBloc
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "putData Block List Received");
-    UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", putdata_block_list->blockCount);
+    UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", putdata_block_list->size());
     return err;
 }
 

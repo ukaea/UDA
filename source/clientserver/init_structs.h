@@ -19,6 +19,4 @@ void init_dim_block(Dims* str);
 
 void init_put_data_block(PutDataBlock* str);
 
-void init_put_data_block_list(PutDataBlockList* putDataBlockList);
-
 } // namespace uda::client_server

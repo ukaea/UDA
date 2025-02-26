@@ -247,15 +247,3 @@ int uda::protocol::alloc_put_data(PutDataBlock* putData)
 
     return 0;
 }
-
-void uda::protocol::add_put_data_block_list(PutDataBlock* putDataBlock, PutDataBlockList* putDataBlockList)
-{
-    if (putDataBlockList->putDataBlock == nullptr ||
-        putDataBlockList->blockCount + 1 >= putDataBlockList->blockListSize) {
-        putDataBlockList->putDataBlock =
-            (PutDataBlock*)realloc((void*)putDataBlockList->putDataBlock,
-                                   (putDataBlockList->blockListSize + GrowPutdataBlockList) * sizeof(PutDataBlock));
-        putDataBlockList->blockListSize = putDataBlockList->blockListSize + GrowPutdataBlockList;
-    }
-    putDataBlockList->putDataBlock[putDataBlockList->blockCount++] = *putDataBlock;
-}

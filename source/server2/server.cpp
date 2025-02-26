@@ -683,8 +683,7 @@ int uda::server::Server::handle_request()
 
     for (int i = 0; i < _request_block.num_requests; ++i) {
         RequestData* request = &_request_block.requests[0];
-
-        init_put_data_block_list(&request->putDataBlockList);
+        request->putDataBlockList = {};
 
         if (request->put) {
             err = _protocol.recv_putdata_block_list(&request->putDataBlockList, _log_malloc_list,

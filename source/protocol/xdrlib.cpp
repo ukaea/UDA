@@ -316,12 +316,6 @@ bool_t uda::protocol::xdr_data_block_list(XDR* xdrs, std::vector<DataBlock>* str
 //-----------------------------------------------------------------------
 // Put Data
 
-bool_t uda::protocol::xdr_putdatablocklist_block(XDR* xdrs, PutDataBlockList* str)
-{
-    int rc = xdr_u_int(xdrs, &str->blockCount);
-    return rc;
-}
-
 bool_t uda::protocol::xdr_putdata_block1(XDR* xdrs, PutDataBlock* str)
 {
     int rc = 1;

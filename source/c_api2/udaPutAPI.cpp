@@ -9,23 +9,21 @@ using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::logging;
 
-int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK_LIST* putdata_block_list_in)
+int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK* put_data_block_list_in, size_t count)
 {
-    PutDataBlockList empty_putdata_block_list;
-    PutDataBlockList* putdata_block_list = nullptr;
+    PutDataBlockList put_data_block_list;
 
     //-------------------------------------------------------------------------
     // Pass an empty structure rather than nullptr (Caller is responsible for freeing)
 
-    if (putdata_block_list_in != nullptr)
-        putdata_block_list = static_cast<PutDataBlockList*>(putdata_block_list_in);
-    else {
-        putdata_block_list = &empty_putdata_block_list;
-        init_put_data_block_list(putdata_block_list);
+    if (put_data_block_list_in != nullptr) {
+        for (size_t i = 0; i < count; i++) {
+            put_data_block_list.push_back(*static_cast<PutDataBlock*>(&put_data_block_list_in[i]));
+        }
     }
 
-    auto& client = uda::client::ThreadClient::instance();
-    return client.put(put_instruction, putdata_block_list);
+    auto& client = ThreadClient::instance();
+    return client.put(put_instruction, put_data_block_list);
 }
 
 int udaPutAPI(const char* put_instruction, PUTDATA_BLOCK* putdata_block_in)
@@ -46,7 +44,7 @@ int udaPutAPI(const char* put_instruction, PUTDATA_BLOCK* putdata_block_in)
     //-------------------------------------------------------------------------
     // Data to Put to the server
 
-    auto& client = uda::client::ThreadClient::instance();
+    auto& client = ThreadClient::instance();
     return client.put(put_instruction, putdata_block);
 }
 

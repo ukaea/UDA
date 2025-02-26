@@ -313,21 +313,21 @@ static int handle_putdata_block_list(std::vector<UdaError>& error_stack, XDR* xd
                                      LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
-    auto putDataBlockList = (PutDataBlockList*)str;
+    auto* put_data_block_list = (PutDataBlockList*)str;
 
     switch (direction) {
 
         case XDRStreamDirection::Receive: {
-            unsigned int blockCount = 0;
+            unsigned int block_count = 0;
 
-            if (!xdr_u_int(xdrs, &blockCount)) {
+            if (!xdr_u_int(xdrs, &block_count)) {
                 err = (int)ProtocolError::Error61;
                 break;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: {}", blockCount);
+            UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: {}", block_count);
 
-            for (unsigned int i = 0; i < blockCount; i++) {
+            for (unsigned int i = 0; i < block_count; i++) {
                 // Fetch multiple put blocks
 
                 PutDataBlock put_data;
@@ -387,43 +387,44 @@ static int handle_putdata_block_list(std::vector<UdaError>& error_stack, XDR* xd
                     put_data.opaque_block = general_block->userdefinedtype;
                 }
 
-                add_put_data_block_list(&put_data, putDataBlockList); // Add to the growing list
+                put_data_block_list->push_back(put_data);
             }
             break;
         }
 
-        case XDRStreamDirection::Send:
+        case XDRStreamDirection::Send: {
+            unsigned int block_count = put_data_block_list->size();
+            UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: {}", block_count);
 
-            UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: {}", putDataBlockList->blockCount);
-
-            if (!xdr_u_int(xdrs, &(putDataBlockList->blockCount))) {
+            if (!xdr_u_int(xdrs, &block_count)) {
                 err = (int)ProtocolError::Error61;
                 break;
             }
 
-            for (unsigned int i = 0; i < putDataBlockList->blockCount; i++) { // Send multiple put blocks
+            for (unsigned int i = 0; i < block_count; i++) { // Send multiple put blocks
+                auto* put_data_block = &(*put_data_block_list)[i];
 
-                if (!xdr_putdata_block1(xdrs, &(putDataBlockList->putDataBlock[i]))) {
+                if (!xdr_putdata_block1(xdrs, put_data_block)) {
                     err = (int)ProtocolError::Error61;
                     break;
                 }
 
-                if (protocol_version_type_test(protocolVersion, putDataBlockList->putDataBlock[i].data_type)) {
+                if (protocol_version_type_test(protocolVersion, put_data_block->data_type)) {
                     err = (int)ProtocolError::Error9999;
                     break;
                 }
 
-                if (putDataBlockList->putDataBlock[i].count > 0 ||
-                    putDataBlockList->putDataBlock[i].blockNameLength > 0) { // Data to Send?
+                if (put_data_block->count > 0 ||
+                    put_data_block->blockNameLength > 0) { // Data to Send?
 
-                    if (!xdr_putdata_block2(xdrs, &(putDataBlockList->putDataBlock[i]))) {
+                    if (!xdr_putdata_block2(xdrs, put_data_block)) {
                         err = (int)ProtocolError::Error62;
                         break;
                     }
-                }
+                    }
 
-                if (putDataBlockList->putDataBlock[i].data_type == UDA_TYPE_COMPOUND &&
-                    putDataBlockList->putDataBlock[i].opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
+                if (put_data_block->data_type == UDA_TYPE_COMPOUND &&
+                    put_data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
                     // Structured Data
 
                     // Create a temporary DataBlock as the function's argument with structured data
@@ -434,10 +435,10 @@ static int handle_putdata_block_list(std::vector<UdaError>& error_stack, XDR* xd
                     init_data_block(&data_block);
                     data_block.opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block.data_n =
-                        (int)putDataBlockList->putDataBlock[i].count; // This number (also rank and shape)
-                    data_block.opaque_block = putDataBlockList->putDataBlock[i].opaque_block; // User Defined Type
+                        (int)put_data_block->count; // This number (also rank and shape)
+                    data_block.opaque_block = put_data_block->opaque_block; // User Defined Type
                     data_block.data =
-                        (char*)putDataBlockList->putDataBlock[i].data; // Compact memory block with structures
+                        (char*)put_data_block->data; // Compact memory block with structures
 
                     ProtocolId protocol_id = ProtocolId::Structures;
                     if ((err = protocol_xml2_put(error_stack, xdrs, protocol_id, direction, token, logmalloclist,
@@ -445,10 +446,11 @@ static int handle_putdata_block_list(std::vector<UdaError>& error_stack, XDR* xd
                                                  private_flags, malloc_source)) != 0) {
                         // Send Structured data
                         break;
+                                                 }
                     }
-                }
             }
             break;
+        }
 
         case XDRStreamDirection::FreeHeap:
             break;

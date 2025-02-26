@@ -37,8 +37,6 @@ bool_t xdr_request(XDR* xdrs, client_server::RequestBlock* str, int protocolVers
 
 bool_t xdr_request_data(XDR* xdrs, client_server::RequestData* str, int protocolVersion);
 
-bool_t xdr_putdatablocklist_block(XDR* xdrs, client_server::PutDataBlockList* str);
-
 bool_t xdr_putdata_block1(XDR* xdrs, client_server::PutDataBlock* str);
 
 bool_t xdr_putdata_block2(XDR* xdrs, client_server::PutDataBlock* str);

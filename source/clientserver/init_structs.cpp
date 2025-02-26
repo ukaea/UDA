@@ -30,7 +30,7 @@ void uda::client_server::init_request_data(RequestData* str)
     str->name_value_list = {};
 
     str->put = 0;
-    init_put_data_block_list(&str->putDataBlockList);
+    str->putDataBlockList = {};
 }
 
 void uda::client_server::init_request_block(RequestBlock* str)
@@ -154,11 +154,4 @@ void uda::client_server::init_put_data_block(PutDataBlock* str)
     str->opaque_block = nullptr;
     str->blockNameLength = 0;
     str->blockName = nullptr;
-}
-
-void uda::client_server::init_put_data_block_list(PutDataBlockList* putDataBlockList)
-{
-    putDataBlockList->putDataBlock = nullptr;
-    putDataBlockList->blockCount = 0;
-    putDataBlockList->blockListSize = 0;
 }

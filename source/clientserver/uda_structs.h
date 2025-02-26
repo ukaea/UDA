@@ -224,11 +224,7 @@ struct PutDataBlock : PUTDATA_BLOCK {
     const char* blockName;        // Name of the Data Block
 };
 
-struct PutDataBlockList : PUTDATA_BLOCK_LIST {
-    unsigned int blockCount;    // Number of data blocks
-    unsigned int blockListSize; // Number of data blocks allocated
-    PutDataBlock* putDataBlock; // Array of data blocks
-};
+using PutDataBlockList = std::vector<PutDataBlock>;
 
 // forward declaration of enum in errorLog.h
 enum class ErrorType;
@@ -350,8 +346,6 @@ struct RequestBlock {
     RequestData* requests;
 };
 
-void free_client_put_data_block_list(PutDataBlockList* putDataBlockList);
-
 void free_data_block(DataBlock* data_block);
 
 void free_data_block_list(std::vector<DataBlock>& data_block_list);
@@ -361,7 +355,5 @@ void free_reduced_data_block(DataBlock* data_block);
 void free_request_block(RequestBlock* request_block);
 
 // void freeRequestData(RequestData* request_data);
-
-void free_put_data_block_list(PutDataBlockList* putDataBlockList);
 
 } // namespace uda::client_server

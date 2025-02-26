@@ -1287,7 +1287,7 @@ const std::vector<UdaError>& uda::client::Client::error_stack() const
     return error_stack_;
 }
 
-int uda::client::Client::put(std::string_view put_instruction, uda::client_server::PutDataBlock* putdata_block)
+int uda::client::Client::put(std::string_view put_instruction, PutDataBlock* put_data_block)
 {
     RequestBlock request_block;
     init_request_block(&request_block);
@@ -1306,19 +1306,17 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
     print_request_block(request_block);
 
     request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
-    add_put_data_block_list(putdata_block, &request_block.requests[0].putDataBlockList);
+    request_block.requests[0].putDataBlockList.push_back(*put_data_block);
 
     std::vector<int> indices(request_block.num_requests);
     get_requests(request_block, indices.data());
 
-    free_client_put_data_block_list(&request_block.requests[0].putDataBlockList);
-
     return indices[0];
 }
 
-int uda::client::Client::put(std::string_view put_instruction, uda::client_server::PutDataBlockList* putdata_block_list)
+int uda::client::Client::put(std::string_view put_instruction, PutDataBlockList& put_data_block_list)
 {
-    RequestBlock request_block;
+    RequestBlock request_block{};
     init_request_block(&request_block);
 
     auto signal_ptr = put_instruction.data();
@@ -1335,7 +1333,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
     print_request_block(request_block);
 
     request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
-    request_block.requests[0].putDataBlockList = *putdata_block_list;
+    request_block.requests[0].putDataBlockList = put_data_block_list;
 
     std::vector<int> indices(request_block.num_requests);
     get_requests(request_block, indices.data());

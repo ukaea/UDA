@@ -1122,7 +1122,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request->putDataBlockList.blockCount);
+        UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: {}", request->putDataBlockList.size());
 
         if (plugin_request != (int)Request::ReadUnknown) {
 

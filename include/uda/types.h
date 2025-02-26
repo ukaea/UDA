@@ -82,7 +82,6 @@ typedef struct CUserDefinedType USERDEFINEDTYPE;
 typedef struct CUserDefinedTypeList USERDEFINEDTYPELIST;
 typedef struct CUdaPluginInterface UDA_PLUGIN_INTERFACE;
 
-typedef struct CPutDataBlockList PUTDATA_BLOCK_LIST;
 typedef struct CPutDataBlock PUTDATA_BLOCK;
 
 #ifdef __cplusplus

@@ -13,6 +13,4 @@ int alloc_dim(client_server::DataBlock* data_block);
 
 int alloc_put_data(client_server::PutDataBlock* putData);
 
-void add_put_data_block_list(client_server::PutDataBlock* putDataBlock, client_server::PutDataBlockList* putDataBlockList);
-
 } // namespace uda::protocol
