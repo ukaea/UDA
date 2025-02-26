@@ -608,7 +608,7 @@ int uda::cache::udaFileCacheWrite(std::vector<UdaError>& error_stack, const Data
                       UserDefinedTypeList* userdefinedtypelist, int protocolVersion, LogStructList* log_struct_list,
                       unsigned int private_flags, int malloc_source)
 {
-    RequestData* request = &request_block->requests[0];
+    const RequestData* request = &(*request_block)[0];
 
     auto maybe_entry = find_cache_entry(error_stack, request);
     if (maybe_entry) {

@@ -33,12 +33,6 @@ void uda::client_server::init_request_data(RequestData* str)
     str->putDataBlockList = {};
 }
 
-void uda::client_server::init_request_block(RequestBlock* str)
-{
-    str->num_requests = 0;
-    str->requests = nullptr;
-}
-
 #ifdef _WIN32
 #  define getpid _getpid
 #endif

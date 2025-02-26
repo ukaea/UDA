@@ -128,16 +128,14 @@ int make_request_data(std::vector<UdaError>& error_stack, const Config& config, 
 int uda::client::make_request_block(std::vector<UdaError>& error_stack, const Config& config,
                                     const char** signals, const char** sources, int count, RequestBlock* request_block)
 {
-    request_block->num_requests = count;
-    request_block->requests = (RequestData*)malloc(count * sizeof(RequestData));
-
     int err = 0;
     for (int i = 0; i < count; ++i) {
-        RequestData* request = &request_block->requests[i];
-        init_request_data(request);
-        if ((err = make_request_data(error_stack, config, signals[i], sources[i], request))) {
+        RequestData request;
+        init_request_data(&request);
+        if ((err = make_request_data(error_stack, config, signals[i], sources[i], &request))) {
             return err;
         }
+        request_block->push_back(request);
     }
 
     return err;

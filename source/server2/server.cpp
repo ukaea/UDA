@@ -123,7 +123,6 @@ uda::server::Server::Server(Config config)
     init_server_block(&server_block_, ServerVersion);
     init_actions(&_actions_desc); // There may be a Sequence of Actions to Apply
     init_actions(&_actions_sig);
-    init_request_block(&_request_block);
     cache_ = cache::open_cache();
 }
 
@@ -372,8 +371,6 @@ void uda::server::Server::loop()
         UDA_LOG(UDA_LOG_DEBUG, "freeActions");
         free_actions(&_actions_sig);
 
-        free_request_block(&_request_block);
-
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
@@ -614,8 +611,8 @@ int uda::server::Server::handle_request()
     auto proxy_target = config_.get("server.proxy_target").as_or_default(""s);
     auto server = config_.get("server.address").as_or_default(""s);
 
-    for (int i = 0; i < _request_block.num_requests; ++i) {
-        RequestData* request = &_request_block.requests[0];
+    for (int i = 0; i < _request_block.size(); ++i) {
+        RequestData* request = &_request_block[0];
 
         char work[StringLength];
         if (request->api_delim[0] != '\0') {
@@ -681,8 +678,8 @@ int uda::server::Server::handle_request()
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
 
-    for (int i = 0; i < _request_block.num_requests; ++i) {
-        RequestData* request = &_request_block.requests[0];
+    for (int i = 0; i < _request_block.size(); ++i) {
+        RequestData* request = &_request_block[0];
         request->putDataBlockList = {};
 
         if (request->put) {
@@ -700,8 +697,8 @@ int uda::server::Server::handle_request()
     // Decode the API Arguments: determine appropriate data plug-in to use
     // Decide on Authentication procedure
 
-    for (int i = 0; i < _request_block.num_requests; ++i) {
-        auto request = &_request_block.requests[i];
+    for (int i = 0; i < _request_block.size(); ++i) {
+        auto request = &_request_block[i];
         if (protocol_version >= 6) {
             if ((err = server_plugin(config_, request, &_meta_data, _plugins)) != 0) {
                 return err;
@@ -718,8 +715,8 @@ int uda::server::Server::handle_request()
 
     int depth = 0;
 
-    for (int i = 0; i < _request_block.num_requests; ++i) {
-        auto request = &_request_block.requests[i];
+    for (int i = 0; i < _request_block.size(); ++i) {
+        auto request = &_request_block[i];
 
         auto cache_block =
             _protocol.read_from_cache(config_, cache_, request, _log_malloc_list, _user_defined_type_list);
@@ -736,8 +733,8 @@ int uda::server::Server::handle_request()
         _protocol.write_to_cache(config_, cache_, request, data_block, _log_malloc_list, _user_defined_type_list);
     }
 
-    for (int i = 0; i < _request_block.num_requests; ++i) {
-        _request_block.requests[i].function[0] = '\0';
+    for (int i = 0; i < _request_block.size(); ++i) {
+        _request_block[i].function[0] = '\0';
     }
 
     UDA_LOG(UDA_LOG_DEBUG,

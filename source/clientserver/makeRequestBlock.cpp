@@ -700,8 +700,8 @@ int uda::client_server::make_request_block(const config::Config& config, Request
 {
     int rc = 0;
 
-    for (int i = 0; i < request_block->num_requests; ++i) {
-        auto request = &request_block->requests[0];
+    for (int i = 0; i < request_block->size(); ++i) {
+        auto* request = &(*request_block)[0];
         rc = make_request_data(config, request, pluginList);
         if (rc != 0) {
             break;

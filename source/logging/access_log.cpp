@@ -145,8 +145,8 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
 
     // Write the Log Record & Flush the fd
 
-    for (int i = 0; i < request_block.num_requests; ++i) {
-        auto request = request_block.requests[i];
+    for (int i = 0; i < request_block.size(); ++i) {
+        auto request = request_block[i];
 
         UDA_LOG(UDA_LOG_ACCESS, "{} - {} [{}] [{} {} {} {} {} {} {} {} {} {} {}] {} {} [{}] {} {} {} [{} {}] [{}]",
                 host                   // 1
@@ -173,9 +173,5 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
                 , server_block.pid     // 22
                 , client_block.DOI     // 23
                 )
-
-        //        udaServerRedirectStdStreams(0);
-        //        udaProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, str.c_str(), environment);
-        //        udaServerRedirectStdStreams(1);
     }
 }

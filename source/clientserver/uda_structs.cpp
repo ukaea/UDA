@@ -24,16 +24,6 @@ std::string_view uda::client_server::MetaData::find(const std::string_view name)
     return {nullptr, 0};
 }
 
-void uda::client_server::free_request_block(RequestBlock* request_block)
-{
-    //    for (int i = 0; i < request_block->num_requests; ++i) {
-    //        freeRequestData(&request_block->requests[0]);
-    //    }
-    //    free(request_block->requests);
-    //    request_block->num_requests = 0;
-    //    request_block->requests = nullptr;
-}
-
 void uda::client_server::free_data_block(DataBlock* data_block)
 {
     // Free Heap Memory & Zero all Integer values

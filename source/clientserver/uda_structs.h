@@ -341,19 +341,12 @@ struct RequestData {
     PutDataBlockList putDataBlockList; // Data to be put on the server
 };
 
-struct RequestBlock {
-    int num_requests;
-    RequestData* requests;
-};
+using RequestBlock = std::vector<RequestData>;
 
 void free_data_block(DataBlock* data_block);
 
 void free_data_block_list(std::vector<DataBlock>& data_block_list);
 
 void free_reduced_data_block(DataBlock* data_block);
-
-void free_request_block(RequestBlock* request_block);
-
-// void freeRequestData(RequestData* request_data);
 
 } // namespace uda::client_server

@@ -48,8 +48,8 @@ void uda::client_server::print_errors(const std::vector<UdaError>& error_stack, 
     convert_non_printable2(access_date);
     trim_string(access_date);
 
-    for (int i = 0; i < request_block.num_requests; ++i) {
-        auto* request = &request_block.requests[i];
+    for (int i = 0; i < request_block.size(); ++i) {
+        auto* request = &request_block[i];
         log(UDA_LOG_ERROR, __FILE__, __LINE__,
             "0 {} [{}] [{} {} {} {} {} {} {} {} {} {} {}]", client_block.uid, access_date,
             request->request, request->signal, request->exp_number, request->pass, request->tpass, request->path,

@@ -726,10 +726,9 @@ static int handle_request_block(XDR* xdrs, XDRStreamDirection direction, const v
                 err = (int)ProtocolError::Error1;
                 break;
             }
-            request_block->requests = (RequestData*)malloc(request_block->num_requests * sizeof(RequestData));
-            for (int i = 0; i < request_block->num_requests; ++i) {
-                init_request_data(&request_block->requests[i]);
-                if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
+            for (int i = 0; i < request_block->size(); ++i) {
+                init_request_data(&(*request_block)[i]);
+                if (!xdr_request_data(xdrs, &(*request_block)[i], protocolVersion)) {
                     err = (int)ProtocolError::Error2;
                     break;
                 }
@@ -744,8 +743,8 @@ static int handle_request_block(XDR* xdrs, XDRStreamDirection direction, const v
                 err = (int)ProtocolError::Error2;
                 break;
             }
-            for (int i = 0; i < request_block->num_requests; ++i) {
-                if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
+            for (int i = 0; i < request_block->size(); ++i) {
+                if (!xdr_request_data(xdrs, &(*request_block)[i], protocolVersion)) {
                     err = (int)ProtocolError::Error2;
                     break;
                 }

@@ -276,12 +276,19 @@ bool_t uda::protocol::xdr_request(XDR* xdrs, RequestBlock* str, int protocolVers
     int rc = 1;
 
     if (protocolVersion <= 7) {
-        str->num_requests = 1;
+        str->resize(1);
     } else {
-        rc = rc && xdr_int(xdrs, &str->num_requests);
+        if (xdrs->x_op == XDR_ENCODE) {
+            unsigned int count = str->size();
+            rc = rc && xdr_u_int(xdrs, &count);
+        } else {
+            unsigned int count = 0;
+            rc = rc && xdr_u_int(xdrs, &count);
+            str->resize(count);
+        }
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "number of requests: {}", str->num_requests);
+    UDA_LOG(UDA_LOG_DEBUG, "number of requests: {}", str->size());
     return rc;
 }
 
