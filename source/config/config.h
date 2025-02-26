@@ -4,6 +4,7 @@
 #include <string_view>
 #include <fmt/format.h>
 #include <unordered_map>
+#include <vector>
 
 #include "common/string_utils.h"
 
