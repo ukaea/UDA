@@ -196,6 +196,65 @@ class SectionValidator
     std::vector<ValueValidator> _value_validators;
 };
 
+class ArrayValidator
+{
+  public:
+    ArrayValidator(std::string name, std::vector<ValueValidator> value_validators)
+        : _name{name}, _value_validators{value_validators}
+    {
+    }
+
+    void validate(std::string_view field_name, ValueType type) const
+    {
+        bool found = false;
+        for (const auto& validator : _value_validators) 
+        {
+            if (validator.name() == field_name) 
+            {
+                found = true;
+                validator.validate(type);
+            }
+        }
+        if (!found) 
+        {
+            throw uda::config::ConfigError{fmt::format("invalid option {} in section {}", field_name, _name)};
+        }
+    }
+
+    void validate(const toml::array& array) const
+    {
+        for (const auto& table: array)
+        {
+            if (!table.is_table()){
+                throw uda::config::ConfigError{"Array entries must be tables"};
+            }
+            for (const auto& entry : *table.as_table()) 
+            {
+                const auto& name = entry.first;
+                bool found = false;
+                for (const auto& validator : _value_validators) 
+                {
+                    if (validator.name() == name) 
+                    {
+                        found = true;
+                        validator.validate(entry.second);
+                    }
+                }
+                if (!found) 
+                {
+                    throw uda::config::ConfigError{fmt::format("invalid option {} in section {}", name.data(), _name)};
+                }
+            }
+        }
+    }
+
+    std::string_view name() const { return _name; }
+
+  private:
+    std::string _name;
+    std::vector<ValueValidator> _value_validators;
+};
+
 const std::vector<SectionValidator> Validators = {
     SectionValidator{"logging",
         {
@@ -232,7 +291,7 @@ const std::vector<SectionValidator> Validators = {
         {
             {"host", ValueType::String},
             {"port", ValueType::Integer},
-            {"host_list", ValueType::String},
+            {"host_list_path", ValueType::String},
             {"max_socket_delay", ValueType::Integer},
             {"max_socket_attempts", ValueType::Integer},
             {"failover_host", ValueType::String},
@@ -288,23 +347,61 @@ const std::vector<SectionValidator> Validators = {
         }},
 };
 
+const std::vector<ArrayValidator> array_validators = 
+{
+        ArrayValidator{"host_list",
+        {
+            {"host_name", ValueType::String},
+            {"host_alias", ValueType::String},
+            {"port", ValueType::Integer},
+            {"certificate", ValueType::String},
+            {"key", ValueType::String},
+            {"ca_certificate", ValueType::String},
+        }},
+};
+
+void validate_section(const toml::key& name, const toml::node& value)
+{
+    bool found = false;
+    for (const auto& validator : Validators) {
+        if (validator.name() == name) {
+            found = true;
+            validator.validate(*value.as_table());
+        }
+    }
+    if (!found) {
+        throw uda::config::ConfigError{fmt::format("invalid section name {}", name.data())};
+    }
+}
+
+void validate_array(const toml::key& name, const toml::node& value)
+{
+    bool found = false;
+    for (const auto& validator : array_validators) {
+        if (validator.name() == name) {
+            found = true;
+            validator.validate(*value.as_array());
+        }
+    }
+    if (!found) {
+        throw uda::config::ConfigError{fmt::format("invalid section (array) name {}", name.data())};
+    }
+}
+
 void validate(toml::table& table)
 {
     for (const auto& entry : table) {
         const auto& name = entry.first;
         const auto& value = entry.second;
-        if (!value.is_table()) {
+        if (value.is_table()) {
+            validate_section(name, value);
+        }
+        else if (value.is_array())
+        {
+            validate_array(name, value);
+        }
+        else {
             throw uda::config::ConfigError{"top level entries must be sections"};
-        }
-        bool found = false;
-        for (const auto& validator : Validators) {
-            if (validator.name() == name) {
-                found = true;
-                validator.validate(*value.as_table());
-            }
-        }
-        if (!found) {
-            throw uda::config::ConfigError{fmt::format("invalid section name {}", name.data())};
         }
     }
 }

@@ -159,3 +159,10 @@ TEST_CASE( "validation fails when trying to set incorrectly typed data for a giv
     REQUIRE_THROWS_AS( config.set("test.boolean", "not a bool"),  uda::config::ConfigError );
 }
 
+
+TEST_CASE( "can parse arrays of structures", "[config-arraystruct]")
+{
+    uda::config::Config config {};
+    std::string file_path = "test_files/host_list.toml";
+    REQUIRE_NOTHROW( config.load(file_path) );
+}

@@ -117,7 +117,7 @@ void uda::client::HostList::load_config_file(std::string_view config_file)
 
         std::string name = tokens[0];
 
-        if (boost::iequals(name, "hostName")) {
+        if (boost::iequals(name, "host_name")) {
             // Trigger a new set of attributes
             if (new_host) {
                 hosts_.push_back(new_data);
@@ -128,7 +128,7 @@ void uda::client::HostList::load_config_file(std::string_view config_file)
                 new_data.host_name = tokens[1];
                 new_host = true;
             }
-        } else if (new_host && boost::iequals(name, "hostAlias")) {
+        } else if (new_host && boost::iequals(name, "host_alias")) {
             if (tokens.size() > 1 && !tokens[1].empty()) {
                 new_data.host_alias = tokens[1];
             }

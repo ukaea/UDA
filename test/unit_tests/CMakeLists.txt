@@ -30,6 +30,11 @@ target_link_libraries( test_logging PRIVATE Catch2::Catch2WithMain c_api config 
 add_test( NAME TestLogging COMMAND test_logging )
 set_tests_properties(TestLogging PROPERTIES RUN_SERIAL TRUE)
 
+add_executable( test_host_list host_list.test.cpp )
+target_include_directories( test_host_list PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/include )
+target_link_libraries( test_host_list PRIVATE Catch2::Catch2WithMain c_api )
+add_test( NAME TestHostList COMMAND test_host_list)
+
 install(
   DIRECTORY
   test_files

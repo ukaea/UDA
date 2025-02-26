@@ -123,6 +123,7 @@ private:
 
     void set_client_flags_from_config();
     void initialise_logging_from_config();
+    void set_host_list_from_config();
 
     // -------------------------------------------------
     //   configuration options and state

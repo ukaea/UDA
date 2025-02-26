@@ -190,6 +190,21 @@ void uda::client::Client::load_config(std::string_view path)
     connection_.load_config(config_);
 }
 
+void uda::client::Client::set_host_list_from_config()
+{
+    if (!config_) {
+        return;
+    }
+
+    auto maybe_host_list_path = config_.get("host_list_path");
+    if (!maybe_host_list_path){
+        return;
+    }
+
+    auto host_list_path = maybe_host_list_path.as<std::string>();
+    host_list_.load_config_file(host_list_path);
+}
+
 void uda::client::Client::set_client_flags_from_config()
 {
     if (!config_) {
