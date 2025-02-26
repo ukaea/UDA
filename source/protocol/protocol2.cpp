@@ -726,7 +726,7 @@ static int handle_request_block(XDR* xdrs, XDRStreamDirection direction, const v
                 err = (int)ProtocolError::Error1;
                 break;
             }
-            for (int i = 0; i < request_block->size(); ++i) {
+            for (size_t i = 0; i < request_block->size(); ++i) {
                 init_request_data(&(*request_block)[i]);
                 if (!xdr_request_data(xdrs, &(*request_block)[i], protocolVersion)) {
                     err = (int)ProtocolError::Error2;
@@ -743,7 +743,7 @@ static int handle_request_block(XDR* xdrs, XDRStreamDirection direction, const v
                 err = (int)ProtocolError::Error2;
                 break;
             }
-            for (int i = 0; i < request_block->size(); ++i) {
+            for (size_t i = 0; i < request_block->size(); ++i) {
                 if (!xdr_request_data(xdrs, &(*request_block)[i], protocolVersion)) {
                     err = (int)ProtocolError::Error2;
                     break;

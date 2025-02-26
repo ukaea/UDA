@@ -145,7 +145,7 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
 
     // Write the Log Record & Flush the fd
 
-    for (int i = 0; i < request_block.size(); ++i) {
+    for (size_t i = 0; i < request_block.size(); ++i) {
         auto request = request_block[i];
 
         UDA_LOG(UDA_LOG_ACCESS, "{} - {} [{}] [{} {} {} {} {} {} {} {} {} {} {}] {} {} [{}] {} {} {} [{} {}] [{}]",

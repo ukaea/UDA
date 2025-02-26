@@ -507,7 +507,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     bool data_received = false;
     std::vector<int> data_block_indices(request_block.size());
 
-    for (int i = 0; i < request_block.size(); ++i) {
+    for (size_t i = 0; i < request_block.size(); ++i) {
         data_blocks_.emplace_back(DataBlock{});
         auto data_block_idx = data_blocks_.size() - 1;
         DataBlock* data_block = &data_blocks_.back();
@@ -612,7 +612,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 
 int uda::client::Client::send_putdata(const RequestBlock& request_block)
 {
-    for (int i = 0; i < request_block.size(); ++i) {
+    for (size_t i = 0; i < request_block.size(); ++i) {
         const RequestData* request = &request_block[i];
 
         if (request->put) {

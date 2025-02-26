@@ -611,7 +611,7 @@ int uda::server::Server::handle_request()
     auto proxy_target = config_.get("server.proxy_target").as_or_default(""s);
     auto server = config_.get("server.address").as_or_default(""s);
 
-    for (int i = 0; i < _request_block.size(); ++i) {
+    for (size_t i = 0; i < _request_block.size(); ++i) {
         RequestData* request = &_request_block[0];
 
         char work[StringLength];
@@ -678,7 +678,7 @@ int uda::server::Server::handle_request()
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
 
-    for (int i = 0; i < _request_block.size(); ++i) {
+    for (size_t i = 0; i < _request_block.size(); ++i) {
         RequestData* request = &_request_block[0];
         request->putDataBlockList = {};
 
@@ -697,7 +697,7 @@ int uda::server::Server::handle_request()
     // Decode the API Arguments: determine appropriate data plug-in to use
     // Decide on Authentication procedure
 
-    for (int i = 0; i < _request_block.size(); ++i) {
+    for (size_t i = 0; i < _request_block.size(); ++i) {
         auto request = &_request_block[i];
         if (protocol_version >= 6) {
             if ((err = server_plugin(config_, request, &_meta_data, _plugins)) != 0) {
@@ -715,7 +715,7 @@ int uda::server::Server::handle_request()
 
     int depth = 0;
 
-    for (int i = 0; i < _request_block.size(); ++i) {
+    for (size_t i = 0; i < _request_block.size(); ++i) {
         auto request = &_request_block[i];
 
         auto cache_block =
@@ -733,7 +733,7 @@ int uda::server::Server::handle_request()
         _protocol.write_to_cache(config_, cache_, request, data_block, _log_malloc_list, _user_defined_type_list);
     }
 
-    for (int i = 0; i < _request_block.size(); ++i) {
+    for (size_t i = 0; i < _request_block.size(); ++i) {
         _request_block[i].function[0] = '\0';
     }
 

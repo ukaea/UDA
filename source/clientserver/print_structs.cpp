@@ -40,7 +40,7 @@ void uda::client_server::print_request_block(const RequestBlock& str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Client Request Block");
     UDA_LOG(UDA_LOG_DEBUG, "# requests  : {}", str.size());
-    for (int i = 0; i < str.size(); ++i) {
+    for (size_t i = 0; i < str.size(); ++i) {
         UDA_LOG(UDA_LOG_DEBUG, "number      : {}", i);
         print_request_data(str[0]);
     }
