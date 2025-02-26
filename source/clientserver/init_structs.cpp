@@ -71,10 +71,6 @@ void uda::client_server::init_client_block(ClientBlock* str, int version, const 
 
     str->OSName[0] = '\0'; // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (client study reference)
-
-#ifdef SECURITYENABLED
-    initSecurityBlock(&(str->securityBlock));
-#endif
 }
 
 void uda::client_server::init_server_block(ServerBlock* str, int version)
@@ -86,10 +82,6 @@ void uda::client_server::init_server_block(ServerBlock* str, int version)
     str->error_stack = {};
     str->OSName[0] = '\0'; // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (server configuration)
-
-#ifdef SECURITYENABLED
-    initSecurityBlock(&(str->securityBlock));
-#endif
 }
 
 void uda::client_server::init_data_block(DataBlock* str)

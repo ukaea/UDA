@@ -31,7 +31,7 @@ enum class ProtocolId : int {
     Sleep = 14,
     WakeUp = 15,
     PutdataBlockList = 16,
-    SecurityBlock = 17,
+    // SecurityBlock = 17,
     Object = 18,
     SerialiseObject = 19,
     SerialiseFile = 20,
@@ -42,7 +42,7 @@ enum class ProtocolId : int {
 
     OpaqueStart = 100,
     Structures = 101,
-    Meta = 102,
+    Meta = 102, // XML metadata structure
     OpaqueStop = 200,
 };
 

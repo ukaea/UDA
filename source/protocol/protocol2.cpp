@@ -58,10 +58,6 @@ static int handle_dataobject(XDR* xdrs, XDRStreamDirection direction, const void
 static int handle_dataobject_file(XDRStreamDirection direction, const void* str);
 static int handle_meta_data(XDR* xdrs, XDRStreamDirection direction, void* str);
 
-#ifdef SECURITYENABLED
-static int handle_security_block(XDR* xdrs, XDRStreamDirection direction, const void* str);
-#endif
-
 int uda::protocol::protocol2(std::vector<UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, LogMallocList* logmalloclist,
                                   UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
                                   LogStructList* log_struct_list, unsigned int private_flags, int malloc_source)
@@ -85,11 +81,6 @@ int uda::protocol::protocol2(std::vector<UdaError>& error_stack, XDR* xdrs, Prot
         case ProtocolId::MetaData:
             err = handle_meta_data(xdrs, direction, str);
             break;
-#ifdef SECURITYENABLED
-        case ProtocolId::SecurityBlock:
-            err = handle_security_block(xdrs, direction, str);
-            break;
-#endif
         case ProtocolId::ClientBlock:
             err = handle_client_block(xdrs, direction, str, protocolVersion);
             break;
@@ -112,84 +103,6 @@ int uda::protocol::protocol2(std::vector<UdaError>& error_stack, XDR* xdrs, Prot
 
     return err;
 }
-
-#ifdef SECURITYENABLED
-static int handle_security_block(XDR* xdrs, XDRStreamDirection direction, const void* str)
-{
-    int err = 0;
-    ClientBlock* client_block = (ClientBlock*)str;
-    SecurityBlock* security_block = &(client_block->securityBlock);
-
-    switch (direction) {
-        case XDRStreamDirection::Receive:
-            if (!xdr_security_block1(xdrs, security_block)) {
-                err = (int)ProtocolError::Error23;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::Send:
-            if (!xdr_security_block1(xdrs, security_block)) {
-                err = (int)ProtocolError::Error23;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::FreeHeap:
-            break;
-
-        default:
-            err = (int)ProtocolError::Error4;
-            break;
-    }
-
-    // Allocate heap
-
-    if (security_block->client_ciphertextLength > 0) {
-        security_block->client_ciphertext =
-            (unsigned char*)malloc(security_block->client_ciphertextLength * sizeof(unsigned char));
-    }
-    if (security_block->client2_ciphertextLength > 0) {
-        security_block->client2_ciphertext =
-            (unsigned char*)malloc(security_block->client2_ciphertextLength * sizeof(unsigned char));
-    }
-    if (security_block->server_ciphertextLength > 0) {
-        security_block->server_ciphertext =
-            (unsigned char*)malloc(security_block->server_ciphertextLength * sizeof(unsigned char));
-    }
-    if (security_block->client_X509Length > 0) {
-        security_block->client_X509 = (unsigned char*)malloc(security_block->client_X509Length * sizeof(unsigned char));
-    }
-    if (security_block->client2_X509Length > 0) {
-        security_block->client2_X509 =
-            (unsigned char*)malloc(security_block->client2_X509Length * sizeof(unsigned char));
-    }
-
-    switch (direction) {
-        case XDRStreamDirection::Receive:
-            if (!xdr_security_block2(xdrs, security_block)) {
-                err = (int)ProtocolError::Error24;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::Send:
-            if (!xdr_security_block2(xdrs, security_block)) {
-                err = (int)ProtocolError::Error24;
-                break;
-            }
-            break;
-
-        case XDRStreamDirection::FreeHeap:
-            break;
-
-        default:
-            err = (int)ProtocolError::Error4;
-            break;
-    }
-    return err;
-}
-#endif // SECURITYENABLED
 
 static int handle_dataobject_file(XDRStreamDirection direction, const void* str)
 {

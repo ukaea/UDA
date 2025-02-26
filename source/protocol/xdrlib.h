@@ -25,10 +25,6 @@ int wrap_xdr_string(XDR* xdrs, const char* sp, int maxlen);
 
 bool_t xdr_meta(XDR* xdrs, client_server::DataBlock* str);
 
-bool_t xdr_security_block1(XDR* xdrs, client_server::SecurityBlock* str);
-
-bool_t xdr_security_block2(XDR* xdrs, client_server::SecurityBlock* str);
-
 bool_t xdr_client(XDR* xdrs, client_server::ClientBlock* str, int protocolVersion);
 
 bool_t xdr_server(XDR* xdrs, client_server::ServerBlock* str);

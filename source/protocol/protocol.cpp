@@ -66,7 +66,7 @@ std::string uda::protocol::format_as(ProtocolId protocol)
         case ProtocolId::Sleep: return "ProtocolId::Sleep";
         case ProtocolId::WakeUp: return "ProtocolId::WakeUp";
         case ProtocolId::PutdataBlockList: return "ProtocolId::PutdataBlockList";
-        case ProtocolId::SecurityBlock: return "ProtocolId::SecurityBlock";
+        // case ProtocolId::SecurityBlock: return "ProtocolId::SecurityBlock";
         case ProtocolId::Object: return "ProtocolId::Object";
         case ProtocolId::SerialiseObject: return "ProtocolId::SerialiseObject";
         case ProtocolId::SerialiseFile: return "ProtocolId::SerialiseFile";

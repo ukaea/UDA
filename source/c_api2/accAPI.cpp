@@ -556,7 +556,7 @@ const char* udaGetServerErrorStackRecordLocation(int record)
     return server_block->error_stack[record].location;  // Server Error Stack Record Code
 }
 
-const char* udaGetServerErrorStackRecordMsg(int record)
+const char* udaGetServerErrorStackRecordMsg(const int record)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto server_block = instance.server_block();
@@ -567,7 +567,7 @@ const char* udaGetServerErrorStackRecordMsg(int record)
     return server_block->error_stack[record].msg;  // Server Error Stack Record Code
 }
 
-int udaGetServerErrorStackRecordType(int record)
+int udaGetServerErrorStackRecordType(const int record)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto server_block = instance.server_block();

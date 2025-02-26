@@ -76,22 +76,6 @@ struct Dims {
     char dim_label[StringLength];
 };
 
-struct SecurityBlock {
-    unsigned short structVersion;           // Structure Version number
-    unsigned short encryptionMethod;        // How mutual authentication is executed
-    unsigned short authenticationStep;      // Authentication step that created this data structure
-    unsigned short client_ciphertextLength; // cipher lengths (not strings but unsigned byte arrays)
-    unsigned short client2_ciphertextLength;
-    unsigned short server_ciphertextLength;
-    unsigned short client_X509Length;
-    unsigned short client2_X509Length;
-    unsigned char* client_ciphertext;  // client token encrypted with either the client's or 1st server's public key
-    unsigned char* server_ciphertext;  // server token encrypted with the client's public key
-    unsigned char* client2_ciphertext; // client2 token encrypted with either the client's or nth server's public key
-    unsigned char* client_X509;
-    unsigned char* client2_X509;
-};
-
 struct ClientBlock {
     int version;
     int pid;                 // Client Application process id
@@ -124,8 +108,6 @@ struct ClientBlock {
     char DOI[StringLength];    // User's research DOI - to be logged with all data access requests
 
     char uid2[StringLength]; // Who the Client is (claim of identity to the last server)
-    SecurityBlock
-        securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
 
 struct MetaDataField {
@@ -266,7 +248,6 @@ struct ServerBlock {
     std::vector<UdaError> error_stack;
     char OSName[StringLength]; // Name of the Server's Operating System, e.g. OSX
     char DOI[StringLength];    // Server version/implementation DOI - to be logged with all data consumers
-    SecurityBlock security_block; // Contains encrypted tokens exchanged between client and server for mutual authentication
 };
 
 enum class Request {

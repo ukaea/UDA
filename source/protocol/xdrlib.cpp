@@ -86,50 +86,6 @@ bool_t uda::protocol::xdr_meta(XDR* xdrs, DataBlock* str)
 }
 
 //-----------------------------------------------------------------------
-// Security block
-
-bool_t uda::protocol::xdr_security_block1(XDR* xdrs, SecurityBlock* str)
-{
-    int rc = xdr_u_short(xdrs, &str->structVersion) && xdr_u_short(xdrs, &str->encryptionMethod) &&
-             xdr_u_short(xdrs, &str->authenticationStep) && xdr_u_short(xdrs, &str->client_ciphertextLength) &&
-             xdr_u_short(xdrs, &str->client2_ciphertextLength) && xdr_u_short(xdrs, &str->server_ciphertextLength) &&
-             xdr_u_short(xdrs, &str->client_X509Length) && xdr_u_short(xdrs, &str->client2_X509Length);
-    return rc;
-}
-
-bool_t uda::protocol::xdr_security_block2(XDR* xdrs, SecurityBlock* str)
-{
-    int rc = 1;
-
-    if (str->client_ciphertextLength > 0) {
-        rc = rc && xdr_vector(xdrs, (char*)str->client_ciphertext, (int)str->client_ciphertextLength,
-                              sizeof(unsigned char), (xdrproc_t)xdr_u_char);
-    }
-
-    if (str->client2_ciphertextLength > 0) {
-        rc = rc && xdr_vector(xdrs, (char*)str->client2_ciphertext, (int)str->client2_ciphertextLength,
-                              sizeof(unsigned char), (xdrproc_t)xdr_u_char);
-    }
-
-    if (str->server_ciphertextLength > 0) {
-        rc = rc && xdr_vector(xdrs, (char*)str->server_ciphertext, (int)str->server_ciphertextLength,
-                              sizeof(unsigned char), (xdrproc_t)xdr_u_char);
-    }
-
-    if (str->client_X509Length > 0) {
-        rc = rc && xdr_vector(xdrs, (char*)str->client_X509, (int)str->client_X509Length, sizeof(unsigned char),
-                              (xdrproc_t)xdr_u_char);
-    }
-
-    if (str->client2_X509Length > 0) {
-        rc = rc && xdr_vector(xdrs, (char*)str->client2_X509, (int)str->client2_X509Length, sizeof(unsigned char),
-                              (xdrproc_t)xdr_u_char);
-    }
-
-    return rc;
-}
-
-//-----------------------------------------------------------------------
 // Client State Block
 
 // On first connection, client sends client_block to server
@@ -196,10 +152,6 @@ bool_t uda::protocol::xdr_client(XDR* xdrs, ClientBlock* str, int protocolVersio
     if (protocolVersion >= 7) {
         rc = rc && wrap_xdr_string(xdrs, (char*)str->OSName, StringLength) &&
              wrap_xdr_string(xdrs, (char*)str->DOI, StringLength);
-
-#ifdef SECURITYENABLED
-        rc = rc && wrap_xdr_string(xdrs, (char*)str->uid2, StringLength);
-#endif
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "protocolVersion {}", protocolVersion);
@@ -257,9 +209,6 @@ bool_t uda::protocol::xdr_server1(XDR* xdrs, ServerBlock* str, int protocolVersi
     if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 7) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 7)) {
         rc = rc && wrap_xdr_string(xdrs, (char*)str->OSName, StringLength) &&
              wrap_xdr_string(xdrs, (char*)str->DOI, StringLength);
-#ifdef SECURITYENABLED
-        // rc = rc && xdr_securityBlock(xdrs, &str->securityBlock);
-#endif
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc = {}", rc);

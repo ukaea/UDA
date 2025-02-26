@@ -399,7 +399,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         }
     }
 
-    // TODO: server age is wrong here? if no flags set server age isn't read from the connection._socket_list ?
+    // TODO: server age is wrong here? if no flags set server age isn't read from the connection.socket_list_ ?
     // age is always basically zero for subsequent requests?
     // tv_server_end = time(nullptr);
     // long age = (long)tv_server_end - (long)tv_server_start;

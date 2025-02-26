@@ -1,13 +1,10 @@
-#ifndef UDA_SOURCE_CLIENT2_PERTHREADSINGLETON_H
-#define UDA_SOURCE_CLIENT2_PERTHREADSINGLETON_H
+#pragma once
 
 #include <mutex>
 
 #include "client.hpp"
 
-namespace uda
-{
-namespace client
+namespace uda::client
 {
 
 class ThreadClient
@@ -25,7 +22,7 @@ class ThreadClient
     static void init_client();
 };
 
-[[nodiscard]] uda::client_server::DataBlock* get_data_block(int handle);
+[[nodiscard]] client_server::DataBlock* get_data_block(int handle);
 [[nodiscard]] char* get_data(int handle);
 [[nodiscard]] char* get_synthetic_data(int handle);
 void set_synthetic_data(int handle, char* data);
@@ -53,7 +50,4 @@ void set_data_err_lo(int handle, char* err_lo);
 void set_data_err_type(int handle, int type);
 void set_data_err_asymmetry(int handle, int asymmetry);
 
-} // namespace client
-} // namespace uda
-
-#endif // UDA_SOURCE_CLIENT2_PERTHREADSINGLETON_H
+} // namespace uda::client

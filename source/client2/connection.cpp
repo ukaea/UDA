@@ -46,8 +46,6 @@
 #include "exceptions.hpp"
 #include "logging/logging.h"
 
-#include "uda/client.h"
-
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>
 using namespace uda::authentication;
@@ -66,42 +64,43 @@ using namespace uda::logging;
 
 using namespace std::string_literals;
 
-void uda::client::Connection::load_config(config::Config& config)
+void uda::client::Connection::load_config(const config::Config& config)
 {
     if (!config) {
         return;
     }
     // TODO: what is precedence here if host is from host-list (with associated port?)
     // TODO: should connection class always have reference to host list?
-    auto port = config.get("connection.port").as_or_default<int32_t>(uda::client::DefaultPort);
-    if (port != port_) {
+    auto port = config.get("connection.port").as_or_default<int32_t>(DefaultPort);
+    if (port != port_){
         set_port(port);
     }
-    auto host = config.get("connection.host").as_or_default<std::string>(uda::client::DefaultHost);
-    if (host != host_) {
+    auto host = config.get("connection.host").as_or_default<std::string>(DefaultHost);
+    if (host != host_){
         set_host(host);
     }
 
-    auto max_socket_delay =
-        config.get("connection.max_socket_delay").as_or_default<int>(uda::client::DefaultMaxSocketDelay);
-    if (max_socket_delay != max_socket_delay_) {
+    auto max_socket_delay = config.get("connection.max_socket_delay").as_or_default<int>(DefaultMaxSocketDelay);
+    if (max_socket_delay != max_socket_delay_)
+    {
         max_socket_delay_ = max_socket_delay;
         server_reconnect_ = true;
     }
-    auto max_socket_attempts =
-        config.get("connection.max_socket_attempts").as_or_default<int>(uda::client::DefaultMaxSocketAttempts);
-    if (max_socket_attempts != max_socket_attempts_) {
+    auto max_socket_attempts = config.get("connection.max_socket_attempts").as_or_default<int>(DefaultMaxSocketAttempts);
+    if (max_socket_attempts != max_socket_attempts_)
+    {
         max_socket_attempts_ = max_socket_delay;
         server_reconnect_ = true;
     }
 
-    // TODO: currently no host_list_ searching for failover connection details.
-    // TODO: how to determine if currently connected to failover server and signal reconnect on update?
-    failover_port_ = config.get("connection.failover_port").as_or_default<int32_t>(0);
-    failover_host_ = config.get("connection.failover_host").as_or_default<std::string>(""s);
+    //TODO: currently no host_list_ searching for failover connection details.
+    //TODO: how to determine if currently connected to failover server and signal reconnect on update?
+    fail_over_port_ = config.get("connection.failover_port").as_or_default<int32_t>(0);
+    fail_over_host_ = config.get("connection.failover_host").as_or_default<std::string>(""s);
 
     const auto host_list_config_path = config.get("connection.host_list_").as_or_default<std::string>(""s);
-    if (!host_list_config_path.empty()) {
+    if (!host_list_config_path.empty())
+    {
         host_list_ = HostList(host_list_config_path);
     }
 }
@@ -509,7 +508,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output)
         }
 
         // Abandon the principal Host - attempt to connect to the secondary host
-        if (rc < 0 && !failover_host_.empty() && host_ != failover_host_) {
+        if (rc < 0 && !fail_over_host_.empty() && host_ != fail_over_host_) {
 
             freeaddrinfo(result);
             result = nullptr;
@@ -520,19 +519,19 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output)
 #endif
             client_socket_ = -1;
             // TODO: check this is correct intent: principal host becomes the failover host too
-            host_ = failover_host_;
+            host_ = fail_over_host_;
 
             // Check if the host_name is an alias for an IP address or name in the client configuration - replace if
             // found
 
-            snprintf(service_port, PORT_STRING, "%d", failover_port_);
+            snprintf(service_port, PORT_STRING, "%d", fail_over_port_);
 
             //             // Does the host name contain the SSL protocol prefix? If so strip this off
             //
             // #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
             //             if (boost::starts_with(host_name, "SSL://")) {
             //                 // Should be stripped already if via the HOST client configuration file
-            //                 failover_host_ = host_name.substr(6);
+            //                 fail_over_host_ = host_name.substr(6);
             //                 putUdaClientSSLProtocol(1);
             //             } else {
             //                 if (host != nullptr && host->isSSL) {
@@ -582,8 +581,8 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output)
             for (int i = 0; i < max_socket_attempts_; i++) {
                 while ((rc = connect(client_socket_, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
                 if (rc == 0) {
-                    std::swap(failover_port_, port_);
-                    std::swap(failover_host_, host_);
+                    std::swap(fail_over_port_, port_);
+                    std::swap(fail_over_host_, host_);
                     break;
                 }
                 delay = max_socket_delay_ > 0 ? (unsigned int)(rand() % max_socket_delay_) : 0;
@@ -664,7 +663,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output)
     return 0;
 }
 
-// T ODO: should the closed socket also be popped from the socket_list_?
+// TODO: should the closed socket also be popped from the socket_list_?
 //  no records ever deleted currently
 void uda::client::Connection::close_socket(int fh)
 {

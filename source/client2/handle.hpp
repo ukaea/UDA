@@ -1,16 +1,8 @@
 #pragma once
 
-#ifndef UDA_SOURCE_CLIENT2_HANDLE_H
-#  define UDA_SOURCE_CLIENT2_HANDLE_H
-
-namespace uda
-{
-namespace client
+namespace uda::client
 {
 
 void free_handle(int handle);
 
 }
-} // namespace uda
-
-#endif // UDA_SOURCE_CLIENT2_HANDLE_H

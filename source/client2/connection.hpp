@@ -43,15 +43,28 @@ struct ConnectionOptions
 
 class Connection {
 public:
-    inline Connection(std::vector<client_server::UdaError>& error_stack)
+    Connection(std::vector<client_server::UdaError>& error_stack)
         : error_stack_{error_stack}
-        , socket_list_{}
-        , host_list_{}
     {}
-    inline Connection(std::vector<client_server::UdaError>& error_stack, config::Config& config)
+    Connection(std::vector<client_server::UdaError>& error_stack, config::Config& config)
         : Connection(error_stack)
     {
         load_config(config);
+    }
+    Connection& operator=(Connection&& other) noexcept {
+        std::swap(client_socket_, other.client_socket_);
+        std::swap(host_list_, other.host_list_);
+        std::swap(error_stack_, other.error_stack_);
+        std::swap(socket_list_, other.socket_list_);
+        std::swap(port_, other.port_);
+        std::swap(host_, other.host_);
+        std::swap(max_socket_delay_, other.max_socket_delay_);
+        std::swap(max_socket_attempts_, other.max_socket_attempts_);
+        std::swap(fail_over_port_, other.fail_over_port_);
+        std::swap(fail_over_port_, other.fail_over_port_);
+        std::swap(server_reconnect_, other.server_reconnect_);
+        // std::swap(server_change_socket_, other.server_change_socket_);
+        return *this;
     }
     int open();
     int reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start, int* user_timeout);
@@ -73,40 +86,38 @@ public:
     int get_port() const;
     const std::string& get_host() const;
     bool reconnect_required() const;
-    inline const ConnectionOptions get_options() const
+    ConnectionOptions get_options() const
     {
-        return ConnectionOptions {max_socket_delay_, max_socket_attempts_, port_, failover_port_,
-            host_, failover_host_};
+        return ConnectionOptions {max_socket_delay_, max_socket_attempts_, port_, fail_over_port_,
+            host_, fail_over_host_};
     }
 
-    void load_config(config::Config& config);
+    void load_config(const config::Config& config);
 
 
 protected:
     int client_socket_ = -1;
-    std::vector<client_server::UdaError>& error_stack_;
-    std::vector<uda::client_server::Socket> socket_list_; // List of open sockets
     HostList host_list_ = {};
-    // currently unused. could have a reset-to-config method
-    // config::Config& config_;
+    std::vector<client_server::UdaError>& error_stack_;
+    std::vector<client_server::Socket> socket_list_; // List of open sockets
 
     int port_ = DefaultPort;
     std::string host_ = DefaultHost;
     int max_socket_delay_ = DefaultMaxSocketDelay;
     int max_socket_attempts_ = DefaultMaxSocketAttempts;
 
-    int failover_port_ = 0;
-    std::string failover_host_ = {};
+    int fail_over_port_ = 0;
+    std::string fail_over_host_ = {};
 
     mutable bool server_reconnect_ = false;
-    // mutable bool server_change_socket_ = false;
+   // mutable bool server_change_socket_ = false;
 
     int find_socket(int fh);
     int find_socket();
     int find_socket_by_properties(std::string_view host, int port);
     void close_socket(int fh);
     void unpack_config();
-    uda::client_server::Socket& get_current_socket();
+    client_server::Socket& get_current_socket();
 };
 
 int writeout(void* iohandle, char* buf, int count);

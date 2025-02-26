@@ -1,15 +1,16 @@
 ---
 Checks: 'bugprone*,readability*,cppcoreguidelines*,modernize*,-modernize-use-trailing-return-type,-cppcoreguidelines-avoid-const-or-ref-data-members'
 CheckOptions:
-  - { key: readability-identifier-naming.NamespaceCase,       value: lower_case }
-  - { key: readability-identifier-naming.ClassCase,           value: CamelCase  }
-  - { key: readability-identifier-naming.PrivateMemberSuffix, value: _          }
-  - { key: readability-identifier-naming.StructCase,          value: CamelCase  }
-  - { key: readability-identifier-naming.FunctionCase,        value: lower_case }
-  - { key: readability-identifier-naming.VariableCase,        value: lower_case }
-  - { key: readability-identifier-naming.GlobalConstantCase,  value: CamelCase  }
-  - { key: readability-identifier-naming.MacroDefinitionCase,  value: UPPER_CASE  }
-  - { key: readability-identifier-length.IgnoredVariableNames, value: '^[ijk]$' }
+  - { key: readability-identifier-naming.NamespaceCase,         value: lower_case }
+  - { key: readability-identifier-naming.ClassCase,             value: CamelCase  }
+  - { key: readability-identifier-naming.PrivateMemberPrefix,   value: _          }
+  - { key: readability-identifier-naming.StructCase,            value: CamelCase  }
+  - { key: readability-identifier-naming.FunctionCase,          value: lower_case }
+  - { key: readability-identifier-naming.VariableCase,          value: lower_case }
+  - { key: readability-identifier-naming.GlobalConstantCase,    value: CamelCase  }
+  - { key: readability-identifier-naming.GlobalConstantPrefix,  value: g_         }
+  - { key: readability-identifier-naming.MacroDefinitionCase,   value: UPPER_CASE }
+  - { key: readability-identifier-length.IgnoredVariableNames,  value: '^[ijk]$'  }
 WarningsAsErrors: '-*'
 HeaderFilterRegex: '*.h'
 FormatStyle: llvm
