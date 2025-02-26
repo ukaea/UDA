@@ -97,8 +97,6 @@ void update_client_block(ClientBlock& client_block, const uda::client::ClientFla
 
 uda::client::Client::Client() : version{ClientVersion}, protocol_version_{ClientVersion}, connection_{error_stack_}
 {
-    // host_ = DefaultHost;
-    // port_ = DefaultPort;
     flags_ = 0;
 
     client_flags_ = {};
@@ -186,23 +184,7 @@ void uda::client::Client::load_config(std::string_view path)
     config_.load(path);
     set_client_flags_from_config();
     initialise_logging_from_config();
-    // connection_ = Connection(config_);
     connection_.load_config(config_);
-}
-
-void uda::client::Client::set_host_list_from_config()
-{
-    if (!config_) {
-        return;
-    }
-
-    auto maybe_host_list_path = config_.get("host_list_path");
-    if (!maybe_host_list_path){
-        return;
-    }
-
-    auto host_list_path = maybe_host_list_path.as<std::string>();
-    host_list_.load_config_file(host_list_path);
 }
 
 void uda::client::Client::set_client_flags_from_config()

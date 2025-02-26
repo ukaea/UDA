@@ -166,3 +166,23 @@ TEST_CASE( "can parse arrays of structures", "[config-arraystruct]")
     std::string file_path = "test_files/host_list.toml";
     REQUIRE_NOTHROW( config.load(file_path) );
 }
+
+
+TEST_CASE( "can retreive data from arrays of structures", "[config-arraystruct]")
+{
+    uda::config::Config config {};
+    std::string file_path = "test_files/host_list.toml";
+    config.load(file_path);
+
+    auto host_list = config.get_array("host_list");
+    REQUIRE( host_list.size() == 5 ); 
+
+    std::unordered_map<std::string, uda::config::Option> expected_result = 
+    {
+        {"host_name", {"host_name", "localhost"}},
+        {"host_alias", {"host_alias", "localhost"}},
+        {"port", {"port", 56565}},
+    };
+    auto localhost = host_list[0];
+    REQUIRE( localhost == expected_result );
+}

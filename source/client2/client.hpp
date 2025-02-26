@@ -13,7 +13,6 @@
 #include "logging/logging.h"
 
 #include "connection.hpp"
-#include "host_list.hpp"
 
 // constexpr auto DefaultHost = "localhost";
 // constexpr auto DefaultPort = 56565;
@@ -123,7 +122,6 @@ private:
 
     void set_client_flags_from_config();
     void initialise_logging_from_config();
-    void set_host_list_from_config();
 
     // -------------------------------------------------
     //   configuration options and state
@@ -158,7 +156,6 @@ private:
 
     config::Config config_ = {};
     Connection connection_ = {error_stack_};
-    HostList host_list_ = {};
 
     // -------------------------------------------------
     //   xdr stuff

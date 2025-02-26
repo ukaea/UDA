@@ -103,6 +103,7 @@ class Config
     void load(std::string_view file_name);
     void load_in_memory();
     Option get(std::string_view name) const;
+    std::vector<std::unordered_map<std::string, Option>> get_array(std::string_view name) const;
     void set(std::string_view name, const std::string& value);
     void set(std::string_view name, const char* value);
     void set(std::string_view name, bool value);

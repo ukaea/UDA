@@ -79,6 +79,45 @@ uda::client::HostList::HostList(std::string_view config_file)
     load_config_file(config_file);
 }
 
+void uda::client::HostList::load_list_from_toml(uda::config::Config& config)
+{
+    if (!config){
+        return;
+    }
+
+    // assume we require at least a host_name and an alias so skip records where this isn't set
+    // all other fields considered optional
+    const auto config_host_list = config.get_array("host_list");
+    for (const auto& entry_map: config_host_list)
+    {
+        uda::client_server::HostData new_data = {};
+        if (entry_map.find("host_name") == entry_map.end()) {
+            continue;
+        }
+        new_data.host_name = entry_map.at("host_name").as<std::string>();
+
+        if (entry_map.find("host_alias") == entry_map.end()) {
+            continue;
+        }
+        new_data.host_alias = entry_map.at("host_alias").as<std::string>();
+
+        if (entry_map.find("port") != entry_map.end()) {
+            new_data.port = entry_map.at("port").as<int>();
+        }
+        if (entry_map.find("certificate") != entry_map.end()) {
+            new_data.certificate = entry_map.at("certificate").as<std::string>();
+        }
+        if (entry_map.find("ca_certificate") != entry_map.end()) {
+            new_data.ca_certificate = entry_map.at("ca_certificate").as<std::string>();
+        }
+        if (entry_map.find("key") != entry_map.end()) {
+            new_data.key = entry_map.at("key").as<std::string>();
+        }
+        hosts_.emplace_back(new_data); 
+    }
+}
+
+
 void uda::client::HostList::load_config_file(std::string_view config_file)
 {
     std::ifstream conf( (std::string(config_file)) );

@@ -487,6 +487,24 @@ class ConfigImpl
         }
     }
 
+    std::vector<std::unordered_map<std::string, Option>>
+    get_array(std::string_view name) const
+    {
+        std::vector<std::unordered_map<std::string, Option>> result;
+        toml::node_view maybe_array = _table[name];
+        if (!maybe_array.is_array()) {
+            throw ConfigError{fmt::format("invalid config array name {}", name.data())};
+        }
+        for (const auto& entry: *maybe_array.as_array())
+        {
+            if (!entry.is_table()) {
+                throw ConfigError{fmt::format("invalid entry in array {}", name.data())};
+            }
+            result.emplace_back( get_table_as_map(*entry.as_table()) );
+        }
+        return result;
+    }
+
     template<typename ValueType>
     void set(std::string_view name, ValueType value)
     {
@@ -541,16 +559,10 @@ class ConfigImpl
     }
 
     std::unordered_map<std::string, Option>
-    get_section_as_map(std::string_view section_name) const
+    get_table_as_map(const toml::table& table) const
     {
         std::unordered_map<std::string, Option> result {};
-
-        toml::node_view section_option = _table[section_name];
-        if (!section_option or !section_option.is_table()) {
-            return result;
-        }
-        auto section_table = section_option.as_table();
-        for (const auto& [key, value] : *section_table)
+        for (const auto& [key, value] : table)
         {
             switch (value.type()) 
             {
@@ -571,6 +583,20 @@ class ConfigImpl
             }
         }
         return result;
+    }
+
+
+    std::unordered_map<std::string, Option>
+    get_section_as_map(std::string_view section_name) const
+    {
+        std::unordered_map<std::string, Option> result {};
+
+        toml::node_view section_option = _table[section_name];
+        if (!section_option or !section_option.is_table()) {
+            return result;
+        }
+        auto section_table = section_option.as_table();
+        return get_table_as_map(*section_table);
     }
 
   private:
@@ -604,6 +630,16 @@ Option Config::get(std::string_view name) const
         return Option(std::string(name));
     }
     return _impl->get(name);
+}
+
+
+std::vector<std::unordered_map<std::string, Option>>
+Config::get_array(std::string_view name) const
+{
+    if (!_impl) {
+        throw ConfigError{"config has not been loaded"};
+    }
+    return _impl->get_array(name);
 }
 
 std::unordered_map<std::string, Option> Config::get_section_as_map(std::string_view section_name) const
