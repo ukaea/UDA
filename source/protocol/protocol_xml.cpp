@@ -51,7 +51,7 @@
  *                (data_block->opaque_block->name). This is registered within the Structure
  *                Type List.
  **--------------------------------------------------------------------------------------------------*/
-#include "protocolXML2.h"
+#include "protocol_xml.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -62,8 +62,8 @@
 #include "structures/struct.h"
 
 #include "protocol.h"
-#include "readXDRFile.h"
-#include "xdrlib.h"
+#include "read_xdr_file.h"
+#include "xdr_lib.h"
 
 #ifdef SERVERBUILD
 #  include "server/createXDRStream.h"

@@ -62,7 +62,7 @@ uda::cache::cache_read(const config::Config& config, UdaCache* cache, const Requ
 #  include "clientserver/errorLog.h"
 #  include "clientserver/initStructs.h"
 #  include "clientserver/memstream.h"
-#  include "protocol/xdrlib.h"
+#  include "protocol/xdr_lib.h"
 #  include "logging/logging.h"
 
 #  define UDA_CACHE_HOST "localhost" // Override these with environment variables with the same name

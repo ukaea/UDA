@@ -39,7 +39,7 @@
 #include "struct.h"
 
 #include "accessors.h"
-#include "protocol/protocolXML2.h"
+#include "protocol/protocol_xml.h"
 #include "genStructs.h"
 
 #include <cstdlib>
@@ -60,8 +60,8 @@
 #include "clientserver/error_log.h"
 #include "common/string_utils.h"
 #include "logging/logging.h"
-#include "protocol/protocolXML2Put.h"
-#include "protocol/xdrlib.h"
+#include "protocol/protocol_xml_put.h"
+#include "protocol/xdr_lib.h"
 
 #include "xdrUserDefinedData.h"
 

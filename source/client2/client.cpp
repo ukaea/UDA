@@ -4,7 +4,6 @@
 #include "closedown.hpp"
 #include "connection.hpp"
 #include "exceptions.hpp"
-#include "host_list.hpp"
 #include "make_request_block.hpp"
 
 #include "cache/fileCache.h"
@@ -17,9 +16,8 @@
 #include "clientserver/version.h"
 #include "common/string_utils.h"
 #include "logging/logging.h"
-#include "protocol/alloc_data.h"
 #include "protocol/protocol.h"
-#include "protocol/xdrlib.h"
+#include "protocol/xdr_lib.h"
 #include "uda/client.h"
 
 #include <algorithm>

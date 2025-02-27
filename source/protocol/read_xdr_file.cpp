@@ -1,4 +1,4 @@
-#include "readXDRFile.h"
+#include "read_xdr_file.h"
 
 #include <cerrno>
 #include <cstdlib>

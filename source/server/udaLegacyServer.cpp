@@ -9,7 +9,7 @@
 #include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "protocol/protocol.h"
-#include "protocol/xdrlib.h"
+#include "protocol/xdr_lib.h"
 #include "logging/accessLog.h"
 #include "logging/logging.h"
 #include "server/serverPlugin.h"

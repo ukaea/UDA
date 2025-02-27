@@ -31,7 +31,7 @@
 #  include "config/config.h"
 #else
 #  include "clientXDRStream.h"
-#  include "protocol/xdrlib.h"
+#  include "protocol/xdr_lib.h"
 
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>

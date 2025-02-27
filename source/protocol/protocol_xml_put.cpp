@@ -1,4 +1,4 @@
-#include "protocolXML2Put.h"
+#include "protocol_xml_put.h"
 
 #include <cstdlib>
 
@@ -9,7 +9,7 @@
 #include "structures/xdrUserDefinedData.h"
 
 #include "protocol.h"
-#include "xdrlib.h"
+#include "xdr_lib.h"
 
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"

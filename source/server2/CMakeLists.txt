@@ -10,7 +10,6 @@ set( SRC_FILES
   server_plugin.cpp
   server_processing.cpp
   server_subset_data.cpp
-  xdr_protocol.cpp
 )
 
 add_library( server OBJECT ${SRC_FILES} )

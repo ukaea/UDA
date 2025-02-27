@@ -1,7 +1,7 @@
 #pragma once
 
 #include "structures/genStructs.h"
-#include "xdrlib.h"
+#include "xdr_lib.h"
 
 #include <cstdio>
 #include <rpc/rpc.h>

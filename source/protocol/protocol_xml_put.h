@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "structures/genStructs.h"
-#include "xdrlib.h"
+#include "xdr_lib.h"
 
 namespace uda::protocol
 {

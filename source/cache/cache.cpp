@@ -1,7 +1,7 @@
 #include "cache.h"
 
 #include "clientserver/init_structs.h"
-#include "protocol/xdrlib.h"
+#include "protocol/xdr_lib.h"
 #include "protocol/protocol.h"
 
 using namespace uda::client_server;

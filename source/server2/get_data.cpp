@@ -274,7 +274,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
             if (!strncasecmp(request_data->signal, "Subset(", 7)) {
                 init_subset(&request_data->datasubset);
                 int rc;
-                if ((rc = server_parse_server_side(config_, request_data, &request_data->datasubset)) != 0) {
+                if ((rc = server_parse_server_side(_config, request_data, &request_data->datasubset)) != 0) {
                     return rc;
                 }
                 // Erase original Subset request
@@ -287,7 +287,7 @@ int uda::server::Server::get_data(int* depth, RequestData* request_data, DataBlo
             if (maybe_plugin.get().entry_func_name == "serverside") {
                 init_subset(&request_data->datasubset);
                 int rc;
-                if ((rc = server_parse_server_side(config_, request_data, &request_data->datasubset)) != 0) {
+                if ((rc = server_parse_server_side(_config, request_data, &request_data->datasubset)) != 0) {
                     return rc;
                 }
                 // Erase original Subset request
@@ -378,7 +378,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     // the same Rank, then allow normal Generic lookup.
     //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
-    if (client_block_.clientFlags & client_flags::AltData && request->request != (int)Request::ReadXML &&
+    if (_client_block.clientFlags & client_flags::AltData && request->request != (int)Request::ReadXML &&
         STR_STARTSWITH(request->signal, "<?xml")) {
 
         if (request->request != (int)Request::ReadGeneric) {
@@ -404,7 +404,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         // Identify the required Plugin
 
-        auto maybe_plugin = find_metadata_plugin(config_, _plugins);
+        auto maybe_plugin = find_metadata_plugin(_config, _plugins);
         if (!maybe_plugin) {
             // No plugin so not possible to identify the requested data item
             UDA_THROW(778, "Unable to identify requested data item");
@@ -417,7 +417,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = call_metadata_plugin(config_, maybe_plugin.get(), request, _plugins, _meta_data);
+        int err = call_metadata_plugin(_config, maybe_plugin.get(), request, _plugins, _meta_data);
 
         if (err != 0) {
             UDA_THROW(err, "No Record Found for this Generic Signal");
@@ -429,7 +429,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         if (_meta_data.find("type") == "P") {
             strcpy(request->signal, _meta_data.find("signal_name").data());
             strcpy(request->source, _meta_data.find("path").data());
-            make_server_request_data(config_, request, _plugins);
+            make_server_request_data(_config, request, _plugins);
         }
 
     } // end of Request::ReadGeneric
@@ -438,7 +438,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     // Modifies HEAP in request_block
 
     {
-        int err = name_value_substitution(error_stack_, request->name_value_list, request->tpass);
+        int err = name_value_substitution(_error_stack, request->name_value_list, request->tpass);
         if (err != 0) {
             return err;
         }
@@ -460,7 +460,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
             int serrno = errno;
             if (serrno != 0 || xmlfile == nullptr) {
                 if (serrno != 0) {
-                    add_error(error_stack_, ErrorType::System, "idamserverReadData", serrno, "");
+                    add_error(_error_stack, ErrorType::System, "idamserverReadData", serrno, "");
                 }
                 if (xmlfile != nullptr) {
                     fclose(xmlfile);
@@ -499,7 +499,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         auto& plugin_list = _plugins.plugin_list();
         plugin_interface.interface_version = 1;
         plugin_interface.data_block = data_block;
-        plugin_interface.client_block = &client_block_;
+        plugin_interface.client_block = &_client_block;
         plugin_interface.request_data = request;
         plugin_interface.meta_data = &_meta_data;
         plugin_interface.house_keeping = false;
@@ -508,7 +508,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         plugin_interface.user_defined_type_list = _user_defined_type_list;
         plugin_interface.log_malloc_list = _log_malloc_list;
         plugin_interface.error_stack = {};
-        plugin_interface.config = &config_;
+        plugin_interface.config = &_config;
 
         int plugin_request = (int)Request::ReadUnknown;
 
@@ -535,7 +535,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
             }
 
 #ifndef ITERSERVER
-            auto external_user = config_.get("server.external_user").as_or_default(false);
+            auto external_user = _config.get("server.external_user").as_or_default(false);
             if (maybe_plugin.get().is_private == UDA_PLUGIN_PRIVATE && external_user) {
                 UDA_THROW(999, "Access to this data class is not available.");
             }
@@ -550,7 +550,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                 // Redirect Output to temporary file if no file handles passed
                 int reset = 0;
                 int rc;
-                if ((rc = server_redirect_std_streams(config_, reset)) != 0) {
+                if ((rc = server_redirect_std_streams(_config, reset)) != 0) {
                     UDA_THROW(rc, "Error Redirecting Plugin Message Output");
                 }
 #endif
@@ -558,13 +558,13 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                 // Call the plugin
                 int err = maybe_plugin->entry_func(&plugin_interface);
                 for (const auto& error : plugin_interface.error_stack) {
-                    add_error(error_stack_, error.type, error.location, error.code, error.msg);
+                    add_error(_error_stack, error.type, error.location, error.code, error.msg);
                 }
 
 #ifndef FATCLIENT
                 // Reset Redirected Output
                 reset = 1;
-                if ((rc = server_redirect_std_streams(config_, reset)) != 0) {
+                if ((rc = server_redirect_std_streams(_config, reset)) != 0) {
                     UDA_THROW(rc, "Error Resetting Redirected Plugin Message Output");
                 }
 #endif
@@ -577,9 +577,9 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
 
                 // Save Provenance with socket stream protection
 
-                server_redirect_std_streams(config_, 0);
-                provenance_plugin(config_, &client_block_, request, _plugins, nullptr, _meta_data);
-                server_redirect_std_streams(config_, 1);
+                server_redirect_std_streams(_config, 0);
+                provenance_plugin(_config, &_client_block, request, _plugins, nullptr, _meta_data);
+                server_redirect_std_streams(_config, 1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
 
@@ -610,7 +610,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
         const auto format = _meta_data.find("format");
         auto [id, maybe_plugin] = _plugins.find_by_name(format);
 
-        const auto external_user = config_.get("server.external_user");
+        const auto external_user = _config.get("server.external_user");
         if (maybe_plugin && maybe_plugin->is_private == UDA_PLUGIN_PRIVATE && external_user) {
             UDA_THROW(999, "Access to this data class is not available.");
         }
@@ -658,14 +658,14 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     //----------------------------------------------------------------------------
     // Copy the Client Block into the Data Block to pass client requested properties into plugins
 
-    data_block->client_block = client_block_;
+    data_block->client_block = _client_block;
 
     //----------------------------------------------------------------------------
     // Save Provenance with socket stream protection
 
-    server_redirect_std_streams(config_, 0);
-    provenance_plugin(config_, &client_block_, request, _plugins, nullptr, _meta_data);
-    server_redirect_std_streams(config_, 1);
+    server_redirect_std_streams(_config, 0);
+    provenance_plugin(_config, &_client_block, request, _plugins, nullptr, _meta_data);
+    server_redirect_std_streams(_config, 1);
 
     return 0;
 }

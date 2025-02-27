@@ -20,7 +20,7 @@
 #include "clientserver/memstream.h"
 #include "protocol/protocol.h"
 #include "common/string_utils.h"
-#include "protocol/xdrlib.h"
+#include "protocol/xdr_lib.h"
 #include "logging/logging.h"
 #include "client/client_config.h"
 

@@ -18,7 +18,7 @@
 #include "clientserver/printStructs.h"
 #include "protocol/protocol.h"
 #include "clientserver/uda_errors.h"
-#include "protocol/xdrlib.h"
+#include "protocol/xdr_lib.h"
 #include "logging/accessLog.h"
 #include "logging/logging.h"
 #include "server/serverPlugin.h"

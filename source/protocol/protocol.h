@@ -6,7 +6,7 @@
 #include <fmt/format.h>
 
 #include "structures/genStructs.h"
-#include "xdrlib.h"
+#include "xdr_lib.h"
 
 //-------------------------------------------------------
 // Client Server Conversation Protocols
@@ -51,17 +51,9 @@ std::string format_as(ProtocolId protocol);
 //---------------------------------------------------------------------------------------------------
 // Client Server XDR data Streams (DON'T CHANGE ORDER or Legacy client won't work!)
 
-struct IoData {
-};
-
 void set_select_params(int fd, fd_set* rfds, timeval* tv, int* server_tot_block_time);
 
 void update_select_params(int fd, fd_set* rfds, timeval* tv, int server_tot_block_time);
-
-int protocol(std::vector<client_server::UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
-             structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,
-             structures::LogStructList* log_struct_list, IoData* io_data, unsigned int private_flags,
-             int malloc_source);
 
 int protocol2(std::vector<client_server::UdaError>& error_stack, XDR* xdrs, ProtocolId protocol_id, XDRStreamDirection direction, ProtocolId* token, structures::LogMallocList* logmalloclist,
               structures::UserDefinedTypeList* userdefinedtypelist, void* str, int protocolVersion,

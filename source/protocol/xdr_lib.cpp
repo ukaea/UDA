@@ -5,7 +5,7 @@
 // xdr_longlong is not available - use xdr_int64_t and xdr_uint64_t
 //
 
-#include "xdrlib.h"
+#include "xdr_lib.h"
 
 #include <cstdlib>
 #include <memory.h>
@@ -15,7 +15,7 @@
 #include "common/string_utils.h"
 #include "logging/logging.h"
 #include "protocol/protocol.h"
-#include "protocol/protocolXML2.h"
+#include "protocol/protocol_xml.h"
 #include "structures/struct.h"
 
 #ifdef __APPLE__

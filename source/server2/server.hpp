@@ -3,11 +3,11 @@
 #include <vector>
 
 #include "plugins.hpp"
-#include "xdr_protocol.hpp"
 
 #include "cache/memcache.hpp"
 #include "clientserver/socket_structs.h"
 #include "clientserver/version.h"
+#include "protocol/xdr_protocol.hpp"
 #include <uda/export.h>
 #include "config/config.h"
 
@@ -25,7 +25,7 @@ class Server
     LIBRARY_API Server(config::Config config);
     LIBRARY_API void run();
 
-  protected:
+  private:
     void shutdown();
     void initialise();
     void connect(int socket_fd);
@@ -38,17 +38,17 @@ class Server
                  int protocol_version);
     int read_data(client_server::RequestData* request, client_server::DataBlock* data_block);
 
-    config::Config config_;
-    std::vector<client_server::UdaError> error_stack_;
+    config::Config _config;
+    std::vector<client_server::UdaError> _error_stack;
     client_server::RequestBlock _request_block;
-    client_server::ServerBlock server_block_;
-    client_server::ClientBlock client_block_;
-    cache::UdaCache* cache_;
-    XdrProtocol _protocol;
+    client_server::ServerBlock _server_block;
+    client_server::ClientBlock _client_block;
+    cache::UdaCache* _cache;
+    protocol::XdrProtocol _protocol;
     std::vector<client_server::Socket> _sockets;
     Plugins _plugins;
     bool _server_closedown = false;
-    std::vector<client_server::DataBlock> data_blocks_;
+    std::vector<client_server::DataBlock> _data_blocks;
     size_t _total_data_block_size;
     client_server::MetaData _meta_data;
     int _server_timeout = client_server::TimeOut;
