@@ -15,7 +15,6 @@ set( SRCS
   name_value_substitution.cpp
   name_value_list.cpp
   parse_operation.cpp
-  parse_xml.cpp
   print_structs.cpp
   uda_defines.cpp
   uda_structs.cpp

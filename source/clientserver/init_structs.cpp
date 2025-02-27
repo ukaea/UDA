@@ -26,7 +26,7 @@ void uda::client_server::init_request_data(RequestData* str)
     str->signal[0] = '\0';
     str->source[0] = '\0';
     str->subset[0] = '\0';
-    str->datasubset.nbound = 0;
+    str->datasubset.n_bound = 0;
     str->name_value_list = {};
 
     str->put = 0;

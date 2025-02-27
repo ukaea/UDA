@@ -303,19 +303,19 @@ struct OptionalLong {
 };
 
 struct Subset {
-    int nbound;                                             // the Number of Subsetting Operations
-    int reform;                                             // reduce Rank if any dimension has length 1
-    int order;                                              // Time Dimension order
+    int n_bound;                                      // the Number of Sub-setting Operations
+    int reform;                                       // reduce Rank if any dimension has length 1
+    int order;                                        // Time Dimension order
     double bound[MaxDataRank];                        // Array of Floating point Bounding values
     OptionalLong stride[MaxDataRank];                 // Array of Integer values: Striding values
     OptionalLong ubindex[MaxDataRank];                // Array of Integer values: Bounding or Upper Index
     OptionalLong lbindex[MaxDataRank];                // Array of Integer values: Lower Index
-    char operation[MaxDataRank][SxmlMaxString]; // Array of Subsetting Operations
-    int dimid[MaxDataRank];                           // Array of Dimension IDs to subset
-    bool isindex[MaxDataRank];                        // Flag the Operation Bound is an Integer Type
+    char operation[MaxDataRank][SxmlMaxString];       // Array of Sub-setting Operations
+    int dim_id[MaxDataRank];                          // Array of Dimension IDs to subset
+    bool is_index[MaxDataRank];                       // Flag the Operation Bound is an Integer Type
     char data_signal[SxmlMaxString];                  // Name of Signal to subset
     char member[SxmlMaxString];                       // Name of Structure Member to extract and to subset
-    char function[SxmlMaxString];                     // Apply this named function to the subsetted data
+    char function[SxmlMaxString];                     // Apply this named function to the sub-setted data
 };
 
 struct RequestData {

@@ -23,9 +23,9 @@ void uda::client_server::print_request_data(const RequestData& str)
     UDA_LOG(UDA_LOG_DEBUG, "source      : {}", str.source);
     UDA_LOG(UDA_LOG_DEBUG, "api_delim   : {}", str.api_delim);
     UDA_LOG(UDA_LOG_DEBUG, "subset      : {}", str.subset);
-    UDA_LOG(UDA_LOG_DEBUG, "subsetCount : {}", str.datasubset.nbound);
-    for (int i = 0; i < str.datasubset.nbound; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[{}] {}   {}   {}   {}", i, str.datasubset.dimid[i], str.datasubset.lbindex[i].value,
+    UDA_LOG(UDA_LOG_DEBUG, "subsetCount : {}", str.datasubset.n_bound);
+    for (int i = 0; i < str.datasubset.n_bound; i++) {
+        UDA_LOG(UDA_LOG_DEBUG, "[{}] {}   {}   {}   {}", i, str.datasubset.dim_id[i], str.datasubset.lbindex[i].value,
                 str.datasubset.ubindex[i].value, str.datasubset.stride[i].value);
     }
     UDA_LOG(UDA_LOG_DEBUG, "nameValueCount : {}", str.name_value_list.size());

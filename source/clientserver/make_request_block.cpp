@@ -101,9 +101,9 @@ void parse_element(Subset& subset, const std::string& element)
     std::vector<std::string> tokens;
     boost::split(tokens, element, boost::is_any_of(":"), boost::token_compress_off);
 
-    int index = subset.nbound;
+    int index = subset.n_bound;
     strcpy(subset.operation[index], ":");
-    subset.dimid[index] = index;
+    subset.dim_id[index] = index;
 
     switch (tokens.size()) {
         case 0:
@@ -131,7 +131,7 @@ void parse_element(Subset& subset, const std::string& element)
             throw std::runtime_error{"invalid number of elements in subset operation"};
     }
 
-    subset.nbound += 1;
+    subset.n_bound += 1;
 }
 
 void parse_operation(Subset& subset, const std::string& operation)

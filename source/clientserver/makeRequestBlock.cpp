@@ -13,11 +13,12 @@
 #  include <libgen.h>
 #endif
 
+#include <parse_operation.h>
+
 #include "logging/logging.h"
 #include <fmt/format.h>
 
 #include "error_log.h"
-#include "parse_xml.h"
 #include "common/string_utils.h"
 #include "uda_errors.h"
 #include "uda_structs.h"
@@ -473,7 +474,7 @@ int uda::client_server::make_request_data(const config::Config& config, RequestD
         trim_string(request->signal);
     } else {
         request->subset[0] = '\0';
-        request->datasubset.nbound = 0;
+        request->datasubset.n_bound = 0;
     }
 
     //------------------------------------------------------------------------------
@@ -1254,9 +1255,9 @@ int parse_element(Subset& subset, const std::string& element)
     std::vector<std::string> tokens;
     boost::split(tokens, element, boost::is_any_of(":"), boost::token_compress_off);
 
-    int index = subset.nbound;
+    int index = subset.n_bound;
     strcpy(subset.operation[index], ":");
-    subset.dimid[index] = index;
+    subset.dim_id[index] = index;
 
     try {
         switch (tokens.size()) {
@@ -1288,7 +1289,7 @@ int parse_element(Subset& subset, const std::string& element)
         UDA_THROW(999, ex.what());
     }
 
-    subset.nbound += 1;
+    subset.n_bound += 1;
 
     return 0;
 }
@@ -1340,7 +1341,7 @@ int extract_subset(RequestData* request)
     request->subset[0] = '\0';
     init_subset(&request->datasubset);
 
-    std::string signal = request->signal;
+    const std::string signal = request->signal;
 
     if (signal.empty() || signal[signal.size() - 1] != ']') {
         return 0;

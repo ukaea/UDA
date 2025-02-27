@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <filesystem>
 #include <boost/asio.hpp>
+#include <clientserver/parse_operation.h>
 
 #include "clientserver/error_log.h"
 #include "clientserver/init_structs.h"
@@ -121,8 +122,6 @@ uda::server::Server::Server(Config config)
     , _plugins{config_}
 {
     init_server_block(&server_block_, ServerVersion);
-    init_actions(&_actions_desc); // There may be a Sequence of Actions to Apply
-    init_actions(&_actions_sig);
     cache_ = cache::open_cache();
 }
 
@@ -364,12 +363,6 @@ void uda::server::Server::loop()
 
         UDA_LOG(UDA_LOG_DEBUG, "free_data_blockList");
         free_data_blocks(data_blocks_);
-
-        UDA_LOG(UDA_LOG_DEBUG, "freeActions");
-        free_actions(&_actions_desc);
-
-        UDA_LOG(UDA_LOG_DEBUG, "freeActions");
-        free_actions(&_actions_sig);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap

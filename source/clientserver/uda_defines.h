@@ -24,27 +24,6 @@ constexpr int MaxRank2 = 10; // Number of sub-setting dimensions
 
 constexpr int SxmlMaxString = 1024;
 constexpr int MaxDataRank = 8;
-constexpr int XmlMaxDesc = 1024;
-constexpr int XmlMaxRecursive = 10;
-constexpr int XmlMaxLoop = 1024;
-
-enum class ActionDimType {
-    Calibration = 1,
-    Composite = 2,
-    Documentation = 3,
-    ErrorModel = 4,
-};
-
-enum class ActionType {
-    Offset = 1,
-    Documentation = 2,
-    Calibration = 3,
-    Composite = 4,
-    ErrorModel = 5,
-    ServerSide = 6,
-    Subset = 7,
-    Map = 8,
-};
 
 constexpr int Md5Size = 16;
 

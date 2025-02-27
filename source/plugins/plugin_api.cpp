@@ -9,7 +9,6 @@
 #include "clientserver/error_log.h"
 #include "clientserver/init_structs.h"
 #include "clientserver/make_request_block.h"
-#include "clientserver/parse_xml.h"
 #include "clientserver/type_convertor.hpp"
 #include "common/string_utils.h"
 #include "config/config.h"
@@ -437,26 +436,25 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
 
     request_data.request = find_plugin_id_by_format(request_data.format, *interface->pluginList);
     if (request_data.request == -1) {
-        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found!")
+        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found")
     }
 
     int err = 0;
     int id = request_data.request;
     if (id >= 0) {
-        auto& plugin = (*interface->pluginList)[request_data.request];
-        if (plugin.handle && plugin.entry_func)
-        err = plugin.entry_func(&new_plugin_interface); // Call the data reader
+        const auto& plugin = (*interface->pluginList)[request_data.request];
+        if (plugin.handle && plugin.entry_func) {
+            err = plugin.entry_func(&new_plugin_interface); // Call the data reader
+        } else {
+            UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Plugin found but not valid")
+        }
     } else {
-        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Data Access is not available for this data request!")
+        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Data Access is not available for this data request")
     }
 
     // Apply sub-setting
-    if (request_data.datasubset.nbound > 0) {
-        Action action = {};
-        init_action(&action);
-        action.actionType = (int)ActionType::Subset;
-        action.subset = request_data.datasubset;
-        err = server_subset_data(new_plugin_interface.data_block, action, new_plugin_interface.log_malloc_list);
+    if (request_data.datasubset.n_bound > 0) {
+        err = server_subset_data(new_plugin_interface.data_block, request_data.datasubset, new_plugin_interface.log_malloc_list);
     }
 
     return err;

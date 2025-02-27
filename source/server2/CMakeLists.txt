@@ -2,7 +2,6 @@ find_package( Boost REQUIRED )
 find_package( fmt REQUIRED )
 
 set( SRC_FILES
-  apply_XML.cpp
   get_data.cpp
   make_server_request_block.cpp
   plugins.cpp

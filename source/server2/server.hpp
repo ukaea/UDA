@@ -2,12 +2,10 @@
 
 #include <vector>
 
-#include "get_data.hpp"
 #include "plugins.hpp"
 #include "xdr_protocol.hpp"
 
 #include "cache/memcache.hpp"
-#include "clientserver/parse_xml.h"
 #include "clientserver/socket_structs.h"
 #include "clientserver/version.h"
 #include <uda/export.h>
@@ -45,8 +43,6 @@ class Server
     client_server::RequestBlock _request_block;
     client_server::ServerBlock server_block_;
     client_server::ClientBlock client_block_;
-    client_server::Actions _actions_desc;
-    client_server::Actions _actions_sig;
     cache::UdaCache* cache_;
     XdrProtocol _protocol;
     std::vector<client_server::Socket> _sockets;
