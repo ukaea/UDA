@@ -1,5 +1,4 @@
 find_package( IDL REQUIRED )
-find_package( LibXml2  REQUIRED )
 find_package( NetCDF )
 
 if( WIN32 OR MINGW )
@@ -29,7 +28,6 @@ set( SRC_FILES idam_dlm.c idamStructs.c )
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${IDL_INCLUDES}
-  ${LIBXML2_INCLUDE_DIR}
 )
 
 if( MINGW OR WIN32 )
@@ -59,10 +57,10 @@ endif()
 if( FAT_IDL )
   include( modules )
 
-  target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${STDCXX_STATIC} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${IDL_LIBRARIES} ${STDCXX_STATIC} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
   link_modules( ${LIB_NAME} )
 else()
-  target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${STDCXX_STATIC} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} ${STDCXX_STATIC} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
 endif()
 
 set_target_properties( ${LIB_NAME}

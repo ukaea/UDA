@@ -54,7 +54,6 @@ jobs:
           cmake
           build-essential
           pkg-config
-          libxml2-dev
           libspdlog-dev
           ninja-build
           capnproto
@@ -80,7 +79,6 @@ jobs:
           openssl
           cmake
           pkg-config
-          libxml2
           spdlog
           ninja
           capnp
@@ -98,7 +96,6 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: >
           vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
-          libxml2
           capnproto
           boost-program-options
           boost-format
