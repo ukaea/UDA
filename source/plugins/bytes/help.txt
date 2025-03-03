@@ -1,9 +1,0 @@
-BYTES: Plugin to read files as a block of bytes without interpretation
-
-Functions:
-
-read(path=)
-    Arguments:
-        path    the path of the file to read
-    Example:
-        path(read=/path/to/file.txt)

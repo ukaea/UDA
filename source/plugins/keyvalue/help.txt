@@ -1,7 +1,0 @@
-KEYVALUE: Plugin to allow for reading and writing data to a LevelDB key-value store
-
-Functions:
-
-read(key)           Read the data from the store for the given key
-write(key, value)   Write the given data to the store with the given key
-delete(key)         Delete the key from the store
