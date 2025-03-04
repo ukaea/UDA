@@ -46,12 +46,12 @@ cdef class TreeNode:
         cdef const char* name = uda.udaGetNodeStructureName(self._node)
         return name.decode() if name is not NULL else ""
 
-    cdef _load_atomic_data(self, int idx, uda.LOGMALLOCLIST* logmalloclist):
-        cdef const char** anames = <const char**>uda.udaGetNodeAtomicNames(logmalloclist, self._node)
-        cdef const char** atypes = <const char**>uda.udaGetNodeAtomicTypes(logmalloclist, self._node)
-        cdef int* apoint = uda.udaGetNodeAtomicPointers(logmalloclist, self._node)
-        cdef int* arank = uda.udaGetNodeAtomicRank(logmalloclist, self._node)
-        cdef int** ashape = uda.udaGetNodeAtomicShape(logmalloclist, self._node)
+    cdef _load_atomic_data(self, int idx):
+        cdef const char** anames = <const char**>uda.udaGetNodeAtomicNames(self._node)
+        cdef const char** atypes = <const char**>uda.udaGetNodeAtomicTypes(self._node)
+        cdef int* apoint = uda.udaGetNodeAtomicPointers(self._node)
+        cdef int* arank = uda.udaGetNodeAtomicRank(self._node)
+        cdef int** ashape = uda.udaGetNodeAtomicShape(self._node)
 
         cdef const char* name = anames[idx]
         cdef const char* type = atypes[idx]
@@ -59,19 +59,18 @@ cdef class TreeNode:
         cdef int rank = arank[idx]
         cdef int* shape = ashape[idx]
 
-        cdef void* data = uda.udaGetNodeStructureComponentData(logmalloclist, self._node, name)
+        cdef void* data = uda.udaGetNodeStructureComponentData(self._node, name)
         return to_python_c(type, rank, shape, point, data, <PyObject*>self._handle)
 
     cdef _import_data(self):
-        cdef uda.LOGMALLOCLIST* logmalloclist = uda.udaGetLogMallocList(self._handle)
-        cdef const char** anames = <const char**>uda.udaGetNodeAtomicNames(logmalloclist, self._node)
+        cdef const char** anames = <const char**>uda.udaGetNodeAtomicNames(self._node)
 
         cdef int size = uda.udaGetNodeAtomicCount(self._node)
         cdef int i
         cdef const char* name
 
         for i in range(size):
-            data = self._load_atomic_data(i, logmalloclist)
+            data = self._load_atomic_data(i)
             name = anames[i]
             self._values[name.decode()] = data
 

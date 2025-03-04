@@ -1,0 +1,31 @@
+# [logging]
+  # path = "/Users/sdixon/uda/uda-3.0/install-api-2/python_installer"
+  # mode = 'a'
+  # level = 1
+
+[connection]
+  host = "host2"
+  max_socket_delay = 25
+  max_socket_attempts = 5
+
+[request]
+  delim = "@@"
+
+[client_flags] 
+  get_bad = true
+  get_meta = true
+
+[[host_list]]
+host_alias = "localhost"
+host_name = "localhost"
+port = 56565
+
+[[host_list]]
+host_alias = "host2"
+host_name = "host2.uda.uk"
+port = 56789
+
+[[host_list]]
+host_alias = "host3"
+host_name = "host3.uda.uk"
+port = 12345

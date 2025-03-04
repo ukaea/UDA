@@ -1,7 +1,5 @@
 #include "client.hpp"
 
-#include "client_xdr_stream.hpp"
-#include "closedown.hpp"
 #include "connection.hpp"
 #include "exceptions.hpp"
 #include "make_request_block.hpp"
@@ -23,6 +21,8 @@
 #include <algorithm>
 #include <filesystem>
 #include <uda/version.h>
+#include <fstream>
+#include <iostream>
 
 using namespace uda::client_server;
 using namespace uda::logging;
@@ -368,9 +368,64 @@ int get_data_status(DataBlock* data_block)
 }
 } // namespace
 
-// TODO: consider moving more of this down into the connection class for managing the connection status?
+void uda::client::Client::new_socket_connection()
+{
+    //TODO: replace client error stack with exceptions
+    if (connection_.create() != 0) {
+        int err = NO_SOCKET_CONNECTION;
+        add_error(error_stack_, ErrorType::Code, __func__, err, "No Socket Connection to Server");
+        throw uda::exceptions::ClientError("No socket connection to server");
+    }
+
+    connection_.register_new_xdr_streams();
+    std::tie(client_input_, client_output_) = connection_.get_socket_xdr_streams();
+    if (client_output_ == nullptr || client_input_ == nullptr) {
+        throw uda::exceptions::ClientError("failed to open new XDR streams");
+    }
+
+}
+
+void uda::client::Client::ensure_connection()
+{
+    if (connection_.open() and connection_.current_socket_timeout()) {
+        auto age = connection_.get_current_socket_age();
+        UDA_LOG(UDA_LOG_DEBUG, "Server Age Limit Reached {}", (long)age);
+        UDA_LOG(UDA_LOG_DEBUG, "Server Closed and New Instance Started");
+        // this call may have to change when we add ssl back in
+        // closedown(ClosedownType::CLOSE_SOCKETS, &connection_);
+        connection_.close_down(ClosedownType::CLOSE_SOCKETS);
+    }
+    if (connection_.reconnect_required()) {
+        connection_.maybe_reuse_existing_socket();
+    }
+    if (connection_.open()){
+        std::tie(client_input_, client_output_) = connection_.get_socket_xdr_streams();
+        if (client_input_ == nullptr || client_output_ == nullptr)
+        {
+            add_error(error_stack_, ErrorType::Code, __func__, 999, "XDR Streams are Closed!");
+            UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!");
+            connection_.close_down(ClosedownType::CLOSE_SOCKETS);
+        }
+
+        if (client_output_->x_ops == nullptr || client_input_->x_ops == nullptr) {
+            add_error(error_stack_, ErrorType::Code, __func__, 999, "XDR Streams are Closed!");
+            UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!");
+            // this call may have to change when we add ssl back in
+            // closedown(ClosedownType::CLOSE_SOCKETS, &connection_);
+            connection_.close_down(ClosedownType::CLOSE_SOCKETS);
+        }
+    }
+
+    if (!connection_.open()) {
+        new_socket_connection();
+    } else {
+        xdrrec_eof(client_input_); // Flush input socket
+    }
+}
+
 int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 {
+    // TODO: this can be removed now?
     // logging can be closed from a closedown(type=CLOSE_ALL) command.
     // reopen if required
     if (!logging_initialised()) {
@@ -380,66 +435,10 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     init_server_block(&server_block_, 0);
     error_stack_.clear();
 
-    // note: tv_server_start is a global in client1... this needs re-writing a little bit
-    //  TODO: can ctime be swapped out for std::chrono?
-    //  TODO: clock needs to be started here...
-    time_t tv_server_start = 0;
-
     connection_.set_maximum_socket_age(client_flags_.user_timeout);
-
-    if (connection_.reconnect_required()) {
-        int err = connection_.reconnect(&client_input_, &client_output_, &tv_server_start, &client_flags_.user_timeout);
-        if (err) {
-            return err;
-        }
-    }
-
-    // TODO: server age is wrong here? if no flags set server age isn't read from the connection.socket_list_ ?
-    // age is always basically zero for subsequent requests?
-    // tv_server_end = time(nullptr);
-    // long age = (long)tv_server_end - (long)tv_server_start;
     auto age = connection_.get_current_socket_age();
-
-    // UDA_LOG(UDA_LOG_DEBUG, "Start: {}    End: {}", (long)tv_server_start, (long)tv_server_end);
-    // UDA_LOG(UDA_LOG_DEBUG, "Server Age: {}", age);
-
-    bool init_server = true;
-    // TODO: what does 2 mean here?
-    //  if (age >= client_flags_.user_timeout - 2)
-    if (connection_.current_socket_timeout()) {
-        // Assume the Server has Self-Destructed so Instantiate a New Server
-        UDA_LOG(UDA_LOG_DEBUG, "Server Age Limit Reached {}", (long)age);
-        UDA_LOG(UDA_LOG_DEBUG, "Server Closed and New Instance Started");
-
-        // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
-        closedown(ClosedownType::CLOSE_SOCKETS, &connection_, client_input_, client_output_, &reopen_logs_);
-    } else if (connection_.open()) {
-        // Assume the Server is Still Alive
-        if (client_output_->x_ops == nullptr || client_input_->x_ops == nullptr) {
-            add_error(error_stack_, ErrorType::Code, __func__, 999, "XDR Streams are Closed!");
-            UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!");
-            closedown(ClosedownType::CLOSE_SOCKETS, &connection_, client_input_, client_output_, &reopen_logs_);
-        } else {
-            init_server = false;
-            xdrrec_eof(client_input_); // Flush input socket
-        }
-    }
-
-    // bool authentication_needed = false;
-    bool startup_states = false;
-    if (init_server) {
-        // authentication_needed = true;
-        startup_states = true;
-        if (connection_.create(client_input_, client_output_) != 0) {
-            int err = NO_SOCKET_CONNECTION;
-            add_error(error_stack_, ErrorType::Code, __func__, err, "No Socket Connection to Server");
-            return err;
-        }
-
-        io_data_ = connection_.io_data();
-        std::tie(client_input_, client_output_) = create_xdr_stream(&io_data_);
-        time(&tv_server_start); // Start the Clock again: Age of Server
-    }
+    UDA_LOG(UDA_LOG_DEBUG, "Server Age: {}", age);
+    ensure_connection();
 
     update_client_block(client_block_, client_flags_, private_flags_);
     print_client_block(client_block_);
@@ -448,10 +447,10 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     // Client and Server States at Startup only (1 RTT)
     // Will be passed during mutual authentication step
 
-    if (startup_states) {
+    if (connection_.startup_state) {
         perform_handshake();
-        startup_states = false;
-    } // startup_states
+        connection_.startup_state = false;
+    }
 
     UDA_LOG(UDA_LOG_DEBUG, "Protocol Version {}", protocol_version_);
     UDA_LOG(UDA_LOG_DEBUG, "Client Version   {}", client_block_.version);
@@ -474,7 +473,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         err = server_block_.error_stack[0].code; // Problem on the Server Side!
         UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State {}", err);
         // server_side = true;        // Most Server Side errors are benign so don't close the server
-        return 0;
+        return err;
     }
 
     if (client_block_.get_meta) {
@@ -488,13 +487,24 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 
     std::vector<DataBlock> recv_data_block_list;
 
-    if ((err = protocol2(error_stack_, client_input_, ProtocolId::DataBlockList, XDRStreamDirection::Receive, nullptr,
-                         log_malloc_list_, user_defined_type_list_, &recv_data_block_list, protocol_version_,
-                         &log_struct_list_, private_flags_, malloc_source_)) != 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)");
+    try
+    {
 
+        if ((err = protocol2(error_stack_, client_input_, ProtocolId::DataBlockList, XDRStreamDirection::Receive, nullptr,
+                        log_malloc_list_, user_defined_type_list_, &recv_data_block_list, protocol_version_,
+                        &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+            UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)");
+
+            add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
+            throw uda::exceptions::ClientError("Protocol 2 Error (Failure Receiving Data Block)");
+        }
+    }
+    catch (std::exception& e)
+    {
+        UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)");
         add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
         throw uda::exceptions::ClientError("Protocol 2 Error (Failure Receiving Data Block)");
+        // throw e.what();
     }
 
     print_data_block_list(recv_data_block_list);
@@ -537,7 +547,8 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     if (data_received) {
         if (err != 0) {
             // Close Socket & XDR Streams but Not Files
-            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input_, client_output_, &reopen_logs_);
+            // closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input_, client_output_, &reopen_logs_);
+            connection_.close_down(ClosedownType::CLOSE_SOCKETS);
         }
 
         for (auto data_block_idx : data_block_indices) {
@@ -588,7 +599,8 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error {}", err);
 
         if (err != 0) {
-            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input_, client_output_, &reopen_logs_);
+            // closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input_, client_output_, &reopen_logs_);
+            connection_.close_down(ClosedownType::CLOSE_SOCKETS);
         }
 
         concat_errors(server_block_);

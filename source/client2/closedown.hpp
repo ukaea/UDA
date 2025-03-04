@@ -11,6 +11,7 @@ enum class ClosedownType {
 
 class Connection;
 
-int closedown(ClosedownType type, Connection* connection, XDR* client_input, XDR* client_output, bool* reopen_logs);
+int closedown(ClosedownType type, Connection* connection);
+void close_xdr_stream(XDR*);
 
 } // namespace uda::client

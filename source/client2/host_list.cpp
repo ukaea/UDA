@@ -14,6 +14,7 @@
 
 #include "logging/logging.h"
 
+using namespace std::string_literals;
 using namespace uda::logging;
 
 const uda::client_server::HostData* uda::client::HostList::find_by_alias(std::string_view alias) const
@@ -45,6 +46,42 @@ const uda::client_server::HostData* uda::client::HostList::find_by_name(std::str
 
 uda::client::HostList::HostList()
 {
+    load_from_default_locations();
+}
+
+uda::client::HostList::HostList(std::string_view file_path)
+{
+    load_from_file(file_path);
+}
+
+uda::client::HostList::HostList(uda::config::Config& config)
+{
+    const auto maybe_file_path = config.get("connection.host_list_path").as_or_default<std::string>(""s);
+    if (maybe_file_path.empty()) {
+        load_list_from_toml(config);
+    }
+    else {
+        load_from_file(maybe_file_path);
+    } 
+}
+
+void uda::client::HostList::load_from_file(std::string_view file_path)
+{
+    if (boost::algorithm::ends_with(file_path, ".toml"))
+    {
+        uda::config::Config config = {};
+        config.load(file_path);
+        load_list_from_toml(config);
+    }
+    else
+    {
+        load_list_from_custom_file_format(file_path);
+    }
+
+}
+
+void uda::client::HostList::load_from_default_locations()
+{
     //----------------------------------------------------------------------------------------------------------------------
     // Read the host configuration file from default locations: No error if the file does not exist
 
@@ -52,11 +89,11 @@ uda::client::HostList::HostList()
 
     constexpr const char* filename = "hosts.cfg";           // Default name
     const char* config = getenv("UDA_CLIENT_HOSTS_CONFIG"); // Host configuration file
-    std::string config_file;
+    std::string file_path;
 
     if (config == nullptr) {
 #ifdef _WIN32
-        config_file = filename; // Local directory
+        file_path = filename; // Local directory
 #else
         const char* home = getenv("HOME");
         if (home == nullptr) {
@@ -64,19 +101,14 @@ uda::client::HostList::HostList()
         }
 
         // the UDA hidden directory in the user's home directory
-        config_file = std::string{home} + "/.uda/" + filename;
+        file_path = std::string{home} + "/.uda/" + filename;
 #endif
     } else {
-        config_file = config;
+        file_path = config;
     }
 
     // Read the hosts file
-    load_config_file(config_file);
-}
-
-uda::client::HostList::HostList(std::string_view config_file)
-{
-    load_config_file(config_file);
+    load_list_from_custom_file_format(file_path);
 }
 
 void uda::client::HostList::load_list_from_toml(uda::config::Config& config)
@@ -85,9 +117,14 @@ void uda::client::HostList::load_list_from_toml(uda::config::Config& config)
         return;
     }
 
+    // only clear current list if there is actually a host_list section available to replace it with
+    const auto config_host_list = config.get_array("host_list");
+    if (config_host_list.empty()){
+        return;
+    }
+    hosts_.clear();
     // assume we require at least a host_name and an alias so skip records where this isn't set
     // all other fields considered optional
-    const auto config_host_list = config.get_array("host_list");
     for (const auto& entry_map: config_host_list)
     {
         uda::client_server::HostData new_data = {};
@@ -117,10 +154,9 @@ void uda::client::HostList::load_list_from_toml(uda::config::Config& config)
     }
 }
 
-
-void uda::client::HostList::load_config_file(std::string_view config_file)
+void uda::client::HostList::load_list_from_custom_file_format(std::string_view file_path)
 {
-    std::ifstream conf( (std::string(config_file)) );
+    std::ifstream conf( (std::string(file_path)) );
     if (!conf) {
         return;
     }

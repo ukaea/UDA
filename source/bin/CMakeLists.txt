@@ -27,6 +27,11 @@ target_link_libraries( uda_cli PRIVATE
 )
 target_link_libraries( uda_cli PRIVATE Boost::program_options )
 
+set_target_properties(uda_cli PROPERTIES
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "@executable_path/../lib"
+)
+
 install(
   TARGETS uda_cli
   DESTINATION bin

@@ -13,6 +13,8 @@
 
 #include <string>
 
+using XDR = struct __rpc_xdr;
+
 namespace uda::config {
 class Config;
 }
@@ -68,13 +70,20 @@ public:
     }
     int open();
     int reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start, int* user_timeout);
-    int create(XDR* client_input, XDR* client_output);
+    int create();
     void close_down(ClosedownType type);
+    // void ensure_connection();
 
     const uda::client_server::Socket& get_current_connection_data() const;
     bool current_socket_timeout() const;
     time_t get_current_socket_age() const;
     void set_maximum_socket_age(int age);
+
+    void register_xdr_streams(XDR* client_input, XDR* client_output);
+    void register_new_xdr_streams();
+    std::pair<XDR*, XDR*> get_socket_xdr_streams() const;
+    bool maybe_reuse_existing_socket();
+    // find_or_create_socket()
 
     // TODO: this returns (writeable) pointer to private member variable. intention?
     IoData io_data() { return IoData{&error_stack_, &client_socket_}; }
@@ -94,12 +103,16 @@ public:
 
     void load_config(const config::Config& config);
 
+    bool startup_state = true;
+
 
 protected:
     int client_socket_ = -1;
     HostList host_list_ = {};
     std::vector<client_server::UdaError>& error_stack_;
     std::vector<client_server::Socket> socket_list_; // List of open sockets
+
+    std::vector<IoData> io_data_list_;
 
     int port_ = DefaultPort;
     std::string host_ = DefaultHost;

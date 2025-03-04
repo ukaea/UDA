@@ -186,3 +186,18 @@ TEST_CASE( "can retreive data from arrays of structures", "[config-arraystruct]"
     auto localhost = host_list[0];
     REQUIRE( localhost == expected_result );
 }
+
+//TODO: test validation cases for array data
+
+TEST_CASE( "requesting non-existant array returns an empty map", "[config-arraystruct]")
+{
+    uda::config::Config config {};
+    std::string file_path = "test_files/uda-client-config.toml";
+    config.load(file_path);
+    REQUIRE(config);
+    const auto result = config.get_array("does_not_exist");
+    std::vector<std::unordered_map<std::string, uda::config::Option>> expected_result = {};
+    REQUIRE(result == expected_result);
+}
+
+

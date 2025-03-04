@@ -26,10 +26,54 @@ TEST_CASE( "connection object can be constructed with a config file", "[client-i
     REQUIRE_NOTHROW(uda::client::Connection(error_stack, config));
 }
 
-// TEST_CASE( "connection options can be set from a config file", "[option-parsing]" )
-// {
-//     FAIL("Test not implemented yet");
-// }
+TEST_CASE( "connection options can be set from a config file", "[option-parsing]" )
+{
+    std::vector<uda::client_server::UdaError> error_stack;
+    std::string file_path = "test_files/client-config-with-hosts.toml";
+    uda::config::Config config = {};
+    config.load(file_path);
+    uda::client::Connection connection(error_stack, config);
+
+    REQUIRE( connection.get_host() == "host2.uda.uk" );
+    REQUIRE( connection.get_port() == 56789 );
+
+    const auto options = connection.get_options();
+    REQUIRE( options.max_socket_delay == 25 );
+    REQUIRE( options.max_socket_attempts == 5 );
+    REQUIRE( options.host == "host2.uda.uk" );
+    REQUIRE( options.port == 56789 );
+}
+
+TEST_CASE( "connection options can be set through set_option methods", "[option-interface]" )
+{
+    std::vector<uda::client_server::UdaError> error_stack;
+    std::string file_path = "test_files/client-config-with-hosts.toml";
+    uda::config::Config config = {};
+    config.load(file_path);
+    uda::client::Connection connection(error_stack, config);
+
+    REQUIRE( connection.get_host() == "host2.uda.uk" );
+    REQUIRE( connection.get_port() == 56789 );
+
+    SECTION( "new host from host list" )
+    {
+        REQUIRE_NOTHROW( connection.set_host("host3") );
+        REQUIRE( connection.get_host() == "host3.uda.uk" );
+        REQUIRE( connection.get_port() == 12345 );
+        REQUIRE( connection.reconnect_required() );
+    }
+
+    SECTION( "new host and port not on host list" )
+    {
+        std::string new_host = "my.new.host";
+        int new_port = 9999;
+        REQUIRE_NOTHROW( connection.set_host(new_host) );
+        REQUIRE_NOTHROW( connection.set_port(new_port) );
+        REQUIRE( connection.get_host() == new_host );
+        REQUIRE( connection.get_port() == new_port );
+        REQUIRE( connection.reconnect_required() );
+    }
+}
 
 // NOTE! only using method hiding here since functions are not marked virtual in source code
 // this means no runtime polymorphism will work. beware (and possibly change later)

@@ -162,24 +162,10 @@ private:
     // -------------------------------------------------
 
     // required by protocol functions for data transport
-    // and by the connection methods for establishing connections
-    XDR* client_input_ = nullptr;
-    XDR* client_output_ = nullptr;
-
-    // connection.io_data -> IoData{&connection._client_socket}
-    // required by createXDRStream only? need to cache?
-    IoData io_data_ = {};
-
-    // -------------------------------------------------
-    //   don't know
-    // -------------------------------------------------
-
-    // reopen_flags set after server timeout, but nothing ever done with it
-    bool reopen_logs_ = false;
-
-    //TODO: _env_var flags never used. intention?
-    // bool _env_host = false;
-    // bool _env_port = false;
+    // NOTE: these are now owned by the socket struct in connection_
+    // TODO: how to signal these are cached here, not owned
+    mutable XDR* client_input_ = nullptr;
+    mutable XDR* client_output_ = nullptr;
 
     // -------------------------------------------------
     //   legacy structured data stuff
@@ -199,6 +185,8 @@ private:
     int receive_server_block();
     int fetch_meta();
     int fetch_hierarchical_data(client_server::DataBlock* data_block);
+    void new_socket_connection();
+    void ensure_connection();
 };
 
 } // namespace uda::client

@@ -492,6 +492,9 @@ class ConfigImpl
     {
         std::vector<std::unordered_map<std::string, Option>> result;
         toml::node_view maybe_array = _table[name];
+        if (!maybe_array) {
+            return result;
+        }
         if (!maybe_array.is_array()) {
             throw ConfigError{fmt::format("invalid config array name {}", name.data())};
         }

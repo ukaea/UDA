@@ -303,6 +303,7 @@ bool_t uda::protocol::xdr_data_block_list(XDR* xdrs, std::vector<DataBlock>* str
             case XDR_ENCODE: {
                 int size = static_cast<int>(str->size());
                 rc = rc && xdr_int(xdrs, &size);
+                break;
             }
             case XDR_DECODE: {
                 int size = 0;
@@ -310,6 +311,7 @@ bool_t uda::protocol::xdr_data_block_list(XDR* xdrs, std::vector<DataBlock>* str
                 if (rc) {
                     str->resize(size);
                 }
+                break;
             }
             default:
                 throw std::runtime_error("invalid operation");

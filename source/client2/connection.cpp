@@ -1,6 +1,7 @@
 // Create an IPv4 or IPv6 Socket Connection to the UDA server with a randomised time delay between connection attempts
 //
 //----------------------------------------------------------------
+#include "client.hpp"
 #ifdef _WIN32
 #  include <cctype>
 #  include <winsock2.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
@@ -41,6 +42,8 @@
 #endif
 
 #include "clientserver/error_log.h"
+#include "client_xdr_stream.hpp"
+#include "closedown.hpp"
 #include "clientserver/manage_sockets.h"
 #include "config/config.h"
 #include "exceptions.hpp"
@@ -69,6 +72,9 @@ void uda::client::Connection::load_config(const config::Config& config)
     if (!config) {
         return;
     }
+
+    host_list_ = HostList(config);
+
     // TODO: what is precedence here if host is from host-list (with associated port?)
     // TODO: should connection class always have reference to host list?
     auto port = config.get("connection.port").as_or_default<int32_t>(DefaultPort);
@@ -97,12 +103,6 @@ void uda::client::Connection::load_config(const config::Config& config)
     // TODO: how to determine if currently connected to failover server and signal reconnect on update?
     fail_over_port_ = config.get("connection.failover_port").as_or_default<int32_t>(0);
     fail_over_host_ = config.get("connection.failover_host").as_or_default<std::string>(""s);
-
-    const auto host_list_config_path = config.get("connection.host_list_").as_or_default<std::string>(""s);
-    if (!host_list_config_path.empty())
-    {
-        host_list_ = HostList(host_list_config_path);
-    }
 }
 
 void uda::client::Connection::load_host_list(std::string_view config_file)
@@ -206,6 +206,23 @@ void uda::client::Connection::set_maximum_socket_age(int age)
     socket.user_timeout = age;
 }
 
+bool uda::client::Connection::maybe_reuse_existing_socket()
+{
+    int candidate_socket_id = find_socket_by_properties(host_, port_);
+    client_socket_ = socket_list_[candidate_socket_id].fh;
+    if (candidate_socket_id == -1 or !socket_list_[candidate_socket_id].open) {
+        client_socket_ = -1;
+        return false;
+    }
+    if (current_socket_timeout()) {
+        close_down(ClosedownType::CLOSE_SOCKETS);
+        client_socket_ = -1;
+        return false;
+    }
+    return true;
+}
+
+//TODO: replace with three functions: (i) swap to another existing connection. (ii) create new connection. (iii) set and get socket details
 int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start,
                                        int* user_timeout)
 {
@@ -233,7 +250,7 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
     // TODO: missing the change_socket logic here, which says (in client1) that if another (live) connection exists
     //  just change to that one
     int candidate_socket_id = find_socket_by_properties(host_, port_);
-    if (candidate_socket_id != -1 and socket_list_[candidate_socket_id].open == 1) {
+    if (candidate_socket_id != -1 and socket_list_[candidate_socket_id].open) {
         client_socket_ = socket_list_[candidate_socket_id].fh;
 
         // replace with previous timer settings and XDR handles
@@ -400,11 +417,38 @@ void uda::client::Connection::set_host(std::string_view host)
     }
 }
 
-int uda::client::Connection::create(XDR* client_input, XDR* client_output)
+// note this passes ownership of the XDR stream pointers
+void uda::client::Connection::register_xdr_streams(XDR* client_input, XDR* client_output)
+{
+    //throws if there is no current connection.
+    auto& socket = get_current_socket();
+    socket.Input = client_input;
+    socket.Output = client_output;
+}
+
+void uda::client::Connection::register_new_xdr_streams()
+{
+    io_data_list_.emplace_back(io_data());
+    auto [client_input, client_output] = create_xdr_stream(&io_data_list_.back());
+    if (!client_input or !client_output) {
+        throw uda::exceptions::ClientError("failed to open new XDR streams");
+    }
+
+    register_xdr_streams(client_input.release(), client_output.release());
+}
+
+std::pair<XDR*, XDR*> uda::client::Connection::get_socket_xdr_streams() const
+{
+    const auto& socket = get_current_connection_data();
+    return std::make_pair(socket.Input, socket.Output);
+}
+
+int uda::client::Connection::create()
 {
     int window_size = DBReadBlockSize; // 128K
     int rc;
 
+    //TODO: check this is always intended behaviour
     if (client_socket_ >= 0) {
         // Check Already Opened?
         return 0;
@@ -648,9 +692,9 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output)
     socket.port = port_;
     socket.host = host_;
     socket.tv_server_start = time(nullptr);
-    socket.user_timeout = 0;
-    socket.Input = client_input;
-    socket.Output = client_output;
+    socket.user_timeout = DefaultTimeout;
+    socket.Input = nullptr;
+    socket.Output = nullptr;
 
     socket_list_.push_back(socket);
 
@@ -659,6 +703,8 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output)
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     put_client_ssl_socket(client_socket_);
 #endif
+
+    startup_state = true;
 
     return 0;
 }
@@ -676,6 +722,8 @@ void uda::client::Connection::close_socket(int fh)
 #endif
             socket.open = false;
             socket.fh = -1;
+            close_xdr_stream(socket.Input);
+            close_xdr_stream(socket.Output);
             break;
         }
     }
@@ -685,7 +733,7 @@ void uda::client::Connection::close_down(ClosedownType type)
 {
     if (client_socket_ >= 0 && type != ClosedownType::CLOSE_ALL) {
         close_socket(client_socket_);
-    } else {
+    } else if (type == ClosedownType::CLOSE_ALL) {
         for (const auto& socket : socket_list_) {
             close_socket(socket.fh);
         }

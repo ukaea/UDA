@@ -73,8 +73,8 @@ TEST_CASE( "host-list can be parsed from a toml config file", "[host_list-toml]"
 {
     uda::config::Config config {};
     config.load("test_files/host_list.toml");
-    uda::client::HostList host_list {};
-    REQUIRE_NOTHROW( host_list.load_list_from_toml(config) );
+    REQUIRE_NOTHROW(uda::client::HostList(config));
+    uda::client::HostList host_list(config);
 
     auto hosts = host_list.get_host_list();
     REQUIRE_FALSE(hosts.empty());

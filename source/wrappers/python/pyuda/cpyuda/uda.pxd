@@ -58,10 +58,10 @@ cdef extern from "uda/structured.h":
     NTREE* udaGetNodeChild(NTREE* ntree, int child);
     char* udaGetNodeStructureName(NTREE* ntree);
     int udaGetNodeAtomicCount(NTREE* ntree);
-    char** udaGetNodeAtomicNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    char** udaGetNodeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    char** udaGetNodeAtomicTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    int* udaGetNodeAtomicPointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    int* udaGetNodeAtomicRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    int** udaGetNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    void* udaGetNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+    char** udaGetNodeAtomicNames(NTREE* ntree);
+    char** udaGetNodeStructureTypes(NTREE* ntree);
+    char** udaGetNodeAtomicTypes(NTREE* ntree);
+    int* udaGetNodeAtomicPointers(NTREE* ntree);
+    int* udaGetNodeAtomicRank(NTREE* ntree);
+    int** udaGetNodeAtomicShape(NTREE* ntree);
+    void* udaGetNodeStructureComponentData(NTREE* ntree, const char* target);

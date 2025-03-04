@@ -14,8 +14,17 @@ using namespace uda::authentication;
 
 using namespace uda::logging;
 
-int uda::client::closedown(ClosedownType type, Connection* connection, XDR* client_input, XDR* client_output,
-                           bool* reopen_logs)
+void uda::client::close_xdr_stream(XDR* stream)
+{
+    if (stream != nullptr) {
+        if (stream->x_ops != nullptr) {
+            xdr_destroy(stream);
+        }
+        stream->x_ops = nullptr;
+    }
+}
+
+int uda::client::closedown(ClosedownType type, Connection* connection)
 {
     int rc = 0;
 
@@ -26,26 +35,9 @@ int uda::client::closedown(ClosedownType type, Connection* connection, XDR* clie
         UDA_LOG(UDA_LOG_DEBUG, "Closing Streams and Sockets");
     }
 
-    //TODO: why are logs closed here? Is there another context except server reconnects (after timepout etc). 
-    // where this is called? because for those cases we expect to just reconnect. 
-    if (type == ClosedownType::CLOSE_ALL) {
-        close_logging();
-        *reopen_logs = true; // In case the User calls the IDAM API again!
-    }
-
-    if (client_input != nullptr) {
-        if (client_input->x_ops != nullptr) {
-            xdr_destroy(client_input);
-        }
-        client_input->x_ops = nullptr;
-    }
-
-    if (client_output != nullptr) {
-        if (client_output->x_ops != nullptr) {
-            xdr_destroy(client_output);
-        }
-        client_output->x_ops = nullptr;
-    }
+    // xdr streams owned by socket now
+    // close_xdr_stream(client_input);
+    // close_xdr_stream(client_output);
 
     if (connection != nullptr) {
         connection->close_down(type);
