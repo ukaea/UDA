@@ -761,7 +761,7 @@ int uda::protocol::protocol_xml2(std::vector<UdaError>& error_stack, XDR* xdrs, 
 
 #endif // !FATCLIENT
 
-                        if (STR_EQUALS(udt_received->name, "SArray")) { // expecting this carrier structure
+                        if (STR_IEQUALS(udt_received->name, "SArray")) { // expecting this carrier structure
 
                             auto general_block = (GeneralBlock*)malloc(sizeof(GeneralBlock));
 
@@ -926,7 +926,7 @@ int uda::protocol::protocol_xml2(std::vector<UdaError>& error_stack, XDR* xdrs, 
 
                             // Regular client or server
 
-                            if (STR_EQUALS(udt_received->name,
+                            if (STR_IEQUALS(udt_received->name,
                                            "SArray")) { // expecting this carrier structure
 
                                 GeneralBlock* general_block = (GeneralBlock*)malloc(sizeof(GeneralBlock));
@@ -1065,7 +1065,7 @@ int uda::protocol::protocol_xml2(std::vector<UdaError>& error_stack, XDR* xdrs, 
 
                             // Regular client or server
 
-                            if (STR_EQUALS(udt_received->name,
+                            if (STR_IEQUALS(udt_received->name,
                                            "SArray")) { // expecting this carrier structure
 
                                 auto general_block = (GeneralBlock*)malloc(sizeof(GeneralBlock));
@@ -1258,7 +1258,7 @@ int unpackXDRFile(std::vector<UdaError>& error_stack, LogMallocList* logmallocli
 
     // Return data tree
 
-    if (STR_EQUALS(udt_received->name, "SArray")) { // expecting this carrier structure
+    if (STR_IEQUALS(udt_received->name, "SArray")) { // expecting this carrier structure
 
         auto general_block = (GeneralBlock*)malloc(sizeof(GeneralBlock));
 
@@ -1363,7 +1363,7 @@ int unpackXDRObject(std::vector<UdaError>& error_stack, LogMallocList* logmalloc
 
     // Return data tree
 
-    if (STR_EQUALS(udt_received->name, "SArray")) { // expecting this carrier structure
+    if (STR_IEQUALS(udt_received->name, "SArray")) { // expecting this carrier structure
 
         auto general_block = (GeneralBlock*)malloc(sizeof(GeneralBlock));
 

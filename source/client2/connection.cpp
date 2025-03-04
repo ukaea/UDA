@@ -209,11 +209,11 @@ void uda::client::Connection::set_maximum_socket_age(int age)
 bool uda::client::Connection::maybe_reuse_existing_socket()
 {
     int candidate_socket_id = find_socket_by_properties(host_, port_);
-    client_socket_ = socket_list_[candidate_socket_id].fh;
     if (candidate_socket_id == -1 or !socket_list_[candidate_socket_id].open) {
         client_socket_ = -1;
         return false;
     }
+    client_socket_ = socket_list_[candidate_socket_id].fh;
     if (current_socket_timeout()) {
         close_down(ClosedownType::CLOSE_SOCKETS);
         client_socket_ = -1;
