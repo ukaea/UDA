@@ -11,6 +11,6 @@
 namespace uda::authentication
 {
 
-void udaUpdateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
+void update_select_params(int fd, fd_set* rfds, struct timeval* tv);
 
 }

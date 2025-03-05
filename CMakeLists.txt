@@ -66,8 +66,9 @@ endif(  )
 ########################################################################################################################
 # Build options
 
-option( ENABLE_CACHE_MEMCACHE "use memcache caching" OFF )
-option( ENABLE_CAPNP "disable capnproto serialisation" ON )
+option( ENABLE_CACHE_MEMCACHE "enable memcache caching" OFF )
+option( ENABLE_CAPNP "enable capnproto serialisation" ON )
+option( ENABLE_SSL "enable ssl authentication" ON )
 
 option( ENABLE_CXX_WRAPPER "Turn off building of C++ wrapper" ON )
 option( ENABLE_PYTHON_WRAPPER "Turn off building of Python wrapper" ON )

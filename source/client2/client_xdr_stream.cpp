@@ -28,7 +28,7 @@ std::pair<XDR*, XDR*> uda::client::create_xdr_stream(IoData* io_data)
     UDA_LOG(UDA_LOG_DEBUG, "Creating XDR Streams");
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    if (getUdaClientSSLDisabled()) {
+    if (get_client_ssl_disabled()) {
 #  if defined(__APPLE__) || defined(__TIRPC__)
         xdrrec_create(&client_output, DBReadBlockSize, DBWriteBlockSize, io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(uda::client::readin),
@@ -49,12 +49,12 @@ std::pair<XDR*, XDR*> uda::client::create_xdr_stream(IoData* io_data)
     } else {
 #  if defined(__APPLE__) || defined(__TIRPC__)
         xdrrec_create(&client_output, DBReadBlockSize, DBWriteBlockSize, io_data,
-                      reinterpret_cast<int (*)(void*, void*, int)>(readUdaClientSSL),
-                      reinterpret_cast<int (*)(void*, void*, int)>(writeUdaClientSSL));
+                      reinterpret_cast<int (*)(void*, void*, int)>(read_client_ssl),
+                      reinterpret_cast<int (*)(void*, void*, int)>(write_client_ssl));
 
         xdrrec_create(&client_input, DBReadBlockSize, DBWriteBlockSize, io_data,
-                      reinterpret_cast<int (*)(void*, void*, int)>(readUdaClientSSL),
-                      reinterpret_cast<int (*)(void*, void*, int)>(writeUdaClientSSL));
+                      reinterpret_cast<int (*)(void*, void*, int)>(read_client_ssl),
+                      reinterpret_cast<int (*)(void*, void*, int)>(write_client_ssl));
 #  else
         xdrrec_create(&client_output, DBReadBlockSize, DBWriteBlockSize, (char*)io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(readUdaClientSSL),

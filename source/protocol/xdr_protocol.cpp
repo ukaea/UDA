@@ -139,6 +139,7 @@ uda::protocol::XdrProtocol::XdrProtocol(std::vector<UdaError>& error_stack)
     _io_data.server_socket = 0;
     _io_data.server_tot_block_time = &_server_tot_block_time;
     _io_data.server_timeout = &_server_timeout;
+    _io_data.error_stack = &_error_stack;
 }
 
 void uda::protocol::XdrProtocol::create_streams()
@@ -147,7 +148,7 @@ void uda::protocol::XdrProtocol::create_streams()
     _server_input.x_ops = nullptr;
 
 #if defined(SSLAUTHENTICATION)
-    if (getUdaServerSSLDisabled()) {
+    if (get_server_ssl_disabled()) {
 #  if defined(__APPLE__) || defined(__TIRPC__)
         xdrrec_create(&_server_output, DBReadBlockSize, DBWriteBlockSize, &_io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(uda::protocol::read),
@@ -168,12 +169,12 @@ void uda::protocol::XdrProtocol::create_streams()
     } else {
 #  if defined(__APPLE__) || defined(__TIRPC__)
         xdrrec_create(&_server_output, DBReadBlockSize, DBWriteBlockSize, &_io_data,
-                      reinterpret_cast<int (*)(void*, void*, int)>(readUdaServerSSL),
-                      reinterpret_cast<int (*)(void*, void*, int)>(writeUdaServerSSL));
+                      reinterpret_cast<int (*)(void*, void*, int)>(read_server_ssl),
+                      reinterpret_cast<int (*)(void*, void*, int)>(write_server_ssl));
 
         xdrrec_create(&_server_input, DBReadBlockSize, DBWriteBlockSize, &_io_data,
-                      reinterpret_cast<int (*)(void*, void*, int)>(readUdaServerSSL),
-                      reinterpret_cast<int (*)(void*, void*, int)>(writeUdaServerSSL));
+                      reinterpret_cast<int (*)(void*, void*, int)>(read_server_ssl),
+                      reinterpret_cast<int (*)(void*, void*, int)>(write_server_ssl));
 #  else
         xdrrec_create(&_server_output, DBReadBlockSize, DBWriteBlockSize, (char*)&_io_data,
                       reinterpret_cast<int (*)(char*, char*, int)>(readUdaServerSSL),

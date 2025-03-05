@@ -8,11 +8,11 @@
 namespace uda::server
 {
 
-struct IoData : uda::client_server::IoData {
+struct IoData {
     int* server_tot_block_time;
     int* server_timeout;
 };
 
-std::pair<XDR*, XDR*> serverCreateXDRStream(uda::client_server::IoData* io_data);
+std::pair<XDR*, XDR*> serverCreateXDRStream(IoData* io_data);
 
 } // namespace uda::server

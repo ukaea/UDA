@@ -96,8 +96,11 @@ LIBRARY_API COMPOUNDFIELD* udaNewCompoundUserTypePointerField(const char* name, 
 LIBRARY_API COMPOUNDFIELD* udaNewCompoundUserTypeArrayField(const char* name, const char* description, int* offset,
                                                             USERDEFINEDTYPE* user_type, int rank, int* shape);
 
-LIBRARY_API USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id, int image_count,
-                                            char* image, size_t size, size_t num_fields, COMPOUNDFIELD** fields);
+LIBRARY_API USERDEFINEDTYPE* udaNewUserTypeFull(const char* name, const char* source, int ref_id, int image_count,
+                                                char* image, size_t size, size_t num_fields, COMPOUNDFIELD** fields);
+
+LIBRARY_API USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, size_t size, size_t num_fields,
+                                            COMPOUNDFIELD** fields);
 
 LIBRARY_API int udaAddUserType(UDA_PLUGIN_INTERFACE*, USERDEFINEDTYPE* user_type);
 LIBRARY_API int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int, size_t, const char*);

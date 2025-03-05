@@ -13,6 +13,7 @@ target_include_directories( uda_cli PRIVATE ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0
 target_compile_definitions( uda_cli PRIVATE CAPNP_ENABLED=1 )
 
 target_link_libraries( uda_cli PRIVATE
+  authentication
   cache
   client
   client_server

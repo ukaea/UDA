@@ -12,7 +12,7 @@ using namespace uda::authentication;
 
 using namespace uda::client_server;
 
-std::pair<XDR*, XDR*> uda::server::serverCreateXDRStream(uda::client_server::IoData* io_data)
+std::pair<XDR*, XDR*> uda::server::serverCreateXDRStream(IoData* io_data)
 {
     static XDR server_input = {};
     static XDR server_output = {};

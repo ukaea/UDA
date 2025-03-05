@@ -54,7 +54,7 @@ int uda::client::closedown(ClosedownType type, Connection* connection, XDR* clie
     // Close the SSL binding and context
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    closeUdaClientSSL();
+    close_client_ssl();
 #endif
 
     return rc;

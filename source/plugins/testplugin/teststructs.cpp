@@ -20,7 +20,7 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     fields[4] = udaNewCompoundVarStringArrayField("v5", "string structure element", &offset, 0, nullptr);
 
-    USERDEFINEDTYPE* test9_type = udaNewUserType("TEST9", "Test #9", 0, 0, nullptr, sizeof(TEST9), 5, fields);
+    USERDEFINEDTYPE* test9_type = udaNewUserType("TEST9", "Test #9", sizeof(TEST9), 5, fields);
 
     udaAddUserType(plugin_interface, test9_type);
 
@@ -36,7 +36,7 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface)
     test9a_fields[5] = udaNewCompoundUserTypeField("v4", "string structure element", &offset, test9_type);
 
     USERDEFINEDTYPE* test9a_user_type =
-        udaNewUserType("TEST9A", "Test #9A", 0, 0, nullptr, sizeof(TEST9A), 6, test9a_fields);
+        udaNewUserType("TEST9A", "Test #9A", sizeof(TEST9A), 6, test9a_fields);
 
     udaAddUserType(plugin_interface, test9a_user_type);
 

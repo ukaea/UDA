@@ -1,4 +1,5 @@
 #pragma once
+#include <clientserver/uda_structs.h>
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
@@ -20,32 +21,31 @@
 #  define VERIFY_DEPTH 4
 #  define X509STRINGSIZE 256
 
-#  include "client/udaClientHostList.h"
-#  include "clientserver/socketStructs.h"
+#  include "clientserver/socket_structs.h"
 
 namespace uda::authentication
 {
 
-bool getUdaClientSSLDisabled();
+bool get_client_ssl_disabled();
 
-SSL* getUdaClientSSL();
+SSL* get_client_ssl();
 
-void putUdaClientSSLSocket(int s);
+void put_client_ssl_socket(int s);
 
-void closeUdaClientSSL();
+void close_client_ssl();
 
-void putUdaClientSSLProtocol(int specified);
+void put_client_ssl_protocol(int specified);
 
-int initUdaClientSSL();
+int init_client_ssl(std::vector<client_server::UdaError>& error_stack);
 
-int startUdaClientSSL();
+int start_client_ssl(std::vector<client_server::UdaError>& error_stack);
 
-int readUdaClientSSL(void* iohandle, char* buf, int count);
+int read_client_ssl(void* iohandle, char* buf, int count);
 
-int writeUdaClientSSL(void* iohandle, char* buf, int count);
+int write_client_ssl(void* iohandle, char* buf, int count);
 
-void putClientHost(const uda::client_server::HostData* host);
+void put_client_host(const client_server::HostData* host);
 
 } // namespace uda::authentication
 
-#endif // SSLAUTHENTICATION
+#endif // _sslAUTHENTICATION

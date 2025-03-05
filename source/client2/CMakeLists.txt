@@ -24,3 +24,6 @@ target_include_directories( client
 target_link_libraries( client PRIVATE fmt::fmt )
 target_link_libraries( client PRIVATE client_server structures config logging common cache )
 target_compile_definitions( client PRIVATE -DNO_GSL_LIB )
+if( ENABLE_SSL )
+  target_compile_definitions( client PRIVATE SSLAUTHENTICATION )
+endif(  )

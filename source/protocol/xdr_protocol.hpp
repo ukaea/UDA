@@ -2,6 +2,7 @@
 
 #include <rpc/rpc.h>
 #include <vector>
+#include <client2/client.hpp>
 
 #include "cache/memcache.hpp"
 #include "protocol/protocol.h"
@@ -15,6 +16,7 @@ struct IoData {
     int server_socket;
     int* server_tot_block_time;
     int* server_timeout;
+    std::vector<client_server::UdaError>* error_stack;
 };
 
 class XdrProtocol

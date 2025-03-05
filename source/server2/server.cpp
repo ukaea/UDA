@@ -295,7 +295,7 @@ void uda::server::Server::shutdown()
     // Close the SSL binding and context
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    closeUdaServerSSL();
+    close_server_ssl();
 #endif
 
     //----------------------------------------------------------------------------

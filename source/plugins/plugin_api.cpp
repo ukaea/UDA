@@ -651,8 +651,8 @@ COMPOUNDFIELD* udaNewCompoundUserTypeArrayField(const char* name, const char* de
     return field;
 }
 
-USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id, int image_count, char* image,
-                                size_t size, size_t num_fields, COMPOUNDFIELD** fields)
+USERDEFINEDTYPE* udaNewUserTypeFull(const char* name, const char* source, const int ref_id, const int image_count,
+                                    char* image, const size_t size, const size_t num_fields, COMPOUNDFIELD** fields)
 {
     UserDefinedType* user_type = (UserDefinedType*)malloc(sizeof(UserDefinedType));
 
@@ -672,6 +672,11 @@ USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id
     }
 
     return user_type;
+}
+
+USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, const size_t size, const size_t num_fields,
+                                COMPOUNDFIELD** fields) {
+    return udaNewUserTypeFull(name, source, 0, 0, nullptr, size, num_fields, fields);
 }
 
 int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user_type)

@@ -30,6 +30,7 @@ target_include_directories( plugins
 )
 target_link_libraries( plugins PRIVATE Boost::filesystem )
 target_link_libraries( plugins PRIVATE
+  "$<BUILD_INTERFACE:authentication>"
   "$<BUILD_INTERFACE:cache>"
   "$<BUILD_INTERFACE:client_server>"
   "$<BUILD_INTERFACE:common>"

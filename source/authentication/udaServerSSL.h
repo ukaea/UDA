@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+
+#include "clientserver/uda_structs.h"
+
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
 // Create the SSL context and binding to the socket
@@ -13,17 +17,17 @@
 namespace uda::authentication
 {
 
-int startUdaServerSSL();
+int start_server_ssl(std::vector<client_server::UdaError>& error_stack);
 
-void closeUdaServerSSL();
+void close_server_ssl();
 
-int readUdaServerSSL(void* iohandle, char* buf, int count);
+int read_server_ssl(void* iohandle, char* buf, int count);
 
-int writeUdaServerSSL(void* iohandle, const char* buf, int count);
+int write_server_ssl(void* iohandle, const char* buf, int count);
 
-void putUdaServerSSLSocket(int socket);
+void put_server_ssl_socket(int socket);
 
-bool getUdaServerSSLDisabled();
+bool get_server_ssl_disabled();
 
 } // namespace uda::authentication
 

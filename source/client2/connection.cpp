@@ -371,7 +371,7 @@ void uda::client::Connection::set_host(std::string_view host)
             server_reconnect_ = true;
         }
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-        putUdaClientSSLProtocol(host_list_record->isSSL);
+        put_client_ssl_protocol(host_list_record->isSSL);
 #endif
     } else if ((host_list_record = host_list_.find_by_name(host)) != nullptr) {
         host_ = host;
@@ -387,9 +387,9 @@ void uda::client::Connection::set_host(std::string_view host)
         if (boost::starts_with(host, "SSL://")) {
             auto new_host = host.substr(6);
             if (new_host == host_) {
-                return host_ = new_host;
+                host_ = new_host;
             }
-            putUdaClientSSLProtocol(1);
+            put_client_ssl_protocol(1);
         } else {
             host_ = host;
         }
@@ -411,7 +411,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output)
     }
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaClientSSLSocket(client_socket_);
+    put_client_ssl_socket(client_socket_);
 #endif
 
 #ifdef _WIN32 // Initialise WINSOCK Once only
@@ -657,7 +657,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output)
     // Write the socket number to the SSL functions
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaClientSSLSocket(client_socket_);
+    put_client_ssl_socket(client_socket_);
 #endif
 
     return 0;

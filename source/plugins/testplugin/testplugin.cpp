@@ -285,7 +285,7 @@ int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
     int shape[1] = {56};
     fields[0] = udaNewCompoundFixedStringField("value", "string structure element", &offset, 1, shape);
 
-    USERDEFINEDTYPE* test4_type = udaNewUserType("TEST4", "Test #4", 0, 0, nullptr, sizeof(TEST4), 1, fields);
+    auto* test4_type = udaNewUserType("TEST4", "Test #4", sizeof(TEST4), 1, fields);
     udaAddUserType(plugin_interface, test4_type);
 
     // Create Data
@@ -314,7 +314,7 @@ int TestPlugin::test5(UDA_PLUGIN_INTERFACE* plugin_interface)
     int shape[2] = {56, 3};
     fields[0] = udaNewCompoundFixedStringField("value", "string structure element", &offset, 2, shape);
 
-    USERDEFINEDTYPE* test5_type = udaNewUserType("TEST5", "Test #5", 0, 0, nullptr, sizeof(TEST5), 1, fields);
+    auto* test5_type = udaNewUserType("TEST5", "Test #5", sizeof(TEST5), 1, fields);
     udaAddUserType(plugin_interface, test5_type);
 
     TEST5* data;
@@ -346,7 +346,7 @@ int TestPlugin::test6(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     fields[0] = udaNewCompoundVarStringField("value", "string structure element", &offset);
 
-    USERDEFINEDTYPE* test6_type = udaNewUserType("TEST6", "Test #6", 0, 0, nullptr, sizeof(TEST6), 1, fields);
+    auto* test6_type = udaNewUserType("TEST6", "Test #6", sizeof(TEST6), 1, fields);
     udaAddUserType(plugin_interface, test6_type);
 
     // Create Data
@@ -378,7 +378,7 @@ int TestPlugin::test7(UDA_PLUGIN_INTERFACE* plugin_interface)
     int shape[1] = {3};
     fields[0] = udaNewCompoundVarStringArrayField("value", "string structure element", &offset, 1, shape);
 
-    USERDEFINEDTYPE* test7_type = udaNewUserType("TEST7", "Test #7", 0, 0, nullptr, sizeof(TEST7), 1, fields);
+    auto* test7_type = udaNewUserType("TEST7", "Test #7", sizeof(TEST7), 1, fields);
     udaAddUserType(plugin_interface, test7_type);
 
     // Create Data
@@ -418,7 +418,7 @@ int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     fields[0] = udaNewCompoundVarStringArrayField("value", "string structure element", &offset, 0, nullptr);
 
-    USERDEFINEDTYPE* test8_type = udaNewUserType("TEST8", "Test #8", 0, 0, nullptr, sizeof(TEST8), 1, fields);
+    auto* test8_type = udaNewUserType("TEST8", "Test #8", sizeof(TEST8), 1, fields);
     udaAddUserType(plugin_interface, test8_type);
 
     // Create Data
@@ -608,7 +608,7 @@ int TestPlugin::test11(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, UDA_TYPE_INT, 0, nullptr);
 
-    USERDEFINEDTYPE* test11_type = udaNewUserType("TEST11", "Test #11", 0, 0, nullptr, sizeof(TEST11), 1, fields);
+    auto* test11_type = udaNewUserType("TEST11", "Test #11", sizeof(TEST11), 1, fields);
     udaAddUserType(plugin_interface, test11_type);
 
     // Create Data
@@ -638,7 +638,7 @@ int TestPlugin::test12(UDA_PLUGIN_INTERFACE* plugin_interface)
     int shape[1] = {3};
     fields[0] = udaNewCompoundField("value", "array integer structure element", &offset, UDA_TYPE_INT, 1, shape);
 
-    USERDEFINEDTYPE* test12_type = udaNewUserType("TEST12", "Test #12", 0, 0, nullptr, sizeof(TEST12), 1, fields);
+    auto* test12_type = udaNewUserType("TEST12", "Test #12", sizeof(TEST12), 1, fields);
     udaAddUserType(plugin_interface, test12_type);
 
     TEST12* data = (TEST12*)malloc(sizeof(TEST12)); // Structured Data Must be a heap variable
@@ -668,7 +668,7 @@ int TestPlugin::test13(UDA_PLUGIN_INTERFACE* plugin_interface)
     int shape[2] = {2, 3};
     fields[0] = udaNewCompoundField("value", "2d array integer structure element", &offset, UDA_TYPE_INT, 2, shape);
 
-    USERDEFINEDTYPE* test13_type = udaNewUserType("TEST13", "Test #13", 0, 0, nullptr, sizeof(TEST13), 1, fields);
+    auto* test13_type = udaNewUserType("TEST13", "Test #13", sizeof(TEST13), 1, fields);
     udaAddUserType(plugin_interface, test13_type);
 
     // Create Data
@@ -702,7 +702,7 @@ int TestPlugin::test14(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     fields[0] = udaNewCompoundPointerField("value", "single integer structure element", &offset, UDA_TYPE_INT, true);
 
-    USERDEFINEDTYPE* test14_type = udaNewUserType("TEST14", "Test #14", 0, 0, nullptr, sizeof(TEST14), 1, fields);
+    auto* test14_type = udaNewUserType("TEST14", "Test #14", sizeof(TEST14), 1, fields);
     udaAddUserType(plugin_interface, test14_type);
 
     // Create Data
@@ -735,7 +735,7 @@ int TestPlugin::test15(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     fields[0] = udaNewCompoundPointerField("value", "single integer structure element", &offset, UDA_TYPE_INT, true);
 
-    USERDEFINEDTYPE* test15_type = udaNewUserType("TEST15", "Test #15", 0, 0, nullptr, sizeof(TEST15), 1, fields);
+    auto* test15_type = udaNewUserType("TEST15", "Test #15", sizeof(TEST15), 1, fields);
     udaAddUserType(plugin_interface, test15_type);
 
     // Create Data
@@ -771,7 +771,7 @@ int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     fields[0] = udaNewCompoundPointerField("value", "single integer structure element", &offset, UDA_TYPE_INT, true);
 
-    USERDEFINEDTYPE* test16_type = udaNewUserType("TEST16", "Test #16", 0, 0, nullptr, sizeof(TEST16), 1, fields);
+    auto* test16_type = udaNewUserType("TEST16", "Test #16", sizeof(TEST16), 1, fields);
     udaAddUserType(plugin_interface, test16_type);
 
     // Create Data
@@ -814,7 +814,7 @@ int TestPlugin::test18(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, UDA_TYPE_INT, 0, nullptr);
 
-    USERDEFINEDTYPE* test18_type = udaNewUserType("TEST18", "Test #18", 0, 0, nullptr, sizeof(TEST18), 1, fields);
+    auto* test18_type = udaNewUserType("TEST18", "Test #18", sizeof(TEST18), 1, fields);
     udaAddUserType(plugin_interface, test18_type);
 
     // Create Data
@@ -847,8 +847,8 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
     test19a_fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, UDA_TYPE_INT, 0,
                                             nullptr);
 
-    USERDEFINEDTYPE* test19a_type =
-        udaNewUserType("TEST19A", "Test #19", 0, 0, nullptr, sizeof(TEST19A), 1, test19a_fields);
+    auto* test19a_type =
+        udaNewUserType("TEST19A", "Test #19", sizeof(TEST19A), 1, test19a_fields);
     udaAddUserType(plugin_interface, test19a_type);
 
     typedef struct Test19 {
@@ -865,8 +865,8 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
     test19_fields[1] =
         udaNewCompoundUserTypeArrayField("vals", "single integer structure element", &offset, test19a_type, 1, shape);
 
-    USERDEFINEDTYPE* test19_type =
-        udaNewUserType("TEST19", "Test #19", 0, 0, nullptr, sizeof(TEST19), 2, test19_fields);
+    auto* test19_type =
+        udaNewUserType("TEST19", "Test #19", sizeof(TEST19), 2, test19_fields);
     udaAddUserType(plugin_interface, test19_type);
 
     // Create Data
@@ -917,8 +917,8 @@ int TestPlugin::test21(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     test21_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, UDA_TYPE_SHORT, 0, nullptr);
 
-    USERDEFINEDTYPE* test21_type =
-        udaNewUserType("TEST21", "Test #21", 0, 0, nullptr, sizeof(TEST21), 1, test21_fields);
+    auto* test21_type =
+        udaNewUserType("TEST21", "Test #21", sizeof(TEST21), 1, test21_fields);
     udaAddUserType(plugin_interface, test21_type);
 
     // Create Data
@@ -947,8 +947,8 @@ int TestPlugin::test22(UDA_PLUGIN_INTERFACE* plugin_interface)
     int shape[1] = {3};
     test22_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, UDA_TYPE_SHORT, 1, shape);
 
-    USERDEFINEDTYPE* test22_type =
-        udaNewUserType("TEST22", "Test #22", 0, 0, nullptr, sizeof(TEST22), 1, test22_fields);
+    auto* test22_type =
+        udaNewUserType("TEST22", "Test #22", sizeof(TEST22), 1, test22_fields);
     udaAddUserType(plugin_interface, test22_type);
 
     // Create Data
@@ -979,8 +979,8 @@ int TestPlugin::test23(UDA_PLUGIN_INTERFACE* plugin_interface)
     int shape[2] = {3, 2};
     test23_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, UDA_TYPE_SHORT, 2, shape);
 
-    USERDEFINEDTYPE* test23_type =
-        udaNewUserType("TEST23", "Test #23", 0, 0, nullptr, sizeof(TEST23), 1, test23_fields);
+    auto* test23_type =
+        udaNewUserType("TEST23", "Test #23", sizeof(TEST23), 1, test23_fields);
     udaAddUserType(plugin_interface, test23_type);
 
     // Create Data
@@ -1013,8 +1013,8 @@ int TestPlugin::test24(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     test24_fields[0] = udaNewCompoundPointerField("value", "single short structure element", &offset, UDA_TYPE_SHORT, true);
 
-    USERDEFINEDTYPE* test24_type =
-        udaNewUserType("TEST24", "Test #24", 0, 0, nullptr, sizeof(TEST24), 1, test24_fields);
+    auto* test24_type =
+        udaNewUserType("TEST24", "Test #24", sizeof(TEST24), 1, test24_fields);
     udaAddUserType(plugin_interface, test24_type);
 
     // Create Data
@@ -1046,8 +1046,8 @@ int TestPlugin::test25(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     test25_fields[0] = udaNewCompoundPointerField("value", "single short structure element", &offset, UDA_TYPE_SHORT, true);
 
-    USERDEFINEDTYPE* test25_type =
-        udaNewUserType("TEST25", "Test #25", 0, 0, nullptr, sizeof(TEST25), 1, test25_fields);
+    auto* test25_type =
+        udaNewUserType("TEST25", "Test #25", sizeof(TEST25), 1, test25_fields);
     udaAddUserType(plugin_interface, test25_type);
     // Create Data
 
@@ -1081,8 +1081,8 @@ int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     test26_fields[0] = udaNewCompoundPointerField("value", "single short structure element", &offset, UDA_TYPE_SHORT, true);
 
-    USERDEFINEDTYPE* test26_type =
-        udaNewUserType("TEST26", "Test #26", 0, 0, nullptr, sizeof(TEST26), 1, test26_fields);
+    auto* test26_type =
+        udaNewUserType("TEST26", "Test #26", sizeof(TEST26), 1, test26_fields);
     udaAddUserType(plugin_interface, test26_type);
 
     // Create Data Structure
@@ -1127,8 +1127,8 @@ int TestPlugin::test27(UDA_PLUGIN_INTERFACE* plugin_interface)
     test27_fields[0] =
         udaNewCompoundField("value", "single short structure element", &offset, UDA_TYPE_SHORT, 3, shape);
 
-    USERDEFINEDTYPE* test27_type =
-        udaNewUserType("TEST27", "Test #27", 0, 0, nullptr, sizeof(TEST27), 1, test27_fields);
+    auto* test27_type =
+        udaNewUserType("TEST27", "Test #27", sizeof(TEST27), 1, test27_fields);
     udaAddUserType(plugin_interface, test27_type);
 
     // Create Data
@@ -1182,8 +1182,8 @@ int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     test28_fields[0] = udaNewCompoundPointerField("value", "single short structure element", &offset, UDA_TYPE_SHORT, true);
 
-    USERDEFINEDTYPE* test28_type =
-        udaNewUserType("TEST28", "Test #28", 0, 0, nullptr, sizeof(TEST28), 1, test28_fields);
+    auto* test28_type =
+        udaNewUserType("TEST28", "Test #28", sizeof(TEST28), 1, test28_fields);
     udaAddUserType(plugin_interface, test28_type);
 
     // Create Data Structure
@@ -1247,8 +1247,8 @@ int TestPlugin::test30(UDA_PLUGIN_INTERFACE* plugin_interface)
     test30_fields[0] = udaNewCompoundField("R", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
     test30_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
 
-    USERDEFINEDTYPE* test30_type =
-        udaNewUserType("TEST30", "Test #30", 0, 0, nullptr, sizeof(TEST30), 2, test30_fields);
+    auto* test30_type =
+        udaNewUserType("TEST30", "Test #30", sizeof(TEST30), 2, test30_fields);
     udaAddUserType(plugin_interface, test30_type);
 
     // Create Data
@@ -1279,8 +1279,8 @@ int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
     test31_fields[0] = udaNewCompoundField("R", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
     test31_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
 
-    USERDEFINEDTYPE* test31_type =
-        udaNewUserType("TEST31", "Test #31", 0, 0, nullptr, sizeof(TEST31), 2, test31_fields);
+    auto* test31_type =
+        udaNewUserType("TEST31", "Test #31", sizeof(TEST31), 2, test31_fields);
     udaAddUserType(plugin_interface, test31_type);
 
     // Create Data
@@ -1326,8 +1326,8 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
     test32a_fields[0] = udaNewCompoundField("R", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
     test32a_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
 
-    USERDEFINEDTYPE* test32a_type =
-        udaNewUserType("TEST32A", "Test #32", 0, 0, nullptr, sizeof(TEST32A), 2, test32a_fields);
+    auto* test32a_type =
+        udaNewUserType("TEST32A", "Test #32", sizeof(TEST32A), 2, test32a_fields);
     udaAddUserType(plugin_interface, test32a_type);
 
     typedef struct Test32 {
@@ -1343,8 +1343,8 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = offsetof(TEST32, coords);
     test32_fields[1] = udaNewCompoundUserTypeArrayField("coords", "structure TEST32A", &offset, test32a_type, 1, shape);
 
-    USERDEFINEDTYPE* test32_type =
-        udaNewUserType("TEST32", "Test #32", 0, 0, nullptr, sizeof(TEST32), 2, test32_fields);
+    auto* test32_type =
+        udaNewUserType("TEST32", "Test #32", sizeof(TEST32), 2, test32_fields);
     udaAddUserType(plugin_interface, test32_type);
 
     // Create Data
@@ -1384,8 +1384,8 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
     test33a_fields[0] = udaNewCompoundField("R", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
     test33a_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, UDA_TYPE_DOUBLE, 0, nullptr);
 
-    USERDEFINEDTYPE* test33a_type =
-        udaNewUserType("TEST33A", "Test #33", 0, 0, nullptr, sizeof(TEST33A), 2, test33a_fields);
+    auto* test33a_type =
+        udaNewUserType("TEST33A", "Test #33", sizeof(TEST33A), 2, test33a_fields);
     udaAddUserType(plugin_interface, test33a_type);
 
     typedef struct Test33 {
@@ -1402,8 +1402,8 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = offsetof(TEST33, coords);
     test33_fields[1] = udaNewCompoundUserTypePointerField("coords", "structure TEST33A", &offset, test33a_type);
 
-    USERDEFINEDTYPE* test33_type =
-        udaNewUserType("TEST33", "Test #33", 0, 0, nullptr, sizeof(TEST33), 2, test33_fields);
+    auto* test33_type =
+        udaNewUserType("TEST33", "Test #33", sizeof(TEST33), 2, test33_fields);
     udaAddUserType(plugin_interface, test33_type);
 
     // Create Data
@@ -1450,8 +1450,8 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = offsetof(TEST34A, Z);
     test34a_fields[1] = udaNewCompoundPointerField("Z", "unsigned char structure element", &offset, UDA_TYPE_UNSIGNED_CHAR, false);
 
-    USERDEFINEDTYPE* test34a_type =
-        udaNewUserType("TEST34A", "Test #34", 0, 0, nullptr, sizeof(TEST34A), 2, test34a_fields);
+    auto* test34a_type =
+        udaNewUserType("TEST34A", "Test #34", sizeof(TEST34A), 2, test34a_fields);
     udaAddUserType(plugin_interface, test34a_type);
 
     typedef struct Test34 {
@@ -1467,8 +1467,8 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = offsetof(TEST34, coords);
     test34_fields[1] = udaNewCompoundUserTypePointerField("coords", "structure TEST34A", &offset, test34a_type);
 
-    USERDEFINEDTYPE* test34_type =
-        udaNewUserType("TEST34", "Test #34", 0, 0, nullptr, sizeof(TEST34), 2, test34_fields);
+    auto* test34_type =
+        udaNewUserType("TEST34", "Test #34", sizeof(TEST34), 2, test34_fields);
     udaAddUserType(plugin_interface, test34_type);
 
     // Create Data
@@ -1725,8 +1725,8 @@ int register_enumlist(UDA_PLUGIN_INTERFACE* plugin_interface, ENUMLIST60* enum_l
     enummember60_fields[1] = udaNewCompoundField("value", "long long structure element", &offset, UDA_TYPE_LONG64, 0,
                                                  nullptr);
 
-    USERDEFINEDTYPE* enummember60_type =
-        udaNewUserType("ENUMMEMBER60", "Test #60", 0, 0, nullptr, sizeof(ENUMMEMBER60), 2, enummember60_fields);
+    auto* enummember60_type =
+        udaNewUserType("ENUMMEMBER60", "Test #60", sizeof(ENUMMEMBER60), 2, enummember60_fields);
     udaAddUserType(plugin_interface, enummember60_type);
 
     COMPOUNDFIELD* enumlist60_fields[8] = {nullptr};
@@ -1775,8 +1775,8 @@ int register_enumlist(UDA_PLUGIN_INTERFACE* plugin_interface, ENUMLIST60* enum_l
 
     enumlist60_fields[4] = arraydata_field;
 
-    USERDEFINEDTYPE* enumlist60_type =
-        udaNewUserType("ENUMLIST60", "Test #60", 0, 0, nullptr, sizeof(ENUMLIST60), 2, enumlist60_fields);
+    auto* enumlist60_type =
+        udaNewUserType("ENUMLIST60", "Test #60", sizeof(ENUMLIST60), 2, enumlist60_fields);
     udaAddUserType(plugin_interface, enumlist60_type);
 
     return 0;

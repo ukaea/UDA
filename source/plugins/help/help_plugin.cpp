@@ -50,7 +50,7 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------------------------
 
     // Ping: Timing
-    struct timeval serverTime; // Local time in microseconds
+    timeval serverTime{}; // Local time in microseconds
     gettimeofday(&serverTime, nullptr);
 
     // define the returned data structure
@@ -59,7 +59,6 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
         unsigned int seconds;      // Server time in seconds
         unsigned int microseconds; // Server time in microseconds
     };
-    typedef struct HELP_PING HELP_PING;
 
     int offset = 0;
     COMPOUNDFIELD* field1 = udaNewCompoundField("seconds", "Server time in seconds from the epoch start",
@@ -68,15 +67,14 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
                                                 &offset, UDA_TYPE_UNSIGNED_INT, 0, nullptr);
 
     COMPOUNDFIELD* fields[] = {field1, field2};
-    USERDEFINEDTYPE* user_type =
-        udaNewUserType("HELP_PING", "idamServerHelp", 0, 0, nullptr, sizeof(HELP_PING), 2, fields);
+    auto* user_type = udaNewUserType("HELP_PING", "helpPlugin", sizeof(HELP_PING), 2, fields);
 
     udaAddUserType(plugin_interface, user_type);
 
     // assign the returned data structure
 
-    auto data = (HELP_PING*)malloc(sizeof(HELP_PING));
-    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(HELP_PING), "HELP_PING");
+    auto* data = (HELP_PING*)malloc(sizeof(HELP_PING));
+    udaRegisterMalloc(plugin_interface, data, 1, sizeof(HELP_PING), "HELP_PING");
 
     data->seconds = (unsigned int)serverTime.tv_sec;
     data->microseconds = (unsigned int)serverTime.tv_usec;
