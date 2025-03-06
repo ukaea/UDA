@@ -4,6 +4,7 @@ find_package( fmt REQUIRED )
 
 set( SRCS
   alloc_data.cpp
+  connection.cpp
   protocol.cpp
   protocol_xml.cpp
   protocol_xml_put.cpp

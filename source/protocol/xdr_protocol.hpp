@@ -6,18 +6,12 @@
 
 #include "cache/memcache.hpp"
 #include "protocol/protocol.h"
+#include "protocol/connection.hpp"
 #include "clientserver/uda_structs.h"
 #include "structures/genStructs.h"
 
 namespace uda::protocol
 {
-
-struct IoData {
-    int server_socket;
-    int* server_tot_block_time;
-    int* server_timeout;
-    std::vector<client_server::UdaError>* error_stack;
-};
 
 class XdrProtocol
 {

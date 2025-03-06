@@ -1,7 +1,6 @@
 #if defined(SSLAUTHENTICATION)
 
 #  include "udaServerSSL.h"
-#  include "server/createXDRStream.h"
 
 #  include <fcntl.h>
 #  include <string>
@@ -14,7 +13,7 @@
 
 #  include "clientserver/error_log.h"
 #  include "logging/logging.h"
-#  include "protocol/xdr_protocol.hpp"
+#  include "protocol/connection.hpp"
 
 #  include "server/writer.h"
 
