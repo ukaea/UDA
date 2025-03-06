@@ -54,7 +54,7 @@ uda::client::HostList::HostList(std::string_view file_path)
     load_from_file(file_path);
 }
 
-uda::client::HostList::HostList(const uda::config::Config& config)
+uda::client::HostList::HostList(const config::Config& config)
 {
     const auto maybe_file_path = config.get("connection.host_list_path").as_or_default<std::string>(""s);
     if (maybe_file_path.empty()) {
@@ -65,11 +65,19 @@ uda::client::HostList::HostList(const uda::config::Config& config)
     } 
 }
 
+uda::client::HostList::HostList(std::istream& stream, std::string_view source_path, const bool is_toml) {
+    if (is_toml) {
+        load_from_stream(stream, source_path);
+    } else {
+        load_list_from_custom_stream(stream);
+    }
+}
+
 void uda::client::HostList::load_from_file(std::string_view file_path)
 {
     if (boost::algorithm::ends_with(file_path, ".toml"))
     {
-        uda::config::Config config = {};
+        config::Config config = {};
         config.load(file_path);
         load_list_from_toml(config);
     }
@@ -77,7 +85,13 @@ void uda::client::HostList::load_from_file(std::string_view file_path)
     {
         load_list_from_custom_file_format(file_path);
     }
+}
 
+void uda::client::HostList::load_from_stream(std::istream& stream, std::string_view source_path)
+{
+    config::Config config = {};
+    config.load(stream, source_path);
+    load_list_from_toml(config);
 }
 
 void uda::client::HostList::load_from_default_locations()
@@ -111,9 +125,9 @@ void uda::client::HostList::load_from_default_locations()
     load_list_from_custom_file_format(file_path);
 }
 
-void uda::client::HostList::load_list_from_toml(const uda::config::Config& config)
+void uda::client::HostList::load_list_from_toml(const config::Config& config)
 {
-    if (!config){
+    if (!config) {
         return;
     }
 
@@ -127,7 +141,7 @@ void uda::client::HostList::load_list_from_toml(const uda::config::Config& confi
     // all other fields considered optional
     for (const auto& entry_map: config_host_list)
     {
-        uda::client_server::HostData new_data = {};
+        client_server::HostData new_data = {};
         if (entry_map.find("host_name") == entry_map.end()) {
             continue;
         }
@@ -154,13 +168,16 @@ void uda::client::HostList::load_list_from_toml(const uda::config::Config& confi
     }
 }
 
-void uda::client::HostList::load_list_from_custom_file_format(std::string_view file_path)
-{
-    std::ifstream conf( (std::string(file_path)) );
-    if (!conf) {
+void uda::client::HostList::load_list_from_custom_file_format(std::string_view file_path) {
+    std::ifstream stream{file_path};
+    if (!stream) {
         return;
     }
+    load_list_from_custom_stream(stream);
+}
 
+void uda::client::HostList::load_list_from_custom_stream(std::istream& stream)
+{
     // organisation: sets of 1-6 records, empty records ignored, comment begins #
     // hostName must be the first record in a set
     // hostAlias and other attributes are not required
@@ -177,10 +194,10 @@ void uda::client::HostList::load_list_from_custom_file_format(std::string_view f
     // if the certificates and private key are defined, the isSSL bool set true
 
     bool new_host = false;
-    uda::client_server::HostData new_data = {};
+    client_server::HostData new_data = {};
 
     std::string line;
-    while (std::getline(conf, line)) {
+    while (std::getline(stream, line)) {
         boost::trim(line);
         if (line.empty() || line[0] == '#') {
             continue;

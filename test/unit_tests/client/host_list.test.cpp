@@ -10,6 +10,8 @@
 // #include <string>
 // #include <utility>
 
+#include <sstream>
+
 //TODO: test SSL syntax
 //TODO: test extract port from hostname ie a.b.c:999 or localhost:9999
 //TODO: test port extraction not legal for IP6 host names
@@ -21,14 +23,63 @@ TEST_CASE( "host list object can be default constructed", "[host_list-instantiat
 
 TEST_CASE( "host list object can be constructed with the path of a valid config file", "[host_list-instantiation]" )
 {
-    std::string file_path = "test_files/host_list.cfg";
-    REQUIRE_NOTHROW(uda::client::HostList(file_path));
+    const std::string input =
+    "[[host_list]]\n"
+    "host_alias=\"localhost\"\n"
+    "host_name=\"localhost\"\n"
+    "port=56565\n"
+    "\n"
+    "[[host_list]]\n"
+    "host_alias=\"uda2\"\n"
+    "host_name=\"uda2.mast.l\"\n"
+    "port=56565\n"
+    "\n"
+    "[[host_list]]\n"
+    "host_alias=\"uda3-ssl\"\n"
+    "host_name=\"uda3.mast.l\"\n"
+    "port=56560\n"
+    "\n"
+    "[[host_list]]\n"
+    "host_alias=\"uda3\"\n"
+    "host_name=\"uda3.mast.l\"\n"
+    "port=56563\n"
+    "\n"
+    "[[host_list]]\n"
+    "host_alias=\"uda3-ext\"\n"
+    "host_name=\"data.mastu.ukaea.uk\"\n"
+    "port=56565\n"
+    ;
+    std::istringstream stream{input};
+    REQUIRE_NOTHROW(uda::client::HostList(stream, __FILE__));
 }
 
 TEST_CASE( "host list parses config file correctly into array of HostData structs", "[host_list-instantiation]" )
 {
-    std::string file_path = "test_files/host_list.cfg";
-    uda::client::HostList host_list {file_path};
+    const std::string input =
+    "# ordering is important here as parser pushes new struct to the list on each \"host_name\" entry\n"
+    "# host_name must always be the first field defined for each entry\n"
+    "host_name localhost\n"
+    "host_alias localhost\n"
+    "port 56565\n"
+    "\n"
+    "host_name uda2.mast.l\n"
+    "host_alias uda2\n"
+    "port 56565\n"
+    "\n"
+    "host_name uda3.mast.l\n"
+    "host_alias uda3-ssl\n"
+    "port 56560\n"
+    "\n"
+    "host_name uda3.mast.l\n"
+    "host_alias uda3\n"
+    "port 56563\n"
+    "\n"
+    "host_name data.mastu.ukaea.uk\n"
+    "host_alias uda3-ext\n"
+    "port 56565\n"
+    ;
+    std::istringstream stream{input};
+    uda::client::HostList host_list{stream, __FILE__, false};
 
     auto hosts = host_list.get_host_list();
     REQUIRE_FALSE(hosts.empty());
@@ -67,7 +118,6 @@ TEST_CASE( "host list parses config file correctly into array of HostData struct
     REQUIRE(entry->host_name == "data.mastu.ukaea.uk");
     REQUIRE(entry->port == 56565);
 }
-
 
 TEST_CASE( "host-list can be parsed from a toml config file", "[host_list-toml]" )
 {

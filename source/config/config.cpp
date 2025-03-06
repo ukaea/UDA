@@ -5,8 +5,10 @@
 #include <fmt/format.h>
 #include <toml++/toml.hpp>
 #include <type_traits>
+#include <utility>
 #include <vector>
 #include <unordered_map>
+#include <fstream>
 
 #ifdef __GNUC__ // GCC 4.8+, Clang, Intel and other compilers compatible with GCC (-std=c++0x or above)
 [[noreturn]] inline __attribute__((always_inline)) void unreachable() { __builtin_unreachable(); }
@@ -28,7 +30,7 @@ enum class ValueType {
 };
 
 template<typename T>
-ValueType get_value_type(T value)
+ValueType get_value_type(const T value)
 {
     if constexpr(std::is_same_v<T, std::string>)
     {
@@ -53,7 +55,7 @@ ValueType get_value_type(T value)
     throw uda::config::ConfigError{"Unrecognised value type"};
 }
 
-std::string to_string(ValueType type)
+std::string to_string(const ValueType type)
 {
     switch (type) {
         case ValueType::String:
@@ -70,7 +72,7 @@ std::string to_string(ValueType type)
     unreachable();
 }
 
-toml::node_type as_toml_type(ValueType type)
+toml::node_type as_toml_type(const ValueType type)
 {
     switch (type) {
         case ValueType::String:
@@ -87,7 +89,7 @@ toml::node_type as_toml_type(ValueType type)
     unreachable();
 }
 
-std::string to_string(toml::node_type type)
+std::string to_string(const toml::node_type type)
 {
     using toml::node_type;
     switch (type) {
@@ -108,9 +110,9 @@ std::string to_string(toml::node_type type)
 class ValueValidator
 {
   public:
-    ValueValidator(std::string name, ValueType type) : _name{name}, _type{type} {}
+    ValueValidator(const std::string name, const ValueType type) : _name{std::move(name)}, _type{type} {}
 
-    std::string_view name() const { return _name; }
+    [[nodiscard]] std::string_view name() const { return _name; }
 
     void validate(const toml::node& value) const
     {
@@ -129,7 +131,7 @@ class ValueValidator
         }
     }
 
-    void validate(ValueType type) const
+    void validate(const ValueType type) const
     {
         if (type != _type) 
         {
@@ -146,12 +148,12 @@ class ValueValidator
 class SectionValidator
 {
   public:
-    SectionValidator(std::string name, std::vector<ValueValidator> value_validators)
-        : _name{name}, _value_validators{value_validators}
+    SectionValidator(const std::string name, std::vector<ValueValidator> value_validators)
+        : _name{std::move(name)}, _value_validators{std::move(value_validators)}
     {
     }
 
-    void validate(std::string_view field_name, ValueType type) const
+    void validate(std::string_view field_name, const ValueType type) const
     {
         bool found = false;
         for (const auto& validator : _value_validators) 
@@ -170,16 +172,15 @@ class SectionValidator
 
     void validate(const toml::table& table) const
     {
-        for (const auto& entry : table) 
+        for (const auto& [name, value] : table)
         {
-            const auto& name = entry.first;
             bool found = false;
-            for (const auto& validator : _value_validators) 
+            for (const auto& validator : _value_validators)
             {
-                if (validator.name() == name) 
+                if (validator.name() == name)
                 {
                     found = true;
-                    validator.validate(entry.second);
+                    validator.validate(value);
                 }
             }
             if (!found) 
@@ -189,7 +190,7 @@ class SectionValidator
         }
     }
 
-    std::string_view name() const { return _name; }
+    [[nodiscard]] std::string_view name() const { return _name; }
 
   private:
     std::string _name;
@@ -199,8 +200,8 @@ class SectionValidator
 class ArrayValidator
 {
   public:
-    ArrayValidator(std::string name, std::vector<ValueValidator> value_validators)
-        : _name{name}, _value_validators{value_validators}
+    ArrayValidator(const std::string name, const std::vector<ValueValidator> value_validators)
+        : _name{std::move(name)}, _value_validators{std::move(value_validators)}
     {
     }
 
@@ -248,7 +249,7 @@ class ArrayValidator
         }
     }
 
-    std::string_view name() const { return _name; }
+    [[nodiscard]] std::string_view name() const { return _name; }
 
   private:
     std::string _name;
@@ -432,7 +433,7 @@ template<>
 char Option::as<char>() const
 {
     if (is<std::string>()) {
-        auto string = boost::any_cast<std::string>(_value);
+        const auto string = boost::any_cast<std::string>(_value);
         if (string.size() != 1) {
             throw ConfigError{ fmt::format("invalid char value {} for option {}", string, _name) };
         }
@@ -441,7 +442,7 @@ char Option::as<char>() const
 }
 
 template <>
-char Option::as_or_default<char>(char default_value) const
+char Option::as_or_default<char>(const char default_value) const
 {
     if (is<std::string>()) {
         auto string = boost::any_cast<std::string>(_value);
@@ -457,21 +458,22 @@ char Option::as_or_default<char>(char default_value) const
 class ConfigImpl
 {
   public:
-    ConfigImpl() : _table{} {};
-    ConfigImpl(std::string_view file_name) : _table{} { load(file_name); };
+    ConfigImpl() = default;
+    explicit ConfigImpl(std::string_view file_name) { load(file_name); }
+    ConfigImpl(std::istream& stream, std::string_view source_path) { load(stream, source_path); }
 
-    Option get(std::string_view name) const
+    [[nodiscard]] Option get(std::string_view name) const
     {
         std::vector<std::string> tokens;
         boost::split(tokens, name, boost::is_any_of("."), boost::token_compress_on);
         if (tokens.size() != 2) {
             throw ConfigError{fmt::format("invalid config option name {}", name.data())};
         }
-        auto& section_name = tokens[0];
-        auto& option_name = tokens[1];
+        const auto& section_name = tokens[0];
+        const auto& option_name = tokens[1];
         toml::node_view option = _table[section_name][option_name];
         if (!option) {
-            return {name.data()};
+            return Option{name.data()};
         }
         switch (option.type()) {
             case toml::node_type::string:
@@ -487,11 +489,11 @@ class ConfigImpl
         }
     }
 
-    std::vector<std::unordered_map<std::string, Option>>
+    [[nodiscard]] std::vector<std::unordered_map<std::string, Option>>
     get_array(std::string_view name) const
     {
         std::vector<std::unordered_map<std::string, Option>> result;
-        toml::node_view maybe_array = _table[name];
+        const toml::node_view maybe_array = _table[name];
         if (!maybe_array) {
             return result;
         }
@@ -519,7 +521,7 @@ class ConfigImpl
         auto& section_name = tokens[0];
         auto& option_name = tokens[1];
         validate(section_name, option_name, get_value_type(value));
-        auto section = _table[section_name];
+        const auto section = _table[section_name];
         if (section) {
             auto sec = section.as_table();
             sec->insert(option_name, value);
@@ -530,20 +532,18 @@ class ConfigImpl
         }
     }
 
-    void print_section(std::string_view name, const toml::table* table) const
+    static void print_section(std::string_view name, const toml::table* table)
     {
-        for (auto& row : *table) {
-            auto key = row.first.str();
-            auto& value = row.second;
+        for (const auto& [key, value] : *table) {
             if (value.is_string()) {
                 auto val = value.as_string()->get();
-                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key, val)
+                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key.str(), val)
             } else if (value.is_integer()) {
                 auto val = value.as_integer()->get();
-                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key, val)
+                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key.str(), val)
             } else if (value.is_boolean()) {
                 auto val = value.as_boolean()->get();
-                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key, val)
+                UDA_LOG(logging::UDA_LOG_DEBUG, ">> {}.{} = {}", name, key.str(), val)
             }
         }
     }
@@ -551,18 +551,16 @@ class ConfigImpl
     void print() const
     {
         UDA_LOG(logging::UDA_LOG_DEBUG, "Config:")
-        for (auto& row : _table) {
-            auto key = row.first.str();
-            auto& value = row.second;
+        for (const auto& [key, value] : _table) {
             if (value.is_table()) {
-                auto table = value.as_table();
+                const auto* table = value.as_table();
                 print_section(key, table);
             }
         }
     }
 
-    std::unordered_map<std::string, Option>
-    get_table_as_map(const toml::table& table) const
+    [[nodiscard]] static std::unordered_map<std::string, Option>
+    get_table_as_map(const toml::table& table)
     {
         std::unordered_map<std::string, Option> result {};
         for (const auto& [key, value] : table)
@@ -589,7 +587,7 @@ class ConfigImpl
     }
 
 
-    std::unordered_map<std::string, Option>
+    [[nodiscard]] std::unordered_map<std::string, Option>
     get_section_as_map(std::string_view section_name) const
     {
         std::unordered_map<std::string, Option> result {};
@@ -605,14 +603,23 @@ class ConfigImpl
   private:
     toml::table _table;
 
-    void load(std::string_view file_name)
+    void load(std::istream& stream, std::string_view file_name)
     {
         try {
-            _table = toml::parse_file(file_name);
+            _table = toml::parse(stream, file_name);
             validate(_table);
         } catch (const toml::parse_error& err) {
             throw ConfigError{err.description()};
         }
+    }
+
+    void load(std::string_view file_name)
+    {
+        std::ifstream stream{file_name};
+        if (!stream) {
+            throw ConfigError{fmt::format("failed to open file '{}'", file_name)};
+        }
+        load(stream, file_name);
     }
 };
 
@@ -621,16 +628,21 @@ void Config::load(std::string_view file_name)
     _impl = std::make_unique<ConfigImpl>(file_name);
 }
 
+void Config::load(std::istream& stream, std::string_view source_path)
+{
+    _impl = std::make_unique<ConfigImpl>(stream, source_path);
+}
+
 void Config::load_in_memory()
 {
     _impl = std::make_unique<ConfigImpl>();
 }
 
-Option Config::get(std::string_view name) const
+Option Config::get(const std::string_view name) const
 {
     if (!_impl) {
         // throw ConfigError{"config has not been loaded"};
-        return Option(std::string(name));
+        return Option{std::string(name)};
     }
     return _impl->get(name);
 }
@@ -653,40 +665,38 @@ std::unordered_map<std::string, Option> Config::get_section_as_map(std::string_v
     return _impl->get_section_as_map(section_name);
 }
 
-void Config::set(std::string_view name, bool value)
+void Config::set(const std::string_view name, const bool value) const {
+    if (!_impl) {
+        throw ConfigError{"config has not been loaded"};
+    }
+    _impl->set(name, value);
+}
+
+void Config::set(const std::string_view name, const char* value) const
 {
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};
     }
-    return _impl->set(name, value);
+    _impl->set(name, value);
 }
 
-void Config::set(std::string_view name, const char* value)
+void Config::set(const std::string_view name, const std::string& value) const
 {
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};
     }
-    return _impl->set(name, value);
+    _impl->set(name, value);
 }
 
-void Config::set(std::string_view name, const std::string& value)
+void Config::set(const std::string_view name, const int64_t value) const
 {
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};
     }
-    return _impl->set(name, value);
+    _impl->set(name, value);
 }
 
-void Config::set(std::string_view name, int64_t value)
-{
-    if (!_impl) {
-        throw ConfigError{"config has not been loaded"};
-    }
-    return _impl->set(name, value);
-}
-
-void Config::set(std::string_view name, double value)
-{
+void Config::set(const std::string_view name, const double value) const {
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};
     }
@@ -703,7 +713,7 @@ void Config::print() const
 
 Config::Config() = default;
 
-Config::Config(Config&& other) = default;
+Config::Config(Config&& other) noexcept = default;
 
 Config::~Config() = default;
 

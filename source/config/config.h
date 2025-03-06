@@ -4,6 +4,7 @@
 #include <string_view>
 #include <fmt/format.h>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "common/string_utils.h"
@@ -14,7 +15,7 @@ namespace uda::config
 class ConfigError : public std::runtime_error
 {
   public:
-    ConfigError(std::string_view description) : std::runtime_error(description.data()) {}
+    ConfigError(const std::string_view description) : std::runtime_error(description.data()) {}
 
     template <typename T>
     static ConfigError cast_error(const std::string& name, const boost::any& value) {
@@ -27,12 +28,13 @@ class ConfigError : public std::runtime_error
 class Option
 {
   public:
-    Option(std::string name) : _name{name}, _value{} {}
-    Option(std::string name, boost::any value) : _name{name}, _value{value} {}
+    explicit Option(std::string name) : _name{std::move(name)} {}
+    Option(std::string name, boost::any value) : _name{std::move(name)}, _value{std::move(value)} {}
 
     operator bool() const { return !_value.empty(); }
 
-    template <class T> bool is() const { return _value.type() == typeid(T); }
+    template <class T>
+    [[nodiscard]] bool is() const { return _value.type() == typeid(T); }
 
     template <class T> T as() const
     {
@@ -99,23 +101,24 @@ class Config
     // {
     //     load(file_path);
     // }
-    Config(Config&& other);
+    Config(Config&& other) noexcept;
     ~Config();
     void load(std::string_view file_name);
+    void load(std::istream& stream, std::string_view source_path);
     void load_in_memory();
-    Option get(std::string_view name) const;
-    std::vector<std::unordered_map<std::string, Option>> get_array(std::string_view name) const;
-    void set(std::string_view name, const std::string& value);
-    void set(std::string_view name, const char* value);
-    void set(std::string_view name, bool value);
-    void set(std::string_view name, int64_t value);
-    void set(std::string_view name, double value);
+    [[nodiscard]] Option get(std::string_view name) const;
+    [[nodiscard]] std::vector<std::unordered_map<std::string, Option>> get_array(std::string_view name) const;
+    void set(std::string_view name, const std::string& value) const;
+    void set(std::string_view name, const char* value) const;
+    void set(std::string_view name, bool value) const;
+    void set(std::string_view name, int64_t value) const;
+    void set(std::string_view name, double value) const;
     void print() const;
-    inline explicit operator bool() const
+    explicit operator bool() const
     {
         return _impl != nullptr;
     }
-    std::unordered_map<std::string, Option> get_section_as_map(std::string_view section_name) const;
+    [[nodiscard]] std::unordered_map<std::string, Option> get_section_as_map(std::string_view section_name) const;
 
   private:
     std::unique_ptr<ConfigImpl> _impl;
