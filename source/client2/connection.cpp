@@ -95,7 +95,7 @@ void uda::client::Connection::load_config(const config::Config& config)
     auto max_socket_attempts = config.get("connection.max_socket_attempts").as_or_default<int>(DefaultMaxSocketAttempts);
     if (max_socket_attempts != max_socket_attempts_)
     {
-        max_socket_attempts_ = max_socket_delay;
+        max_socket_attempts_ = max_socket_attempts;
         server_reconnect_ = true;
     }
 

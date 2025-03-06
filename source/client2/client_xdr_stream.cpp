@@ -17,16 +17,6 @@ using namespace uda::authentication;
 using namespace uda::logging;
 using namespace uda::client_server;
 
-void uda::client::xdr_deleter(XDR* xdr_ptr)
-{
-    if (xdr_ptr) {
-        if (xdr_ptr->x_ops != nullptr) {
-            xdr_destroy(xdr_ptr);
-        }
-        delete xdr_ptr;
-    }
-}
-
 // this wraps calls to the lower-level xdrrec_create method. This (i) creates the stream pointers which
 // hold state for the XDR input and output operations, it (ii) takes in buffer sizes for the send and receive buffers
 // (iii) takes function pointers for the callbacks which perform the actual i/o (this are the readin and writeout
@@ -34,12 +24,12 @@ void uda::client::xdr_deleter(XDR* xdr_ptr)
 //
 // The IoData struct can therefore have any definition we choose, but must contian all data required by the readin
 // and writeout methods
-std::pair<std::unique_ptr<XDR, void(*)(XDR*)>, std::unique_ptr<XDR, void(*)(XDR*)>> uda::client::create_xdr_stream(IoData* io_data)
+std::pair<std::unique_ptr<XDR, uda::client::XDRDeleter>, std::unique_ptr<XDR, uda::client::XDRDeleter>> uda::client::create_xdr_stream(IoData* io_data)
 {
     // static XDR client_input = {};
     // static XDR client_output = {};
-    std::unique_ptr<XDR, void(*)(XDR*)> client_input(new XDR(), xdr_deleter);
-    std::unique_ptr<XDR, void(*)(XDR*)> client_output(new XDR(), xdr_deleter);
+    std::unique_ptr<XDR, XDRDeleter> client_input(new XDR());
+    std::unique_ptr<XDR, XDRDeleter> client_output(new XDR());
 
     client_output->x_ops = nullptr;
     client_input->x_ops = nullptr;
