@@ -219,6 +219,7 @@ bool uda::client::Connection::maybe_reuse_existing_socket()
         client_socket_ = -1;
         return false;
     }
+    server_reconnect_ = false;
     return true;
 }
 
@@ -705,6 +706,7 @@ int uda::client::Connection::create()
 #endif
 
     startup_state = true;
+    server_reconnect_ = false;
 
     return 0;
 }

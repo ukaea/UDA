@@ -805,6 +805,7 @@ int uda::client::Client::perform_handshake()
     }
 
     // Flush (mark as at EOF) the input socket buffer (start of wait for data)
+    // int rc = xdrrec_eof(client_input_);
 
     // Wait for data, then position buffer reader to the start of a new record
     if (!(xdrrec_skiprecord(client_input_))) {

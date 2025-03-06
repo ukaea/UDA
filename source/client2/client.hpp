@@ -114,7 +114,7 @@ public:
 
     const int version;
 
-private:
+protected:
     int get_requests(client_server::RequestBlock& request_block, int* indices);
     void concat_errors(client_server::ServerBlock& server_block) const;
     const char* get_server_error_stack_record_msg(int record);
