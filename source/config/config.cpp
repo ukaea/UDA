@@ -615,7 +615,7 @@ class ConfigImpl
 
     void load(std::string_view file_name)
     {
-        std::ifstream stream{file_name};
+        std::ifstream stream{file_name.data()};
         if (!stream) {
             throw ConfigError{fmt::format("failed to open file '{}'", file_name)};
         }

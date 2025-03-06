@@ -169,7 +169,7 @@ void uda::client::HostList::load_list_from_toml(const config::Config& config)
 }
 
 void uda::client::HostList::load_list_from_custom_file_format(std::string_view file_path) {
-    std::ifstream stream{file_path};
+    std::ifstream stream{file_path.data()};
     if (!stream) {
         return;
     }
