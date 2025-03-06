@@ -10,6 +10,11 @@
 // - idam data blocks
 // - server errors
 
+// class MockClient : public uda::client::Client
+// {
+//
+// };
+
 TEST_CASE( "client object can be default constructed without supplying a config file", "[client-instantiation]" )
 {
     REQUIRE_NOTHROW(uda::client::Client());

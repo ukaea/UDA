@@ -80,9 +80,7 @@ TEST_CASE( "connection options can be set through set_option methods", "[option-
 class MockConnection : public uda::client::Connection
 {
     public:
-    MockConnection() : Connection{error_stack} {}
-
-    int create(XDR* client_input, XDR* client_output)
+    int create()
     {
         client_socket_ = socket_list_.size();
         uda::client_server::Socket socket = {};
@@ -93,11 +91,14 @@ class MockConnection : public uda::client::Connection
         socket.port = port_;
         socket.host = host_;
         socket.tv_server_start = time(nullptr);
-        socket.user_timeout = 0;
-        socket.Input = client_input;
-        socket.Output = client_output;
+        socket.user_timeout = 600;
+        socket.Input = nullptr;
+        socket.Output = nullptr;
 
         socket_list_.push_back(socket);
+        startup_state = true;
+        server_reconnect_ = false;
+
         return 0;
     }
 
@@ -106,7 +107,26 @@ class MockConnection : public uda::client::Connection
         return socket_list_;
     }
 
-    std::vector<uda::client_server::UdaError> error_stack;
+    int get_current_client_socket() const
+    {
+        return client_socket_;
+    }
+
+    // mock the close socket method to just set filehandle to -1
+    // do not actually call close...
+    void close_socket(int fh)
+    {
+        for (auto& socket : socket_list_) {
+            if (socket.open && socket.fh == fh && socket.fh >= 0) {
+                socket.open = false;
+                socket.fh = -1;
+                socket.Input = nullptr;
+                socket.Output = nullptr;
+                break;
+            }
+        }
+
+    }
 
 };
 
@@ -123,25 +143,23 @@ std::pair<XDR*, XDR*> createXDRStream()
 
 TEST_CASE( "Current socket connection details can be queried", "[socket-data]" )
 {
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
+    connection.create();
+
     XDR* client_input;
     XDR* client_output;
     std::tie(client_input, client_output) = createXDRStream();
-
-    std::vector<uda::client_server::UdaError> error_stack;
-    MockConnection connection{};
-    connection.create(client_input, client_output);
+    connection.register_xdr_streams(client_input, client_output);
 
     const auto& socket = connection.get_current_connection_data();
     REQUIRE( socket.open == true );
-    // TODO: should we use an actual filehandle from a call to open(whatever)
-    // here to avoid any other issues when close(fh) is called in close_down()?
-    // fh = 0 technically corresponds to stdin...
     REQUIRE( socket.fh == 0 );
     REQUIRE( socket.port == 56565 );
     REQUIRE( std::string(socket.host) == "localhost" );
     // don't know exact values of time(now) so just check that values are similar.
     REQUIRE( std::difftime(socket.tv_server_start, time(nullptr)) < 1.0 );
-    REQUIRE( socket.user_timeout == 0 );
+    REQUIRE( socket.user_timeout == 600 );
     REQUIRE( socket.Input == client_input );
     REQUIRE( socket.Output == client_output );
     REQUIRE( connection.error_stack.empty() );
@@ -151,12 +169,9 @@ TEST_CASE( "Maximum age of the current socket connection can be modified", "[soc
 {
     int expected_result = 100;
 
-    XDR* client_input;
-    XDR* client_output;
-    std::tie(client_input, client_output) = createXDRStream();
-
-    MockConnection connection{};
-    connection.create(client_input, client_output);
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
+    connection.create();
     connection.set_maximum_socket_age(expected_result);
 
     const auto& socket = connection.get_current_connection_data();
@@ -165,12 +180,9 @@ TEST_CASE( "Maximum age of the current socket connection can be modified", "[soc
 
 TEST_CASE ( "Current socket connection age can be queried", "[socket-data]")
 {
-    XDR* client_input;
-    XDR* client_output;
-    std::tie(client_input, client_output) = createXDRStream();
-
-    MockConnection connection{};
-    connection.create(client_input, client_output);
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
+    connection.create();
 
     //NOTE: precision of age is 1s minimum so we have to wait for an entire second here
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -185,13 +197,9 @@ TEST_CASE ( "Current socket connection age can be queried", "[socket-data]")
 
 TEST_CASE( "Current socket connection timeout status can be queried", "[socket-data]" )
 {
-    XDR* client_input;
-    XDR* client_output;
-    std::tie(client_input, client_output) = createXDRStream();
-
     std::vector<uda::client_server::UdaError> error_stack;
-    MockConnection connection{};
-    connection.create(client_input, client_output);
+    MockConnection connection {error_stack};
+    connection.create();
 
     connection.set_maximum_socket_age(100);
     REQUIRE_FALSE( connection.current_socket_timeout() );
@@ -215,39 +223,72 @@ TEST_CASE( "Port can be set which also flags that reconnection is required" "[se
     REQUIRE( error_stack.empty() );
 }
 
-// TEST_CASE( "host and port can be set from a host-list file", "[set-connection-options]" )
-// {
-//     FAIL("Test not implemented yet");
-// }
-
 TEST_CASE( "Current socket connection can be closed", "[close-socket]" )
 {
-    XDR* client_input;
-    XDR* client_output;
-    std::tie(client_input, client_output) = createXDRStream();
-
-    MockConnection connection{};
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
     const auto& socket_list = connection.get_socket_list();
     REQUIRE( socket_list.size() == 0 );
     REQUIRE_FALSE( connection.open() );
 
-    connection.create(client_input, client_output);
+    connection.create();
     REQUIRE( socket_list.size() == 1 );
     REQUIRE( connection.open() );
 
     connection.close_down(uda::client::ClosedownType::CLOSE_SOCKETS);
-    // NOTE: socket details not deleted from socket list? 
-    // currently filehandle is only closed
     REQUIRE( socket_list.size() == 1 );
     REQUIRE_FALSE( connection.open() );
 }
 
-//TODO: it's not clear what this function should do. 
-// currently just flags the connection as closed which later signals to the marshalling
-// class to call the create function again
-// can consider moving all marshalling logic into connection class here
-// TEST_CASE( "Reconnect function closes all connections and creates new ones when required" "[reconnect]")
-// {
-//     FAIL("Test not implemented yet");
-// }
+TEST_CASE( "Can reconnect to an existing socket" "[reconnect]")
+{
+    std::vector<uda::client_server::UdaError> error_stack;
+    MockConnection connection {error_stack};
+    const auto& socket_list = connection.get_socket_list();
+
+    // create function should change to the newly created socket
+    // and correctly set or reset the startup state and reconnection_required flags
+    connection.set_host("localhost");
+    connection.set_port(56789);
+    REQUIRE( connection.reconnect_required() );
+    connection.create();
+    REQUIRE( connection.open() );
+    REQUIRE( socket_list.size() == 1 );
+    REQUIRE( connection.get_current_client_socket() == socket_list.back().fh );
+    REQUIRE( connection.startup_state );
+    REQUIRE_FALSE( connection.reconnect_required() );
+
+    connection.set_host("host2.uda.uk");
+    connection.set_port(12345);
+    REQUIRE( connection.reconnect_required() );
+    connection.create();
+    REQUIRE( connection.open() );
+    REQUIRE( socket_list.size() == 2 );
+    REQUIRE( connection.get_current_client_socket() == socket_list.back().fh );
+    REQUIRE( connection.startup_state );
+    REQUIRE_FALSE( connection.reconnect_required() );
+
+    connection.set_host("host3.uda.uk");
+    connection.set_port(54321);
+    REQUIRE( connection.reconnect_required() );
+    connection.create();
+    REQUIRE( connection.open() );
+    REQUIRE( socket_list.size() == 3 );
+    REQUIRE( connection.get_current_client_socket() == socket_list.back().fh );
+    REQUIRE( connection.startup_state );
+    REQUIRE_FALSE( connection.reconnect_required() );
+
+    // if the (host,port) details match an existing connection, switch to it
+    // and reset the reconnect_required flag
+    connection.set_host("localhost");
+    connection.set_port(56789);
+    REQUIRE( connection.reconnect_required() );
+    REQUIRE_NOTHROW( connection.maybe_reuse_existing_socket() );
+    REQUIRE( socket_list.size() == 3 );
+    auto socket = connection.get_current_connection_data();
+    REQUIRE( socket.port == connection.get_port() );
+    REQUIRE( socket.host == connection.get_host() );
+    REQUIRE( connection.startup_state );
+    REQUIRE_FALSE( connection.reconnect_required() );
+}
 
