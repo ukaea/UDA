@@ -80,6 +80,8 @@ TEST_CASE( "connection options can be set through set_option methods", "[option-
 class MockConnection : public uda::client::Connection
 {
     public:
+    explicit MockConnection(std::vector<uda::client_server::UdaError>& error_stack) : Connection(error_stack) {}
+
     int create()
     {
         client_socket_ = socket_list_.size();
@@ -100,6 +102,10 @@ class MockConnection : public uda::client::Connection
         server_reconnect_ = false;
 
         return 0;
+    }
+
+    const std::vector<uda::client_server::UdaError>& error_stack() const {
+        return error_stack_;
     }
 
     const std::vector<uda::client_server::Socket>& get_socket_list() const
@@ -162,7 +168,7 @@ TEST_CASE( "Current socket connection details can be queried", "[socket-data]" )
     REQUIRE( socket.user_timeout == 600 );
     REQUIRE( socket.Input == client_input );
     REQUIRE( socket.Output == client_output );
-    REQUIRE( connection.error_stack.empty() );
+    REQUIRE( connection.error_stack().empty() );
 }
 
 TEST_CASE( "Maximum age of the current socket connection can be modified", "[socket-data]" )

@@ -67,11 +67,11 @@ std::pair<std::unique_ptr<XDR, void(*)(XDR*)>, std::unique_ptr<XDR, void(*)(XDR*
 #  endif
     } else {
 #  if defined(__APPLE__) || defined(__TIRPC__)
-        xdrrec_create(&client_output, DBReadBlockSize, DBWriteBlockSize, io_data,
+        xdrrec_create(client_output.get(), DBReadBlockSize, DBWriteBlockSize, io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(read_client_ssl),
                       reinterpret_cast<int (*)(void*, void*, int)>(write_client_ssl));
 
-        xdrrec_create(&client_input, DBReadBlockSize, DBWriteBlockSize, io_data,
+        xdrrec_create(client_input.get(), DBReadBlockSize, DBWriteBlockSize, io_data,
                       reinterpret_cast<int (*)(void*, void*, int)>(read_client_ssl),
                       reinterpret_cast<int (*)(void*, void*, int)>(write_client_ssl));
 #  else

@@ -54,7 +54,7 @@ uda::client::HostList::HostList(std::string_view file_path)
     load_from_file(file_path);
 }
 
-uda::client::HostList::HostList(uda::config::Config& config)
+uda::client::HostList::HostList(const uda::config::Config& config)
 {
     const auto maybe_file_path = config.get("connection.host_list_path").as_or_default<std::string>(""s);
     if (maybe_file_path.empty()) {
@@ -111,7 +111,7 @@ void uda::client::HostList::load_from_default_locations()
     load_list_from_custom_file_format(file_path);
 }
 
-void uda::client::HostList::load_list_from_toml(uda::config::Config& config)
+void uda::client::HostList::load_list_from_toml(const uda::config::Config& config)
 {
     if (!config){
         return;

@@ -15,7 +15,7 @@ class HostList
   public:
     HostList(); //uses weird default paths and env vars
     explicit HostList(std::string_view config_file);
-    explicit HostList(uda::config::Config& config);
+    explicit HostList(const uda::config::Config& config);
     ~HostList() = default;
 
     inline bool empty()
@@ -42,7 +42,7 @@ class HostList
     std::vector<uda::client_server::HostData> hosts_;
     // std::unordered_map<std::string, uda::client_server::HostData> hosts_map_;
 
-    void load_list_from_toml(config::Config& config);
+    void load_list_from_toml(const config::Config& config);
     void load_list_from_custom_file_format(std::string_view file_path);
 };
 

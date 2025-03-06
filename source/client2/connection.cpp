@@ -73,7 +73,7 @@ void uda::client::Connection::load_config(const config::Config& config)
         return;
     }
 
-    host_list_ = HostList(config);
+    host_list_ = HostList{config};
 
     // TODO: what is precedence here if host is from host-list (with associated port?)
     // TODO: should connection class always have reference to host list?
