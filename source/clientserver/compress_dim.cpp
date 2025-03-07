@@ -17,17 +17,17 @@ template <typename T> struct Precision {
 };
 
 template <typename T> T Precision<T>::precision = 0;
-template <> float Precision<float>::precision = FLT_EPSILON;
-template <> double Precision<double>::precision = DBL_EPSILON;
+template <> float Precision<float>::precision = 10 * FLT_EPSILON;
+template <> double Precision<double>::precision = 10 * DBL_EPSILON;
 
-template <typename T> int compress(uda::client_server::Dims* ddim)
+template <typename T> int compress(Dims* ddim)
 {
-    T* dim_data = (T*)ddim->dim;
+    T* dim_data = reinterpret_cast<T*>(ddim->dim);
     if (dim_data == nullptr) {
         return 1;
     }
 
-    int ndata = ddim->dim_n;
+    const int ndata = ddim->dim_n;
 
     // no need to compress if the data is already compressed or if there are less or equal to 2 elements
     if (ndata <= 3 || ddim->compressed == 1) {
@@ -62,7 +62,7 @@ template <typename T> int compress(uda::client_server::Dims* ddim)
     return 0;
 }
 
-template <typename T> int decompress(uda::client_server::Dims* ddim)
+template <typename T> int decompress(Dims* ddim)
 {
     int ndata = ddim->dim_n;
 
@@ -102,6 +102,8 @@ template <typename T> int decompress(uda::client_server::Dims* ddim)
             }
             break;
     }
+
+    ddim->compressed = 0;
 
     return 0;
 }

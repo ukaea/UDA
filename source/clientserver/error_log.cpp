@@ -34,7 +34,7 @@ void uda::client_server::print_errors(const std::vector<UdaError>& error_stack, 
     time_t calendar;
     time(&calendar);
 
-    struct tm* broken = gmtime(&calendar);
+    tm* broken = gmtime(&calendar);
 
     constexpr size_t access_date_length = 27;
     static char access_date[access_date_length]; // The Calendar Time as a formatted String
@@ -84,7 +84,7 @@ void uda::client_server::print_error_stack(const std::vector<UdaError>& error_st
 //            1 => Code Error
 //            2 => Plugin Error
 
-uda::client_server::UdaError uda::client_server::create_error(ErrorType type, const char* location, int code, const char* msg)
+uda::client_server::UdaError uda::client_server::create_error(const ErrorType type, const char* location, const int code, const char* msg)
 {
     UdaError error;
 

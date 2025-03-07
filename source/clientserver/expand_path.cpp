@@ -375,7 +375,7 @@ int uda::client_server::link_replacement(char* path)
 @returns An integer Error Code: If non zero, a problem occured.
 */
 
-int uda::client_server::expand_file_path(const uda::config::Config& config, char* path)
+int uda::client_server::expand_file_path(const config::Config& config, char* path)
 {
 
 #  ifdef _WIN32
