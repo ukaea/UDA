@@ -198,7 +198,7 @@ endmacro()
 include( InstallRequiredSystemLibraries )
 
 set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Universal Data Access library" )
-set( CPACK_PACKAGE_VENDOR "ITER" )
+set( CPACK_PACKAGE_VENDOR "UKAEA" )
 set( CPACK_PACKAGE_CONTACT "jonathan.hollocombe@ukaea.uk" )
 set( CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}" )
 set( CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}" )
