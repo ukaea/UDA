@@ -1,3 +1,5 @@
+add_compile_definitions(SPDLOG_FMT_EXTERNAL)
+
 add_subdirectory( authentication )
 add_subdirectory( bin )
 #add_subdirectory( c_api )

@@ -1,6 +1,13 @@
 find_package( Boost REQUIRED )
 find_package( fmt REQUIRED )
 
+set ( STDFS_VAR "" )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
+    set ( STDFS_VAR "stdc++fs" )
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
+    set ( STDFS_VAR "c++fs" )
+endif()
+
 set( SRC_FILES
   get_data.cpp
   make_server_request_block.cpp
@@ -19,7 +26,7 @@ target_include_directories( server
   "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-target_link_libraries( server PRIVATE Boost::boost fmt::fmt )
+target_link_libraries( server PRIVATE Boost::boost fmt::fmt dl ${STDFS_VAR} )
 target_link_libraries( server PRIVATE
   "$<BUILD_INTERFACE:client_server>"
   "$<BUILD_INTERFACE:structures>"

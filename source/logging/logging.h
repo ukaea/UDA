@@ -24,7 +24,7 @@ template<>
 struct fmt::formatter<uda::protocol::ProtocolId> : fmt::formatter<std::underlying_type_t<uda::protocol::ProtocolId>>
 {
     // Forwards the formatting by casting the enum to it's underlying type
-    auto format(const uda::protocol::ProtocolId& enumValue, format_context& ctx) const
+    auto format(const uda::protocol::ProtocolId& enumValue, format_context& ctx)
     {
         return fmt::formatter<std::underlying_type_t<uda::protocol::ProtocolId>>::format(
                 static_cast<std::underlying_type_t<uda::protocol::ProtocolId>>(enumValue), ctx);
@@ -73,7 +73,8 @@ void log(LogLevel mode, const char* file, int line, const std::string_view forma
     if (!logging_initialised()) {
         return;
     }
-    auto log_level = spdlog::get_level();
+    // auto log_level = spdlog::get_level();
+    auto log_level = spdlog::default_logger()->level();
     if (log_level == spdlog::level::off) {
         return;
     }
