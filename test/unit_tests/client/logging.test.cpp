@@ -78,37 +78,43 @@ TEST_CASE( "log level can be set and queried", "[init-logging]")
     auto expected_result = LogLevel::UDA_LOG_DEBUG;
     set_log_level(expected_result);
     auto log_level = get_log_level();
-    REQUIRE( spdlog::get_level() == spdlog::level::debug );
+    auto expected_level = spdlog::default_logger()->level();
+    REQUIRE( spdlog::default_logger()->level() == spdlog::level::debug );
     REQUIRE( log_level == expected_result);
 
     expected_result = LogLevel::UDA_LOG_INFO;
     set_log_level(expected_result);
     log_level = get_log_level();
-    REQUIRE( spdlog::get_level() == spdlog::level::info );
+    expected_level = spdlog::default_logger()->level();
+    REQUIRE( spdlog::default_logger()->level() == spdlog::level::info );
     REQUIRE( log_level == expected_result);
 
     expected_result = LogLevel::UDA_LOG_WARN;
     set_log_level(expected_result);
     log_level = get_log_level();
-    REQUIRE( spdlog::get_level() == spdlog::level::warn );
+    expected_level = spdlog::default_logger()->level();
+    REQUIRE( expected_level == spdlog::level::warn );
     REQUIRE( log_level == expected_result);
 
     expected_result = LogLevel::UDA_LOG_ERROR;
     set_log_level(expected_result);
     log_level = get_log_level();
-    REQUIRE( spdlog::get_level() == spdlog::level::err );
+    expected_level = spdlog::default_logger()->level();
+    REQUIRE( expected_level == spdlog::level::err );
     REQUIRE( log_level == expected_result);
 
     expected_result = LogLevel::UDA_LOG_ACCESS;
     set_log_level(expected_result);
     log_level = get_log_level();
-    REQUIRE( spdlog::get_level() == spdlog::level::critical );
+    expected_level = spdlog::default_logger()->level();
+    REQUIRE( expected_level == spdlog::level::critical );
     REQUIRE( log_level == expected_result);
 
     expected_result = LogLevel::UDA_LOG_NONE;
     set_log_level(expected_result);
     log_level = get_log_level();
-    REQUIRE( spdlog::get_level() == spdlog::level::off );
+    expected_level = spdlog::default_logger()->level();
+    REQUIRE( expected_level == spdlog::level::off );
     REQUIRE( log_level == expected_result);
 
     close_logging();

@@ -102,7 +102,7 @@ uda::logging::LogLevel uda::logging::get_log_level()
     {
         throw std::runtime_error("get log level error: logging not initialised");
     }
-    switch (spdlog::get_level()) {
+    switch (spdlog::default_logger()->level()) {
         case spdlog::level::debug:
             return LogLevel::UDA_LOG_DEBUG;
         case spdlog::level::info:

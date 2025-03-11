@@ -1,6 +1,13 @@
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 
+set ( STDFS_VAR "" )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
+    set ( STDFS_VAR "stdc++fs" )
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
+    set ( STDFS_VAR "c++fs" )
+endif()
+
 set( SRC_FILES
   client.cpp
   thread_client.cpp
@@ -21,7 +28,7 @@ target_include_directories( client
   "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-target_link_libraries( client PRIVATE fmt::fmt )
+target_link_libraries( client PRIVATE fmt::fmt ${STDFS_VAR} )
 target_link_libraries( client PRIVATE client_server structures config logging common cache )
 target_compile_definitions( client PRIVATE -DNO_GSL_LIB )
 if( ENABLE_SSL )

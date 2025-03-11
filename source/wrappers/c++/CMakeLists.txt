@@ -34,6 +34,7 @@ target_link_libraries( uda_cpp PRIVATE c_api Boost::boost )
 target_link_libraries( uda_cpp PRIVATE
   "$<BUILD_INTERFACE:client>"
 )
+target_compile_definitions( uda_cpp PRIVATE SPDLOG_FMT_EXTERNAL )
 
 set_target_properties( uda_cpp
   PROPERTIES

@@ -1,4 +1,5 @@
 enable_testing()
+add_compile_definitions(SPDLOG_FMT_EXTERNAL)
 
 Include( FetchContent )
 
