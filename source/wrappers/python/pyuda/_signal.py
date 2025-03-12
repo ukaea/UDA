@@ -259,7 +259,16 @@ class Signal(Data):
         and constructs a data owning signal object which is picklable and can 
         be loaded from disk without state initialisation errors in cpyuda.
         """
-        return (self.clone, ())
+        return (DataOwningSignal, (copy.deepcopy(self.data),
+                                   copy.deepcopy(self.errors),
+                                   copy.deepcopy(self.label),
+                                   copy.deepcopy(self.units),
+                                   copy.deepcopy(self.description),
+                                   copy.deepcopy(self.rank),
+                                   copy.deepcopy(self.dims),
+                                   copy.deepcopy(self.shape),
+                                   copy.deepcopy(self.time_index),
+                                   copy.deepcopy(self.meta)))
 
 
 class DataOwningSignal:
