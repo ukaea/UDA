@@ -24,7 +24,7 @@ class Dim(object):
     def __deepcopy__(self, memo):
         return DataOwningDim(data=copy.deepcopy(self.data, memo),
                              label=copy.deepcopy(self.label, memo),
-                             units=copy.deepcopy(self.units.memo))
+                             units=copy.deepcopy(self.units, memo))
 
 
 class DataOwningDim:
