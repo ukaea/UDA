@@ -3,6 +3,7 @@ from __future__ import (division, print_function, absolute_import)
 import json
 import base64
 import numpy as np
+import copy
 
 import cpyuda
 
@@ -221,3 +222,77 @@ class Signal(Data):
     def __repr__(self):
         return "<Signal: {0}>".format(self.label) if self.label else "<Signal>"
 
+    def clone(self):
+        """
+        Copy all signal data from cpyuda into a DataOwningSignal object
+        """
+        return DataOwningSignal(data=copy.deepcopy(self.data),
+                                errors=copy.deepcopy(self.errors),
+                                label=copy.deepcopy(self.label),
+                                units=copy.deepcopy(self.units),
+                                description=copy.deepcopy(self.description),
+                                rank=copy.deepcopy(self.rank),
+                                dims=copy.deepcopy(self.dims),
+                                shape=copy.deepcopy(self.shape),
+                                time_index=copy.deepcopy(self.time_index),
+                                meta=copy.deepcopy(self.meta))
+
+    def __deepcopy__(self, memo):
+        """
+        Copy all signal data from cpyuda into a DataOwningSignal object
+        """
+        return DataOwningSignal(data=copy.deepcopy(self.data, memo),
+                                errors=copy.deepcopy(self.errors, memo),
+                                label=copy.deepcopy(self.label, memo),
+                                units=copy.deepcopy(self.units, memo),
+                                description=copy.deepcopy(self.description, memo),
+                                rank=copy.deepcopy(self.rank, memo),
+                                dims=copy.deepcopy(self.dims, memo),
+                                shape=copy.deepcopy(self.shape, memo),
+                                time_index=copy.deepcopy(self.time_index, memo),
+                                meta=copy.deepcopy(self.meta, memo))
+
+    def __reduce__(self):
+        """
+        Overwriting __reduce__ method for pickling pyuda signal objects. 
+        This does deep copies of all the data views held by a signal object 
+        and constructs a data owning signal object which is picklable and can 
+        be loaded from disk without state initialisation errors in cpyuda.
+        """
+        return (self.clone, ())
+
+
+class DataOwningSignal:
+    """
+    Class to hold a copy of a pyuda Signal object where all data arrays are owned
+    by the object instead of being views of memory held by the uda c-library
+    """
+
+    def __init__(self, data=None, errors=None, label='', units='', description='',
+                 rank=None, dims=None, shape=None, time_index=None, meta=None):
+        self.data = data
+        self.errors = errors
+        self.label = label
+        self.units = units
+        self.descritpion = description
+        self.rank = rank
+        self.dims = dims
+        self.shape = shape
+        self.time_index = time_index
+        self.meta = meta
+
+    def plot(self):
+        import matplotlib.pyplot as plt
+
+        dim = self.dims[0]
+
+        plt.plot(dim.data, self.data)
+        plt.xlabel('{0} ({1})'.format(dim.label, dim.units))
+        plt.ylabel('{0} ({1})'.format(self.label, self.units))
+        plt.show()
+
+    def jsonify(self, indent=None):
+        return json.dumps(self, cls=SignalEncoder, indent=indent)
+
+    def __repr__(self):
+        return "<Signal: {0}>".format(self.label) if self.label else "<Signal>"
