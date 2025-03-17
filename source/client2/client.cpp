@@ -95,24 +95,25 @@ void update_client_block(ClientBlock& client_block, const uda::client::ClientFla
 
 } // namespace
 
-uda::client::Client::Client() : version{ClientVersion}, protocol_version_{ClientVersion}, connection_{error_stack_}
+uda::client::Client::Client() noexcept
+    : version{ClientVersion}
+    , flags_(0)
+    , protocol_version_{ClientVersion}
+    , cache_(uda::cache::open_cache())
+    , connection_{error_stack_}
 {
-    flags_ = 0;
-
     client_flags_ = {};
     client_flags_.alt_rank = 0;
     client_flags_.user_timeout = TimeOut;
 
-    cache_ = uda::cache::open_cache();
-
-    char username[StringLength];
+    std::array<char, StringLength> username{};
     user_id(username);
-    client_username_ = username;
+    client_username_ = username.data();
 
     init_client_block(&client_block_, ClientVersion, client_username_.c_str());
 }
 
-uda::client::Client::Client(std::string_view config_path) : Client()
+uda::client::Client::Client(const std::string_view config_path) : Client()
 {
     // load config throws on error, no need to check config_ has read a valid file
     load_config(config_path);
@@ -344,7 +345,7 @@ int uda::client::Client::get_server_error_stack_record_code(int record)
 
 namespace
 {
-int get_signal_status(DataBlock* data_block)
+int get_signal_status(const DataBlock* data_block)
 {
     // Signal Status
     if (data_block == nullptr) {
@@ -756,7 +757,7 @@ int uda::client::Client::test_connection()
 
 int uda::client::Client::send_request_block(RequestBlock& request_block)
 {
-    ProtocolId protocol_id = ProtocolId::RequestBlock; // This is what the Client Wants
+    auto protocol_id = ProtocolId::RequestBlock; // This is what the Client Wants
     int err = 0;
     if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_,
                          user_defined_type_list_, &request_block, protocol_version_, &log_struct_list_, private_flags_,
@@ -770,7 +771,7 @@ int uda::client::Client::send_request_block(RequestBlock& request_block)
 
 int uda::client::Client::send_client_block()
 {
-    ProtocolId protocol_id = ProtocolId::ClientBlock; // Send Client Block
+    auto protocol_id = ProtocolId::ClientBlock; // Send Client Block
     int err = 0;
     if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_,
                          user_defined_type_list_, &client_block_, protocol_version_, &log_struct_list_, private_flags_,
@@ -786,7 +787,7 @@ int uda::client::Client::perform_handshake()
 {
     // Flush (mark as at EOF) the input socket buffer (before the exchange begins)
 
-    ProtocolId protocol_id = ProtocolId::ClientBlock; // Send Client Block (proxy for authenticationStep = 6)
+    auto protocol_id = ProtocolId::ClientBlock; // Send Client Block (proxy for authenticationStep = 6)
 
     int err = 0;
     if ((err = protocol2(error_stack_, client_output_, protocol_id, XDRStreamDirection::Send, nullptr, log_malloc_list_,
@@ -855,9 +856,8 @@ int uda::client::Client::flush_sockets()
     //------------------------------------------------------------------------------
     // Send the Full TCP packet and wait for the returned data
 
-    int rc = 0;
-    if (!(rc = xdrrec_endofrecord(client_output_, 1))) {
-        int err = (int)ProtocolError::Error7;
+    if (!xdrrec_endofrecord(client_output_, 1)) {
+        constexpr int err = static_cast<int>(ProtocolError::Error7);
         add_error(error_stack_, ErrorType::Code, __func__, err, "Protocol 7 Error (Request Block & putDataBlockList)");
         return err;
     }
@@ -865,7 +865,7 @@ int uda::client::Client::flush_sockets()
     UDA_LOG(UDA_LOG_DEBUG, "****** Outgoing tcp packet sent without error. Waiting for data.");
 
     if (!xdrrec_skiprecord(client_input_)) {
-        int err = (int)ProtocolError::Error5;
+        constexpr int err = static_cast<int>(ProtocolError::Error5);
         add_error(error_stack_, ErrorType::Code, __func__, err, " Protocol 5 Error (Server & Data Structures)");
         return err;
     }
@@ -993,7 +993,7 @@ void uda::client::Client::set_property(const char* property)
             left_trim_string(name);
             mid_trim_string(name);
             strlwr(name);
-            if ((value = strstr(name, "timeout=")) != nullptr) {
+            if (strstr(name, "timeout=") != nullptr) {
                 value = name + 8;
                 if (is_number(value)) {
                     client_flags_.user_timeout = atoi(value);
@@ -1015,7 +1015,7 @@ void uda::client::Client::set_property(const char* property)
                 left_trim_string(name);
                 mid_trim_string(name);
                 strlwr(name);
-                if ((value = strcasestr(name, "altRank=")) != nullptr) {
+                if (strcasestr(name, "altRank=") != nullptr) {
                     value = name + 8;
                     if (is_number(value)) {
                         client_flags_.alt_rank = atoi(value);
@@ -1198,9 +1198,8 @@ const DataBlock* uda::client::Client::data_block(int handle) const
     const auto idx = static_cast<size_t>(handle);
     if (idx < data_blocks_.size()) {
         return &data_blocks_[idx];
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 DataBlock* uda::client::Client::data_block(int handle)
@@ -1208,9 +1207,8 @@ DataBlock* uda::client::Client::data_block(int handle)
     const auto idx = static_cast<size_t>(handle);
     if (idx < data_blocks_.size()) {
         return &data_blocks_[idx];
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 const ClientBlock* uda::client::Client::client_block(int handle) const
@@ -1224,7 +1222,7 @@ void uda::client::Client::concat_errors(ServerBlock& server_block) const
         return;
     }
 
-    for (auto& error : error_stack_) {
+    for (const auto& error : error_stack_) {
         server_block.error_stack.push_back(error);
     }
 }
@@ -1238,9 +1236,8 @@ const DataBlock* uda::client::Client::current_data_block() const
 {
     if (!data_blocks_.empty()) {
         return &data_blocks_.back();
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 const ServerBlock* uda::client::Client::server_block() const
@@ -1293,12 +1290,12 @@ const std::vector<UdaError>& uda::client::Client::error_stack() const
     return error_stack_;
 }
 
-int uda::client::Client::put(std::string_view put_instruction, PutDataBlock* put_data_block)
+int uda::client::Client::put(std::string_view put_instruction, const PutDataBlock* put_data_block)
 {
     RequestBlock request_block;
 
-    auto signal_ptr = put_instruction.data();
-    auto source_ptr = "";
+    const auto* signal_ptr = put_instruction.data();
+    const auto* source_ptr = "";
 
     if (make_request_block(error_stack_, config_, &signal_ptr, &source_ptr, 1, &request_block) != 0) {
         if (error_stack_.empty()) {
@@ -1319,12 +1316,12 @@ int uda::client::Client::put(std::string_view put_instruction, PutDataBlock* put
     return indices[0];
 }
 
-int uda::client::Client::put(std::string_view put_instruction, PutDataBlockList& put_data_block_list)
+int uda::client::Client::put(std::string_view put_instruction, const PutDataBlockList& put_data_block_list)
 {
     RequestBlock request_block{};
 
-    auto signal_ptr = put_instruction.data();
-    auto source_ptr = "";
+    const auto* signal_ptr = put_instruction.data();
+    const auto* source_ptr = "";
 
     if (make_request_block(error_stack_, config_, &signal_ptr, &source_ptr, 1, &request_block) != 0) {
         if (error_stack_.empty()) {

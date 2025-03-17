@@ -42,7 +42,7 @@ struct PluginList {};
 class Plugins
 {
   public:
-    explicit Plugins(const config::Config& config) : config_{config} {}
+    explicit Plugins(const config::Config& config) : _config{config} {}
 
     void init();
     void close();
@@ -64,14 +64,14 @@ class Plugins
 #endif
 
   private:
-    const config::Config& config_;
+    const config::Config& _config;
     std::vector<client_server::PluginData> _plugins;
 
     bool _initialised = false;
 
     void discover_plugins();
     void discover_plugins_in_directory(const std::filesystem::path& directory);
-    void load_plugin(const std::filesystem::path& directory);
+    void load_plugin(const std::filesystem::path& library);
 };
 
 } // namespace uda::server

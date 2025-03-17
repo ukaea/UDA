@@ -7,7 +7,7 @@ namespace uda::client_server
 
 void init_request_data(RequestData* str);
 
-void init_client_block(ClientBlock* str, int version, const char* clientname);
+void init_client_block(ClientBlock* str, int version, const char* client_name) noexcept;
 
 void init_server_block(ServerBlock* str, int version);
 

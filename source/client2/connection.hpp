@@ -68,7 +68,7 @@ public:
         // std::swap(server_change_socket_, other.server_change_socket_);
         return *this;
     }
-    int open();
+    bool open() const;
     int reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start, int* user_timeout);
     int create();
     void close_down(ClosedownType type);
@@ -125,9 +125,9 @@ protected:
     mutable bool server_reconnect_ = false;
    // mutable bool server_change_socket_ = false;
 
-    int find_socket(int fh);
-    int find_socket();
-    int find_socket_by_properties(std::string_view host, int port);
+    int find_socket(int fh) const;
+    int find_socket() const;
+    int find_socket_by_properties(std::string_view host, int port) const;
     void close_socket(int fh);
     void unpack_config();
     client_server::Socket& get_current_socket();

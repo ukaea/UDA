@@ -37,7 +37,7 @@ void uda::client_server::init_request_data(RequestData* str)
 #  define getpid _getpid
 #endif
 
-void uda::client_server::init_client_block(ClientBlock* str, int version, const char* clientname)
+void uda::client_server::init_client_block(ClientBlock* str, const int version, const char* client_name) noexcept
 {
     str->version = version;
     str->timeout = TimeOut;
@@ -45,7 +45,7 @@ void uda::client_server::init_client_block(ClientBlock* str, int version, const 
         str->timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
     }
     str->pid = (int)getpid();
-    strcpy(str->uid, clientname); // Global userid
+    strcpy(str->uid, client_name); // Global userid
     str->compressDim = CompressDim;
 
     str->clientFlags = 0;

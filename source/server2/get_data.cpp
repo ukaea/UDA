@@ -543,8 +543,7 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
             if (maybe_plugin->handle != nullptr &&
                 maybe_plugin->entry_func != nullptr) {
 
-                const auto format = _meta_data.find("format");
-                UDA_LOG(UDA_LOG_DEBUG, "[{}] {} Plugin Selected", plugin_request, format.data());
+                UDA_LOG(UDA_LOG_DEBUG, "[{}] {} Plugin Selected", plugin_request, maybe_plugin->name);
 
 #ifndef FATCLIENT
                 // Redirect Output to temporary file if no file handles passed
@@ -574,12 +573,6 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "returned from plugin called");
-
-                // Save Provenance with socket stream protection
-
-                server_redirect_std_streams(_config, 0);
-                provenance_plugin(_config, &_client_block, request, _plugins, nullptr, _meta_data);
-                server_redirect_std_streams(_config, 1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
 
@@ -659,13 +652,6 @@ int uda::server::Server::read_data(RequestData* request, DataBlock* data_block)
     // Copy the Client Block into the Data Block to pass client requested properties into plugins
 
     data_block->client_block = _client_block;
-
-    //----------------------------------------------------------------------------
-    // Save Provenance with socket stream protection
-
-    server_redirect_std_streams(_config, 0);
-    provenance_plugin(_config, &_client_block, request, _plugins, nullptr, _meta_data);
-    server_redirect_std_streams(_config, 1);
 
     return 0;
 }

@@ -268,7 +268,6 @@ const std::vector<SectionValidator> Validators = {
             {"debug_single_file", ValueType::Boolean},
             {"directories", ValueType::String},
             {"metadata_plugin", ValueType::String},
-            {"provenance_plugin", ValueType::String},
             {"proxy_plugin", ValueType::String},
         }},
     SectionValidator{"request",

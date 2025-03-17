@@ -112,6 +112,7 @@ void uda::Client::setProperty(Property prop, int value)
 void uda::Client::close()
 {
     udaFreeAll();
+    udaCloseAllConnections();
 }
 
 int uda::Client::property(Property prop)

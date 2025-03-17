@@ -27,6 +27,8 @@ extern "C" {
 #  define udaGetBatchAPIWithHost udaGetBatchAPIWithHostFat
 #endif
 
+LIBRARY_API void udaLoadConfig(const char* config_name);
+
 LIBRARY_API int udaGetAPI(const char* data_object, const char* data_source);
 
 LIBRARY_API int udaGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles);
@@ -108,11 +110,9 @@ LIBRARY_API void udaFreePutDataBlock(PUTDATA_BLOCK*);
 
 LIBRARY_API LOGMALLOCLIST* udaGetLogMallocList(int handle);
 
-LIBRARY_API USERDEFINEDTYPE* udaGetUserDefinedType(const int handle);
+LIBRARY_API USERDEFINEDTYPE* udaGetUserDefinedType(int handle);
 
 LIBRARY_API USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);
-
-#define UDA_NUM_CLIENT_THREADS 30
 
 LIBRARY_API void udaSetPrivateFlag(unsigned int flag);
 
@@ -147,8 +147,6 @@ LIBRARY_API void udaPutServer(const char* host, int port);
 LIBRARY_API void udaPutServerHost(const char* host);
 
 LIBRARY_API void udaPutServerPort(int port);
-
-LIBRARY_API int udaGetErrorCode(int handle);
 
 LIBRARY_API const char* udaGetErrorMsg(int handle);
 
@@ -188,8 +186,6 @@ LIBRARY_API int udaGetDataTypeId(const char* type);
 
 LIBRARY_API int udaGetDataTypeSize(int type);
 
-LIBRARY_API void udaGetErrorModel(int handle, int* model, int* param_n, float* params);
-
 LIBRARY_API int udaGetErrorAsymmetry(int handle);
 
 LIBRARY_API int udaGetErrorModelId(const char* model);
@@ -201,8 +197,6 @@ LIBRARY_API char* udaGetSyntheticDimData(int handle, int n_dim);
 LIBRARY_API void udaSetSyntheticData(int handle, char* data);
 
 LIBRARY_API void udaSetSyntheticDimData(int handle, int n_dim, char* data);
-
-LIBRARY_API char* udaGetSyntheticData(int handle);
 
 LIBRARY_API char* udaGetData(int handle);
 
@@ -234,15 +228,15 @@ LIBRARY_API char* udaGetAsymmetricError(int handle, bool above);
 
 LIBRARY_API char* udaGetError(int handle);
 
-LIBRARY_API void udaGetDoubleData(int handle, double* fp);
+LIBRARY_API void udaGetDoubleData(int handle, double* data);
 
-LIBRARY_API void udaGetFloatData(int handle, float* fp);
+LIBRARY_API void udaGetFloatData(int handle, float* data);
 
 LIBRARY_API void udaGetGenericData(int handle, void* data);
 
-LIBRARY_API void udaGetFloatAsymmetricError(int handle, bool above, float* fp);
+LIBRARY_API void udaGetFloatAsymmetricError(int handle, bool above, float* data);
 
-LIBRARY_API void udaGetFloatError(int handle, float* fp);
+LIBRARY_API void udaGetFloatError(int handle, float* data);
 
 LIBRARY_API const char* udaGetDataLabel(int handle);
 
@@ -266,8 +260,6 @@ LIBRARY_API int udaGetDimErrorAsymmetry(int handle, int n_dim);
 
 LIBRARY_API void udaGetDimErrorModel(int handle, int n_dim, int* model, int* param_n, float* params);
 
-LIBRARY_API char* udaGetSyntheticDimData(int handle, int n_dim);
-
 LIBRARY_API char* udaGetDimData(int handle, int n_dim);
 
 LIBRARY_API const char* udaGetDimLabel(int handle, int n_dim);
@@ -278,9 +270,9 @@ LIBRARY_API void udaGetDimLabelTdi(int handle, int n_dim, char* label);
 
 LIBRARY_API void udaGetDimUnitsTdi(int handle, int n_dim, char* units);
 
-LIBRARY_API void udaGetDoubleDimData(int handle, int n_dim, double* fp);
+LIBRARY_API void udaGetDoubleDimData(int handle, int n_dim, double* data);
 
-LIBRARY_API void udaGetFloatDimData(int handle, int n_dim, float* fp);
+LIBRARY_API void udaGetFloatDimData(int handle, int n_dim, float* data);
 
 LIBRARY_API void udaGetGenericDimData(int handle, int n_dim, void* data);
 
@@ -288,9 +280,9 @@ LIBRARY_API char* udaGetDimAsymmetricError(int handle, int n_dim, bool above);
 
 LIBRARY_API char* udaGetDimError(int handle, int n_dim);
 
-LIBRARY_API void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* fp);
+LIBRARY_API void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* data);
 
-LIBRARY_API void udaGetFloatDimError(int handle, int n_dim, float* fp);
+LIBRARY_API void udaGetFloatDimError(int handle, int n_dim, float* data);
 
 LIBRARY_API int udaDataCheckSum(const char* data, int data_n, int type);
 
@@ -298,19 +290,9 @@ LIBRARY_API int udaGetDataCheckSum(int handle);
 
 LIBRARY_API int udaGetDimDataCheckSum(int handle, int n_dim);
 
-LIBRARY_API int udaGetThreadLastHandle();
+LIBRARY_API int udaSetDataTree(int handle);
 
-LIBRARY_API void udaPutThreadLastHandle(int handle);
-
-LIBRARY_API void udaLockThread();
-
-LIBRARY_API void udaUnlockThread();
-
-LIBRARY_API int udaGetMaxThreadCount();
-
-LIBRARY_API int udaSetDataTree(const int handle);
-
-LIBRARY_API NTREE* udaGetDataTree(const int handle);
+LIBRARY_API NTREE* udaGetDataTree(int handle);
 
 #ifdef __cplusplus
 }

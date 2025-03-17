@@ -8,13 +8,13 @@ using namespace uda::client_server;
 std::once_flag uda::client::ThreadClient::init_flag_ = {};
 uda::client::Client* uda::client::ThreadClient::instance_ = nullptr;
 
-uda::client::Client& uda::client::ThreadClient::instance()
+uda::client::Client& uda::client::ThreadClient::instance() noexcept
 {
     std::call_once(init_flag_, &ThreadClient::init_client);
     return *instance_;
 }
 
-void uda::client::ThreadClient::init_client()
+void uda::client::ThreadClient::init_client() noexcept
 {
     instance_ = new Client;
 }

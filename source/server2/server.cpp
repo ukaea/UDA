@@ -180,16 +180,16 @@ void uda::server::Server::initialise()
     _server_timeout = TimeOut;
     _fatal_error = false;
 
-    auto log_level = static_cast<LogLevel>(_config.get("logging.level").as_or_default((int) UDA_LOG_NONE));
+    const auto log_level = static_cast<LogLevel>(_config.get("logging.level").as_or_default(static_cast<int>(UDA_LOG_NONE)));
 
     init_logging();
-    set_log_level((LogLevel)log_level);
+    set_log_level(log_level);
 
     start_logs();
 
     _config.print();
 
-    UDA_LOG(UDA_LOG_DEBUG, "New Server Instance");
+    UDA_LOG(UDA_LOG_DEBUG, "Initialising server");
 
     //-------------------------------------------------------------------------
     // Initialise the plugins
@@ -202,14 +202,14 @@ void uda::server::Server::initialise()
     //----------------------------------------------------------------------------
     // Server Information: Operating System Name - may limit types of data that can be received by the Client
 
-    auto os = _config.get("server.os");
+    const auto os = _config.get("server.os");
     if (os) {
         strcpy(_server_block.OSName, os.as<std::string>().c_str());
     }
 
     // Server Configuration and Environment DOI
 
-    auto doi = _config.get("server.doi");
+    const auto doi = _config.get("server.doi");
     if (doi) {
         strcpy(_server_block.DOI, doi.as<std::string>().c_str());
     }
@@ -220,22 +220,24 @@ void uda::server::Server::run()
     unsigned short port = _config.get("server.port").as_or_default(0);
     int socket_fd = 0;
 
+    initialise();
+
     if (port > 0) {
         // simple tcp server
         for (;;) {
             boost::asio::io_context io_context;
             tcp::acceptor acceptor{io_context, tcp::endpoint{tcp::v4(), port}};
             boost::asio::ip::tcp::socket socket{io_context};
+
+            UDA_LOG(UDA_LOG_DEBUG, "Listening on port {}", port);
             acceptor.accept(socket);
             socket_fd = socket.native_handle();
 
-            initialise();
             connect(socket_fd);
 
             socket.close();
         }
     } else {
-        initialise();
         // running under systemd - reading/writing to stdin/stdout
         connect(0);
     }

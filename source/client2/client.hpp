@@ -62,7 +62,7 @@ struct LoggingOptions
 class Client
 {
 public:
-    Client();
+    Client() noexcept;
     ~Client() = default;
     explicit Client(std::string_view config_path);
 
@@ -74,8 +74,8 @@ public:
     int get(std::string_view data_signal, std::string_view data_source);
     std::vector<int> get(std::vector<std::pair<std::string, std::string>>& requests);
 
-    int put(std::string_view put_instruction, client_server::PutDataBlock* putdata_block);
-    int put(std::string_view put_instruction, client_server::PutDataBlockList& putdata_block_list);
+    int put(std::string_view put_instruction, const client_server::PutDataBlock* putdata_block);
+    int put(std::string_view put_instruction, const client_server::PutDataBlockList& putdata_block_list);
 
     void set_host(std::string_view host);
     [[nodiscard]] const std::string& get_host() const {return connection_.get_host();}

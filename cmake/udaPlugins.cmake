@@ -48,6 +48,7 @@ macro( uda_plugin )
   set( LIBRARIES ${LIBRARIES} ${FILTERED_LINK_LIBS} )
  
   target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} )
+  target_include_directories( ${PLUGIN_LIBNAME} PRIVATE ${PLUGIN_EXTRA_INCLUDE_DIRS} )
   
   install(
     TARGETS ${PLUGIN_LIBNAME}

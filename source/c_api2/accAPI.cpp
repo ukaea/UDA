@@ -1363,10 +1363,10 @@ char* udaGetError(int handle)
 /** The copy buffer must be preallocated and sized for the data type. The data may be synthetically generated. If the status of the data is poor, no copy to the buffer occurs unless
 the property \b get_bad is set.
 \param   handle   The data object handle
-\param   fp A \b double pointer to a preallocated data buffer
+\param   data A \b double pointer to a preallocated data buffer
 \return  void
 */
-void udaGetDoubleData(int handle, double* fp)
+void udaGetDoubleData(int handle, double* data)
 {
     auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
@@ -1383,14 +1383,14 @@ void udaGetDoubleData(int handle, double* fp)
 
     if (data_block->data_type == UDA_TYPE_DOUBLE) {
         if (!client_flags->get_synthetic)
-            memcpy((void*)fp, (void*)data_block->data, static_cast<size_t>(data_block->data_n) * sizeof(double));
+            memcpy((void*)data, (void*)data_block->data, static_cast<size_t>(data_block->data_n) * sizeof(double));
         else {
             uda::client::generate_synthetic_data(instance.error_stack(), handle);
             if (data_block->synthetic != nullptr)
-                memcpy((void*)fp, (void*)data_block->synthetic,
+                memcpy((void*)data, (void*)data_block->synthetic,
                        static_cast<size_t>(data_block->data_n) * sizeof(double));
             else
-                memcpy((void*)fp, (void*)data_block->data,
+                memcpy((void*)data, (void*)data_block->data,
                        static_cast<size_t>(data_block->data_n) * sizeof(double));
             return;
         }
@@ -1414,69 +1414,69 @@ void udaGetDoubleData(int handle, double* fp)
         switch (data_block->data_type) {
             case UDA_TYPE_FLOAT: {
                 const auto dp = reinterpret_cast<float*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(dp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(dp[i]);
                 break;
             }
             case UDA_TYPE_SHORT: {
                 const auto sp = reinterpret_cast<short*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(sp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(sp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_SHORT: {
                 const auto sp = reinterpret_cast<unsigned short*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(sp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(sp[i]);
                 break;
             }
             case UDA_TYPE_INT: {
                 const auto ip = reinterpret_cast<int*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(ip[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(ip[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_INT: {
                 const auto up = reinterpret_cast<unsigned int*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(up[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(up[i]);
                 break;
             }
             case UDA_TYPE_LONG: {
                 const auto lp = reinterpret_cast<long*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(lp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(lp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG: {
                 const auto lp = reinterpret_cast<unsigned long*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(lp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(lp[i]);
                 break;
             }
             case UDA_TYPE_LONG64: {
                 const auto lp = reinterpret_cast<long long int*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(lp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(lp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG64: {
                 const auto lp = reinterpret_cast<unsigned long long int*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(lp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(lp[i]);
                 break;
             }
             case UDA_TYPE_CHAR: {
                 const auto cp = array;
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(cp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(cp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_CHAR: {
                 const auto cp = reinterpret_cast<unsigned char*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<double>(cp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<double>(cp[i]);
                 break;
             }
             case UDA_TYPE_UNKNOWN: {
-                for (int i = 0; i < n_data; i++) fp[i] = 0.0;  // No Data !
+                for (int i = 0; i < n_data; i++) data[i] = 0.0;  // No Data !
                 break;
             }
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
                 const auto dp = reinterpret_cast<DComplex*>(array);
                 for (int i = 0; i < n_data; i++) {
-                    fp[j++] = dp[i].real;
-                    fp[j++] = dp[i].imaginary;
+                    data[j++] = dp[i].real;
+                    data[j++] = dp[i].imaginary;
                 }
                 break;
             }
@@ -1484,13 +1484,13 @@ void udaGetDoubleData(int handle, double* fp)
                 int j = 0;
                 const auto dp = reinterpret_cast<Complex*>(array);
                 for (int i = 0; i < n_data; i++) {
-                    fp[j++] = static_cast<double>(dp[i].real);
-                    fp[j++] = static_cast<double>(dp[i].imaginary);
+                    data[j++] = static_cast<double>(dp[i].real);
+                    data[j++] = static_cast<double>(dp[i].imaginary);
                 }
                 break;
             }
             default:
-                for (int i = 0; i < n_data; i++) fp[i] = 0.0;
+                for (int i = 0; i < n_data; i++) data[i] = 0.0;
                 break;
 
         }
@@ -1502,10 +1502,10 @@ void udaGetDoubleData(int handle, double* fp)
 /** The copy buffer must be preallocated and sized for the data type. The data may be synthetically generated. If the status of the data is poor, no copy to the buffer occurs unless
 the property \b get_bad is set.
 \param   handle   The data object handle
-\param   fp A \b float pointer to a preallocated data buffer
+\param   data A \b float pointer to a preallocated data buffer
 \return  void
 */
-void udaGetFloatData(int handle, float* fp)
+void udaGetFloatData(int handle, float* data)
 {
     // Copy Data cast as float to User Provided Array
 
@@ -1524,14 +1524,14 @@ void udaGetFloatData(int handle, float* fp)
 
     if (data_block->data_type == UDA_TYPE_FLOAT) {
         if (!client_flags->get_synthetic)
-            memcpy((void*)fp, (void*)data_block->data, static_cast<size_t>(data_block->data_n) * sizeof(float));
+            memcpy((void*)data, (void*)data_block->data, static_cast<size_t>(data_block->data_n) * sizeof(float));
         else {
             uda::client::generate_synthetic_data(instance.error_stack(), handle);
             if (data_block->synthetic != nullptr)
-                memcpy((void*)fp, (void*)data_block->synthetic,
+                memcpy((void*)data, (void*)data_block->synthetic,
                        static_cast<size_t>(data_block->data_n) * sizeof(float));
             else
-                memcpy((void*)fp, (void*)data_block->data,
+                memcpy((void*)data, (void*)data_block->data,
                        static_cast<size_t>(data_block->data_n) * sizeof(float));
             return;
         }
@@ -1555,69 +1555,69 @@ void udaGetFloatData(int handle, float* fp)
         switch (data_block->data_type) {
             case UDA_TYPE_DOUBLE: {
                 const double* dp = reinterpret_cast<double*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(dp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(dp[i]);
                 break;
             }
             case UDA_TYPE_SHORT: {
                 const auto sp = reinterpret_cast<short*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(sp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(sp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_SHORT: {
                 const auto sp = reinterpret_cast<unsigned short*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(sp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(sp[i]);
                 break;
             }
             case UDA_TYPE_INT: {
                 const auto ip = reinterpret_cast<int*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(ip[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(ip[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_INT: {
                 const auto up = reinterpret_cast<unsigned int*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(up[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(up[i]);
                 break;
             }
             case UDA_TYPE_LONG: {
                 const auto lp = reinterpret_cast<long*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(lp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(lp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG: {
                 const auto lp = reinterpret_cast<unsigned long*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(lp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(lp[i]);
                 break;
             }
             case UDA_TYPE_LONG64: {
                 const auto lp = reinterpret_cast<long long int*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(lp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(lp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG64: {
                 const auto lp = reinterpret_cast<unsigned long long int*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(lp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(lp[i]);
                 break;
             }
             case UDA_TYPE_CHAR: {
                 const auto cp = array;
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(cp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(cp[i]);
                 break;
             }
             case UDA_TYPE_UNSIGNED_CHAR: {
                 const auto cp = reinterpret_cast<unsigned char*>(array);
-                for (int i = 0; i < n_data; i++) fp[i] = static_cast<float>(cp[i]);
+                for (int i = 0; i < n_data; i++) data[i] = static_cast<float>(cp[i]);
                 break;
             }
             case UDA_TYPE_UNKNOWN: {
-                for (int i = 0; i < n_data; i++) fp[i] = 0.0f;   // No Data !
+                for (int i = 0; i < n_data; i++) data[i] = 0.0f;   // No Data !
                 break;
             }
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
                 const auto dp = reinterpret_cast<DComplex*>(array);
                 for (int i = 0; i < n_data; i++) {
-                    fp[j++] = static_cast<float>(dp[i].real);
-                    fp[j++] = static_cast<float>(dp[i].imaginary);
+                    data[j++] = static_cast<float>(dp[i].real);
+                    data[j++] = static_cast<float>(dp[i].imaginary);
                 }
                 break;
             }
@@ -1625,13 +1625,13 @@ void udaGetFloatData(int handle, float* fp)
                 int j = 0;
                 const auto dp = reinterpret_cast<Complex*>(array);
                 for (int i = 0; i < n_data; i++) {
-                    fp[j++] = dp[i].real;
-                    fp[j++] = dp[i].imaginary;
+                    data[j++] = dp[i].real;
+                    data[j++] = dp[i].imaginary;
                 }
                 break;
             }
             default:
-                for (int i = 0; i < n_data; i++) fp[i] = 0.0f;
+                for (int i = 0; i < n_data; i++) data[i] = 0.0f;
                 break;
 
         }
@@ -1708,7 +1708,7 @@ void get_float_asymmetric_error(const bool above, const DataBlock* data_block, c
     }
 }
 
-void udaGetFloatAsymmetricError(int handle, bool above, float* fp)
+void udaGetFloatAsymmetricError(int handle, bool above, float* data)
 {
     // Copy Error Data cast as float to User Provided Array
 
@@ -1730,50 +1730,50 @@ void udaGetFloatAsymmetricError(int handle, bool above, float* fp)
     switch (data_block->error_type) {
         case UDA_TYPE_UNKNOWN:
             for (int i = 0; i < n_data; i++) {
-                fp[i] = 0.0f; // No Error Data
+                data[i] = 0.0f; // No Error Data
             }
             break;
         case UDA_TYPE_FLOAT:
             if (above) {
-                memcpy(fp, data_block->errhi, static_cast<size_t>(data_block->data_n) * sizeof(float));
+                memcpy(data, data_block->errhi, static_cast<size_t>(data_block->data_n) * sizeof(float));
             } else if (!data_block->errasymmetry) {
-                memcpy(fp, data_block->errhi, static_cast<size_t>(data_block->data_n) * sizeof(float));
+                memcpy(data, data_block->errhi, static_cast<size_t>(data_block->data_n) * sizeof(float));
             } else {
-                memcpy(fp, data_block->errlo, static_cast<size_t>(data_block->data_n) * sizeof(float));
+                memcpy(data, data_block->errlo, static_cast<size_t>(data_block->data_n) * sizeof(float));
             }
             break;
         case UDA_TYPE_DOUBLE:
-            get_float_asymmetric_error<double>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<double>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_SHORT:
-            get_float_asymmetric_error<short>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<short>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_UNSIGNED_SHORT:
-            get_float_asymmetric_error<unsigned short>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<unsigned short>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_INT:
-            get_float_asymmetric_error<int>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<int>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_UNSIGNED_INT:
-            get_float_asymmetric_error<unsigned int>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<unsigned int>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_LONG:
-            get_float_asymmetric_error<long>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<long>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_UNSIGNED_LONG:
-            get_float_asymmetric_error<unsigned long>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<unsigned long>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_LONG64:
-            get_float_asymmetric_error<long long>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<long long>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_UNSIGNED_LONG64:
-            get_float_asymmetric_error<unsigned long long>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<unsigned long long>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_CHAR:
-            get_float_asymmetric_error<char>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<char>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_UNSIGNED_CHAR:
-            get_float_asymmetric_error<unsigned char>(above, data_block, n_data, fp);
+            get_float_asymmetric_error<unsigned char>(above, data_block, n_data, data);
             break;
         case UDA_TYPE_DCOMPLEX: {
             int j = 0;
@@ -1786,8 +1786,8 @@ void udaGetFloatAsymmetricError(int handle, bool above, float* fp)
                 cp = reinterpret_cast<DComplex*>(data_block->errlo);
             }
             for (int i = 0; i < n_data; i++) {
-                fp[j++] = static_cast<float>(cp[i].real);
-                fp[j++] = static_cast<float>(cp[i].imaginary);
+                data[j++] = static_cast<float>(cp[i].real);
+                data[j++] = static_cast<float>(cp[i].imaginary);
             }
             break;
         }
@@ -1802,14 +1802,14 @@ void udaGetFloatAsymmetricError(int handle, bool above, float* fp)
                 cp = reinterpret_cast<Complex*>(data_block->errlo);
             }
             for (int i = 0; i < n_data; i++) {
-                fp[j++] = cp[i].real;
-                fp[j++] = cp[i].imaginary;
+                data[j++] = cp[i].real;
+                data[j++] = cp[i].imaginary;
             }
             break;
         }
         default:
             for (int i = 0; i < n_data; i++) {
-                fp[i] = 0.0f;
+                data[i] = 0.0f;
             }
             break;
 
@@ -1819,13 +1819,13 @@ void udaGetFloatAsymmetricError(int handle, bool above, float* fp)
 //!  Returns error data cast to single precision
 /** The copy buffer must be preallocated and sized for the data type.
 \param   handle   The data object handle
-\param   fp A \b float pointer to a preallocated data buffer
+\param   data A \b float pointer to a preallocated data buffer
 \return  void
 */
-void udaGetFloatError(int handle, float* fp)
+void udaGetFloatError(int handle, float* data)
 {
     constexpr bool above = 1;
-    udaGetFloatAsymmetricError(handle, above, fp);
+    udaGetFloatAsymmetricError(handle, above, data);
 }
 
 //!  Returns the DATA_BLOCK data structure - the data, dimension coordinates and associated meta data.
@@ -2153,10 +2153,10 @@ void get_double_dim_data(const char* array, const int n_data, double* out) {
 /** The copy buffer must be preallocated and sized for the data type.
 \param   handle   The data object handle
 \param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\param   fp A \b double pointer to a preallocated data buffer
+\param   data A \b double pointer to a preallocated data buffer
 \return  void
 */
-void udaGetDoubleDimData(int handle, int n_dim, double* fp)
+void udaGetDoubleDimData(int handle, int n_dim, double* data)
 {
     // **** The double array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
@@ -2170,13 +2170,13 @@ void udaGetDoubleDimData(int handle, int n_dim, double* fp)
     const auto client_flags = instance.client_flags();
     if (data_block->dims[n_dim].data_type == UDA_TYPE_DOUBLE) {
         if (!client_flags->get_synthetic) {
-            memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
+            memcpy(data, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
         } else {
             uda::client::generate_synthetic_dim_data(instance.error_stack(), handle, n_dim);
             if (data_block->dims[n_dim].synthetic != nullptr) {
-                memcpy(fp, data_block->dims[n_dim].synthetic, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
+                memcpy(data, data_block->dims[n_dim].synthetic, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
             } else {
-                memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
+                memcpy(data, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(double));
             }
         }
     } else {
@@ -2195,23 +2195,23 @@ void udaGetDoubleDimData(int handle, int n_dim, double* fp)
         }
 
         switch (data_block->dims[n_dim].data_type) {
-            case UDA_TYPE_FLOAT: get_double_dim_data<float>(array, n_data, fp); break;
-            case UDA_TYPE_SHORT: get_double_dim_data<short>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_SHORT: get_double_dim_data<unsigned short>(array, n_data, fp); break;
-            case UDA_TYPE_INT: get_double_dim_data<int>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_INT: get_double_dim_data<unsigned int>(array, n_data, fp); break;
-            case UDA_TYPE_LONG: get_double_dim_data<long>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_LONG: get_double_dim_data<unsigned long>(array, n_data, fp); break;
-            case UDA_TYPE_LONG64: get_double_dim_data<long long>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_LONG64: get_double_dim_data<unsigned long long>(array, n_data, fp); break;
-            case UDA_TYPE_CHAR: get_double_dim_data<char>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_CHAR: get_double_dim_data<unsigned char>(array, n_data, fp); break;
+            case UDA_TYPE_FLOAT: get_double_dim_data<float>(array, n_data, data); break;
+            case UDA_TYPE_SHORT: get_double_dim_data<short>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_SHORT: get_double_dim_data<unsigned short>(array, n_data, data); break;
+            case UDA_TYPE_INT: get_double_dim_data<int>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_INT: get_double_dim_data<unsigned int>(array, n_data, data); break;
+            case UDA_TYPE_LONG: get_double_dim_data<long>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_LONG: get_double_dim_data<unsigned long>(array, n_data, data); break;
+            case UDA_TYPE_LONG64: get_double_dim_data<long long>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_LONG64: get_double_dim_data<unsigned long long>(array, n_data, data); break;
+            case UDA_TYPE_CHAR: get_double_dim_data<char>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_CHAR: get_double_dim_data<unsigned char>(array, n_data, data); break;
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
                 const auto cp = reinterpret_cast<DComplex*>(array);
                 for (int i = 0; i < n_data; i++) {
-                    fp[j++] = cp[i].real;
-                    fp[j++] = cp[i].imaginary;
+                    data[j++] = cp[i].real;
+                    data[j++] = cp[i].imaginary;
                 }
                 break;
             }
@@ -2219,14 +2219,14 @@ void udaGetDoubleDimData(int handle, int n_dim, double* fp)
                 int j = 0;
                 const auto cp = reinterpret_cast<Complex*>(array);
                 for (int i = 0; i < n_data; i++) {
-                    fp[j++] = static_cast<double>(cp[i].real);
-                    fp[j++] = static_cast<double>(cp[i].imaginary);
+                    data[j++] = static_cast<double>(cp[i].real);
+                    data[j++] = static_cast<double>(cp[i].imaginary);
                 }
                 break;
             }
             case UDA_TYPE_UNKNOWN:
             default:
-                for (int i = 0; i < n_data; i++) fp[i] = 0.0;
+                for (int i = 0; i < n_data; i++) data[i] = 0.0;
                 break;
 
         }
@@ -2245,10 +2245,10 @@ void get_float_dim_data(const char* array, const int n_data, float* out) {
 /** The copy buffer must be preallocated and sized for the data type.
 \param   handle   The data object handle
 \param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\param   fp A \b float pointer to a preallocated data buffer
+\param   data A \b float pointer to a preallocated data buffer
 \return  void
 */
-void udaGetFloatDimData(int handle, int n_dim, float* fp)
+void udaGetFloatDimData(int handle, int n_dim, float* data)
 {
     // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
@@ -2262,13 +2262,13 @@ void udaGetFloatDimData(int handle, int n_dim, float* fp)
     const auto client_flags = instance.client_flags();
     if (data_block->dims[n_dim].data_type == UDA_TYPE_FLOAT) {
         if (!client_flags->get_synthetic)
-            memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
+            memcpy(data, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
         else {
             uda::client::generate_synthetic_dim_data(instance.error_stack(), handle, n_dim);
             if (data_block->dims[n_dim].synthetic != nullptr) {
-                memcpy(fp, data_block->dims[n_dim].synthetic, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
+                memcpy(data, data_block->dims[n_dim].synthetic, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
             } else {
-                memcpy(fp, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
+                memcpy(data, data_block->dims[n_dim].dim, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
             }
         }
     } else {
@@ -2287,23 +2287,23 @@ void udaGetFloatDimData(int handle, int n_dim, float* fp)
         }
 
         switch (data_block->dims[n_dim].data_type) {
-            case UDA_TYPE_DOUBLE: get_float_dim_data<double>(array, n_data, fp); break;
-            case UDA_TYPE_SHORT: get_float_dim_data<short>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_SHORT: get_float_dim_data<unsigned short>(array, n_data, fp); break;
-            case UDA_TYPE_INT: get_float_dim_data<int>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_INT: get_float_dim_data<unsigned int>(array, n_data, fp); break;
-            case UDA_TYPE_LONG: get_float_dim_data<long>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_LONG: get_float_dim_data<unsigned long>(array, n_data, fp); break;
-            case UDA_TYPE_LONG64: get_float_dim_data<long long>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_LONG64: get_float_dim_data<unsigned long long>(array, n_data, fp); break;
-            case UDA_TYPE_CHAR: get_float_dim_data<char>(array, n_data, fp); break;
-            case UDA_TYPE_UNSIGNED_CHAR: get_float_dim_data<unsigned char>(array, n_data, fp); break;
+            case UDA_TYPE_DOUBLE: get_float_dim_data<double>(array, n_data, data); break;
+            case UDA_TYPE_SHORT: get_float_dim_data<short>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_SHORT: get_float_dim_data<unsigned short>(array, n_data, data); break;
+            case UDA_TYPE_INT: get_float_dim_data<int>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_INT: get_float_dim_data<unsigned int>(array, n_data, data); break;
+            case UDA_TYPE_LONG: get_float_dim_data<long>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_LONG: get_float_dim_data<unsigned long>(array, n_data, data); break;
+            case UDA_TYPE_LONG64: get_float_dim_data<long long>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_LONG64: get_float_dim_data<unsigned long long>(array, n_data, data); break;
+            case UDA_TYPE_CHAR: get_float_dim_data<char>(array, n_data, data); break;
+            case UDA_TYPE_UNSIGNED_CHAR: get_float_dim_data<unsigned char>(array, n_data, data); break;
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
                 const auto cp = reinterpret_cast<DComplex*>(array);
                 for (int i = 0; i < n_data; i++) {
-                    fp[j++] = static_cast<float>(cp[i].real);
-                    fp[j++] = static_cast<float>(cp[i].imaginary);
+                    data[j++] = static_cast<float>(cp[i].real);
+                    data[j++] = static_cast<float>(cp[i].imaginary);
                 }
                 break;
             }
@@ -2311,14 +2311,14 @@ void udaGetFloatDimData(int handle, int n_dim, float* fp)
                 int j = 0;
                 const auto cp = reinterpret_cast<Complex*>(array);
                 for (int i = 0; i < n_data; i++) {
-                    fp[j++] = cp[i].real;
-                    fp[j++] = cp[i].imaginary;
+                    data[j++] = cp[i].real;
+                    data[j++] = cp[i].imaginary;
                 }
                 break;
             }
             case UDA_TYPE_UNKNOWN:
             default:
-                for (int i = 0; i < n_data; i++) fp[i] = 0.0f;
+                for (int i = 0; i < n_data; i++) data[i] = 0.0f;
                 break;
         }
     }
@@ -2480,7 +2480,7 @@ void get_float_dim_asymmetric_error(const bool above, const DataBlock* data_bloc
     }
 }
 
-void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* fp)
+void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* data)
 {
     // Copy Error Data cast as float to User Provided Array
 
@@ -2500,20 +2500,20 @@ void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* fp)
     switch (data_block->dims[n_dim].error_type) {
         case UDA_TYPE_FLOAT:
             if (above || !data_block->dims[n_dim].errasymmetry) {
-                memcpy(fp, data_block->dims[n_dim].errhi, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
+                memcpy(data, data_block->dims[n_dim].errhi, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
             } else {
-                memcpy(fp, data_block->dims[n_dim].errlo, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
+                memcpy(data, data_block->dims[n_dim].errlo, static_cast<size_t>(data_block->dims[n_dim].dim_n) * sizeof(float));
             }
             break;
-        case UDA_TYPE_DOUBLE: get_float_dim_asymmetric_error<double>(above, data_block, n_dim, n_data, fp); break;
-        case UDA_TYPE_SHORT: get_float_dim_asymmetric_error<short>(above, data_block, n_dim, n_data, fp); break;
-        case UDA_TYPE_UNSIGNED_SHORT: get_float_dim_asymmetric_error<unsigned short>(above, data_block, n_dim, n_data, fp); break;
-        case UDA_TYPE_INT: get_float_dim_asymmetric_error<int>(above, data_block, n_dim, n_data, fp); break;
-        case UDA_TYPE_UNSIGNED_INT: get_float_dim_asymmetric_error<unsigned int>(above, data_block, n_dim, n_data, fp); break;
-        case UDA_TYPE_LONG: get_float_dim_asymmetric_error<long>(above, data_block, n_dim, n_data, fp); break;
-        case UDA_TYPE_UNSIGNED_LONG: get_float_dim_asymmetric_error<unsigned long>(above, data_block, n_dim, n_data, fp); break;
-        case UDA_TYPE_CHAR: get_float_dim_asymmetric_error<char>(above, data_block, n_dim, n_data, fp); break;
-        case UDA_TYPE_UNSIGNED_CHAR: get_float_dim_asymmetric_error<unsigned char>(above, data_block, n_dim, n_data, fp); break;
+        case UDA_TYPE_DOUBLE: get_float_dim_asymmetric_error<double>(above, data_block, n_dim, n_data, data); break;
+        case UDA_TYPE_SHORT: get_float_dim_asymmetric_error<short>(above, data_block, n_dim, n_data, data); break;
+        case UDA_TYPE_UNSIGNED_SHORT: get_float_dim_asymmetric_error<unsigned short>(above, data_block, n_dim, n_data, data); break;
+        case UDA_TYPE_INT: get_float_dim_asymmetric_error<int>(above, data_block, n_dim, n_data, data); break;
+        case UDA_TYPE_UNSIGNED_INT: get_float_dim_asymmetric_error<unsigned int>(above, data_block, n_dim, n_data, data); break;
+        case UDA_TYPE_LONG: get_float_dim_asymmetric_error<long>(above, data_block, n_dim, n_data, data); break;
+        case UDA_TYPE_UNSIGNED_LONG: get_float_dim_asymmetric_error<unsigned long>(above, data_block, n_dim, n_data, data); break;
+        case UDA_TYPE_CHAR: get_float_dim_asymmetric_error<char>(above, data_block, n_dim, n_data, data); break;
+        case UDA_TYPE_UNSIGNED_CHAR: get_float_dim_asymmetric_error<unsigned char>(above, data_block, n_dim, n_data, data); break;
         case UDA_TYPE_DCOMPLEX: {
             int j = 0;
             DComplex* cp;
@@ -2523,8 +2523,8 @@ void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* fp)
                 cp = reinterpret_cast<DComplex*>(data_block->dims[n_dim].errlo);
             }
             for (int i = 0; i < n_data; i++) {
-                fp[j++] = static_cast<float>(cp[i].real);
-                fp[j++] = static_cast<float>(cp[i].imaginary);
+                data[j++] = static_cast<float>(cp[i].real);
+                data[j++] = static_cast<float>(cp[i].imaginary);
             }
             break;
         }
@@ -2537,15 +2537,15 @@ void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* fp)
                 cp = reinterpret_cast<Complex*>(data_block->dims[n_dim].errlo);
             }
             for (int i = 0; i < n_data; i++) {
-                fp[j++] = cp[i].real;
-                fp[j++] = cp[i].imaginary;
+                data[j++] = cp[i].real;
+                data[j++] = cp[i].imaginary;
             }
             break;
         }
         case UDA_TYPE_UNKNOWN:
         default:
             for (int i = 0; i < n_data; i++) {
-                fp[i] = 0.0f; // No Error Data
+                data[i] = 0.0f; // No Error Data
             }
             break;
     }
@@ -2555,15 +2555,15 @@ void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* fp)
 /** The copy buffer must be preallocated and sized for the data type.
 \param   handle   The data object handle
 \param   n_dim  the position of the dimension in the data array - numbering is as data[0][1][2]
-\param   fp A \b float pointer to a preallocated data buffer
+\param   data A \b float pointer to a preallocated data buffer
 \return  void
 */
-void udaGetFloatDimError(int handle, int n_dim, float* fp)
+void udaGetFloatDimError(int handle, int n_dim, float* data)
 {
-    udaGetFloatDimAsymmetricError(handle, n_dim, true, fp);
+    udaGetFloatDimAsymmetricError(handle, n_dim, true, data);
 }
 
-// //!  Returns a pointer to the DATA_SYSTEM Meta Data structure
+// //!  Returns a pointer to the DATA_SYSTEM Metadata structure
 // /** A copy of the \b Data_System database table record
 // \param   handle   The data object handle
 // \return  DATA_SYSTEM pointer

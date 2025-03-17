@@ -1,0 +1,8 @@
+[logging]
+level = 5
+path = "-"
+mode = "w"
+
+[connection]
+host = "localhost"
+port = 56560

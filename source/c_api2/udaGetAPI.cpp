@@ -8,6 +8,15 @@
 #include <unordered_map>
 #include <iostream>
 
+void udaLoadConfig(const char* config_name) {
+    try {
+        auto& client = uda::client::ThreadClient::instance();
+        client.load_config(config_name);
+    } catch (const std::exception& ex) {
+        std::cout << "UDAException: " << ex.what() << std::endl;
+    }
+}
+
 int udaGetAPI(const char* data_object, const char* data_source)
 {
     auto& client = uda::client::ThreadClient::instance();

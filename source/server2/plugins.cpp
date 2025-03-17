@@ -50,7 +50,7 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
     }
 
     using info_function_t = UdaPluginInfo(*)();
-    auto info_function = reinterpret_cast<info_function_t>(dlsym(handle, info_function_name));
+    const auto info_function = reinterpret_cast<info_function_t>(dlsym(handle, info_function_name));
 
     const char* err_str = dlerror();
 
@@ -59,7 +59,7 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
     if (err_str == nullptr) {
         auto plugin_info = info_function();
 
-        auto entry_func = reinterpret_cast<UDA_PLUGIN_ENTRY_FUNC>(dlsym(handle, plugin_info.entry_function));
+        const auto entry_func = reinterpret_cast<UDA_PLUGIN_ENTRY_FUNC>(dlsym(handle, plugin_info.entry_function));
 
         err_str = dlerror();
         if (err_str != nullptr) {
@@ -111,7 +111,7 @@ void uda::server::Plugins::discover_plugins_in_directory(const std::filesystem::
 
 void uda::server::Plugins::discover_plugins()
 {
-    auto directories_string = config_.get("plugins.directories").as_or_default(""s);
+    auto directories_string = _config.get("plugins.directories").as_or_default(""s);
     std::vector<std::filesystem::path> directories;
     boost::split(directories, directories_string, boost::is_any_of(";"), boost::token_compress_on);
 

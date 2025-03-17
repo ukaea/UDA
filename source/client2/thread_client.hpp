@@ -10,16 +10,16 @@ namespace uda::client
 class ThreadClient
 {
   public:
-    static uda::client::Client& instance();
+    static Client& instance() noexcept;
 
   private:
     ThreadClient() = default;
     ~ThreadClient() = default;
 
-    static uda::client::Client* instance_;
+    static Client* instance_;
     static std::once_flag init_flag_;
 
-    static void init_client();
+    static void init_client() noexcept;
 };
 
 [[nodiscard]] client_server::DataBlock* get_data_block(int handle);

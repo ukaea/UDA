@@ -18,9 +18,6 @@ int server_redirect_std_streams(const config::Config& config, int reset);
 int server_plugin(const config::Config& config, client_server::RequestData *request, client_server::MetaData *meta_data,
                   const Plugins& plugins);
 
-int provenance_plugin(const config::Config& config, client_server::ClientBlock *client_block, client_server::RequestData *original_request,
-                      const Plugins& plugins, const char* logRecord, client_server::MetaData& metadata);
-
 int call_metadata_plugin(const config::Config& config, const client_server::PluginData& plugin,
                          client_server::RequestData* request_block, const Plugins& plugins, client_server::MetaData& metadata);
 

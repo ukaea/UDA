@@ -388,17 +388,17 @@ int main(int argc, const char** argv)
     po::positional_options_description p;
     p.add("request", 1);
 
-    po::variables_map vm;
+    po::variables_map var_map;
     try {
-        po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-        po::notify(vm);
+        po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), var_map);
+        po::notify(var_map);
 
-        conflicting_options(vm, "ping", "request");
-        if (!vm["ping"].as<bool>() && vm.count("request") == 0) {
+        conflicting_options(var_map, "ping", "request");
+        if (!var_map["ping"].as<bool>() && var_map.count("request") == 0) {
             throw po::error("either 'ping' or 'request' must be provided");
         }
     } catch (po::error& err) {
-        if (vm["help"].as<bool>()) {
+        if (var_map["help"].as<bool>()) {
             std::cout << "Usage: " << argv[0] << " [options] request\n";
             std::cout << desc << "\n";
             return 1;
@@ -410,42 +410,42 @@ int main(int argc, const char** argv)
         }
     };
 
-    if (vm["help"].as<bool>()) {
+    if (var_map["help"].as<bool>()) {
         std::cout << "Usage: " << argv[0] << " [options] request\n";
         std::cout << desc << "\n";
         return 1;
     }
 
-    if (vm.count("host")) {
-        uda::Client::setServerHostName(vm["host"].as<std::string>());
+    if (var_map.count("host") != 0) {
+        uda::Client::setServerHostName(var_map["host"].as<std::string>());
     }
 
-    if (vm.count("port")) {
-        uda::Client::setServerPort(static_cast<int>(vm["port"].as<int>()));
+    if (var_map.count("port") != 0) {
+        uda::Client::setServerPort(var_map["port"].as<int>());
     }
 
     std::string request;
-    if (vm["ping"].as<bool>()) {
+    if (var_map["ping"].as<bool>()) {
         request = "HELP::ping()";
     } else {
-        request = vm["request"].as<std::string>();
+        request = var_map["request"].as<std::string>();
     }
 
     if (request == "-") {
-        std::stringstream ss;
+        std::stringstream stream;
         std::string line;
         while (std::getline(std::cin, line)) {
-            ss << line;
+            stream << line;
         }
-        request = ss.str();
+        request = stream.str();
     }
     std::cout << "request: " << request << "\n";
 
-    std::string source = vm["source"].as<std::string>();
+    std::string source = var_map["source"].as<std::string>();
 
     uda::Client client;
     try {
-        auto& res = client.get(request, source);
+        const auto& res = client.get(request, source);
 
         if (res.isTree()) {
             print_tree(res.tree(), "");

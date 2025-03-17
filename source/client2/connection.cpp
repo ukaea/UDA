@@ -110,13 +110,11 @@ void uda::client::Connection::load_host_list(std::string_view config_file)
     host_list_ = HostList(config_file);
 }
 
-int uda::client::Connection::open()
-{
+bool uda::client::Connection::open() const {
     return client_socket_ != -1;
 }
 
-int uda::client::Connection::find_socket(int fh)
-{
+int uda::client::Connection::find_socket(const int fh) const {
     int i = 0;
     for (const auto& socket : socket_list_) {
         if (socket.fh == fh) {
@@ -127,13 +125,11 @@ int uda::client::Connection::find_socket(int fh)
     return -1;
 }
 
-int uda::client::Connection::find_socket()
-{
+int uda::client::Connection::find_socket() const {
     return find_socket(client_socket_);
 }
 
-int uda::client::Connection::find_socket_by_properties(std::string_view host, int port)
-{
+int uda::client::Connection::find_socket_by_properties(const std::string_view host, const int port) const {
     int i = 0;
     for (const auto& socket : socket_list_) {
         if (std::string(socket.host) == host and socket.port == port) {
@@ -144,7 +140,7 @@ int uda::client::Connection::find_socket_by_properties(std::string_view host, in
     return -1;
 }
 
-const uda::client_server::Socket& uda::client::Connection::get_current_connection_data() const
+const Socket& uda::client::Connection::get_current_connection_data() const
 {
     if (client_socket_ == -1) {
         throw uda::exceptions::ClientError("No open socket connection");
@@ -158,7 +154,7 @@ const uda::client_server::Socket& uda::client::Connection::get_current_connectio
         "Client socket file handle not found in socket list. Connection state is corrupted");
 }
 
-uda::client_server::Socket& uda::client::Connection::get_current_socket()
+Socket& uda::client::Connection::get_current_socket()
 {
     if (client_socket_ == -1) {
         throw uda::exceptions::ClientError("No open socket connection");
@@ -208,7 +204,7 @@ void uda::client::Connection::set_maximum_socket_age(int age)
 
 bool uda::client::Connection::maybe_reuse_existing_socket()
 {
-    int candidate_socket_id = find_socket_by_properties(host_, port_);
+    const int candidate_socket_id = find_socket_by_properties(host_, port_);
     if (candidate_socket_id == -1 or !socket_list_[candidate_socket_id].open) {
         client_socket_ = -1;
         return false;
@@ -235,18 +231,18 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
     // TODO: the in/out args feels a bit like side-effects? I don't like this signature.
     // is the intention to establish a new connection, or to extract the connection details?
 
-    int err = 0;
+    const int err = 0;
 
     // Save current client and server timer settings, Socket and XDR handles
 
-    time_t tv_server_start0 = *tv_server_start;
-    int user_timeout0 = *user_timeout;
-    int client_socket0 = client_socket_;
+    const time_t tv_server_start0 = *tv_server_start;
+    const int user_timeout0 = *user_timeout;
+    const int client_socket0 = client_socket_;
     XDR* client_input0 = *client_input;
     XDR* client_output0 = *client_output;
 
     // Identify the current Socket connection in the Socket List
-    int socket_id = find_socket();
+    const int socket_id = find_socket();
 
     // TODO: missing the change_socket logic here, which says (in client1) that if another (live) connection exists
     //  just change to that one
@@ -290,7 +286,7 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
 void localhost_info(int* ai_family)
 {
     char addr_buf[64];
-    struct addrinfo *info = nullptr, *result = nullptr;
+    addrinfo *info = nullptr, *result = nullptr;
     getaddrinfo("localhost", nullptr, nullptr, &info);
     result = info; // Take the first linked list member
     if (result->ai_family == AF_INET) {
@@ -307,9 +303,9 @@ void localhost_info(int* ai_family)
     }
 }
 
-void set_hints(struct addrinfo* hints, const char* host_name)
+void set_hints(addrinfo* hints, const char* host_name)
 {
-    hints->ai_family = AF_UNSPEC;
+    hints->ai_family = AF_INET;
     hints->ai_socktype = SOCK_STREAM;
     hints->ai_flags = 0; // AI_CANONNAME | AI_V4MAPPED | AI_ALL | AI_ADDRCONFIG ;
     hints->ai_protocol = 0;
@@ -319,9 +315,9 @@ void set_hints(struct addrinfo* hints, const char* host_name)
 
     // Localhost? Which IP family? (AF_UNSPEC gives an 'Unknown Error'!)
 
-    if (!strcmp(host_name, "localhost")) {
-        localhost_info(&hints->ai_family);
-    }
+    // if (!strcmp(host_name, "localhost")) {
+    //     localhost_info(&hints->ai_family);
+    // }
 
     // Is the address Numeric? Is it IPv6?
 
@@ -336,7 +332,7 @@ void set_hints(struct addrinfo* hints, const char* host_name)
         // Are all address components numeric?
         bool is_numeric = true;
         for (const auto& token : list) {
-            size_t lstr = token.size();
+            const size_t lstr = token.size();
             for (size_t j = 0; j < lstr; j++) {
                 is_numeric &= (bool)std::isdigit(token[j]);
             }
@@ -479,6 +475,7 @@ int uda::client::Connection::create()
 
     struct addrinfo* result = nullptr;
     struct addrinfo hints = {0};
+
     set_hints(&hints, host_.c_str());
 
     errno = 0;
@@ -529,9 +526,8 @@ int uda::client::Connection::create()
 
         // Try again for a maximum number of tries with a random time delay between attempts
 
-        int ps;
-        ps = getpid();
-        srand((unsigned int)ps); // Seed the random number generator with the process id
+        int ps = getpid();
+        srand(static_cast<unsigned int>(ps)); // Seed the random number generator with the process id
         unsigned int delay = max_socket_delay_ > 0 ? (unsigned int)(rand() % max_socket_delay_) : 0; // random delay
         sleep(delay);
         errno = 0;                                       // wait period

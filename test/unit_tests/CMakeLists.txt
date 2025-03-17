@@ -1,4 +1,4 @@
-Include( FetchContent )
+include( FetchContent )
 
 FetchContent_Declare(
   Catch2
@@ -8,19 +8,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable( Catch2 )
 
-function( snake_to_proper_case input out_var )
-  string( REPLACE "_" ";" tokens "${input}" )
-  set( ${out_var} "" )
-  foreach( token ${tokens} )
-    string( SUBSTRING ${token} 0 1 first_char )
-    string( SUBSTRING ${token} 1 -1 remainder )
-    string( TOUPPER ${first_char} upper_first_char )
-    string( TOLOWER ${remainder} lower_remainder )
-    set( new_token "${upper_first_char}${lower_remainder}" )
-    string( APPEND ${out_var} ${new_token} )
-  endforeach(  )
-  return( PROPAGATE ${out_var} )
-endfunction( snake_to_proper_case )
+include( CaseConvertors )
 
 function( define_test name )
   set( options SERIAL )

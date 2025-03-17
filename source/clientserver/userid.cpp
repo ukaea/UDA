@@ -18,14 +18,14 @@ using namespace uda::common;
  * Request userid from OS
  * @param uid OUT
  */
-void uda::client_server::user_id(char* uid)
+void uda::client_server::user_id(std::array<char, StringLength>& uid)
 {
 #ifdef _WIN32
     DWORD size = StringLength - 1;
     GetUserName(uid, &size);
     return;
 #else
-    const char* user;
+    const char* user = nullptr;
     uid[0] = '\0';
 #  if defined(cuserid)
     if ((user = cuserid(nullptr)) != nullptr) {
@@ -33,10 +33,10 @@ void uda::client_server::user_id(char* uid)
         return;
     } else
 #  endif
-        if ((user = getlogin()) != nullptr || (user = getenv("USER")) != nullptr ||
-            (user = getenv("LOGNAME")) != nullptr) {
-        copy_string(user, uid, StringLength);
-        return;
+        if ((user = getlogin()) != nullptr
+            || (user = getenv("USER")) != nullptr
+            || (user = getenv("LOGNAME")) != nullptr) {
+        copy_string(user, uid.data(), StringLength);
     }
 #endif // _WIN32
 }

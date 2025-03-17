@@ -25,5 +25,5 @@ target_link_libraries( test_clientserver PRIVATE Catch2::Catch2WithMain
 
 add_test( NAME TestClientserver COMMAND test_clientserver )
 
-#add_subdirectory( plugins )
+add_subdirectory( plugins )
 add_subdirectory( unit_tests )
