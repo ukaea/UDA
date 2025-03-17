@@ -19,7 +19,7 @@ TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
-    
+
     const char* data = udaGetData(handle);
     int data_type = udaGetDataType(handle);
 
@@ -249,7 +249,7 @@ TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TES
     REQUIRE( is_tree );
 
     auto* node = udaGetDataTree(handle);
-    
+
     int num_children = udaGetNodeChildrenCount(node);
     REQUIRE( num_children == 1 );
 
@@ -296,7 +296,7 @@ TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" 
     REQUIRE( is_tree );
 
     auto* node = udaGetDataTree(handle);
-    
+
     int num_children = udaGetNodeChildrenCount(node);
     REQUIRE( num_children == 1 );
 
