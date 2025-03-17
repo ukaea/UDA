@@ -34,7 +34,7 @@ function( build_test name )
   add_executable( ${target} ${source} )
   target_include_directories( ${target} PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR} )
   target_link_libraries( ${target} PRIVATE Catch2::Catch2WithMain c_api )
-  add_test( NAME ${test_name} COMMAND ${target} )
+  add_test( NAME ${test_name} COMMAND ${target} CONFIGURATIONS server )
 endfunction(  )
 
 foreach( PLUGIN_NAME ${PLUGIN_TESTS} )

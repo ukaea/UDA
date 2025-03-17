@@ -156,8 +156,8 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: cmake --install build --config ${{ matrix.release }}
 
-      - name: Test
-        run: ctest --test-dir build --output-on-failure
+      - name: Unit Tests
+        run: ctest --test-dir build --output-on-failure -C unit
 
 #      - name: Install pyuda
 #        if: matrix.os == 'ubuntu-latest'

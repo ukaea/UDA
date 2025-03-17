@@ -1809,212 +1809,158 @@ TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 // //    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), StartsWith("No Data waiting at Socket when Data Expected!") );
 // #endif
 // }
-//
-// TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::scalartest()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(int).name() );
-//
-//     auto* value = dynamic_cast<uda::Scalar*>(data);
-//
-//     REQUIRE( value != nullptr );
-//
-//     REQUIRE( value->as<int>() == 10 );
-// }
-//
-// TEST_CASE( "Run array1dtest - return a simple 1d array value", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::array1dtest()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto* array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 100 );
-//     REQUIRE( vec[0] == Approx(0.0) );
-//     REQUIRE( vec[1] == Approx(1.0) );
-//     REQUIRE( vec[2] == Approx(2.0) );
-//     REQUIRE( vec[3] == Approx(3.0) );
-//     REQUIRE( vec[4] == Approx(4.0) );
-// }
-//
-// TEST_CASE( "Test array subsetting - take first 10 values", "[plugins][TESTPLUGIN]" )
-// {
-// //    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [0:10])", "");
-//     int handle = udaGetAPI("TESTPLUGIN::array1dtest()[0:10]", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 10 );
-//     REQUIRE( vec[0] == Approx(0.0) );
-//     REQUIRE( vec[1] == Approx(1.0) );
-//     REQUIRE( vec[2] == Approx(2.0) );
-//     REQUIRE( vec[3] == Approx(3.0) );
-//     REQUIRE( vec[4] == Approx(4.0) );
-// }
-//
-// TEST_CASE( "Test array subsetting - take last 10 values", "[plugins][TESTPLUGIN]" )
-// {
-// //    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [-10:])", "");
-//     int handle = udaGetAPI("TESTPLUGIN::array1dtest()[-10:]", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 10 );
-//     REQUIRE( vec[0] == Approx(90.0) );
-//     REQUIRE( vec[1] == Approx(91.0) );
-//     REQUIRE( vec[2] == Approx(92.0) );
-//     REQUIRE( vec[3] == Approx(93.0) );
-//     REQUIRE( vec[4] == Approx(94.0) );
-// }
-//
-// TEST_CASE( "Test array subsetting - take every 5th value", "[plugins][TESTPLUGIN]" )
-// {
-// //    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [::5])", "");
-//     int handle = udaGetAPI("TESTPLUGIN::array1dtest()[::5]", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 20 );
-//     REQUIRE( vec[0] == Approx(0.0) );
-//     REQUIRE( vec[1] == Approx(5.0) );
-//     REQUIRE( vec[2] == Approx(10.0) );
-//     REQUIRE( vec[3] == Approx(15.0) );
-//     REQUIRE( vec[4] == Approx(20.0) );
-// }
-//
-// TEST_CASE( "Test array subsetting - reverse elements", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::array1dtest()[::-1]", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 100 );
-//     REQUIRE( vec[0] == Approx(99.0) );
-//     REQUIRE( vec[1] == Approx(98.0) );
-//     REQUIRE( vec[2] == Approx(97.0) );
-//     REQUIRE( vec[3] == Approx(96.0) );
-//     REQUIRE( vec[4] == Approx(95.0) );
-// }
-//
-// TEST_CASE( "Test array subsetting with argument with square brackets", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::array1dtest(args=[0;0])[0:10]", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 10 );
-//     REQUIRE( vec[0] == Approx(0.0) );
-//     REQUIRE( vec[1] == Approx(1.0) );
-//     REQUIRE( vec[2] == Approx(2.0) );
-//     REQUIRE( vec[3] == Approx(3.0) );
-//     REQUIRE( vec[4] == Approx(4.0) );
-// }
-//
-// TEST_CASE( "Test array subsetting - index scalar with [0]", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test10()[0]", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(int).name() );
-//
-//     auto* value = dynamic_cast<uda::Scalar*>(data);
-//
-//     REQUIRE( value != nullptr );
-//
-//     REQUIRE( value->as<int>() == 7 );
-// }
-//
+
+TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGIN]" )
+{
+    const int handle = udaGetAPI("TESTPLUGIN::scalartest()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    auto* value = reinterpret_cast<const int*>(data);
+    REQUIRE( *value == 10 );
+}
+
+TEST_CASE( "Run array1dtest - return a simple 1d array value", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::array1dtest()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 100 );
+
+    auto* vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(1.0) );
+    REQUIRE( vec[2] == Approx(2.0) );
+    REQUIRE( vec[3] == Approx(3.0) );
+    REQUIRE( vec[4] == Approx(4.0) );
+}
+
+TEST_CASE( "Test array subsetting - take first 10 values", "[plugins][TESTPLUGIN]" )
+{
+//    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [0:10])", "");
+    int handle = udaGetAPI("TESTPLUGIN::array1dtest()[0:10]", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 10 );
+
+    auto vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(1.0) );
+    REQUIRE( vec[2] == Approx(2.0) );
+    REQUIRE( vec[3] == Approx(3.0) );
+    REQUIRE( vec[4] == Approx(4.0) );
+}
+
+TEST_CASE( "Test array subsetting - take last 10 values", "[plugins][TESTPLUGIN]" )
+{
+//    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [-10:])", "");
+    int handle = udaGetAPI("TESTPLUGIN::array1dtest()[-10:]", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 10 );
+
+    auto vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(90.0) );
+    REQUIRE( vec[1] == Approx(91.0) );
+    REQUIRE( vec[2] == Approx(92.0) );
+    REQUIRE( vec[3] == Approx(93.0) );
+    REQUIRE( vec[4] == Approx(94.0) );
+}
+
+TEST_CASE( "Test array subsetting - take every 5th value", "[plugins][TESTPLUGIN]" )
+{
+//    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [::5])", "");
+    int handle = udaGetAPI("TESTPLUGIN::array1dtest()[::5]", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 20 );
+
+    auto vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(5.0) );
+    REQUIRE( vec[2] == Approx(10.0) );
+    REQUIRE( vec[3] == Approx(15.0) );
+    REQUIRE( vec[4] == Approx(20.0) );
+}
+
+TEST_CASE( "Test array subsetting - reverse elements", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::array1dtest()[::-1]", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 100 );
+
+    auto vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(99.0) );
+    REQUIRE( vec[1] == Approx(98.0) );
+    REQUIRE( vec[2] == Approx(97.0) );
+    REQUIRE( vec[3] == Approx(96.0) );
+    REQUIRE( vec[4] == Approx(95.0) );
+}
+
+TEST_CASE( "Test array subsetting with argument with square brackets", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::array1dtest(args=[0;0])[0:10]", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 10 );
+
+    auto vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(1.0) );
+    REQUIRE( vec[2] == Approx(2.0) );
+    REQUIRE( vec[3] == Approx(3.0) );
+    REQUIRE( vec[4] == Approx(4.0) );
+}
+
+TEST_CASE( "Test array subsetting - index scalar with [0]", "[plugins][TESTPLUGIN]" )
+{
+    const int handle = udaGetAPI("TESTPLUGIN::test10()[0]", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    const auto value = reinterpret_cast<const int*>(data);
+    REQUIRE( *value == 7 );
+}
+
 // TEST_CASE( "Run call_plugin_test - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
 // {
 //     int handle = udaGetAPI("TESTPLUGIN::call_plugin_test()", "");
