@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <catch2/catch_approx.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <uda.h>
@@ -8,6 +8,7 @@
 #include "test_config.hpp"
 
 using Catch::Matchers::StartsWith;
+using Catch::Approx;
 
 TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 {
@@ -229,1244 +230,1575 @@ TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGI
     REQUIRE( atomic_rank[0] == 1 );
     REQUIRE( atomic_shape[0][0] == 56 );
 
-    auto* data = udaGetNodeStructureComponentData(scalar, "value");
+    auto* data = static_cast<const char*>(udaGetNodeStructureComponentData(scalar, "value"));
 
-    std::string str{static_cast<const char*>(data)};
+    std::string str{ data };
     REQUIRE( str == "012345678901234567890" );
 }
 
-// TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test5()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "STRING" );
-//     REQUIRE( child.atomicRank()[0] == 2 );
-//     std::vector<size_t> shape;
-//     shape.push_back(56);
-//     shape.push_back(3);
-//     REQUIRE( child.atomicShape()[0] == shape );
-//
-//     uda::Vector value = child.atomicVector("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(char*).name() );
-//     REQUIRE( value.size() == 3 );
-//
-//     std::vector<char*> vec = value.as<char*>();
-//
-//     REQUIRE( std::string(vec.at(0)) == "012345678901234567890" );
-//     REQUIRE( std::string(vec.at(1)) == "QWERTY KEYBOARD" );
-//     REQUIRE( std::string(vec.at(2)) == "MAST TOKAMAK" );
-// }
+TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test5()", "");
 
-// TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test6()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//
-//     uda::Scalar value = udaFindNTreeStructureComponent(child, ("value");
-//
-//     REQUIRE( value.type().name() == typeid(char*).name() );
-//
-//     std::string str(value.as<char*>());
-//     REQUIRE( str == "PI=3.1415927" );
-// }
-//
-// TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test7()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "STRING *" );
-//     REQUIRE( child.atomicRank()[0] == 1 );
-//     std::vector<size_t> shape;
-//     shape.push_back(3);
-//     REQUIRE( child.atomicShape()[0] == shape );
-//
-//     uda::Vector value = child.atomicVector("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(char*).name() );
-//     REQUIRE( value.size() == 3 );
-//
-//     std::vector<char*> vec = value.as<char*>();
-//
-//     REQUIRE( std::string(vec.at(0)) == "012345678901234567890" );
-//     REQUIRE( std::string(vec.at(1)) == "QWERTY KEYBOARD" );
-//     REQUIRE( std::string(vec.at(2)) == "MAST TOKAMAK" );
-// }
-//
-// TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test8()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == true );
-//     REQUIRE( child.atomicTypes()[0] == "STRING *" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//
-//     uda::Vector value = child.atomicVector("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(char*).name() );
-//     REQUIRE( value.size() == 3 );
-//
-//     std::vector<char*> vec = value.as<char*>();
-//
-//     REQUIRE( std::string(vec.at(0)) == "012345678901234567890" );
-//     REQUIRE( std::string(vec.at(1)) == "QWERTY KEYBOARD" );
-//     REQUIRE( std::string(vec.at(2)) == "MAST TOKAMAK" );
-// }
-//
-// TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string arrays", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test9()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 4 );
-//
-//     for (int i = 0; i < 4; ++i)
-//     {
-//         uda::TreeNode child = tree.child(i);
-//
-//         REQUIRE( udaGetNodeStructureName(child) == "data" );
-//         REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//         REQUIRE( udaGetNodeAtomicCount(child) == 5 );
-//
-//         std::vector<std::string> expected_names;
-//         expected_names.emplace_back("v1");
-//         expected_names.emplace_back("v2");
-//         expected_names.emplace_back("v3");
-//         expected_names.emplace_back("v4");
-//         expected_names.emplace_back("v5");
-//         REQUIRE( udaGetNodeAtomicNames(child) == expected_names );
-//
-//         std::vector<bool> expected_ptrs;
-//         expected_ptrs.push_back(false);
-//         expected_ptrs.push_back(false);
-//         expected_ptrs.push_back(true);
-//         expected_ptrs.push_back(false);
-//         expected_ptrs.push_back(true);
-//         REQUIRE( child.atomicPointers() == expected_ptrs );
-//
-//         std::vector<std::string> expected_types;
-//         expected_types.emplace_back("STRING");
-//         expected_types.emplace_back("STRING");
-//         expected_types.emplace_back("STRING");
-//         expected_types.emplace_back("STRING *");
-//         expected_types.emplace_back("STRING *");
-//         REQUIRE( child.atomicTypes() == expected_types );
-//
-//         std::vector<size_t> expected_ranks;
-//         expected_ranks.push_back(1);
-//         expected_ranks.push_back(2);
-//         expected_ranks.push_back(0);
-//         expected_ranks.push_back(1);
-//         expected_ranks.push_back(0);
-//         REQUIRE( child.atomicRank() == expected_ranks );
-//
-//         // v1
-//         {
-//             uda::Scalar value = udaFindNTreeStructureComponent(child, ("v1");
-//             REQUIRE( !value.isNull() );
-//
-//             REQUIRE( value.type().name() == typeid(char*).name() );
-//             REQUIRE( std::string(value.as<char*>()) == "123212321232123212321" );
-//         }
-//
-//         // v2
-//         {
-//             uda::Vector value = child.atomicVector("v2");
-//             REQUIRE( !value.isNull() );
-//
-//             REQUIRE( value.type().name() == typeid(char*).name() );
-//             REQUIRE( value.size() == 3 );
-//
-//             std::vector<char*> vec = value.as<char*>();
-//
-//             REQUIRE( std::string(vec.at(0)) == "012345678901234567890" );
-//             REQUIRE( std::string(vec.at(1)) == "QWERTY KEYBOARD" );
-//             REQUIRE( std::string(vec.at(2)) == "MAST TOKAMAK" );
-//         }
-//
-//         // v3
-//         {
-//             uda::Scalar value = udaFindNTreeStructureComponent(child, ("v3");
-//             REQUIRE( !value.isNull() );
-//
-//             REQUIRE( value.type().name() == typeid(char*).name() );
-//             REQUIRE( std::string(value.as<char*>()) == "PI=3.1415927" );
-//         }
-//
-//         // v4
-//         {
-//             uda::Vector value = child.atomicVector("v4");
-//             REQUIRE( !value.isNull() );
-//
-//             REQUIRE( value.type().name() == typeid(char*).name() );
-//             REQUIRE( value.size() == 3 );
-//
-//             std::vector<char*> vec = value.as<char*>();
-//
-//             REQUIRE( std::string(vec.at(0)) == "012345678901234567890" );
-//             REQUIRE( std::string(vec.at(1)) == "QWERTY KEYBOARD" );
-//             REQUIRE( std::string(vec.at(2)) == "MAST TOKAMAK" );
-//         }
-//
-//         // v5
-//         {
-//             uda::Vector value = child.atomicVector("v5");
-//             REQUIRE( !value.isNull() );
-//
-//             REQUIRE( value.type().name() == typeid(char*).name() );
-//             REQUIRE( value.size() == 3 );
-//
-//             std::vector<char*> vec = value.as<char*>();
-//
-//             REQUIRE( std::string(vec.at(0)) == "012345678901234567890" );
-//             REQUIRE( std::string(vec.at(1)) == "QWERTY KEYBOARD" );
-//             REQUIRE( std::string(vec.at(2)) == "MAST TOKAMAK" );
-//         }
-//     }
-// }
-//
-// TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test10()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(int).name() );
-//
-//     auto* value = dynamic_cast<uda::Scalar*>(data);
-//
-//     REQUIRE( value != nullptr );
-//
-//     REQUIRE( value->as<int>() == 7 );
-// }
-//
-// TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test11()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//
-//     uda::Scalar value = udaFindNTreeStructureComponent(child, ("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(int).name() );
-//     REQUIRE( value.size() == 0 );
-//
-//     REQUIRE( value.as<int>() == 11 );
-// }
-//
-// TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test12()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 1 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(3);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Vector value = child.atomicVector("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(int).name() );
-//     REQUIRE( value.size() == 3 );
-//
-//     std::vector<int> expected;
-//     expected.push_back(10);
-//     expected.push_back(11);
-//     expected.push_back(12);
-//
-//     REQUIRE( value.as<int>() == expected );
-// }
-//
-// TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test13()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 2 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(2);
-//     expected_shape.push_back(3);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Array value = child.atomicArray("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(int).name() );
-//     REQUIRE( value.size() == 6 );
-//
-//     REQUIRE( value.dims().size() == 2 );
-//     REQUIRE( value.dims()[0].size() == 2 );
-//     REQUIRE( value.dims()[1].size() == 3 );
-//
-//     std::vector<int> expected;
-//     expected.push_back(0);
-//     expected.push_back(1);
-//     expected.push_back(2);
-//     expected.push_back(10);
-//     expected.push_back(11);
-//     expected.push_back(12);
-//
-//     REQUIRE( value.as<int>() == expected );
-// }
-//
-// TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test14()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == true );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//
-//     uda::Scalar value = udaFindNTreeStructureComponent(child, ("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(int).name() );
-//     REQUIRE( value.size() == 0 );
-//
-//     REQUIRE( value.as<int>() == 14 );
-// }
-//
-// TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test15()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == true );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 1 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(3);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Vector value = child.atomicVector("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(int).name() );
-//     REQUIRE( value.size() == 3 );
-//
-//     std::vector<int> expected;
-//     expected.push_back(13);
-//     expected.push_back(14);
-//     expected.push_back(15);
-//
-//     REQUIRE( value.as<int>() == expected );
-// }
-//
-// TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test16()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == true );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 2 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(2);
-//     expected_shape.push_back(3);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Array value = child.atomicArray("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(int).name() );
-//     REQUIRE( value.size() == 6 );
-//
-//     REQUIRE( value.dims().size() == 2 );
-//     REQUIRE( value.dims()[0].size() == 2 );
-//     REQUIRE( value.dims()[1].size() == 3 );
-//
-//     std::vector<int> expected;
-//     expected.push_back(0);
-//     expected.push_back(1);
-//     expected.push_back(2);
-//     expected.push_back(10);
-//     expected.push_back(11);
-//     expected.push_back(12);
-//
-//     REQUIRE( value.as<int>() == expected );
-// }
-//
-// TEST_CASE( "Run test18 - pass large number of structs containing single int", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test18()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 100000 );
-//
-//     for (int i = 0; i < 100000; ++i) {
-//         uda::TreeNode child = tree.child(i);
-//
-//         REQUIRE( udaGetNodeStructureName(child) == "data" );
-//         REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//         REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//         REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//         REQUIRE( child.atomicPointers()[0] == false );
-//         REQUIRE( child.atomicTypes()[0] == "int" );
-//         REQUIRE( child.atomicRank()[0] == 0 );
-//
-//         uda::Scalar value = udaFindNTreeStructureComponent(child, ("value");
-//         REQUIRE( !value.isNull() );
-//
-//         REQUIRE( value.type().name() == typeid(int).name() );
-//         REQUIRE( value.size() == 0 );
-//
-//         REQUIRE( value.as<int>() == i );
-//     }
-// }
-//
-// TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test19()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 3 );
-//
-//     for (int i = 0; i < 3; ++i) {
-//         uda::TreeNode child = tree.child(i);
-//
-//         REQUIRE(udaGetNodeStructureName(child) == "data");
-//         REQUIRE(udaGetNodeChildrenCount(child) == 7);
-//         REQUIRE(udaGetNodeAtomicCount(child) == 1);
-//         REQUIRE(udaGetNodeAtomicNames(child)[0] == "value");
-//         REQUIRE(child.atomicPointers()[0] == false);
-//         REQUIRE(child.atomicTypes()[0] == "int");
-//         REQUIRE(child.atomicRank()[0] == 0);
-//
-//         uda::Scalar value = udaFindNTreeStructureComponent(child, ("value");
-//         REQUIRE(!value.isNull());
-//
-//         REQUIRE(value.type().name() == typeid(int).name());
-//         REQUIRE(value.size() == 0);
-//
-//         REQUIRE(value.as<int>() == 3 + i);
-//
-//         for (int j = 0; j < 7; ++j) {
-//             uda::TreeNode subchild = child.child(j);
-//
-//             REQUIRE(subudaGetNodeStructureName(child) == "vals");
-//             REQUIRE(subudaGetNodeChildrenCount(child) == 0);
-//             REQUIRE(subudaGetNodeAtomicCount(child) == 1);
-//             REQUIRE(subudaGetNodeAtomicNames(child)[0] == "value");
-//             REQUIRE(subchild.atomicPointers()[0] == false);
-//             REQUIRE(subchild.atomicTypes()[0] == "int");
-//             REQUIRE(subchild.atomicRank()[0] == 0);
-//
-//             value = subudaFindNTreeStructureComponent(child, ("value");
-//             REQUIRE(!value.isNull());
-//
-//             REQUIRE(value.type().name() == typeid(int).name());
-//             REQUIRE(value.size() == 0);
-//
-//             REQUIRE(value.as<int>() == 10 * i + j);
-//         }
-//     }
-// }
-//
-// TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test20()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(short).name() );
-//
-//     auto* value = dynamic_cast<uda::Scalar*>(data);
-//
-//     REQUIRE( value != nullptr );
-//
-//     REQUIRE( value->as<short>() == 7 );
-// }
-//
-// TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test21()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "short" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//
-//     uda::Scalar value = udaFindNTreeStructureComponent(child, ("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(short).name() );
-//     REQUIRE( value.size() == 0 );
-//
-//     REQUIRE( value.as<short>() == 21 );
-// }
-//
-// TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test22()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "short" );
-//     REQUIRE( child.atomicRank()[0] == 1 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(3);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Vector value = child.atomicVector("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(short).name() );
-//     REQUIRE( value.size() == 3 );
-//
-//     std::vector<short> expected;
-//     expected.push_back(20);
-//     expected.push_back(21);
-//     expected.push_back(22);
-//
-//     REQUIRE( value.as<short>() == expected );
-// }
-//
-// TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test23()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "short" );
-//     REQUIRE( child.atomicRank()[0] == 2 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(3);
-//     expected_shape.push_back(2);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Array value = child.atomicArray("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(short).name() );
-//     REQUIRE( value.size() == 6 );
-//
-//     REQUIRE( value.dims().size() == 2 );
-//     REQUIRE( value.dims()[0].size() == 3 );
-//     REQUIRE( value.dims()[1].size() == 2 );
-//
-//     std::vector<short> expected;
-//     expected.push_back(0);
-//     expected.push_back(1);
-//     expected.push_back(2);
-//     expected.push_back(10);
-//     expected.push_back(11);
-//     expected.push_back(12);
-//
-//     REQUIRE( value.as<short>() == expected );
-// }
-//
-// TEST_CASE( "Run test24 - pass struct containing single short passed as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test24()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == true );
-//     REQUIRE( child.atomicTypes()[0] == "short" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//
-//     uda::Scalar value = udaFindNTreeStructureComponent(child, ("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(short).name() );
-//     REQUIRE( value.size() == 0 );
-//
-//     REQUIRE( value.as<short>() == 24 );
-// }
-//
-// TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test25()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == true );
-//     REQUIRE( child.atomicTypes()[0] == "short" );
-//     REQUIRE( child.atomicRank()[0] == 1 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(3);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Vector value = child.atomicVector("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(short).name() );
-//     REQUIRE( value.size() == 3 );
-//
-//     std::vector<short> expected;
-//     expected.push_back(13);
-//     expected.push_back(14);
-//     expected.push_back(15);
-//
-//     REQUIRE( value.as<short>() == expected );
-// }
-//
-// TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test26()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == true );
-//     REQUIRE( child.atomicTypes()[0] == "short" );
-//     REQUIRE( child.atomicRank()[0] == 2 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(3);
-//     expected_shape.push_back(2);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Array value = child.atomicArray("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(short).name() );
-//     REQUIRE( value.size() == 6 );
-//
-//     REQUIRE( value.dims().size() == 2 );
-//     REQUIRE( value.dims()[0].size() == 3 );
-//     REQUIRE( value.dims()[1].size() == 2 );
-//
-//     std::vector<short> expected;
-//     expected.push_back(13);
-//     expected.push_back(14);
-//     expected.push_back(15);
-//     expected.push_back(23);
-//     expected.push_back(24);
-//     expected.push_back(25);
-//
-//     REQUIRE( value.as<short>() == expected );
-// }
-//
-// TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test27()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "short" );
-//     REQUIRE( child.atomicRank()[0] == 3 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(4);
-//     expected_shape.push_back(3);
-//     expected_shape.push_back(2);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Array value = child.atomicArray("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(short).name() );
-//     REQUIRE( value.size() == 24 );
-//
-//     REQUIRE( value.dims().size() == 3 );
-//     REQUIRE( value.dims()[0].size() == 4 );
-//     REQUIRE( value.dims()[1].size() == 3 );
-//     REQUIRE( value.dims()[2].size() == 2 );
-//
-//     short exp[] = { 0, 1, 2, 3, 10, 11, 12, 13, 20, 21, 22, 23, 100, 101, 102, 103, 110, 111,
-//                     112, 113, 120, 121, 122, 123 };
-//     std::vector<short> expected(exp, exp + sizeof(exp)/sizeof(exp[0]));
-//
-//     REQUIRE( value.as<short>() == expected );
-// }
-//
-// TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test28()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "value" );
-//     REQUIRE( child.atomicPointers()[0] == true );
-//     REQUIRE( child.atomicTypes()[0] == "short" );
-//     REQUIRE( child.atomicRank()[0] == 3 );
-//     std::vector<size_t> expected_shape;
-//     expected_shape.push_back(4);
-//     expected_shape.push_back(3);
-//     expected_shape.push_back(2);
-//     REQUIRE( child.atomicShape()[0] == expected_shape );
-//
-//     uda::Array value = child.atomicArray("value");
-//     REQUIRE( !value.isNull() );
-//
-//     REQUIRE( value.type().name() == typeid(short).name() );
-//     REQUIRE( value.size() == 24 );
-//
-//     REQUIRE( value.dims().size() == 3 );
-//     REQUIRE( value.dims()[0].size() == 4 );
-//     REQUIRE( value.dims()[1].size() == 3 );
-//     REQUIRE( value.dims()[2].size() == 2 );
-//
-//     short exp[] = { 0, 1, 2, 3, 10, 11, 12, 13, 20, 21, 22, 23, 100, 101, 102, 103, 110, 111,
-//                     112, 113, 120, 121, 122, 123 };
-//     std::vector<short> expected(exp, exp + sizeof(exp)/sizeof(exp[0]));
-//
-//     REQUIRE( value.as<short>() == expected );
-// }
-//
-// TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test30()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 2 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "R" );
-//     REQUIRE( udaGetNodeAtomicNames(child)[1] == "Z" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicPointers()[1] == false );
-//     REQUIRE( child.atomicTypes()[0] == "double" );
-//     REQUIRE( child.atomicTypes()[1] == "double" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//     REQUIRE( child.atomicRank()[1] == 0 );
-//
-//     uda::Scalar R = udaFindNTreeStructureComponent(child, ("R");
-//     REQUIRE( !R.isNull() );
-//
-//     REQUIRE( R.type().name() == typeid(double).name() );
-//     REQUIRE( R.as<double>() == Approx(1.0) );
-//
-//     uda::Scalar Z = udaFindNTreeStructureComponent(child, ("Z");
-//     REQUIRE( !Z.isNull() );
-//
-//     REQUIRE( Z.type().name() == typeid(double).name() );
-//     REQUIRE( Z.as<double>() == Approx(2.0) );
-// }
-//
-// TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test31()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 100 );
-//
-//     for (int i = 0; i < 100; ++i) {
-//         uda::TreeNode child = tree.child(i);
-//
-//         REQUIRE( udaGetNodeStructureName(child) == "data" );
-//         REQUIRE( udaGetNodeChildrenCount(child) == 0 );
-//         REQUIRE( udaGetNodeAtomicCount(child) == 2 );
-//         REQUIRE( udaGetNodeAtomicNames(child)[0] == "R" );
-//         REQUIRE( udaGetNodeAtomicNames(child)[1] == "Z" );
-//         REQUIRE( child.atomicPointers()[0] == false );
-//         REQUIRE( child.atomicPointers()[1] == false );
-//         REQUIRE( child.atomicTypes()[0] == "double" );
-//         REQUIRE( child.atomicTypes()[1] == "double" );
-//         REQUIRE( child.atomicRank()[0] == 0 );
-//         REQUIRE( child.atomicRank()[1] == 0 );
-//
-//         uda::Scalar R = udaFindNTreeStructureComponent(child, ("R");
-//         REQUIRE( !R.isNull() );
-//
-//         REQUIRE( R.type().name() == typeid(double).name() );
-//         REQUIRE( R.as<double>() == Approx(1.0 * i) );
-//
-//         uda::Scalar Z = udaFindNTreeStructureComponent(child, ("Z");
-//         REQUIRE( !Z.isNull() );
-//
-//         REQUIRE( Z.type().name() == typeid(double).name() );
-//         REQUIRE( Z.as<double>() == Approx(10.0 * i) );
-//     }
-// }
-//
-// TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test32()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 100 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "count" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//
-//     uda::Scalar count = udaFindNTreeStructureComponent(child, ("count");
-//     REQUIRE( !count.isNull() );
-//
-//     REQUIRE( count.type().name() == typeid(int).name() );
-//     REQUIRE( count.as<int>() == 100 );
-//
-//     for (int i = 0; i < 100; ++i) {
-//         uda::TreeNode coord = child.child(i);
-//
-//         REQUIRE( coord.name() == "coords" );
-//         REQUIRE( coord.numChildren() == 0 );
-//         REQUIRE( coord.atomicCount() == 2 );
-//         REQUIRE( coord.atomicNames()[0] == "R" );
-//         REQUIRE( coord.atomicNames()[1] == "Z" );
-//         REQUIRE( coord.atomicPointers()[0] == false );
-//         REQUIRE( coord.atomicPointers()[1] == false );
-//         REQUIRE( coord.atomicTypes()[0] == "double" );
-//         REQUIRE( coord.atomicTypes()[1] == "double" );
-//         REQUIRE( coord.atomicRank()[0] == 0 );
-//         REQUIRE( coord.atomicRank()[1] == 0 );
-//
-//         uda::Scalar R = coord.atomicScalar("R");
-//         REQUIRE( !R.isNull() );
-//
-//         REQUIRE( R.type().name() == typeid(double).name() );
-//         auto d = R.as<double>();
-//         REQUIRE( d == Approx((double)(1.0 * i)) );
-//
-//         uda::Scalar Z = coord.atomicScalar("Z");
-//         REQUIRE( !Z.isNull() );
-//
-//         REQUIRE( Z.type().name() == typeid(double).name() );
-//         REQUIRE( Z.as<double>() == Approx((double)(10.0 * i)) );
-//     }
-// }
-//
-// TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test33()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 100 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "count" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//
-//     uda::Scalar count = udaFindNTreeStructureComponent(child, ("count");
-//     REQUIRE( !count.isNull() );
-//
-//     REQUIRE( count.type().name() == typeid(int).name() );
-//     REQUIRE( count.as<int>() == 100 );
-//
-//     for (int i = 0; i < 100; ++i) {
-//         uda::TreeNode coord = child.child(i);
-//
-//         REQUIRE( coord.name() == "coords" );
-//         REQUIRE( coord.numChildren() == 0 );
-//         REQUIRE( coord.atomicCount() == 2 );
-//         REQUIRE( coord.atomicNames()[0] == "R" );
-//         REQUIRE( coord.atomicNames()[1] == "Z" );
-//         REQUIRE( coord.atomicPointers()[0] == false );
-//         REQUIRE( coord.atomicPointers()[1] == false );
-//         REQUIRE( coord.atomicTypes()[0] == "double" );
-//         REQUIRE( coord.atomicTypes()[1] == "double" );
-//         REQUIRE( coord.atomicRank()[0] == 0 );
-//         REQUIRE( coord.atomicRank()[1] == 0 );
-//
-//         uda::Scalar R = coord.atomicScalar("R");
-//         REQUIRE( !R.isNull() );
-//
-//         REQUIRE( R.type().name() == typeid(double).name() );
-//         REQUIRE( R.as<double>() == Approx(1.0 * i) );
-//
-//         uda::Scalar Z = coord.atomicScalar("Z");
-//         REQUIRE( !Z.isNull() );
-//
-//         REQUIRE( Z.type().name() == typeid(double).name() );
-//         REQUIRE( Z.as<double>() == Approx(10.0 * i) );
-//     }
-// }
-//
-// TEST_CASE( "Run test34 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::test34()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     bool is_tree = udaSetDataTree(handle) != 0;
-//     REQUIRE( is_tree );
-//
-//     REQUIRE( tree.numChildren() == 1 );
-//
-//     uda::TreeNode child = tree.child(0);
-//
-//     REQUIRE( udaGetNodeStructureName(child) == "data" );
-//     REQUIRE( udaGetNodeChildrenCount(child) == 100 );
-//     REQUIRE( udaGetNodeAtomicCount(child) == 1 );
-//     REQUIRE( udaGetNodeAtomicNames(child)[0] == "count" );
-//     REQUIRE( child.atomicPointers()[0] == false );
-//     REQUIRE( child.atomicTypes()[0] == "int" );
-//     REQUIRE( child.atomicRank()[0] == 0 );
-//
-//     uda::Scalar count = udaFindNTreeStructureComponent(child, ("count");
-//     REQUIRE( !count.isNull() );
-//
-//     REQUIRE( count.type().name() == typeid(int).name() );
-//     REQUIRE( count.as<int>() == 100 );
-//
-//     for (int i = 0; i < 100; ++i) {
-//         uda::TreeNode coord = child.child(i);
-//
-//         REQUIRE( coord.name() == "coords" );
-//         REQUIRE( coord.numChildren() == 0 );
-//         REQUIRE( coord.atomicCount() == 2 );
-//         REQUIRE( coord.atomicNames()[0] == "R" );
-//         REQUIRE( coord.atomicNames()[1] == "Z" );
-//         REQUIRE( coord.atomicPointers()[0] == true );
-//         REQUIRE( coord.atomicPointers()[1] == true );
-//         REQUIRE( coord.atomicTypes()[0] == "unsigned char *" );
-//         REQUIRE( coord.atomicTypes()[1] == "unsigned char *" );
-//         REQUIRE( coord.atomicRank()[0] == 0 );
-//         REQUIRE( coord.atomicRank()[1] == 0 );
-//         REQUIRE( coord.atomicRank()[0] == 0 );
-//         REQUIRE( coord.atomicRank()[1] == 0 );
-//         std::vector<size_t> exp_shape = { 10 };
-//         REQUIRE( coord.atomicShape()[0] == exp_shape );
-//         REQUIRE( coord.atomicShape()[1] == exp_shape );
-//
-//         uda::Vector R = coord.atomicVector("R");
-//         REQUIRE( !R.isNull() );
-//
-//         REQUIRE( R.type().name() == typeid(unsigned char).name() );
-// //        std::vector<char> exp = { 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i };
-//         unsigned char val = 1 * i;
-//         std::vector<unsigned char> exp = { val, val, val, val, val, val, val, val, val, val };
-//         REQUIRE( R.as<unsigned char>() == exp );
-//
-//         uda::Vector Z = coord.atomicVector("Z");
-//         REQUIRE( !Z.isNull() );
-//
-//         REQUIRE( Z.type().name() == typeid(unsigned char).name() );
-// //        exp = { 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i };
-//         val = 10 * i;
-//         exp = { val, val, val, val, val, val, val, val, val, val };
-//         REQUIRE( Z.as<unsigned char>() == exp );
-//     }
-// }
-//
-// TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::plugin(signal='HELP::HELP()', souhandlee='')", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(char*).name() );
-//
-//     auto str = dynamic_cast<uda::String*>(data);
-//
-//     REQUIRE( str != nullptr );
-//
-//     std::string expected =
-//             "HELP: Plugin to provide server help and available services\n"
-//             "\n"
-//             "Functions:\n"
-//             "\n"
-//             "services()      Returns a list of available services with descriptions\n"
-//             "ping()          Return the Local Server Time in seconds and microseonds\n"
-//             "servertime()    Return the Local Server Time in seconds and microseonds\n";
-//
-//     REQUIRE( str->str() == expected );
-// }
-//
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+    
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "STRING" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 2 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 56 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][1] == 3 );
+
+    auto* vector = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(vector);
+    char** atomic_types = udaGetNodeAtomicTypes(vector);
+    int* atomic_rank = udaGetNodeAtomicRank(vector);
+    int** atomic_shape = udaGetNodeAtomicShape(vector);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "STRING" );
+    REQUIRE( atomic_rank[0] == 2 );
+    REQUIRE( atomic_shape[0][0] == 56 );
+    REQUIRE( atomic_shape[0][1] == 3 );
+
+    auto* data = static_cast<const char*>(udaGetNodeStructureComponentData(vector, "value"));
+
+    REQUIRE( std::string{ &data[0 * 56] } == "012345678901234567890" );
+    REQUIRE( std::string{ &data[1 * 56] } == "QWERTY KEYBOARD" );
+    REQUIRE( std::string{ &data[2 * 56] } == "MAST TOKAMAK" );
+}
+
+TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test6()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+    
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+
+    auto* scalar = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(scalar);
+    char** atomic_types = udaGetNodeAtomicTypes(scalar);
+    int* atomic_rank = udaGetNodeAtomicRank(scalar);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "STRING" );
+    REQUIRE( atomic_rank[0] == 0 );
+
+    auto* data = static_cast<const char*>(udaGetNodeStructureComponentData(scalar, "value"));
+
+    REQUIRE( std::string{ data } == "PI=3.1415927" );
+}
+
+TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test7()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "STRING *" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 1 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 3 );
+
+    auto* vector = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(vector);
+    char** atomic_types = udaGetNodeAtomicTypes(vector);
+    int* atomic_rank = udaGetNodeAtomicRank(vector);
+    int** atomic_shape = udaGetNodeAtomicShape(vector);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "STRING *" );
+    REQUIRE( atomic_rank[0] == 1 );
+    REQUIRE( atomic_shape[0][0] == 3 );
+
+    const auto data = static_cast<char* const* const>(udaGetNodeStructureComponentData(vector, "value"));
+
+    REQUIRE( std::string{ data[0] } == "012345678901234567890" );
+    REQUIRE( std::string{ data[1] } == "QWERTY KEYBOARD" );
+    REQUIRE( std::string{ data[2] } == "MAST TOKAMAK" );
+}
+
+TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test8()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == true );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "STRING *" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+    auto* vector = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(vector);
+    char** atomic_types = udaGetNodeAtomicTypes(vector);
+    int* atomic_rank = udaGetNodeAtomicRank(vector);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "STRING *" );
+    REQUIRE( atomic_rank[0] == 0 );
+
+    const auto data = static_cast<char* const* const>(udaGetNodeStructureComponentData(vector, "value"));
+
+    REQUIRE( std::string{ data[0] } == "012345678901234567890" );
+    REQUIRE( std::string{ data[1] } == "QWERTY KEYBOARD" );
+    REQUIRE( std::string{ data[2] } == "MAST TOKAMAK" );
+}
+
+TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string arrays", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test9()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 4 );
+
+    for (int i = 0; i < 4; ++i)
+    {
+        auto* child = udaGetNodeChild(node, i);
+
+        REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+        REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+        REQUIRE( udaGetNodeAtomicCount(child) == 5 );
+
+        REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "v1" );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(child)[1] } == "v2" );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(child)[2] } == "v3" );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(child)[3] } == "v4" );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(child)[4] } == "v5" );
+
+        REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+        REQUIRE( udaGetNodeAtomicPointers(child)[1] == false );
+        REQUIRE( udaGetNodeAtomicPointers(child)[2] == true );
+        REQUIRE( udaGetNodeAtomicPointers(child)[3] == false );
+        REQUIRE( udaGetNodeAtomicPointers(child)[4] == true );
+
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "STRING" );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[1] } == "STRING" );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[2] } == "STRING" );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[3] } == "STRING *" );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[4] } == "STRING *" );
+
+        REQUIRE( udaGetNodeAtomicRank(child)[0] == 1 );
+        REQUIRE( udaGetNodeAtomicRank(child)[1] == 2 );
+        REQUIRE( udaGetNodeAtomicRank(child)[2] == 0 );
+        REQUIRE( udaGetNodeAtomicRank(child)[3] == 1 );
+        REQUIRE( udaGetNodeAtomicRank(child)[4] == 0 );
+
+        // v1
+        {
+            auto* scalar = udaFindNTreeStructureComponent(child, "v1");
+
+            char** atomic_names = udaGetNodeAtomicNames(scalar);
+            char** atomic_types = udaGetNodeAtomicTypes(scalar);
+            int* atomic_rank = udaGetNodeAtomicRank(scalar);
+            int** atomic_shape = udaGetNodeAtomicShape(scalar);
+
+            REQUIRE( std::string{ atomic_names[0] } == "v1" );
+            REQUIRE( std::string{ atomic_types[0] } == "STRING" );
+            REQUIRE( atomic_rank[0] == 1 );
+            REQUIRE( atomic_shape[0][0] == 56 );
+
+            auto* data = static_cast<const char*>(udaGetNodeStructureComponentData(scalar, "v1"));
+
+            REQUIRE( std::string{ data } == "123212321232123212321" );
+        }
+
+        // v2
+        {
+            auto* vector = udaFindNTreeStructureComponent(child, "v2");
+
+            char** atomic_names = udaGetNodeAtomicNames(vector);
+            char** atomic_types = udaGetNodeAtomicTypes(vector);
+            int* atomic_rank = udaGetNodeAtomicRank(vector);
+            int** atomic_shape = udaGetNodeAtomicShape(vector);
+
+            REQUIRE( std::string{ atomic_names[1] } == "v2" );
+            REQUIRE( std::string{ atomic_types[1] } == "STRING" );
+            REQUIRE( atomic_rank[1] == 2 );
+            REQUIRE( atomic_shape[1][0] == 56 );
+            REQUIRE( atomic_shape[1][1] == 3 );
+
+            auto* data = static_cast<char* const>(udaGetNodeStructureComponentData(vector, "v2"));
+
+            REQUIRE( std::string{ &data[0 * 56] } == "012345678901234567890" );
+            REQUIRE( std::string{ &data[1 * 56] } == "QWERTY KEYBOARD" );
+            REQUIRE( std::string{ &data[2 * 56] } == "MAST TOKAMAK" );
+        }
+
+        // v3
+        {
+            auto* scalar = udaFindNTreeStructureComponent(child, "v3");
+
+            char** atomic_names = udaGetNodeAtomicNames(scalar);
+            char** atomic_types = udaGetNodeAtomicTypes(scalar);
+            int* atomic_rank = udaGetNodeAtomicRank(scalar);
+
+            REQUIRE( std::string{ atomic_names[2] } == "v3" );
+            REQUIRE( std::string{ atomic_types[2] } == "STRING" );
+            REQUIRE( atomic_rank[2] == 0 );
+
+            auto* data = static_cast<const char*>(udaGetNodeStructureComponentData(scalar, "v3"));
+
+            REQUIRE( std::string{ data } == "PI=3.1415927" );
+        }
+
+        // v4
+        {
+            auto* vector = udaFindNTreeStructureComponent(child, "v4");
+
+            char** atomic_names = udaGetNodeAtomicNames(vector);
+            char** atomic_types = udaGetNodeAtomicTypes(vector);
+            int* atomic_rank = udaGetNodeAtomicRank(vector);
+            int** atomic_shape = udaGetNodeAtomicShape(vector);
+
+            REQUIRE( std::string{ atomic_names[3] } == "v4" );
+            REQUIRE( std::string{ atomic_types[3] } == "STRING *" );
+            REQUIRE( atomic_rank[3] == 1 );
+            REQUIRE( atomic_shape[3][0] == 3 );
+
+            auto* data = static_cast<char* const* const>(udaGetNodeStructureComponentData(vector, "v4"));
+
+            REQUIRE( std::string{ data[0] } == "012345678901234567890" );
+            REQUIRE( std::string{ data[1] } == "QWERTY KEYBOARD" );
+            REQUIRE( std::string{ data[2] } == "MAST TOKAMAK" );
+        }
+
+        // v5
+        {
+            auto* vector = udaFindNTreeStructureComponent(child, "v5");
+
+            char** atomic_names = udaGetNodeAtomicNames(vector);
+            char** atomic_types = udaGetNodeAtomicTypes(vector);
+            int* atomic_rank = udaGetNodeAtomicRank(vector);
+
+            REQUIRE( std::string{ atomic_names[4] } == "v5" );
+            REQUIRE( std::string{ atomic_types[4] } == "STRING *" );
+            REQUIRE( atomic_rank[4] == 0 );
+
+            auto* data = static_cast<char* const* const>(udaGetNodeStructureComponentData(vector, "v5"));
+
+            REQUIRE( std::string{ data[0] } == "012345678901234567890" );
+            REQUIRE( std::string{ data[1] } == "QWERTY KEYBOARD" );
+            REQUIRE( std::string{ data[2] } == "MAST TOKAMAK" );
+        }
+    }
+}
+
+TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test10()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    const auto* scalar = reinterpret_cast<int*>(udaGetData(handle));
+    REQUIRE( scalar[0] == 7 );
+}
+
+TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test11()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+    auto* scalar = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(scalar);
+    char** atomic_types = udaGetNodeAtomicTypes(scalar);
+    int* atomic_rank = udaGetNodeAtomicRank(scalar);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "int" );
+    REQUIRE( atomic_rank[0] == 0 );
+
+    auto* data = static_cast<int*>(udaGetNodeStructureComponentData(scalar, "value"));
+
+    REQUIRE( *data == 11 );
+}
+
+TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test12()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 1 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 3 );
+
+    auto* vector = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(vector);
+    char** atomic_types = udaGetNodeAtomicTypes(vector);
+    int* atomic_rank = udaGetNodeAtomicRank(vector);
+    int** atomic_shape = udaGetNodeAtomicShape(vector);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "int" );
+    REQUIRE( atomic_rank[0] == 1 );
+    REQUIRE( atomic_shape[0][0] == 3 );
+
+    auto* data = static_cast<int*>(udaGetNodeStructureComponentData(vector, "value"));
+
+    REQUIRE( data[0] == 10 );
+    REQUIRE( data[1] == 11 );
+    REQUIRE( data[2] == 12 );
+}
+
+TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test13()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 2 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 2 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][1] == 3 );
+
+    auto* array = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(array);
+    char** atomic_types = udaGetNodeAtomicTypes(array);
+    int* atomic_rank = udaGetNodeAtomicRank(array);
+    int** atomic_shape = udaGetNodeAtomicShape(array);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "int" );
+    REQUIRE( atomic_rank[0] == 2 );
+    REQUIRE( atomic_shape[0][0] == 2 );
+    REQUIRE( atomic_shape[0][1] == 3 );
+
+    auto* data = static_cast<int*>(udaGetNodeStructureComponentData(array, "value"));
+
+    REQUIRE( data[0] == 0 );
+    REQUIRE( data[1] == 1 );
+    REQUIRE( data[2] == 2 );
+    REQUIRE( data[3] == 10 );
+    REQUIRE( data[4] == 11 );
+    REQUIRE( data[5] == 12 );
+}
+
+TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test14()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == true );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+    auto* scalar = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(scalar);
+    char** atomic_types = udaGetNodeAtomicTypes(scalar);
+    int* atomic_rank = udaGetNodeAtomicRank(scalar);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "int" );
+    REQUIRE( atomic_rank[0] == 0 );
+
+    auto* data = static_cast<int*>(udaGetNodeStructureComponentData(scalar, "value"));
+
+    REQUIRE( *data == 14 );
+}
+
+TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test15()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == true );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 1 );
+    std::vector<size_t> expected_shape;
+    expected_shape.push_back(3);
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 3 );
+
+    auto* vector = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(vector);
+    char** atomic_types = udaGetNodeAtomicTypes(vector);
+    int* atomic_rank = udaGetNodeAtomicRank(vector);
+    int** atomic_shapes = udaGetNodeAtomicShape(vector);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "int" );
+    REQUIRE( atomic_rank[0] == 1 );
+    REQUIRE( atomic_shapes[0][0] == 3 );
+
+    auto* data = static_cast<int*>(udaGetNodeStructureComponentData(vector, "value"));
+
+    REQUIRE( data[0] == 13 );
+    REQUIRE( data[1] == 14 );
+    REQUIRE( data[2] == 15 );
+}
+
+TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test16()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == true );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 2 );
+    std::vector<size_t> expected_shape;
+    expected_shape.push_back(2);
+    expected_shape.push_back(3);
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 2 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][1] == 3 );
+
+    auto* array = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(array);
+    char** atomic_types = udaGetNodeAtomicTypes(array);
+    int* atomic_rank = udaGetNodeAtomicRank(array);
+    int** atomic_shapes = udaGetNodeAtomicShape(array);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "int" );
+    REQUIRE( atomic_rank[0] == 2 );
+    REQUIRE( atomic_shapes[0][0] == 2 );
+    REQUIRE( atomic_shapes[0][1] == 3 );
+
+    auto* data = static_cast<int*>(udaGetNodeStructureComponentData(array, "value"));
+
+    REQUIRE( data[0] == 0 );
+    REQUIRE( data[1] == 1 );
+    REQUIRE( data[2] == 2 );
+    REQUIRE( data[3] == 10 );
+    REQUIRE( data[4] == 11 );
+    REQUIRE( data[5] == 12 );
+}
+
+TEST_CASE( "Run test18 - pass large number of structs containing single int", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test18()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 100000 );
+
+    for (int i = 0; i < 100000; ++i) {
+        auto* child = udaGetNodeChild(node, i);
+
+        REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+        REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+        REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+        REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+        REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+        auto* scalar = udaFindNTreeStructureComponent(child, "value");
+
+        char** atomic_names = udaGetNodeAtomicNames(scalar);
+        char** atomic_types = udaGetNodeAtomicTypes(scalar);
+        int* atomic_rank = udaGetNodeAtomicRank(scalar);
+
+        REQUIRE( std::string{ atomic_names[0] } == "value" );
+        REQUIRE( std::string{ atomic_types[0] } == "int" );
+        REQUIRE( atomic_rank[0] == 0 );
+
+        auto* data = static_cast<int*>(udaGetNodeStructureComponentData(scalar, "value"));
+
+        REQUIRE( *data == i );
+    }
+}
+
+TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test19()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 3 );
+
+    for (int i = 0; i < 3; ++i) {
+        auto* child = udaGetNodeChild(node, i);
+
+        REQUIRE(std::string{ udaGetNodeStructureName(child) } == "data");
+        REQUIRE(udaGetNodeChildrenCount(child) == 7);
+        REQUIRE(udaGetNodeAtomicCount(child) == 1);
+        REQUIRE(std::string{ udaGetNodeAtomicNames(child)[0] } == "value");
+        REQUIRE(udaGetNodeAtomicPointers(child)[0] == false);
+        REQUIRE(std::string{ udaGetNodeAtomicTypes(child)[0] } == "int");
+        REQUIRE(udaGetNodeAtomicRank(child)[0] == 0);
+
+        auto* scalar = udaFindNTreeStructureComponent(child, "value");
+
+        char** atomic_names = udaGetNodeAtomicNames(scalar);
+        char** atomic_types = udaGetNodeAtomicTypes(scalar);
+        int* atomic_rank = udaGetNodeAtomicRank(scalar);
+
+        REQUIRE( std::string{ atomic_names[0] } == "value" );
+        REQUIRE( std::string{ atomic_types[0] } == "int" );
+        REQUIRE( atomic_rank[0] == 0 );
+
+        auto* data = static_cast<int*>(udaGetNodeStructureComponentData(scalar, "value"));
+
+        REQUIRE( *data == 3 + i );
+
+        for (int j = 0; j < 7; ++j) {
+            auto* sub_child = udaGetNodeChild(child, j);
+
+            REQUIRE( std::string{ udaGetNodeStructureName(sub_child) } == "vals" );
+            REQUIRE( udaGetNodeChildrenCount(sub_child) == 0 );
+            REQUIRE( udaGetNodeAtomicCount(sub_child) == 1 );
+            REQUIRE( std::string{ udaGetNodeAtomicNames(sub_child)[0] } == "value" );
+            REQUIRE( udaGetNodeAtomicPointers(sub_child)[0] == false );
+            REQUIRE( std::string{ udaGetNodeAtomicTypes(sub_child)[0] } == "int" );
+            REQUIRE( udaGetNodeAtomicRank(sub_child)[0] == 0 );
+
+            auto* sub_scalar = udaFindNTreeStructureComponent(sub_child, "value");
+
+            atomic_names = udaGetNodeAtomicNames(sub_scalar);
+            atomic_types = udaGetNodeAtomicTypes(sub_scalar);
+            atomic_rank = udaGetNodeAtomicRank(sub_scalar);
+
+            REQUIRE( std::string{ atomic_names[0] } == "value" );
+            REQUIRE( std::string{ atomic_types[0] } == "int" );
+            REQUIRE( atomic_rank[0] == 0 );
+
+            data = static_cast<int*>(udaGetNodeStructureComponentData(sub_scalar, "value"));
+
+            REQUIRE( *data == 10 * i + j );
+        }
+    }
+}
+
+TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test20()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    REQUIRE( udaGetRank(handle) == 0 );
+
+    const auto* data = reinterpret_cast<short*>(udaGetData(handle));
+    REQUIRE( *data == 7 );
+}
+
+TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test21()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "short" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+    auto* scalar = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(scalar);
+    char** atomic_types = udaGetNodeAtomicTypes(scalar);
+    int* atomic_rank = udaGetNodeAtomicRank(scalar);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "short" );
+    REQUIRE( atomic_rank[0] == 0 );
+
+    auto* data = static_cast<short*>(udaGetNodeStructureComponentData(scalar, "value"));
+
+    REQUIRE( *data == 21 );
+}
+
+TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test22()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "short" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 1 );;
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 3 );
+
+    auto* vector = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(vector);
+    char** atomic_types = udaGetNodeAtomicTypes(vector);
+    int* atomic_rank = udaGetNodeAtomicRank(vector);
+    int** atomic_shape = udaGetNodeAtomicShape(vector);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "short" );
+    REQUIRE( atomic_rank[0] == 1 );
+    REQUIRE( atomic_shape[0][0] == 3 );
+
+    auto* data = static_cast<short*>(udaGetNodeStructureComponentData(vector, "value"));
+
+    REQUIRE( data[0] == 20 );
+    REQUIRE( data[1] == 21 );
+    REQUIRE( data[2] == 22 );
+}
+
+TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test23()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "short" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 2 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 3 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][1] == 2 );
+
+    auto* array = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(array);
+    char** atomic_types = udaGetNodeAtomicTypes(array);
+    int* atomic_rank = udaGetNodeAtomicRank(array);
+    int** atomic_shape = udaGetNodeAtomicShape(array);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "short" );
+    REQUIRE( atomic_rank[0] == 2 );
+    REQUIRE( atomic_shape[0][0] == 3 );
+    REQUIRE( atomic_shape[0][1] == 2 );
+
+    auto* data = static_cast<short*>(udaGetNodeStructureComponentData(array, "value"));
+
+    REQUIRE( data[0] == 0 );
+    REQUIRE( data[1] == 1 );
+    REQUIRE( data[2] == 2 );
+    REQUIRE( data[3] == 10 );
+    REQUIRE( data[4] == 11 );
+    REQUIRE( data[5] == 12 );
+}
+
+TEST_CASE( "Run test24 - pass struct containing single short passed as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test24()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == true );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "short" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+    auto* scalar = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(scalar);
+    char** atomic_types = udaGetNodeAtomicTypes(scalar);
+    int* atomic_rank = udaGetNodeAtomicRank(scalar);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "short" );
+    REQUIRE( atomic_rank[0] == 0 );
+
+    auto* data = static_cast<short*>(udaGetNodeStructureComponentData(scalar, "value"));
+
+    REQUIRE( *data == 24 );
+}
+
+TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test25()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == true );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "short" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 1 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 3 );
+
+    auto* vector = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(vector);
+    char** atomic_types = udaGetNodeAtomicTypes(vector);
+    int* atomic_rank = udaGetNodeAtomicRank(vector);
+    int** atomic_shape = udaGetNodeAtomicShape(vector);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "short" );
+    REQUIRE( atomic_rank[0] == 1 );
+    REQUIRE( atomic_shape[0][0] == 3 );
+
+    auto* data = static_cast<short*>(udaGetNodeStructureComponentData(vector, "value"));
+
+    REQUIRE( data[0] == 13 );
+    REQUIRE( data[1] == 14 );
+    REQUIRE( data[2] == 15 );
+}
+
+TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test26()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == true );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "short" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 2 );
+    std::vector<size_t> expected_shape;
+    expected_shape.push_back(3);
+    expected_shape.push_back(2);
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 3 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][1] == 2 );
+
+    auto* array = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(array);
+    char** atomic_types = udaGetNodeAtomicTypes(array);
+    int* atomic_rank = udaGetNodeAtomicRank(array);
+    int** atomic_shape = udaGetNodeAtomicShape(array);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "short" );
+    REQUIRE( atomic_rank[0] == 2 );
+    REQUIRE( atomic_shape[0][0] == 3 );
+    REQUIRE( atomic_shape[0][1] == 2 );
+
+    auto* data = static_cast<short*>(udaGetNodeStructureComponentData(array, "value"));
+
+    REQUIRE( data[0] == 13 );
+    REQUIRE( data[1] == 14 );
+    REQUIRE( data[2] == 15 );
+    REQUIRE( data[3] == 23 );
+    REQUIRE( data[4] == 24 );
+    REQUIRE( data[5] == 25 );
+}
+
+TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test27()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "short" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 3 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 4 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][1] == 3 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][2] == 2 );
+
+    auto* array = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(array);
+    char** atomic_types = udaGetNodeAtomicTypes(array);
+    int* atomic_rank = udaGetNodeAtomicRank(array);
+    int** atomic_shape = udaGetNodeAtomicShape(array);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "short" );
+    REQUIRE( atomic_rank[0] == 3 );
+    REQUIRE( atomic_shape[0][0] == 4 );
+    REQUIRE( atomic_shape[0][1] == 3 );
+    REQUIRE( atomic_shape[0][2] == 2 );
+
+    auto* data = static_cast<short*>(udaGetNodeStructureComponentData(array, "value"));
+
+    REQUIRE( data[0] == 0 );
+    REQUIRE( data[1] == 1 );
+    REQUIRE( data[2] == 2 );
+    REQUIRE( data[3] == 3 );
+    REQUIRE( data[4] == 10 );
+    REQUIRE( data[5] == 11 );
+    REQUIRE( data[6] == 12 );
+    REQUIRE( data[7] == 13 );
+    REQUIRE( data[8] == 20 );
+    REQUIRE( data[9] == 21 );
+    REQUIRE( data[10] == 22 );
+    REQUIRE( data[11] == 23 );
+    REQUIRE( data[12] == 100 );
+    REQUIRE( data[13] == 101 );
+    REQUIRE( data[14] == 102 );
+    REQUIRE( data[15] == 103 );
+    REQUIRE( data[16] == 110 );
+    REQUIRE( data[17] == 111 );
+    REQUIRE( data[18] == 112 );
+    REQUIRE( data[19] == 113 );
+    REQUIRE( data[20] == 120 );
+    REQUIRE( data[21] == 121 );
+    REQUIRE( data[22] == 122 );
+    REQUIRE( data[23] == 123 );
+}
+
+TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test28()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "value" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == true );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "short" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 3 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][0] == 4 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][1] == 3 );
+    REQUIRE( udaGetNodeAtomicShape(child)[0][2] == 2 );
+
+    auto* array = udaFindNTreeStructureComponent(child, "value");
+
+    char** atomic_names = udaGetNodeAtomicNames(array);
+    char** atomic_types = udaGetNodeAtomicTypes(array);
+    int* atomic_rank = udaGetNodeAtomicRank(array);
+    int** atomic_shape = udaGetNodeAtomicShape(array);
+
+    REQUIRE( std::string{ atomic_names[0] } == "value" );
+    REQUIRE( std::string{ atomic_types[0] } == "short" );
+    REQUIRE( atomic_rank[0] == 3 );
+    REQUIRE( atomic_shape[0][0] == 4 );
+    REQUIRE( atomic_shape[0][1] == 3 );
+    REQUIRE( atomic_shape[0][2] == 2 );
+
+    auto* data = static_cast<short*>(udaGetNodeStructureComponentData(array, "value"));
+
+    REQUIRE( data[0] == 0 );
+    REQUIRE( data[1] == 1 );
+    REQUIRE( data[2] == 2 );
+    REQUIRE( data[3] == 3 );
+    REQUIRE( data[4] == 10 );
+    REQUIRE( data[5] == 11 );
+    REQUIRE( data[6] == 12 );
+    REQUIRE( data[7] == 13 );
+    REQUIRE( data[8] == 20 );
+    REQUIRE( data[9] == 21 );
+    REQUIRE( data[10] == 22 );
+    REQUIRE( data[11] == 23 );
+    REQUIRE( data[12] == 100 );
+    REQUIRE( data[13] == 101 );
+    REQUIRE( data[14] == 102 );
+    REQUIRE( data[15] == 103 );
+    REQUIRE( data[16] == 110 );
+    REQUIRE( data[17] == 111 );
+    REQUIRE( data[18] == 112 );
+    REQUIRE( data[19] == 113 );
+    REQUIRE( data[20] == 120 );
+    REQUIRE( data[21] == 121 );
+    REQUIRE( data[22] == 122 );
+    REQUIRE( data[23] == 123 );
+}
+
+TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test30()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 2 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "R" );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[1] } == "Z" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( udaGetNodeAtomicPointers(child)[1] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "double" );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[1] } == "double" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+    REQUIRE( udaGetNodeAtomicRank(child)[1] == 0 );
+
+    {
+        auto* R = udaFindNTreeStructureComponent(child, "R");
+
+        char** atomic_names = udaGetNodeAtomicNames(R);
+        char** atomic_types = udaGetNodeAtomicTypes(R);
+        int* atomic_rank = udaGetNodeAtomicRank(R);
+
+        REQUIRE( std::string{ atomic_names[0] } == "R" );
+        REQUIRE( std::string{ atomic_types[0] } == "double" );
+        REQUIRE( atomic_rank[0] == 0 );
+
+        auto* data = static_cast<double*>(udaGetNodeStructureComponentData(R, "R"));
+
+        REQUIRE( *data == Approx(1.0) );
+    }
+
+    {
+        auto* Z = udaFindNTreeStructureComponent(child, "Z");
+
+        char** atomic_names = udaGetNodeAtomicNames(Z);
+        char** atomic_types = udaGetNodeAtomicTypes(Z);
+        int* atomic_rank = udaGetNodeAtomicRank(Z);
+
+        REQUIRE( std::string{ atomic_names[1] } == "Z" );
+        REQUIRE( std::string{ atomic_types[1] } == "double" );
+        REQUIRE( atomic_rank[1] == 0 );
+
+        auto* data = static_cast<double*>(udaGetNodeStructureComponentData(Z, "Z"));
+
+        REQUIRE( *data == Approx(2.0) );
+    }
+}
+
+TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test31()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 100 );
+
+    for (int i = 0; i < 100; ++i) {
+        auto* child = udaGetNodeChild(node, i);
+
+        REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+        REQUIRE( udaGetNodeChildrenCount(child) == 0 );
+        REQUIRE( udaGetNodeAtomicCount(child) == 2 );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "R" );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(child)[1] } == "Z" );
+        REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+        REQUIRE( udaGetNodeAtomicPointers(child)[1] == false );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "double" );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[1] } == "double" );
+        REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+        REQUIRE( udaGetNodeAtomicRank(child)[1] == 0 );
+
+        {
+            auto* R = udaFindNTreeStructureComponent(child, "R");
+
+            char** atomic_names = udaGetNodeAtomicNames(R);
+            char** atomic_types = udaGetNodeAtomicTypes(R);
+            int* atomic_rank = udaGetNodeAtomicRank(R);
+
+            REQUIRE( std::string{ atomic_names[0] } == "R" );
+            REQUIRE( std::string{ atomic_types[0] } == "double" );
+            REQUIRE( atomic_rank[0] == 0 );
+
+            auto* data = static_cast<double*>(udaGetNodeStructureComponentData(R, "R"));
+
+            REQUIRE( *data == Approx(1.0 * i) );
+        }
+
+        {
+            auto* Z = udaFindNTreeStructureComponent(child, "Z");
+
+            char** atomic_names = udaGetNodeAtomicNames(Z);
+            char** atomic_types = udaGetNodeAtomicTypes(Z);
+            int* atomic_rank = udaGetNodeAtomicRank(Z);
+
+            REQUIRE( std::string{ atomic_names[1] } == "Z" );
+            REQUIRE( std::string{ atomic_types[1] } == "double" );
+            REQUIRE( atomic_rank[1] == 0 );
+
+            auto* data = static_cast<double*>(udaGetNodeStructureComponentData(Z, "Z"));
+
+            REQUIRE( *data == Approx(10.0 * i) );
+        }
+    }
+}
+
+TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test32()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 100 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "count" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+    {
+        auto* count = udaFindNTreeStructureComponent(child, "count");
+
+        char** atomic_names = udaGetNodeAtomicNames(count);
+        char** atomic_types = udaGetNodeAtomicTypes(count);
+        int* atomic_rank = udaGetNodeAtomicRank(count);
+
+        REQUIRE( std::string{ atomic_names[0] } == "count" );
+        REQUIRE( std::string{ atomic_types[0] } == "int" );
+        REQUIRE( atomic_rank[0] == 0 );
+
+        auto* data = static_cast<int*>(udaGetNodeStructureComponentData(count, "count"));
+
+        REQUIRE( *data == 100 );
+    }
+
+    for (int i = 0; i < 100; ++i) {
+        auto* coord = udaGetNodeChild(child, i);
+
+        REQUIRE( std::string{ udaGetNodeStructureName(coord) } == "coords" );
+        REQUIRE( udaGetNodeChildrenCount(coord) == 0 );
+        REQUIRE( udaGetNodeAtomicCount(coord) == 2 );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(coord)[0] } == "R" );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(coord)[1] } == "Z" );
+        REQUIRE( udaGetNodeAtomicPointers(coord)[0] == false );
+        REQUIRE( udaGetNodeAtomicPointers(coord)[1] == false );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(coord)[0] } == "double" );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(coord)[1] } == "double" );
+        REQUIRE( udaGetNodeAtomicRank(coord)[0] == 0 );
+        REQUIRE( udaGetNodeAtomicRank(coord)[1] == 0 );
+
+        {
+            auto* R = udaFindNTreeStructureComponent(coord, "R");
+
+            char** atomic_names = udaGetNodeAtomicNames(R);
+            char** atomic_types = udaGetNodeAtomicTypes(R);
+            int* atomic_rank = udaGetNodeAtomicRank(R);
+
+            REQUIRE( std::string{ atomic_names[0] } == "R" );
+            REQUIRE( std::string{ atomic_types[0] } == "double" );
+            REQUIRE( atomic_rank[0] == 0 );
+
+            auto* data = static_cast<double*>(udaGetNodeStructureComponentData(R, "R"));
+
+            REQUIRE( *data == Approx((double)(1.0 * i)) );
+        }
+
+        {
+            auto* Z = udaFindNTreeStructureComponent(coord, "Z");
+
+            char** atomic_names = udaGetNodeAtomicNames(Z);
+            char** atomic_types = udaGetNodeAtomicTypes(Z);
+            int* atomic_rank = udaGetNodeAtomicRank(Z);
+
+            REQUIRE( std::string{ atomic_names[1] } == "Z" );
+            REQUIRE( std::string{ atomic_types[1] } == "double" );
+            REQUIRE( atomic_rank[1] == 0 );
+
+            auto* data = static_cast<double*>(udaGetNodeStructureComponentData(Z, "Z"));
+
+            REQUIRE( *data == Approx((double)(10.0 * i)) );
+        }
+    }
+}
+
+TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test33()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 100 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "count" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+    {
+        auto* count = udaFindNTreeStructureComponent(child, "count");
+
+        char** atomic_names = udaGetNodeAtomicNames(count);
+        char** atomic_types = udaGetNodeAtomicTypes(count);
+        int* atomic_rank = udaGetNodeAtomicRank(count);
+
+        REQUIRE( std::string{ atomic_names[0] } == "count" );
+        REQUIRE( std::string{ atomic_types[0] } == "int" );
+        REQUIRE( atomic_rank[0] == 0 );
+
+        auto* data = static_cast<int*>(udaGetNodeStructureComponentData(count, "count"));
+
+        REQUIRE( *data == 100 );
+    }
+
+    for (int i = 0; i < 100; ++i) {
+        auto coord = udaGetNodeChild(child, i);
+
+        REQUIRE( std::string{ udaGetNodeStructureName(coord) } == "coords" );
+        REQUIRE( udaGetNodeChildrenCount(coord) == 0 );
+        REQUIRE( udaGetNodeAtomicCount(coord) == 2 );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(coord)[0] } == "R" );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(coord)[1] } == "Z" );
+        REQUIRE( udaGetNodeAtomicPointers(coord)[0] == false );
+        REQUIRE( udaGetNodeAtomicPointers(coord)[1] == false );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(coord)[0] } == "double" );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(coord)[1] } == "double" );
+        REQUIRE( udaGetNodeAtomicRank(coord)[0] == 0 );
+        REQUIRE( udaGetNodeAtomicRank(coord)[1] == 0 );
+
+        {
+            auto* R = udaFindNTreeStructureComponent(coord, "R");
+
+            char** atomic_names = udaGetNodeAtomicNames(R);
+            char** atomic_types = udaGetNodeAtomicTypes(R);
+            int* atomic_rank = udaGetNodeAtomicRank(R);
+
+            REQUIRE( std::string{ atomic_names[0] } == "R" );
+            REQUIRE( std::string{ atomic_types[0] } == "double" );
+            REQUIRE( atomic_rank[0] == 0 );
+
+            auto* data = static_cast<double*>(udaGetNodeStructureComponentData(R, "R"));
+
+            REQUIRE( *data == Approx((double)(1.0 * i)) );
+        }
+
+        {
+            auto* Z = udaFindNTreeStructureComponent(coord, "Z");
+
+            char** atomic_names = udaGetNodeAtomicNames(Z);
+            char** atomic_types = udaGetNodeAtomicTypes(Z);
+            int* atomic_rank = udaGetNodeAtomicRank(Z);
+
+            REQUIRE( std::string{ atomic_names[1] } == "Z" );
+            REQUIRE( std::string{ atomic_types[1] } == "double" );
+            REQUIRE( atomic_rank[1] == 0 );
+
+            auto* data = static_cast<double*>(udaGetNodeStructureComponentData(Z, "Z"));
+
+            REQUIRE( *data == Approx((double)(10.0 * i)) );
+        }
+    }
+}
+
+TEST_CASE( "Run test34 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::test34()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    bool is_tree = udaSetDataTree(handle) != 0;
+    REQUIRE( is_tree );
+
+    auto* node = udaGetDataTree(handle);
+
+    int num_children = udaGetNodeChildrenCount(node);
+    REQUIRE( num_children == 1 );
+
+    auto* child = udaGetNodeChild(node, 0);
+
+    REQUIRE( std::string{ udaGetNodeStructureName(child) } == "data" );
+    REQUIRE( udaGetNodeChildrenCount(child) == 100 );
+    REQUIRE( udaGetNodeAtomicCount(child) == 1 );
+    REQUIRE( std::string{ udaGetNodeAtomicNames(child)[0] } == "count" );
+    REQUIRE( udaGetNodeAtomicPointers(child)[0] == false );
+    REQUIRE( std::string{ udaGetNodeAtomicTypes(child)[0] } == "int" );
+    REQUIRE( udaGetNodeAtomicRank(child)[0] == 0 );
+
+    {
+        auto* count = udaFindNTreeStructureComponent(child, "count");
+
+        char** atomic_names = udaGetNodeAtomicNames(count);
+        char** atomic_types = udaGetNodeAtomicTypes(count);
+        int* atomic_rank = udaGetNodeAtomicRank(count);
+
+        REQUIRE( std::string{ atomic_names[0] } == "count" );
+        REQUIRE( std::string{ atomic_types[0] } == "int" );
+        REQUIRE( atomic_rank[0] == 0 );
+
+        auto* data = static_cast<int*>(udaGetNodeStructureComponentData(count, "count"));
+
+        REQUIRE( *data == 100 );
+    }
+
+    for (int i = 0; i < 100; ++i) {
+        auto* coord = udaGetNodeChild(child, i);
+
+        REQUIRE( std::string{ udaGetNodeStructureName(coord) } == "coords" );
+        REQUIRE( udaGetNodeChildrenCount(coord) == 0 );
+        REQUIRE( udaGetNodeAtomicCount(coord) == 2 );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(coord)[0] } == "R" );
+        REQUIRE( std::string{ udaGetNodeAtomicNames(coord)[1] } == "Z" );
+        REQUIRE( udaGetNodeAtomicPointers(coord)[0] == true );
+        REQUIRE( udaGetNodeAtomicPointers(coord)[1] == true );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(coord)[0] } == "unsigned char *" );
+        REQUIRE( std::string{ udaGetNodeAtomicTypes(coord)[1] } == "unsigned char *" );
+        REQUIRE( udaGetNodeAtomicRank(coord)[0] == 0 );
+        REQUIRE( udaGetNodeAtomicRank(coord)[1] == 0 );
+
+        {
+            auto* R = udaFindNTreeStructureComponent(coord, "R");
+
+            char** atomic_names = udaGetNodeAtomicNames(R);
+            char** atomic_types = udaGetNodeAtomicTypes(R);
+            int* atomic_rank = udaGetNodeAtomicRank(R);
+
+            REQUIRE( std::string{ atomic_names[0] } == "R" );
+            REQUIRE( std::string{ atomic_types[0] } == "unsigned char *" );
+            REQUIRE( atomic_rank[0] == 0 );
+
+            auto* data = static_cast<unsigned char*>(udaGetNodeStructureComponentData(R, "R"));
+
+            REQUIRE( data[0] == (unsigned char)(1 * i) );
+        }
+
+        {
+            auto* Z = udaFindNTreeStructureComponent(coord, "Z");
+
+            char** atomic_names = udaGetNodeAtomicNames(Z);
+            char** atomic_types = udaGetNodeAtomicTypes(Z);
+            int* atomic_rank = udaGetNodeAtomicRank(Z);
+
+            REQUIRE( std::string{ atomic_names[1] } == "Z" );
+            REQUIRE( std::string{ atomic_types[1] } == "unsigned char *" );
+            REQUIRE( atomic_rank[1] == 0 );
+
+            auto* data = static_cast<unsigned char*>(udaGetNodeStructureComponentData(Z, "Z"));
+
+            REQUIRE( data[0] == (unsigned char)(10 * i) );
+        }
+    }
+}
+
+TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
+{
+    int handle = udaGetAPI("TESTPLUGIN::plugin(signal='HELP::HELP()', source='')", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    std::string str{ data };
+
+    std::string expected =
+            "HELP: Plugin to provide server help and available services\n"
+            "\n"
+            "Functions:\n"
+            "\n"
+            "services()      Returns a list of available services with descriptions\n"
+            "ping()          Return the Local Server Time in seconds and microseonds\n"
+            "servertime()    Return the Local Server Time in seconds and microseonds\n";
+
+    REQUIRE( str == expected );
+}
+
 // TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 // {
 //     REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), StartsWith("Test #1 of Error State Management") );
