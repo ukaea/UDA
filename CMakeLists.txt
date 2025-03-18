@@ -74,6 +74,10 @@ option( ENABLE_CXX_WRAPPER "Turn off building of C++ wrapper" ON )
 option( ENABLE_PYTHON_WRAPPER "Turn off building of Python wrapper" ON )
 option( ENABLE_IDL_WRAPPER "Turn off building of IDL wrapper" OFF )
 
+# Defaults for server run scripts
+set( UDA_SERVER_PORT 56565 )
+set( UDA_SERVER_USER $ENV{USER} )
+
 ########################################################################################################################
 # Configure files
 

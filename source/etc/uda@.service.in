@@ -1,10 +1,10 @@
 [Unit]
-Description=@USER@-uda service
+Description=@UDA_SERVER_USER@-uda service
 
 [Service]
 ExecStart=@CMAKE_INSTALL_PREFIX@/etc/udaserver.sh
 Type=forking
-User=@USER@
+User=@UDA_SERVER_USER@
 #Group=yes
 UMask=002
 StandardInput=socket

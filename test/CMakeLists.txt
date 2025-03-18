@@ -23,7 +23,7 @@ target_link_libraries( test_clientserver PRIVATE Catch2::Catch2WithMain
   structures
 )
 
-add_test( NAME TestClientserver COMMAND test_clientserver )
+add_test( NAME TestClientserver COMMAND test_clientserver CONFIGURATIONS unit )
 
 add_subdirectory( plugins )
 add_subdirectory( unit_tests )

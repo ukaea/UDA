@@ -114,6 +114,7 @@ jobs:
           cmake -G Ninja -B build
           -DBUILD_SHARED_LIBS=${{ matrix.shared }}
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DUDA_SERVER_PORT=56560
 
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'
@@ -156,8 +157,18 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: cmake --install build --config ${{ matrix.release }}
 
-      - name: Unit Tests
+      - name: Run unit tests
         run: ctest --test-dir build --output-on-failure -C unit
+
+      - name: Run non-SSL system tests
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+          sudo systemctl start uda.socket &&
+          sudo systemctl enable uda.socket &&
+          sudo chown -R $USER:$USER /usr/local/etc &&
+          nc -4zv localhost 56560 &&
+          ctest --test-dir build --output-on-failure -C server
 
 #      - name: Install pyuda
 #        if: matrix.os == 'ubuntu-latest'
