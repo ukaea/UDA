@@ -115,6 +115,7 @@ jobs:
           -DBUILD_SHARED_LIBS=${{ matrix.shared }}
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
           -DUDA_SERVER_PORT=56560
+          -UDA_SERVER_USER=root
 
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'

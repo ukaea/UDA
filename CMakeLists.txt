@@ -75,8 +75,9 @@ option( ENABLE_PYTHON_WRAPPER "Turn off building of Python wrapper" ON )
 option( ENABLE_IDL_WRAPPER "Turn off building of IDL wrapper" OFF )
 
 # Defaults for server run scripts
-set( UDA_SERVER_PORT 56565 )
-set( UDA_SERVER_USER $ENV{USER} )
+set( UDA_SERVER_PORT "56565" CACHE STRING "define port number in server configuration files" )
+set( UDA_SERVER_HOST "localhost" CACHE STRING "define hostname in server configuration files" )
+set( UDA_SERVER_USER "$ENV{USER}" CACHE STRING "define user in server configuration files" )
 
 ########################################################################################################################
 # Configure files
