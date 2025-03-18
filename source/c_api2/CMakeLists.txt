@@ -19,7 +19,7 @@ target_link_libraries( c_api PUBLIC
   "$<BUILD_INTERFACE:structures>"
 )
 
-if ( ENABLE_CAPNP )
+if( ENABLE_CAPNP )
     target_link_libraries( c_api PUBLIC
         "$<BUILD_INTERFACE:serialisation>"
     )

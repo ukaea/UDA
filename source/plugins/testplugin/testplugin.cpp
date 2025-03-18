@@ -13,28 +13,9 @@
 
 #include "teststructs.h"
 
-#define MAXELEMENTNAME 1024
-
-#ifdef TESTUDT
-#  include "udtc.h"
-#  include <netdb.h>
-#  include <pthread.h>
-
-typedef int bool;
-int g_IP_Version = AF_INET;      // IPv4 family of addresses
-int g_Socket_Type = SOCK_STREAM; // use reliable transport layer protocol with Aknowledgements (default TCP)
-
-char g_Localhost[] = "192.168.16.88"; //"192.168.16.125"; //"127.0.0.1"; // "192.168.16.88";    // Client IP address
-                                      //(*** passed as a parameter)
-int g_Server_Port = 50000;            // port number (*** passed as a parameter)
-
-int g_TotalNum = 1000000; // Test data
-
-int tcp_connect(SYSSOCKET* ssock, int port);
-int c_connect(UDTSOCKET* usock, int port);
-int createUDTSocket(int* usock, int port, int rendezvous);
-int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous);
-#endif
+namespace {
+constexpr int MaxElementName = 1024;
+}
 
 UDA_PLUGIN_INFO UDA_PLUGIN_INFO_FUNCTION_NAME()
 {
@@ -110,9 +91,6 @@ class TestPlugin : public UDAPluginBase
     int long_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface);
     int large_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface);
 #endif // CAPNP_ENABLED
-#ifdef TESTUDT
-    int testudt(UDA_PLUGIN_INTERFACE* plugin_interface);
-#endif // TESTUDT
 
     void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
@@ -182,9 +160,6 @@ TestPlugin::TestPlugin()
     register_method("long_capnp_test", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::long_capnp_test));
     register_method("large_capnp_test", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::large_capnp_test));
 #endif // CAPNP_ENABLED
-#ifdef TESTUDT
-    register_method("testudt", static_cast<UDAPluginBase::plugin_member_type>(&TestPlugin::testudt));
-#endif // TESTUDT
 }
 
 extern "C" int testPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
@@ -1699,12 +1674,12 @@ int TestPlugin::test50(UDA_PLUGIN_INTERFACE* plugin_interface)
 // will have to deal with the type conversion.
 
 typedef struct EnumMember60 {
-    char name[MAXELEMENTNAME]; // The Enumeration member name
+    char name[MaxElementName]; // The Enumeration member name
     long long value;           // The value of the member
 } ENUMMEMBER60;
 
 typedef struct EnumList60 {
-    char name[MAXELEMENTNAME]; // The Enumeration name
+    char name[MaxElementName]; // The Enumeration name
     int type;                  // The original integer base type
     int count;                 // The number of members of this enumeration class
     ENUMMEMBER60* enummember;  // Array of enum members
@@ -1719,7 +1694,7 @@ int register_enumlist(UDA_PLUGIN_INTERFACE* plugin_interface, ENUMLIST60* enum_l
     COMPOUNDFIELD* enummember60_fields[2] = {nullptr};
     int offset = 0;
 
-    int shape[1] = {MAXELEMENTNAME};
+    int shape[1] = {MaxElementName};
     enummember60_fields[0] =
         udaNewCompoundField("name", "char array structure element", &offset, UDA_TYPE_CHAR, 1, shape);
     enummember60_fields[1] = udaNewCompoundField("value", "long long structure element", &offset, UDA_TYPE_LONG64, 0,
@@ -2202,250 +2177,3 @@ int TestPlugin::large_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 #endif // CAPNP_ENABLED
-
-#ifdef TESTUDT
-
-// rendezvous == false is default
-int createUDTSocket(int* usock, int port, int rendezvous)
-{
-    struct addrinfo hints;
-    struct addrinfo* res;
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = g_IP_Version;
-    hints.ai_socktype = g_Socket_Type;
-
-    char service[16];
-    sprintf(service, "%d", port);
-
-    if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
-        int err = 9991;
-        addIdamError(ErrorType::Code, "testplugin:createUDTSocket", err, "Illegal port number or port is busy");
-        addIdamError(ErrorType::Code, "testplugin:createUDTSocket", err, (char*)udt_getlasterror_desc());
-        return -1;
-    }
-
-    *usock = udt_socket(res->ai_family, res->ai_socktype,
-                        res->ai_protocol); // AF_INET, SOCK_STREAM, default protocol
-
-    // since we will start a lot of connections, we set the buffer size to smaller value.
-
-    // UDT buffer size limit (default 10MB)
-    int snd_buf = 16000;
-    int rcv_buf = 16000;
-    udt_setsockopt(*usock, 0, UDT_UDT_SNDBUF, &snd_buf, sizeof(int));
-    udt_setsockopt(*usock, 0, UDT_UDT_RCVBUF, &rcv_buf, sizeof(int));
-
-    // UDP buffer size limit (default 1MB)
-    snd_buf = 8192;
-    rcv_buf = 8192;
-    udt_setsockopt(*usock, 0, UDT_UDP_SNDBUF, &snd_buf, sizeof(int));
-    udt_setsockopt(*usock, 0, UDT_UDP_RCVBUF, &rcv_buf, sizeof(int));
-
-    // Maximum window size (packets) (default 25600) *** change with care!
-    int fc = 16;
-    udt_setsockopt(*usock, 0, UDT_UDT_FC, &fc, sizeof(int));
-
-    // Reuse an existing address or create a new one (default true)
-    bool reuse = 1;
-    udt_setsockopt(*usock, 0, UDT_UDT_REUSEADDR, &reuse, sizeof(bool));
-
-    // Rendezvous connection setup (default false)
-    udt_setsockopt(*usock, 0, UDT_UDT_RENDEZVOUS, &rendezvous, sizeof(bool));
-
-    // Bind socket to port
-    int err;
-    udt_bind(*usock, res->ai_addr, res->ai_addrlen);
-    /*
-       if((err= udt_bind(*usock, res->ai_addr, res->ai_addrlen)) != UDT_SUCCESS){
-          fprintf(stderr, "UDT bind: [{}]\n",udt_getlasterror_desc());
-          return -1;
-       }
-    */
-    freeaddrinfo(res);
-    return 0;
-}
-
-// rendezvous = false is default
-// port = 0 is default
-int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
-{
-    struct addrinfo hints;
-    struct addrinfo* res;
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = g_IP_Version;
-    hints.ai_socktype = g_Socket_Type;
-
-    char service[16];
-    sprintf(service, "{}", port);
-
-    if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
-        int err = 999;
-        addIdamError(ErrorType::Code, "testplugin:createTCPSocket", err, "Illegal port number or port is busy");
-        addIdamError(ErrorType::Code, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
-        return -1;
-    }
-
-    *ssock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-
-    if (bind(*ssock, res->ai_addr, res->ai_addrlen) != 0) {
-        int err = 999;
-        addIdamError(ErrorType::Code, "testplugin:createTCPSocket", err, "Socket Bind error");
-        addIdamError(ErrorType::Code, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
-        return -1;
-    }
-
-    freeaddrinfo(res);
-    return 0;
-}
-
-// connect conflicts with system function
-int c_connect(UDTSOCKET* usock, int port)
-{
-    struct addrinfo hints, *peer;
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = g_IP_Version;
-    hints.ai_socktype = g_Socket_Type;
-
-    char buffer[16];
-    sprintf(buffer, "%d", port);
-
-    if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
-        int err = 999;
-        addIdamError(ErrorType::Code, "testplugin:c_connect", err, "Socket Connect error");
-        addIdamError(ErrorType::Code, "testplugin:c_connect", err, (char*)udt_getlasterror_desc());
-        return -1;
-    }
-
-    udt_connect(*usock, peer->ai_addr, peer->ai_addrlen);
-
-    freeaddrinfo(peer);
-    return 0;
-}
-
-int tcp_connect(SYSSOCKET* ssock, int port)
-{
-    struct addrinfo hints, *peer;
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_family = g_IP_Version;
-    hints.ai_socktype = g_Socket_Type;
-
-    char buffer[16];
-    sprintf(buffer, "%d", port);
-
-    if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
-        int err = 999;
-        addIdamError(ErrorType::Code, "testplugin:tcp_connect", err, "Socket Connect error");
-        addIdamError(ErrorType::Code, "testplugin:tcp_connect", err, (char*)udt_getlasterror_desc());
-        return -1;
-    }
-
-    connect(*ssock, peer->ai_addr, peer->ai_addrlen);
-
-    freeaddrinfo(peer);
-    return 0;
-}
-
-//======================================================================================
-// Test UDT (UDP/IP) Communication: data transfer from server to client
-
-// The IDAM server uses a regular TCP socket to instance the server via XINETD
-// TCP has performance issues in high bandwidth high latency (RTT) networks
-// UDP has better performance but data packets may get lost - it is not reliable
-// UDT is an application level protocol, based on UDP, that is reliable and has the performance of UDP
-// The IDAM server acts as a UDT client and the IDAM client acts as the UDT server!
-int TestPlugin::testudt(UDA_PLUGIN_INTERFACE* plugin_interface)
-{
-    // Start a mini server loop and create a separate communiation channel with the client bye-passing the TCP socket
-
-    int client; // listening socket id
-    int false = 0;
-    int err = 0;
-
-    // Create a UDT socket without specifying the port number
-
-    if (createUDTSocket(&client, 0, false) < 0) {
-        ;
-        err = 9990;
-        addIdamError(ErrorType::Code, "testplugin:udt", err, "Unable to create a UDT Socket");
-        return err;
-    }
-
-    // Connect to the IDAM client on a specific port
-    // Client and server sockets are connected
-
-    c_connect(&client, g_Server_Port);
-
-    // Create data to send
-
-    int32_t buffer[g_TotalNum];
-    int32_t sum = 0;
-    for (int i = 0; i < g_TotalNum; ++i) {
-        buffer[i] = i;
-        sum += buffer[i];
-    }
-
-    // Send the data (*** NOT Architecture independent ***)
-
-    struct timeval tm1, tm2;
-    gettimeofday(&tm1, nullptr);
-
-    time_t ticks = time(nullptr);
-    char sendBuff[1025];
-    snprintf(sendBuff, sizeof(sendBuff), "%.24s", ctime(&ticks));
-    int tosend = strlen(sendBuff) + 1;
-    int sent = udt_send(client, sendBuff, tosend, 0);
-
-    tosend = g_TotalNum * sizeof(int32_t);
-    while (tosend > 0) {
-        int sent = udt_send(client, (char*)buffer + g_TotalNum * sizeof(int32_t) - tosend, tosend, 0);
-        if (sent < 0) {
-            err = 9990;
-            addIdamError(ErrorType::Code, "testplugin:udt", err, "Unable to Send Data");
-            addIdamError(ErrorType::Code, "testplugin:udt", err, (char*)udt_getlasterror_desc());
-            break;
-        }
-        tosend -= sent;
-    }
-
-    gettimeofday(&tm2, nullptr);
-    int dsecs = (int)(tm2.tv_sec - tm1.tv_sec);
-    int dmics = (int)(tm2.tv_usec - tm1.tv_usec);
-
-    buffer[0] = dsecs;
-    buffer[1] = dmics;
-    tosend = 2 * sizeof(int32_t);
-    sent = udt_send(client, (char*)buffer, tosend, 0);
-
-    ticks = time(nullptr);
-    snprintf(sendBuff, sizeof(sendBuff), "%.24s", ctime(&ticks));
-    tosend = (int)strlen(sendBuff) + 1;
-    sent = udt_send(client, sendBuff, tosend, 0);
-
-    // Close the connection
-
-    udt_close(client);
-
-    // Return IDAM status
-
-    init_data_block(data_block);
-
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data_type = UDA_TYPE_INT;
-
-    int* status = (int*)malloc(sizeof(int));
-    status[0] = 0;
-    data_block->data = (char*)status;
-
-    strcpy(data_block->data_desc, "testplugins:udt status");
-    strcpy(data_block->data_label, "");
-    strcpy(data_block->data_units, "");
-
-    return err;
-}
-
-#endif // TESTUDT

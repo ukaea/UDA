@@ -49,6 +49,7 @@ macro( uda_plugin )
  
   target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} )
   target_include_directories( ${PLUGIN_LIBNAME} PRIVATE ${PLUGIN_EXTRA_INCLUDE_DIRS} )
+  target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE ${PLUGIN_EXTRA_DEFINITIONS} )
   
   install(
     TARGETS ${PLUGIN_LIBNAME}

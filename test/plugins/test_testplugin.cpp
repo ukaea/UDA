@@ -3,7 +3,9 @@
 #include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <uda.h>
-// #include <serialisation/capnp_serialisation.h>
+#ifdef CAPNP_ENABLED
+  #include <serialisation/capnp_serialisation.h>
+#endif
 
 #include "test_config.hpp"
 
@@ -13,7 +15,7 @@ using Catch::Approx;
 TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 {
     udaLoadConfig(ConfigFilePath);
-    int handle = udaGetAPI("TESTPLUGIN::help()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::help()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -84,7 +86,7 @@ TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test0()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test0()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -106,7 +108,7 @@ TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test1()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test1()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -128,7 +130,7 @@ TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test2()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test2()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -163,7 +165,7 @@ TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test3()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test3()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -198,7 +200,7 @@ TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPL
 
 TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test4()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test4()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -238,7 +240,7 @@ TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test5()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test5()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -285,7 +287,7 @@ TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TES
 
 TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test6()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test6()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -322,7 +324,7 @@ TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" 
 
 TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test7()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test7()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -367,7 +369,7 @@ TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TES
 
 TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test8()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test8()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -409,7 +411,7 @@ TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plug
 
 TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string arrays", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test9()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test9()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -556,7 +558,7 @@ TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string array
 
 TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test10()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test10()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -570,7 +572,7 @@ TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test11()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test11()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -610,7 +612,7 @@ TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUG
 
 TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test12()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test12()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -655,7 +657,7 @@ TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TE
 
 TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test13()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test13()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -705,7 +707,7 @@ TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TE
 
 TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test14()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test14()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -745,7 +747,7 @@ TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "
 
 TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test15()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test15()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -792,7 +794,7 @@ TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as point
 
 TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test16()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test16()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -845,7 +847,7 @@ TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as point
 
 TEST_CASE( "Run test18 - pass large number of structs containing single int", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test18()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test18()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -887,7 +889,7 @@ TEST_CASE( "Run test18 - pass large number of structs containing single int", "[
 
 TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test19()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test19()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -955,7 +957,7 @@ TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins]
 
 TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test20()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test20()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -968,7 +970,7 @@ TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test21()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test21()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1008,7 +1010,7 @@ TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPL
 
 TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test22()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test22()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1053,7 +1055,7 @@ TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][
 
 TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test23()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test23()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1103,7 +1105,7 @@ TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][
 
 TEST_CASE( "Run test24 - pass struct containing single short passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test24()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test24()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1143,7 +1145,7 @@ TEST_CASE( "Run test24 - pass struct containing single short passed as pointer",
 
 TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test25()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test25()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1188,7 +1190,7 @@ TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as poi
 
 TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test26()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test26()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1241,7 +1243,7 @@ TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as poi
 
 TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test27()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test27()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1311,7 +1313,7 @@ TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][
 
 TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test28()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test28()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1381,7 +1383,7 @@ TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as poi
 
 TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test30()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test30()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1443,7 +1445,7 @@ TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test31()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test31()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1507,7 +1509,7 @@ TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TEST
 
 TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 2 doubles", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test32()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test32()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1597,7 +1599,7 @@ TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 
 
 TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test33()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test33()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1687,7 +1689,7 @@ TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 
 
 TEST_CASE( "Run test34 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::test34()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::test34()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1777,7 +1779,7 @@ TEST_CASE( "Run test34 - pass struct containing array of 100 structs containing 
 
 TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::plugin(signal='HELP::HELP()', source='')", "");
+    const int handle = udaGetAPI("TESTPLUGIN::plugin(signal='HELP::HELP()', source='')", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1826,7 +1828,7 @@ TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGI
 
 TEST_CASE( "Run array1dtest - return a simple 1d array value", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::array1dtest()", "");
+    const int handle = udaGetAPI("TESTPLUGIN::array1dtest()", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1846,8 +1848,8 @@ TEST_CASE( "Run array1dtest - return a simple 1d array value", "[plugins][TESTPL
 
 TEST_CASE( "Test array subsetting - take first 10 values", "[plugins][TESTPLUGIN]" )
 {
-//    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [0:10])", "");
-    int handle = udaGetAPI("TESTPLUGIN::array1dtest()[0:10]", "");
+//    const int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [0:10])", "");
+    const int handle = udaGetAPI("TESTPLUGIN::array1dtest()[0:10]", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1867,8 +1869,8 @@ TEST_CASE( "Test array subsetting - take first 10 values", "[plugins][TESTPLUGIN
 
 TEST_CASE( "Test array subsetting - take last 10 values", "[plugins][TESTPLUGIN]" )
 {
-//    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [-10:])", "");
-    int handle = udaGetAPI("TESTPLUGIN::array1dtest()[-10:]", "");
+//    const int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [-10:])", "");
+    const int handle = udaGetAPI("TESTPLUGIN::array1dtest()[-10:]", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1888,8 +1890,8 @@ TEST_CASE( "Test array subsetting - take last 10 values", "[plugins][TESTPLUGIN]
 
 TEST_CASE( "Test array subsetting - take every 5th value", "[plugins][TESTPLUGIN]" )
 {
-//    int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [::5])", "");
-    int handle = udaGetAPI("TESTPLUGIN::array1dtest()[::5]", "");
+//    const int handle = udaGetAPI("SS::Subset(\"TESTPLUGIN::array1dtest()\", [::5])", "");
+    const int handle = udaGetAPI("TESTPLUGIN::array1dtest()[::5]", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1909,7 +1911,7 @@ TEST_CASE( "Test array subsetting - take every 5th value", "[plugins][TESTPLUGIN
 
 TEST_CASE( "Test array subsetting - reverse elements", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::array1dtest()[::-1]", "");
+    const int handle = udaGetAPI("TESTPLUGIN::array1dtest()[::-1]", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1929,7 +1931,7 @@ TEST_CASE( "Test array subsetting - reverse elements", "[plugins][TESTPLUGIN]" )
 
 TEST_CASE( "Test array subsetting with argument with square brackets", "[plugins][TESTPLUGIN]" )
 {
-    int handle = udaGetAPI("TESTPLUGIN::array1dtest(args=[0;0])[0:10]", "");
+    const int handle = udaGetAPI("TESTPLUGIN::array1dtest(args=[0;0])[0:10]", "");
 
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
@@ -1961,178 +1963,143 @@ TEST_CASE( "Test array subsetting - index scalar with [0]", "[plugins][TESTPLUGI
     REQUIRE( *value == 7 );
 }
 
-// TEST_CASE( "Run call_plugin_test - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::call_plugin_test()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto* array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 100 );
-//     REQUIRE( vec[0] == Approx(0.0) );
-//     REQUIRE( vec[1] == Approx(1.0) );
-//     REQUIRE( vec[2] == Approx(2.0) );
-//     REQUIRE( vec[3] == Approx(3.0) );
-//     REQUIRE( vec[4] == Approx(4.0) );
-// }
-//
-// TEST_CASE( "Run call_plugin_test_index - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::call_plugin_test_index()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto* array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 1 );
-//     REQUIRE( vec[0] == Approx(25.0) );
-// }
-//
-// TEST_CASE( "Run call_plugin_test_slice - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::call_plugin_test_slice()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( !data->isNull() );
-//     REQUIRE( data_type == typeid(double).name() );
-//
-//     auto* array = dynamic_cast<uda::Array*>(data);
-//
-//     REQUIRE( array != nullptr );
-//
-//     auto vec = array->as<double>();
-//
-//     REQUIRE( vec.size() == 10 );
-//     REQUIRE( vec[0] == Approx(10.0) );
-//     REQUIRE( vec[1] == Approx(11.0) );
-//     REQUIRE( vec[2] == Approx(12.0) );
-//     REQUIRE( vec[3] == Approx(13.0) );
-//     REQUIRE( vec[4] == Approx(14.0) );
-// }
-//
-// // TODO: stride seems to be broken
-// //TEST_CASE( "Run call_plugin_test_stride - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
-// //{
-// ////
-// //    uda::Client client;
-// //
-// //    int handle = udaGetAPI("TESTPLUGIN::call_plugin_test_stide()", "");
-// //
-// //    REQUIRE( handle >= 0 );
-// //    REQUIRE( udaGetErrorCode(handle) == 0 );
-// //
-// //    const char* data = udaGetData(handle);
-// //
-// //    REQUIRE( data != nullptr );
-// //    REQUIRE( !data->isNull() );
-// //    REQUIRE( data_type == typeid(double).name() );
-// //
-// //    auto* array = dynamic_cast<uda::Array*>(data);
-// //
-// //    REQUIRE( array != nullptr );
-// //
-// //    auto vec = array->as<double>();
-// //
-// //    REQUIRE( vec.size() == 50 );
-// //    REQUIRE( vec[0] == Approx(0.0) );
-// //    REQUIRE( vec[1] == Approx(2.0) );
-// //    REQUIRE( vec[2] == Approx(4.0) );
-// //    REQUIRE( vec[3] == Approx(6.0) );
-// //    REQUIRE( vec[4] == Approx(8.0) );
-// //}
-//
-// TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
-// {
-//     int handle = udaGetAPI("TESTPLUGIN::emptytest()", "");
-//
-//     REQUIRE( handle >= 0 );
-//     REQUIRE( udaGetErrorCode(handle) == 0 );
-//
-//     const char* data = udaGetData(handle);
-//
-//     REQUIRE( data != nullptr );
-//     REQUIRE( data->isNull() );
-// }
-//
-// #ifdef CAPNP_ENABLED
-// TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
-// {
-//
-//     int handle = udaGetAPI("TESTPLUGIN::capnp_test()", "");
-//     REQUIRE( handle >= 0 );
-//
-//     int ec = udaGetErrohandleode(handle);
-//     REQUIRE( ec == 0 );
-//
-//     const char* error = udaGetErrorMsg(handle);
-//     std::string error_string = error == nullptr ? "" : error;
-//     REQUIRE( error_string.empty() );
-//
-//     auto data_type = udaGetDataType(handle);
-//     REQUIRE( data_type == UDA_TYPE_CAPNP );
-//
-//     auto data = udaGetData(handle);
-//     REQUIRE( data != nullptr );
-//
-//     auto data_n = udaGetDataNum(handle);
-//     REQUIRE( data_n >= 0 );
-//
-//     auto tree = uda_capnp_deserialise(data, data_n);
-//
-// //    uda_capnp_print_tree_reader(tree);
-//
-//     auto root = uda_capnp_read_root(tree);
-//     auto node = uda_capnp_read_child(tree, root, "double_array");
-//     REQUIRE( node != nullptr );
-//
-//     auto maybe_rank = uda_capnp_read_rank(node);
-//     REQUIRE( maybe_rank.has_value );
-//     REQUIRE( maybe_rank.value == 1 );
-//
-//     auto rank = maybe_rank.value;
-//
-//     size_t shape[1];
-//     bool ok = uda_capnp_read_shape(node, shape);
-//     REQUIRE( ok );
-//     REQUIRE( shape[0] == 30 );
-//
-//     size_t num_slices = uda_capnp_read_num_slices(node);
-//     REQUIRE( num_slices == 1 );
-//
-//     double array[30];
-//     ok = uda_capnp_read_data(node, 0, reinterpret_cast<char*>(&array));
-//     REQUIRE( ok );
-//
-//     REQUIRE( array[0] == Approx(0.0) );
-//     REQUIRE( array[10] == Approx(1.0) );
-//     REQUIRE( array[29] == Approx(2.9) );
-// }
-// #endif // CAPNP_ENABLED
+TEST_CASE( "Run call_plugin_test - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
+{
+    const int handle = udaGetAPI("TESTPLUGIN::call_plugin_test()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 100 );
+
+    auto vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(1.0) );
+    REQUIRE( vec[2] == Approx(2.0) );
+    REQUIRE( vec[3] == Approx(3.0) );
+    REQUIRE( vec[4] == Approx(4.0) );
+}
+
+TEST_CASE( "Run call_plugin_test_index - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
+{
+    const int handle = udaGetAPI("TESTPLUGIN::call_plugin_test_index()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 1 );
+
+    auto value = reinterpret_cast<const double*>(data);
+    REQUIRE( *value == Approx(25.0) );
+}
+
+TEST_CASE( "Run call_plugin_test_slice - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
+{
+    const int handle = udaGetAPI("TESTPLUGIN::call_plugin_test_slice()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 10 );
+
+    auto vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(10.0) );
+    REQUIRE( vec[1] == Approx(11.0) );
+    REQUIRE( vec[2] == Approx(12.0) );
+    REQUIRE( vec[3] == Approx(13.0) );
+    REQUIRE( vec[4] == Approx(14.0) );
+}
+
+TEST_CASE( "Run call_plugin_test_stride - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
+{
+    const int handle = udaGetAPI("TESTPLUGIN::call_plugin_test_stride()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    REQUIRE( udaGetDataNum(handle) == 50 );
+
+    auto vec = reinterpret_cast<const double*>(data);
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(2.0) );
+    REQUIRE( vec[2] == Approx(4.0) );
+    REQUIRE( vec[3] == Approx(6.0) );
+    REQUIRE( vec[4] == Approx(8.0) );
+}
+
+TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
+{
+    const int handle = udaGetAPI("TESTPLUGIN::emptytest()", "");
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* data = udaGetData(handle);
+
+    REQUIRE( data == nullptr );
+    REQUIRE( udaGetDataNum(handle) == 0 );
+}
+
+#ifdef CAPNP_ENABLED
+TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
+{
+    const int handle = udaGetAPI("TESTPLUGIN::capnp_test()", "");
+    REQUIRE( handle >= 0 );
+
+    REQUIRE( handle >= 0 );
+    REQUIRE( udaGetErrorCode(handle) == 0 );
+
+    const char* error = udaGetErrorMsg(handle);
+    std::string error_string = error == nullptr ? "" : error;
+    REQUIRE( error_string.empty() );
+
+    auto data_type = udaGetDataType(handle);
+    REQUIRE( data_type == UDA_TYPE_CAPNP );
+
+    auto data = udaGetData(handle);
+    REQUIRE( data != nullptr );
+
+    auto data_n = udaGetDataNum(handle);
+    REQUIRE( data_n >= 0 );
+
+    auto tree = uda_capnp_deserialise(data, data_n);
+
+//    uda_capnp_print_tree_reader(tree);
+
+    auto root = uda_capnp_read_root(tree);
+    auto node = uda_capnp_read_child(tree, root, "double_array");
+    REQUIRE( node != nullptr );
+
+    auto [has_value, value] = uda_capnp_read_rank(node);
+    REQUIRE( has_value );
+    REQUIRE( value == 1 );
+
+    size_t shape[1];
+    bool ok = uda_capnp_read_shape(node, shape);
+    REQUIRE( ok );
+    REQUIRE( shape[0] == 30 );
+
+    size_t num_slices = uda_capnp_read_num_slices(node);
+    REQUIRE( num_slices == 1 );
+
+    double array[30];
+    ok = uda_capnp_read_data(node, 0, reinterpret_cast<char*>(&array));
+    REQUIRE( ok );
+
+    REQUIRE( array[0] == Approx(0.0) );
+    REQUIRE( array[10] == Approx(1.0) );
+    REQUIRE( array[29] == Approx(2.9) );
+}
+#endif // CAPNP_ENABLED
