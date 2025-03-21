@@ -106,13 +106,16 @@ class Config
     void load(std::string_view file_name);
     void load(std::istream& stream, std::string_view source_path);
     void load_in_memory();
+
     [[nodiscard]] Option get(std::string_view name) const;
     [[nodiscard]] std::vector<std::unordered_map<std::string, Option>> get_array(std::string_view name) const;
+
     void set(std::string_view name, const std::string& value) const;
     void set(std::string_view name, const char* value) const;
     void set(std::string_view name, bool value) const;
     void set(std::string_view name, int64_t value) const;
     void set(std::string_view name, double value) const;
+
     void print() const;
     explicit operator bool() const
     {

@@ -53,7 +53,7 @@ macro( uda_plugin )
   
   install(
     TARGETS ${PLUGIN_LIBNAME}
-    DESTINATION lib/plugins
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/plugins
   )
 
   install(

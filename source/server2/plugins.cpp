@@ -2,7 +2,7 @@
 #include <dlfcn.h>
 #include <string>
 #include <filesystem>
-#include <memory>
+#include <set>
 
 #include "plugins.hpp"
 
@@ -95,15 +95,22 @@ void uda::server::Plugins::load_plugin(const std::filesystem::path& library)
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Plugin {} successfully loaded", plugin.name)
+    // TODO: check to see if plugin with that name already exists and error if so
     _plugins.emplace_back(std::move(plugin));
 }
 
 void uda::server::Plugins::discover_plugins_in_directory(const std::filesystem::path& directory)
 {
+    std::set<std::filesystem::path> libraries;
     for (const auto& entry : std::filesystem::directory_iterator{directory}) {
-        if (entry.is_regular_file() && !std::filesystem::is_symlink(entry)) {
-            if (entry.path().extension() == SHARED_LIBRARY_SUFFIX) {
-                load_plugin(entry.path());
+        if (entry.is_regular_file() && entry.path().extension() == SHARED_LIBRARY_SUFFIX) {
+            std::filesystem::path path = entry;
+            while (is_symlink(path)) {
+                path = directory / read_symlink(path);
+            }
+            if (libraries.count(path) == 0) {
+                load_plugin(path);
+                libraries.insert(path);
             }
         }
     }
