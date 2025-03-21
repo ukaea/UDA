@@ -41,6 +41,10 @@ target_include_directories( server-exe PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMA
 target_link_libraries( server-exe PRIVATE Boost::boost fmt::fmt ${RPC_LIB} )
 target_link_libraries( server-exe PRIVATE server authentication common config structures logging client_server cache protocol )
 
+set_target_properties( server-exe
+  PROPERTIES
+  OUTPUT_NAME uda_server
+)
 install( TARGETS server-exe
   DESTINATION bin
 )
@@ -53,6 +57,7 @@ string( REPLACE ";" ":" EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS}" )
 set( ETC_FILES
   udaserver.sh
   udaserver.cfg
+  uda_server.toml
   xinetd.conf
   rc.uda
   README.md

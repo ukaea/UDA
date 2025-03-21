@@ -1,0 +1,18 @@
+[server]
+is_proxy = false
+proxy_target = ""
+
+[request]
+delim = "::"
+default_device = "MAST"
+default_archive = "MAST"
+
+[plugins]
+debug_single_file = true
+directories = "@CMAKE_INSTALL_PREFIX@/lib/plugins"
+metadata_plugin = ""
+
+[logging]
+path = "@CMAKE_INSTALL_PREFIX@/etc"
+mode = "a"
+level = 1

@@ -17,9 +17,14 @@ using namespace uda::config;
 
 int main()
 {
+    const char* server_config_path = getenv("UDA_SERVER_CONFIG_PATH");
+    if (server_config_path == nullptr) {
+        server_config_path = "uda_server.toml";
+    }
+
     Config config;
     try {
-        config.load("uda_server.toml");
+        config.load(server_config_path);
     } catch (ConfigError& error) {
         std::cerr << error.what() << std::endl;
         return -1;

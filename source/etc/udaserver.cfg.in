@@ -3,6 +3,7 @@
 #------------------------------------------------------------------------------------------------------
 
 export UDA_ROOT=@CMAKE_INSTALL_PREFIX@
+export UDA_SERVER_CONFIG_PATH=@CMAKE_INSTALL_PREFIX@/etc/uda_server.toml
 
 #------------------------------------------------------------------------------------------------------
 # UDA Logging mode
