@@ -67,7 +67,9 @@ set( ETC_FILES
 )
 
 set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
-set( INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR} )
+
+include( GNUInstallDirs )
+set( INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" )
 
 foreach( ETC_FILE ${ETC_FILES} )
   configure_file(

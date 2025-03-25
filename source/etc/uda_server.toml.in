@@ -9,7 +9,7 @@ default_archive = "MAST"
 
 [plugins]
 debug_single_file = true
-directories = "@CMAKE_INSTALL_PREFIX@/@INSTALL_LIBDIR@/plugins"
+directories = "@INSTALL_LIBDIR@/plugins"
 metadata_plugin = ""
 
 [logging]
