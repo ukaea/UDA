@@ -38,5 +38,5 @@ export UDA_PLUGIN_DEBUG_SINGLEFILE=1
 #------------------------------------------------------------------------------------------------------
 # Setup required dynamic library paths
 
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_INSTALL_PREFIX@/@INSTALL_LIBDIR@"
 export DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
