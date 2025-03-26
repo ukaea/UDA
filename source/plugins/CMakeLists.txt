@@ -20,13 +20,14 @@ set( SRCS
 )
 
 add_library( plugins ${SRCS} )
+# target_include_directories( plugins PUBLIC Boost::headers )
 target_include_directories( plugins PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
 target_include_directories( plugins
   PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-target_link_libraries( plugins PRIVATE Boost::filesystem )
+target_link_libraries( plugins PRIVATE Boost::filesystem PUBLIC Boost::boost Boost::headers )
 target_link_libraries( plugins PRIVATE
   "$<BUILD_INTERFACE:authentication>"
   "$<BUILD_INTERFACE:cache>"

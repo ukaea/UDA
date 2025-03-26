@@ -8,7 +8,7 @@
 #include <uda/plugins.h>
 #include <uda/structured.h>
 #include <uda/types.h>
-#include "clientserver/version.h"
+#include "uda/version.h"
 
 #ifdef __cplusplus
 #  include <uda/uda_plugin_base.hpp>

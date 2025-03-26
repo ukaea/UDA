@@ -5,12 +5,17 @@
 
 using namespace uda::client_server;
 
-std::once_flag uda::client::ThreadClient::init_flag_ = {};
-uda::client::Client* uda::client::ThreadClient::instance_ = nullptr;
+thread_local bool uda::client::ThreadClient::init_flag_ = false;
+thread_local uda::client::Client* uda::client::ThreadClient::instance_ = nullptr;
 
 uda::client::Client& uda::client::ThreadClient::instance() noexcept
 {
-    std::call_once(init_flag_, &ThreadClient::init_client);
+    // std::call_once(init_flag_, &ThreadClient::init_client);
+    if (!init_flag_)
+    {
+        init_client();
+        init_flag_ = true;
+    }
     return *instance_;
 }
 

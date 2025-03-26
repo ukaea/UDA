@@ -25,6 +25,11 @@ if( ENABLE_CAPNP )
     )
 endif()
 
+target_include_directories( c_api
+    PUBLIC
+    $<INSTALL_INTERFACE:include>
+)
+
 set_target_properties( c_api
   PROPERTIES
     OUTPUT_NAME uda_c

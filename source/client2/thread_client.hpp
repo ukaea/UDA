@@ -16,8 +16,8 @@ class ThreadClient
     ThreadClient() = default;
     ~ThreadClient() = default;
 
-    static Client* instance_;
-    static std::once_flag init_flag_;
+    static thread_local uda::client::Client* instance_;
+    static thread_local bool init_flag_;
 
     static void init_client() noexcept;
 };
