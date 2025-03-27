@@ -26,12 +26,11 @@ int udaGetAPI(const char* data_signal, const char* data_source)
         UDA_LOG(uda::logging::LogLevel::UDA_LOG_ERROR, ex.what());
         std::cout << "UDAException: " << ex.what() << std::endl;
         return -1;
-    } catch (std::exception& ex){
+    } catch (std::exception& ex) {
         UDA_LOG(uda::logging::LogLevel::UDA_LOG_ERROR, ex.what());
         std::cout << "std::exception: " << ex.what() << std::endl;
         return -1;
-    } catch (...)
-    {
+    } catch (...) {
         std::cout << "unknown error occurred? ¯\\_(ツ)_/¯ " << std::endl;
         return -1;
     }

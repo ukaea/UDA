@@ -27,14 +27,58 @@ extern "C" {
 #  define udaGetBatchAPIWithHost udaGetBatchAPIWithHostFat
 #endif
 
+/**
+ * Loads a client configuration from a specified config file.
+ *
+ * @param config_name The path of the configuration file to load.
+ */
 LIBRARY_API void udaLoadConfig(const char* config_name);
 
+/**
+ * The main UDA API function for data retrieval.
+ *
+ * Retrieves data from a data source using the specified data signal and source identifiers.
+ * Various patterns for data_source are supported including pulse numbers, file paths, and server URLs.
+ *
+ * @param data_signal Identifies the data signal to be accessed from the source.
+ * @param data_source Identifies the location of data (pulse number, file path, etc.).
+ * @return Status code (0 for success, negative value for error).
+ */
 LIBRARY_API int udaGetAPI(const char* data_signal, const char* data_source);
 
+/**
+ * Batch version of the main UDA API function for retrieving multiple signals in a single call.
+ *
+ * @param data_signals Array of data signal identifiers.
+ * @param data_sources Array of data source identifiers (must be the same length as data_signals).
+ * @param count The number of signals to retrieve.
+ * @param handles Output array to store the returned handles (must be pre-allocated to size count).
+ * @return Status code (0 for success, negative value for error).
+ */
 LIBRARY_API int udaGetBatchAPI(const char** data_signals, const char** data_sources, int count, int* handles);
 
+/**
+ * Extended version of udaGetAPI that allows specifying a custom host and port.
+ *
+ * @param data_signal Identifies the data signal to be accessed from the source.
+ * @param data_source Identifies the location of data (pulse number, file path, etc.).
+ * @param host The hostname or IP address of the UDA server (nullptr to use default server).
+ * @param port The port number of the UDA server (0 to use default port).
+ * @return Status code (0 for success, negative value for error).
+ */
 LIBRARY_API int udaGetAPIWithHost(const char* data_signal, const char* data_source, const char* host, int port);
 
+/**
+ * Extended version of udaGetBatchAPI that allows specifying a custom host and port.
+ *
+ * @param data_signals Array of data signal identifiers.
+ * @param data_sources Array of data source identifiers (must be the same length as data_signals).
+ * @param count The number of signals to retrieve.
+ * @param handles Output array to store the returned handles (must be pre-allocated to size count).
+ * @param host The hostname or IP address of the UDA server (nullptr to use default server).
+ * @param port The port number of the UDA server (0 to use default port).
+ * @return Status code (0 for success, negative value for error).
+ */
 LIBRARY_API int udaGetBatchAPIWithHost(const char** data_signals, const char** data_sources, int count, int* handles,
                                        const char* host, int port);
 
