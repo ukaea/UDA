@@ -82,9 +82,43 @@ LIBRARY_API int udaGetAPIWithHost(const char* data_signal, const char* data_sour
 LIBRARY_API int udaGetBatchAPIWithHost(const char** data_signals, const char** data_sources, int count, int* handles,
                                        const char* host, int port);
 
-LIBRARY_API int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK*, size_t count);
+/**
+ * Puts a list of data blocks to the server.
+ *
+ * @param put_instruction Instruction string specifying the put operation.
+ * @param put_data_block_list_in Array (list) of PUTDATA_BLOCK structures containing the data to be written.
+ * @param count Number of data blocks in the array.
+ * @return Status code (0 for success, negative value for error).
+ */
+LIBRARY_API int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK* put_data_block_list_in, size_t count);
 
-LIBRARY_API int udaPutAPI(const char* put_instruction, PUTDATA_BLOCK*);
+/**
+ * Puts a single data block to the server.
+ *
+ * @param put_instruction Instruction string specifying the put operation.
+ * @param putdata_block_in PUTDATA_BLOCK structure containing the data to be written.
+ * @return Status code (0 for success, negative value for error).
+ */
+LIBRARY_API int udaPutAPI(const char* put_instruction, PUTDATA_BLOCK* putdata_block_in);
+
+/**
+ * Creates a new data block structure for use with the put API.
+ *
+ * @param data_type The UDA data type for the data block.
+ * @param count The number of elements in the data array.
+ * @param rank The dimensionality of the data (1 for vector, 2 for matrix, etc.).
+ * @param shape Array of dimensions, with length equal to rank.
+ * @param data Pointer to the data to be included in the block.
+ * @return A pointer to newly allocated PUTDATA_BLOCK structure.
+ */
+LIBRARY_API PUTDATA_BLOCK* udaNewPutDataBlock(UDA_TYPE data_type, int count, int rank, int* shape, const char* data);
+
+/**
+ * Frees a PUTDATA_BLOCK structure previously allocated with udaNewPutDataBlock.
+ *
+ * @param opaque_putdata_block Pointer to the PUTDATA_BLOCK structure to free.
+ */
+LIBRARY_API void udaFreePutDataBlock(PUTDATA_BLOCK* opaque_putdata_block);
 
 LIBRARY_API void udaFree(int handle);
 
@@ -147,10 +181,6 @@ LIBRARY_API const char* udaGetErrorMessage(int err_num);
 LIBRARY_API int udaGetErrorCode(int err_num);
 
 LIBRARY_API const char* udaGetErrorLocation(int err_num);
-
-LIBRARY_API PUTDATA_BLOCK* udaNewPutDataBlock(UDA_TYPE data_type, int count, int rank, int* shape, const char* data);
-
-LIBRARY_API void udaFreePutDataBlock(PUTDATA_BLOCK*);
 
 LIBRARY_API LOGMALLOCLIST* udaGetLogMallocList(int handle);
 

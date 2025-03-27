@@ -3,11 +3,9 @@
 
 #include "client2/thread_client.hpp"
 #include "clientserver/init_structs.h"
-#include "logging/logging.h"
 
 using namespace uda::client_server;
 using namespace uda::client;
-using namespace uda::logging;
 
 int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK* put_data_block_list_in, size_t count)
 {
