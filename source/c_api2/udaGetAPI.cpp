@@ -5,7 +5,6 @@
 #include "client2/exceptions.hpp"
 #include "logging/logging.h"
 
-#include <unordered_map>
 #include <iostream>
 
 void udaLoadConfig(const char* config_name) {
@@ -28,11 +27,11 @@ int udaGetAPI(const char* data_object, const char* data_source)
         return -1;
     } catch (std::exception& ex){
         UDA_LOG(uda::logging::LogLevel::UDA_LOG_ERROR, ex.what());
-        std::cout << "std::excpetion: " << ex.what() << std::endl;
+        std::cout << "std::exception: " << ex.what() << std::endl;
         return -1;
     } catch (...)
     {
-        std::cout << "unnknown error occurred? ¯\\_(ツ)_/¯ " << std::endl;
+        std::cout << "unknown error occurred? ¯\\_(ツ)_/¯ " << std::endl;
         return -1;
     }
 }
