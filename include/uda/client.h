@@ -29,13 +29,13 @@ extern "C" {
 
 LIBRARY_API void udaLoadConfig(const char* config_name);
 
-LIBRARY_API int udaGetAPI(const char* data_object, const char* data_source);
+LIBRARY_API int udaGetAPI(const char* data_signal, const char* data_source);
 
-LIBRARY_API int udaGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles);
+LIBRARY_API int udaGetBatchAPI(const char** data_signals, const char** data_sources, int count, int* handles);
 
-LIBRARY_API int udaGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port);
+LIBRARY_API int udaGetAPIWithHost(const char* data_signal, const char* data_source, const char* host, int port);
 
-LIBRARY_API int udaGetBatchAPIWithHost(const char** uda_signals, const char** sources, int count, int* handles,
+LIBRARY_API int udaGetBatchAPIWithHost(const char** data_signals, const char** data_sources, int count, int* handles,
                                        const char* host, int port);
 
 LIBRARY_API int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK*, size_t count);

@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+// Could be moved, doesn't quite fit here
 void udaLoadConfig(const char* config_name) {
     try {
         auto& client = uda::client::ThreadClient::instance();
@@ -16,11 +17,11 @@ void udaLoadConfig(const char* config_name) {
     }
 }
 
-int udaGetAPI(const char* data_object, const char* data_source)
+int udaGetAPI(const char* data_signal, const char* data_source)
 {
     auto& client = uda::client::ThreadClient::instance();
     try {
-        return client.get(data_object, data_source);
+        return client.get(data_signal, data_source);
     } catch (uda::exceptions::UDAException& ex) {
         UDA_LOG(uda::logging::LogLevel::UDA_LOG_ERROR, ex.what());
         std::cout << "UDAException: " << ex.what() << std::endl;
@@ -55,13 +56,13 @@ int udaGetBatchAPI(const char** data_signals, const char** data_sources, int cou
     }
 }
 
-int udaGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
+int udaGetAPIWithHost(const char* data_signal, const char* data_source, const char* host, int port)
 {
     auto& client = uda::client::ThreadClient::instance();
     client.set_host(host);
     client.set_port(port);
     try {
-        return client.get(data_object, data_source);
+        return client.get(data_signal, data_source);
     } catch (uda::exceptions::UDAException& ex) {
         return -1;
     }
