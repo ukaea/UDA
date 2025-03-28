@@ -125,20 +125,52 @@ LIBRARY_API void udaFree(int handle);
 LIBRARY_API void udaFreeAll();
 
 /**
- * Get the date that the client c-library was built.
+ * Gets the date when the client library was built.
+ *
+ * @return String containing the build date.
  */
 LIBRARY_API const char* udaGetClientBuildDate();
 
+/**
+ * Gets the client library version as a formatted string.
+ *
+ * @param version_string Pre-allocated char buffer to receive the version string.
+ */
 LIBRARY_API void udaGetClientVersionString(char* version_string);
 
+/**
+ * Gets the client library version as a single integer.
+ *
+ * @return The client version encoded as a single integer.
+ */
 LIBRARY_API int udaGetClientVersion();
 
+/**
+ * Gets the major version component of the client library.
+ *
+ * @return The major version number.
+ */
 LIBRARY_API int udaGetClientVersionMajor();
 
+/**
+ * Gets the minor version component of the client library.
+ *
+ * @return The minor version number.
+ */
 LIBRARY_API int udaGetClientVersionMinor();
 
+/**
+ * Gets the bugfix (patch) version component of the client library.
+ *
+ * @return The bugfix version number.
+ */
 LIBRARY_API int udaGetClientVersionBugfix();
 
+/**
+ * Gets the delta version component of the client library.
+ *
+ * @return The delta version number.
+ */
 LIBRARY_API int udaGetClientVersionDelta();
 
 LIBRARY_API const char* udaGetServerHost();
