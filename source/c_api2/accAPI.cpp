@@ -513,16 +513,6 @@ const char* udaGetErrorMessage(int err_num)
     return "no error found";
 }
 
-const char* udaGetErrorLocation(int err_num)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto& error_stack = instance.error_stack();
-    if (err_num > 0 && err_num < static_cast<int>(error_stack.size())) {
-        return error_stack[err_num].location;
-    }
-    return "no error found";
-}
-
 int udaGetServerErrorStackSize() {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto* server_block = instance.server_block();
