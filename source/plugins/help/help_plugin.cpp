@@ -84,7 +84,6 @@ int HelpPlugin::services(UDA_PLUGIN_INTERFACE* plugin_interface)
     doc = fmt::format("\nTotal number of registered plugins available: {}\n", count);
 
     for (int j = 0; j < 5; j++) {
-        count = 0;
         doc += line;
         switch (j) {
             case 0: {
