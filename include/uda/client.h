@@ -180,14 +180,14 @@ LIBRARY_API int udaGetClientVersionBugfix();
 LIBRARY_API int udaGetClientVersionDelta();
 
 /**
- * Gets the hostname of the currently connected UDA server.
+ * Gets the hostname of the UDA server to be used.
  *
  * @return String containing the server hostname.
  */
 LIBRARY_API const char* udaGetServerHost();
 
 /**
- * Gets the port number of the currently connected UDA server.
+ * Gets the port number of the UDA server to be used.
  *
  * @return The server port number.
  */
