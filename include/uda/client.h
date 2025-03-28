@@ -173,20 +173,60 @@ LIBRARY_API int udaGetClientVersionBugfix();
  */
 LIBRARY_API int udaGetClientVersionDelta();
 
+/**
+ * Gets the hostname of the currently connected UDA server.
+ *
+ * @return String containing the server hostname.
+ */
 LIBRARY_API const char* udaGetServerHost();
 
+/**
+ * Gets the port number of the currently connected UDA server.
+ *
+ * @return The server port number.
+ */
 LIBRARY_API int udaGetServerPort();
 
+/**
+ * Gets the server version as a formatted string.
+ *
+ * @param version_string Pre-allocated char buffer to receive the version string.
+ */
 LIBRARY_API void udaGetServerVersionString(char* version_string);
 
+/**
+ * Gets the server version as a single integer.
+ *
+ * @return The server version encoded as a single integer.
+ */
 LIBRARY_API int udaGetServerVersion();
 
+/**
+ * Gets the major version component of the server.
+ *
+ * @return The major version number.
+ */
 LIBRARY_API int udaGetServerVersionMajor();
 
+/**
+ * Gets the minor version component of the server.
+ *
+ * @return The minor version number.
+ */
 LIBRARY_API int udaGetServerVersionMinor();
 
+/**
+ * Gets the bugfix (patch) version component of the server.
+ *
+ * @return The bugfix version number.
+ */
 LIBRARY_API int udaGetServerVersionBugfix();
 
+/**
+ * Gets the delta version component of the server.
+ *
+ * @return The delta version number.
+ */
 LIBRARY_API int udaGetServerVersionDelta();
 
 LIBRARY_API int udaGetServerErrorCode();
