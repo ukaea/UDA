@@ -430,7 +430,7 @@ void udaGetClientVersionString(char* version_string)
     snprintf(version_string, UDA_VERSION_STRING_LENGTH, "%s", UDA_BUILD_VERSION);
 }
 
-const char* udaGetBuildDate()
+const char* udaGetClientBuildDate()
 {
     return UDA_BUILD_DATE;
 }

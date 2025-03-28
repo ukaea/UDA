@@ -127,11 +127,7 @@ LIBRARY_API void udaFreeAll();
 /**
  * Get the date that the client c-library was built.
  */
-LIBRARY_API const char* udaGetBuildDate();
-
-LIBRARY_API const char* udaGetServerHost();
-
-LIBRARY_API int udaGetServerPort();
+LIBRARY_API const char* udaGetClientBuildDate();
 
 LIBRARY_API void udaGetClientVersionString(char* version_string);
 
@@ -144,6 +140,10 @@ LIBRARY_API int udaGetClientVersionMinor();
 LIBRARY_API int udaGetClientVersionBugfix();
 
 LIBRARY_API int udaGetClientVersionDelta();
+
+LIBRARY_API const char* udaGetServerHost();
+
+LIBRARY_API int udaGetServerPort();
 
 LIBRARY_API void udaGetServerVersionString(char* version_string);
 

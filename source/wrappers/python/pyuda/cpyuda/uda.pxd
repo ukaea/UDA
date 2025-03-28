@@ -11,7 +11,7 @@ cdef extern from "uda/client.h":
     int udaGetServerPort();
     void udaGetClientVersionString(char* version_string);
     void udaGetServerVersionString(char* version_string);
-    const char* udaGetBuildDate();
+    const char* udaGetClientBuildDate();
     void udaFree(int handle);
     # void udaCloseAllConnections();
 

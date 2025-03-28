@@ -81,7 +81,7 @@ def get_server_version():
 
 
 def get_build_date():
-    return uda.udaGetBuildDate()
+    return uda.udaGetClientBuildDate()
 
 
 def set_server_host_name(host_name):
