@@ -83,7 +83,7 @@ LIBRARY_API int udaGetBatchAPIWithHost(const char** data_signals, const char** d
                                        const char* host, int port);
 
 /**
- * Puts a list of data blocks to the server.
+ * Makes a request to the server with a data block list to put.
  *
  * @param put_instruction Instruction string specifying the put operation.
  * @param put_data_block_list_in Array (list) of PUTDATA_BLOCK structures containing the data to be written.
@@ -93,7 +93,7 @@ LIBRARY_API int udaGetBatchAPIWithHost(const char** data_signals, const char** d
 LIBRARY_API int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK* put_data_block_list_in, size_t count);
 
 /**
- * Puts a single data block to the server.
+ * Makes a request to the server with single data block to put.
  *
  * @param put_instruction Instruction string specifying the put operation.
  * @param putdata_block_in PUTDATA_BLOCK structure containing the data to be written.
