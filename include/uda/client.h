@@ -253,7 +253,7 @@ LIBRARY_API const char* udaGetErrorMessage(int err_num);
 
 LIBRARY_API const char* udaGetErrorMsg(int handle);
 
-LIBRARY_API int udaGetErrorCode(int err_num);
+LIBRARY_API int udaGetErrorCode(int handle);
 
 ///////////////////////////
 /*LIBRARY_API void udaPutErrorModel(int handle, int model, int param_n, const float* params);*/
