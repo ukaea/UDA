@@ -42,7 +42,8 @@ LIBRARY_API void udaLoadConfig(const char* config_name);
  *
  * @param data_signal Identifies the data signal to be accessed from the source.
  * @param data_source Identifies the location of data (pulse number, file path, etc.).
- * @return Status code (0 for success, negative value for error).
+ * @return A reference ID handle used to identify the accessed data in subsequent API calls.
+ *         Negative values indicate an error.
  */
 LIBRARY_API int udaGetAPI(const char* data_signal, const char* data_source);
 
@@ -53,7 +54,8 @@ LIBRARY_API int udaGetAPI(const char* data_signal, const char* data_source);
  * @param data_sources Array of data source identifiers (must be the same length as data_signals).
  * @param count The number of signals to retrieve.
  * @param handles Output array to store the returned handles (must be pre-allocated to size count).
- * @return Status code (0 for success, negative value for error).
+ * @return A reference ID handle used to identify the accessed data in subsequent API calls.
+ *         Negative values indicate an error.
  */
 LIBRARY_API int udaGetBatchAPI(const char** data_signals, const char** data_sources, int count, int* handles);
 
@@ -64,7 +66,8 @@ LIBRARY_API int udaGetBatchAPI(const char** data_signals, const char** data_sour
  * @param data_source Identifies the location of data (pulse number, file path, etc.).
  * @param host The hostname or IP address of the UDA server (nullptr to use default server).
  * @param port The port number of the UDA server (0 to use default port).
- * @return Status code (0 for success, negative value for error).
+ * @return A reference ID handle used to identify the accessed data in subsequent API calls.
+ *         Negative values indicate an error.
  */
 LIBRARY_API int udaGetAPIWithHost(const char* data_signal, const char* data_source, const char* host, int port);
 
@@ -77,7 +80,8 @@ LIBRARY_API int udaGetAPIWithHost(const char* data_signal, const char* data_sour
  * @param handles Output array to store the returned handles (must be pre-allocated to size count).
  * @param host The hostname or IP address of the UDA server (nullptr to use default server).
  * @param port The port number of the UDA server (0 to use default port).
- * @return Status code (0 for success, negative value for error).
+ * @return A reference ID handle used to identify the accessed data in subsequent API calls.
+ *         Negative values indicate an error.
  */
 LIBRARY_API int udaGetBatchAPIWithHost(const char** data_signals, const char** data_sources, int count, int* handles,
                                        const char* host, int port);
@@ -88,7 +92,8 @@ LIBRARY_API int udaGetBatchAPIWithHost(const char** data_signals, const char** d
  * @param put_instruction Instruction string specifying the put operation.
  * @param put_data_block_list_in Array (list) of PUTDATA_BLOCK structures containing the data to be written.
  * @param count Number of data blocks in the array.
- * @return Status code (0 for success, negative value for error).
+ * @return A reference ID handle used to identify the accessed data in subsequent API calls.
+ *         Negative values indicate an error.
  */
 LIBRARY_API int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK* put_data_block_list_in, size_t count);
 
@@ -97,7 +102,8 @@ LIBRARY_API int udaPutListAPI(const char* put_instruction, PUTDATA_BLOCK* put_da
  *
  * @param put_instruction Instruction string specifying the put operation.
  * @param putdata_block_in PUTDATA_BLOCK structure containing the data to be written.
- * @return Status code (0 for success, negative value for error).
+ * @return A reference ID handle used to identify the accessed data in subsequent API calls.
+ *         Negative values indicate an error.
  */
 LIBRARY_API int udaPutAPI(const char* put_instruction, PUTDATA_BLOCK* putdata_block_in);
 
