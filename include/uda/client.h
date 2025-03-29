@@ -250,6 +250,14 @@ LIBRARY_API const char* udaGetServerErrorStackRecordMsg(int record); // used in 
 LIBRARY_API void udaPutErrorModel(int handle, int model, int param_n, const float* params); // IDL
 
 LIBRARY_API void udaPutDimErrorModel(int handle, int n_dim, int model, int param_n, const float* params); // IDL
+// synthetic
+LIBRARY_API char* udaGenerateSyntheticDimData(int handle, int n_dim);
+LIBRARY_API char* udaGetSyntheticData(int handle);
+LIBRARY_API char* udaGetSyntheticDimData(int handle, int n_dim);
+LIBRARY_API void udaSetSyntheticData(int handle, char* data);
+LIBRARY_API void udaSetSyntheticDimData(int handle, int n_dim, char* data);
+
+
 //////////////////////////////////////////
 
 LIBRARY_API int udaNumErrors();
@@ -285,7 +293,6 @@ LIBRARY_API void udaSetDimErrType(int handle, int n_dim, int type);
 LIBRARY_API void udaSetDimErrLo(int handle, int n_dim, char* errlo);
 ////////////////////////////
 
-// To adam start here
 LIBRARY_API char* udaGetAsymmetricError(int handle, bool above);
 
 LIBRARY_API char* udaGetError(int handle);
@@ -357,6 +364,7 @@ LIBRARY_API int udaGetSignalStatus(int handle);
 
 LIBRARY_API int udaGetLastHandle();
 
+
 LIBRARY_API int udaGetDataStatus(int handle);
 
 LIBRARY_API int udaGetDataNum(int handle);
@@ -388,6 +396,8 @@ LIBRARY_API void udaGetDoubleData(int handle, double* data);
 LIBRARY_API void udaGetFloatData(int handle, float* data);
 
 LIBRARY_API void udaGetGenericData(int handle, void* data);
+
+
 
 LIBRARY_API const char* udaGetDataLabel(int handle);
 
