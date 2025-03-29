@@ -972,62 +972,6 @@ int udaGetDataErrorModelId(const char* model)
     return static_cast<int>(ErrorModelType::Unknown);
 }
 
-char* udaGetSyntheticDimData(int handle, int n_dim)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return nullptr;
-    }
-    return data_block->dims[n_dim].synthetic;
-}
-
-void udaSetSyntheticData(int handle, char* data)
-{
-    auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return;
-    }
-    data_block->synthetic = data;
-}
-
-void udaSetSyntheticDimData(int handle, int n_dim, char* data)
-{
-    auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return;
-    }
-    data_block->dims[n_dim].synthetic = data;
-}
-
-char* udaGetSyntheticData(int handle)
-{
-    auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-    const auto client_flags = instance.client_flags();
-
-    const int status = udaGetDataStatus(handle);
-    if (data_block == nullptr) {
-        return nullptr;
-    }
-    if (status == MIN_STATUS && !data_block->client_block.get_bad && !client_flags->get_bad) {
-        return nullptr;
-    }
-    if (status != MIN_STATUS && (data_block->client_block.get_bad || client_flags->get_bad)) {
-        return nullptr;
-    }
-    if (!client_flags->get_synthetic || data_block->error_model == static_cast<int>(ErrorModelType::Unknown)) {
-        return data_block->data;
-    }
-    uda::client::generate_synthetic_data(instance.error_stack(), handle);
-    return data_block->synthetic;
-}
-
 //!  Returns a pointer to the requested data
 /** The data may be synthetically generated.
 \param   handle   The data object handle
@@ -1049,11 +993,7 @@ char* udaGetData(int handle)
     if (status != MIN_STATUS && (data_block->client_block.get_bad || client_flags->get_bad)) {
         return nullptr;
     }
-    if (!client_flags->get_synthetic) {
-        return data_block->data;
-    } else {
-        return udaGetSyntheticData(handle);
-    }
+    return data_block->data;
 }
 
 //! Copy the requested data block to a data buffer for use in MDS+ TDI functions
@@ -2023,23 +1963,6 @@ void udaGetDimErrorModel(int handle, int n_dim, int* model, int* param_n, float*
     // *params  = data_block->dims[n_dim].errparams;        // Array of Model Parameters
 }
 
-char* udaGenerateSyntheticDimData(int handle, int n_dim)
-{
-    auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
-        return nullptr;
-    }
-
-    const auto client_flags = instance.client_flags();
-    if (!client_flags->get_synthetic || data_block->dims[n_dim].error_model == static_cast<int>(ErrorModelType::Unknown)) {
-        return data_block->dims[n_dim].dim;
-    }
-    uda::client::generate_synthetic_dim_data(instance.error_stack(), handle, n_dim);
-    return data_block->dims[n_dim].synthetic;
-}
-
 ///!  Returns a pointer to the requested coordinate data
 /** The data may be synthetically generated.
 \param   handle   The data object handle
@@ -2055,11 +1978,7 @@ char* udaGetDimData(int handle, int n_dim)
         return nullptr;
     }
 
-    const auto client_flags = instance.client_flags();
-    if (!client_flags->get_synthetic) {
-        return data_block->dims[n_dim].dim;
-    }
-    return udaGetSyntheticDimData(handle, n_dim);
+    return data_block->dims[n_dim].dim;
 }
 
 //! Returns the data label of a coordinate dimension

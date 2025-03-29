@@ -357,8 +357,6 @@ LIBRARY_API int udaGetSignalStatus(int handle);
 
 LIBRARY_API int udaGetLastHandle();
 
-LIBRARY_API char* udaGenerateSyntheticDimData(int handle, int n_dim);
-
 LIBRARY_API int udaGetDataStatus(int handle);
 
 LIBRARY_API int udaGetDataNum(int handle);
@@ -383,14 +381,6 @@ LIBRARY_API int udaGetDataTypeId(const char* type);
 
 LIBRARY_API int udaGetDataTypeSize(int type);
 
-LIBRARY_API char* udaGetSyntheticData(int handle);
-
-LIBRARY_API char* udaGetSyntheticDimData(int handle, int n_dim);
-
-LIBRARY_API void udaSetSyntheticData(int handle, char* data);
-
-LIBRARY_API void udaSetSyntheticDimData(int handle, int n_dim, char* data);
-
 LIBRARY_API char* udaGetData(int handle);
 
 LIBRARY_API void udaGetDoubleData(int handle, double* data);
@@ -398,8 +388,6 @@ LIBRARY_API void udaGetDoubleData(int handle, double* data);
 LIBRARY_API void udaGetFloatData(int handle, float* data);
 
 LIBRARY_API void udaGetGenericData(int handle, void* data);
-
-
 
 LIBRARY_API const char* udaGetDataLabel(int handle);
 
