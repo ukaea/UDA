@@ -354,6 +354,7 @@ LIBRARY_API int udaGetErrorCode(int handle);
 
 /**
  * Sets the UDA server host name and port number.
+ * Takes precendence over environment variables UDA_HOST, UDA_PORT
  *
  * @param host The hostname or IP address of the UDA server.
  * @param port The port number of the UDA server.
@@ -362,6 +363,7 @@ LIBRARY_API void udaPutServer(const char* host, int port);
 
 /**
  * Sets the UDA server host name.
+ * Takes precendence over environment variable UDA_HOST
  *
  * @param host The hostname or IP address of the UDA server.
  */
@@ -369,6 +371,7 @@ LIBRARY_API void udaPutServerHost(const char* host);
 
 /**
  * Sets the UDA server port number.
+ * Takes precendence over environment variable UDA_PORT
  *
  * @param port The port number of the UDA server.
  */
