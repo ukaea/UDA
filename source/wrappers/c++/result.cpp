@@ -180,7 +180,7 @@ template <typename T> uda::Data* getDataAs(int handle, uda::Result::DataType dat
     if (data_type == uda::Result::DataType::DATA) {
         data = reinterpret_cast<T*>(udaGetData(handle));
     } else {
-        data = reinterpret_cast<T*>(udaGetError(handle));
+        data = reinterpret_cast<T*>(udaGetDataError(handle, true));
     }
 
     if (udaGetRank(handle) == 0) {

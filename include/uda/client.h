@@ -269,7 +269,6 @@ LIBRARY_API const char* udaGetErrorMsg(int handle);
 LIBRARY_API int udaGetErrorCode(int handle);
 
 ///////////////////////////
-
 LIBRARY_API void udaGetDataErrorModel(int handle, int* model, int* param_n, float* params);
 
 LIBRARY_API int udaGetDataErrorType(int handle);
@@ -293,9 +292,8 @@ LIBRARY_API void udaSetDimErrType(int handle, int n_dim, int type);
 LIBRARY_API void udaSetDimErrLo(int handle, int n_dim, char* errlo);
 ////////////////////////////
 
-LIBRARY_API char* udaGetAsymmetricError(int handle, bool above);
-
-LIBRARY_API char* udaGetError(int handle);
+//changed
+LIBRARY_API char* udaGetDataError(int handle, bool above);
 
 LIBRARY_API void udaGetFloatAsymmetricError(int handle, bool above, float* data);
 

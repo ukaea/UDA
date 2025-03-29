@@ -1217,7 +1217,7 @@ void generate_asymmetic_errror(DataBlock* data_block, int n_data) {
     }
 }
 
-char* udaGetAsymmetricError(int handle, bool above)
+char* udaGetDataError(int handle, bool above)
 {
     auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
@@ -1337,18 +1337,18 @@ char* udaGetAsymmetricError(int handle, bool above)
 \param   handle   The data object handle
 \return  a pointer to the data
 */
-char* udaGetError(int handle)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    constexpr bool above = 1;
-    if (data_block == nullptr) {
-        return nullptr;
-    }
-    return udaGetAsymmetricError(handle, above);
-}
-
+/*char* udaGetError(int handle)*/
+/*{*/
+/*    const auto& instance = uda::client::ThreadClient::instance();*/
+/*    const auto data_block = instance.data_block(handle);*/
+/**/
+/*    constexpr bool above = 1;*/
+/*    if (data_block == nullptr) {*/
+/*        return nullptr;*/
+/*    }*/
+/*    return udaGetAsymmetricError(handle, above);*/
+/*}*/
+/**/
 //!  Returns data cast to double precision
 /** The copy buffer must be preallocated and sized for the data type. The data may be synthetically generated. If the status of the data is poor, no copy to the buffer occurs unless
 the property \b get_bad is set.
@@ -1714,7 +1714,7 @@ void udaGetFloatAsymmetricError(int handle, bool above, float* data)
     const int n_data = data_block->data_n;
 
     if (data_block->error_type == UDA_TYPE_UNKNOWN) {
-        udaGetAsymmetricError(handle, above);
+        udaGetDataError(handle, above);
     } // Create the Error Data prior to Casting
 
     switch (data_block->error_type) {
