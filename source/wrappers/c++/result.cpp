@@ -64,8 +64,8 @@ uda::Result::Result(int handle)
       units_(handle >= 0 ? udaGetDataUnits(handle) : ""), desc_(handle >= 0 ? udaGetDataDesc(handle) : ""),
       type_(handle >= 0 ? idamTypeToTypeID(udaGetDataType(handle)) : &typeid(void)),
       uda_type_(handle >= 0 ? udaGetDataType(handle) : UDA_TYPE_UNKNOWN),
-      rank_(handle >= 0 ? static_cast<dim_type>(udaGetRank(handle)) : 0),
-      size_(handle >= 0 ? static_cast<std::size_t>(udaGetDataNum(handle)) : 0)
+      rank_(handle >= 0 ? static_cast<dim_type>(udaGetDataRank(handle)) : 0),
+      size_(handle >= 0 ? static_cast<std::size_t>(udaGetDataCount(handle)) : 0)
 {
     if (handle >= 0 && (bool)udaGetProperty("get_meta")) {
         // TODO: fix reading all meta fields
@@ -91,12 +91,12 @@ uda::Result::~Result()
 
 const std::vector<size_t> uda::Result::shape() const
 {
-    size_t rank = static_cast<size_t>(udaGetRank(handle_));
+    size_t rank = static_cast<size_t>(udaGetDataRank(handle_));
 
     std::vector<size_t> shape(rank);
 
     for (size_t i = 0; i < rank; ++i) {
-        shape[i] = static_cast<size_t>(udaGetDimNum(handle_, static_cast<int>(i)));
+        shape[i] = static_cast<size_t>(udaGetDimCount(handle_, static_cast<int>(i)));
     }
 
     return shape;
@@ -107,26 +107,26 @@ template <typename T> static uda::Dim getDim(int handle, uda::dim_type num, uda:
     if (data_type == uda::Result::DataType::DATA) {
         std::string label = udaGetDimLabel(handle, num);
         std::string units = udaGetDimUnits(handle, num);
-        auto size = static_cast<size_t>(udaGetDimNum(handle, num));
+        auto size = static_cast<size_t>(udaGetDimCount(handle, num));
         auto data = reinterpret_cast<T*>(udaGetDimData(handle, num));
         return uda::Dim(num, data, size, label, units);
     }
 
     std::string label = udaGetDimLabel(handle, num);
     std::string units = udaGetDimUnits(handle, num);
-    auto size = static_cast<size_t>(udaGetDimNum(handle, num));
+    auto size = static_cast<size_t>(udaGetDimCount(handle, num));
     auto data = reinterpret_cast<T*>(udaGetDimError(handle, num, true));
     return uda::Dim(num, data, size, label + " error", units);
 }
 
 bool uda::Result::hasTimeDim() const
 {
-    return udaGetOrder(handle_) >= 0;
+    return udaGetDataOrder(handle_) >= 0;
 }
 
 uda::Dim uda::Result::timeDim(DataType data_type) const
 {
-    auto order = udaGetOrder(handle_);
+    auto order = udaGetDataOrder(handle_);
     if (order >= 0) {
         return dim(static_cast<dim_type>(order), data_type);
     }
@@ -183,9 +183,9 @@ template <typename T> uda::Data* getDataAs(int handle, uda::Result::DataType dat
         data = reinterpret_cast<T*>(udaGetDataError(handle, true));
     }
 
-    if (udaGetRank(handle) == 0) {
-        if (udaGetDataNum(handle) > 1) {
-            return new uda::Vector(data, (size_t)udaGetDataNum(handle));
+    if (udaGetDataRank(handle) == 0) {
+        if (udaGetDataCount(handle) > 1) {
+            return new uda::Vector(data, (size_t)udaGetDataCount(handle));
         }
         return new uda::Scalar(data[0]);
     } else {
@@ -204,16 +204,16 @@ uda::Data* getDataAsStringArray(int handle)
 {
     char* data = udaGetData(handle);
 
-    auto str_len = static_cast<size_t>(udaGetDimNum(handle, 0));
-    size_t arr_len = udaGetDataNum(handle) / str_len;
+    auto str_len = static_cast<size_t>(udaGetDimCount(handle, 0));
+    size_t arr_len = udaGetDataCount(handle) / str_len;
 
     auto strings = new std::vector<std::string>;
     std::vector<uda::Dim> dims;
 
-    auto rank = static_cast<uda::dim_type>(udaGetRank(handle));
+    auto rank = static_cast<uda::dim_type>(udaGetDataRank(handle));
     for (uda::dim_type dim_n = 1; dim_n < rank; ++dim_n) {
         auto dim_data = udaGetDimData(handle, dim_n);
-        auto dim_size = static_cast<size_t>(udaGetDimNum(handle, dim_n));
+        auto dim_size = static_cast<size_t>(udaGetDimCount(handle, dim_n));
         auto label = udaGetDimLabel(handle, dim_n);
         auto units = udaGetDimUnits(handle, dim_n);
         dims.emplace_back(
@@ -230,7 +230,7 @@ uda::Data* getDataAsStringArray(int handle)
 
 uda::Data* uda::Result::data() const
 {
-    auto rank = static_cast<dim_type>(udaGetRank(handle_));
+    auto rank = static_cast<dim_type>(udaGetDataRank(handle_));
 
     int type = udaGetDataType(handle_);
 
@@ -282,7 +282,7 @@ uda::Data* uda::Result::errors() const
     }
 
     std::vector<Dim> dims;
-    auto rank = static_cast<dim_type>(udaGetRank(handle_));
+    auto rank = static_cast<dim_type>(udaGetDataRank(handle_));
     for (dim_type i = 0; i < rank; ++i) {
         // XXX: error dimension data doesn't seem to actually be returned, so stick with standard dims for now
         dims.push_back(dim(i, DATA));

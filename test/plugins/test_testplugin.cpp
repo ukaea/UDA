@@ -97,7 +97,7 @@ TEST_CASE( "Run test0 - pass string as char array", "[plugins][TESTPLUGIN]" )
     REQUIRE( data != nullptr );
     REQUIRE( data_type == UDA_TYPE_CHAR );
 
-    int rank = udaGetRank(handle);
+    int rank = udaGetDataRank(handle);
     REQUIRE( rank == 1 );
 
     std::string str = data;
@@ -119,7 +119,7 @@ TEST_CASE( "Run test1 - pass string as string scalar", "[plugins][TESTPLUGIN]" )
     REQUIRE( data != nullptr );
     REQUIRE( data_type == UDA_TYPE_STRING );
 
-    int rank = udaGetRank(handle);
+    int rank = udaGetDataRank(handle);
     REQUIRE( rank == 1 );
 
     std::string str = data;
@@ -141,11 +141,11 @@ TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGI
     REQUIRE( data != nullptr );
     REQUIRE( data_type == UDA_TYPE_CHAR );
 
-    int rank = udaGetRank(handle);
+    int rank = udaGetDataRank(handle);
     REQUIRE( rank == 2 );
 
-    int dim0 = udaGetDimNum(handle, 0);
-    int dim1 = udaGetDimNum(handle, 1);
+    int dim0 = udaGetDimCount(handle, 0);
+    int dim1 = udaGetDimCount(handle, 1);
 
     REQUIRE( dim0 == 16 );
     REQUIRE( dim1 == 3 );
@@ -176,11 +176,11 @@ TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPL
     REQUIRE( data != nullptr );
     REQUIRE( data_type == UDA_TYPE_STRING );
 
-    int rank = udaGetRank(handle);
+    int rank = udaGetDataRank(handle);
     REQUIRE( rank == 2 );
 
-    int dim0 = udaGetDimNum(handle, 0);
-    int dim1 = udaGetDimNum(handle, 1);
+    int dim0 = udaGetDimCount(handle, 0);
+    int dim1 = udaGetDimCount(handle, 1);
 
     REQUIRE( dim0 == 16 );
     REQUIRE( dim1 == 3 );
@@ -962,7 +962,7 @@ TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
 
-    REQUIRE( udaGetRank(handle) == 0 );
+    REQUIRE( udaGetDataRank(handle) == 0 );
 
     const auto* data = reinterpret_cast<short*>(udaGetData(handle));
     REQUIRE( *data == 7 );
@@ -1836,7 +1836,7 @@ TEST_CASE( "Run array1dtest - return a simple 1d array value", "[plugins][TESTPL
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 100 );
+    REQUIRE( udaGetDataCount(handle) == 100 );
 
     auto* vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(0.0) );
@@ -1857,7 +1857,7 @@ TEST_CASE( "Test array subsetting - take first 10 values", "[plugins][TESTPLUGIN
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 10 );
+    REQUIRE( udaGetDataCount(handle) == 10 );
 
     auto vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(0.0) );
@@ -1878,7 +1878,7 @@ TEST_CASE( "Test array subsetting - take last 10 values", "[plugins][TESTPLUGIN]
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 10 );
+    REQUIRE( udaGetDataCount(handle) == 10 );
 
     auto vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(90.0) );
@@ -1899,7 +1899,7 @@ TEST_CASE( "Test array subsetting - take every 5th value", "[plugins][TESTPLUGIN
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 20 );
+    REQUIRE( udaGetDataCount(handle) == 20 );
 
     auto vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(0.0) );
@@ -1919,7 +1919,7 @@ TEST_CASE( "Test array subsetting - reverse elements", "[plugins][TESTPLUGIN]" )
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 100 );
+    REQUIRE( udaGetDataCount(handle) == 100 );
 
     auto vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(99.0) );
@@ -1939,7 +1939,7 @@ TEST_CASE( "Test array subsetting with argument with square brackets", "[plugins
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 10 );
+    REQUIRE( udaGetDataCount(handle) == 10 );
 
     auto vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(0.0) );
@@ -1973,7 +1973,7 @@ TEST_CASE( "Run call_plugin_test - return the result of calling a plugin", "[plu
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 100 );
+    REQUIRE( udaGetDataCount(handle) == 100 );
 
     auto vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(0.0) );
@@ -1993,7 +1993,7 @@ TEST_CASE( "Run call_plugin_test_index - return the result of calling a plugin",
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 1 );
+    REQUIRE( udaGetDataCount(handle) == 1 );
 
     auto value = reinterpret_cast<const double*>(data);
     REQUIRE( *value == Approx(25.0) );
@@ -2009,7 +2009,7 @@ TEST_CASE( "Run call_plugin_test_slice - return the result of calling a plugin",
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 10 );
+    REQUIRE( udaGetDataCount(handle) == 10 );
 
     auto vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(10.0) );
@@ -2029,7 +2029,7 @@ TEST_CASE( "Run call_plugin_test_stride - return the result of calling a plugin"
     const char* data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    REQUIRE( udaGetDataNum(handle) == 50 );
+    REQUIRE( udaGetDataCount(handle) == 50 );
 
     auto vec = reinterpret_cast<const double*>(data);
     REQUIRE( vec[0] == Approx(0.0) );
@@ -2049,7 +2049,7 @@ TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
     const char* data = udaGetData(handle);
 
     REQUIRE( data == nullptr );
-    REQUIRE( udaGetDataNum(handle) == 0 );
+    REQUIRE( udaGetDataCount(handle) == 0 );
 }
 
 #ifdef CAPNP_ENABLED
@@ -2071,7 +2071,7 @@ TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
     auto data = udaGetData(handle);
     REQUIRE( data != nullptr );
 
-    auto data_n = udaGetDataNum(handle);
+    auto data_n = udaGetDataCount(handle);
     REQUIRE( data_n >= 0 );
 
     auto tree = uda_capnp_deserialise(data, data_n);

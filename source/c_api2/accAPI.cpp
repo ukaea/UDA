@@ -668,7 +668,7 @@ int udaGetLastHandle()
 \param   handle   The data object handle
 \return  the number of data items
 */
-int udaGetDataNum(int handle)
+int udaGetDataCount(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
@@ -685,7 +685,7 @@ int udaGetDataNum(int handle)
 \param   handle   The data object handle
 \return  the rank
 */
-int udaGetRank(int handle)
+int udaGetDataRank(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
@@ -703,7 +703,7 @@ counted from left to right in c and from right to left in Fortran and IDL.
 \param   handle   The data object handle
 \return  the time coordinate dimension position
 */
-int udaGetOrder(int handle)
+int udaGetDataOrder(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
@@ -1503,7 +1503,7 @@ const char* udaGetDataDesc(int handle)
 \param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  the dimension size
 */
-int udaGetDimNum(int handle, int n_dim)
+int udaGetDimCount(int handle, int n_dim)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
