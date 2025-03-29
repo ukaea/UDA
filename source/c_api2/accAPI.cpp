@@ -1056,23 +1056,6 @@ char* udaGetData(int handle)
     }
 }
 
-//! Copy the requested data block to a data buffer for use in MDS+ TDI functions
-/**
-\param   handle   The data object handle
-\param   char  A preallocated memory block to receive a copy of the data
-\return  void
-*/
-void udaGetDataTdi(int handle, char* data)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return;
-    }
-    memcpy(data, (void*)data_block->data, (int)data_block->data_n);
-}
-
 char* udaGetDataErrLo(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1822,23 +1805,6 @@ const char* udaGetDataLabel(int handle)
     return data_block->data_label;
 }
 
-//!  Returns the data label of a data object for use in MDS+ TDI functions
-/**
-\param   handle   The data object handle
-\param   label   preallocated string buffer to receive the copy of the data label
-\return  void
-*/
-void udaGetDataLabelTdi(int handle, char* label)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return;
-    }
-    strcpy(label, data_block->data_label);
-}
-
 //!  Returns the data units of a data object
 /**
 \param   handle   The data object handle
@@ -1855,23 +1821,6 @@ const char* udaGetDataUnits(int handle)
     return data_block->data_units;
 }
 
-//!  Returns the data units of a data object for use in MDS+ TDI functions
-/**
-\param   handle   The data object handle
-\param   units   preallocated string buffer to receive the copy of the data units
-\return  void
-*/
-void udaGetDataUnitsTdi(int handle, char* units)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return;
-    }
-    strcpy(units, data_block->data_units);
-}
-
 //!  Returns the description of a data object
 /**
 \param   handle   The data object handle
@@ -1886,23 +1835,6 @@ const char* udaGetDataDesc(int handle)
         return nullptr;
     }
     return data_block->data_desc;
-}
-
-//!  Returns the description of a data object for use in MDS+ TDI functions
-/**
-\param   handle   The data object handle
-\param   units   preallocated string buffer to receive the copy of the data description
-\return  void
-*/
-void udaGetDataDescTdi(int handle, char* desc)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return;
-    }
-    strcpy(desc, data_block->data_desc);
 }
 
 // Dimension Coordinates
@@ -2046,42 +1978,6 @@ const char* udaGetDimUnits(int handle, int n_dim)
         return nullptr;
     }
     return data_block->dims[n_dim].dim_units;
-}
-
-//!  Returns the data label of a coordinate dimension for use in MDS+ TDI functions
-/**
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\param   label   preallocated string buffer to receive the copy of the data label
-\return  void
-*/
-void udaGetDimLabelTdi(int handle, int n_dim, char* label)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
-        return;
-    }
-    strcpy(label, data_block->dims[n_dim].dim_label);
-}
-
-//!  Returns the data units of a coordinate dimension for use in MDS+ TDI functions
-/**
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\param   units   preallocated string buffer to receive the copy of the data units
-\return  void
-*/
-void udaGetDimUnitsTdi(int handle, int n_dim, char* units)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr || n_dim < 0 || static_cast<unsigned int>(n_dim) >= data_block->rank) {
-        return;
-    }
-    strcpy(units, data_block->dims[n_dim].dim_units);
 }
 
 template <typename T>

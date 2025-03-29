@@ -259,54 +259,49 @@ LIBRARY_API void udaSetSyntheticDimData(int handle, int n_dim, char* data);
 
 
 //////////////////////////////////////////
+//////////////////////////////////////////
 
 LIBRARY_API int udaNumErrors();
-
 LIBRARY_API const char* udaGetErrorMessage(int err_num);
-
 LIBRARY_API const char* udaGetErrorMsg(int handle);
-
 LIBRARY_API int udaGetErrorCode(int handle);
 
 ///////////////////////////
-LIBRARY_API void udaGetDataErrorModel(int handle, int* model, int* param_n, float* params);
+LIBRARY_API void    udaGetDataErrorModel(int handle, int* model, int* param_n, float* params);
+LIBRARY_API int     udaGetDataErrorType(int handle);
+LIBRARY_API int     udaGetDataErrorAsymmetry(int handle);
+LIBRARY_API int     udaGetDataErrorModelId(const char* model);
 
-LIBRARY_API int udaGetDataErrorType(int handle);
+LIBRARY_API char*   udaGetDataErrLo(int handle);
+LIBRARY_API char*   udaGetDataErrHi(int handle);
+LIBRARY_API int     udaGetDataErrAsymmetry(int handle);
+LIBRARY_API char*   udaGetDimErrLo(int handle, int n_dim);
+LIBRARY_API char*   udaGetDimErrHi(int handle, int n_dim);
+LIBRARY_API int     udaGetDimErrAsymmetry(int handle, int n_dim);
 
-LIBRARY_API int udaGetDataErrorAsymmetry(int handle);
-
-LIBRARY_API int udaGetDataErrorModelId(const char* model);
-
-LIBRARY_API char* udaGetDataErrLo(int handle);
-LIBRARY_API char* udaGetDataErrHi(int handle);
-LIBRARY_API int udaGetDataErrAsymmetry(int handle);
-LIBRARY_API char* udaGetDimErrLo(int handle, int n_dim);
-LIBRARY_API char* udaGetDimErrHi(int handle, int n_dim);
-LIBRARY_API int udaGetDimErrAsymmetry(int handle, int n_dim);
-
-LIBRARY_API void udaSetDataErrAsymmetry(int handle, int asymmetry);
-LIBRARY_API void udaSetDataErrType(int handle, int type);
-LIBRARY_API void udaSetDataErrLo(int handle, char* errlo);
-LIBRARY_API void udaSetDimErrAsymmetry(int handle, int n_dim, int asymmetry);
-LIBRARY_API void udaSetDimErrType(int handle, int n_dim, int type);
-LIBRARY_API void udaSetDimErrLo(int handle, int n_dim, char* errlo);
+LIBRARY_API void    udaSetDataErrAsymmetry(int handle, int asymmetry);
+LIBRARY_API void    udaSetDataErrType(int handle, int type);
+LIBRARY_API void    udaSetDataErrLo(int handle, char* errlo);
+LIBRARY_API void    udaSetDimErrAsymmetry(int handle, int n_dim, int asymmetry);
+LIBRARY_API void    udaSetDimErrType(int handle, int n_dim, int type);
+LIBRARY_API void    udaSetDimErrLo(int handle, int n_dim, char* errlo);
 ////////////////////////////
 
 //changed
-LIBRARY_API char* udaGetDataError(int handle, bool above);
-LIBRARY_API void udaGetFloatError(int handle, bool above, float* data);
+LIBRARY_API char*   udaGetDataError(int handle, bool above);
+LIBRARY_API void    udaGetFloatError(int handle, bool above, float* data);
 
-LIBRARY_API char* udaGetDimError(int handle, int n_dim, bool above);
-LIBRARY_API int udaGetDimErrorType(int handle, int n_dim);
-LIBRARY_API void udaGetDimErrorModel(int handle, int n_dim, int* model, int* param_n, float* params);
-LIBRARY_API void udaGetFloatDimError(int handle, int n_dim, bool above, float* data);
+LIBRARY_API char*   udaGetDimError(int handle, int n_dim, bool above);
+LIBRARY_API int     udaGetDimErrorType(int handle, int n_dim);
+LIBRARY_API void    udaGetDimErrorModel(int handle, int n_dim, int* model, int* param_n, float* params);
+LIBRARY_API void    udaGetFloatDimError(int handle, int n_dim, bool above, float* data);
 
 // rename? bool is Error asymmetric
-LIBRARY_API int udaGetDimErrorAsymmetry(int handle, int n_dim);
-
-
-
+LIBRARY_API int     udaGetDimErrorAsymmetry(int handle, int n_dim);
 //////////////////////////////////////////
+//////////////////////////////////////////
+
+
 LIBRARY_API void udaCloseAllConnections();
 
 LIBRARY_API LOGMALLOCLIST* udaGetLogMallocList(int handle);
@@ -390,15 +385,9 @@ LIBRARY_API void udaGetGenericData(int handle, void* data);
 
 LIBRARY_API const char* udaGetDataLabel(int handle);
 
-LIBRARY_API void udaGetDataLabelTdi(int handle, char* label);
-
 LIBRARY_API const char* udaGetDataUnits(int handle);
 
-LIBRARY_API void udaGetDataUnitsTdi(int handle, char* units);
-
 LIBRARY_API const char* udaGetDataDesc(int handle);
-
-LIBRARY_API void udaGetDataDescTdi(int handle, char* desc);
 
 LIBRARY_API int udaGetDimNum(int handle, int n_dim);
 
@@ -409,10 +398,6 @@ LIBRARY_API char* udaGetDimData(int handle, int n_dim);
 LIBRARY_API const char* udaGetDimLabel(int handle, int n_dim);
 
 LIBRARY_API const char* udaGetDimUnits(int handle, int n_dim);
-
-LIBRARY_API void udaGetDimLabelTdi(int handle, int n_dim, char* label);
-
-LIBRARY_API void udaGetDimUnitsTdi(int handle, int n_dim, char* units);
 
 LIBRARY_API void udaGetDoubleDimData(int handle, int n_dim, double* data);
 
