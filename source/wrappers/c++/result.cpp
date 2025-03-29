@@ -115,7 +115,7 @@ template <typename T> static uda::Dim getDim(int handle, uda::dim_type num, uda:
     std::string label = udaGetDimLabel(handle, num);
     std::string units = udaGetDimUnits(handle, num);
     auto size = static_cast<size_t>(udaGetDimNum(handle, num));
-    auto data = reinterpret_cast<T*>(udaGetDimError(handle, num));
+    auto data = reinterpret_cast<T*>(udaGetDimError(handle, num, true));
     return uda::Dim(num, data, size, label + " error", units);
 }
 

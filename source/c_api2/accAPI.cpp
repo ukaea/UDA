@@ -1332,23 +1332,6 @@ char* udaGetDataError(int handle, bool above)
     }
 }
 
-//!  Returns a pointer to the memory block containing the requested error data
-/** The error data may be synthetically generated.
-\param   handle   The data object handle
-\return  a pointer to the data
-*/
-/*char* udaGetError(int handle)*/
-/*{*/
-/*    const auto& instance = uda::client::ThreadClient::instance();*/
-/*    const auto data_block = instance.data_block(handle);*/
-/**/
-/*    constexpr bool above = 1;*/
-/*    if (data_block == nullptr) {*/
-/*        return nullptr;*/
-/*    }*/
-/*    return udaGetAsymmetricError(handle, above);*/
-/*}*/
-/**/
 //!  Returns data cast to double precision
 /** The copy buffer must be preallocated and sized for the data type. The data may be synthetically generated. If the status of the data is poor, no copy to the buffer occurs unless
 the property \b get_bad is set.
@@ -1941,12 +1924,6 @@ int udaGetDimNum(int handle, int n_dim)
     return data_block->dims[n_dim].dim_n;
 }
 
-//! Returns the coordinate dimension data type
-/**
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  the data type id
-*/
 int udaGetDimType(int handle, int n_dim)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1958,12 +1935,6 @@ int udaGetDimType(int handle, int n_dim)
     return data_block->dims[n_dim].data_type;
 }
 
-//! Returns the coordinate dimension error data type
-/**
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  the data type id
-*/
 int udaGetDimErrorType(int handle, int n_dim)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1975,12 +1946,6 @@ int udaGetDimErrorType(int handle, int n_dim)
     return data_block->dims[n_dim].error_type;
 }
 
-//! Returns whether or not coordinate error data are asymmetric.
-/**
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  boolean true or false i.e. 1 or 0
-*/
 int udaGetDimErrorAsymmetry(int handle, int n_dim)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -2330,7 +2295,7 @@ void generate_dim_asymmetric_error(DataBlock* data_block, int n_dim, int n_data)
     }
 }
 
-char* udaGetDimAsymmetricError(int handle, int n_dim, bool above)
+char* udaGetDimError(int handle, int n_dim, bool above)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
@@ -2434,16 +2399,16 @@ char* udaGetDimAsymmetricError(int handle, int n_dim, bool above)
 \param   n_dim  the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  a pointer to the data
 */
-char* udaGetDimError(int handle, int n_dim)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
-            return nullptr;
-    }
-    return udaGetDimAsymmetricError(handle, n_dim, true);
-}
+/*char* udaGetDimError(int handle, int n_dim)*/
+/*{*/
+/*    const auto& instance = uda::client::ThreadClient::instance();*/
+/*    const auto data_block = instance.data_block(handle);*/
+/**/
+/*    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {*/
+/*            return nullptr;*/
+/*    }*/
+/*    return udaGetDimAsymmetricError(handle, n_dim, true);*/
+/*}*/
 
 template <typename T>
 void get_float_dim_asymmetric_error(const bool above, const DataBlock* data_block, const int n_dim, const int n_data, float* out) {
@@ -2472,7 +2437,7 @@ void udaGetFloatDimError(int handle, int n_dim, bool above, float* data)
     const int n_data = data_block->dims[n_dim].dim_n;
 
     if (data_block->dims[n_dim].error_type == UDA_TYPE_UNKNOWN) {
-        udaGetDimAsymmetricError(handle, n_dim, above);
+        udaGetDimError(handle, n_dim, above);
     }     // Create the Error Data prior to Casting
 
     switch (data_block->dims[n_dim].error_type) {
