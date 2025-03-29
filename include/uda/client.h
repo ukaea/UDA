@@ -308,14 +308,6 @@ LIBRARY_API int udaGetDataTypeSize(int type);
 
 LIBRARY_API char* udaGetData(int handle);
 
-LIBRARY_API void udaGetDoubleData(int handle, double* data);
-
-LIBRARY_API void udaGetFloatData(int handle, float* data);
-
-LIBRARY_API void udaGetGenericData(int handle, void* data);
-
-
-
 LIBRARY_API const char* udaGetDataLabel(int handle);
 
 LIBRARY_API const char* udaGetDataUnits(int handle);
@@ -332,11 +324,6 @@ LIBRARY_API const char* udaGetDimLabel(int handle, int n_dim);
 
 LIBRARY_API const char* udaGetDimUnits(int handle, int n_dim);
 
-LIBRARY_API void udaGetDoubleDimData(int handle, int n_dim, double* data);
-
-LIBRARY_API void udaGetFloatDimData(int handle, int n_dim, float* data);
-
-LIBRARY_API void udaGetGenericDimData(int handle, int n_dim, void* data);
 LIBRARY_API int udaDataCheckSum(const char* data, int data_n, int type);
 
 LIBRARY_API int udaGetDataCheckSum(int handle);
@@ -347,6 +334,8 @@ LIBRARY_API int udaSetDataTree(int handle);
 
 LIBRARY_API NTREE* udaGetDataTree(int handle);
 
+//////////////////////////////////////////
+//////////////////////////////////////////
 //////////////////////////////////////////
 /// Marked for deletion but used in multiple places or some wrappers
 LIBRARY_API int udaGetServerErrorStackSize(); // used in C++ client wrapper
