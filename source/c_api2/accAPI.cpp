@@ -81,24 +81,11 @@ Rank Ordering is as follows:
 //--------------------------------------------------------------
 // Private Flags (Server to Server communication via an UDA client server plugin)
 
-//! Set a private_flags property
-/** Set a/multiple specific bit/s in the private_flags property sent between UDA servers.
-*
-* @param flag The bit/s to be set to 1.
-* @return Void.
-*/
 void udaSetPrivateFlag(unsigned int flag)
 {
     auto& instance = uda::client::ThreadClient::instance();
     instance.set_flag(flag, true);
 }
-
-//! Reset a private_flags property
-/** Reset a/multiple specific bit/s in the private_flags property sent between UDA servers.
-*
-* @param flag The bit/s to be set to 0.
-* @return Void.
-*/
 
 void udaResetPrivateFlag(unsigned int flag)
 {
@@ -109,25 +96,11 @@ void udaResetPrivateFlag(unsigned int flag)
 //--------------------------------------------------------------
 // Client Flags
 
-//! Set a client_flags->flags property
-/** Set a/multiple specific bit/s in the client_flags->flags property sent to the UDA server.
-*
-* @param flag The bit/s to be set to 1.
-* @return Void.
-*/
-
 void udaSetClientFlag(unsigned int flag)
 {
     auto& instance = uda::client::ThreadClient::instance();
     instance.set_flag(flag);
 }
-
-//! Reset a client_flags->flags property
-/** Reset a/multiple specific bit/s in the client_flags->flags property sent to the UDA server.
-*
-* @param flag The bit/s to be set to 0.
-* @return Void.
-*/
 
 void udaResetClientFlag(unsigned int flag)
 {
@@ -169,22 +142,11 @@ void udaSetProperty(const char* property)
     instance.set_property(property);
 }
 
-//! Return the value of a named server property
-/**
-* @param property the name of the property.
-* @return Void.
-*/
 int udaGetProperty(const char* property)
 {
     auto& instance = uda::client::ThreadClient::instance();
     return instance.get_property(property);
 }
-
-//! Reset a specific named data server property to its default value
-/**
-* @param property the name of the property.
-* @return Void.
-*/
 
 void udaResetProperty(const char* property)
 {
@@ -192,10 +154,6 @@ void udaResetProperty(const char* property)
     instance.reset_property(property);
 }
 
-//! Reset all data server properties to their default values
-/**
-* @return Void.
-*/
 void udaResetProperties()
 {
     auto& instance = uda::client::ThreadClient::instance();
@@ -294,12 +252,6 @@ void udaPutDimErrorModel(int handle, int n_dim, int model, int param_n, const fl
     }
 }
 
-//! Set the UDA data server host name and port number
-/** This takes precedence over the environment variables UDA_HOST and UDA_PORT.
-* @param host The name of the server host computer.
-* @param port The port number the server is connected to.
-* @return void
-*/
 void udaPutServer(const char* host, int port)
 {
     auto& instance = uda::client::ThreadClient::instance();
@@ -314,11 +266,6 @@ void udaPutServer(const char* host, int port)
     instance.set_port(port);
 }
 
-//! Set the UDA data server host name
-/** This takes precedence over the environment variables UDA_HOST.
-* @param host The name of the server host computer.
-* @return void
-*/
 void udaPutServerHost(const char* host)
 {
     auto& instance = uda::client::ThreadClient::instance();
@@ -329,11 +276,6 @@ void udaPutServerHost(const char* host)
     instance.set_host(host);
 }
 
-//! Set the UDA data server port number
-/** This takes precedence over the environment variables UDA_PORT.
-* @param port The port number the server is connected to.
-* @return void
-*/
 void udaPutServerPort(int port)
 {
     auto& instance = uda::client::ThreadClient::instance();
@@ -379,10 +321,6 @@ Select the server connection required.
 //     *host = environment->server_host;                          // UDA server's host name or IP address
 // }
 
-//! the UDA server connection host name
-/**
-* @return the Name of the Host
-*/
 const char* udaGetServerHost()
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -391,10 +329,6 @@ const char* udaGetServerHost()
     return instance.get_host().c_str();
 }
 
-//! the UDA server connection port number
-/**
-* @return the Name of the Host
-*/
 int udaGetServerPort()
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -571,11 +505,6 @@ int udaGetServerErrorStackRecordType(const int record)
     return static_cast<int>(server_block->error_stack[record].type);  // Server Error Stack Record Code
 }
 
-//!  returns the data access error code
-/**
-\param   handle   The data object handle.
-\return   Return error code, if non-zero there was a problem: < 0 is client side, > 0 is server side.
-*/
 int udaGetErrorCode(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -589,11 +518,6 @@ int udaGetErrorCode(int handle)
     }
 }
 
-//!  returns the data access error message
-/**
-\param   handle   The data object handle.
-\return   the error message.
-*/
 const char* udaGetError(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -663,11 +587,6 @@ int udaGetLastHandle()
     return instance.current_data_block()->handle;
 }
 
-//!  returns the number of data items in the data object
-/** the number of array elements
-\param   handle   The data object handle
-\return  the number of data items
-*/
 int udaGetDataCount(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -680,11 +599,6 @@ int udaGetDataCount(int handle)
     return data_block->data_n;
 }
 
-//!  returns the rank of the data object
-/** the number of array coordinate dimensions
-\param   handle   The data object handle
-\return  the rank
-*/
 int udaGetDataRank(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -697,12 +611,6 @@ int udaGetDataRank(int handle)
     return static_cast<int>(data_block->rank);
 }
 
-//!  Returns the position of the time coordinate dimension in the data object
-/** For example, a rank 3 array data[time][x][y] (in Fortran and IDL this is data(y,x,time)) has time order = 0 so order is
-counted from left to right in c and from right to left in Fortran and IDL.
-\param   handle   The data object handle
-\return  the time coordinate dimension position
-*/
 int udaGetDataOrder(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -715,11 +623,6 @@ int udaGetDataOrder(int handle)
     return data_block->order;
 }
 
-/**
- * Returns the Server's Permission to locally Cache data
- * @param handle The data object handle
- * @return the permission
- */
 unsigned int udaGetCachePermission(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -732,12 +635,6 @@ unsigned int udaGetCachePermission(int handle)
     return data_block->cachePermission;
 }
 
-/**
- * Returns the total amount of data (bytes)
- *
- * @param handle The data object handle
- * @return byte count
- */
 unsigned int udaGetTotalDataBlockSize(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -749,11 +646,6 @@ unsigned int udaGetTotalDataBlockSize(int handle)
     return data_block->totalDataBlockSize;
 }
 
-//!  returns the atomic or structure type id of the data object
-/**
-\param   handle   The data object handle
-\return  the type id
-*/
 int udaGetDataType(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -814,11 +706,6 @@ int udaGetDataErrorType(int handle)
     return data_block->error_type;
 }
 
-//!  returns the atomic or structure type id of a named type
-/**
-\param   type   The name of the type
-\return  the type id
-*/
 int udaGetDataTypeId(const char* type)
 {
     // Return the Internal Code for Data Types
@@ -1019,11 +906,6 @@ char* udaGetSyntheticData(int handle)
     return data_block->synthetic;
 }
 
-//!  Returns a pointer to the requested data
-/** The data may be synthetically generated.
-\param   handle   The data object handle
-\return  a pointer to the data - if the status is poor, a nullptr pointer is returned unless the \e get_bad property is set.
-*/
 char* udaGetData(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1447,11 +1329,6 @@ void udaGetFloatError(int handle, bool above, float* data)
 //     *db = *data_block;
 // }
 
-//!  Returns the data label of a data object
-/**
-\param   handle   The data object handle
-\return  pointer to the data label
-*/
 const char* udaGetDataLabel(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1463,11 +1340,6 @@ const char* udaGetDataLabel(int handle)
     return data_block->data_label;
 }
 
-//!  Returns the data units of a data object
-/**
-\param   handle   The data object handle
-\return  pointer to the data units
-*/
 const char* udaGetDataUnits(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1479,11 +1351,6 @@ const char* udaGetDataUnits(int handle)
     return data_block->data_units;
 }
 
-//!  Returns the description of a data object
-/**
-\param   handle   The data object handle
-\return  pointer to the data description
-*/
 const char* udaGetDataDesc(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1497,12 +1364,6 @@ const char* udaGetDataDesc(int handle)
 
 // Dimension Coordinates
 
-//! Returns the coordinate dimension size
-/** the number of elements in the coordinate array
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  the dimension size
-*/
 int udaGetDimCount(int handle, int n_dim)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1583,12 +1444,6 @@ char* udaGenerateSyntheticDimData(int handle, int n_dim)
     return data_block->dims[n_dim].synthetic;
 }
 
-///!  Returns a pointer to the requested coordinate data
-/** The data may be synthetically generated.
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  pointer to the data
-*/
 char* udaGetDimData(int handle, int n_dim)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1605,12 +1460,6 @@ char* udaGetDimData(int handle, int n_dim)
     return udaGetSyntheticDimData(handle, n_dim);
 }
 
-//! Returns the data label of a coordinate dimension
-/**
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  pointer to the data label
-*/
 const char* udaGetDimLabel(int handle, int n_dim)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -1621,12 +1470,6 @@ const char* udaGetDimLabel(int handle, int n_dim)
     }
     return data_block->dims[n_dim].dim_label;
 }
-//! Returns the data units of a coordinate dimension
-/**
-\param   handle   The data object handle
-\param   n_dim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  pointer to the data units
-*/
 const char* udaGetDimUnits(int handle, int n_dim)
 {
     const auto& instance = uda::client::ThreadClient::instance();
