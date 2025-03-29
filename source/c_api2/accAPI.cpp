@@ -612,6 +612,28 @@ const char* udaGetError(int handle)
     }
 }
 
+const char* udaGetMetadata(int handle, const char* key) {
+    // to be implemented
+    // something like this?
+    const auto& instance = uda::client::ThreadClient::instance();
+    const auto data_block = instance.data_block(handle);
+    if (data_block == nullptr) {
+        return nullptr;
+    }
+ 
+    return data_block->meta_data.find(key).data();
+}
+
+int udaGetMetadataKeyCount(int handle) {
+    //to be implemented
+    return 0;
+}
+
+const char* udaGetMetadataKey(int handle, int index) {
+    //to be implemented
+    return nullptr;
+}
+
 int udaGetDataStatus(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -629,6 +651,7 @@ int udaGetDataStatus(int handle)
     /*}*/
     return 1;
 }
+
 
 //!  returns the last data object handle issued
 /**

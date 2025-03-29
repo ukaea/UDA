@@ -268,14 +268,13 @@ LIBRARY_API const char* udaGetErrorMessage(int err_num);
 LIBRARY_API const char* udaGetError(int handle);
 LIBRARY_API int udaGetErrorCode(int handle);
 
-
 LIBRARY_API void udaPutServer(const char* host, int port);
 LIBRARY_API void udaPutServerHost(const char* host);
 LIBRARY_API void udaPutServerPort(int port);
 
-/*LIBRARY_API const char* udaGetMetadata(const char* key);*/
-/*LIBRARY_API int udaGetMetadataKeyCount();*/
-/*LIBRARY_API const char* udaGetMetadataKey(int index);*/
+LIBRARY_API const char* udaGetMetadata(int handle, const char* key);
+LIBRARY_API int udaGetMetadataKeyCount(int handle);
+LIBRARY_API const char* udaGetMetadataKey(int handle, int index);
 
 // __attribute ((deprecated))
 LIBRARY_API int udaGetLastHandle();
