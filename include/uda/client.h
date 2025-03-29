@@ -294,25 +294,20 @@ LIBRARY_API void udaSetDimErrLo(int handle, int n_dim, char* errlo);
 
 //changed
 LIBRARY_API char* udaGetDataError(int handle, bool above);
-
-LIBRARY_API void udaGetFloatAsymmetricError(int handle, bool above, float* data);
-
-LIBRARY_API void udaGetFloatError(int handle, float* data);
-
 LIBRARY_API int udaGetDimErrorType(int handle, int n_dim);
-
-LIBRARY_API int udaGetDimErrorAsymmetry(int handle, int n_dim);
-
 LIBRARY_API void udaGetDimErrorModel(int handle, int n_dim, int* model, int* param_n, float* params);
 
+LIBRARY_API void udaGetFloatError(int handle, bool above, float* data);
+/*LIBRARY_API void udaGetFloatError(int handle, float* data);*/
 
+LIBRARY_API void udaGetFloatDimError(int handle, int n_dim, bool above, float* data);
+/*LIBRARY_API void udaGetFloatDimError(int handle, int n_dim, float* data);*/
+
+
+LIBRARY_API int udaGetDimErrorAsymmetry(int handle, int n_dim);
 LIBRARY_API char* udaGetDimAsymmetricError(int handle, int n_dim, bool above);
 
 LIBRARY_API char* udaGetDimError(int handle, int n_dim);
-
-LIBRARY_API void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* data);
-
-LIBRARY_API void udaGetFloatDimError(int handle, int n_dim, float* data);
 
 
 //////////////////////////////////////////

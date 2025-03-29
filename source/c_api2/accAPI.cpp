@@ -1698,7 +1698,7 @@ void get_float_asymmetric_error(const bool above, const DataBlock* data_block, c
     }
 }
 
-void udaGetFloatAsymmetricError(int handle, bool above, float* data)
+void udaGetFloatError(int handle, bool above, float* data)
 {
     // Copy Error Data cast as float to User Provided Array
 
@@ -1804,18 +1804,6 @@ void udaGetFloatAsymmetricError(int handle, bool above, float* data)
             break;
 
     }
-}
-
-//!  Returns error data cast to single precision
-/** The copy buffer must be preallocated and sized for the data type.
-\param   handle   The data object handle
-\param   data A \b float pointer to a preallocated data buffer
-\return  void
-*/
-void udaGetFloatError(int handle, float* data)
-{
-    constexpr bool above = 1;
-    udaGetFloatAsymmetricError(handle, above, data);
 }
 
 //!  Returns the DATA_BLOCK data structure - the data, dimension coordinates and associated meta data.
@@ -2470,7 +2458,7 @@ void get_float_dim_asymmetric_error(const bool above, const DataBlock* data_bloc
     }
 }
 
-void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* data)
+void udaGetFloatDimError(int handle, int n_dim, bool above, float* data)
 {
     // Copy Error Data cast as float to User Provided Array
 
@@ -2539,18 +2527,6 @@ void udaGetFloatDimAsymmetricError(int handle, int n_dim, bool above, float* dat
             }
             break;
     }
-}
-
-//!  Returns coordinate error data cast to single precision
-/** The copy buffer must be preallocated and sized for the data type.
-\param   handle   The data object handle
-\param   n_dim  the position of the dimension in the data array - numbering is as data[0][1][2]
-\param   data A \b float pointer to a preallocated data buffer
-\return  void
-*/
-void udaGetFloatDimError(int handle, int n_dim, float* data)
-{
-    udaGetFloatDimAsymmetricError(handle, n_dim, true, data);
 }
 
 // //!  Returns a pointer to the DATA_SYSTEM Metadata structure
