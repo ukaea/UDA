@@ -53,9 +53,9 @@ typedef int (*UDA_PLUGIN_ENTRY_FUNC)(UDA_PLUGIN_INTERFACE*); // Plugin function 
 
 #define UDA_MAX_PATH 1024 // Same as StringLength
 
-LIBRARY_API void udaSetMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key, const char* value);
-LIBRARY_API const char* udaGetMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key);
-LIBRARY_API bool udaHasMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key);
+LIBRARY_API void udaSetPluginMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key, const char* value);
+LIBRARY_API const char* udaGetPluginMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key);
+LIBRARY_API bool udaHasPluginMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key);
 
 LIBRARY_API void udaExpandEnvironmentalVariables(char* path);
 LIBRARY_API int udaCallPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request);

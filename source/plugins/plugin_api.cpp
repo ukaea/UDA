@@ -911,17 +911,17 @@ int udaPluginReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, i
     return 0;
 }
 
-void udaSetMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key, const char* value) {
+void udaSetPluginMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key, const char* value) {
     const auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     interface->meta_data->set(key, value);
 }
 
-const char* udaGetMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key) {
+const char* udaGetPluginMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key) {
     const auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     return interface->meta_data->find(key).data();
 }
 
-bool udaHasMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key) {
+bool udaHasPluginMetadata(UDA_PLUGIN_INTERFACE* plugin_interface, const char* key) {
     const auto interface = static_cast<UdaPluginInterface*>(plugin_interface);
     return interface->meta_data->contains(key);
 }
