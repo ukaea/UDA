@@ -278,48 +278,32 @@ LIBRARY_API const char* udaGetMetadataKey(int handle, int index);
 
 // __attribute ((deprecated))
 LIBRARY_API int udaGetLastHandle();
-
-
-LIBRARY_API int udaGetDataStatus(int handle);
-
-LIBRARY_API int udaGetDataNum(int handle);
-
-LIBRARY_API int udaGetRank(int handle);
-
-LIBRARY_API int udaGetOrder(int handle);
-
 LIBRARY_API unsigned int udaGetCachePermission(int handle);
-
 LIBRARY_API unsigned int udaGetTotalDataBlockSize(int handle);
 
+LIBRARY_API char* udaGetData(int handle);
+LIBRARY_API int udaGetDataStatus(int handle);
+LIBRARY_API int udaGetDataCount(int handle);
+LIBRARY_API int udaGetDataRank(int handle);
+LIBRARY_API int udaGetDataOrder(int handle);
 LIBRARY_API int udaGetDataType(int handle);
-
-LIBRARY_API int udaGetDataOpaqueType(int handle);
-
-LIBRARY_API void* udaGetDataOpaqueBlock(int handle);
-
-LIBRARY_API int udaGetDataOpaqueCount(int handle);
-
 LIBRARY_API int udaGetDataTypeId(const char* type);
-
 LIBRARY_API int udaGetDataTypeSize(int type);
 
-LIBRARY_API char* udaGetData(int handle);
-
 LIBRARY_API const char* udaGetDataLabel(int handle);
-
 LIBRARY_API const char* udaGetDataUnits(int handle);
-
 LIBRARY_API const char* udaGetDataDesc(int handle);
 
-LIBRARY_API int udaGetDimNum(int handle, int n_dim);
 
-LIBRARY_API int udaGetDimType(int handle, int n_dim);
+LIBRARY_API int udaGetDataOpaqueType(int handle);
+LIBRARY_API void* udaGetDataOpaqueBlock(int handle);
+LIBRARY_API int udaGetDataOpaqueCount(int handle);
+
 
 LIBRARY_API char* udaGetDimData(int handle, int n_dim);
-
+LIBRARY_API int udaGetDimCount(int handle, int n_dim);
+LIBRARY_API int udaGetDimType(int handle, int n_dim);
 LIBRARY_API const char* udaGetDimLabel(int handle, int n_dim);
-
 LIBRARY_API const char* udaGetDimUnits(int handle, int n_dim);
 
 LIBRARY_API int udaDataCheckSum(const char* data, int data_n, int type);
@@ -335,6 +319,7 @@ LIBRARY_API NTREE* udaGetDataTree(int handle);
 //////////////////////////////////////////
 //////////////////////////////////////////
 //////////////////////////////////////////
+
 /// Marked for deletion but used in multiple places or some wrappers
 LIBRARY_API int udaGetServerErrorStackSize(); // used in C++ client wrapper
 
