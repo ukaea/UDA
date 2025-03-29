@@ -612,39 +612,6 @@ const char* udaGetError(int handle)
     }
 }
 
-//!  returns the data source quality status
-/**
-\param   handle   The data object handle.
-\return   Quality status.
-*/
-int udaGetSourceStatus(int handle)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return 0;
-    }
-    return data_block->source_status;
-}
-
-//!  returns the data object quality status
-/**
-\param   handle   The data object handle.
-\return   Quality status.
-*/
-int udaGetSignalStatus(int handle)
-{
-    const auto& instance = uda::client::ThreadClient::instance();
-    const auto data_block = instance.data_block(handle);
-
-    // Signal Status
-    if (data_block == nullptr) {
-        return 0;
-    }
-    return data_block->signal_status;
-}
-
 int udaGetDataStatus(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
@@ -654,12 +621,13 @@ int udaGetDataStatus(int handle)
     if (data_block == nullptr) {
         return 0;
     }
-    if (udaGetSignalStatus(handle) == DefaultStatus) {
-        // Signal Status Not Changed from Default - use Data Source Value
-        return data_block->source_status;
-    } else {
-        return data_block->signal_status;
-    }
+    /*if (udaGetSignalStatus(handle) == DefaultStatus) {*/
+    /*    // Signal Status Not Changed from Default - use Data Source Value*/
+    /*    return data_block->source_status;*/
+    /*} else {*/
+    /*    return data_block->signal_status;*/
+    /*}*/
+    return 1;
 }
 
 //!  returns the last data object handle issued

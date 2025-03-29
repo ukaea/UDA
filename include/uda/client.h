@@ -270,15 +270,14 @@ LIBRARY_API int udaGetErrorCode(int handle);
 
 
 LIBRARY_API void udaPutServer(const char* host, int port);
-
 LIBRARY_API void udaPutServerHost(const char* host);
-
 LIBRARY_API void udaPutServerPort(int port);
 
-LIBRARY_API int udaGetSourceStatus(int handle);
+/*LIBRARY_API const char* udaGetMetadata(const char* key);*/
+/*LIBRARY_API int udaGetMetadataKeyCount();*/
+/*LIBRARY_API const char* udaGetMetadataKey(int index);*/
 
-LIBRARY_API int udaGetSignalStatus(int handle);
-
+// __attribute ((deprecated))
 LIBRARY_API int udaGetLastHandle();
 
 
