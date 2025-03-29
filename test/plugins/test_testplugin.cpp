@@ -2061,7 +2061,7 @@ TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
     REQUIRE( handle >= 0 );
     REQUIRE( udaGetErrorCode(handle) == 0 );
 
-    const char* error = udaGetErrorMsg(handle);
+    const char* error = udaGetError(handle);
     std::string error_string = error == nullptr ? "" : error;
     REQUIRE( error_string.empty() );
 

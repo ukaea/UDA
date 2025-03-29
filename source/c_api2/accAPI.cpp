@@ -594,7 +594,7 @@ int udaGetErrorCode(int handle)
 \param   handle   The data object handle.
 \return   the error message.
 */
-const char* udaGetErrorMsg(int handle)
+const char* udaGetError(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
