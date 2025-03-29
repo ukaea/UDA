@@ -33,8 +33,8 @@ int main()
         fprintf(stdout, "Data Units            :     %s\n", udaGetDataUnits(handle));
         fprintf(stdout, "Data Label            :     %s\n", udaGetDataLabel(handle));
         fprintf(stdout, "Data Type             :     %d\n", udaGetDataType(handle));
-        fprintf(stdout, "Error Type            :     %d\n", udaGetErrorType(handle));
-        fprintf(stdout, "Error Asymmetry?      :     %d\n", udaGetErrorAsymmetry(handle));
+        fprintf(stdout, "Error Type            :     %d\n", udaGetDataErrorType(handle));
+        fprintf(stdout, "Error Asymmetry?      :     %d\n", udaGetDataErrorAsymmetry(handle));
 
         nmax = 10;
         ndata = udaGetDataNum(handle);

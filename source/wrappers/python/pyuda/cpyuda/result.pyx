@@ -45,7 +45,7 @@ cdef class Result:
         if data_type == DataType.DATA:
             type = uda.udaGetDataType(int(self._handle))
         else:
-            type = uda.udaGetErrorType(int(self._handle))
+            type = uda.udaGetDataErrorType(int(self._handle))
         return type
 
     def is_string(self):

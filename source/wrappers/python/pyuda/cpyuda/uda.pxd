@@ -22,7 +22,7 @@ cdef extern from "uda/client.h":
     char* udaGetError(int handle);
     int udaGetDataNum(int handle);
     int udaGetDataType(int handle);
-    int udaGetErrorType(int handle);
+    int udaGetDataErrorType(int handle);
     void udaPutServerHost(const char* host);
     void udaPutServerPort(int port);
     int udaGetProperty(const char* property)

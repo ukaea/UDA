@@ -272,7 +272,7 @@ uda::Data* uda::Result::data() const
 
 bool uda::Result::hasErrors() const
 {
-    return udaGetErrorType(handle_) != UDA_TYPE_UNKNOWN;
+    return udaGetDataErrorType(handle_) != UDA_TYPE_UNKNOWN;
 }
 
 uda::Data* uda::Result::errors() const
@@ -288,7 +288,7 @@ uda::Data* uda::Result::errors() const
         dims.push_back(dim(i, DATA));
     }
 
-    int type = udaGetErrorType(handle_);
+    int type = udaGetDataErrorType(handle_);
 
     switch (type) {
         case UDA_TYPE_CHAR:

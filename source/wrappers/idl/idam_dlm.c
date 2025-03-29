@@ -18,7 +18,6 @@
 
 #include "idl_export.h"                 // IDL API Header
 
-#include "client/udaClient.h"
 #include "client/accAPI.h"
 #include "client/udaGetAPI.h"
 #include "client/udaPutAPI.h"
@@ -3555,7 +3554,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (udaGetErrorType(sin->handle)) {
+    switch (udaGetDataErrorType(sin->handle)) {
 
         case UDA_TYPE_FLOAT:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
@@ -3633,7 +3632,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
             break;
 
             if (kw.verbose) {
-                fprintf(stdout, "The Data Error Type is Not Recognised [%d]\n", udaGetErrorType(sin->handle));
+                fprintf(stdout, "The Data Error Type is Not Recognised [%d]\n", udaGetDataErrorType(sin->handle));
             }
 
             IDL_KW_FREE;
@@ -4718,7 +4717,7 @@ geterrortype(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(udaGetErrorType(handle)));
+    return (IDL_GettmpLong(udaGetDataErrorType(handle)));
 }
 
 
@@ -4984,7 +4983,7 @@ getdataerror(int argc, IDL_VPTR argv[], char* argk)
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (udaGetErrorType(handle)) {
+    switch (udaGetDataErrorType(handle)) {
 
         case UDA_TYPE_FLOAT:
 
@@ -5106,7 +5105,7 @@ getasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk)
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (udaGetErrorType(handle)) {
+    switch (udaGetDataErrorType(handle)) {
 
         case UDA_TYPE_FLOAT:
 
@@ -6912,7 +6911,7 @@ geterrormodelid(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
-    return (IDL_GettmpLong(udaGetErrorModelId((char*)IDL_STRING_STR(&argv[0]->value.str))));
+    return (IDL_GettmpLong(udaGetDataErrorModelId((char*)IDL_STRING_STR(&argv[0]->value.str))));
 }
 
 IDL_VPTR IDL_CDECL
@@ -6988,7 +6987,7 @@ geterrorasymmetry(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = (int)IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(udaGetErrorAsymmetry(handle)));
+    return (IDL_GettmpLong(udaGetDataErrorAsymmetry(handle)));
 }
 
 IDL_VPTR IDL_CDECL

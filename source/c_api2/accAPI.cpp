@@ -812,7 +812,7 @@ int udaGetDataOpaqueCount(int handle)
 \param   handle   The data object handle
 \return  the type id
 */
-int udaGetErrorType(int handle)
+int udaGetDataErrorType(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
@@ -919,7 +919,7 @@ int udaGetDataTypeSize(int type)
     }
 }
 
-void udaGetErrorModel(int handle, int* model, int* param_n, float* params)
+void udaGetDataErrorModel(int handle, int* model, int* param_n, float* params)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
@@ -936,7 +936,7 @@ void udaGetErrorModel(int handle, int* model, int* param_n, float* params)
     }
 }
 
-int udaGetErrorAsymmetry(int handle)
+int udaGetDataErrorAsymmetry(int handle)
 {
     const auto& instance = uda::client::ThreadClient::instance();
     const auto data_block = instance.data_block(handle);
@@ -949,7 +949,7 @@ int udaGetErrorAsymmetry(int handle)
 
 // Return the Internal Code for a named Error Model
 
-int udaGetErrorModelId(const char* model)
+int udaGetDataErrorModelId(const char* model)
 {
     if (STR_IEQUALS(model, "default")) {
         return static_cast<int>(ErrorModelType::Default);
