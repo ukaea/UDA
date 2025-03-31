@@ -47,7 +47,7 @@ struct Complex {
     float imaginary;
 };
 
-struct Dims {
+struct Dimension {
     int data_type;     // Type of data
     int error_type;    // Type of error data
     int error_model;   // Identify the Error Model
@@ -190,7 +190,7 @@ struct DataBlock {
 
     char error_msg[StringLength];
 
-    Dims* dims;
+    Dimension* dims;
     MetaData meta_data;
 
     ClientBlock client_block; // Used to pass properties into data reader plugins

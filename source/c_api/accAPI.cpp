@@ -2766,13 +2766,13 @@ void udaGetGenericDimData(int handle, int ndim, void* data)
     }
 }
 
-//!  Returns the coordinate dimension's Dims data structure - the coordinate data and associated meta data.
+//!  Returns the coordinate dimension's Dimension data structure - the coordinate data and associated meta data.
 /**
 \param   handle   The data object handle
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  Dims pointer
+\return  Dimension pointer
 */
-Dims* udaGetDimBlock(int handle, int ndim)
+Dimension* udaGetDimBlock(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {

@@ -43,7 +43,7 @@
 #endif
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaServerSSL.h>
+#  include <authentication/server_ssl.h>
 
 using namespace uda::authentication;
 #endif
@@ -116,7 +116,7 @@ static int handshake_client(Config& config, ClientBlock* client_block, ServerBlo
 
 unsigned int count_data_block_size(const DataBlock* data_block, ClientBlock* client_block) {
     int factor;
-    Dims dim;
+    Dimension dim;
     unsigned int count = sizeof(DataBlock);
 
     count += (unsigned int) (getSizeOf((UDA_TYPE) data_block->data_type) * data_block->data_n);
@@ -130,7 +130,7 @@ unsigned int count_data_block_size(const DataBlock* data_block, ClientBlock* cli
 
     if (data_block->rank > 0) {
         for (unsigned int k = 0; k < data_block->rank; k++) {
-            count += sizeof(Dims);
+            count += sizeof(Dimension);
             dim = data_block->dims[k];
             if (!dim.compressed) {
                 count += (unsigned int) (getSizeOf((UDA_TYPE) dim.data_type) * dim.dim_n);
@@ -890,7 +890,7 @@ int handle_request(Config& config, RequestBlock* request_block, ClientBlock* cli
         }
 
         if (data_block->rank > 0) {
-            Dims dim;
+            Dimension dim;
             for (unsigned int j = 0; j < data_block->rank; j++) {
                 dim = data_block->dims[j];
                 if (protocol_version_type_test(protocol_version, dim.data_type) ||

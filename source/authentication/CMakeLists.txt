@@ -2,9 +2,9 @@ find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 
 set( SRCS
-  udaClientSSL.cpp
-  udaServerSSL.cpp
-  updateSelectParms.cpp
+  client_ssl.cpp
+  server_ssl.cpp
+  update_select_params.cpp
 )
 
 add_library( authentication OBJECT ${SRCS} )

@@ -110,7 +110,7 @@ std::string to_string(const toml::node_type type)
 class ValueValidator
 {
   public:
-    ValueValidator(const std::string name, const ValueType type) : _name{std::move(name)}, _type{type} {}
+    ValueValidator(std::string name, const ValueType type) : _name{std::move(name)}, _type{type} {}
 
     [[nodiscard]] std::string_view name() const { return _name; }
 
@@ -148,7 +148,7 @@ class ValueValidator
 class SectionValidator
 {
   public:
-    SectionValidator(const std::string name, std::vector<ValueValidator> value_validators)
+    SectionValidator(std::string name, std::vector<ValueValidator> value_validators)
         : _name{std::move(name)}, _value_validators{std::move(value_validators)}
     {
     }
@@ -200,7 +200,7 @@ class SectionValidator
 class ArrayValidator
 {
   public:
-    ArrayValidator(const std::string name, const std::vector<ValueValidator> value_validators)
+    ArrayValidator(std::string name, std::vector<ValueValidator> value_validators)
         : _name{std::move(name)}, _value_validators{std::move(value_validators)}
     {
     }
@@ -390,9 +390,7 @@ void validate_array(const toml::key& name, const toml::node& value)
 
 void validate(toml::table& table)
 {
-    for (const auto& entry : table) {
-        const auto& name = entry.first;
-        const auto& value = entry.second;
+    for (const auto& [name, value] : table) {
         if (value.is_table()) {
             validate_section(name, value);
         }
@@ -406,7 +404,7 @@ void validate(toml::table& table)
     }
 }
 
-void validate(std::string_view section_name, std::string_view field_name, ValueType type)
+void validate(const std::string_view section_name, const std::string_view field_name, const ValueType type)
 {
     bool found = false;
             for (const auto& validator : Validators) 
@@ -522,7 +520,7 @@ class ConfigImpl
         validate(section_name, option_name, get_value_type(value));
         const auto section = _table[section_name];
         if (section) {
-            auto sec = section.as_table();
+            auto* sec = section.as_table();
             sec->insert(option_name, value);
         } else {
             auto new_sec = toml::table{};
@@ -595,7 +593,7 @@ class ConfigImpl
         if (!section_option or !section_option.is_table()) {
             return result;
         }
-        auto section_table = section_option.as_table();
+        const auto* section_table = section_option.as_table();
         return get_table_as_map(*section_table);
     }
 
@@ -645,7 +643,6 @@ Option Config::get(const std::string_view name) const
     }
     return _impl->get(name);
 }
-
 
 std::vector<std::unordered_map<std::string, Option>>
 Config::get_array(std::string_view name) const
@@ -699,7 +696,7 @@ void Config::set(const std::string_view name, const double value) const {
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};
     }
-    return _impl->set(name, value);
+    _impl->set(name, value);
 }
 
 void Config::print() const
@@ -707,12 +704,14 @@ void Config::print() const
     if (!_impl) {
         throw ConfigError{"config has not been loaded"};
     }
-    return _impl->print();
+    _impl->print();
 }
 
 Config::Config() = default;
 
 Config::Config(Config&& other) noexcept = default;
+
+Config& Config::operator=(Config&& other) noexcept = default;
 
 Config::~Config() = default;
 

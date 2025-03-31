@@ -34,7 +34,7 @@
 #  include "protocol/xdr_lib.h"
 
 #  ifdef SSLAUTHENTICATION
-#    include <authentication/udaClientSSL.h>
+#    include <authentication/client_ssl.h>
 
 using namespace uda::authentication;
 #  endif
@@ -1353,7 +1353,7 @@ void udaFree(int handle)
     // Free Heap Memory (Not the Data Blocks themselves: These will be re-used.)
 
     char* cptr;
-    Dims* ddims;
+    Dimension* ddims;
     int rank;
 
     DataBlock* data_block = getDataBlock(handle);

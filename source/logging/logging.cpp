@@ -20,7 +20,7 @@ void uda::logging::init_logging()
     auto access_logger = spdlog::stdout_logger_mt("access");
     // default logger required to avoid segfaults if logging is reopened after shutdown
     // e.g. in calls to spdlog::get_level()
-    auto debug_logger = spdlog::get("debug");
+    const auto debug_logger = spdlog::get("debug");
     if (!debug_logger)
     {
         // spdlog::register_logger(debug_logger);
@@ -44,7 +44,7 @@ void uda::logging::set_log_level(LogLevel level)
         throw std::runtime_error("set log level error: logging not initialised");
     }
 
-    spdlog::level::level_enum spdlog_level;
+    spdlog::level::level_enum spdlog_level = spdlog::level::off;
 
     switch (level) {
         case LogLevel::UDA_LOG_DEBUG:
@@ -74,22 +74,22 @@ void uda::logging::set_log_level(LogLevel level)
     }
     spdlog::set_level(spdlog_level);
 
-    auto debug_logger = spdlog::get("debug");
-    if(!debug_logger)
+    const auto debug_logger = spdlog::get("debug");
+    if (!debug_logger)
     {
         throw std::runtime_error("Logging error: no debug logger available");
     }
     debug_logger->set_level(spdlog_level);
 
-    auto error_logger = spdlog::get("error");
-    if(!error_logger)
+    const auto error_logger = spdlog::get("error");
+    if (!error_logger)
     {
         throw std::runtime_error("Logging error: no error logger available");
     }
     error_logger->set_level(spdlog_level);
 
-    auto access_logger = spdlog::get("access");
-    if(!access_logger)
+    const auto access_logger = spdlog::get("access");
+    if (!access_logger)
     {
         throw std::runtime_error("Logging error: no access logger available");
     }
@@ -102,8 +102,7 @@ uda::logging::LogLevel uda::logging::get_log_level()
     {
         throw std::runtime_error("get log level error: logging not initialised");
     }
-    auto level = spdlog::get_level();
-    switch (level) {
+    switch (spdlog::get_level()) {
         case spdlog::level::debug:
             return LogLevel::UDA_LOG_DEBUG;
         case spdlog::level::info:
@@ -175,11 +174,11 @@ void uda::logging::set_log_stdout(LogLevel mode)
     }
 }
 
-void uda::logging::set_log_file(LogLevel mode, const std::string& file_name, const std::string& open_mode)
+void uda::logging::set_log_file(const LogLevel mode, const std::string& file_name, const std::string& open_mode)
 {
     bool truncate = open_mode != "a";
 
-    std::shared_ptr<spdlog::logger> logger = get_logger(mode);
+    const std::shared_ptr<spdlog::logger> logger = get_logger(mode);
     if (!logger) {
         return;
     }
@@ -195,7 +194,7 @@ void uda::logging::set_log_file(LogLevel mode, const std::string& file_name, con
     // only add file sink if it doesn't exist
     bool found = false;
     for (const auto& sink : sinks) {
-        auto file_sink = dynamic_cast<spdlog::sinks::basic_file_sink_mt*>(sink.get());
+        auto* file_sink = dynamic_cast<spdlog::sinks::basic_file_sink_mt*>(sink.get());
         if (file_sink && file_sink->filename() == file_name) {
             found = true;
             break;

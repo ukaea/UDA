@@ -55,9 +55,9 @@ using namespace std::string_literals;
 // todo:
 //
 
-static int get_subset_indices(const std::string& operation, Dims* dim, double value, unsigned int* subset_indices);
+static int get_subset_indices(const std::string& operation, Dimension* dim, double value, unsigned int* subset_indices);
 
-int apply_sub_setting(Dims* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
+int apply_sub_setting(Dimension* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
                       int start, int end, int start1, int end1, int stride, int* n, void** new_data);
 
 int number_of_subsetting_operations(const Action* action)
@@ -309,7 +309,7 @@ int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LogMa
 
                         data_block->rank = rank;
 
-                        data_block->dims = (Dims*)realloc((void*)data_block->dims, rank * sizeof(Dims));
+                        data_block->dims = (Dimension*)realloc((void*)data_block->dims, rank * sizeof(Dimension));
 
                         for (int k = k0; k < rank; k++) {
                             init_dim_block(&data_block->dims[k]);
@@ -331,7 +331,7 @@ int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LogMa
                             unsigned int k0 = data_block->rank;
                             data_block->rank = data_block->rank + udt->compoundfield[i].rank;
 
-                            data_block->dims = (Dims*)realloc((void*)data_block->dims, data_block->rank * sizeof(Dims));
+                            data_block->dims = (Dimension*)realloc((void*)data_block->dims, data_block->rank * sizeof(Dimension));
 
                             for (unsigned int k = k0; k < data_block->rank; k++) {
                                 init_dim_block(&data_block->dims[k]);
@@ -381,7 +381,7 @@ int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LogMa
         //----------------------------------------------------------------------------------------------------------------------------
         // Decompress the dimensional data if necessary & free Heap Associated with Compression
 
-        Dims new_dim;
+        Dimension new_dim;
         init_dim_block(&new_dim); // Holder for the Sub-setted Dimension (part copy of the original)
 
         auto dim = &(data_block->dims[dim_id]); // the original dimension to be subset
@@ -1075,7 +1075,7 @@ int apply_count(Subset subset, DataBlock* data_block)
         }
         if (dim_id < (int)data_block->rank) {
             count[0] = (unsigned int)data_block->dims[dim_id].dim_n; // Preserve this value
-            Dims ddim = data_block->dims[dim_id];
+            Dimension ddim = data_block->dims[dim_id];
             if (ddim.dim != nullptr) {
                 free(ddim.dim);
             }
@@ -1295,8 +1295,8 @@ int apply_rotate_rz(Subset subset, DataBlock* data_block)
         }
         free(data);
 
-        Dims d1 = data_block->dims[1];
-        Dims d2 = data_block->dims[2];
+        Dimension d1 = data_block->dims[1];
+        Dimension d2 = data_block->dims[2];
         data_block->dims[1] = d2;
         data_block->dims[2] = d1;
     } else if (order == 1) { // array[nz][nt][nr]
@@ -1331,8 +1331,8 @@ int apply_rotate_rz(Subset subset, DataBlock* data_block)
             free(data[k]);
         }
         free(data);
-        Dims d0 = data_block->dims[0];
-        Dims d1 = data_block->dims[1];
+        Dimension d0 = data_block->dims[0];
+        Dimension d1 = data_block->dims[1];
         data_block->dims[0] = d1;
         data_block->dims[1] = d0;
     } else {
@@ -1728,7 +1728,7 @@ template <> unsigned long long Abs<unsigned long long>::operator()(unsigned long
 }
 
 template <typename T>
-int get_subset_indices_for_type(const std::string& operation, Dims* dim, double value, unsigned int* subset_indices)
+int get_subset_indices_for_type(const std::string& operation, Dimension* dim, double value, unsigned int* subset_indices)
 {
     int count = 0;
 
@@ -1846,7 +1846,7 @@ int get_subset_indices_for_type(const std::string& operation, Dims* dim, double 
     return 0;
 }
 
-int get_subset_indices(const std::string& operation, Dims* dim, double value, unsigned int* subset_indices)
+int get_subset_indices(const std::string& operation, Dimension* dim, double value, unsigned int* subset_indices)
 {
     int count = 0;
 
@@ -1879,7 +1879,7 @@ int get_subset_indices(const std::string& operation, Dims* dim, double value, un
 }
 
 template <typename T>
-int apply_sub_setting_for_type(Dims* dims, int rank, int dim_id, const char* data, int ndata, int data_type,
+int apply_sub_setting_for_type(Dimension* dims, int rank, int dim_id, const char* data, int ndata, int data_type,
                                int not_operation, int start, int end, int start1, int end1, int stride, int* n,
                                void** new_data)
 {
@@ -2025,7 +2025,7 @@ int apply_sub_setting_for_type(Dims* dims, int rank, int dim_id, const char* dat
     return 0;
 }
 
-int apply_sub_setting(Dims* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
+int apply_sub_setting(Dimension* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
                       int start, int end, int start1, int end1, int stride, int* n, void** new_data)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Type: {}    Rank: {}", data_type, rank);

@@ -1,5 +1,6 @@
 #pragma once
 #include <clientserver/uda_structs.h>
+#include <config/config.h>
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
@@ -36,13 +37,13 @@ void close_client_ssl();
 
 void put_client_ssl_protocol(int specified);
 
-int init_client_ssl(std::vector<client_server::UdaError>& error_stack);
+int init_client_ssl(const config::Config& config, std::vector<client_server::UdaError>& error_stack);
 
 int start_client_ssl(std::vector<client_server::UdaError>& error_stack);
 
-int read_client_ssl(void* iohandle, char* buf, int count);
+int read_client_ssl(void* io_handle, char* buf, int count);
 
-int write_client_ssl(void* iohandle, char* buf, int count);
+int write_client_ssl(void* io_handle, const char* buf, int count);
 
 void put_client_host(const client_server::HostData* host);
 

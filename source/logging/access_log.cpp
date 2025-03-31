@@ -70,7 +70,7 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
         addrlen = sizeof(addr);
 #    ifndef IPV6PROTOCOL
         addr.sin_family = AF_INET;
-        if ((getpeername(socket, (struct sockaddr*)&addr, &addrlen)) == -1) { // Socket Address
+        if (getpeername(socket, reinterpret_cast<sockaddr*>(&addr), &addrlen) == -1) { // Socket Address
             strcpy(host, "-");
         } else {
             if (addrlen <= HostNameLength - 1) {
@@ -135,12 +135,12 @@ void uda::logging::uda_access_log(int init, ClientBlock client_block, RequestBlo
     // Request Completed Time: Elapsed & CPU
 
     gettimeofday(&et_end, nullptr);
-    auto elapsed_time = (double)((et_end.tv_sec - et_start.tv_sec) * 1000); // milliseconds
+    auto elapsed_time = static_cast<double>((et_end.tv_sec - et_start.tv_sec) * 1000); // milliseconds
 
     if (et_end.tv_usec < et_start.tv_usec) {
-        elapsed_time = elapsed_time - 1.0 + (double)(1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
+        elapsed_time = elapsed_time - 1.0 + static_cast<double>(1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
     } else {
-        elapsed_time = elapsed_time + (double)(et_end.tv_usec - et_start.tv_usec) / 1000.0;
+        elapsed_time = elapsed_time + static_cast<double>(et_end.tv_usec - et_start.tv_usec) / 1000.0;
     }
 
     // Write the Log Record & Flush the fd

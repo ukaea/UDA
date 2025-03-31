@@ -29,7 +29,7 @@ void uda::client_server::free_data_block(DataBlock* data_block)
     // Free Heap Memory & Zero all Integer values
 
     void* cptr;
-    Dims* ddims;
+    Dimension* ddims;
     unsigned int rank;
 
     UDA_LOG(UDA_LOG_DEBUG, "Enter");

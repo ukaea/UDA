@@ -49,7 +49,7 @@ int uda::protocol::alloc_data(DataBlock* data_block)
     // Allocate Memory for data Dimensions
 
     if (data_block->rank > 0) {
-        data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
+        data_block->dims = (Dimension*)malloc(data_block->rank * sizeof(Dimension));
         if (data_block->dims == nullptr) {
             return static_cast<int>(ServerSideError::ErrorAllocatingHeap);
         }

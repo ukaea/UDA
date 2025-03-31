@@ -55,17 +55,17 @@ using namespace std::string_literals;
 namespace
 {
 
-int server_subset_indices(char* operation, Dims* dim, double value, unsigned int* subset_indices);
+int server_subset_indices(char* operation, Dimension* dim, double value, unsigned int* subset_indices);
 
-int server_new_data_array2(Dims* dims, int rank, int dim_id, char* data, int n_data, int data_type, bool reverse,
+int server_new_data_array2(Dimension* dims, int rank, int dim_id, char* data, int n_data, int data_type, bool reverse,
                            int start, int end, int stride, int* n, void** new_data);
 
 } // namespace
 
 int uda::server::server_subset_data(DataBlock* data_block, Subset subset, LogMallocList *log_malloc_list)
 {
-    Dims* dim;
-    Dims new_dim;
+    Dimension* dim;
+    Dimension new_dim;
     char* operation;
 
     print_subset(subset);
@@ -321,7 +321,7 @@ int uda::server::server_subset_data(DataBlock* data_block, Subset subset, LogMal
 
                         data_block->rank = rank;
 
-                        data_block->dims = (Dims*)realloc((void*)data_block->dims, rank * sizeof(Dims));
+                        data_block->dims = (Dimension*)realloc((void*)data_block->dims, rank * sizeof(Dimension));
 
                         for (int k = k0; k < rank; k++) {
                             init_dim_block(&data_block->dims[k]);
@@ -344,7 +344,7 @@ int uda::server::server_subset_data(DataBlock* data_block, Subset subset, LogMal
                             data_block->rank = data_block->rank + udt->compoundfield[i].rank;
 
                             data_block->dims =
-                                (Dims*)realloc((void*)data_block->dims, data_block->rank * sizeof(Dims));
+                                (Dimension*)realloc((void*)data_block->dims, data_block->rank * sizeof(Dimension));
 
                             for (unsigned int k = k0; k < data_block->rank; k++) {
                                 init_dim_block(&data_block->dims[k]);
@@ -888,7 +888,7 @@ int uda::server::server_subset_data(DataBlock* data_block, Subset subset, LogMal
                 }
                 if (dim_id < (int)data_block->rank) {
                     count[0] = (unsigned int)data_block->dims[dim_id].dim_n; // Preserve this value
-                    Dims ddim = data_block->dims[dim_id];
+                    Dimension ddim = data_block->dims[dim_id];
                     if (ddim.dim != nullptr) {
                         free(ddim.dim);
                     }
@@ -1093,8 +1093,8 @@ int uda::server::server_subset_data(DataBlock* data_block, Subset subset, LogMal
                 }
                 free(data);
 
-                Dims d1 = data_block->dims[1];
-                Dims d2 = data_block->dims[2];
+                Dimension d1 = data_block->dims[1];
+                Dimension d2 = data_block->dims[2];
                 data_block->dims[1] = d2;
                 data_block->dims[2] = d1;
             } else if (order == 1) { // array[nz][nt][nr]
@@ -1130,8 +1130,8 @@ int uda::server::server_subset_data(DataBlock* data_block, Subset subset, LogMal
                     free(data[k]);
                 }
                 free(data);
-                Dims d0 = data_block->dims[0];
-                Dims d1 = data_block->dims[1];
+                Dimension d0 = data_block->dims[0];
+                Dimension d1 = data_block->dims[1];
                 data_block->dims[0] = d1;
                 data_block->dims[1] = d0;
             } else {
@@ -1470,7 +1470,7 @@ int uda::server::server_parse_server_side(config::Config& config, RequestData* r
 namespace
 {
 
-int server_subset_indices(char* operation, Dims* dim, double value, unsigned int* subset_indices)
+int server_subset_indices(char* operation, Dimension* dim, double value, unsigned int* subset_indices)
 {
     int count = 0;
 
@@ -1776,7 +1776,7 @@ int server_subset_indices(char* operation, Dims* dim, double value, unsigned int
 }
 
 template <typename T>
-int apply_subsetting(Dims* dims, int rank, int dim_id, char* data, int n_data, int data_type, bool reverse, int start,
+int apply_subsetting(Dimension* dims, int rank, int dim_id, char* data, int n_data, int data_type, bool reverse, int start,
                      int end, int stride, int* n, void** new_data) {
 
     T *p, *dp;
@@ -1886,7 +1886,7 @@ int apply_subsetting(Dims* dims, int rank, int dim_id, char* data, int n_data, i
     return 0;
 }
 
-int server_new_data_array2(Dims* dims, int rank, int dim_id, char* data, int n_data, int data_type, bool reverse,
+int server_new_data_array2(Dimension* dims, int rank, int dim_id, char* data, int n_data, int data_type, bool reverse,
                            int start, int end, int stride, int* n, void** new_data)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Type: {}    Rank: {}", data_type, rank);

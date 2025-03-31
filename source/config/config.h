@@ -64,7 +64,8 @@ class Option
             if (is<std::string>()) {
                 const auto& string = boost::any_cast<const std::string&>(_value);
                 return string.c_str();
-            } else if (_value.empty()) {
+            }
+            if (_value.empty()) {
                 return default_value;
             }
             throw ConfigError::cast_error<std::string>(_name, _value);
@@ -72,14 +73,16 @@ class Option
             if (is<int64_t>()) {
                 auto value = boost::any_cast<int64_t>(_value);
                 return static_cast<T>(value);
-            } else if (_value.empty()) {
+            }
+            if (_value.empty()) {
                 return default_value;
             }
             throw ConfigError::cast_error<int64_t>(_name, _value);
         } else {
             if (is<T>()) {
                 return boost::any_cast<T>(_value);
-            } else if (_value.empty()) {
+            }
+            if (_value.empty()) {
                 return default_value;
             }
             throw ConfigError::cast_error<T>(_name, _value);
@@ -97,12 +100,14 @@ class Config
 {
   public:
     Config();
-    // inline explicit Config(std::string_view file_path)
-    // {
-    //     load(file_path);
-    // }
-    Config(Config&& other) noexcept;
     ~Config();
+
+    Config(Config&& other) noexcept;
+    Config& operator=(Config&& other) noexcept;
+
+    Config(const Config& other) = delete;
+    Config& operator=(const Config& other) = delete;
+
     void load(std::string_view file_name);
     void load(std::istream& stream, std::string_view source_path);
     void load_in_memory();

@@ -17,7 +17,7 @@
 // constexpr auto DefaultHost = "localhost";
 // constexpr auto DefaultPort = 56565;
 
-using XDR = struct __rpc_xdr;
+using XDR = __rpc_xdr;
 
 namespace uda::client {
 
@@ -50,9 +50,9 @@ struct ClientFlags {
 
 struct LoggingOptions
 {
-    std::string log_dir = "";
-    uda::logging::LogLevel log_level = uda::logging::LogLevel::UDA_LOG_NONE;
-    uda::logging::LogOpenMode open_mode = uda::logging::LogOpenMode::APPEND;
+    std::string log_dir;
+    logging::LogLevel log_level = logging::LogLevel::UDA_LOG_NONE;
+    logging::LogOpenMode open_mode = logging::LogOpenMode::APPEND;
     bool log_to_stdout = false;
     bool log_to_file = true;
 };
@@ -66,6 +66,11 @@ public:
     ~Client() = default;
     explicit Client(std::string_view config_path);
 
+    Client(const Client&) = delete;
+    Client(Client&&) = delete;
+    Client& operator=(const Client&) = delete;
+    Client& operator=(Client&&) = delete;
+
     void load_config(std::string_view path);
     void initialise_logging(const std::string& log_dir, logging::LogLevel log_level, uda::logging::LogOpenMode log_mode);
     inline void initialise_logging();
@@ -78,9 +83,9 @@ public:
     int put(std::string_view put_instruction, const client_server::PutDataBlockList& putdata_block_list);
 
     void set_host(std::string_view host);
-    [[nodiscard]] const std::string& get_host() const {return connection_.get_host();}
+    [[nodiscard]] const std::string& get_host() const {return _connection.get_host();}
     void set_port(int port);
-    [[nodiscard]] int get_port() const {return connection_.get_port();}
+    [[nodiscard]] int get_port() const {return _connection.get_port();}
     void clear();
     [[nodiscard]] const client_server::DataBlock* current_data_block() const;
     [[nodiscard]] const client_server::DataBlock* data_block(int handle) const;
@@ -108,11 +113,7 @@ public:
     [[nodiscard]] const std::vector<client_server::UdaError>& error_stack() const;
     void close_all_connections();
     void close_sockets();
-
-    Client(const Client&) = delete;
-    Client& operator=(const Client&) = delete;
-
-    const int version;
+    int version() const { return _version; }
 
 protected:
     int get_requests(client_server::RequestBlock& request_block, int* indices);
@@ -127,54 +128,57 @@ protected:
     //   configuration options and state
     // -------------------------------------------------
 
+private:
+    const int _version;
+
     // std::string _host = {};
     // int _port = 0;
-    uint32_t flags_ = 0;
-    int alt_rank_ = 0;
-    ClientFlags client_flags_ = {};
-    uint32_t private_flags_ = 0;
+    // uint32_t _flags = 0;
+    int _alt_rank = 0;
+    ClientFlags _client_flags = {};
+    uint32_t _private_flags = 0;
 
-    LoggingOptions logging_options_ = {};
+    LoggingOptions _logging_options = {};
 
-    std::string client_username_ = "client";
-    int protocol_version_;
+    std::string _client_username = "client";
+    int _protocol_version;
 
     // -------------------------------------------------
     //   idam struct stuff
     // -------------------------------------------------
 
-    client_server::ClientBlock client_block_ = {};
-    client_server::ServerBlock server_block_ = {};
-    std::vector<client_server::DataBlock> data_blocks_ = {};
-    cache::UdaCache* cache_ = nullptr;
-    std::vector<client_server::UdaError> error_stack_ = {};
-    client_server::MetaData metadata_ = {};
+    client_server::ClientBlock _client_block = {};
+    client_server::ServerBlock _server_block = {};
+    std::vector<client_server::DataBlock> _data_blocks;
+    cache::UdaCache* _cache = nullptr;
+    std::vector<client_server::UdaError> _error_stack;
+    client_server::MetaData _metadata = {};
 
     // -------------------------------------------------
     //   interface classes (mockable / testable?)
     // -------------------------------------------------
 
-    config::Config config_ = {};
-    Connection connection_ = {error_stack_};
+    config::Config _config;
+    Connection _connection = {_error_stack};
 
     // -------------------------------------------------
     //   xdr stuff
     // -------------------------------------------------
 
     // required by protocol functions for data transport
-    // NOTE: these are now owned by the socket struct in connection_
+    // NOTE: these are now owned by the socket struct in _connection
     // TODO: how to signal these are cached here, not owned
-    mutable XDR* client_input_ = nullptr;
-    mutable XDR* client_output_ = nullptr;
+    mutable XDR* _client_input = nullptr;
+    mutable XDR* _client_output = nullptr;
 
     // -------------------------------------------------
     //   legacy structured data stuff
     // -------------------------------------------------
-    structures::UserDefinedTypeList* user_defined_type_list_ = nullptr; // List of all known User Defined Structure Types
-    structures::LogMallocList* log_malloc_list_ = nullptr;             // List of all Heap Allocations for Data
-    structures::NTree* full_ntree_ = nullptr;
-    structures::LogStructList log_struct_list_ = {};
-    int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
+    structures::UserDefinedTypeList* _user_defined_type_list = nullptr; // List of all known User Defined Structure Types
+    structures::LogMallocList* _log_malloc_list = nullptr;             // List of all Heap Allocations for Data
+    structures::NTree* _full_ntree = nullptr;
+    structures::LogStructList _log_struct_list = {};
+    int _malloc_source = UDA_MALLOC_SOURCE_NONE;
 
     int send_putdata(const client_server::RequestBlock& request_block);
     int send_request_block(client_server::RequestBlock& request_block);

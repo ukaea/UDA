@@ -21,7 +21,7 @@
 #include "config/config.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include "authentication/udaServerSSL.h"
+#  include "authentication/server_ssl.h"
 using namespace uda::authentication;
 #endif
 
@@ -35,9 +35,39 @@ using namespace uda::protocol;
 
 using boost::asio::ip::tcp;
 
+unsigned int count_dimension_size(const Dimension& dim) {
+    unsigned int count = sizeof(Dimension);
+    if (!dim.compressed) {
+        count += static_cast<unsigned int>(getSizeOf(static_cast<UDA_TYPE>(dim.data_type)) * dim.dim_n);
+        int factor = 1;
+        if (dim.errasymmetry) {
+            factor = 2;
+        }
+        if (dim.error_type != UDA_TYPE_UNKNOWN) {
+            count += static_cast<unsigned int>(factor * getSizeOf(static_cast<UDA_TYPE>(dim.error_type)) * dim.dim_n);
+        }
+    } else {
+        switch (dim.method) {
+            case 0:
+                count += +2 * sizeof(double);
+            break;
+            case 1:
+                for (unsigned int i = 0; i < dim.udoms; i++) {
+                    count += static_cast<unsigned int>(*((long*) dim.sams + i) * getSizeOf(static_cast<UDA_TYPE>(dim.data_type)));
+                }
+            break;
+            case 2:
+            case 3:
+                count += dim.udoms * getSizeOf(static_cast<UDA_TYPE>(dim.data_type));
+            break;
+            default:
+                throw std::runtime_error("Invalid dimension method");
+        }
+    }
+    return count;
+}
+
 unsigned int count_data_block_size(const DataBlock& data_block, const ClientBlock* client_block) {
-    int factor;
-    Dims dim;
     unsigned int count = sizeof(DataBlock);
 
     count += static_cast<unsigned int>(getSizeOf(static_cast<UDA_TYPE>(data_block.data_type)) * data_block.data_n);
@@ -50,36 +80,8 @@ unsigned int count_data_block_size(const DataBlock& data_block, const ClientBloc
     }
 
     if (data_block.rank > 0) {
-        for (unsigned int k = 0; k < data_block.rank; k++) {
-            count += sizeof(Dims);
-            dim = data_block.dims[k];
-            if (!dim.compressed) {
-                count += static_cast<unsigned int>(getSizeOf(static_cast<UDA_TYPE>(dim.data_type)) * dim.dim_n);
-                factor = 1;
-                if (dim.errasymmetry) {
-                    factor = 2;
-                }
-                if (dim.error_type != UDA_TYPE_UNKNOWN) {
-                    count += static_cast<unsigned int>(factor * getSizeOf(static_cast<UDA_TYPE>(dim.error_type)) * dim.dim_n);
-                }
-            } else {
-                switch (dim.method) {
-                    case 0:
-                        count += +2 * sizeof(double);
-                        break;
-                    case 1:
-                        for (unsigned int i = 0; i < dim.udoms; i++) {
-                            count += static_cast<unsigned int>(*((long*) dim.sams + i) * getSizeOf(static_cast<UDA_TYPE>(dim.data_type)));
-                        }
-                        break;
-                    case 2:
-                        count += dim.udoms * getSizeOf(static_cast<UDA_TYPE>(dim.data_type));
-                        break;
-                    case 3:
-                        count += dim.udoms * getSizeOf(static_cast<UDA_TYPE>(dim.data_type));
-                        break;
-                }
-            }
+        for (unsigned int i = 0; i < data_block.rank; i++) {
+            count += count_dimension_size(data_block.dims[i]);
         }
     }
 
@@ -115,18 +117,18 @@ void close_sockets(std::vector<Socket>& sockets)
 }
 
 uda::server::Server::Server(Config config)
-    : _config{std::move(config)}
-    , _error_stack{}
-    , _protocol{_error_stack}
-    , _sockets{}
-    , _plugins{_config}
-{
+        : _config{std::move(config)}
+        , _client_block()
+        , _cache{cache::open_cache()}
+        , _protocol{_error_stack}
+        , _plugins{_config}
+        , _total_data_block_size{0}
+        , _server_tot_block_time{0} {
     init_server_block(&_server_block, ServerVersion);
-    _cache = cache::open_cache();
 }
 
 void uda::server::Server::start_logs() {
-    auto log_level = (LogLevel)_config.get("logging.level").as_or_default((int)UDA_LOG_NONE);
+    auto log_level = static_cast<LogLevel>(_config.get("logging.level").as_or_default(static_cast<int>(UDA_LOG_NONE)));
     auto log_dir = _config.get("logging.path").as_or_default(""s);
 
     if (log_dir == "-") {
@@ -196,6 +198,21 @@ void uda::server::Server::initialise()
     _plugins.init();
 
     //-------------------------------------------------------------------------
+    // Connect to the client with SSL (X509) authentication
+
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+
+    // Create the SSL binding (on socket #0), the SSL context, and verify the client certificate
+    // Identify the authenticated user for service authorisation
+
+    put_server_ssl_socket(0);
+
+    if (start_server_ssl(_config, _error_stack) != 0) {
+        return;
+    }
+#endif
+
+    //-------------------------------------------------------------------------
     // Create the XDR Record Streams
     _protocol.create();
 
@@ -218,7 +235,6 @@ void uda::server::Server::initialise()
 void uda::server::Server::run()
 {
     unsigned short port = _config.get("server.port").as_or_default(0);
-    int socket_fd = 0;
 
     initialise();
 
@@ -227,11 +243,11 @@ void uda::server::Server::run()
         for (;;) {
             boost::asio::io_context io_context;
             tcp::acceptor acceptor{io_context, tcp::endpoint{tcp::v4(), port}};
-            boost::asio::ip::tcp::socket socket{io_context};
+            tcp::socket socket{io_context};
 
             UDA_LOG(UDA_LOG_DEBUG, "Listening on port {}", port);
             acceptor.accept(socket);
-            socket_fd = socket.native_handle();
+            const int socket_fd = socket.native_handle();
 
             connect(socket_fd);
 
@@ -245,7 +261,7 @@ void uda::server::Server::run()
     shutdown();
 }
 
-void uda::server::Server::connect(int socket_fd)
+void uda::server::Server::connect(const int socket_fd)
 {
     _server_closedown = false;
     _protocol.set_socket(socket_fd);
@@ -781,7 +797,7 @@ int uda::server::Server::handle_request()
         }
 
         if (data_block.rank > 0) {
-            Dims dim;
+            Dimension dim;
             for (unsigned int j = 0; j < data_block.rank; j++) {
                 dim = data_block.dims[j];
                 if (protocol_version_type_test(protocol_version, dim.data_type) ||

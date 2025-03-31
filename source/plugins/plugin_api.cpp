@@ -113,7 +113,7 @@ int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, 
     }
 
     data_block->rank = (int)rank;
-    data_block->dims = (Dims*)malloc(rank * sizeof(Dims));
+    data_block->dims = (Dimension*)malloc(rank * sizeof(Dimension));
 
     size_t len = 1;
 
@@ -175,7 +175,7 @@ int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, cons
     data_block->data = strdup(value);
 
     data_block->rank = 1;
-    data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
+    data_block->dims = (Dimension*)malloc(data_block->rank * sizeof(Dimension));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
         init_dim_block(&data_block->dims[i]);
@@ -226,7 +226,7 @@ int udaPluginReturnDataStringArray(UDA_PLUGIN_INTERFACE* plugin_interface, const
     data_block->data = data;
 
     data_block->rank = 2;
-    data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
+    data_block->dims = (Dimension*)malloc(data_block->rank * sizeof(Dimension));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
         init_dim_block(&data_block->dims[i]);
@@ -270,7 +270,7 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
     memcpy(data_block->data, value, size);
 
     data_block->rank = rank;
-    data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
+    data_block->dims = (Dimension*)malloc(data_block->rank * sizeof(Dimension));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
         init_dim_block(&data_block->dims[i]);
@@ -504,7 +504,7 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
     data_block->rank = rank;
     data_block->data_n = count;
     data_block->data = data;
-    data_block->dims = (Dims*)malloc(rank * sizeof(Dims));
+    data_block->dims = (Dimension*)malloc(rank * sizeof(Dimension));
 
     for (int i = 0; i < rank; ++i) {
         init_dim_block(&data_block->dims[i]);

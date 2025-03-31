@@ -110,7 +110,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
         char error_msg[StringLength];
 
-        Dims* dims;
+        Dimension* dims;
         DataSystem* data_system;
         SystemConfig* system_config;
         DataSource* data_source;

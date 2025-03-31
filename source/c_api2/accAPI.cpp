@@ -411,7 +411,7 @@ int udaGetServerPort()
 int udaGetClientVersion()
 {
     const auto& instance = uda::client::ThreadClient::instance();
-    return instance.version;
+    return instance.version();
 }
 
 #define UDA_VERSION_STRING_LENGTH 256

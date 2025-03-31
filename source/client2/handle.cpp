@@ -16,7 +16,7 @@ void uda::client::free_handle(int handle)
     // Free Heap Memory (Not the Data Blocks themselves: These will be re-used.)
 
     char* cptr;
-    Dims* ddims;
+    Dimension* ddims;
     int rank;
 
     DataBlock* data_block = get_data_block(handle);

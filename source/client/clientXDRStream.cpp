@@ -9,7 +9,7 @@
 #include "connection.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaClientSSL.h>
+#  include <authentication/client_ssl.h>
 
 using namespace uda::authentication;
 #endif

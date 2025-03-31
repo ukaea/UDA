@@ -7,7 +7,7 @@
 
 TEST_CASE( "Compress int dim", "[compress-dim]" )
 {
-    uda::client_server::Dims dim{};
+    uda::client_server::Dimension dim{};
 
     std::vector<int> data(100);
     std::iota(data.begin(), data.end(), 0);
@@ -29,7 +29,7 @@ TEST_CASE( "Compress int dim", "[compress-dim]" )
 
 TEST_CASE( "Compress float dim", "[compress-dim]" )
 {
-    uda::client_server::Dims dim{};
+    uda::client_server::Dimension dim{};
 
     std::vector<float> data(100);
     std::iota(data.begin(), data.end(), 0.0f);
@@ -52,7 +52,7 @@ TEST_CASE( "Compress float dim", "[compress-dim]" )
 
 TEST_CASE( "Decompress int dim", "[compress-dim]" )
 {
-    uda::client_server::Dims dim{};
+    uda::client_server::Dimension dim{};
     dim.compressed = 1;
     dim.data_type = UDA_TYPE_INT;
     dim.dim_n = 100;
@@ -75,7 +75,7 @@ TEST_CASE( "Decompress int dim", "[compress-dim]" )
 
 TEST_CASE( "Decompress float dim", "[compress-dim]" )
 {
-    uda::client_server::Dims dim{};
+    uda::client_server::Dimension dim{};
     dim.compressed = 1;
     dim.data_type = UDA_TYPE_FLOAT;
     dim.dim_n = 100;

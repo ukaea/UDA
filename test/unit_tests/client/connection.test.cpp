@@ -84,45 +84,45 @@ class MockConnection : public uda::client::Connection
 
     int create()
     {
-        client_socket_ = socket_list_.size();
+        _client_socket = _socket_list.size();
         uda::client_server::Socket socket = {};
 
         // socket.type = uda::client_server::SocketType::UDA;
         socket.open = true;
-        socket.fh = client_socket_;
-        socket.port = port_;
-        socket.host = host_;
+        socket.fh = _client_socket;
+        socket.port = _port;
+        socket.host = _host;
         socket.tv_server_start = time(nullptr);
         socket.user_timeout = 600;
         socket.Input = nullptr;
         socket.Output = nullptr;
 
-        socket_list_.push_back(socket);
+        _socket_list.push_back(socket);
         startup_state = true;
-        server_reconnect_ = false;
+        _server_reconnect = false;
 
         return 0;
     }
 
     const std::vector<uda::client_server::UdaError>& error_stack() const {
-        return error_stack_;
+        return _error_stack;
     }
 
     const std::vector<uda::client_server::Socket>& get_socket_list() const
     {
-        return socket_list_;
+        return _socket_list;
     }
 
     int get_current_client_socket() const
     {
-        return client_socket_;
+        return _client_socket;
     }
 
     // mock the close socket method to just set filehandle to -1
     // do not actually call close...
     void close_socket(int fh)
     {
-        for (auto& socket : socket_list_) {
+        for (auto& socket : _socket_list) {
             if (socket.open && socket.fh == fh && socket.fh >= 0) {
                 socket.open = false;
                 socket.fh = -1;

@@ -430,7 +430,7 @@ int uda::server::legacyServer(config::Config& config, ClientBlock client_block, 
             }
 
             if (data_block.rank > 0) {
-                Dims dim;
+                Dimension dim;
                 for (unsigned int i = 0; i < data_block.rank; i++) {
                     dim = data_block.dims[i];
                     if (protocol_version_type_test(protocolVersion, dim.data_type) ||

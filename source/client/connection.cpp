@@ -50,7 +50,7 @@
 #include "uda/client.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaClientSSL.h>
+#  include <authentication/client_ssl.h>
 #endif
 
 #if defined(COMPILER_GCC) || defined(__clang__)

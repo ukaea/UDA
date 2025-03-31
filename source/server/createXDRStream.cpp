@@ -5,7 +5,7 @@
 #include "writer.h"
 
 #if !defined(FATCLIENT) && defined(SSLAUTHENTICATION)
-#  include <authentication/udaServerSSL.h>
+#  include <authentication/server_ssl.h>
 
 using namespace uda::authentication;
 #endif

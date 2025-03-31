@@ -7,7 +7,7 @@
 #include <uda/types.h>
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include "authentication/udaServerSSL.h"
+#  include "authentication/server_ssl.h"
 #endif
 
 #include <cerrno>

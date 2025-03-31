@@ -6,7 +6,7 @@
 
 using namespace uda::logging;
 
-template <typename T> bool reduce_dim(uda::client_server::Dims* ddim)
+template <typename T> bool reduce_dim(uda::client_server::Dimension* ddim)
 {
     T sf = (T)0.0;
     switch (ddim->method) {
@@ -111,7 +111,7 @@ int reduce_data(uda::client_server::DataBlock* data_block)
     return 0;
 }
 
-template <typename T> int cast_dim(uda::client_server::Dims* ddim)
+template <typename T> int cast_dim(uda::client_server::Dimension* ddim)
 {
     switch (ddim->method) {
         case 1: {
@@ -174,7 +174,7 @@ int cast_data(uda::client_server::DataBlock* data_block, const uda::client_serve
             continue; // Only Process the Time Dimension
         }
         UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension {}", k);
-        uda::client_server::Dims* ddim = &data_block->dims[k];
+        uda::client_server::Dimension* ddim = &data_block->dims[k];
         if (ddim->compressed) {
             if (ddim->method == 0) {
                 ddim->data_type = UDA_TYPE_DOUBLE;

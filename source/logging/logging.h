@@ -68,7 +68,7 @@ void capture_log_output(LogLevel mode, std::ostream& oss);
 
 
 template<typename... Args>
-void log(LogLevel mode, const char* file, int line, const std::string_view format_string, Args &&...args)
+void log(const LogLevel mode, const char* file, const int line, const std::string_view format_string, Args &&...args)
 {
     if (!logging_initialised()) {
         return;
@@ -79,7 +79,7 @@ void log(LogLevel mode, const char* file, int line, const std::string_view forma
     }
 
     std::shared_ptr<spdlog::logger> logger;
-    spdlog::level::level_enum level;
+    spdlog::level::level_enum level = spdlog::level::off;
 
     switch (mode) {
         case LogLevel::UDA_LOG_DEBUG:
@@ -112,7 +112,7 @@ void log(LogLevel mode, const char* file, int line, const std::string_view forma
         throw std::runtime_error{ "logging not configured" };
     }
 
-    auto fmt = format_string.data();
+    const auto* fmt = format_string.data();
     logger->log(loc, level, fmt, args...);
     if (mode == LogLevel::UDA_LOG_ERROR) {
         spdlog::get("debug")->log(loc, level, fmt, args...);

@@ -2,9 +2,9 @@
 //
 //----------------------------------------------------------------
 
-#include "updateSelectParms.h"
+#include "update_select_params.h"
 
-void uda::authentication::update_select_params(int fd, fd_set* rfds, struct timeval* tv)
+void uda::authentication::update_select_params(const int fd, fd_set* rfds, struct timeval* tv)
 {
     FD_ZERO(rfds);
     FD_SET(fd, rfds);

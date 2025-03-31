@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "clientserver/uda_structs.h"
+#include "config/config.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
@@ -17,7 +18,7 @@
 namespace uda::authentication
 {
 
-int start_server_ssl(std::vector<client_server::UdaError>& error_stack);
+int start_server_ssl(const config::Config& config, std::vector<client_server::UdaError>& error_stack);
 
 void close_server_ssl();
 

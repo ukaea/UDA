@@ -9,7 +9,7 @@ using namespace uda::logging;
 
 namespace {
 template <typename T>
-bool reduce_dimension(uda::client_server::Dims* dim) {
+bool reduce_dimension(uda::client_server::Dimension* dim) {
     bool reduce = true;
 
     T sum = static_cast<T>(0.0);
@@ -60,7 +60,7 @@ bool reduce_dimension(uda::client_server::Dims* dim) {
 }
 
 template <typename T>
-int convert_dim_to_double(uda::client_server::Dims* dim) {
+int convert_dim_to_double(uda::client_server::Dimension* dim) {
     double* new_offs = nullptr;
     double* new_ints = nullptr;
 
@@ -130,7 +130,7 @@ int uda::server::server_processing(client_server::ClientBlock client_block, clie
         // If the Rank is 1 and the dimensional data are compressed with zero values, then reduce the
         // rank giving a scalar array
 
-        client_server::Dims* dim = data_block->dims;
+        client_server::Dimension* dim = data_block->dims;
         if (dim->compressed) {
             bool reduce = true;
             switch (dim->data_type) {
@@ -176,7 +176,7 @@ int uda::server::server_processing(client_server::ClientBlock client_block, clie
                 continue; // Only Process the Time Dimension
             }
             UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension {}", k);
-            client_server::Dims* dim = &data_block->dims[k];
+            client_server::Dimension* dim = &data_block->dims[k];
             if (dim->compressed) {
                 int rc = 0;
 

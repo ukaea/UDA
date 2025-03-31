@@ -109,7 +109,7 @@ void uda::client_server::init_data_block(DataBlock* str)
     init_client_block(&(str->client_block), 0, "");
 }
 
-void uda::client_server::init_dim_block(Dims* str)
+void uda::client_server::init_dim_block(Dimension* str)
 {
     str->dim = nullptr;
     str->synthetic = nullptr;

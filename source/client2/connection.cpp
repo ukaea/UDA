@@ -50,7 +50,7 @@
 #include "logging/logging.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaClientSSL.h>
+#  include <authentication/client_ssl.h>
 using namespace uda::authentication;
 #endif
 
@@ -73,50 +73,50 @@ void uda::client::Connection::load_config(const config::Config& config)
         return;
     }
 
-    host_list_ = HostList{config};
+    _host_list = HostList{config};
 
     // TODO: what is precedence here if host is from host-list (with associated port?)
     // TODO: should connection class always have reference to host list?
     auto port = config.get("connection.port").as_or_default<int32_t>(DefaultPort);
-    if (port != port_) {
+    if (port != _port) {
         set_port(port);
     }
     auto host = config.get("connection.host").as_or_default<std::string>(DefaultHost);
-    if (host != host_) {
+    if (host != _host) {
         set_host(host);
     }
 
     auto max_socket_delay = config.get("connection.max_socket_delay").as_or_default<int>(DefaultMaxSocketDelay);
-    if (max_socket_delay != max_socket_delay_)
+    if (max_socket_delay != _max_socket_delay)
     {
-        max_socket_delay_ = max_socket_delay;
-        server_reconnect_ = true;
+        _max_socket_delay = max_socket_delay;
+        _server_reconnect = true;
     }
     auto max_socket_attempts = config.get("connection.max_socket_attempts").as_or_default<int>(DefaultMaxSocketAttempts);
-    if (max_socket_attempts != max_socket_attempts_)
+    if (max_socket_attempts != _max_socket_attempts)
     {
-        max_socket_attempts_ = max_socket_attempts;
-        server_reconnect_ = true;
+        _max_socket_attempts = max_socket_attempts;
+        _server_reconnect = true;
     }
 
-    // TODO: currently no host_list_ searching for failover connection details.
+    // TODO: currently no _host_list searching for failover connection details.
     // TODO: how to determine if currently connected to failover server and signal reconnect on update?
-    fail_over_port_ = config.get("connection.failover_port").as_or_default<int32_t>(0);
-    fail_over_host_ = config.get("connection.failover_host").as_or_default<std::string>(""s);
+    _fail_over_port = config.get("connection.failover_port").as_or_default<int32_t>(0);
+    _fail_over_host = config.get("connection.failover_host").as_or_default<std::string>(""s);
 }
 
 void uda::client::Connection::load_host_list(std::string_view config_file)
 {
-    host_list_ = HostList(config_file);
+    _host_list = HostList(config_file);
 }
 
 bool uda::client::Connection::open() const {
-    return client_socket_ != -1;
+    return _client_socket != -1;
 }
 
 int uda::client::Connection::find_socket(const int fh) const {
     int i = 0;
-    for (const auto& socket : socket_list_) {
+    for (const auto& socket : _socket_list) {
         if (socket.fh == fh) {
             return i;
         }
@@ -126,12 +126,12 @@ int uda::client::Connection::find_socket(const int fh) const {
 }
 
 int uda::client::Connection::find_socket() const {
-    return find_socket(client_socket_);
+    return find_socket(_client_socket);
 }
 
 int uda::client::Connection::find_socket_by_properties(const std::string_view host, const int port) const {
     int i = 0;
-    for (const auto& socket : socket_list_) {
+    for (const auto& socket : _socket_list) {
         if (std::string(socket.host) == host and socket.port == port) {
             return i;
         }
@@ -142,11 +142,11 @@ int uda::client::Connection::find_socket_by_properties(const std::string_view ho
 
 const Socket& uda::client::Connection::get_current_connection_data() const
 {
-    if (client_socket_ == -1) {
+    if (_client_socket == -1) {
         throw uda::exceptions::ClientError("No open socket connection");
     }
-    for (const auto& socket : socket_list_) {
-        if (socket.fh == client_socket_) {
+    for (const auto& socket : _socket_list) {
+        if (socket.fh == _client_socket) {
             return socket;
         }
     }
@@ -156,12 +156,12 @@ const Socket& uda::client::Connection::get_current_connection_data() const
 
 Socket& uda::client::Connection::get_current_socket()
 {
-    if (client_socket_ == -1) {
+    if (_client_socket == -1) {
         throw uda::exceptions::ClientError("No open socket connection");
     }
 
-    for (auto& socket : socket_list_) {
-        if (socket.fh == client_socket_) {
+    for (auto& socket : _socket_list) {
+        if (socket.fh == _client_socket) {
             return socket;
         }
     }
@@ -172,7 +172,7 @@ Socket& uda::client::Connection::get_current_socket()
 // TODO: is it worth using chrono to improve precision of this?
 time_t uda::client::Connection::get_current_socket_age() const
 {
-    if (client_socket_ == -1) {
+    if (_client_socket == -1) {
         return 0;
     }
 
@@ -184,7 +184,7 @@ time_t uda::client::Connection::get_current_socket_age() const
 
 bool uda::client::Connection::current_socket_timeout() const
 {
-    if (client_socket_ == -1) {
+    if (_client_socket == -1) {
         return true;
     }
 
@@ -195,7 +195,7 @@ bool uda::client::Connection::current_socket_timeout() const
 
 void uda::client::Connection::set_maximum_socket_age(int age)
 {
-    if (client_socket_ == -1) {
+    if (_client_socket == -1) {
         return;
     }
     auto& socket = get_current_socket();
@@ -204,18 +204,18 @@ void uda::client::Connection::set_maximum_socket_age(int age)
 
 bool uda::client::Connection::maybe_reuse_existing_socket()
 {
-    const int candidate_socket_id = find_socket_by_properties(host_, port_);
-    if (candidate_socket_id == -1 or !socket_list_[candidate_socket_id].open) {
-        client_socket_ = -1;
+    const int candidate_socket_id = find_socket_by_properties(_host, _port);
+    if (candidate_socket_id == -1 or !_socket_list[candidate_socket_id].open) {
+        _client_socket = -1;
         return false;
     }
-    client_socket_ = socket_list_[candidate_socket_id].fh;
+    _client_socket = _socket_list[candidate_socket_id].fh;
     if (current_socket_timeout()) {
         close_down(ClosedownType::CLOSE_SOCKETS);
-        client_socket_ = -1;
+        _client_socket = -1;
         return false;
     }
-    server_reconnect_ = false;
+    _server_reconnect = false;
     return true;
 }
 
@@ -225,7 +225,7 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
 {
     // TODO: this doesn't look right... this invalidates the client_socket handle but doesn't
     // call e.g. ::create to actually create the new connection and register the socket
-    // relies on a later call to ::open() to check client_socket_!=-1
+    // relies on a later call to ::open() to check _client_socket!=-1
     // -- Basically this signals to create a new connection later
 
     // TODO: the in/out args feels a bit like side-effects? I don't like this signature.
@@ -237,7 +237,7 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
 
     const time_t tv_server_start0 = *tv_server_start;
     const int user_timeout0 = *user_timeout;
-    const int client_socket0 = client_socket_;
+    const int client_socket0 = _client_socket;
     XDR* client_input0 = *client_input;
     XDR* client_output0 = *client_output;
 
@@ -246,26 +246,26 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
 
     // TODO: missing the change_socket logic here, which says (in client1) that if another (live) connection exists
     //  just change to that one
-    int candidate_socket_id = find_socket_by_properties(host_, port_);
-    if (candidate_socket_id != -1 and socket_list_[candidate_socket_id].open) {
-        client_socket_ = socket_list_[candidate_socket_id].fh;
+    int candidate_socket_id = find_socket_by_properties(_host, _port);
+    if (candidate_socket_id != -1 and _socket_list[candidate_socket_id].open) {
+        _client_socket = _socket_list[candidate_socket_id].fh;
 
         // replace with previous timer settings and XDR handles
-        *tv_server_start = socket_list_[candidate_socket_id].tv_server_start;
-        *user_timeout = socket_list_[candidate_socket_id].user_timeout;
-        client_socket_ = socket_list_[candidate_socket_id].fh;
-        *client_input = socket_list_[candidate_socket_id].Input;
-        *client_output = socket_list_[candidate_socket_id].Output;
+        *tv_server_start = _socket_list[candidate_socket_id].tv_server_start;
+        *user_timeout = _socket_list[candidate_socket_id].user_timeout;
+        _client_socket = _socket_list[candidate_socket_id].fh;
+        *client_input = _socket_list[candidate_socket_id].Input;
+        *client_output = _socket_list[candidate_socket_id].Output;
 
-        port_ = socket_list_[candidate_socket_id].port;
-        host_ = std::string{socket_list_[candidate_socket_id].host};
+        _port = _socket_list[candidate_socket_id].port;
+        _host = std::string{_socket_list[candidate_socket_id].host};
     }
 
     // Instance a new server if the Client has changed the host and/or port number
 
-    else if (server_reconnect_) {
+    else if (_server_reconnect) {
         time(tv_server_start); // Start a New Server AGE timer
-        client_socket_ = -1;   // Flags no Socket is open
+        _client_socket = -1;   // Flags no Socket is open
         // server_change_socket_ = false;
     }
 
@@ -273,11 +273,11 @@ int uda::client::Connection::reconnect(XDR** client_input, XDR** client_output, 
 
     // save Previous data if a previous socket existed
     if (socket_id >= 0) {
-        socket_list_[socket_id].tv_server_start = tv_server_start0;
-        socket_list_[socket_id].user_timeout = user_timeout0;
-        socket_list_[socket_id].fh = client_socket0;
-        socket_list_[socket_id].Input = client_input0;
-        socket_list_[socket_id].Output = client_output0;
+        _socket_list[socket_id].tv_server_start = tv_server_start0;
+        _socket_list[socket_id].user_timeout = user_timeout0;
+        _socket_list[socket_id].fh = client_socket0;
+        _socket_list[socket_id].Input = client_input0;
+        _socket_list[socket_id].Output = client_output0;
     }
 
     return err;
@@ -346,71 +346,71 @@ void set_hints(addrinfo* hints, const char* host_name)
 
 bool uda::client::Connection::reconnect_required() const
 {
-    return server_reconnect_;
+    return _server_reconnect;
 }
 
 int uda::client::Connection::get_port() const
 {
-    return port_;
+    return _port;
 }
 
 const std::string& uda::client::Connection::get_host() const
 {
-    return host_;
+    return _host;
 }
 
 void uda::client::Connection::set_port(int port)
 {
-    if (port == port_) {
+    if (port == _port) {
         return;
     }
-    port_ = port;
-    server_reconnect_ = true;
+    _port = port;
+    _server_reconnect = true;
 }
 
 void uda::client::Connection::set_host(std::string_view host)
 {
-    if (host == host_) {
+    if (host == _host) {
         return;
     }
-    auto host_list_record = host_list_.find_by_alias(host);
+    auto host_list_record = _host_list.find_by_alias(host);
     if (host_list_record != nullptr) {
-        if (host_list_record->host_name != host_) {
-            host_ = host_list_record->host_name;
-            server_reconnect_ = true;
+        if (host_list_record->host_name != _host) {
+            _host = host_list_record->host_name;
+            _server_reconnect = true;
         }
         int port = host_list_record->port;
-        if (port > 0 && port_ != port) {
-            port_ = port;
-            server_reconnect_ = true;
+        if (port > 0 && _port != port) {
+            _port = port;
+            _server_reconnect = true;
         }
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         put_client_ssl_protocol(host_list_record->isSSL);
 #endif
-    } else if ((host_list_record = host_list_.find_by_name(host)) != nullptr) {
-        host_ = host;
-        server_reconnect_ = true;
+    } else if ((host_list_record = _host_list.find_by_name(host)) != nullptr) {
+        _host = host;
+        _server_reconnect = true;
         int port = host_list_record->port;
-        if (port > 0 && port_ != port) {
+        if (port > 0 && _port != port) {
             // Replace if found and different
-            port_ = port;
+            _port = port;
         }
     } else {
         // Does the host name contain the SSL protocol prefix? If so strip this off
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         if (boost::starts_with(host, "SSL://")) {
             auto new_host = host.substr(6);
-            if (new_host == host_) {
-                host_ = new_host;
+            if (new_host == _host) {
+                _host = new_host;
             }
             put_client_ssl_protocol(1);
         } else {
-            host_ = host;
+            _host = host;
         }
 #else
-        host_ = host;
+        _host = host;
 #endif
-        server_reconnect_ = true;
+        _server_reconnect = true;
     }
 }
 
@@ -425,8 +425,8 @@ void uda::client::Connection::register_xdr_streams(XDR* client_input, XDR* clien
 
 void uda::client::Connection::register_new_xdr_streams()
 {
-    io_data_list_.emplace_back(io_data());
-    auto [client_input, client_output] = create_xdr_stream(&io_data_list_.back());
+    _io_data_list.emplace_back(io_data());
+    auto [client_input, client_output] = create_xdr_stream(&_io_data_list.back());
     if (!client_input or !client_output) {
         throw uda::exceptions::ClientError("failed to open new XDR streams");
     }
@@ -446,13 +446,13 @@ int uda::client::Connection::create()
     int rc;
 
     //TODO: check this is always intended behaviour
-    if (client_socket_ >= 0) {
+    if (_client_socket >= 0) {
         // Check Already Opened?
         return 0;
     }
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    put_client_ssl_socket(client_socket_);
+    put_client_ssl_socket(_client_socket);
 #endif
 
 #ifdef _WIN32 // Initialise WINSOCK Once only
@@ -469,20 +469,20 @@ int uda::client::Connection::create()
     // Identify the UDA server host and is the socket IPv4 or IPv6?
 
     char service_port[PORT_STRING];
-    snprintf(service_port, PORT_STRING, "%d", port_);
+    snprintf(service_port, PORT_STRING, "%d", _port);
 
     // Resolve the Host and the IP protocol to be used (Hints not used)
 
     struct addrinfo* result = nullptr;
     struct addrinfo hints = {0};
 
-    set_hints(&hints, host_.c_str());
+    set_hints(&hints, _host.c_str());
 
     errno = 0;
-    if ((rc = getaddrinfo(host_.c_str(), service_port, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
-        add_error(error_stack_, ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
+    if ((rc = getaddrinfo(_host.c_str(), service_port, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
+        add_error(_error_stack, ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
         if (rc == EAI_SYSTEM || errno != 0) {
-            add_error(error_stack_, ErrorType::System, __func__, errno, "");
+            add_error(_error_stack, ErrorType::System, __func__, errno, "");
         }
         if (result) {
             freeaddrinfo(result);
@@ -497,22 +497,22 @@ int uda::client::Connection::create()
     }
 
     errno = 0;
-    client_socket_ = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    _client_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
-    if (client_socket_ < 0 || errno != 0) {
+    if (_client_socket < 0 || errno != 0) {
         if (errno != 0) {
-            add_error(error_stack_, ErrorType::System, __func__, errno, "");
+            add_error(_error_stack, ErrorType::System, __func__, errno, "");
         } else {
-            add_error(error_stack_, ErrorType::Code, __func__, -1, "Problem Opening Socket");
+            add_error(_error_stack, ErrorType::Code, __func__, -1, "Problem Opening Socket");
         }
-        if (client_socket_ != -1) {
+        if (_client_socket != -1) {
 #ifndef _WIN32
-            ::close(client_socket_);
+            ::close(_client_socket);
 #else
-            ::closesocket(client_socket_);
+            ::closesocket(_client_socket);
 #endif
         }
-        client_socket_ = -1;
+        _client_socket = -1;
         freeaddrinfo(result);
         return -1;
     }
@@ -520,7 +520,7 @@ int uda::client::Connection::create()
     // Connect to server
 
     errno = 0;
-    while ((rc = connect(client_socket_, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
+    while ((rc = connect(_client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
 
     if (rc < 0 || (errno != 0 && errno != EINTR)) {
 
@@ -528,51 +528,51 @@ int uda::client::Connection::create()
 
         int ps = getpid();
         srand(static_cast<unsigned int>(ps)); // Seed the random number generator with the process id
-        unsigned int delay = max_socket_delay_ > 0 ? (unsigned int)(rand() % max_socket_delay_) : 0; // random delay
+        unsigned int delay = _max_socket_delay > 0 ? (unsigned int)(rand() % _max_socket_delay) : 0; // random delay
         sleep(delay);
         errno = 0;                                       // wait period
-        for (int i = 0; i < max_socket_attempts_; i++) { // try again
-            while ((rc = connect(client_socket_, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
+        for (int i = 0; i < _max_socket_attempts; i++) { // try again
+            while ((rc = connect(_client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
 
             if (rc == 0 && errno == 0) {
                 break;
             }
 
-            delay = max_socket_delay_ > 0 ? (unsigned int)(rand() % max_socket_delay_) : 0;
+            delay = _max_socket_delay > 0 ? (unsigned int)(rand() % _max_socket_delay) : 0;
             sleep(delay); // wait period
         }
 
         if (rc != 0 || errno != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Connect errno = {}", errno);
             UDA_LOG(UDA_LOG_DEBUG, "Connect rc = {}", rc);
-            UDA_LOG(UDA_LOG_DEBUG, "Unable to connect to primary host: {} on port {}", host_, service_port);
+            UDA_LOG(UDA_LOG_DEBUG, "Unable to connect to primary host: {} on port {}", _host, service_port);
         }
 
         // Abandon the principal Host - attempt to connect to the secondary host
-        if (rc < 0 && !fail_over_host_.empty() && host_ != fail_over_host_) {
+        if (rc < 0 && !_fail_over_host.empty() && _host != _fail_over_host) {
 
             freeaddrinfo(result);
             result = nullptr;
 #ifndef _WIN32
-            ::close(client_socket_);
+            ::close(_client_socket);
 #else
-            ::closesocket(client_socket_);
+            ::closesocket(_client_socket);
 #endif
-            client_socket_ = -1;
+            _client_socket = -1;
             // TODO: check this is correct intent: principal host becomes the failover host too
-            host_ = fail_over_host_;
+            _host = _fail_over_host;
 
             // Check if the host_name is an alias for an IP address or name in the client configuration - replace if
             // found
 
-            snprintf(service_port, PORT_STRING, "%d", fail_over_port_);
+            snprintf(service_port, PORT_STRING, "%d", _fail_over_port);
 
             //             // Does the host name contain the SSL protocol prefix? If so strip this off
             //
             // #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
             //             if (boost::starts_with(host_name, "SSL://")) {
             //                 // Should be stripped already if via the HOST client configuration file
-            //                 fail_over_host_ = host_name.substr(6);
+            //                 _fail_over_host = host_name.substr(6);
             //                 putUdaClientSSLProtocol(1);
             //             } else {
             //                 if (host != nullptr && host->isSSL) {
@@ -585,13 +585,13 @@ int uda::client::Connection::create()
 
             // Resolve the Host and the IP protocol to be used (Hints not used)
 
-            set_hints(&hints, host_.c_str());
+            set_hints(&hints, _host.c_str());
 
             errno = 0;
-            if ((rc = getaddrinfo(host_.c_str(), service_port, &hints, &result)) != 0 || errno != 0) {
-                add_error(error_stack_, ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
+            if ((rc = getaddrinfo(_host.c_str(), service_port, &hints, &result)) != 0 || errno != 0) {
+                add_error(_error_stack, ErrorType::System, __func__, rc, (char*)gai_strerror(rc));
                 if (rc == EAI_SYSTEM || errno != 0) {
-                    add_error(error_stack_, ErrorType::System, __func__, errno, "");
+                    add_error(_error_stack, ErrorType::System, __func__, errno, "");
                 }
                 if (result) {
                     freeaddrinfo(result);
@@ -599,53 +599,53 @@ int uda::client::Connection::create()
                 return -1;
             }
             errno = 0;
-            client_socket_ = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+            _client_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
-            if (client_socket_ < 0 || errno != 0) {
+            if (_client_socket < 0 || errno != 0) {
                 if (errno != 0) {
-                    add_error(error_stack_, ErrorType::System, __func__, errno, "");
+                    add_error(_error_stack, ErrorType::System, __func__, errno, "");
                 } else {
-                    add_error(error_stack_, ErrorType::Code, __func__, -1, "Problem Opening Socket");
+                    add_error(_error_stack, ErrorType::Code, __func__, -1, "Problem Opening Socket");
                 }
-                if (client_socket_ != -1) {
+                if (_client_socket != -1) {
 #ifndef _WIN32
-                    ::close(client_socket_);
+                    ::close(_client_socket);
 #else
-                    ::closesocket(client_socket_);
+                    ::closesocket(_client_socket);
 #endif
                 }
-                client_socket_ = -1;
+                _client_socket = -1;
                 freeaddrinfo(result);
                 return -1;
             }
 
-            for (int i = 0; i < max_socket_attempts_; i++) {
-                while ((rc = connect(client_socket_, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
+            for (int i = 0; i < _max_socket_attempts; i++) {
+                while ((rc = connect(_client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
                 if (rc == 0) {
-                    std::swap(fail_over_port_, port_);
-                    std::swap(fail_over_host_, host_);
+                    std::swap(_fail_over_port, _port);
+                    std::swap(_fail_over_host, _host);
                     break;
                 }
-                delay = max_socket_delay_ > 0 ? (unsigned int)(rand() % max_socket_delay_) : 0;
+                delay = _max_socket_delay > 0 ? (unsigned int)(rand() % _max_socket_delay) : 0;
                 sleep(delay); // wait period
             }
         }
 
         if (rc < 0) {
             if (errno != 0) {
-                add_error(error_stack_, ErrorType::System, __func__, errno, "");
+                add_error(_error_stack, ErrorType::System, __func__, errno, "");
             } else {
-                add_error(error_stack_, ErrorType::Code, __func__, -1, "Unable to Connect to Server Stream Socket");
+                add_error(_error_stack, ErrorType::Code, __func__, -1, "Unable to Connect to Server Stream Socket");
             }
-            if (client_socket_ != -1)
+            if (_client_socket != -1)
 #ifndef _WIN32
             {
-                ::close(client_socket_);
+                ::close(_client_socket);
             }
 #else
-                closesocket(client_socket_);
+                closesocket(_client_socket);
 #endif
-            client_socket_ = -1;
+            _client_socket = -1;
             if (result) {
                 freeaddrinfo(result);
             }
@@ -659,24 +659,24 @@ int uda::client::Connection::create()
 
     // Set the receive and send buffer sizes
 
-    setsockopt(client_socket_, SOL_SOCKET, SO_SNDBUF, (char*)&window_size, sizeof(window_size));
+    setsockopt(_client_socket, SOL_SOCKET, SO_SNDBUF, (char*)&window_size, sizeof(window_size));
 
-    setsockopt(client_socket_, SOL_SOCKET, SO_RCVBUF, (char*)&window_size, sizeof(window_size));
+    setsockopt(_client_socket, SOL_SOCKET, SO_RCVBUF, (char*)&window_size, sizeof(window_size));
 
     // Other Socket Options
 
     int on = 1;
-    if (setsockopt(client_socket_, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
-        add_error(error_stack_, ErrorType::Code, __func__, -1, "Error Setting KEEPALIVE on Socket");
-        ::close(client_socket_);
-        client_socket_ = -1;
+    if (setsockopt(_client_socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
+        add_error(_error_stack, ErrorType::Code, __func__, -1, "Error Setting KEEPALIVE on Socket");
+        ::close(_client_socket);
+        _client_socket = -1;
         return -1;
     }
     on = 1;
-    if (setsockopt(client_socket_, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
-        add_error(error_stack_, ErrorType::Code, __func__, -1, "Error Setting NODELAY on Socket");
-        ::close(client_socket_);
-        client_socket_ = -1;
+    if (setsockopt(_client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
+        add_error(_error_stack, ErrorType::Code, __func__, -1, "Error Setting NODELAY on Socket");
+        ::close(_client_socket);
+        _client_socket = -1;
         return -1;
     }
 
@@ -685,33 +685,33 @@ int uda::client::Connection::create()
     Socket socket = {};
 
     socket.open = true;
-    socket.fh = client_socket_;
-    socket.port = port_;
-    socket.host = host_;
+    socket.fh = _client_socket;
+    socket.port = _port;
+    socket.host = _host;
     socket.tv_server_start = time(nullptr);
     socket.user_timeout = DefaultTimeout;
     socket.Input = nullptr;
     socket.Output = nullptr;
 
-    socket_list_.push_back(socket);
+    _socket_list.push_back(socket);
 
     // Write the socket number to the SSL functions
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    put_client_ssl_socket(client_socket_);
+    put_client_ssl_socket(_client_socket);
 #endif
 
     startup_state = true;
-    server_reconnect_ = false;
+    _server_reconnect = false;
 
     return 0;
 }
 
-// TODO: should the closed socket also be popped from the socket_list_?
+// TODO: should the closed socket also be popped from the _socket_list?
 //  no records ever deleted currently
 void uda::client::Connection::close_socket(int fh)
 {
-    for (auto& socket : socket_list_) {
+    for (auto& socket : _socket_list) {
         if (socket.open && socket.fh == fh && socket.fh >= 0) {
 #ifndef _WIN32
             ::close(fh); // Only Genuine Socket!
@@ -729,15 +729,15 @@ void uda::client::Connection::close_socket(int fh)
 
 void uda::client::Connection::close_down(ClosedownType type)
 {
-    if (client_socket_ >= 0 && type != ClosedownType::CLOSE_ALL) {
-        close_socket(client_socket_);
+    if (_client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {
+        close_socket(_client_socket);
     } else if (type == ClosedownType::CLOSE_ALL) {
-        for (const auto& socket : socket_list_) {
+        for (const auto& socket : _socket_list) {
             close_socket(socket.fh);
         }
     }
 
-    client_socket_ = -1;
+    _client_socket = -1;
 }
 
 void update_select_params(int fd, fd_set* rfds, struct timeval* tv)
@@ -811,7 +811,7 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
 #ifndef _WIN32
         while (((rc = static_cast<int>(write(*io_data->client_socket, buf, count))) == -1) && (errno == EINTR)) {}
 #else
-        while (((rc = send(*io_data->client_socket_, buf, count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
+        while (((rc = send(*io_data->_client_socket, buf, count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
         bytes_sent += rc;
         buf += rc;
@@ -855,7 +855,7 @@ int uda::client::readin(void* iohandle, char* buf, int count)
 #ifndef _WIN32
     while (((rc = (int)read(*io_data->client_socket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
-    while (((rc = recv(*io_data->client_socket_, buf, count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
+    while (((rc = recv(*io_data->_client_socket, buf, count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
 
     // As we have waited to be told that there is data to be read, if nothing

@@ -554,7 +554,7 @@ static int handle_data_block(XDR* xdrs, XDRStreamDirection direction, const void
 
                 if (protocolVersion < 3) {
                     for (unsigned int i = 0; i < data_block->rank; i++) {
-                        Dims* dim = &data_block->dims[i];
+                        Dimension* dim = &data_block->dims[i];
                         if (protocol_version_type_test(protocolVersion, dim->data_type) ||
                             protocol_version_type_test(protocolVersion, dim->error_type)) {
                             err = (int)ProtocolError::Error9999;
@@ -644,7 +644,7 @@ static int handle_data_block(XDR* xdrs, XDRStreamDirection direction, const void
 
                 if (protocolVersion < 3) {
                     for (unsigned int i = 0; i < data_block->rank; i++) {
-                        Dims* dim = &data_block->dims[i];
+                        Dimension* dim = &data_block->dims[i];
                         if (protocol_version_type_test(protocolVersion, dim->data_type) ||
                             protocol_version_type_test(protocolVersion, dim->error_type)) {
                             err = (int)ProtocolError::Error9999;

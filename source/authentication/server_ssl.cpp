@@ -1,6 +1,6 @@
 #if defined(SSLAUTHENTICATION)
 
-#  include "udaServerSSL.h"
+#  include "server_ssl.h"
 
 #  include <fcntl.h>
 #  include <string>
@@ -41,13 +41,13 @@ static bool g_sslInit = false; // Global initialisation of SSL completed
 static SSL* g_ssl = nullptr;
 static SSL_CTX* g_ctx = nullptr;
 
-static void initUdaServerSSL();
-static SSL_CTX* createUdaServerSSLContext(std::vector<UdaError>& error_stack);
-static int configureUdaServerSSLContext(std::vector<UdaError>& error_stack);
-static X509_CRL* loadUdaServerSSLCrl(std::vector<UdaError>& error_stack, const char* crlist);
-static int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL) * crls);
+static void init_server_ssl();
+static SSL_CTX* create_server_ssl_context(std::vector<UdaError>& error_stack);
+static int configure_server_ssl_context(const uda::config::Config& config, std::vector<UdaError>& error_stack);
+static X509_CRL* load_server_ssl_crl(std::vector<UdaError>& error_stack, const char* crlist);
+static int add_server_ssl_crls_store(X509_STORE* st, STACK_OF(X509_CRL) * crls);
 
-void uda::authentication::put_server_ssl_socket(int socket)
+void uda::authentication::put_server_ssl_socket(const int socket)
 {
     g_sslSocket = socket;
 }
@@ -57,7 +57,7 @@ bool uda::authentication::get_server_ssl_disabled()
     return g_sslDisabled;
 }
 
-void reportServerSSLErrorCode(std::vector<UdaError>& error_stack, int rc)
+void report_server_ssl_error_code(std::vector<UdaError>& error_stack, const int rc)
 {
     int err = SSL_get_error(g_ssl, rc);
     char msg[256];
@@ -97,7 +97,7 @@ void reportServerSSLErrorCode(std::vector<UdaError>& error_stack, int rc)
     UDA_LOG(UDA_LOG_DEBUG, "State - {}", SSL_state_string(g_ssl));
 }
 
-void initUdaServerSSL()
+void init_server_ssl()
 {
     if (g_sslInit) {
         return; // Already initialised
@@ -148,7 +148,7 @@ void uda::authentication::close_server_ssl()
     UDA_LOG(UDA_LOG_DEBUG, "SSL closed");
 }
 
-SSL_CTX* createUdaServerSSLContext(std::vector<UdaError>& error_stack)
+SSL_CTX* create_server_ssl_context(std::vector<UdaError>& error_stack)
 {
     const SSL_METHOD* method = SSLv23_server_method(); // standard TCP
 
@@ -156,7 +156,7 @@ SSL_CTX* createUdaServerSSLContext(std::vector<UdaError>& error_stack)
 
     g_ctx = SSL_CTX_new(method);
 
-    if (!g_ctx) {
+    if (g_ctx == nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "Unable to create SSL context!");
         UDA_ADD_ERROR(error_stack, 999, "Unable to create SSL context");
         return nullptr;
@@ -178,35 +178,36 @@ SSL_CTX* createUdaServerSSLContext(std::vector<UdaError>& error_stack)
     return g_ctx;
 }
 
-int configureUdaServerSSLContext(std::vector<UdaError>& error_stack)
+int configure_server_ssl_context(const uda::config::Config& config, std::vector<UdaError>& error_stack)
 {
-    const char* cert = getenv("UDA_SERVER_SSL_CERT");
-    const char* key = getenv("UDA_SERVER_SSL_KEY");
-    const char* ca = getenv("UDA_SERVER_CA_SSL_CERT");
-    const char* crlist = getenv("UDA_SERVER_CA_SSL_CRL");
+    const auto maybe_cert = config.get("server.ssl_cert");
+    const auto maybe_key = config.get("server.ssl_key");
+    const auto maybe_ca = config.get("server.ssl_ca");
+    const auto maybe_crl = config.get("server.ssl_crl");
 
-    if (!cert || !key || !ca) {
-        if (!cert) {
+    if (!maybe_cert || !maybe_key || !maybe_ca) {
+        if (!maybe_cert) {
             UDA_ADD_ERROR(error_stack, 999, "No server SSL certificate!");
         }
-        if (!key) {
+        if (!maybe_key) {
             UDA_ADD_ERROR(error_stack, 999, "No server SSL key!");
         }
-        if (!ca) {
+        if (!maybe_ca) {
             UDA_ADD_ERROR(error_stack, 999, "No Certificate Authority certificate!");
         }
-        //        if (!crlist) {
-        //            UDA_ADD_ERROR(error_stack, 999, "No Certificate Revocation List!");
-        //        }
         UDA_LOG(UDA_LOG_DEBUG, "Certificate/Key/CRL environment variable problem!");
         return 999;
     }
 
-    if (SSL_CTX_use_certificate_file(g_ctx, cert, SSL_FILETYPE_PEM) <= 0) {
+    const std::string cert = maybe_cert.as<std::string>();
+    const std::string key = maybe_key.as<std::string>();
+    const std::string ca = maybe_ca.as<std::string>();
+
+    if (SSL_CTX_use_certificate_file(g_ctx, cert.c_str(), SSL_FILETYPE_PEM) <= 0) {
         UDA_THROW_ERROR(error_stack, 999, "Failed to set the server certificate!");
     }
 
-    if (SSL_CTX_use_PrivateKey_file(g_ctx, key, SSL_FILETYPE_PEM) <= 0) {
+    if (SSL_CTX_use_PrivateKey_file(g_ctx, key.c_str(), SSL_FILETYPE_PEM) <= 0) {
         UDA_THROW_ERROR(error_stack, 999, "Failed to set the server key!");
     }
 
@@ -216,7 +217,7 @@ int configureUdaServerSSLContext(std::vector<UdaError>& error_stack)
     }
 
     // Load certificates of trusted CAs
-    if (SSL_CTX_load_verify_locations(g_ctx, ca, nullptr) < 1) {
+    if (SSL_CTX_load_verify_locations(g_ctx, ca.c_str(), nullptr) < 1) {
         UDA_THROW_ERROR(error_stack, 999, "Error setting the Cetificate Authority verify locations!");
     }
 
@@ -229,20 +230,22 @@ int configureUdaServerSSLContext(std::vector<UdaError>& error_stack)
     X509_VERIFY_PARAM_set_flags(params, X509_V_FLAG_CRL_CHECK);
     SSL_CTX_set1_param(g_ctx, params);
 
-    if (crlist != nullptr) {
-        X509_CRL* crl = loadUdaServerSSLCrl(error_stack, crlist);
-        if (!crl) {
+    if (maybe_crl) {
+        const std::string crl = maybe_crl.as<std::string>();
+
+        X509_CRL* ssl_crl = load_server_ssl_crl(error_stack, crl.c_str());
+        if (!ssl_crl) {
             return 999; // CRL not loaded
         }
 
         STACK_OF(X509_CRL)* crls = sk_X509_CRL_new_null();
-        if (!crls || !sk_X509_CRL_push(crls, crl)) {
-            X509_CRL_free(crl);
+        if (!crls || !sk_X509_CRL_push(crls, ssl_crl)) {
+            X509_CRL_free(ssl_crl);
             UDA_THROW_ERROR(error_stack, 999, "Error loading the CRL for client certificate verification!");
         }
 
         X509_STORE* st = SSL_CTX_get_cert_store(g_ctx);
-        addUdaServerSSLCrlsStore(st, crls);
+        add_server_ssl_crls_store(st, crls);
         SSL_CTX_set1_verify_cert_store(g_ctx, st);
     }
 
@@ -267,7 +270,7 @@ int configureUdaServerSSLContext(std::vector<UdaError>& error_stack)
     return 0;
 }
 
-X509_CRL* loadUdaServerSSLCrl(std::vector<UdaError>& error_stack, const char* crlist)
+X509_CRL* load_server_ssl_crl(std::vector<UdaError>& error_stack, const char* crlist)
 {
     // Load the Certificate Revocation Lists for certificate verification
 
@@ -298,7 +301,7 @@ X509_CRL* loadUdaServerSSLCrl(std::vector<UdaError>& error_stack, const char* cr
     return crl;
 }
 
-int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL) * crls)
+int add_server_ssl_crls_store(X509_STORE* st, STACK_OF(X509_CRL) * crls)
 {
     X509_CRL* crl;
     for (int i = 0; i < sk_X509_CRL_num(crls); i++) {
@@ -324,7 +327,7 @@ std::string to_string(ASN1_TIME* time)
     return time_string;
 }
 
-int uda::authentication::start_server_ssl(      std::vector<UdaError>& error_stack)
+int uda::authentication::start_server_ssl(const config::Config& config, std::vector<UdaError>& error_stack)
 {
     int rc;
 
@@ -333,23 +336,23 @@ int uda::authentication::start_server_ssl(      std::vector<UdaError>& error_sta
         return 0;
     }
 
+    const auto maybe_authenticate = config.get("server.ssl_authenticate");
+    g_sslDisabled = !maybe_authenticate || !maybe_authenticate.as<bool>();
+
     // Has the server disabled SSL/TLS authentication?
-    if (!getenv("UDA_SERVER_SSL_AUTHENTICATE")) {
-        g_sslDisabled = true;
+    if (g_sslDisabled) {
         return 0;
-    } else {
-        g_sslDisabled = false;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "SSL Authentication is Enabled!");
 
     // Initialise
-    initUdaServerSSL();
+    init_server_ssl();
 
-    if (!(g_ctx = createUdaServerSSLContext(error_stack))) {
+    if (!(g_ctx = create_server_ssl_context(error_stack))) {
         UDA_THROW_ERROR(error_stack, 999, "Unable to create the SSL context!");
     }
-    if (configureUdaServerSSLContext(error_stack) != 0) {
+    if (configure_server_ssl_context(config, error_stack) != 0) {
         UDA_THROW_ERROR(error_stack, 999, "Unable to configure the SSL context!");
     }
 
@@ -371,7 +374,7 @@ int uda::authentication::start_server_ssl(      std::vector<UdaError>& error_sta
             UDA_LOG(UDA_LOG_DEBUG, "Error - Client application terminated?!");
             UDA_ADD_ERROR(error_stack, err, "SSL error in SSL_accept, application terminated!");
         }
-        reportServerSSLErrorCode(error_stack, rc);
+        report_server_ssl_error_code(error_stack, rc);
         return err;
     }
 
@@ -495,7 +498,7 @@ int uda::authentication::write_server_ssl(void* iohandle, const char* buf, int c
             break;
 
         default:
-            reportServerSSLErrorCode(*io_data->error_stack, rc);
+            report_server_ssl_error_code(*io_data->error_stack, rc);
             UDA_LOG(UDA_LOG_DEBUG, "Write to socket failed!");
             UDA_ADD_ERROR(*io_data->error_stack, 999, "Write to socket failed!");
 #  ifndef _WIN32
@@ -572,7 +575,7 @@ int uda::authentication::read_server_ssl(void* iohandle, char* buf, int count)
                 break;
 
             case SSL_ERROR_ZERO_RETURN: // connection closed by client     (not caught by select?)
-                reportServerSSLErrorCode(*io_data->error_stack, rc);
+                report_server_ssl_error_code(*io_data->error_stack, rc);
                 UDA_LOG(UDA_LOG_DEBUG, "Client socket connection closed!");
                 UDA_ADD_ERROR(*io_data->error_stack, 999, "Client socket connection closed!");
                 return -1;
@@ -582,19 +585,19 @@ int uda::authentication::read_server_ssl(void* iohandle, char* buf, int count)
                 break;
 
             case SSL_ERROR_WANT_WRITE: // the operation did not complete, error
-                reportServerSSLErrorCode(*io_data->error_stack, rc);
+                report_server_ssl_error_code(*io_data->error_stack, rc);
                 UDA_LOG(UDA_LOG_DEBUG, "A read operation failed!");
                 UDA_ADD_ERROR(*io_data->error_stack, 999, "A read operation failed!");
                 return -1;
 
             case SSL_ERROR_SYSCALL: // some I/O error occured - disconnect?
-                reportServerSSLErrorCode(*io_data->error_stack, rc);
+                report_server_ssl_error_code(*io_data->error_stack, rc);
                 UDA_LOG(UDA_LOG_DEBUG, "Client socket read I/O error!");
                 UDA_ADD_ERROR(*io_data->error_stack, 999, "Client socket read I/O error!");
                 return -1;
 
             default: // some other error
-                reportServerSSLErrorCode(*io_data->error_stack, rc);
+                report_server_ssl_error_code(*io_data->error_stack, rc);
                 UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!");
                 UDA_ADD_ERROR(*io_data->error_stack, 999, "Read from socket failed!");
 #  ifndef _WIN32

@@ -46,7 +46,7 @@ struct ConnectionOptions
 class Connection {
 public:
     Connection(std::vector<client_server::UdaError>& error_stack)
-        : error_stack_{error_stack}
+        : _error_stack{error_stack}
     {}
     Connection(std::vector<client_server::UdaError>& error_stack, config::Config& config)
         : Connection(error_stack)
@@ -54,17 +54,17 @@ public:
         load_config(config);
     }
     Connection& operator=(Connection&& other) noexcept {
-        std::swap(client_socket_, other.client_socket_);
-        std::swap(host_list_, other.host_list_);
-        std::swap(error_stack_, other.error_stack_);
-        std::swap(socket_list_, other.socket_list_);
-        std::swap(port_, other.port_);
-        std::swap(host_, other.host_);
-        std::swap(max_socket_delay_, other.max_socket_delay_);
-        std::swap(max_socket_attempts_, other.max_socket_attempts_);
-        std::swap(fail_over_port_, other.fail_over_port_);
-        std::swap(fail_over_port_, other.fail_over_port_);
-        std::swap(server_reconnect_, other.server_reconnect_);
+        std::swap(_client_socket, other._client_socket);
+        std::swap(_host_list, other._host_list);
+        std::swap(_error_stack, other._error_stack);
+        std::swap(_socket_list, other._socket_list);
+        std::swap(_port, other._port);
+        std::swap(_host, other._host);
+        std::swap(_max_socket_delay, other._max_socket_delay);
+        std::swap(_max_socket_attempts, other._max_socket_attempts);
+        std::swap(_fail_over_port, other._fail_over_port);
+        std::swap(_fail_over_port, other._fail_over_port);
+        std::swap(_server_reconnect, other._server_reconnect);
         // std::swap(server_change_socket_, other.server_change_socket_);
         return *this;
     }
@@ -86,7 +86,7 @@ public:
     // find_or_create_socket()
 
     // TODO: this returns (writeable) pointer to private member variable. intention?
-    IoData io_data() { return IoData{&error_stack_, &client_socket_}; }
+    IoData io_data() { return IoData{&_error_stack, &_client_socket}; }
 
     void set_port(int port);
     void set_host(std::string_view host);
@@ -97,32 +97,31 @@ public:
     bool reconnect_required() const;
     ConnectionOptions get_options() const
     {
-        return ConnectionOptions {max_socket_delay_, max_socket_attempts_, port_, fail_over_port_,
-            host_, fail_over_host_};
+        return ConnectionOptions {_max_socket_delay, _max_socket_attempts, _port, _fail_over_port,
+            _host, _fail_over_host};
     }
 
     void load_config(const config::Config& config);
 
     bool startup_state = true;
 
-
 protected:
-    int client_socket_ = -1;
-    HostList host_list_ = {};
-    std::vector<client_server::UdaError>& error_stack_;
-    std::vector<client_server::Socket> socket_list_; // List of open sockets
+    int _client_socket = -1;
+    HostList _host_list = {};
+    std::vector<client_server::UdaError>& _error_stack;
+    std::vector<client_server::Socket> _socket_list; // List of open sockets
 
-    std::vector<IoData> io_data_list_;
+    std::vector<IoData> _io_data_list;
 
-    int port_ = DefaultPort;
-    std::string host_ = DefaultHost;
-    int max_socket_delay_ = DefaultMaxSocketDelay;
-    int max_socket_attempts_ = DefaultMaxSocketAttempts;
+    int _port = DefaultPort;
+    std::string _host = DefaultHost;
+    int _max_socket_delay = DefaultMaxSocketDelay;
+    int _max_socket_attempts = DefaultMaxSocketAttempts;
 
-    int fail_over_port_ = 0;
-    std::string fail_over_host_ = {};
+    int _fail_over_port = 0;
+    std::string _fail_over_host = {};
 
-    mutable bool server_reconnect_ = false;
+    mutable bool _server_reconnect = false;
    // mutable bool server_change_socket_ = false;
 
     int find_socket(int fh) const;
