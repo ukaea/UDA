@@ -1,7 +1,7 @@
 define_test( client )
 define_test( connection )
 define_test( config )
-define_test( logging SERIAL )
+define_test( logging SERIAL COMPILE_DEFINITIONS SPDLOG_FMT_EXTERNAL )
 define_test( host_list )
 
 set( TEST_FILES
