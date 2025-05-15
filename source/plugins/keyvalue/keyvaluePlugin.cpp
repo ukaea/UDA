@@ -171,7 +171,7 @@ int uda::keyvalue::Plugin::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
 int uda::keyvalue::Plugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    setReturnDataString(plugin_interface->data_block, UDA_BUILD_VERSION, "Plugin version number");
+    return setReturnDataString(plugin_interface->data_block, UDA_BUILD_VERSION, "Plugin version number");
 }
 
 // Plugin Build Date

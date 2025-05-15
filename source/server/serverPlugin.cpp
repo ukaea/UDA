@@ -122,40 +122,29 @@ int udaServerRedirectStdStreams(int reset)
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
     // Multi platform compliance
-    //static FILE* originalStdFH = nullptr;
-    //static FILE* originalErrFH = nullptr;
-    static int originalStdFH = 0;
-    static int originalErrFH = 0;
-    static FILE* mdsmsgFH = nullptr;
+    static int original_std_fd = 0;
+    static int original_err_fd = 0;
+    static FILE* mds_msg_fh = nullptr;
 
     static char mksdir_template[MAXPATH] = { 0 };
-    static char tempFile[MAXPATH] = { 0 };
-
-    static bool singleFile = false;
+    static char temp_file[MAXPATH] = { 0 };
 
     if (!reset) {
-        if (!singleFile) {
-            const char* env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");        // Use a single file for all plugin data requests
-            if (env != nullptr) {
-                singleFile = true;                    // Define UDA_PLUGIN_DEBUG to retain the file
-            }
-        }
-
-        if (mdsmsgFH != nullptr && singleFile) {
+        if (mds_msg_fh != nullptr) {
             // Multi platform compliance
-            //stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
-            //stderr = mdsmsgFH;
-            dup2(fileno(mdsmsgFH), fileno(stdout));
-            dup2(fileno(mdsmsgFH), fileno(stderr));
+            //stdout = mds_msg_fh;                                  // Redirect all IO to a temporary file
+            //stderr = mds_msg_fh;
+            dup2(fileno(mds_msg_fh), fileno(stdout));
+            dup2(fileno(mds_msg_fh), fileno(stderr));
             return 0;
         }
 
         // Multi platform compliance
-        //originalStdFH = stdout;                                 // Retain current values
-        //originalErrFH = stderr;
-        originalStdFH = dup(fileno(stdout));
-        originalErrFH = dup(fileno(stderr));
-        mdsmsgFH = nullptr;
+        //original_std_fd = stdout;                                 // Retain current values
+        //original_err_fd = stderr;
+        original_std_fd = dup(fileno(stdout));
+        original_err_fd = dup(fileno(stderr));
+        mds_msg_fh = nullptr;
 
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
@@ -173,69 +162,41 @@ int udaServerRedirectStdStreams(int reset)
             }
         }
 
-        strcpy(tempFile, mksdir_template);
+        strcpy(temp_file, mksdir_template);
 
         // Open the message Trap
 
         errno = 0;
 
-        int fd = mkstemp(tempFile);
+        int fd = mkstemp(temp_file);
         if (fd < 0 || errno != 0) {
             int err = (errno != 0) ? errno : 994;
             UDA_THROW_ERROR(err, "Unable to Obtain a Temporary File Name");
         }
 
-        mdsmsgFH = fdopen(fd, "a");
+        mds_msg_fh = fdopen(fd, "a");
 
-        if (mdsmsgFH == nullptr || errno != 0) {
+        if (mds_msg_fh == nullptr || errno != 0) {
             UDA_THROW_ERROR(999, "Unable to Trap Plugin Error Messages.");
         }
 
         // Multi platform compliance
-        //stdout = mdsmsgFH; // Redirect to a temporary file
-        //stderr = mdsmsgFH;
-        dup2(fileno(mdsmsgFH), fileno(stdout));
-        dup2(fileno(mdsmsgFH), fileno(stderr));
+        dup2(fileno(mds_msg_fh), fileno(stdout));
+        dup2(fileno(mds_msg_fh), fileno(stderr));
     } else {
-        if (mdsmsgFH != nullptr) {
+        if (mds_msg_fh != nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles and removing temporary file\n");
 
-            if (!singleFile) {
-                if (mdsmsgFH != nullptr) {
-                    errno = 0;
-                    int rc = fclose(mdsmsgFH);
-                    if (rc) {
-                        int err = errno;
-                        UDA_THROW_ERROR(err, strerror(err));
-                    }
-                }
-                mdsmsgFH = nullptr;
-                if (getenv("UDA_PLUGIN_DEBUG") == nullptr) {
-                    errno = 0;
-                    int rc = remove(tempFile);    // Delete the temporary file
-                    if (rc) {
-                        int err = errno;
-                        UDA_THROW_ERROR(err, strerror(err));
-                    }
-                    tempFile[0] = '\0';
-                }
-            }
-
             // Multi platform compliance
-            //stdout = originalStdFH;
-            //stderr = originalErrFH;
-            dup2(originalStdFH, fileno(stdout));
-            dup2(originalErrFH, fileno(stderr));
+            dup2(original_std_fd, fileno(stdout));
+            dup2(original_err_fd, fileno(stderr));
 
         } else {
-
             UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles\n");
 
             // Multi platform compliance
-            //stdout = originalStdFH;
-            //stderr = originalErrFH;
-            dup2(originalStdFH, fileno(stdout));
-            dup2(originalErrFH, fileno(stderr));
+            dup2(original_std_fd, fileno(stdout));
+            dup2(original_err_fd, fileno(stderr));
         }
     }
 
