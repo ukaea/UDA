@@ -1159,7 +1159,6 @@ char* getIdamSyntheticData(int handle)
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
     if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return nullptr;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return nullptr;
     if (!client_flags->get_synthetic || data_blocks[handle].error_model == ERROR_MODEL_UNKNOWN) {
         return data_blocks[handle].data;
     }
@@ -1179,7 +1178,6 @@ char* getIdamData(int handle)
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
     if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return nullptr;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return nullptr;
     if (!client_flags->get_synthetic) {
         return data_blocks[handle].data;
     } else {
@@ -1518,7 +1516,6 @@ void getIdamDoubleData(int handle, double* fp)
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
     if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return;
 
     if (data_blocks[handle].data_type == UDA_TYPE_DOUBLE) {
         if (!client_flags->get_synthetic)
@@ -1659,7 +1656,6 @@ void getIdamFloatData(int handle, float* fp)
         return;
     }
     if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return;
 
     if (data_blocks[handle].data_type == UDA_TYPE_FLOAT) {
         if (!client_flags->get_synthetic)
