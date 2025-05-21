@@ -92,11 +92,11 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
             if (root == nullptr) {
                 lstr = (int)strlen(filename) + 3;
                 work = (char*)malloc(lstr * sizeof(char));
-                sprintf(work, "./%s", filename);            // Default ROOT is the server's Working Directory
+                snprintf(work, lstr, "./%s", filename);            // Default ROOT is the server's Working Directory
             } else {
                 lstr = (int)strlen(filename) + (int)strlen(root) + 2;
                 work = (char*)malloc(lstr * sizeof(char));
-                sprintf(work, "%s/%s", root, filename);
+                snprintf(work, lstr, "%s/%s", root, filename);
             }
         } else {
             lstr = (int)strlen(config) + 1;

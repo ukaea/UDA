@@ -490,7 +490,8 @@ int set_entry_state(const CacheEntry& entry, EntryState state)
 
     fseek(db, entry.file_position, SEEK_SET);
     char buffer[3];
-    sprintf(buffer, "%d%c", static_cast<int>(state), delimiter[0]);
+    // note: the EntryState enum currently only has values of {0, 1, 2} so will only print one character
+    snprintf(buffer, 3, "%d%c", static_cast<int>(state), delimiter[0]);
     fwrite(buffer, sizeof(char), 2, db);
 
     rc = set_db_file_lock_state(db, LockActionType::UNLOCK);    // release lock

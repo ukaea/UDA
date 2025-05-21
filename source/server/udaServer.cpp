@@ -497,9 +497,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     // Prepend the client request and test for a redirection request via the proxy's plugin
 
     if (request_block->api_delim[0] != '\0') {
-        sprintf(work, "%s%s", proxyName, request_block->api_delim);
+        snprintf(work, STRING_LENGTH, "%s%s", proxyName, request_block->api_delim);
     } else {
-        sprintf(work, "%s%s", proxyName, environment.api_delim);
+        snprintf(work, STRING_LENGTH, "%s%s", proxyName, environment.api_delim);
     }
 
     if (strncasecmp(request_block->source, work, strlen(work)) != 0) {
@@ -509,9 +509,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
         if (environment.server_proxy[0] == '\0') {
             if (request_block->api_delim[0] != '\0') {
-                sprintf(work, "%s%s%s", proxyName, request_block->api_delim, request_block->source);
+                snprintf(work, STRING_LENGTH, "%s%s%s", proxyName, request_block->api_delim, request_block->source);
             } else {
-                sprintf(work, "%s%s%s", proxyName, environment.api_delim, request_block->source);
+                snprintf(work, STRING_LENGTH, "%s%s%s", proxyName, environment.api_delim, request_block->source);
             }
 
             strcpy(request_block->source, work);
@@ -531,9 +531,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
             if (environment.server_this[0] != '\0') {
                 if (request_block->api_delim[0] != '\0') {
-                    sprintf(work, "%s%s%s", proxyName, request_block->api_delim, environment.server_this);
+                    snprintf(work, STRING_LENGTH, "%s%s%s", proxyName, request_block->api_delim, environment.server_this);
                 } else {
-                    sprintf(work, "%s%s%s", proxyName, environment.api_delim, environment.server_this);
+                    snprintf(work, STRING_LENGTH, "%s%s%s", proxyName, environment.api_delim, environment.server_this);
                 }
 
                 if (strstr(request_block->source, work) != nullptr) {
@@ -545,14 +545,14 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
             if (request_block->source[0] == '/') {
                 if (request_block->api_delim[0] != '\0')
-                    sprintf(work, "%s%s%s%s", proxyName, request_block->api_delim, environment.server_proxy, request_block->source);
+                    snprintf(work, STRING_LENGTH, "%s%s%s%s", proxyName, request_block->api_delim, environment.server_proxy, request_block->source);
                 else
-                    sprintf(work, "%s%s%s%s", proxyName, environment.api_delim, environment.server_proxy, request_block->source);
+                    snprintf(work, STRING_LENGTH, "%s%s%s%s", proxyName, environment.api_delim, environment.server_proxy, request_block->source);
             } else {
                 if (request_block->api_delim[0] != '\0')
-                    sprintf(work, "%s%s%s/%s", proxyName, request_block->api_delim, environment.server_proxy, request_block->source);
+                    snprintf(work, STRING_LENGTH, "%s%s%s/%s", proxyName, request_block->api_delim, environment.server_proxy, request_block->source);
                 else
-                    sprintf(work, "%s%s%s/%s", proxyName, environment.api_delim, environment.server_proxy, request_block->source);
+                    snprintf(work, STRING_LENGTH, "%s%s%s/%s", proxyName, environment.api_delim, environment.server_proxy, request_block->source);
             }
             strcpy(request_block->source, work);
         }
@@ -569,9 +569,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
         char work[1024];
         if (request->api_delim[0] != '\0') {
-            sprintf(work, "UDA%s", request->api_delim);
+            snprintf(work, 1024, "UDA%s", request->api_delim);
         } else {
-            sprintf(work, "UDA%s", environment.api_delim);
+            snprintf(work, 1024, "UDA%s", environment.api_delim);
         }
 
         if (environment.server_proxy[0] != '\0' && strncasecmp(request->source, work, strlen(work)) != 0) {
@@ -587,9 +587,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
             // The UDA Plugin strips out the host and port data from the source so the originating server details are never passed.
 
             if (request->api_delim[0] != '\0') {
-                sprintf(work, "UDA%s%s", request->api_delim, environment.server_this);
+                snprintf(work, 1024, "UDA%s%s", request->api_delim, environment.server_this);
             } else {
-                sprintf(work, "UDA%s%s", environment.api_delim, environment.server_this);
+                snprintf(work, 1024, "UDA%s%s", environment.api_delim, environment.server_this);
             }
 
             if (strstr(request->source, work) != nullptr) {
@@ -607,9 +607,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
             // Prepend the redirection UDA server details
 
             if (request->api_delim[0] != '\0') {
-                sprintf(work, "UDA%s%s/%s", request->api_delim, environment.server_proxy, request->source);
+                snprintf(work, 1024, "UDA%s%s/%s", request->api_delim, environment.server_proxy, request->source);
             } else {
-                sprintf(work, "UDA%s%s/%s", environment.api_delim, environment.server_proxy, request->source);
+                snprintf(work, 1024, "UDA%s%s/%s", environment.api_delim, environment.server_proxy, request->source);
             }
 
             strcpy(request->source, work);

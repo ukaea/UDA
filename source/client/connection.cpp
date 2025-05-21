@@ -291,7 +291,7 @@ int createConnection()
         }
     }
     udaClientPutHostNameId(hostId);
-    sprintf(serviceport, "%d", environment->server_port);
+    snprintf(serviceport, PORT_STRING, "%d", environment->server_port);
 
     // Does the host name contain the SSL protocol prefix? If so strip this off
 
@@ -421,7 +421,7 @@ int createConnection()
                 }
             }
             udaClientPutHostNameId(hostId);
-            sprintf(serviceport, "%d", environment->server_port2);
+            snprintf(serviceport, PORT_STRING, "%d", environment->server_port2);
 
             // Does the host name contain the SSL protocol prefix? If so strip this off
 

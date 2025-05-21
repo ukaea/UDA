@@ -78,8 +78,8 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //------------------------------------------------------------------------------
     // Check there is something to work with!
 
-    sprintf(work, "%s%s", environment->api_archive, environment->api_delim);    // default archive
-    sprintf(work2, "%s%s", environment->api_device, environment->api_delim);    // default device
+    snprintf(work, MAXMETA, "%s%s", environment->api_archive, environment->api_delim);    // default archive
+    snprintf(work2, MAXMETA, "%s%s", environment->api_device, environment->api_delim);    // default device
 
     LeftTrimString(request->signal);
     TrimString(request->signal);
@@ -348,7 +348,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                         int id = find_plugin_id_by_format(pluginList.plugin[i].deviceProtocol, &pluginList);
                         if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_SERVER) {
 
-                            sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request->api_delim,
+                            snprintf(work, MAXMETA, "%s%s%s", pluginList.plugin[i].deviceProtocol, request->api_delim,
                                     pluginList.plugin[i].deviceHost);
                             UDA_LOG(UDA_LOG_DEBUG, "work#1: %s\n", work);
 
@@ -800,7 +800,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
         FILE* ph = nullptr;
         int lstr = STRING_LENGTH;
         char* cmd = (char*)malloc(lstr * sizeof(char));
-        sprintf(cmd, "head -c10 %s 2>/dev/null", source);
+        snprintf(cmd, lstr, "head -c10 %s 2>/dev/null", source);
         errno = 0;
         if ((ph = popen(cmd, "r")) == nullptr) {
             if (errno != 0) addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
@@ -829,7 +829,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
             if (STR_EQUALS(cmd, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
                 char* env = getenv("UDA_DUMP_NETCDF");
                 if (env != nullptr) {
-                    sprintf(cmd, "%s -h %s 2>/dev/null | head -c10 2>/dev/null", env, source);
+                    snprintf(cmd, lstr, "%s -h %s 2>/dev/null | head -c10 2>/dev/null", env, source);
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == nullptr) {
                         if (errno != 0) {
@@ -861,7 +861,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
             } else {                    // an IDA File?
                 char* env = getenv("UDA_DUMP_IDA");
                 if (env != nullptr) {
-                    sprintf(cmd, "%s -h %s 2>/dev/null 2>/dev/null", env, source);
+                    snprintf(cmd, lstr, "%s -h %s 2>/dev/null 2>/dev/null", env, source);
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == nullptr) {
                         if (errno != 0) {

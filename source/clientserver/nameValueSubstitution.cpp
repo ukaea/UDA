@@ -61,7 +61,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
     int* placeholderIndex = nullptr;
     int* tpassIndex = nullptr;
     int tpassPosition = 0;
-    unsigned short usedCount = 0;
+    // unsigned short usedCount = 0;
 
     if (nameValueList->pairCount > 0) {    // Identify and Count Placeholders
         do {
@@ -134,7 +134,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
                     free(nameValueList->nameValue[placeholderIndex[i]].value);
                 nameValueList->nameValue[placeholderIndex[i]].value = newNameValueList.nameValue[tpassIndex[i]].value;
                 newNameValueList.nameValue[tpassIndex[i]].value = nullptr;
-                usedCount++;
+                // usedCount++;
 
                 UDA_LOG(UDA_LOG_DEBUG, "Placeholder: [%d][%d] %s, Substitution Value [%d] %s\n", i, placeholderIndex[i],
                         nameValueList->nameValue[placeholderIndex[i]].name,
@@ -276,11 +276,11 @@ void embedded_value_substitution(NAMEVALUELIST* nameValueList)
                             UDA_LOG(UDA_LOG_DEBUG, "Substituting %s with %s\n", newNameValueList.nameValue[j].value,
                                     nameValueList->nameValue[k].value);
 
-                            char* replace = (char*)malloc(
-                                    (strlen(original) + strlen(nameValueList->nameValue[k].value) + 2) * sizeof(char));
+                            const auto lstr = strlen(original) + strlen(nameValueList->nameValue[k].value) + 2;
+                            char* replace = (char*)malloc(lstr * sizeof(char));
                             replace[0] = '\0';
                             p[0] = '\0';
-                            sprintf(replace, "%s%s%s", original, nameValueList->nameValue[k].value, &p[lstr]);
+                            snprintf(replace, lstr, "%s%s%s", original, nameValueList->nameValue[k].value, &p[lstr]);
 
                             UDA_LOG(UDA_LOG_DEBUG, "original %s\n", original);
                             UDA_LOG(UDA_LOG_DEBUG, "value    %s\n", nameValueList->nameValue[k].value);

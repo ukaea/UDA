@@ -182,7 +182,7 @@ static int processHierarchicalData(DATA_BLOCK* data_block)
     char tempFile[MAXPATH];
     char* env;
     if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-        sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+        snprintf(tempFile, MAXPATH, "%s/idamXDRXXXXXX", env);
     } else {
         strcpy(tempFile, "/tmp/idamXDRXXXXXX");
     }
@@ -291,9 +291,9 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
         REQUEST_DATA* request = &request_block->requests[i];
         char work[1024];
         if (request->api_delim[0] != '\0') {
-            sprintf(work, "UDA%s", request->api_delim);
+            snprintf(work, 1024, "UDA%s", request->api_delim);
         } else {
-            sprintf(work, "UDA%s", environment.api_delim);
+            snprintf(work, 1024, "UDA%s", environment.api_delim);
         }
     }
 
