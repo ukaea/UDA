@@ -128,6 +128,10 @@ class Signal(Data):
     def meta(self):
         return self._cresult.meta()
 
+    @property
+    def data_block_size(self):
+        return self._cresult.data_block_size()
+
     def _import_dims(self):
         self._dims = []
 
