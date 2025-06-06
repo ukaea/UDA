@@ -10,14 +10,45 @@ from ._version import __version__
 
 from six import with_metaclass
 import logging
-from collections import namedtuple
+# from collections import namedtuple
+from collections import defaultdict
 from collections.abc import Iterable
 import sys
+import os
+import importlib
+import warnings
 try:
     from enum import Enum
 except ImportError:
     Enum = object
 
+
+class SubClientDeprecationWarning(UserWarning):
+    def __init__(self, message):
+        super().__init__(SubClientDeprecationWarning, message)
+
+
+def _parse_subclient_register_from_env():
+    """
+     Parse a list of uda subclient strings from an environment variable
+     into a map of {module_path: [subclient_classes,]}
+
+     Input string should be formatted as a colon-delimited list,
+     with each entry containing the module path to the subclient class,
+     as it would be written to import in python
+     e.g. UDA_SUBCLIENTS=mast.MastClient:mast.geom.GeometryClient:another_module.AnotherSubClient
+
+     Throws: ValueError if the UDA_SUBCLIENTS string is misformed (e.g. missing required . char)
+     Throws: KeyError if the environment variable does not exist
+
+    """
+    subclients_string = os.environ["UDA_SUBCLIENTS"]
+    entries = [i for i in subclients_string.split(':') if i != '']
+    subclient_register = defaultdict(list)
+    for entry in entries:
+        module_path, subclient_class = entry.rsplit('.', maxsplit=1)
+        subclient_register[module_path].append(subclient_class)
+    return dict(subclient_register)
 
 class ClientMeta(type):
     """
@@ -60,28 +91,93 @@ class Client(with_metaclass(ClientMeta, object)):
         self.logger = logging.getLogger(__name__)
 
         self._registered_subclients = {}
+        self.register_all_subclients()
 
+    def _parse_subclient_register_from_yaml(self):
+        import yaml
+        subclient_register_path = os.environ["UDA_SUBCLIENT_REGISTER"]
+        with open(subclient_register_path, 'r') as file:
+            return yaml.safe_load(file)
+
+
+    def register_all_subclients(self):
+        """
+        Method attempts to obtain a list of uda subclients from an environment variable
+        and register the exported methods for use in a standard pyuda client. 
+
+        This currently falls back to the (mast-specific) legacy registration routine to 
+        maintain previous behaviour where still required.
+
+        behaviour:
+            - no environment variable set: fallback to legacy registration routine
+            - list provided is incorrectly formatted: fallback to legacy registration routine
+            - list provided is empty: no subclients registered
+        """
+        try:
+            subclient_register = _parse_subclient_register_from_env()
+        except (ValueError, KeyError):
+            self.register_legacy_subclients()
+            return
+
+        for module_name in subclient_register:
+            module = importlib.import_module(module_name)
+            subclient_names = subclient_register[module_name]
+
+            # assume either one or multiple subclients may be specified in each subclient module
+            if type(subclient_names) is not list:
+                subclient_names = [subclient_names]
+
+            for subclient_name in subclient_names:
+                subclient = getattr(module, subclient_name)
+                self.register_subclient(subclient)
+
+    def register_legacy_subclients(self):
+        # this warning will annoy all non-mast users until we deprecate
+        # when do we plan deprecation?
+        warnings.warn("WARNING: The pyuda client has fallen back to using the legacy "
+                      "subclient registration routine as the UDA_SUBCLIENTS "
+                      "environment variable has not been set, "
+                      "or was incorrectly formatted. \n"
+                      "Note that any errors encountered importing the mast module "
+                      "used in this legacy routine will not be reported, which "
+                      "will frustrate debugging if you require this functionality\n"
+                      "This legacy (mast-specific) routine will be deprecated "
+                      "in a future v3.x release. \n"
+                      "Consider using the UDA_SUBCLIENTS "
+                      "environment variable if your code relies on subclient "
+                      "features.\n"
+                      "You can disable this warning using "
+                      "warnings.simplefilter('ignore', pyuda.SubClientDeprecationWarning)",
+                      SubClientDeprecationWarning)
         try:
             from mast.geom import GeomClient
             from mast import MastClient
-            self._registered_subclients['geometry'] = GeomClient(self)
-            self._registered_subclients['geometry_signal_mapping'] = GeomClient(self)
-            self._registered_subclients['get_images'] = MastClient(self)
-            self._registered_subclients['get_shot_date_time'] = MastClient(self)
-            self._registered_subclients['latest_shot'] = MastClient(self)
-            self._registered_subclients['latest_source_pass'] = MastClient(self)
-            self._registered_subclients['latest_source_pass_in_range'] = MastClient(self)            
-            self._registered_subclients['listGeomSignals'] = GeomClient(self)
-            self._registered_subclients['listGeomGroups'] = GeomClient(self)
-            self._registered_subclients['list'] = MastClient(self)
-            self._registered_subclients['list_archive_files'] = MastClient(self)
-            self._registered_subclients['list_archive_directories'] = MastClient(self)
-            self._registered_subclients['list_file_signals'] = MastClient(self)            
-            self._registered_subclients['list_signals'] = MastClient(self)
-            self._registered_subclients['put'] = MastClient(self)
-            self._registered_subclients['list_shots'] = MastClient(self)
+            mast_client = MastClient(self)
+            geom_client = GeomClient(self)
+            self._registered_subclients['geometry'] = geom_client
+            self._registered_subclients['geometry_signal_mapping'] = geom_client
+            self._registered_subclients['get_images'] = mast_client
+            self._registered_subclients['get_shot_date_time'] = mast_client
+            self._registered_subclients['latest_shot'] = mast_client
+            self._registered_subclients['latest_source_pass'] = mast_client
+            self._registered_subclients['latest_source_pass_in_range'] = mast_client            
+            self._registered_subclients['listGeomSignals'] = geom_client
+            self._registered_subclients['listGeomGroups'] = geom_client
+            self._registered_subclients['list'] = mast_client
+            self._registered_subclients['list_archive_files'] = mast_client
+            self._registered_subclients['list_archive_directories'] = mast_client
+            self._registered_subclients['list_file_signals'] = mast_client            
+            self._registered_subclients['list_signals'] = mast_client
+            self._registered_subclients['put'] = mast_client
+            self._registered_subclients['list_shots'] = mast_client
         except ImportError:
             pass
+
+    def register_subclient(self, subclient_class):
+        subclient_class.register(self)
+
+    def register_method(self, method, subclient_instance):
+        self._registered_subclients[method] = subclient_instance
 
     def get_file(self, source_file, output_file=None):
         """
