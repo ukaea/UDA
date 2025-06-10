@@ -2,7 +2,7 @@ import pytest
 import pyuda
 import os
 # import warnings
-from pyuda._client import _parse_subclient_register_from_env
+from pyuda._client import _parse_subclient_register_from_env, UdaSubclientsStringError
 import test_client
 
 
@@ -37,9 +37,11 @@ def test_env_parser_throws_when_var_unset():
 
 @pytest.mark.parametrize("input_string,error",
                          [
-                             pytest.param("wrong", ValueError, id="no_module_separators"),
+                             pytest.param("wrong",
+                                          UdaSubclientsStringError,
+                                          id="no_module_separators"),
                              pytest.param("wrong.Wrong;not_right.NotRight",
-                                          ValueError,
+                                          UdaSubclientsStringError,
                                           id="wrong_delimiter"),
                              ])
 def test_env_parser_throws_when_var_misformatted(input_string, error):

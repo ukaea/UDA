@@ -14,7 +14,6 @@ import logging
 from collections import defaultdict
 from collections.abc import Iterable
 import sys
-import os
 import importlib
 import warnings
 try:
@@ -23,9 +22,17 @@ except ImportError:
     Enum = object
 
 
-class SubClientDeprecationWarning(UserWarning):
+class UdaSubclientDeprecationWarning(UserWarning):
     def __init__(self, message):
-        super().__init__(SubClientDeprecationWarning, message)
+        super().__init__(UdaSubclientDeprecationWarning, message)
+
+
+class UdaSubclientInterfaceError(cpyuda.UDAException):
+    pass
+
+
+class UdaSubclientsStringError(cpyuda.UDAException):
+    pass
 
 
 def _parse_subclient_register_from_env():
@@ -42,7 +49,16 @@ def _parse_subclient_register_from_env():
      Throws: KeyError if the environment variable does not exist
 
     """
+    import re
+    import os
     subclients_string = os.environ["UDA_SUBCLIENTS"]
+    if subclients_string == "":
+        return {}
+
+    string_validator = re.fullmatch(r'(([a-zA-z]\w*)(\.[a-zA-z]\w*)+:?)+', subclients_string)
+    if string_validator is None:
+        raise UdaSubclientsStringError("UDA_SUBCLIENTS string is incorrectly formatted")
+
     entries = [i for i in subclients_string.split(':') if i != '']
     subclient_register = defaultdict(list)
     for entry in entries:
@@ -112,43 +128,65 @@ class Client(with_metaclass(ClientMeta, object)):
             - no environment variable set: fallback to legacy registration routine
             - list provided is incorrectly formatted: fallback to legacy registration routine
             - list provided is empty: no subclients registered
+            - subclient does not provide a register method: fallback to legacy routine
         """
         try:
             subclient_register = _parse_subclient_register_from_env()
-        except (ValueError, KeyError):
+        except UdaSubclientsStringError:
+            warnings.warn("WARNING: cannot parse UDA_SUBCLIENTS string as it is incorrectly formatted. "
+                          "Falling back to legacy subclient registration method. This behaviour will be "
+                          "deprecated along with the fallback method in a later release",
+                          UdaSubclientDeprecationWarning)
+            self.register_legacy_subclients()
+            return
+        except KeyError:
+            warnings.warn("WARNING: UDA_SUBCLIENTS environment variable not set. Falling back to "
+                          " legacy subclient registration method. This behaviour will be deprecated "
+                          "along with with the fallback method in a later release",
+                          UdaSubclientDeprecationWarning)
             self.register_legacy_subclients()
             return
 
-        for module_name in subclient_register:
-            module = importlib.import_module(module_name)
-            subclient_names = subclient_register[module_name]
+        try:
+            for module_name in subclient_register:
+                module = importlib.import_module(module_name)
+                subclient_names = subclient_register[module_name]
 
-            # assume either one or multiple subclients may be specified in each subclient module
-            if type(subclient_names) is not list:
-                subclient_names = [subclient_names]
+                # assume either one or multiple subclients may be specified in each subclient module
+                if type(subclient_names) is not list:
+                    subclient_names = [subclient_names]
 
-            for subclient_name in subclient_names:
-                subclient = getattr(module, subclient_name)
-                self.register_subclient(subclient)
+                for subclient_name in subclient_names:
+                    subclient = getattr(module, subclient_name)
+                    self.register_subclient(subclient)
+        except UdaSubclientInterfaceError:
+            warnings.warn("WARNING: one of the subclient classes specified did not provide "
+                          "a register method. This may be caused by an old version which does "
+                          "not conform to the new interface. Falling back to legacy subclient "
+                          "registration method. This behaviour will be deprecated along with the "
+                          "fallback method in a later release", UdaSubclientDeprecationWarning)
+            self.register_legacy_subclients
 
     def register_legacy_subclients(self):
         # this warning will annoy all non-mast users until we deprecate
         # when do we plan deprecation?
         warnings.warn("WARNING: The pyuda client has fallen back to using the legacy "
-                      "subclient registration routine as the UDA_SUBCLIENTS "
+                      "subclient registration routine, possibly "
+                      " because the UDA_SUBCLIENTS "
                       "environment variable has not been set, "
-                      "or was incorrectly formatted. \n"
+                      "or was incorrectly formatted. \n\n"
                       "Note that any errors encountered importing the mast module "
                       "used in this legacy routine will not be reported, which "
-                      "will frustrate debugging if you require this functionality\n"
+                      "will frustrate debugging if you require this functionality\n\n"
                       "This legacy (mast-specific) routine will be deprecated "
-                      "in a future v3.x release. \n"
+                      "in a future v3.x release. \n\n"
                       "Consider using the UDA_SUBCLIENTS "
                       "environment variable if your code relies on subclient "
-                      "features.\n"
+                      "features such as list_signals.\n\n"
                       "You can disable this warning using "
-                      "warnings.simplefilter('ignore', pyuda.SubClientDeprecationWarning)",
-                      SubClientDeprecationWarning)
+                      "warnings.simplefilter('ignore', pyuda.UdaSubclientDeprecationWarning) "
+                      "or by setting the UDA_SUBCLIENTS variable with an empty string",
+                      UdaSubclientDeprecationWarning)
         try:
             from mast.geom import GeomClient
             from mast import MastClient
@@ -174,9 +212,15 @@ class Client(with_metaclass(ClientMeta, object)):
             pass
 
     def register_subclient(self, subclient_class):
+        if not hasattr(subclient_class, "register"):
+            raise UdaSubclientInterfaceError("The subclient class specified does not provide a \"register\" method")
         subclient_class.register(self)
 
     def register_method(self, method, subclient_instance):
+        if method in self._registered_subclients:
+            previous = self._registered_subclients[method].__name__
+            warnings.warn(f"The subclient method \"{method.__name__}\" previously registered to {previous} "
+                          f"has been overwritten by {subclient_instance.__name__}")
         self._registered_subclients[method] = subclient_instance
 
     def get_file(self, source_file, output_file=None):

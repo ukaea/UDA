@@ -4,7 +4,7 @@ from logging import DEBUG, WARNING, INFO, ERROR
 
 import cpyuda
 
-from ._client import Client, SubClientDeprecationWarning
+from ._client import Client, UdaSubclientDeprecationWarning
 from ._signal import Signal
 from ._video import Video
 from ._dim import Dim
