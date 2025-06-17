@@ -24,12 +24,8 @@ template<typename T>
 struct is_uda_complex : std::false_type {};
 
 template<>
-struct is_uda_complex<const COMPLEX> : std::true_type {};
-template<>
 struct is_uda_complex<COMPLEX> : std::true_type {};
 
-template<>
-struct is_uda_complex<const DCOMPLEX> : std::true_type {};
 template<>
 struct is_uda_complex<DCOMPLEX> : std::true_type {};
 
