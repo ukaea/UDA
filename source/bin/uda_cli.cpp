@@ -7,6 +7,31 @@
 #include <boost/program_options.hpp>
 #include <boost/range/combine.hpp>
 #include <gsl/span>
+#include <type_traits>
+#include <iomanip>
+
+typedef struct DComplex {
+    double real;
+    double imaginary;
+} DCOMPLEX;
+
+typedef struct Complex {
+    float real;
+    float imaginary;
+} COMPLEX;
+
+template<typename T>
+struct is_uda_complex : std::false_type {};
+
+template<>
+struct is_uda_complex<const COMPLEX> : std::true_type {};
+template<>
+struct is_uda_complex<COMPLEX> : std::true_type {};
+
+template<>
+struct is_uda_complex<const DCOMPLEX> : std::true_type {};
+template<>
+struct is_uda_complex<DCOMPLEX> : std::true_type {};
 
 struct CLIException : public uda::UDAException
 {
@@ -39,6 +64,21 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
 {
     auto span = gsl::span{ vec.data(), vec.size() };
     out << span;
+    return out;
+}
+
+template<typename T, std::enable_if_t<is_uda_complex<T>::value, bool> =false>
+std::ostream& operator<<(std::ostream& out, const T& complex)
+{
+    std::ios::fmtflags f = out.flags();
+    std::streamsize prec = out.precision();
+    out << std::fixed << std::setprecision(3);
+
+    char sign = (complex.imaginary >= 0) ? '+' : '-';
+    out << complex.real << " " << sign << " " << std::abs(complex.imaginary) << "i";
+
+    out.flags(f);
+    out.precision(prec);
     return out;
 }
 
@@ -218,6 +258,12 @@ void print_capnp_node(TreeReader* tree, NodeReader* node, const std::string& ind
                 break;
             case UDA_TYPE_DOUBLE:
                 print_capnp_data<double>(node, shape, indent);
+                break;
+            case UDA_TYPE_COMPLEX:
+                print_capnp_data<COMPLEX>(node, shape, indent);
+                break;
+            case UDA_TYPE_DCOMPLEX:
+                print_capnp_data<DCOMPLEX>(node, shape, indent);
                 break;
         }
     }

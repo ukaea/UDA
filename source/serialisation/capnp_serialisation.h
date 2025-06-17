@@ -10,6 +10,9 @@
 extern "C" {
 #endif
 
+typedef struct Complex COMPLEX;
+typedef struct DComplex DCOMPLEX;
+
 typedef struct Buffer {
     char* data;
     size_t size;
@@ -52,6 +55,8 @@ void uda_capnp_set_node_name(NodeBuilder* node, const char* name);
 void uda_capnp_add_children(NodeBuilder* node, size_t num_children);
 NodeBuilder* uda_capnp_get_child(TreeBuilder* tree, NodeBuilder* node, size_t index);
 
+void uda_capnp_add_array_complex(NodeBuilder* node, const COMPLEX* data, size_t size);
+void uda_capnp_add_array_dcomplex(NodeBuilder* node, const DCOMPLEX* data, size_t size);
 void uda_capnp_add_array_f32(NodeBuilder* node, const float* data, size_t size);
 void uda_capnp_add_array_f64(NodeBuilder* node, const double* data, size_t size);
 void uda_capnp_add_array_i8(NodeBuilder* node, const int8_t* data, size_t size);
@@ -64,6 +69,8 @@ void uda_capnp_add_array_u32(NodeBuilder* node, const uint32_t* data, size_t siz
 void uda_capnp_add_array_u64(NodeBuilder* node, const uint64_t* data, size_t size);
 void uda_capnp_add_array_char(NodeBuilder* node, const char* data, size_t size);
 
+void uda_capnp_add_md_array_complex(NodeBuilder* node, const COMPLEX* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_dcomplex(NodeBuilder* node, const DCOMPLEX* data, size_t* shape_array, size_t rank);
 void uda_capnp_add_md_array_f32(NodeBuilder* node, const float* data, size_t* shape_array, size_t rank);
 void uda_capnp_add_md_array_f64(NodeBuilder* node, const double* data, size_t* shape_array, size_t rank);
 void uda_capnp_add_md_array_i8(NodeBuilder* node, const int8_t* data, size_t* shape_array, size_t rank);
@@ -76,6 +83,8 @@ void uda_capnp_add_md_array_u32(NodeBuilder* node, const uint32_t* data, size_t*
 void uda_capnp_add_md_array_u64(NodeBuilder* node, const uint64_t* data, size_t* shape_array, size_t rank);
 void uda_capnp_add_md_array_char(NodeBuilder* node, const char* data, size_t* shape_array, size_t rank);
 
+void uda_capnp_add_complex(NodeBuilder* node, COMPLEX data);
+void uda_capnp_add_dcomplex(NodeBuilder* node, DCOMPLEX data);
 void uda_capnp_add_f32(NodeBuilder* node, float data);
 void uda_capnp_add_f64(NodeBuilder* node, double data);
 void uda_capnp_add_i8(NodeBuilder* node, int8_t data);
