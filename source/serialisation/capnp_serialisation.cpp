@@ -10,12 +10,24 @@
 #include <cassert>
 #include <limits>
 #include <gsl/span>
+#include <type_traits>
+#include <iomanip>
 
 #include <clientserver/udaTypes.h>
+#include <clientserver/udaStructs.h>
 
 #include "schema.capnp.h"
 
 namespace {
+
+template<typename T>
+struct is_uda_complex : std::false_type {};
+
+template<>
+struct is_uda_complex<COMPLEX> : std::true_type {};
+
+template<>
+struct is_uda_complex<DCOMPLEX> : std::true_type {};
 
 class PackedMessageStreamReader : public capnp::MessageReader {
 public:
@@ -57,6 +69,8 @@ const char* to_string(::TreeNode::Type type)
         case ::TreeNode::Type::FLT64: return "flt64";
         case ::TreeNode::Type::STRING: return "string";
         case ::TreeNode::Type::VOID: return "void";
+        case ::TreeNode::Type::COMPLEX: return "complex";
+        case ::TreeNode::Type::DCOMPLEX: return "dcomplex";
     }
     return "";
 }
@@ -74,6 +88,21 @@ std::ostream& operator<<(std::ostream& out, const typename capnp::List<uint64_t,
         delim = ", ";
         ++count;
     }
+    return out;
+}
+
+template<typename T, std::enable_if_t<is_uda_complex<T>::value, bool> = false>
+std::ostream& operator<<(std::ostream& out, const T& complex)
+{
+    std::ios::fmtflags old_flags = out.flags();
+    std::streamsize prec = out.precision();
+    out << std::fixed << std::setprecision(3);
+
+    char sign = (complex.imaginary >= 0) ? '+' : '-';
+    out << complex.real << " " << sign << " " << std::abs(complex.imaginary) << "i";
+
+    out.flags(old_flags);
+    out.precision(prec);
     return out;
 }
 
@@ -161,6 +190,8 @@ void print_node(std::ostream& out, const ::TreeNode::Reader& tree, const std::st
             case ::TreeNode::Type::UINT32: print_data<uint32_t>(out, array, indent); break;
             case ::TreeNode::Type::UINT64: print_data<uint64_t>(out, array, indent); break;
             case ::TreeNode::Type::STRING: print_data<std::string>(out, array, indent); break;
+            case ::TreeNode::Type::COMPLEX: print_data<COMPLEX>(out, array, indent); break;
+            case ::TreeNode::Type::DCOMPLEX: print_data<DCOMPLEX>(out, array, indent); break;
             case ::TreeNode::Type::VOID: out << indent << "  data: <void>\n"; break;
         }
 
@@ -296,6 +327,8 @@ template <> TreeNode::Type TreeNodeTypeConverter<uint32_t>::type = TreeNode::Typ
 template <> TreeNode::Type TreeNodeTypeConverter<uint64_t>::type = TreeNode::Type::UINT64;
 template <> TreeNode::Type TreeNodeTypeConverter<float>::type = TreeNode::Type::FLT32;
 template <> TreeNode::Type TreeNodeTypeConverter<double>::type = TreeNode::Type::FLT64;
+template <> TreeNode::Type TreeNodeTypeConverter<COMPLEX>::type = TreeNode::Type::COMPLEX;
+template <> TreeNode::Type TreeNodeTypeConverter<DCOMPLEX>::type = TreeNode::Type::DCOMPLEX;
 
 // maximum size of data to send in each capnp "data" blob - capnp has a implicit limit of 512MB of data
 // for blobs so this size should not exceed that.
@@ -340,6 +373,16 @@ void uda_capnp_add_md_array(NodeBuilder* node, const T* data_ptr, size_t* shape_
     // if we want to allow a cursor-like data mechanism in the future we will need a way
     // for this to be set to false until the last block is returned.
     data.setEos(true);
+}
+
+void uda_capnp_add_md_array_complex(NodeBuilder* node, const COMPLEX* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_dcomplex(NodeBuilder* node, const DCOMPLEX* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
 }
 
 void uda_capnp_add_md_array_f32(NodeBuilder* node, const float* data, size_t* shape_array, size_t rank)
@@ -435,6 +478,16 @@ void uda_capnp_add_array(NodeBuilder* node, const T* data_ptr, size_t size)
     data.setEos(true);
 }
 
+void uda_capnp_add_array_complex(NodeBuilder* node, const COMPLEX* data, size_t size)
+{
+    return uda_capnp_add_array(node, data, size);
+}
+
+void uda_capnp_add_array_dcomplex(NodeBuilder* node, const DCOMPLEX* data, size_t size)
+{
+    return uda_capnp_add_array(node, data, size);
+}
+
 void uda_capnp_add_array_f32(NodeBuilder* node, const float* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
@@ -503,6 +556,16 @@ void uda_capnp_add_scalar(NodeBuilder* node, T scalar)
     auto slices = data.initSlices(1);
     slices.set(0, ptr);
     data.setEos(true);
+}
+
+void uda_capnp_add_complex(NodeBuilder* node, COMPLEX data)
+{
+    uda_capnp_add_scalar(node, data);
+}
+
+void uda_capnp_add_dcomplex(NodeBuilder* node, DCOMPLEX data)
+{
+    uda_capnp_add_scalar(node, data);
 }
 
 void uda_capnp_add_f32(NodeBuilder* node, float data)
@@ -629,6 +692,8 @@ int uda_capnp_read_type(NodeReader* node)
         case TreeNode::Type::FLT32: return UDA_TYPE_FLOAT;
         case TreeNode::Type::FLT64: return UDA_TYPE_DOUBLE;
         case TreeNode::Type::STRING: return UDA_TYPE_STRING;
+        case TreeNode::Type::COMPLEX: return UDA_TYPE_COMPLEX;
+        case TreeNode::Type::DCOMPLEX: return UDA_TYPE_DCOMPLEX;
         default: return UDA_TYPE_UNKNOWN;
     }
 }
