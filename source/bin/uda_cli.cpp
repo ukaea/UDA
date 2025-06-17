@@ -10,6 +10,8 @@
 #include <type_traits>
 #include <iomanip>
 
+//NOTE: redefinition of UDA complex types here to avoid dragging in unnecessary dependencies.
+// To be removed when headers are cleaned up in uda v3.0
 typedef struct DComplex {
     double real;
     double imaginary;
@@ -63,17 +65,17 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
     return out;
 }
 
-template<typename T, std::enable_if_t<is_uda_complex<T>::value, bool> =false>
+template<typename T, std::enable_if_t<is_uda_complex<T>::value, bool> = false>
 std::ostream& operator<<(std::ostream& out, const T& complex)
 {
-    std::ios::fmtflags f = out.flags();
+    std::ios::fmtflags old_flags = out.flags();
     std::streamsize prec = out.precision();
     out << std::fixed << std::setprecision(3);
 
     char sign = (complex.imaginary >= 0) ? '+' : '-';
     out << complex.real << " " << sign << " " << std::abs(complex.imaginary) << "i";
 
-    out.flags(f);
+    out.flags(old_flags);
     out.precision(prec);
     return out;
 }
