@@ -74,14 +74,13 @@ static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_bloc
                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
                          uda::cache::UdaCache* cache,
                          LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
-                         int server_tot_block_time, int* server_timeout);
+                         int* server_timeout);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                         ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                         XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
-                        int server_tot_block_time,
-                        int* server_timeout);
+                        int* server_tot_block_time, int* server_timeout);
 
 static int
 reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block, int trap1Err,
@@ -159,7 +158,7 @@ int udaServer(CLIENT_BLOCK client_block)
         int fatal = 0;
         doServerLoop(&request_block, &data_block_list, &client_block, &server_block, &metadata_block, &actions_desc,
                      &actions_sig, &fatal, cache, &log_struct_list, server_input, server_output,
-                     &total_datablock_size, server_tot_block_time, &server_timeout);
+                     &total_datablock_size, &server_tot_block_time, &server_timeout);
     }
 
     err = doServerClosedown(&client_block, &request_block, &data_block_list, server_tot_block_time, server_timeout);
@@ -376,7 +375,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
                   LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
-                  int server_tot_block_time, int* server_timeout)
+                  int* server_timeout)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -403,11 +402,6 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
     if ((err = protocol2(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                          client_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
-        if (server_tot_block_time >= 1000 * *server_timeout) {
-            *fatal = 1;
-            UDA_THROW_ERROR(999, "Server Time Out");
-        }
-
         UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block\n");
 
         addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
@@ -819,7 +813,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                  ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
-                 XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int server_tot_block_time,
+                 XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int* server_tot_block_time,
                  int* server_timeout)
 {
     int err = 0;
@@ -842,7 +836,10 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
                             data_block_list, fatal, &server_closedown, cache, log_struct_list, server_input,
-                            total_datablock_size, server_tot_block_time, server_timeout);
+                            total_datablock_size, server_timeout);
+
+        // Reset server block time to zero so that we only kill the server after TIMEOUT minutes of inactivity
+        *server_tot_block_time = 0;
 
         if (server_closedown) {
             break;
