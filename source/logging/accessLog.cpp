@@ -243,10 +243,6 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_blo
         auto str = fmt.str();
 
         udaLog(UDA_LOG_ACCESS, "%s\n", str.c_str());
-
-//        udaServerRedirectStdStreams(0);
-//        udaProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, str.c_str(), environment);
-//        udaServerRedirectStdStreams(1);
     }
 
 }

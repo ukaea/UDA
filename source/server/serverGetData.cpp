@@ -1125,7 +1125,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
 #ifndef FATCLIENT
                 // Redirect Output to temporary file if no file handles passed
-                int reset = 0;
+                bool reset = false;
                 int rc;
                 if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
                     UDA_THROW_ERROR(rc, "Error Redirecting Plugin Message Output");
@@ -1142,7 +1142,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
 #ifndef FATCLIENT
                 // Reset Redirected Output
-                reset = 1;
+                reset = true;
                 if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
                     UDA_THROW_ERROR(rc, "Error Resetting Redirected Plugin Message Output");
                 }
@@ -1153,13 +1153,6 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "returned from plugin called\n");
-
-                // Save Provenance with socket stream protection
-
-                udaServerRedirectStdStreams(0);
-                udaProvenancePlugin(&client_block, request, data_source, signal_desc, pluginlist, nullptr,
-                                    getServerEnvironment());
-                udaServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
 
@@ -1242,14 +1235,6 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
     // Copy the Client Block into the Data Block to pass client requested properties into plugins
 
     data_block->client_block = client_block;
-
-    //----------------------------------------------------------------------------
-    // Save Provenance with socket stream protection
-
-    udaServerRedirectStdStreams(0);
-    udaProvenancePlugin(&client_block, request, data_source, signal_desc, pluginlist, nullptr,
-                        getServerEnvironment());
-    udaServerRedirectStdStreams(1);
 
     return 0;
 }

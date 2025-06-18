@@ -917,6 +917,8 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     //----------------------------------------------------------------------------
     // Server Destruct.....
 
+    udaServerRedirectStdStreams(false, true);
+
     UDA_LOG(UDA_LOG_DEBUG, "Server Shutting Down\n");
     if (server_tot_block_time > 1000 * server_timeout) {
         UDA_LOG(UDA_LOG_DEBUG, "Server Timeout after %d secs\n", server_timeout);

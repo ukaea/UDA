@@ -18,7 +18,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-latest]
+#        os: [ubuntu-22.04, windows-latest, macos-latest]
+        os: [ubuntu-22.04, macos-latest]
         release: [Release]
         ssl: [ON, OFF]
         client-only: [ON, OFF]
