@@ -20,6 +20,18 @@
 
 namespace {
 
+//NOTE: redefinition of UDA complex types here to avoid dragging in unnecessary dependencies.
+// To be removed when headers are cleaned up in uda v3.0
+typedef struct DComplex {
+    double real;
+    double imaginary;
+} DCOMPLEX;
+
+typedef struct Complex {
+    float real;
+    float imaginary;
+} COMPLEX;
+
 template<typename T>
 struct is_uda_complex : std::false_type {};
 
