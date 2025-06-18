@@ -125,6 +125,7 @@ int udaServerRedirectStdStreams(int reset)
     static int original_std_fd = 0;
     static int original_err_fd = 0;
     static FILE* mds_msg_fh = nullptr;
+    static bool is_redirect = false;
 
     static char mksdir_template[MAXPATH] = { 0 };
     static char temp_file[MAXPATH] = { 0 };
@@ -149,15 +150,17 @@ int udaServerRedirectStdStreams(int reset)
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
         if (mksdir_template[0] == '\0') {
-            const char* env = getenv("UDA_PLUGIN_REDIVERT");
+            const char* env = getenv("UDA_PLUGIN_REDIRECT");
 
             if (env == nullptr) {
+                is_redirect = false;
                 if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
                     snprintf(mksdir_template, MAXPATH, "%s/idamPLUGINXXXXXX", env);
                 } else {
                     strcpy(mksdir_template, "/tmp/idamPLUGINXXXXXX");
                 }
             } else {
+                is_redirect = true;
                 strcpy(mksdir_template, env);
             }
         }
@@ -190,6 +193,24 @@ int udaServerRedirectStdStreams(int reset)
             // Multi platform compliance
             dup2(original_std_fd, fileno(stdout));
             dup2(original_err_fd, fileno(stderr));
+
+            if (!is_redirect) {
+                errno = 0;
+                int rc = fclose(mds_msg_fh);
+                if (rc) {
+                    int err = errno;
+                    UDA_THROW_ERROR(err, strerror(err));
+                }
+
+                mds_msg_fh = nullptr;
+                errno = 0;
+                rc = remove(temp_file);    // Delete the temporary file
+                if (rc) {
+                    int err = errno;
+                    UDA_THROW_ERROR(err, strerror(err));
+                }
+                temp_file[0] = '\0';
+            }
 
         } else {
             UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles\n");
