@@ -1597,8 +1597,8 @@ TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 
     uda::Client client;
 
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "[testplugin]: Test #1 of Error State Management\n[testplugin]: Test #1 of Error State Management\n" );
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n[testplugin]: Test #2 of Error State Management\n" );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "[testplugin]: Test #1 of Error State Management\n" );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n" );
 
 #ifndef FATCLIENT
     // This test hard crashes the server code so can't be run in fat-client mode

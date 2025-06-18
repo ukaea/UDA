@@ -180,7 +180,7 @@ int udaServerRedirectStdStreams(bool reset, bool cleanup)
         const char* redirect_file = getenv("UDA_PLUGIN_REDIRECT_FILE");
         errno = 0;
 
-        if (redirect_file != nullptr) {
+        if (redirect_file == nullptr) {
             if (mksdir_template[0] == '\0') {
                 is_specified_redirect_file = false;
                 const char* redirect_dir = getenv("UDA_PLUGIN_REDIRECT_DIR");
