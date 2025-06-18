@@ -150,7 +150,7 @@ int udaServerRedirectStdStreams(int reset)
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
         if (mksdir_template[0] == '\0') {
-            const char* env = getenv("UDA_PLUGIN_REDIRECT");
+            const char* env = getenv("UDA_PLUGIN_REDIVERT");
 
             if (env == nullptr) {
                 is_redirect = false;
