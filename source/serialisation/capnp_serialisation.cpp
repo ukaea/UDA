@@ -14,7 +14,6 @@
 #include <iomanip>
 
 #include <clientserver/udaTypes.h>
-#include <clientserver/udaStructs.h>
 
 #include "schema.capnp.h"
 
