@@ -17,8 +17,6 @@
 
 #include "schema.capnp.h"
 
-namespace {
-
 //NOTE: redefinition of UDA complex types here to avoid dragging in unnecessary dependencies.
 // To be removed when headers are cleaned up in uda v3.0
 typedef struct DComplex {
@@ -30,6 +28,8 @@ typedef struct Complex {
     float real;
     float imaginary;
 } COMPLEX;
+
+namespace {
 
 template<typename T>
 struct is_uda_complex : std::false_type {};
