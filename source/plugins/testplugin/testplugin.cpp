@@ -142,6 +142,8 @@ static int do_emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface);
 #ifdef CAPNP_ENABLED
 static int do_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
+static int do_capnp_complex_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+
 static int do_nested_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 static int do_long_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
@@ -348,6 +350,8 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 #ifdef CAPNP_ENABLED
     } else if (STR_IEQUALS(request->function, "capnp")) {
         err = do_capnp_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "capnp_complex")) {
+        err = do_capnp_complex_test(plugin_interface);
     } else if (STR_IEQUALS(request->function, "capnp_nested")) {
         err = do_nested_capnp_test(plugin_interface);
     } else if (STR_IEQUALS(request->function, "capnp_long")) {
@@ -3969,6 +3973,49 @@ int do_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
     uda_capnp_set_node_name(child, "i64_scalar");
 
     uda_capnp_add_i64(child, 999);
+
+    auto buffer = uda_capnp_serialise(tree);
+
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    data_block->data_n = static_cast<int>(buffer.size);
+    data_block->data = buffer.data;
+    data_block->dims = nullptr;
+    data_block->data_type = UDA_TYPE_CAPNP;
+    
+    return 0;
+}
+
+int do_capnp_complex_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    auto tree = uda_capnp_new_tree();
+    auto root = uda_capnp_get_root(tree);
+    uda_capnp_set_node_name(root, "root");
+    uda_capnp_add_children(root, 3);
+
+    auto child = uda_capnp_get_child(tree, root, 0);
+    uda_capnp_set_node_name(child, "complex_array");
+
+    std::vector<COMPLEX> complex_vec(30);
+    for (float i = 0; i < 30; ++i) {
+        complex_vec[i] = COMPLEX{i / 10.0f, i - 10.0f};
+    }
+    uda_capnp_add_array_complex(child, complex_vec.data(), complex_vec.size());
+
+    child = uda_capnp_get_child(tree, root, 1);
+    uda_capnp_set_node_name(child, "dcomplex_array");
+
+    std::vector<DCOMPLEX> dcomplex_vec(100);
+    for (double i = 0; i < 100; ++i) {
+        dcomplex_vec[i] = DCOMPLEX{ i/3, i/5};
+    }
+    uda_capnp_add_array_dcomplex(child, dcomplex_vec.data(), dcomplex_vec.size());
+
+    child = uda_capnp_get_child(tree, root, 2);
+    uda_capnp_set_node_name(child, "complex_scalar");
+
+    uda_capnp_add_complex(child, COMPLEX{5,3});
 
     auto buffer = uda_capnp_serialise(tree);
 
