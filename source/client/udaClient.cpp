@@ -1441,14 +1441,6 @@ void udaFreeAll()
     uda::cache::free_cache();
 #endif
 
-    for (int i = 0; i < udaGetCurrentDataBlockIndex(); ++i) {
-#ifndef FATCLIENT
-        freeDataBlock(getIdamDataBlock(i));
-#else
-        freeDataBlock(getIdamDataBlock(i));
-#endif
-    }
-
     acc_freeDataBlocks();
 
 #ifndef FATCLIENT
