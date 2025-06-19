@@ -701,11 +701,13 @@ int uda::Server::handle_request()
     return err;
 }
 
-unsigned int count_data_block_list_size(const std::vector<DataBlock>& data_blocks, ClientBlock* client_block)
+unsigned int count_data_block_list_size(std::vector<DataBlock>& data_blocks, ClientBlock* client_block)
 {
     unsigned int total = 0;
-    for (const auto& data_block : data_blocks) {
-        total += countDataBlockSize(&data_block, client_block);
+    for (auto& data_block : data_blocks) {
+        unsigned int count = countDataBlockSize(&data_block, client_block);
+        data_block.totalDataBlockSize = count;
+        total += count;
     }
     return total;
 }
