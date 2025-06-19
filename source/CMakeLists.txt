@@ -28,7 +28,7 @@ else()
     endif()
   endif()
   if( APPLE )
-    add_definitions( -Wno-cast-function-type )
+    add_definitions( -Wno-cast-function-type -Wno-cast-function-type-mismatch )
   endif()
 endif()
 
