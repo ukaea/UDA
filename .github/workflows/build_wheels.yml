@@ -12,7 +12,6 @@ on:
       - '*'
     branches:
       - release/*
-      - feature/*
       - main
       - develop
 
