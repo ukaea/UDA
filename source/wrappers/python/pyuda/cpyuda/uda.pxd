@@ -135,6 +135,7 @@ cdef extern from "client/accAPI.h":
     int getIdamOrder(int handle);
     NTREE* getIdamDataTree(int handle);
     LOGMALLOCLIST* getIdamLogMallocList(int handle);
+    unsigned int getIdamTotalDataBlockSize(int handle);
 
 cdef extern from "clientserver/initStructs.h":
     void initIdamPutDataBlock(PUTDATA_BLOCK* str);

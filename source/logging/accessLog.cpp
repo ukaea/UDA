@@ -92,6 +92,7 @@ unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* clie
                  sizeof(SIGNAL_DESC);
     }
 
+    data_block->totalDataBlockSize = count;
     return count;
 }
 
