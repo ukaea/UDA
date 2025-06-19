@@ -15,7 +15,6 @@ on:
       - feature/*
       - main
       - develop
-      - bugfix/*
 
 jobs:
   build_wheels:
@@ -272,7 +271,7 @@ jobs:
     # push test wheels to testpypi for all intermediate release candidates (release/*, develop, etc.) 
     # but never for feature branches
     if: >
-      github.event_name == 'push' && (!startsWith(github.ref, 'refs/heads/feature/') || !startsWith(github.ref, 'refs/heads/bugfix/'))
+      github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/feature/')
     needs: build_wheels
     runs-on: ubuntu-latest
     environment: 
