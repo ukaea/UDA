@@ -14,9 +14,8 @@
 
 #include "logging/logging.h"
 
-namespace uda {
-namespace authentication {
-namespace detail {
+namespace uda::authentication::detail {
+
 using json = nlohmann::json;
 
 // Callback function to handle the response data
@@ -107,7 +106,7 @@ public:
 
     // Verify the token signature using the fetched JWKS
     // https://github.com/Thalhammer/jwt-cpp/blob/master/example/jwks-verify.cpp
-    void verify_token_signature(const std::string& token) const {
+    [[nodiscard]] jwt::traits::kazuho_picojson::object_type verify_token_signature(const std::string& token) const {
         try {
             auto decoded_jwt = jwt::decode(token);
             auto jwk = jwt::parse_jwks(jwks_.dump()).get_jwk(decoded_jwt.get_key_id());
@@ -137,6 +136,7 @@ public:
 
             }
             UDA_LOG(UDA_LOG_DEBUG, "Keycloak: Token signature verified successfully\n");
+            return decoded_jwt.get_payload_json();
         } catch (const std::exception& e) {
             UDA_LOG(UDA_LOG_ERROR, "Keycloak: Token signature verification failed: %s\n", e.what());
             throw; // Re-throw the exception for the caller to handle
@@ -152,11 +152,9 @@ private:
     json jwks_;
 };
 
-} // namespace detail
-} // namespace authentication
-} // namespace uda
+} // namespace uda::authentication::detail
 
-void uda::authentication::authenticate(const std::string& token) {
+uda::authentication::PayloadType uda::authentication::authenticate(const std::string& token) {
     const auto maybe_realm = getenv("UDA_SERVER_KEYCLOAK_REALM");
     if (maybe_realm == nullptr) {
         UDA_LOG(UDA_LOG_ERROR, "Keycloak: Authentication is enabled, but UDA_SERVER_KEYCLOAK_REALM is missing\n");
@@ -177,5 +175,10 @@ void uda::authentication::authenticate(const std::string& token) {
     const auto realm = std::string(maybe_realm);
     const auto client = std::string(maybe_client);
     const auto auth = detail::OAuthCTX(realm, client);
-    auth.verify_token_signature(token);
+    auto payload = auth.verify_token_signature(token);
+    std::unordered_map<std::string, std::string> payload_map = {};
+    for (auto& element : payload) {
+        payload_map.emplace(element.first, element.second.to_str());
+    }
+    return payload_map;
 }

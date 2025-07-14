@@ -61,6 +61,7 @@ include_directories(
   ${LIBXML2_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${fmt_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/extlib
 )
 
 add_definitions( -DSERVERBUILD )

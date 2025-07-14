@@ -339,9 +339,11 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
         data_blocks->data = (DATA_BLOCK*)realloc(data_blocks->data, (data_blocks->count + 1) * sizeof(DATA_BLOCK));
         auto data_block = &data_blocks->data[i];
         initDataBlock(data_block);
+        uda::authentication::PayloadType auth_payload = {};
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                         &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
+                         &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version,
+                         auth_payload);
         ++data_blocks->count;
     }
 

@@ -37,7 +37,8 @@ constexpr int server_version = 8;
 
 int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
                  USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list, int protocolVersion,
-                 XDR* server_input, XDR* server_output, unsigned int private_flags, int malloc_source)
+                 XDR* server_input, XDR* server_output, unsigned int private_flags, int malloc_source,
+                 const uda::authentication::PayloadType& auth_payload)
 {
 
     int rc, err = 0, depth, fatal = 0;
@@ -357,7 +358,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 auto request = &request_block.requests[i];
                 err = udaGetData(&depth, request, client_block, &data_block, &data_source, &signal_rec,
                                  &signal_desc, &actions_desc, &actions_sig, pluginlist, logmalloclist,
-                                 userdefinedtypelist, socket_list, protocolVersion);
+                                 userdefinedtypelist, socket_list, protocolVersion, auth_payload);
             }
 
             UDA_LOG(UDA_LOG_DEBUG,

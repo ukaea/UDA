@@ -15,6 +15,8 @@
 #include <regex>
 #include <string>
 
+#include "authentication/oauth_authentication.h"
+
 IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
     auto plugin_interface = (IDAM_PLUGIN_INTERFACE*)calloc(1, sizeof(IDAM_PLUGIN_INTERFACE));
@@ -339,6 +341,20 @@ int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE typ
     data_block->data_n = data_block->dims[0].dim_n;
 
     return 0;
+}
+
+/**
+ * Find the value with the given key in the auth payload.
+ * @param key the name of the value to find
+ * @param plugin_interface the plugin interface
+ * @return the value found in the auth payload or nullptr if not found
+ */
+const char* authPayloadValue(const char* key, const IDAM_PLUGIN_INTERFACE* plugin_interface) {
+    const auto& payload = plugin_interface->auth_payload->auth_payload;
+    if (payload->count(key) == 0) {
+        return nullptr;
+    }
+    return payload->at(key).c_str();
 }
 
 /**

@@ -5,7 +5,6 @@
 
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
-#include <clientserver/export.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,6 +21,8 @@ enum pluginClass {
 
 struct PluginList;              // Forward declaration
 typedef struct PluginList PLUGINLIST;
+
+typedef struct AuthPayload AUTH_PAYLOAD;
 
 typedef struct IdamPluginInterface {    // Standard Plugin interface
     unsigned short interfaceVersion;    // Interface Version
@@ -43,6 +44,7 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     void* sqlConnection;                // Opaque structure
     const PLUGINLIST* pluginList;       // List of data readers, filters, models, and servers
     UDA_ERROR_STACK error_stack;
+    const AUTH_PAYLOAD* auth_payload;
 } IDAM_PLUGIN_INTERFACE;
 
 typedef int (* PLUGINFUNP)(IDAM_PLUGIN_INTERFACE*);             // Plugin function type

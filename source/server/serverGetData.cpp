@@ -27,13 +27,13 @@ static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_blo
 static int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
                      DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
                      const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                     USERDEFINEDTYPELIST* userdefinedtypelist);
+                     USERDEFINEDTYPELIST* userdefinedtypelist, const uda::authentication::PayloadType& auth_payload);
 
 int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block,
                DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
                ACTIONS* actions_desc, ACTIONS* actions_sig, const PLUGINLIST* pluginlist,
                LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list,
-               int protocolVersion)
+               int protocolVersion, const uda::authentication::PayloadType& auth_payload)
 {
     int isDerived = 0, compId = -1, serverside = 0;
 
@@ -111,7 +111,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
     // Read the Data (Returns rc < 0 if the signal is a derived type or is defined in an XML document)
 
     int rc = read_data(request_data, client_block, data_block, data_source, signal_rec, signal_desc,
-                       pluginlist, logmalloclist, userdefinedtypelist);
+                       pluginlist, logmalloclist, userdefinedtypelist, auth_payload);
 
     UDA_LOG(UDA_LOG_DEBUG, "After read_data rc = %d\n", rc);
     UDA_LOG(UDA_LOG_DEBUG, "Is the Signal a Composite? %d\n", signal_desc->type == 'C');
@@ -287,7 +287,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     rc = udaGetData(depth, &request_block2, client_block, data_block, data_source, signal_rec, signal_desc,
                                     actions_desc, actions_sig, pluginlist, logmalloclist, userdefinedtypelist, socket_list,
-                                    protocolVersion);
+                                    protocolVersion, auth_payload);
 
                     freeActions(actions_desc);        // Added 06Nov2008
                     freeActions(actions_sig);
@@ -384,7 +384,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
             rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
                             &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist,
-                            logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+                            logmalloclist, userdefinedtypelist, socket_list, protocolVersion, auth_payload);
 
             freeActions(&actions_comp_desc2);
             freeActions(&actions_comp_sig2);
@@ -430,7 +430,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
             rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
                             &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist,
-                            logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+                            logmalloclist, userdefinedtypelist, socket_list, protocolVersion, auth_payload);
 
             freeActions(&actions_comp_desc2);
             freeActions(&actions_comp_sig2);
@@ -531,7 +531,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
                                     &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2,
-                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion, auth_payload);
 
                     freeActions(&actions_comp_desc2);
                     freeActions(&actions_comp_sig2);
@@ -579,7 +579,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
                                     &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2,
-                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion, auth_payload);
 
                     freeActions(&actions_comp_desc2);
                     freeActions(&actions_comp_sig2);
@@ -627,7 +627,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
                                     &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2,
-                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion, auth_payload);
 
                     freeActions(&actions_comp_desc2);
                     freeActions(&actions_comp_sig2);
@@ -908,7 +908,7 @@ int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DAT
 int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
               DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
               const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-              USERDEFINEDTYPELIST* userdefinedtypelist)
+              USERDEFINEDTYPELIST* userdefinedtypelist, const uda::authentication::PayloadType& auth_payload)
 {
     // If err = 0 then standard signal data read
     // If err > 0 then an error occured
@@ -1090,6 +1090,8 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
         idam_plugin_interface.logmalloclist = logmalloclist;
         idam_plugin_interface.error_stack.nerrors = 0;
         idam_plugin_interface.error_stack.idamerror = nullptr;
+        const AUTH_PAYLOAD auth_payload_struct{ .auth_payload = &auth_payload };
+        idam_plugin_interface.auth_payload = &auth_payload_struct;
 
         int plugin_id;
 

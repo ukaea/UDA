@@ -1,11 +1,16 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 
-namespace uda {
-namespace authentication {
+namespace uda::authentication {
 
-void authenticate(const std::string& token);
+using PayloadType = std::unordered_map<std::string, std::string>;
+
+PayloadType authenticate(const std::string& token);
 
 }
-}
+
+struct AuthPayload {
+    const uda::authentication::PayloadType* auth_payload;
+};
