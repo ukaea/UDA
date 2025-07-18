@@ -96,7 +96,7 @@ void initServerBlock(SERVER_BLOCK* str, int version)
     str->msg[0] = '\0';
     str->pid = (int)getpid();
     str->idamerrorstack.nerrors = 0;
-    str->idamerrorstack.idamerror = nullptr;
+    //RC str->idamerrorstack.idamerror = nullptr;
     str->OSName[0] = '\0';    // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (server configuration)
 

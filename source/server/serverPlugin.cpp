@@ -446,7 +446,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
     idam_plugin_interface.logmalloclist = &logmalloclist;
     idam_plugin_interface.error_stack.nerrors = 0;
-    idam_plugin_interface.error_stack.idamerror = nullptr;
+    //RC idam_plugin_interface.error_stack.idamerror = nullptr;
 
     // Redirect Output to temporary file if no file handles passed
 
@@ -593,7 +593,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
     idam_plugin_interface.logmalloclist = &logmalloclist;
     idam_plugin_interface.error_stack.nerrors = 0;
-    idam_plugin_interface.error_stack.idamerror = nullptr;
+    //RC idam_plugin_interface.error_stack.idamerror = nullptr;
 
     // Redirect Output to temporary file if no file handles passed
 
