@@ -376,7 +376,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     unsigned int* private_flags = udaPrivateFlags();
     CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->alt_rank = 0;
-    client_flags->user_timeout = TIMEOUT;
+    // currently no way of knowing if this has been set by udaSetProperty except that it probably won't be 0
+    if (client_flags->user_timeout == 0) {
+        client_flags->user_timeout = TIMEOUT;
+    }
 
     time_t protocol_time;            // Time a Conversation Occured
 
