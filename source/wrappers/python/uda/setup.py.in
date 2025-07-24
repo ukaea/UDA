@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+from setuptools import setup
+
+
+def get_version(v, full_version=''):
+    if v.count('.') > 2:
+        v = ".Post".join(v.rsplit('.', 1))
+        # non-tagged commits should only go to testpypi
+        # where the hash postfix is allowed in the version name
+        if '-' in full_version:
+            git_hash = full_version.split('-')[1]
+            v += "+" + git_hash
+    print("setup version = %s" % v)
+    return v
+
+
+version = get_version('@PROJECT_VERSION@', '@FULL_VERSION@')
+
+
+setup(
+    name='uda',
+    version=version,
+    install_requires=["pyuda==%s" % version],
+    packages=['uda'],
+)
