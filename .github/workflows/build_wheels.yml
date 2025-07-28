@@ -319,6 +319,10 @@ jobs:
     # only upload dummy repo if normal one exists
     needs: build_wheels
     runs-on: ubuntu-latest
+    environment: 
+      name: testpypi
+    permissions:
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -326,16 +330,28 @@ jobs:
           name: uda-wheels
           path: dist
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          python-version: '3.11'
-
-      - name: Install Twine
-        run: pip install twine
-
-      - name: Publish to TestPyPI
-        env:
-          TWINE_REPOSITORY: testpypi
-        run: |
-          python -m twine upload --repository $TWINE_REPOSITORY dist/*
+          repository-url: https://test.pypi.org/legacy/
+          verbose: true
+    #
+    # steps:
+    #   - uses: actions/download-artifact@v4
+    #     with:
+    #       # unpacks all build artifacts into dist/
+    #       name: uda-wheels
+    #       path: dist
+    #
+    #   - name: Set up Python
+    #     uses: actions/setup-python@v5
+    #     with:
+    #       python-version: '3.11'
+    #
+    #   - name: Install Twine
+    #     run: pip install twine
+    #
+    #   - name: Publish to TestPyPI
+    #     env:
+    #       TWINE_REPOSITORY: testpypi
+    #     run: |
+    #       python -m twine upload --repository $TWINE_REPOSITORY dist/*
