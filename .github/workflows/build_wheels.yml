@@ -265,7 +265,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: uda-wheels
-          path: ./dist/*
+          path: ${{github.workspace}}/source/wrappers/python/uda/dist/*
 
   
   # upload_pypi:
@@ -322,7 +322,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          # unpacks all CIBW artifacts into dist/
+          # unpacks all build artifacts into dist/
           name: uda-wheels
           path: dist
 
@@ -339,5 +339,3 @@ jobs:
           TWINE_REPOSITORY: testpypi
         run: |
           python -m twine upload --repository $TWINE_REPOSITORY dist/*
-
-    

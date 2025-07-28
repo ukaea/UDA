@@ -89,7 +89,7 @@ def get_version(v, full_version=''):
         # this can avoid clashing "postX" versions on different branches
         if '-' in full_version:
             git_hash = full_version.split('-')[1]
-            v += "+" + git_hash
+            v += "." + git_hash
     # print("setup version = %s" % v)
     return v
 
