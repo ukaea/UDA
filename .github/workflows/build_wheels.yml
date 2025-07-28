@@ -28,12 +28,12 @@ jobs:
           # which are only executed on push to tag. 
           # Test wheels are also generated for the other platforms (and uploaded to testpypi)
           # on pushes to release branches and to main
-          - [ubuntu-latest, x86_64, manylinux2014_x86_64, 0.0]
-          - [ubuntu-latest, x86_64, manylinux_2_28_x86_64, 0.0]
-          - [ubuntu-latest, aarch64, manylinux_2_28_aarch64, 0.0]
-          - [macos-13, x86_64, macosx_x86_64, 13.0]
+          # - [ubuntu-latest, x86_64, manylinux2014_x86_64, 0.0]
+          # - [ubuntu-latest, x86_64, manylinux_2_28_x86_64, 0.0]
+          # - [ubuntu-latest, aarch64, manylinux_2_28_aarch64, 0.0]
+          # - [macos-13, x86_64, macosx_x86_64, 13.0]
           - [macos-14, arm64, macosx_arm64, 14.0]
-          - [windows-latest, AMD64, win_amd64, 0.0]
+          # - [windows-latest, AMD64, win_amd64, 0.0]
 
     steps:
       - uses: actions/checkout@v4
@@ -251,7 +251,7 @@ jobs:
 
       # only build dummy uda package on a single runner (pure python)
       - name: build uda (dummy package) wheels
-        if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'aarch64')
+        if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'arm64')
         run: |
           python3 -m venv venv
           source venv/bin/activate
@@ -261,12 +261,11 @@ jobs:
 
       - name: Upload uda build artifacts
       # only build and upload pure python wheels on a single runner
-        if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'aarch64')
+        if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'arm64')
         uses: actions/upload-artifact@v4
         with:
           name: uda-wheels
           path: ./dist/*
-
 
   
   # upload_pypi:
@@ -312,6 +311,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          verbose: true
 
   upload_dummy_repo_to_testpypi:
     if: >
