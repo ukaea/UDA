@@ -83,13 +83,14 @@ ext = Extension(
 def get_version(v, full_version=''):
     if v.count('.') > 2:
         v = ".Post".join(v.rsplit('.', 1))
-        # non-tagged commits should only go to testpypi 
+        # non-tagged commits should only go to testpypi
         # where the hash postfix is allowed in the version name
         # (local commits PEP 440)
         # this can avoid clashing "postX" versions on different branches
+        # note hash is int-encoded to permit upload
         if '-' in full_version:
             git_hash = full_version.split('-')[1]
-            v += "." + git_hash
+            v += ".dev" + int(git_hash, 16)
     # print("setup version = %s" % v)
     return v
 
