@@ -251,7 +251,7 @@ jobs:
 
       # only build dummy uda package on a single runner (pure python)
       - name: build uda (dummy package) wheels
-        if: runner.os == 'macOS' && ( startswith(matrix.build-platform[1], 'aarch64')
+        if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'aarch64')
         run: |
           python3 -m venv venv
           source venv/bin/activate
@@ -261,7 +261,7 @@ jobs:
 
       - name: Upload uda build artifacts
       # only build and upload pure python wheels on a single runner
-        if: runner.os == 'macOS' && ( startswith(matrix.build-platform[1], 'aarch64')
+        if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'aarch64')
         uses: actions/upload-artifact@v4
         with:
           name: uda-wheels
