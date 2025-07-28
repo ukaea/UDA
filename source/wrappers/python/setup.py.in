@@ -90,7 +90,7 @@ def get_version(v, full_version=''):
         if '-' in full_version:
             git_hash = full_version.split('-')[1]
             v += "+" + git_hash
-    print("setup version = %s" % v)
+    # print("setup version = %s" % v)
     return v
 
 

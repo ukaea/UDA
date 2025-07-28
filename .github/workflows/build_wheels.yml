@@ -115,7 +115,8 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: windows
           CIBW_BUILD: cp3*-${{matrix.build-platform[2]}}
-          CIBW_SKIP: cp36* cp37* cp313*  
+          # CIBW_SKIP: cp36* cp37* cp313*  
+          CIBW_SKIP: cp36* cp37* 
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
 
@@ -238,15 +239,36 @@ jobs:
         env:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
-          CIBW_SKIP: cp313*
+          # CIBW_SKIP: cp313*
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           MACOSX_DEPLOYMENT_TARGET: ${{matrix.build-platform[3]}}
 
-      - uses: actions/upload-artifact@v4
+      - name: upload pyuda cibw build artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
+      # only build dummy uda package on a single runner (pure python)
+      - name: build uda (dummy package) wheels
+        if: runner.os == 'macOS' && ( startswith(matrix.build-platform[1], 'aarch64')
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install --upgrade build setuptools
+          cd ${{github.workspace}}/source/wrappers/python/uda && python -m build --wheel --sdist
+
+      - name: Upload uda build artifacts
+      # only build and upload pure python wheels on a single runner
+        if: runner.os == 'macOS' && ( startswith(matrix.build-platform[1], 'aarch64')
+        uses: actions/upload-artifact@v4
+        with:
+          name: uda-wheels
+          path: ./dist/*
+
+
+  
   # upload_pypi:
   #   # only upload to pypi for tagged releases
   #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
@@ -290,3 +312,32 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+
+  upload_dummy_repo_to_testpypi:
+    if: >
+      github.event_name == 'push'
+    # only upload dummy repo if normal one exists
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          # unpacks all CIBW artifacts into dist/
+          name: uda-wheels
+          path: dist
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Twine
+        run: pip install twine
+
+      - name: Publish to TestPyPI
+        env:
+          TWINE_REPOSITORY: testpypi
+        run: |
+          python -m twine upload --repository $TWINE_REPOSITORY dist/*
+
+    
