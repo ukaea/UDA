@@ -9,7 +9,8 @@ def get_version(v, full_version=''):
         # where the hash postfix is allowed in the version name
         if '-' in full_version:
             git_hash = full_version.split('-')[1]
-            v += ".dev" + int(git_hash, 16)
+            # hash is int encoded (base 36) to allow upload
+            v += ".dev" + int(git_hash, 36)
     print("setup version = %s" % v)
     return v
 
