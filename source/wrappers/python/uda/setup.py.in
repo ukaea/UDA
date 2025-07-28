@@ -10,7 +10,7 @@ def get_version(v, full_version=''):
         if '-' in full_version:
             git_hash = full_version.split('-')[1]
             # hash is int encoded (base 36) to allow upload
-            v += ".dev" + int(git_hash, 36)
+            v += ".dev%d" % int(git_hash, 36)
     print("setup version = %s" % v)
     return v
 
