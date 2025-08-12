@@ -450,6 +450,11 @@ int main(int argc, const char** argv)
         if (!vm["ping"].as<bool>() && vm.count("request") == 0) {
             throw po::error("either 'ping' or 'request' must be provided");
         }
+    } catch (const po::unknown_option& err) {
+            std::cout << "Error: " << err.what() << "\n\n";
+            std::cout << "Usage: " << argv[0] << " [options] request\n";
+            std::cout << desc << "\n";
+            return -1;
     } catch (po::error& err) {
         if (vm["help"].as<bool>()) {
             std::cout << "Usage: " << argv[0] << " [options] request\n";
@@ -461,12 +466,12 @@ int main(int argc, const char** argv)
             std::cout << desc << "\n";
             return -1;
         }
-    };
+    }
 
     if (vm["help"].as<bool>()) {
         std::cout << "Usage: " << argv[0] << " [options] request\n";
         std::cout << desc << "\n";
-        return 1;
+        return 0;
     }
 
     if (vm.count("host")) {
