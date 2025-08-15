@@ -446,32 +446,26 @@ int main(int argc, const char** argv)
         po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
         po::notify(vm);
 
+        if (vm.count("help") && vm["help"].as<bool>()) {
+            std::cout << "Usage: " << argv[0] << " [options] request\n";
+            std::cout << desc << "\n";
+            return 0;
+        }
+
         conflicting_options(vm, "ping", "request");
         if (!vm["ping"].as<bool>() && vm.count("request") == 0) {
             throw po::error("either 'ping' or 'request' must be provided");
         }
     } catch (const po::unknown_option& err) {
-            std::cout << "Error: " << err.what() << "\n\n";
-            std::cout << "Usage: " << argv[0] << " [options] request\n";
-            std::cout << desc << "\n";
-            return -1;
-    } catch (po::error& err) {
-        if (vm["help"].as<bool>()) {
-            std::cout << "Usage: " << argv[0] << " [options] request\n";
-            std::cout << desc << "\n";
-            return 1;
-        } else {
-            std::cout << "Error: " << err.what() << "\n\n";
-            std::cout << "Usage: " << argv[0] << " [options] request\n";
-            std::cout << desc << "\n";
-            return -1;
-        }
-    }
-
-    if (vm["help"].as<bool>()) {
+        std::cout << "Error: " << err.what() << "\n\n";
         std::cout << "Usage: " << argv[0] << " [options] request\n";
         std::cout << desc << "\n";
-        return 0;
+        return -1;
+    } catch (po::error& err) {
+        std::cout << "Error: " << err.what() << "\n\n";
+        std::cout << "Usage: " << argv[0] << " [options] request\n";
+        std::cout << desc << "\n";
+        return -1;
     }
 
     if (vm.count("host")) {
