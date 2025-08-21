@@ -1,3 +1,10 @@
+#include "filesystemUtils.h"
+
+#include <vector>
+#include <logging/logging.h>
+#include "errorLog.h"
+#include <version.h>
+
 #if defined __has_include
 #  if !__has_include(<filesystem>)
 #include <experimental/filesystem>
@@ -22,7 +29,9 @@ int check_allowed_path(const char* expandedPath) {
         full_path = filesystem::canonical(expandedPath).string();
     } catch (filesystem::filesystem_error& e) {
         UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
-        RAISE_PLUGIN_ERROR("Provided File Path Not Found!\n");
+        if (host[0] == '\0') {
+            addIdamError(UDA_CODE_ERROR_TYPE, "hostid", 999, "Provided File Path Not Found!");
+        }
         return 1;
     }
     const char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
@@ -46,7 +55,10 @@ int check_allowed_path(const char* expandedPath) {
     }
     if (!good_path) {
         UDA_LOG(UDA_LOG_ERROR, "Bad Path Provided %s\n", expandedPath);
-        RAISE_PLUGIN_ERROR("Bad File Path Provided\n");
+        if (host[0] == '\0') {
+            std::string error_msg("Bad Path Provided " + expandedPath);
+            addIdamError(UDA_CODE_ERROR_TYPE, "hostid", 999, error_msg.c_str());
+        }
         return 1;
     }
     return 0;
