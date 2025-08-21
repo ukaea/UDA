@@ -55,10 +55,9 @@ int check_allowed_path(const char* expandedPath) {
     }
     if (!good_path) {
         UDA_LOG(UDA_LOG_ERROR, "Bad Path Provided %s\n", expandedPath);
-        if (host[0] == '\0') {
-            std::string error_msg("Bad Path Provided " + std::string(expandedPath));
-            addIdamError(UDA_CODE_ERROR_TYPE, "hostid", 999, error_msg.c_str());
-        }
+        int err = 999
+        std::string error_msg("Bad Path Provided " + std::string(expandedPath));
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, error_msg.c_str());
         return 1;
     }
     return 0;
