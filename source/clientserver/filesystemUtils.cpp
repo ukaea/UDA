@@ -29,9 +29,8 @@ int check_allowed_path(const char* expandedPath) {
         full_path = filesystem::canonical(expandedPath).string();
     } catch (filesystem::filesystem_error& e) {
         UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
-        if (host[0] == '\0') {
-            addIdamError(UDA_CODE_ERROR_TYPE, "hostid", 999, "Provided File Path Not Found!");
-        }
+        int err = 999;
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Provided File Path Not Found!");
         return 1;
     }
     const char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
