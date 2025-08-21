@@ -3,6 +3,7 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/filesystemUtils.h>
 #include <version.h>
 
 #include "readBytesNonOptimally.h"
