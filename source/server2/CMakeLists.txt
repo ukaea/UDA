@@ -179,7 +179,9 @@ set_target_properties( server2-static
 
 install(
   TARGETS server2-static
-  DESTINATION lib
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 if( BUILD_SHARED_LIBS )
@@ -199,7 +201,9 @@ if( BUILD_SHARED_LIBS )
 
   install(
     TARGETS server2-shared
-    DESTINATION lib
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 endif()
 
@@ -219,7 +223,9 @@ if( WIN32 )
 endif()
 
 install( TARGETS server2-exe
-  DESTINATION bin
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 ########################################################################################################################

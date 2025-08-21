@@ -19,7 +19,9 @@ set_target_properties( serialisation-static
 )
 
 install( TARGETS serialisation-static
-  DESTINATION lib
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 file( GLOB HEADER_FILES "*.h" )
