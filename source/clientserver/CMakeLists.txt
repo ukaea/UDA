@@ -17,6 +17,13 @@ else()
   endif()
 endif()
 
+set ( STDFS_VAR "" )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
+    set ( STDFS_VAR "stdc++fs" )
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
+    set ( STDFS_VAR "c++fs" )
+endif()
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
@@ -125,11 +132,11 @@ target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt )
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
-  target_link_libraries( clientserver-server-objects PUBLIC fmt::fmt )
+  target_link_libraries( clientserver-server-objects PUBLIC fmt::fmt ${STDFS_VAR} )
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
-  target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt )
+  target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt ${STDFS_VAR} )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )
