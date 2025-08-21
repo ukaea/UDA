@@ -127,7 +127,7 @@ elseif( TIRPC_FOUND )
 endif()
 
 add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt )
+target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt ${STDFS_VAR} )
 
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )

@@ -40,3 +40,10 @@ export UDA_PLUGIN_DEBUG_SINGLEFILE=1
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$UDA_ROOT/lib:$UDA_ROOT/lib/plugins"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"
 export DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
+
+#------------------------------------------------------------------------------------------------------
+# permitted filepaths for the server to access
+# formatted as a comma-delimited list
+# by deafult all file access will be prohibited if this is set to empty or 
+# the environment variable is unset. Use semi-colons (;) to deliminate multiple allowed paths
+export UDA_ALLOWED_PATHS=

@@ -33,16 +33,16 @@ int check_allowed_path(const char* expandedPath) {
         addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Provided File Path Not Found!");
         return 1;
     }
-    const char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
+    const char* env_str = std::getenv("UDA_ALLOWED_PATHS");
 
     std::vector<std::string> allowed_paths;
     if (env_str && !std::string(env_str).empty()) {
         // gotta check if environment variable exists before using it
         boost::split(allowed_paths, env_str, boost::is_any_of(";"));
     } else if (env_str && std::string(env_str).empty()) {
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_BYTES_PLUGIN_ALLOWED_PATHS is set to an empty string, nothing all paths will be rejected (Env set in bytesPlugin.cfg.in)\n");
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_ALLOWED_PATHS is set to an empty string, nothing all paths will be rejected (Env set in bytesPlugin.cfg.in)\n");
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_BYTES_PLUGIN_ALLOWED_PATHS is was not found, rejecting all paths (Env set in bytesPlugin.cfg.in)\n");
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_ALLOWED_PATHS is was not found, rejecting all paths (Env set in bytesPlugin.cfg.in)\n");
     }
 
     bool good_path = false;
