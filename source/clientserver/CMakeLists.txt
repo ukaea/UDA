@@ -17,13 +17,6 @@ else()
   endif()
 endif()
 
-set ( STDFS_VAR "" )
-if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
-    set ( STDFS_VAR "stdc++fs" )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
-    set ( STDFS_VAR "c++fs" )
-endif()
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
@@ -35,7 +28,6 @@ set( SRC_FILES
   copyStructs.cpp
   errorLog.cpp
   expand_path.cpp
-  filesystemUtils.cpp
   initStructs.cpp
   makeRequestBlock.cpp
   manageSockets.cpp
@@ -72,7 +64,6 @@ set( HEADER_FILES
   copyStructs.h
   errorLog.h
   expand_path.h
-  filesystemUtils.h
   initStructs.h
   initXMLStructs.h
   makeRequestBlock.h
@@ -127,16 +118,16 @@ elseif( TIRPC_FOUND )
 endif()
 
 add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt ${STDFS_VAR} )
+target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt )
 
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
-  target_link_libraries( clientserver-server-objects PUBLIC fmt::fmt ${STDFS_VAR} )
+  target_link_libraries( clientserver-server-objects PUBLIC fmt::fmt )
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
-  target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt ${STDFS_VAR} )
+  target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )
