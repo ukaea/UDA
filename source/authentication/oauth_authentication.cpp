@@ -25,61 +25,6 @@ size_t write_callback(void* contents, const size_t size, const size_t count, std
     return total_size;
 }
 
-// RAII Wrapper for CURL
-class CurlWrapper {
-public:
-    CurlWrapper() {
-        curl_global_init(CURL_GLOBAL_DEFAULT);
-        handle_ = curl_easy_init();
-        if (!handle_) {
-            throw std::runtime_error("Failed to initialize cURL.\n");
-        }
-    }
-
-    ~CurlWrapper() {
-        if (handle_) {
-            curl_easy_cleanup(handle_);
-        }
-        curl_global_cleanup();
-    }
-
-    // Function to perform a GET request
-    [[nodiscard]] std::string perform_get_request(const std::string& url) const {
-        std::string response;
-        try {
-            curl_easy_setopt(handle_, CURLOPT_URL, url.c_str());
-            set_common_options(&response);
-            const CURLcode curl_response = curl_easy_perform(handle_);
-            handle_curl_response(curl_response);
-        } catch (const std::exception& e) {
-            handle_error(e);
-        }
-        return response;
-    }
-
-private:
-    CURL* handle_;
-
-    // Common options for both GET and POST requests
-    void set_common_options(std::string* response_data) const {
-        curl_easy_setopt(handle_, CURLOPT_WRITEFUNCTION, write_callback);
-        curl_easy_setopt(handle_, CURLOPT_WRITEDATA, response_data); // pointer to string is passed to write_callback
-    }
-
-    // Handle the cURL response and check for errors
-    static void handle_curl_response(const CURLcode response) {
-        if (response != CURLE_OK) {
-            throw std::runtime_error("curl_easy_perform() failed: " + std::string(curl_easy_strerror(response)) + "\n");
-        }
-    }
-
-    // Handle exceptions and print error messages
-    static void handle_error(const std::exception& e) {
-        UDA_LOG(UDA_LOG_ERROR, "CURL error: %s\n", e.what());
-        throw; // Re-throw the exception for the caller to handle
-    }
-};
-
 class OAuthCTX {
 public:
     OAuthCTX(const std::string& realm_url, const std::string& client_id) {
@@ -153,6 +98,55 @@ private:
 };
 
 } // namespace uda::authentication::detail
+
+uda::authentication::CurlWrapper::CurlWrapper() {
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    handle_ = curl_easy_init();
+    if (!handle_) {
+        throw std::runtime_error("Failed to initialize cURL.\n");
+    }
+}
+
+uda::authentication::CurlWrapper::~CurlWrapper() {
+    if (handle_) {
+        curl_easy_cleanup(handle_);
+    }
+    curl_global_cleanup();
+}
+
+// Function to perform a GET request
+[[nodiscard]] std::string uda::authentication::CurlWrapper::perform_get_request(const std::string& url) const {
+    std::string response;
+    try {
+        curl_easy_setopt(handle_, CURLOPT_URL, url.c_str());
+        set_common_options(&response);
+        const CURLcode curl_response = curl_easy_perform(handle_);
+        handle_curl_response(curl_response);
+    } catch (const std::exception& e) {
+        handle_error(e);
+    }
+    return response;
+}
+
+
+// Common options for both GET and POST requests
+void uda::authentication::CurlWrapper::set_common_options(std::string* response_data) const {
+    curl_easy_setopt(handle_, CURLOPT_WRITEFUNCTION, detail::write_callback);
+    curl_easy_setopt(handle_, CURLOPT_WRITEDATA, response_data); // pointer to string is passed to write_callback
+}
+
+// Handle the cURL response and check for errors
+void uda::authentication::CurlWrapper::handle_curl_response(const CURLcode response) {
+    if (response != CURLE_OK) {
+        throw std::runtime_error("curl_easy_perform() failed: " + std::string(curl_easy_strerror(response)) + "\n");
+    }
+}
+
+// Handle exceptions and print error messages
+void uda::authentication::CurlWrapper::handle_error(const std::exception& e) {
+    UDA_LOG(UDA_LOG_ERROR, "CURL error: %s\n", e.what());
+    throw; // Re-throw the exception for the caller to handle
+}
 
 uda::authentication::PayloadType uda::authentication::authenticate(const std::string& token) {
     const auto maybe_realm = getenv("UDA_SERVER_KEYCLOAK_REALM");

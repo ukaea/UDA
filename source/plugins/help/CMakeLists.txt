@@ -33,5 +33,7 @@ uda_plugin(
     ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
+    authentication-server-objects
+    curl
     fmt::fmt
 )

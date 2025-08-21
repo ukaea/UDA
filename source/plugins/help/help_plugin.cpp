@@ -17,6 +17,7 @@
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <clientserver/stringUtils.h>
+#include <authentication/oauth_authentication.h>
 #include <version.h>
 #include <fmt/format.h>
 
@@ -74,6 +75,24 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     if (STR_IEQUALS(request->function, "help") || request->function[0] == '\0') {
+        if (const char* url = getenv("UDA_AUTHORISATION_URL"); url != nullptr) {
+            const auto* email = authPayloadValue("", idam_plugin_interface); // get email
+            bool authorised = false;
+            if (email != nullptr) {
+                const std::string auth_url = std::string{url} + "/" + email;
+                try {
+                    const uda::authentication::CurlWrapper curl_wrapper;
+                    if (const auto response = curl_wrapper.perform_get_request(auth_url); response == "True") {
+                        authorised = true;
+                    }
+                } catch (...) {
+                    authorised = false;
+                }
+            }
+            return setReturnDataString(data_block, authorised ? "authorised" : "unauthorised",
+                "Help help = description of this plugin");
+        }
+
         const char* help = "\nHelp\tList of HELP plugin functions:\n\n"
                            "services()\tReturns a list of available services with descriptions\n"
                            "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
