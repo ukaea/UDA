@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <logging/logging.h>
-#include "errorLog.h"
+#include <clientserver/errorLog.h>
 #include <version.h>
 
 #if defined __has_include
