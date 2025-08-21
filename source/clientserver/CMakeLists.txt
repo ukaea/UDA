@@ -28,6 +28,7 @@ set( SRC_FILES
   copyStructs.cpp
   errorLog.cpp
   expand_path.cpp
+  filesystemUtils.cpp
   initStructs.cpp
   makeRequestBlock.cpp
   manageSockets.cpp
@@ -64,6 +65,7 @@ set( HEADER_FILES
   copyStructs.h
   errorLog.h
   expand_path.h
+  filesystemUtils.h
   initStructs.h
   initXMLStructs.h
   makeRequestBlock.h
