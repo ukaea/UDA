@@ -4,7 +4,6 @@
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
-find_package(Filesystem REQUIRED)
 find_package( Boost REQUIRED )
 
 if( WIN32 OR MINGW )
