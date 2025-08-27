@@ -30,4 +30,5 @@ uda_plugin(
     ${LIBXML2_LIBRARIES}
     Boost::boost
     ${STDFS_VAR}
+    fmt::fmt
 )
