@@ -96,6 +96,7 @@ add_library( fatserver-objects OBJECT
   ${HEADER_FILES}
 )
 target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
+target_link_libraries( fatserver-objects PUBLIC ${STDFS_VAR} )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ
