@@ -88,7 +88,6 @@ add_library( server-objects OBJECT
   ${HEADER_FILES}
 )
 target_link_libraries( server-objects PRIVATE fmt::fmt )
-target_link_libraries( server-objects PUBLIC ${STDFS_VAR} )
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp
@@ -96,7 +95,6 @@ add_library( fatserver-objects OBJECT
   ${HEADER_FILES}
 )
 target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
-target_link_libraries( fatserver-objects PUBLIC ${STDFS_VAR} )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ
@@ -125,10 +123,8 @@ elseif(TIRPC_FOUND )
 endif()
 
 target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
-target_link_libraries( server-static PUBLIC ${STDFS_VAR} )
 if( BUILD_SHARED_LIBS )
   target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt )
-  target_link_libraries( server-shared PUBLIC ${STDFS_VAR} )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
