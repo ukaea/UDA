@@ -3,7 +3,6 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/initStructs.h>
-#include <server/filesystemUtils.h>
 #include <version.h>
 
 #include "readBytesNonOptimally.h"
@@ -21,6 +20,7 @@ namespace filesystem = std::filesystem;
 namespace filesystem = std::filesystem;
 #endif
 
+#include <boost/algorithm/string.hpp>
 #include <string>
 #include <regex>
 
