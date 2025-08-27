@@ -4,6 +4,7 @@
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
+find_package(Filesystem REQUIRED)
 find_package( Boost REQUIRED )
 
 if( WIN32 OR MINGW )
@@ -87,14 +88,14 @@ add_library( server-objects OBJECT
   ${SRC_FILES}
   ${HEADER_FILES}
 )
-target_link_libraries( server-objects PRIVATE fmt::fmt )
+target_link_libraries( server-objects PRIVATE fmt::fmt ${STDFS_VAR} )
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
-target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
+target_link_libraries( fatserver-objects PRIVATE fmt::fmt ${STDFS_VAR} )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ
@@ -122,9 +123,9 @@ elseif(TIRPC_FOUND )
   set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
 endif()
 
-target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
+target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt ${STDFS_VAR} )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt )
+  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt ${STDFS_VAR} )
   target_link_libraries( server-shared PUBLIC ${STDFS_VAR} )
 endif()
 
