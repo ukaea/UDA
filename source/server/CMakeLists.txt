@@ -16,7 +16,7 @@ else()
   endif()
 endif()
 
-set ( STDFS_VAR "c++fs" )
+set ( STDFS_VAR "" )
 if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
     set ( STDFS_VAR "stdc++fs" )
 elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
@@ -88,7 +88,6 @@ add_library( server-objects OBJECT
   ${HEADER_FILES}
 )
 target_link_libraries( server-objects PRIVATE fmt::fmt )
-target_link_libraries( server-objects PUBLIC ${STDFS_VAR} )
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp
@@ -96,7 +95,6 @@ add_library( fatserver-objects OBJECT
   ${HEADER_FILES}
 )
 target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
-target_link_libraries( fatserver-objects PUBLIC ${STDFS_VAR} )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ
@@ -329,6 +327,8 @@ install(
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
   DESTINATION etc
 )
+
+file( GLOB HEADER_FILES "*.h" )
 
 install( FILES ${HEADER_FILES}
   DESTINATION include/uda/server
