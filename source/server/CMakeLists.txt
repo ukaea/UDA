@@ -123,9 +123,10 @@ elseif(TIRPC_FOUND )
   set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
 endif()
 
-target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt ${STDFS_VAR} )
+target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
+target_link_libraries( server-static PUBLIC ${STDFS_VAR} )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt ${STDFS_VAR} )
+  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt )
   target_link_libraries( server-shared PUBLIC ${STDFS_VAR} )
 endif()
 
