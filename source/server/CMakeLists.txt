@@ -16,20 +16,12 @@ else()
   endif()
 endif()
 
-set ( STDFS_VAR "" )
-if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
-    set ( STDFS_VAR "stdc++fs" )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
-    set ( STDFS_VAR "c++fs" )
-endif()
-
 ########################################################################################################################
 # Sources
 
 set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
-  filesystemUtils.cpp
   getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
@@ -48,7 +40,6 @@ set( HEADER_FILES
   applyXML.h
   closeServerSockets.h
   createXDRStream.h
-  filesystemUtils.h
   getPluginAddress.h
   getServerEnvironment.h
   initPluginList.h
@@ -122,10 +113,9 @@ elseif(TIRPC_FOUND )
   set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
 endif()
 
-target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt ${STDFS_VAR} )
+target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
 if( BUILD_SHARED_LIBS )
   target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt )
-  target_link_libraries( server-shared PUBLIC ${STDFS_VAR} )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
@@ -327,8 +317,6 @@ install(
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
   DESTINATION etc
 )
-
-file( GLOB HEADER_FILES "*.h" )
 
 install( FILES ${HEADER_FILES}
   DESTINATION include/uda/server
