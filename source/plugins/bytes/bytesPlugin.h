@@ -3,6 +3,7 @@
 
 #include <plugins/udaPlugin.h>
 #include <clientserver/export.h>
+#include <server/filesystemUtils.h>
 
 #ifdef __cplusplus
 extern "C" {
