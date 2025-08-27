@@ -124,7 +124,7 @@ endif()
 
 target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt )
+  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt ${STDFS_VAR} )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
