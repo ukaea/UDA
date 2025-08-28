@@ -15,7 +15,7 @@ target_include_directories(
 
 set_target_properties( serialisation-static
   PROPERTIES
-  OUTPUT_NAME ${PROJECT_NAME}_serialisation
+  OUTPUT_NAME ${PROJECT_NAME}_serialisation_static
 )
 
 install( TARGETS serialisation-static

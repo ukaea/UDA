@@ -148,7 +148,7 @@ endif()
 
 set_target_properties( client2-static
   PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_client2
+    OUTPUT_NAME ${PROJECT_NAME}_client2_static
 )
 
 install( TARGETS client2-static
@@ -188,7 +188,7 @@ install( FILES ${HEADER_FILES}
 if( NOT CLIENT_ONLY )
   set_target_properties( fatclient2-static
     PROPERTIES
-    OUTPUT_NAME fat${PROJECT_NAME}_client2
+    OUTPUT_NAME fat${PROJECT_NAME}_client2_static
   )
 
   install( TARGETS fatclient2-static

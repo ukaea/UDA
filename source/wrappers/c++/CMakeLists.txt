@@ -115,7 +115,7 @@ endif()
 
 set_target_properties( ${LIB_NAME}-static
   PROPERTIES
-    OUTPUT_NAME ${LIB_NAME}
+    OUTPUT_NAME ${LIB_NAME}_static
 )
 
 install( TARGETS ${LIB_NAME}-static

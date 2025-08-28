@@ -107,7 +107,7 @@ endif()
 
 set_target_properties( plugins-static
   PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_plugins
+    OUTPUT_NAME ${PROJECT_NAME}_plugins_static
 )
 
 install(

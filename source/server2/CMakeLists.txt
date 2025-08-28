@@ -174,7 +174,7 @@ endif()
 
 set_target_properties( server2-static
   PROPERTIES
-  OUTPUT_NAME ${PROJECT_NAME}_server2
+  OUTPUT_NAME ${PROJECT_NAME}_server2_static
 )
 
 install(
