@@ -36,14 +36,14 @@ int check_allowed_path(const char* expandedPath) {
     const char* env_str = std::getenv("UDA_ALLOWED_PATHS");
 
     std::vector<std::string> allowed_paths;
-    if (env_str && !std::string(env_str).empty()) {
-        // gotta check if environment variable exists before using it
+    if (env_str != nullptr && env_str) {
+        // Checking if environment variable exists before using it
         boost::split(allowed_paths, env_str, boost::is_any_of(";"));
         boost::split(allowed_paths, env_str, boost::is_any_of(";"));
     } else if (env_str && std::string(env_str).empty()) {
-        UDA_LOG(UDA_LOG_WARN, "UDA_ALLOWED_PATHS is set to an empty string, nothing all paths will be rejected (Env set in udaserver.cfg.in)\n");
+        UDA_LOG(UDA_LOG_WARN, "UDA_ALLOWED_PATHS is set to an empty string, all paths will be rejected (Env set in udaserver.cfg)\n");
     } else {
-        UDA_LOG(UDA_LOG_WARN, "UDA_ALLOWED_PATHS is was not found, rejecting all paths (Env set in udaserver.cfg.in)\n");
+        UDA_LOG(UDA_LOG_WARN, "UDA_ALLOWED_PATHS is was not found, rejecting all paths (Env set in udaserver.cfg)\n");
     }
 
     bool good_path = false;
