@@ -1,5 +1,5 @@
-#ifndef UDA_CLIENTSERVER_FILESYSTEMUTILS_H
-#define UDA_CLIENTSERVER_FILESYSTEMUTILS_H
+#ifndef UDA_PLUGINS_UTILS_H
+#define UDA_PLUGINS_UTILS_H
 
 #include <clientserver/export.h>
 
@@ -13,4 +13,4 @@ LIBRARY_API int check_allowed_path(const char* expandedPath);
 }
 #endif
 
-#endif // UDA_CLIENTSERVER_FILESYSTEMUTILS_H
+#endif // UDA_PLUGINS_UTILS_H
