@@ -116,6 +116,7 @@ if( BUILD_SHARED_LIBS )
   target_link_libraries( plugins-shared PRIVATE
     server-static
     ${LINK_LIB}
+    ${STDFS_VAR}
   )
 endif()
 
