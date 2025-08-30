@@ -3,6 +3,11 @@
 
 find_package( CapnProto REQUIRED )
 
+if( WIN32 )
+  # Use variable-based auto-export so MSVC generates import libs without header annotations
+  set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
+endif()
+
 capnp_generate_cpp( CAPNP_SRCS CANPNP_HDRS schema.capnp )
 
 add_library( serialisation-static STATIC capnp_serialisation.cpp ${CAPNP_SRCS} )
