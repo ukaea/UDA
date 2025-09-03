@@ -12,6 +12,8 @@ endif()
 
 # Sources
 
+set( HEADER_FILES oauth_authentication.h )
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${OPENSSL_INCLUDE_DIR}
@@ -39,3 +41,7 @@ if( NOT CLIENT_ONLY )
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
   target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )
 endif()
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/authentication
+)
