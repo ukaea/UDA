@@ -161,7 +161,7 @@ install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
 if( NOT CLIENT_ONLY )
   set_target_properties( fat${LIB_NAME}-static
     PROPERTIES
-      OUTPUT_NAME fat${LIB_NAME}
+      OUTPUT_NAME fat${LIB_NAME}_static
   )
 
   install( TARGETS fat${LIB_NAME}-static
