@@ -17,9 +17,9 @@ endif()
 
 set ( STDFS_VAR "" )
 if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
-    set ( STDFS_VAR "stdc++fs" )
+  set( STDFS_VAR "stdc++fs" )
 elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
-    set ( STDFS_VAR "c++fs" )
+  set( STDFS_VAR "c++fs" )
 endif()
 
 configure_file(
@@ -64,7 +64,6 @@ add_definitions( -DSERVERBUILD )
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${LIBXML2_INCLUDE_DIR}
-  ${fmt_SOURCE_DIR}/include
   ${Boost_INCLUDE_DIRS}
 )
 
@@ -86,8 +85,7 @@ set( HEADER_FILES
   udaPlugin.h
   udaPluginFiles.h
   utils.h
-        testplugin/teststructs.h testplugin/teststructs.cpp)
-
+)
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
@@ -109,7 +107,6 @@ endif()
 target_link_libraries( plugins-static PRIVATE
   #server-static
   ${LINK_LIB}
-  ${STD_VAR}
 )
 
 if( BUILD_SHARED_LIBS )

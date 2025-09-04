@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-LIBRARY_API int check_allowed_path(const char* expandedPath);
+LIBRARY_API int check_allowed_path(const char* expanded_path);
 
 #ifdef __cplusplus
 }

@@ -3,62 +3,68 @@
 #include <vector>
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <version.h>
+
+#include "udaPlugin.h"
 
 #if defined __has_include
 #  if !__has_include(<filesystem>)
-#include <experimental/filesystem>
+#    include <experimental/filesystem>
 namespace filesystem = std::experimental::filesystem;
 #  else
-#include <filesystem>
+#    include <filesystem>
 namespace filesystem = std::filesystem;
 #  endif
 #else
-#include <filesystem>
+#  include <filesystem>
 namespace filesystem = std::filesystem;
 #endif
 
 #include <boost/algorithm/string.hpp>
 #include <string>
 
+namespace {
+
+bool starts_with(const std::string& string, const std::string& search_string) {
+    if (string.size() < search_string.size()) {
+        return false;
+    }
+    const auto compare_string = string.substr(0, search_string.size());
+    return compare_string == search_string;
+}
+
+}
+
 // Check if path starts with pre-approved file path
 // Raises Plugin Error if not
-int check_allowed_path(const char* expandedPath) {
+int check_allowed_path(const char* expanded_path) {
     std::string full_path;
-    try { 
-        full_path = filesystem::canonical(expandedPath).string();
+    try {
+        full_path = filesystem::canonical(expanded_path).string();
     } catch (filesystem::filesystem_error& e) {
         UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
-        int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Provided File Path Not Found!");
-        return 1;
+        RAISE_PLUGIN_ERROR("Provided File Path Not Found!");
     }
     const char* env_str = std::getenv("UDA_ALLOWED_PATHS");
 
     std::vector<std::string> allowed_paths;
-    if (env_str != nullptr && !std::string(env_str).empty()) {
+    if (env_str != nullptr && env_str[0] != '\0') {
         // Checking if environment variable exists before using it
         boost::split(allowed_paths, env_str, boost::is_any_of(";"));
-        boost::split(allowed_paths, env_str, boost::is_any_of(";"));
-    } else if (env_str != nullptr && std::string(env_str).empty()) {
-        UDA_LOG(UDA_LOG_WARN, "UDA_ALLOWED_PATHS is set to an empty string, all paths will be rejected (Env set in udaserver.cfg)\n");
     } else {
-        UDA_LOG(UDA_LOG_WARN, "UDA_ALLOWED_PATHS is was not found, rejecting all paths (Env set in udaserver.cfg)\n");
+        UDA_LOG(UDA_LOG_WARN, "UDA_ALLOWED_PATHS not found or empty, rejecting all paths\n");
     }
 
     bool good_path = false;
-    for (const auto& allowed_path : allowed_paths) {
-        if (full_path.rfind(allowed_path, 0) != std::string::npos) {
+    for (const auto& allowed_path: allowed_paths) {
+        if (starts_with(full_path, allowed_path)) {
             good_path = true;
             break;
         }
     }
     if (!good_path) {
-        UDA_LOG(UDA_LOG_ERROR, "Bad Path Provided %s\n", expandedPath);
-        int err = 999;
-        std::string error_msg("Bad Path Provided " + std::string(expandedPath));
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, error_msg.c_str());
-        return 1;
+        UDA_LOG(UDA_LOG_ERROR, "Bad Path Provided %s\n", expanded_path);
+        std::string error_msg("Bad Path Provided " + std::string(expanded_path));
+        RAISE_PLUGIN_ERROR(error_msg.c_str());
     }
     return 0;
 }
