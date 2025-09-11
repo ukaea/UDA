@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
 
 #env:
 #  BUILD_TYPE: Release
@@ -85,7 +86,6 @@ jobs:
           git
           boost
           openssl
-          cmake
           pkg-config
           libxml2
           spdlog
