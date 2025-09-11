@@ -9,6 +9,7 @@
 #include <gsl/span>
 #include <type_traits>
 #include <fstream>
+#include <iomanip>
 
 //NOTE: redefinition of UDA complex types here to avoid dragging in unnecessary dependencies.
 // To be removed when headers are cleaned up in uda v3.0
