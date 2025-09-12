@@ -27,7 +27,7 @@ elif sys.platform.lower() == 'darwin':
     stalib_ext = 'a'
     dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
-    extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
+    extra_link_args.append('-Wl,-rpath,{}'.format(os.path.join(root, 'lib')))
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
@@ -46,6 +46,19 @@ else:
     extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []
 
+uda_static_libs = [os.path.join(root, 'lib', lib + '_static.' + stalib_ext) for lib in uda_libs]
+uda_shared_libs = uda_libs
+
+# Decide whether to build against shared or static UDA libraries
+if os.environ.get('UDA_PYTHON_STATIC', True):
+    print("Building against static UDA libraries")
+    libraries = ['ssl', 'crypto', 'xml2'] + extra_libs
+    static_libs = uda_static_libs
+else:
+    print("Building against shared UDA libraries")
+    libraries = ['ssl', 'crypto', 'xml2'] + extra_libs + uda_shared_libs
+    static_libs = None
+
 ext = Extension(
     'cpyuda',
     ['pyuda/cpyuda/cpyuda.pyx'],
@@ -57,7 +70,7 @@ ext = Extension(
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),
-    libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs + uda_libs)),
+    libraries=libraries,
     library_dirs=list(filter(None, [
         '@STDCXX_LIB_DIR@',
         '@OPENSSL_LIB_DIR@',
@@ -74,6 +87,7 @@ ext = Extension(
     ])),
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
+    extra_objects=static_libs,
     language='c++',
     define_macros=extra_macros,
 )

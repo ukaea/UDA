@@ -30,6 +30,7 @@ elif sys.platform.lower() == 'darwin':
     extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
 else:
     stalib_ext = 'lib'
+    implib_ext = 'lib'
     dynlib_ext = 'dll'
     extra_compile_args = ['/MD']
 
@@ -49,6 +50,19 @@ else:
     extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []
 
+uda_static_libs = [os.path.join(root, 'lib', lib + '_static.' + stalib_ext) for lib in uda_libs]
+
+# Decide whether to build against shared or static UDA libraries
+if os.environ.get('UDA_PYTHON_STATIC', True):
+    print("Building against static UDA libraries")
+    libraries = extra_libs
+    static_libs = uda_static_libs
+else:
+    print("Building against shared UDA libraries")
+    libraries = extra_libs + uda_libs
+    static_libs = None
+
+
 ext = Extension(
     'cpyuda',
     ['pyuda/cpyuda/cpyuda.pyx'],
@@ -59,7 +73,7 @@ ext = Extension(
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),
-    libraries=list(filter(None, extra_libs)),
+    libraries=list(filter(None, libraries)),
     library_dirs=list(filter(None, [
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
@@ -67,7 +81,7 @@ ext = Extension(
         '@FMT_LIB_DIR@',
         os.path.join(root, 'lib')
     ])),
-    extra_objects=[os.path.join(root, 'lib', uda_lib) for uda_lib in uda_libs],
+    extra_objects=static_libs,
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
     language='c++',
