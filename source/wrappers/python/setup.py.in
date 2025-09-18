@@ -46,7 +46,7 @@ else:
     extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []
 
-uda_static_libs = [os.path.join(root, 'lib', lib + '_static.' + stalib_ext) for lib in uda_libs]
+uda_static_libs = [os.path.join(root, 'lib', 'lib' + lib + '_static.' + stalib_ext) for lib in uda_libs]
 uda_shared_libs = uda_libs
 
 # Decide whether to build against shared or static UDA libraries
