@@ -4,6 +4,7 @@
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
+find_package( Boost REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -61,6 +62,7 @@ include_directories(
   ${LIBXML2_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${fmt_SOURCE_DIR}/include
+  ${Boost_INCLUDE_DIRS}
 )
 
 add_definitions( -DSERVERBUILD )

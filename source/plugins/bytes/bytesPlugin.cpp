@@ -3,6 +3,7 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/initStructs.h>
+#include <plugins/utils.h>
 #include <version.h>
 
 #include "readBytesNonOptimally.h"
@@ -170,36 +171,6 @@ int BytesPlugin::max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
-
-// Check if path starts with pre-approved file path
-// Raises Plugin Error if not
-int check_allowed_path(const char* expandedPath) {
-    std::string full_path;
-    try { 
-        full_path = filesystem::canonical(expandedPath).string();
-    } catch (filesystem::filesystem_error& e) {
-        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
-        RAISE_PLUGIN_ERROR("Provided File Path Not Found!\n");
-    }
-    const char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
-    std::vector<std::string> allowed_paths;
-    if (env_str) {
-        // gotta check if environment variable exists before using it
-        boost::split(allowed_paths, env_str, boost::is_any_of(";"));
-    } 
-    bool good_path = false;
-    for (const auto& allowed_path : allowed_paths) {
-        if (full_path.rfind(allowed_path, 0) != std::string::npos) {
-            good_path = true;
-            break;
-        }
-    }
-    if (!good_path) {
-        UDA_LOG(UDA_LOG_DEBUG, "Bad Path Provided %s\n", expandedPath);
-        RAISE_PLUGIN_ERROR("Bad File Path Provided\n");
-    }
-    return 0;
-}
 
 int check_path(const Environment* environment, const std::string& path)
 {
