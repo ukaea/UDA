@@ -50,14 +50,14 @@ uda_static_libs = [os.path.join(root, 'lib', 'lib' + lib + '_static.' + stalib_e
 uda_shared_libs = uda_libs
 
 # Decide whether to build against shared or static UDA libraries
-if os.environ.get('UDA_PYTHON_STATIC', True):
-    print("Building against static UDA libraries")
-    libraries = ['ssl', 'crypto', 'xml2'] + extra_libs
-    static_libs = uda_static_libs
-else:
+if os.environ.get('UDA_PYTHON_SHARED', False):
     print("Building against shared UDA libraries")
     libraries = ['ssl', 'crypto', 'xml2'] + extra_libs + uda_shared_libs
     static_libs = None
+else:
+    print("Building against static UDA libraries")
+    libraries = ['ssl', 'crypto', 'xml2'] + extra_libs
+    static_libs = uda_static_libs
 
 ext = Extension(
     'cpyuda',

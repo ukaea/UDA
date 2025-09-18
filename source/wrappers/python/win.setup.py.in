@@ -53,14 +53,14 @@ else:
 uda_static_libs = [os.path.join(root, 'lib', lib + '_static.' + stalib_ext) for lib in uda_libs]
 
 # Decide whether to build against shared or static UDA libraries
-if os.environ.get('UDA_PYTHON_STATIC', True):
-    print("Building against static UDA libraries")
-    libraries = extra_libs
-    static_libs = uda_static_libs
-else:
+if os.environ.get('UDA_PYTHON_SHARED', False):
     print("Building against shared UDA libraries")
     libraries = extra_libs + uda_libs
     static_libs = None
+else:
+    print("Building against static UDA libraries")
+    libraries = extra_libs
+    static_libs = uda_static_libs
 
 
 ext = Extension(
