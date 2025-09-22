@@ -47,6 +47,7 @@ class UdaPlugin {
         }
         udaResetProperties();
         udaFreeAll();
+        cache_.clear();
 
         putIdamServerHost(old_server_host_);    // Original Host
         putIdamServerPort(old_server_port_);    // Original Port
@@ -104,21 +105,26 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         // Plugin Functions
         //----------------------------------------------------------------------------------------
 
+        int err = 0;
         if (STR_IEQUALS(request->function, "help")) {
-            return plugin.help(plugin_interface);
+            err = plugin.help(plugin_interface);
         } else if (STR_IEQUALS(request->function, "version")) {
-            return plugin.version(plugin_interface);
+            err = plugin.version(plugin_interface);
         } else if (STR_IEQUALS(request->function, "builddate")) {
-            return plugin.build_date(plugin_interface);
+            err = plugin.build_date(plugin_interface);
         } else if (STR_IEQUALS(request->function, "defaultmethod")) {
-            return plugin.default_method(plugin_interface);
+            err = plugin.default_method(plugin_interface);
         } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
-            return plugin.max_interface_version(plugin_interface);
+            err = plugin.max_interface_version(plugin_interface);
         } else if (STR_IEQUALS(request->function, "get")) {
-            return plugin.get(plugin_interface);
+            err = plugin.get(plugin_interface);
         } else {
            RAISE_PLUGIN_ERROR_AND_EXIT("unkown function requested", plugin_interface) 
         }
+        if (err != 0) {
+            concatUdaError(&plugin_interface->error_stack);
+        }
+        return err;
     } catch (const std::exception& ex) {
         RAISE_PLUGIN_ERROR_AND_EXIT(ex.what(), plugin_interface) 
     }
