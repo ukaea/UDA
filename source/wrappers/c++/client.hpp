@@ -110,7 +110,8 @@ enum Property
     PROP_VERBOSE,
     PROP_DEBUG,
     PROP_ALTDATA,
-    PROP_ALTRANK
+    PROP_ALTRANK,
+    PROP_DBONLY
 };
 
 enum ErrorCodes

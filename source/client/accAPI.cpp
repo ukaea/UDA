@@ -481,6 +481,7 @@ void udaSetProperty(const char* property)
         if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_REUSELASTHANDLE;
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_FREEREUSELASTHANDLE;
         if (STR_IEQUALS(property, "fileCache")) client_flags->flags = client_flags->flags | CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "dbOnly")) client_flags->flags = client_flags->flags | CLIENTFLAG_DBONLY;
     }
 }
 
@@ -516,6 +517,7 @@ int udaGetProperty(const char* property)
         if (STR_IEQUALS(property, "debug")) return udaGetLogLevel() == UDA_LOG_DEBUG;
         if (STR_IEQUALS(property, "altData")) return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
         if (STR_IEQUALS(property, "fileCache")) return (int)(client_flags->flags & CLIENTFLAG_FILECACHE);
+        if (STR_IEQUALS(property, "dbOnly")) return (int)(client_flags->flags & CLIENTFLAG_DBONLY);
     }
     return 0;
 }
@@ -554,6 +556,7 @@ void udaResetProperty(const char* property)
             client_flags->flags &= !CLIENTFLAG_FREEREUSELASTHANDLE;
         }
         if (STR_IEQUALS(property, "fileCache")) client_flags->flags &= !CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "dbOnly")) client_flags->flags &= !CLIENTFLAG_DBONLY;
     }
 }
 

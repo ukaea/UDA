@@ -30,6 +30,7 @@ _properties = {
     "reuselasthandle": ("REUSE_LAST_HANDLE", False),
     "freeandreuselasthandle": ("FREE_AND_REUSE_LAST_HANDLE", False),
     "filecache": ("FILE_CACHE", False),
+    "dbOnly": ("DB_ONLY", False),
 }
 
 if PY_MAJOR_VERSION >= 3.0:
