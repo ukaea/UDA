@@ -68,6 +68,13 @@ jobs:
           python3-pip
           python3-venv
 
+      # Capnproto package on Ubuntu 24.04 has broken CMake file
+      - name: Fix Capnproto on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          sudo sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' \
+            /usr/lib/x86_64-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
+
       - name: Install Intel compiler
         if: matrix.os == 'ubuntu-latest'
         run: >
