@@ -57,6 +57,7 @@ jobs:
           libssl-dev
           cmake
           build-essential
+          libtirpc-dev
           pkg-config
           libxml2-dev
           libspdlog-dev
