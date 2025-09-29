@@ -7,6 +7,7 @@
 #include <ctime>
 #include <openssl/ssl.h>
 
+#include <common/uda_env_options.hpp>
 #include <client/updateSelectParms.h>
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
@@ -327,7 +328,7 @@ int initUdaClientSSL()
     // Has the user directly specified SSL/TLS authentication?
     // Does the connection entry in the client host configuration file have the three SSL authentication files
 
-    if (!g_sslProtocol && !getenv("UDA_CLIENT_SSL_AUTHENTICATE")) {
+    if (!g_sslProtocol && !uda::common::env_options::evaluate_env_option("UDA_CLIENT_SSL_AUTHENTICATE", false)) {
         g_sslDisabled = true;
 
         if (g_host != nullptr) {
