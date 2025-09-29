@@ -48,7 +48,7 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: Install linux dependencies
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           sudo apt update && sudo apt install -y
           git
@@ -68,7 +68,7 @@ jobs:
           python3-venv
 
       - name: Install Intel compiler
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           sudo apt install -y wget &&
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
@@ -115,7 +115,7 @@ jobs:
           spdlog
 
       - name: Configure CMake (linux)
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           cmake -G Ninja -B build
           -DBUILD_SHARED_LIBS=ON
@@ -125,7 +125,7 @@ jobs:
           -DENABLE_CAPNP=${{ matrix.capnp }}
 
       - name: Configure CMake (linux Intel)
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           source /opt/intel/oneapi/setvars.sh &&
           CXX=icpx CC=icx cmake -G Ninja -B build-intel
@@ -176,7 +176,7 @@ jobs:
         run: cmake --build build --config ${{ matrix.release }}
 
       - name: Build Intel
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: cmake --build build-intel --config ${{ matrix.release }}
 
       - name: Install
@@ -188,7 +188,7 @@ jobs:
         run: cmake --install build --config ${{ matrix.release }}
 
       - name: Install pyuda
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
           python3 -m venv ${{github.workspace}}/venv &&
@@ -198,13 +198,13 @@ jobs:
           pip3 install ${{github.workspace}}/python_installer
 
       - name: Test pyuda import
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'
 
       - name: Run non-SSL system tests
-        if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'OFF'
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'OFF'
         run: >
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
           sudo systemctl start uda.socket &&
@@ -216,7 +216,7 @@ jobs:
           ./build/test/plugins/plugin_test_testplugin
 
       - name: Run SSL system tests
-        if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
         run: >
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
           sudo chown -R $USER:$USER /usr/local/etc &&
