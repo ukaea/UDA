@@ -49,7 +49,6 @@ static char sccsid[] = "@(#)xdr_mem.c 1.19 87/08/11 Copyr 1984 Sun Micro";
 #endif
 
 #include <string.h>
-#include <stdint.h>
 
 #include "rpc/types.h"
 #include "rpc/xdr.h"
@@ -62,7 +61,7 @@ static bool_t	xdrmem_getbytes();
 static bool_t	xdrmem_putbytes();
 static u_int	xdrmem_getpos();
 static bool_t	xdrmem_setpos();
-static int32_t* xdrmem_inline();
+static long *	xdrmem_inline();
 static void	xdrmem_destroy();
 
 static struct	xdr_ops xdrmem_ops = {
@@ -170,23 +169,23 @@ xdrmem_setpos(xdrs, pos)
 	register caddr_t newaddr = xdrs->x_base + pos;
 	register caddr_t lastaddr = xdrs->x_private + xdrs->x_handy;
 
-	if ((intptr_t)newaddr > (intptr_t)lastaddr)
+	if ((long)newaddr > (long)lastaddr)
 		return (FALSE);
 	xdrs->x_private = newaddr;
 	xdrs->x_handy = lastaddr - newaddr;
 	return (TRUE);
 }
 
-static int32_t *
+static long *
 xdrmem_inline(xdrs, len)
 	register XDR *xdrs;
 	int len;
 {
-	int32_t *buf = 0;
+	long *buf = 0;
 
 	if (xdrs->x_handy >= len) {
 		xdrs->x_handy -= len;
-		buf = (int32_t *) xdrs->x_private;
+		buf = (long *) xdrs->x_private;
 		xdrs->x_private += len;
 	}
 	return (buf);
