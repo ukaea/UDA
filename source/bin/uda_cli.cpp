@@ -444,17 +444,21 @@ void print_result(const uda::Result& res) {
 
 void process_request(uda::Client& client, const std::string& request, const std::string& source) {
     std::cout << "request: " << request << "\n";
-    try {
+    // try {
         const auto& res = client.get(request, source);
         print_result(res);
-    } catch (const std::exception& ex) {
-        std::cout << "error: " << ex.what() << "\n";
-    }
+    // } catch (const std::exception& ex) {
+    //     std::cerr << "error: " << ex.what() << "\n";
+    // }
 }
 
 void process_batch_requests(uda::Client& client, const std::vector<std::string>& requests, const std::string& source) {
     for (const auto& request : requests) {
-        process_request(client, request, source);
+        try {
+            process_request(client, request, source);
+        } catch (const std::exception& e) {
+            std::cout << "error: " << ex.what() << "\n";
+        }
     }
     // for (const auto& request : requests) {
     //     std::cout << "request: " << request << "\n";
