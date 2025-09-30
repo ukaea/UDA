@@ -213,7 +213,6 @@ jobs:
           echo "export UDA_SERVER_SSL_AUTHENTICATE=OFF" >> /usr/local/etc/udaserver.cfg &&
           sudo systemctl start uda.socket &&
           sudo systemctl enable uda.socket &&
-          sudo chown -R $USER:$USER /usr/local/etc &&
           nc -4zv localhost 56565 &&
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
