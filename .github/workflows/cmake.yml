@@ -240,7 +240,9 @@ jobs:
           export UDA_CLIENT_CA_SSL_CERT=$PWD/rootCA.crt
           export UDA_CLIENT_SSL_CERT=$PWD/client.crt
           export UDA_CLIENT_SSL_KEY=$PWD/client.key
-          ./build/test/plugins/plugin_test_testplugin && exit 1 || echo "failure expected"
+          set +e
+          ./usr/local/bin/uda_cli --request "help::help()" && exit 1 || echo "process failed successfully"
+          set -e
           export UDA_CLIENT_SSL_AUTHENTICATE=ON
           ./build/test/plugins/plugin_test_testplugin
 
