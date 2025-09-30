@@ -177,16 +177,16 @@ xdrmem_setpos(xdrs, pos)
 	return (TRUE);
 }
 
-static long *
+static int32_t *
 xdrmem_inline(xdrs, len)
 	register XDR *xdrs;
 	int len;
 {
-	long *buf = 0;
+	int32_t *buf = 0;
 
 	if (xdrs->x_handy >= len) {
 		xdrs->x_handy -= len;
-		buf = (long *) xdrs->x_private;
+		buf = (int32_t *) xdrs->x_private;
 		xdrs->x_private += len;
 	}
 	return (buf);
