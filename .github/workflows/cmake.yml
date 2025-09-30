@@ -216,8 +216,8 @@ jobs:
           nc -4zv localhost 56565 &&
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
-          ./build/test/plugins/plugin_test_testplugin
-          ctest --test-dir build/test/unit_tests --output-on-failure
+          ./build/test/plugins/plugin_test_testplugin &&
+          ctest -V --test-dir build/test/unit_tests --output-on-failure
 
       - name: Run SSL system tests
         if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
