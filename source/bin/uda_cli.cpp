@@ -456,7 +456,7 @@ void process_batch_requests(uda::Client& client, const std::vector<std::string>&
     for (const auto& request : requests) {
         try {
             process_request(client, request, source);
-        } catch (const std::exception& e) {
+        } catch (const std::exception& ex) {
             std::cout << "error: " << ex.what() << "\n";
         }
     }
