@@ -209,7 +209,8 @@ jobs:
         if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'OFF'
         run: >
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
-          echo "export UDA_SERVER_SSL_AUTHENTICATE=OFF" >> /usr/local/etc/udaserver.cfg
+          sudo chown -R $USER:$USER /usr/local/etc &&
+          echo "export UDA_SERVER_SSL_AUTHENTICATE=OFF" >> /usr/local/etc/udaserver.cfg &&
           sudo systemctl start uda.socket &&
           sudo systemctl enable uda.socket &&
           sudo chown -R $USER:$USER /usr/local/etc &&
