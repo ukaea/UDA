@@ -122,6 +122,7 @@ jobs:
           openssl
           dlfcn-win32
           spdlog
+          liblzma
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
