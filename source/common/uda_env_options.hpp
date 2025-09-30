@@ -17,9 +17,11 @@ inline bool strings_match(std::string_view val, const std::vector<std::string>& 
     std::transform(value.begin(), value.end(), value.begin(),
                    [] (unsigned char c) {return std::tolower(c); });
 
-    std::vector<std::string> _accepted_values(accepted_values);
     return std::any_of(accepted_values.begin(), accepted_values.end(),
-                       [&] (std::string v){ return value == v; });
+                       [&] (std::string v){ 
+                       std::transform(v.begin(), v.end(), v.begin(),
+                               [] (unsigned char c) {return std::tolower(c); });
+                       return value == v; });
 }
 
 inline bool match_env_option(const char* val, const std::vector<std::string>& accepted_values) {

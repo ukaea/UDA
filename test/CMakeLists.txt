@@ -158,7 +158,8 @@ macro( BUILD_TEST NAME SOURCE )
 endmacro( BUILD_TEST )
 
 add_subdirectory( plugins )
-add_subdirectory( imas )
+# add_subdirectory( imas )
+add_subdirectory( unit_tests )
 
 add_definitions( -D__USE_XOPEN2K8 )
 
