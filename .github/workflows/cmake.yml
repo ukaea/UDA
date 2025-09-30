@@ -209,6 +209,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'OFF'
         run: >
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+          echo "export UDA_SERVER_SSL_AUTHENTICATE=OFF" >> /usr/local/etc/udaserver.cfg
           sudo systemctl start uda.socket &&
           sudo systemctl enable uda.socket &&
           sudo chown -R $USER:$USER /usr/local/etc &&
@@ -216,13 +217,14 @@ jobs:
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
           ./build/test/plugins/plugin_test_testplugin
-          ctest -V --test-dir build/test/unit_tests --output-on-failure
+          ctest --test-dir build/test/unit_tests --output-on-failure
 
       - name: Run SSL system tests
         if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
         run: |
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system
           sudo chown -R $USER:$USER /usr/local/etc
+          # pulls in extra config options from machine.d
           echo "export UDAHOSTNAME=github-ci-ssl" >> /usr/local/etc/udaserver.cfg
           ./scripts/create_certs.sh
           mkdir /usr/local/etc/certs
@@ -241,7 +243,7 @@ jobs:
           export UDA_CLIENT_SSL_CERT=$PWD/client.crt
           export UDA_CLIENT_SSL_KEY=$PWD/client.key
           set +e
-          ./usr/local/bin/uda_cli --request "help::help()" && exit 1 || echo "process failed successfully"
+          /usr/local/bin/uda_cli --request "help::help()" && exit 1 || echo "process failed successfully"
           set -e
           export UDA_CLIENT_SSL_AUTHENTICATE=ON
           ./build/test/plugins/plugin_test_testplugin
