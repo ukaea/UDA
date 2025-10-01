@@ -7,6 +7,7 @@ on:
       - develop
       - 'feature/**'
       - 'release/**'
+      - 'bugfix/**'
   pull_request:
     branches:
       - main
@@ -214,7 +215,8 @@ jobs:
           nc -4zv localhost 56565 &&
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
-          ./build/test/plugins/plugin_test_testplugin
+          ./build/test/plugins/plugin_test_testplugin &&
+          uda_cli --help && uda_cli --request "help::help()"
 
       - name: Run SSL system tests
         if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
