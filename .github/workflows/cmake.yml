@@ -87,6 +87,7 @@ jobs:
           git
           boost
           openssl
+          cmake
           pkg-config
           libxml2
           spdlog
@@ -229,10 +230,6 @@ jobs:
           ./scripts/create_certs.sh
           mkdir /usr/local/etc/certs
           cp rootCA.crt server.crt server.key /usr/local/etc/certs
-          echo "export UDA_SERVER_SSL_AUTHENTICATE=ON" >> /usr/local/etc/udaserver.cfg
-          echo "export UDA_SERVER_SSL_CERT=/usr/local/etc/certs/server.crt" >> /usr/local/etc/udaserver.cfg
-          echo "export UDA_SERVER_SSL_KEY=/usr/local/etc/certs/server.key" >> /usr/local/etc/udaserver.cfg
-          echo "export UDA_SERVER_CA_SSL_CERT=/usr/local/etc/certs/rootCA.crt" >> /usr/local/etc/udaserver.cfg
           sudo systemctl start uda.socket
           sudo systemctl enable uda.socket
           nc -4zv localhost 56565
