@@ -328,7 +328,7 @@ int initUdaClientSSL()
     // Has the user directly specified SSL/TLS authentication?
     // Does the connection entry in the client host configuration file have the three SSL authentication files
 
-    if (!g_sslProtocol && !uda::common::env_options::evaluate_env_option("UDA_CLIENT_SSL_AUTHENTICATE", false)) {
+    if (!g_sslProtocol && !uda::common::env_config::evaluate_bool_param("UDA_CLIENT_SSL_AUTHENTICATE", false)) {
         g_sslDisabled = true;
 
         if (g_host != nullptr) {

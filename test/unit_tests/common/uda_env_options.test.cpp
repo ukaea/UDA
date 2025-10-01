@@ -30,7 +30,7 @@ class EnvFixture
 };
 } // anon namespace
 
-namespace uda_env = uda::common::env_options;
+namespace uda_env = uda::common::env_config;
 
 SCENARIO( "uda options stored in env vars can be interpreted", "[uda-env]" )
 {
@@ -44,7 +44,7 @@ SCENARIO( "uda options stored in env vars can be interpreted", "[uda-env]" )
 
             THEN( "check evaluates to true" )
             {
-                REQUIRE( uda_env::evaluate_env_option(name.c_str()) );
+                REQUIRE( uda_env::evaluate_bool_param(name.c_str()) );
             }
         }
         AND_GIVEN( "The variable is falsey" )
@@ -55,15 +55,15 @@ SCENARIO( "uda options stored in env vars can be interpreted", "[uda-env]" )
 
             THEN( "string match fails for list of truthy values" )
             {
-                REQUIRE( !  uda_env::match_env_option(name.c_str(), uda_env::truthy_values) );
+                REQUIRE( !  uda_env::match_custom_values(name.c_str(), uda_env::truthy_values) );
             }
             THEN( "string match passes for list of falsey values" )
             {
-                REQUIRE(  uda_env::match_env_option(name.c_str(), uda_env::falsey_values) );
+                REQUIRE(  uda_env::match_custom_values(name.c_str(), uda_env::falsey_values) );
             }
             AND_THEN( "check evaluates to false" )
             {
-                REQUIRE( ! uda_env::evaluate_env_option(name.c_str()) );
+                REQUIRE( ! uda_env::evaluate_bool_param(name.c_str()) );
             }
         }
         AND_GIVEN( "The variable has an unexpected value" )
@@ -78,20 +78,13 @@ SCENARIO( "uda options stored in env vars can be interpreted", "[uda-env]" )
                 REQUIRE( ! uda_env::strings_match(name, uda_env::truthy_values) );
                 AND_THEN( "check evaluates false" )
                 {
-                    REQUIRE( ! uda_env::evaluate_env_option(name.c_str()) );
+                    REQUIRE( ! uda_env::evaluate_bool_param(name.c_str()) );
                 }
-            }
-            AND_THEN( "check evaluates false" )
-            {
-                REQUIRE( ! uda_env::evaluate_env_option(name.c_str()) );
             }
         }
         AND_GIVEN( "A custom list of accepted values" )
         {
             std::vector<std::string> accepted_values {"ENUM1", "ENUM2", "ENUM3"};
-            // auto value = GENERATE(values(accepted_values));
-            // std::string name = std::string("UDA_ENV_TEST_VAR_EXISTS_") + value;
-            // EnvFixture env(name, value);
 
             WHEN( "the value is in the accepted list")
             {
@@ -100,7 +93,7 @@ SCENARIO( "uda options stored in env vars can be interpreted", "[uda-env]" )
                 EnvFixture env(name, value);
                 THEN( "string match passes for list of accepted values" )
                 {
-                    REQUIRE( uda_env::match_env_option(name.c_str(), accepted_values) );
+                    REQUIRE( uda_env::match_custom_values(name.c_str(), accepted_values) );
                 }
             }
             WHEN( "the value is not in the accepted list")
@@ -110,7 +103,7 @@ SCENARIO( "uda options stored in env vars can be interpreted", "[uda-env]" )
                 EnvFixture env(name, value);
                 THEN( "string match fails for list of accepted values" )
                 {
-                    REQUIRE( ! uda_env::match_env_option(name.c_str(), accepted_values) );
+                    REQUIRE( ! uda_env::match_custom_values(name.c_str(), accepted_values) );
                 }
             }
         }
@@ -125,7 +118,7 @@ SCENARIO( "uda options stored in env vars can be interpreted", "[uda-env]" )
             bool default_value = true;
             THEN( "check evaluates true" )
             {
-                REQUIRE( uda_env::evaluate_env_option(name, default_value) );
+                REQUIRE( uda_env::evaluate_bool_param(name, default_value) );
             }
         }
         WHEN( "A default value of false is used" )
@@ -133,7 +126,7 @@ SCENARIO( "uda options stored in env vars can be interpreted", "[uda-env]" )
             bool default_value = false;
             THEN( "check evaluates false" )
             {
-                REQUIRE( ! uda_env::evaluate_env_option(name, default_value) );
+                REQUIRE( ! uda_env::evaluate_bool_param(name, default_value) );
             }
         }
 

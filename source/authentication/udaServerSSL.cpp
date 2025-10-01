@@ -281,7 +281,7 @@ int startUdaServerSSL()
     }
 
     // Has the server disabled SSL/TLS authentication?
-    g_sslDisabled = !uda::common::env_options::evaluate_env_option("UDA_SERVER_SSL_AUTHENTICATE", false);
+    g_sslDisabled = !uda::common::env_config::evaluate_bool_param("UDA_SERVER_SSL_AUTHENTICATE", false);
     if (g_sslDisabled) {
         return 0;
     }
