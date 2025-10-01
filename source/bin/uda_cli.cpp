@@ -459,7 +459,7 @@ void process_batch_requests(uda::Client& client, const std::vector<std::string>&
         }
     }
     if (count == 0 and !requests.empty()) {
-        throw UDAException("All requests in batch failed");
+        throw CLIException("All requests in batch failed");
     }
 }
 
