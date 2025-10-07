@@ -1116,6 +1116,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Normal Exit: Return to Client
 
         std::copy(data_block_indices.begin(), data_block_indices.end(), indices);
+        time(&tv_server_start);
         return 0;
 
         //------------------------------------------------------------------------------

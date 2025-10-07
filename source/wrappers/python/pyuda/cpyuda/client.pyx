@@ -87,6 +87,14 @@ def close_connection():
     uda.closeAllConnections()
 
 
+def get_server_protocol_version():
+    return uda.getIdamServerVersion()
+
+
+def get_server_uuid():
+    return uda.getIdamServerDOI().decode()
+
+
 def get_data(signal, source):
     handle = uda.idamGetAPI(signal.encode(), source.encode())
     cdef const char* err_msg

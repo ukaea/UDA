@@ -19,6 +19,7 @@ try:
     from enum import Enum
 except ImportError:
     Enum = object
+from warnings import warn
 
 
 class ClientMeta(type):
@@ -43,6 +44,16 @@ class ClientMeta(type):
     @server.setter
     def server(cls, value):
         cpyuda.set_server_host_name(value)
+
+
+def _target(server, port, queue):
+    Client.port = port
+    Client.server = server
+    try:
+        result = cpyuda.get_data("help::help()", "")
+        queue.put(result.is_string())
+    except cpyuda.ServerException as ex:
+        print("cpyuda.ServerException: %s" % ex)
 
 
 class Client(with_metaclass(ClientMeta, object)):
@@ -216,8 +227,42 @@ class Client(with_metaclass(ClientMeta, object)):
     def set_property(cls, prop, value=None):
         cpyuda.set_property(prop, value)
 
-    def close_connection(self):
+    @classmethod
+    def close_connection(cls):
         cpyuda.close_connection()
 
-    def reset_connection(self):
+    @classmethod
+    def reset_connection(cls):
         cpyuda.close_connection()
+
+    @classmethod
+    def test_connection(cls, timeout=1):
+        import multiprocessing
+        queue = multiprocessing.Queue()
+        p = multiprocessing.Process(target=_target, args=(cls.server, cls.port, queue))
+        p.start()
+        p.join(timeout)
+        if p.is_alive():
+            p.terminate()
+            p.join()
+            raise TimeoutError("Connection test timed out after %1.2f seconds"
+                               % timeout)
+        if queue.empty():
+            return False
+        return queue.get()
+
+    @classmethod
+    def query_server_version(cls):
+        result = cpyuda.get_data("help::version()", "")
+        if not result.is_string():
+            warn("Server versions before 2.8.1 do not report their software version through this interface")
+            return None
+        return result.data()
+
+    @classmethod
+    def query_server_info(cls):
+        software_version = cls.query_server_version()
+        protocol_version = cpyuda.get_server_protocol_version()
+        uuid = cpyuda.get_server_uuid()
+        return {"software_version": software_version, "protocol_version": protocol_version,
+                "uuid": uuid, "server": cls.server, "port": cls.port}
