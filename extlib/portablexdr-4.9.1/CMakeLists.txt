@@ -37,6 +37,10 @@ else()
     add_library( ${PROJECT_NAME} STATIC ${SOURCES} )
 endif()
 
+if( CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" )
+    target_compile_options( ${PROJECT_NAME} PRIVATE -Wno-incompatible-pointer-types )
+endif()
+
 install(
     FILES rpc/rpc.h rpc/types.h rpc/xdr.h ${CMAKE_BINARY_DIR}/config.h
     DESTINATION include/rpc
