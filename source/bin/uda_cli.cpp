@@ -444,27 +444,23 @@ void print_result(const uda::Result& res) {
 
 void process_request(uda::Client& client, const std::string& request, const std::string& source) {
     std::cout << "request: " << request << "\n";
-    try {
-        const auto& res = client.get(request, source);
-        print_result(res);
-    } catch (const std::exception& ex) {
-        std::cout << "error: " << ex.what() << "\n";
-    }
+    const auto& res = client.get(request, source); //throws
+    print_result(res);
 }
 
 void process_batch_requests(uda::Client& client, const std::vector<std::string>& requests, const std::string& source) {
+    size_t count = 0;
     for (const auto& request : requests) {
-        process_request(client, request, source);
+        try {
+            process_request(client, request, source);
+            count++;
+        } catch (const std::exception& ex) {
+            std::cout << "error: " << ex.what() << "\n";
+        }
     }
-    // for (const auto& request : requests) {
-    //     std::cout << "request: " << request << "\n";
-    // }
-    // const auto& res_list = client.get_batch(requests, source);
-    //
-    // for (const auto& handle : res_list.handles()) {
-    //     const auto& res = res_list.at(handle);
-    //     print_result(res);
-    // }
+    if (count == 0 and !requests.empty()) {
+        throw CLIException("All requests in batch failed");
+    }
 }
 
 int main(int argc, const char** argv)
@@ -487,29 +483,28 @@ int main(int argc, const char** argv)
         po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
         po::notify(vm);
 
+        if (vm.count("help") && vm["help"].as<bool>()) {
+            std::cout << "Usage: " << argv[0] << " [options] request\n";
+            std::cout << desc << "\n";
+            return 0;
+        }
+
         conflicting_options(vm, "ping", "request");
         conflicting_options(vm, "ping", "batch-file");
         conflicting_options(vm, "request", "batch-file");
         if (!vm["ping"].as<bool>() && vm.count("request") == 0 && vm.count("batch-file") == 0) {
             throw po::error("either 'ping', 'request' or 'batch-file' must be provided");
         }
-    } catch (po::error& err) {
-        if (vm["help"].as<bool>()) {
-            std::cout << "Usage: " << argv[0] << " [options] request\n";
-            std::cout << desc << "\n";
-            return 1;
-        } else {
-            std::cout << "Error: " << err.what() << "\n\n";
-            std::cout << "Usage: " << argv[0] << " [options] request\n";
-            std::cout << desc << "\n";
-            return -1;
-        }
-    };
-
-    if (vm["help"].as<bool>()) {
+    } catch (const po::unknown_option& err) {
+        std::cout << "Error: " << err.what() << "\n\n";
         std::cout << "Usage: " << argv[0] << " [options] request\n";
         std::cout << desc << "\n";
-        return 1;
+        return -1;
+    } catch (po::error& err) {
+        std::cout << "Error: " << err.what() << "\n\n";
+        std::cout << "Usage: " << argv[0] << " [options] request\n";
+        std::cout << desc << "\n";
+        return -1;
     }
 
     if (vm.count("host")) {

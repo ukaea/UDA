@@ -131,6 +131,9 @@ int server_write(void* iohandle, char* buf, int count)
 
     while (BytesSent < count) {
         while (((rc = (int)write(serverSocket, buf, count)) == -1) && (errno == EINTR)) {}
+        if (rc < 0) {
+            break;
+        }
         BytesSent += rc;
         buf += rc;
     }
