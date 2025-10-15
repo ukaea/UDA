@@ -151,8 +151,6 @@ def get_data_batch(signals, sources):
 
 
 cdef put_nothing(const char* instruction):
-    if _pid != os.getpid():
-        raise ClientException("Calling client from a process different to process in which library was initialised")
     cdef int handle = uda.idamPutAPI(instruction, NULL)
     return Result(Handle(handle))
 
@@ -304,6 +302,8 @@ cdef put_string(const char* instruction, const char* data):
 
 
 def put_data(instruction, data=None):
+    if _pid != os.getpid():
+        raise ClientException("Calling client from a process different to process in which library was initialised")
     if isinstance(data, np.ndarray):
         if np.PyArray_TYPE(data) not in (np.NPY_STRING, np.NPY_UNICODE):
             return put_ndarray(instruction, data)
