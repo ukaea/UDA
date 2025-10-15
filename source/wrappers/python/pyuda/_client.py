@@ -55,6 +55,8 @@ class Client(with_metaclass(ClientMeta, object)):
     __metaclass__ = ClientMeta
 
     def __init__(self, debug_level=logging.ERROR):
+        cpyuda.set_pid()
+
         self.version = __version__
         assert self.version == cpyuda.get_build_version().decode(), "mismatching pyuda and c-library versions"
 
