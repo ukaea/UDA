@@ -613,6 +613,9 @@ bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion)
         rc = rc && xdr_int(xdrs, &str->opaque_type) && xdr_int(xdrs, &str->opaque_count);
     }
 
+    if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 10) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 10)) {
+        rc = rc && xdr_u_int(xdrs, &str->totalDataBlockSize);
+    }
     return rc;
 }
 

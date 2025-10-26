@@ -35,7 +35,9 @@ unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIE
 {
     unsigned int total = 0;
     for (int i = 0; i < data_block_list->count; ++i) {
-        total += countDataBlockSize(&data_block_list->data[i], client_block);
+        int count = countDataBlockSize(&data_block_list->data[i], client_block);
+        total += count;
+        data_block_list->data[i].totalDataBlockSize = count;
     }
     return total;
 }

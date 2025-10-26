@@ -88,6 +88,8 @@ extern "C" {
 #define CLIENTFLAG_REUSELASTHANDLE     32u  // 0010 0000    Reuse the last issued handle value (for this thread) - assume application has freed heap
 #define CLIENTFLAG_FREEREUSELASTHANDLE 64u  // 0100 0000    Free the heap associated with the last issued handle and reuse the handle value
 #define CLIENTFLAG_FILECACHE 128u           // 1000 0000    Access data from and save data to local cache files
+#define CLIENTFLAG_DBONLY 256u              // 0001 0000 0000 Read fails for signals not in DB. No file lookup fallback
+#define CLIENTFLAG_IDLE_TIMEOUT 512u        // 0010 0000 0000 Switch between timeout mechanisms. default to total lifetime, this switch enables idletime instead.
 
 //--------------------------------------------------------
 // Error Models

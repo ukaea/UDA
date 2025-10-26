@@ -41,7 +41,7 @@
 #if !defined(FATCLIENT) || !defined(NOLIBMEMCACHED)
 //static int protocol_version = 9;
 #endif
-int client_version = 10;          // previous version
+int client_version = 11;          // previous version
 
 //----------------------------------------------------------------------------------------------------------------------
 // FATCLIENT objects shared with server code
@@ -331,7 +331,7 @@ fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG* system_con
 
 CLIENT_FLAGS* udaClientFlags()
 {
-    static CLIENT_FLAGS client_flags = {};
+    static thread_local CLIENT_FLAGS client_flags = {};
     return &client_flags;
 }
 
@@ -1116,7 +1116,11 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Normal Exit: Return to Client
 
         std::copy(data_block_indices.begin(), data_block_indices.end(), indices);
-        time(&tv_server_start);
+        
+        // reset the timer if only idle time is considered for server timeout instead of total lifetime
+        if (client_flags->flags & CLIENTFLAG_IDLE_TIMEOUT) {
+            time(&tv_server_start);
+        }
         return 0;
 
         //------------------------------------------------------------------------------

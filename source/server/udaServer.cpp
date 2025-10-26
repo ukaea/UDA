@@ -44,8 +44,8 @@
 //--------------------------------------------------------------------------------------
 // static globals
 
-constexpr int server_version = 10;
-static int protocol_version = 10;
+constexpr int server_version = 11;
+static int protocol_version = 11;
 static int legacy_server_version = 6;
 const static std::string server_uuid = uda::common::uuid::generate_random_uuid();
 

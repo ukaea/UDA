@@ -98,7 +98,7 @@ int getThreadId(thread_t id)
 // Lock the thread and set the previous STATE  
 void udaLockThread()
 {
-    CLIENT_FLAGS* client_flags = udaClientFlags();
+    // CLIENT_FLAGS* client_flags = udaClientFlags();
     static unsigned int mutex_initialised = 0;
 
     if (!mutex_initialised) {
@@ -153,7 +153,7 @@ void udaLockThread()
         //putIdamClientEnvironment(&idamState[id].environment);
         putIdamThreadClientBlock(&idamState[id].client_block);
         putIdamThreadServerBlock(&idamState[id].server_block);
-        client_flags->flags = idamState[id].client_block.clientFlags;
+        // client_flags->flags = idamState[id].client_block.clientFlags;
         putIdamThreadLastHandle(idamState[id].lastHandle);
     } else {
         putIdamThreadLastHandle(-1);
@@ -464,7 +464,7 @@ void udaSetProperty(const char* property)
         } else {
             if (STR_IEQUALS(property, "verbose")) udaSetLogLevel(UDA_LOG_INFO);
             if (STR_IEQUALS(property, "debug")) udaSetLogLevel(UDA_LOG_DEBUG);
-            if (STR_IEQUALS(property, "altData")) client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
+            if (STR_IEQUALS(property, "altData")) client_flags->flags |= CLIENTFLAG_ALTDATA;
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
                 name[55] = '\0';
@@ -478,9 +478,10 @@ void udaSetProperty(const char* property)
                 }
             }
         }
-        if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_REUSELASTHANDLE;
-        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_FREEREUSELASTHANDLE;
-        if (STR_IEQUALS(property, "fileCache")) client_flags->flags = client_flags->flags | CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags |= CLIENTFLAG_REUSELASTHANDLE;
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) client_flags->flags |= CLIENTFLAG_FREEREUSELASTHANDLE;
+        if (STR_IEQUALS(property, "fileCache")) client_flags->flags |= CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "idleTimeout")) client_flags->flags |= CLIENTFLAG_IDLE_TIMEOUT;
     }
 }
 
@@ -516,6 +517,7 @@ int udaGetProperty(const char* property)
         if (STR_IEQUALS(property, "debug")) return udaGetLogLevel() == UDA_LOG_DEBUG;
         if (STR_IEQUALS(property, "altData")) return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
         if (STR_IEQUALS(property, "fileCache")) return (int)(client_flags->flags & CLIENTFLAG_FILECACHE);
+        if (STR_IEQUALS(property, "idleTimeout")) return (int)(client_flags->flags & CLIENTFLAG_IDLE_TIMEOUT);
     }
     return 0;
 }
