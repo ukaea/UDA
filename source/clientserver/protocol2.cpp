@@ -308,6 +308,8 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
 
             if (server_block->idamerrorstack.nerrors > 0) {    // No Data to Receive?
 
+                server_block->idamerrorstack.idamerror = (UDA_ERROR*)malloc(
+                        server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
                 initErrorRecords(&server_block->idamerrorstack);
 
                 if (!xdr_server2(xdrs, server_block)) {

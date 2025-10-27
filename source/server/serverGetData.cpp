@@ -1089,6 +1089,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
         idam_plugin_interface.userdefinedtypelist = userdefinedtypelist;
         idam_plugin_interface.logmalloclist = logmalloclist;
         idam_plugin_interface.error_stack.nerrors = 0;
+        idam_plugin_interface.error_stack.idamerror = nullptr;
 
         int plugin_id;
 
