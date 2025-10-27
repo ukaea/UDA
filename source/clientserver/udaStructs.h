@@ -306,11 +306,9 @@ typedef struct UdaError {
     char msg[STRING_LENGTH];        // Message
 } UDA_ERROR;
 
-#define UDA_MAX_ERRORS 30
-
 typedef struct UdaErrorStack {
     unsigned int nerrors;           // Number of Errors
-    UDA_ERROR idamerror[UDA_MAX_ERRORS];           // Array of Errors
+    UDA_ERROR* idamerror;           // Array of Errors
 } UDA_ERROR_STACK;
 
 typedef struct ServerBlock {
