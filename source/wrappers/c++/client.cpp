@@ -35,6 +35,7 @@ void uda::Client::setProperty(Property prop, bool value)
         case PROP_VERBOSE:   name = "verbose"; break;
         case PROP_DEBUG:     name = "debug"; break;
         case PROP_ALTDATA:   name = "altdata"; break;
+        case PROP_DB_ONLY:   name = "dbonly"; break;
         case PROP_IDLE_TIMEOUT:   name = "idletimeout"; break;
 
         case PROP_TIMEOUT:
@@ -71,6 +72,7 @@ void uda::Client::setProperty(Property prop, int value)
         case PROP_VERBOSE:
         case PROP_DEBUG:
         case PROP_ALTDATA:
+        case PROP_DB_ONLY:
         case PROP_IDLE_TIMEOUT:
             throw InvalidUseException("Cannot set integer value for boolean property");
 
@@ -114,6 +116,7 @@ int uda::Client::property(Property prop)
         case PROP_ALTDATA:   return udaGetProperty("altdata");
         case PROP_TIMEOUT:   return udaGetProperty("timeout");
         case PROP_ALTRANK:   return udaGetProperty("altrank");
+        case PROP_DB_ONLY:   return udaGetProperty("dbonly");
         case PROP_IDLE_TIMEOUT:   return udaGetProperty("idletimeout");
 
         default:
