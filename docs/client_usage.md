@@ -34,12 +34,6 @@ pyuda.Client.port = <port_number>
 
 UDA currently supports authenticaed server access using SSL certificates. The options and certificate locations must be set using environment variables before you connect to an authenticated server. See the Authentication page for more details.
 
-## TODO: The get and put APIs
-
-### TODO: calling plugin functions
-
-### TODO: subsetting syntax
-
 ## Configuration flags and settings
 
 There are a number of options that can be set to configure the client properties. 
@@ -92,3 +86,9 @@ An option exists to request just the data itself and not any dimension values. T
 client.set_property(pyuda.Properties.GET_NO_DIM_DATA, True)
 
 ```
+
+## TODO: The get and put APIs
+
+### TODO: calling plugin functions
+
+### TODO: subsetting syntax
