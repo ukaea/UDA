@@ -16,6 +16,7 @@
 #endif
 
 #include <logging/logging.h>
+#include <logging/accessLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/allocData.h>
@@ -931,7 +932,9 @@ unsigned int getIdamCachePermission(int handle)
 unsigned int getIdamTotalDataBlockSize(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
-    return data_blocks[handle].totalDataBlockSize;
+    // return data_blocks[handle].totalDataBlockSize;
+    auto data_block = data_blocks[handle];
+    return countDataBlockSize(&data_block, &data_block.client_block);
 }
 
 //!  returns the atomic or structure type id of the data object

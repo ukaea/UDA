@@ -23,6 +23,7 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
+#include <clientserver/udaStructs.h>
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 #  include <server/serverPlugin.h>
 #  include <server/udaServer.h>
@@ -30,72 +31,6 @@
 #include <boost/format.hpp>
 
 #endif
-
-unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block)
-{
-    unsigned int total = 0;
-    for (int i = 0; i < data_block_list->count; ++i) {
-        int count = countDataBlockSize(&data_block_list->data[i], client_block);
-        total += count;
-        data_block_list->data[i].totalDataBlockSize = count;
-    }
-    return total;
-}
-
-unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
-{
-    int factor;
-    DIMS dim;
-    unsigned int count = sizeof(DATA_BLOCK);
-
-    count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->data_type) * data_block->data_n);
-
-    if (data_block->error_type != UDA_TYPE_UNKNOWN) {
-        count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->error_type) * data_block->data_n);
-    }
-    if (data_block->errasymmetry) {
-        count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->error_type) * data_block->data_n);
-    }
-
-    if (data_block->rank > 0) {
-        for (unsigned int k = 0; k < data_block->rank; k++) {
-            count += sizeof(DIMS);
-            dim = data_block->dims[k];
-            if (!dim.compressed) {
-                count += (unsigned int)(getSizeOf((UDA_TYPE)dim.data_type) * dim.dim_n);
-                factor = 1;
-                if (dim.errasymmetry) factor = 2;
-                if (dim.error_type != UDA_TYPE_UNKNOWN) {
-                    count += (unsigned int)(factor * getSizeOf((UDA_TYPE)dim.error_type) * dim.dim_n);
-                }
-            } else {;
-                switch (dim.method) {
-                    case 0:
-                        count += +2 * sizeof(double);
-                        break;
-                    case 1:
-                        for (unsigned int i = 0; i < dim.udoms; i++) {
-                            count += (unsigned int)(*((long*)dim.sams + i) * getSizeOf((UDA_TYPE)dim.data_type));
-                        }
-                        break;
-                    case 2:
-                        count += dim.udoms * getSizeOf((UDA_TYPE)dim.data_type);
-                        break;
-                    case 3:
-                        count += dim.udoms * getSizeOf((UDA_TYPE)dim.data_type);
-                        break;
-                }
-            }
-        }
-    }
-
-    if (client_block->get_meta) {
-        count += sizeof(DATA_SYSTEM) + sizeof(SYSTEM_CONFIG) + sizeof(DATA_SOURCE) + sizeof(SIGNAL) +
-                 sizeof(SIGNAL_DESC);
-    }
-
-    return count;
-}
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
