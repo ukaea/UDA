@@ -59,7 +59,7 @@ LOGSTRUCTLIST* g_log_struct_list = nullptr;
 //----------------------------------------------------------------------------------------------------------------------
 
 CLIENT_BLOCK client_block;
-__thread SERVER_BLOCK server_block;
+thread_local SERVER_BLOCK server_block;
 
 time_t tv_server_start = 0;
 time_t tv_server_end = 0;
