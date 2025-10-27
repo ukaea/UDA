@@ -5,7 +5,7 @@ cmake_policy( SET CMP0048 NEW )
 project( xdr VERSION 4.9.1 )
 
 if( NOT WIN32 )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fno-strict-aliasing" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fno-strict-aliasing -Wno-old-style-definition -Wno-strict-prototypes" )
 endif()
 
 include( TestBigEndian )

@@ -65,16 +65,28 @@ static char sccsid[] = "@(#)xdr_rec.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 
 extern long	lseek();
 
-static u_int	fix_buf_size();
+// static u_int	fix_buf_size();
+//
+// static bool_t	xdrrec_getlong();
+// static bool_t	xdrrec_putlong();
+// static bool_t	xdrrec_getbytes();
+// static bool_t	xdrrec_putbytes();
+// static u_int	xdrrec_getpos();
+// static bool_t	xdrrec_setpos();
+// static long *	xdrrec_inline();
+// static void	xdrrec_destroy();
 
-static bool_t	xdrrec_getlong();
-static bool_t	xdrrec_putlong();
-static bool_t	xdrrec_getbytes();
-static bool_t	xdrrec_putbytes();
-static u_int	xdrrec_getpos();
-static bool_t	xdrrec_setpos();
-static long *	xdrrec_inline();
-static void	xdrrec_destroy();
+extern long lseek(int fd, long offset, int whence);
+
+static u_int   fix_buf_size(XDR *xdrs, u_int s);
+static bool_t  xdrrec_getlong(XDR *xdrs, long *lp);
+static bool_t  xdrrec_putlong(XDR *xdrs, const long *lp);
+static bool_t  xdrrec_getbytes(XDR *xdrs, caddr_t addr, u_int len);
+static bool_t  xdrrec_putbytes(XDR *xdrs, const char *addr, u_int len);
+static u_int   xdrrec_getpos(XDR *xdrs);
+static bool_t  xdrrec_setpos(XDR *xdrs, u_int pos);
+static long*   xdrrec_inline(XDR *xdrs, int len);
+static void    xdrrec_destroy(XDR *xdrs);
 
 static struct  xdr_ops xdrrec_ops = {
 	xdrrec_getlong,
