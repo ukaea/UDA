@@ -17,7 +17,16 @@ LogLine = namedtuple('LogLine',
 def parse(logfile, outfile):
     lines = []
     with open(logfile) as file:
+        buffer = ""
         for i, line in enumerate(file):
+            # handle newline charcters in free-text fields such as error_msg
+            if not line.endswith(']\n'):
+                line = line.replace('\n', '\\n')
+                buffer += line
+                continue
+            elif buffer:
+                line = buffer + line
+                buffer = ""
             match = log_regex.match(line)
             if not match:
                 print(f'failed to parse log line {i + 1}:\n{line}', file=sys.stderr)
