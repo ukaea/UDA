@@ -76,13 +76,13 @@ extern long	lseek();
 // static long *	xdrrec_inline();
 // static void	xdrrec_destroy();
 
-extern long lseek(int fd, long offset, int whence);
+extern long lseek(int, long, int);
 
-static u_int   fix_buf_size(XDR *xdrs, u_int s);
+static u_int   fix_buf_size(u_int s);
 static bool_t  xdrrec_getlong(XDR *xdrs, long *lp);
-static bool_t  xdrrec_putlong(XDR *xdrs, const long *lp);
+static bool_t  xdrrec_putlong(XDR *xdrs, long *lp);
 static bool_t  xdrrec_getbytes(XDR *xdrs, caddr_t addr, u_int len);
-static bool_t  xdrrec_putbytes(XDR *xdrs, const char *addr, u_int len);
+static bool_t  xdrrec_putbytes(XDR *xdrs, caddr_t *addr, u_int len);
 static u_int   xdrrec_getpos(XDR *xdrs);
 static bool_t  xdrrec_setpos(XDR *xdrs, u_int pos);
 static long*   xdrrec_inline(XDR *xdrs, int len);
