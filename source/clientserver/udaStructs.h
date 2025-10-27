@@ -442,6 +442,10 @@ void freeRequestBlock(REQUEST_BLOCK* request_block);
 
 void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
+LIBRARY_API unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block);
+LIBRARY_API unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block);
+
+
 #ifdef __cplusplus
 }
 #endif

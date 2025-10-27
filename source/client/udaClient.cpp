@@ -331,7 +331,7 @@ fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG* system_con
 
 CLIENT_FLAGS* udaClientFlags()
 {
-    static CLIENT_FLAGS client_flags = {};
+    static thread_local CLIENT_FLAGS client_flags = {};
     return &client_flags;
 }
 
@@ -376,7 +376,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     unsigned int* private_flags = udaPrivateFlags();
     CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->alt_rank = 0;
-    client_flags->user_timeout = TIMEOUT;
+    // currently no way of knowing if this has been set by udaSetProperty except that it probably won't be 0
+    if (client_flags->user_timeout == 0) {
+        client_flags->user_timeout = TIMEOUT;
+    }
 
     time_t protocol_time;            // Time a Conversation Occured
 
@@ -1109,6 +1112,11 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Normal Exit: Return to Client
 
         std::copy(data_block_indices.begin(), data_block_indices.end(), indices);
+        
+        // reset the timer if only idle time is considered for server timeout instead of total lifetime
+        if (client_flags->flags & CLIENTFLAG_IDLE_TIMEOUT) {
+            time(&tv_server_start);
+        }
         return 0;
 
         //------------------------------------------------------------------------------
