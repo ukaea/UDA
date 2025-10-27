@@ -76,8 +76,6 @@ int protocol_serv(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALL
 
                     if (server_block->idamerrorstack.nerrors > 0) {    // No Data to Receive?
 
-                        //RC server_block->idamerrorstack.idamerror = (UDA_ERROR*) malloc(
-                        //        server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
                         initErrorRecords(&server_block->idamerrorstack);
 
                         if (!xdr_server2(xdrs, server_block)) {

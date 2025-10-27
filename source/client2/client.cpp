@@ -1022,8 +1022,6 @@ void uda::client::Client::concat_errors(UDA_ERROR_STACK* error_stack)
     unsigned int iold = error_stack->nerrors;
     unsigned int inew = error_stack_.size() + error_stack->nerrors;
 
-    //RC error_stack->idamerror = (UDA_ERROR*)realloc((void*)error_stack->idamerror, (inew * sizeof(UDA_ERROR)));
-
     for (unsigned int i = iold; i < inew; i++) {
         error_stack->idamerror[i] = error_stack_[i - iold];
     }

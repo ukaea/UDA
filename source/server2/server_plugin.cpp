@@ -361,7 +361,6 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     plugin_interface.userdefinedtypelist = &userdefinedtypelist;
     plugin_interface.logmalloclist = &logmalloclist;
     plugin_interface.error_stack.nerrors = 0;
-    //RC plugin_interface.error_stack.idamerror = nullptr;
 
     // Redirect Output to temporary file if no file handles passed
 

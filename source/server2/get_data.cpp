@@ -1052,7 +1052,6 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
         plugin_interface.userdefinedtypelist = user_defined_type_list_;
         plugin_interface.logmalloclist = log_malloc_list_;
         plugin_interface.error_stack.nerrors = 0;
-        //RC plugin_interface.error_stack.idamerror = nullptr;
 
         int plugin_request = REQUEST_READ_UNKNOWN;
 

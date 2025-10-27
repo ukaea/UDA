@@ -67,10 +67,8 @@ void initUdaErrorStack()
     udaerrorstack.clear();
 }
 
-//RC void initErrorRecords(const UDA_ERROR_STACK* errorstack)
 void initErrorRecords(UDA_ERROR_STACK* errorstack)
 {
-    //RC for (unsigned int i = 0; i < errorstack->nerrors; i++) {
     for (unsigned int i = 0; i < UDA_MAX_ERRORS; i++) {
         errorstack->idamerror[i].type = 0;
         errorstack->idamerror[i].code = 0;
@@ -147,8 +145,6 @@ void concatUdaError(UDA_ERROR_STACK* errorstackout)
 		inew = UDA_MAX_ERRORS;
 	}
 
-    //RC errorstackout->idamerror = (UDA_ERROR*)realloc((void*)errorstackout->idamerror, (inew * sizeof(UDA_ERROR)));
-
     for (unsigned int i = iold; i < inew; i++) {
         errorstackout->idamerror[i] = udaerrorstack[i - iold];
     }
@@ -159,10 +155,8 @@ void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
 {
     // "FIX" : this is causing segfaults when using multiple clients (eg. get and put) 
     //         apparently due to both trying to free the same memory. Needs fixing properly.
-     //   free(errorstack->idamerror);
       
     errorstack->nerrors = 0;
-    //RC errorstack->idamerror = nullptr;
 }
 
 // Free Stack Heap

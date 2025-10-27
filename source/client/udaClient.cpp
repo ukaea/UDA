@@ -397,14 +397,6 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     //-------------------------------------------------------------------------
     // Initialise the Error Stack before Accessing Data
 
-    /*if (tv_server_start != 0) {
-	if(server_block.idamerrorstack.idamerror!=NULL){
-         free(server_block.idamerrorstack.idamerror);
-    	}
-
-        freeIdamErrorStack(&server_block.idamerrorstack);    // Free Previous Stack Heap
-    }
-    */
     initServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
     initUdaErrorStack();
 
@@ -1428,7 +1420,6 @@ void udaFree(int handle)
     }
 
     // closeIdamError(&server_block.idamerrorstack);
-    // freeIdamErrorStack(&server_block.idamerrorstack);
     initDataBlock(data_block);
     data_block->handle = -1;        // Flag this as ready for re-use
 }

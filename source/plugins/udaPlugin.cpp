@@ -40,7 +40,6 @@ IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
     plugin_interface->housekeeping = 0;
     plugin_interface->changePlugin = 0;
     plugin_interface->error_stack.nerrors = 0;
-    //RC plugin_interface->error_stack.idamerror = nullptr;
 
     return plugin_interface;
 }
