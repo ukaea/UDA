@@ -63,22 +63,10 @@ static char sccsid[] = "@(#)xdr_rec.c 1.21 87/08/11 Copyr 1984 Sun Micro";
 
 #include "byteswap.h"
 
-extern long	lseek();
-
-// static u_int	fix_buf_size();
-//
-// static bool_t	xdrrec_getlong();
-// static bool_t	xdrrec_putlong();
-// static bool_t	xdrrec_getbytes();
-// static bool_t	xdrrec_putbytes();
-// static u_int	xdrrec_getpos();
-// static bool_t	xdrrec_setpos();
-// static long *	xdrrec_inline();
-// static void	xdrrec_destroy();
-
 extern long lseek(int, long, int);
 
 static u_int   fix_buf_size(u_int s);
+
 static bool_t  xdrrec_getlong(XDR *xdrs, long *lp);
 static bool_t  xdrrec_putlong(XDR *xdrs, long *lp);
 static bool_t  xdrrec_getbytes(XDR *xdrs, caddr_t addr, u_int len);
@@ -160,8 +148,8 @@ xdrrec_create(xdrs, sendsize, recvsize, tcp_handle, readit, writeit)
 	register u_int sendsize;
 	register u_int recvsize;
 	void *tcp_handle;
-	int (*readit)();  /* like read, but pass it a tcp_handle, not sock */
-	int (*writeit)();  /* like write, but pass it a tcp_handle, not sock */
+	int (*readit)(caddr_t, caddr_t, int);  /* like read, but pass it a tcp_handle, not sock */
+	int (*writeit)(caddr_t, caddr_t, int);  /* like write, but pass it a tcp_handle, not sock */
 {
 	register RECSTREAM *rstrm =
 		(RECSTREAM *)mem_alloc(sizeof(RECSTREAM));
