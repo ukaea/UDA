@@ -26,16 +26,12 @@ def log_line_generator(lines) -> (int, str):
     start_line_num = None
 
     for i, line in enumerate(lines):
-        # detect a new log entry by starting pattern
         if line_start_regex.match(line):
-            # yield previous entry if any
             if buffer:
                 yield start_line_num, ''.join(buffer)
                 buffer = []
             start_line_num = i
-        # append sanitised line content (no trailing newlines)
         buffer.append(line.rstrip('\r\n'))
-    # yield last accumulated entry
     if buffer:
         yield start_line_num, ''.join(buffer)
 
