@@ -4,7 +4,7 @@ import re
 import json
 from collections import namedtuple
 
-RE_STRING = r'(?P<host>\d+\.\d+\.\d+\.\d+) - (?P<uid>[\w\d_\-]+)? \[(?P<datetime>[a-zA-Z0-9: ]+)\] \[(?P<req_id>\d+) (?P<signal>.+) (?P<exp_no>\d+) (?P<pass>-?\d+)  (?P<path>[\w\d\-_\.\/+]+)? (?P<file>[\w\d\-_\.\/+]+)? (?P<format>[a-zA-Z_]+)? (?P<archive>[a-zA-Z_]+)? (?P<device>[a-zA-Z_]+)? \] (?P<err_code>\d+) (?P<db_size>\d+) \[(?P<err_msg>.*)\] (?P<elapsed_time>\d+(?:\.\d*(?:e[+\-]?\d+)?)?) (?P<client_ver>\d+) (?P<server_ver>\d+) \[(?P<client_pid>\d+) (?P<server_pid>\d+)\] \[\]'
+RE_STRING = r'(?P<host>\d+\.\d+\.\d+\.\d+) - (?P<uid>[\w\d_\-]+)? \[(?P<datetime>[a-zA-Z0-9: ]+)\] \[(?P<req_id>\d+) (?P<signal>.+) (?P<exp_no>-?\d+) (?P<pass>-?\d+)  (?P<path>[\w\d\-_\.\/+]+)? (?P<file>[\w\d\-_\.\/+]+)? (?P<format>[a-zA-Z_]+)? (?P<archive>[a-zA-Z_]+)? (?P<device>[a-zA-Z_]+)? \] (?P<err_code>\d+) (?P<db_size>\d+) \[(?P<err_msg>.*)\] (?P<elapsed_time>\d+(?:\.\d*(?:e[+\-]?\d+)?)?) (?P<client_ver>\d+) (?P<server_ver>\d+) \[(?P<client_pid>\d+) (?P<server_pid>\d+)\] \[\]'
 
 log_regex = re.compile(RE_STRING)
 
@@ -13,20 +13,37 @@ LogLine = namedtuple('LogLine',
      'file', 'format', 'archive', 'device', 'err_code', 'db_size', 'err_msg',
      'elapsed_time', 'client_ver', 'server_ver', 'client_pid', 'server_pid'])
 
+line_start_regex = re.compile(r'^\d+\.\d+\.\d+\.\d+ - ')
+
+
+def log_line_generator(lines) -> (int, str):
+    """
+    Generator which joins log entries split by spurious newline
+    characters, yielding full lines and the starting line-number of
+    that entry in the original file
+    """
+    buffer = []
+    start_line_num = None
+
+    for i, line in enumerate(lines):
+        # detect a new log entry by starting pattern
+        if line_start_regex.match(line):
+            # yield previous entry if any
+            if buffer:
+                yield start_line_num, ''.join(buffer)
+                buffer = []
+            start_line_num = i
+        # append sanitised line content (no trailing newlines)
+        buffer.append(line.rstrip('\r\n'))
+    # yield last accumulated entry
+    if buffer:
+        yield start_line_num, ''.join(buffer)
+
 
 def parse(logfile, outfile):
     lines = []
     with open(logfile) as file:
-        buffer = ""
-        for i, line in enumerate(file):
-            # handle newline charcters in free-text fields such as error_msg
-            if not line.endswith(']\n'):
-                line = line.replace('\n', '\\n')
-                buffer += line
-                continue
-            elif buffer:
-                line = buffer + line
-                buffer = ""
+        for i, line in log_line_generator(file):
             match = log_regex.match(line)
             if not match:
                 print(f'failed to parse log line {i + 1}:\n{line}', file=sys.stderr)
