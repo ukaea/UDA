@@ -158,7 +158,7 @@ jobs:
             wget https://github.com/capnproto/capnproto/archive/refs/tags/v0.10.4.tar.gz  &&
             tar xzf v0.10.4.tar.gz  &&
             cd capnproto-0.10.4  &&
-            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
+            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
             cmake --build build  &&
             cmake --install build &&
             cd /tmp  &&
