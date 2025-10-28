@@ -7,19 +7,18 @@ on:
       # - develop
       # - 'feature/**'
       # - 'release/**'
+      # - 'bugfix/**'
   pull_request:
     branches:
       - main
+      - develop
 
-#env:
-#  BUILD_TYPE: Release
 
 jobs:
   build:
     strategy:
       matrix:
-#        os: [ubuntu-22.04, windows-latest, macos-latest]
-        os: [ubuntu-22.04, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         release: [Release]
         ssl: [ON, OFF]
         client-only: [ON, OFF]
@@ -27,7 +26,7 @@ jobs:
         exclude:
           - os: windows-latest
             client-only: OFF
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             client-only: ON
           - os: macos-latest
             client-only: ON
@@ -48,7 +47,7 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: Install linux dependencies
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           sudo apt update && sudo apt install -y
           git
@@ -57,6 +56,7 @@ jobs:
           libssl-dev
           cmake
           build-essential
+          libtirpc-dev
           pkg-config
           libxml2-dev
           libspdlog-dev
@@ -67,8 +67,15 @@ jobs:
           python3-pip
           python3-venv
 
+      # Capnproto package on Ubuntu 24.04 has broken CMake file
+      - name: Fix Capnproto on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          sudo sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' \
+            /usr/lib/x86_64-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
+
       - name: Install Intel compiler
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           sudo apt install -y wget &&
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
@@ -114,9 +121,10 @@ jobs:
           openssl
           dlfcn-win32
           spdlog
+          liblzma
 
       - name: Configure CMake (linux)
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           cmake -G Ninja -B build
           -DBUILD_SHARED_LIBS=ON
@@ -126,7 +134,7 @@ jobs:
           -DENABLE_CAPNP=${{ matrix.capnp }}
 
       - name: Configure CMake (linux Intel)
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           source /opt/intel/oneapi/setvars.sh &&
           CXX=icpx CC=icx cmake -G Ninja -B build-intel
@@ -177,7 +185,7 @@ jobs:
         run: cmake --build build --config ${{ matrix.release }}
 
       - name: Build Intel
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: cmake --build build-intel --config ${{ matrix.release }}
 
       - name: Install
@@ -189,7 +197,7 @@ jobs:
         run: cmake --install build --config ${{ matrix.release }}
 
       - name: Install pyuda
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
           python3 -m venv ${{github.workspace}}/venv &&
@@ -199,41 +207,49 @@ jobs:
           pip3 install ${{github.workspace}}/python_installer
 
       - name: Test pyuda import
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         run: >
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'
 
       - name: Run non-SSL system tests
-        if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'OFF'
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'OFF'
         run: >
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+          sudo chown -R $USER:$USER /usr/local/etc &&
+          echo "export UDA_SERVER_SSL_AUTHENTICATE=OFF" >> /usr/local/etc/udaserver.cfg &&
           sudo systemctl start uda.socket &&
           sudo systemctl enable uda.socket &&
-          sudo chown -R $USER:$USER /usr/local/etc &&
           nc -4zv localhost 56565 &&
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
-          ./build/test/plugins/plugin_test_testplugin
+          ./build/test/plugins/plugin_test_testplugin &&
+          ctest -V --test-dir build/test/unit_tests --output-on-failure &&
+          uda_cli --help && uda_cli --request "help::help()"
 
       - name: Run SSL system tests
         if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
-        run: >
-          sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
-          sudo chown -R $USER:$USER /usr/local/etc &&
-          echo "export UDAHOSTNAME=github-ci-ssl" >> /usr/local/etc/udaserver.cfg &&
-          ./scripts/create_certs.sh &&
-          mkdir /usr/local/etc/certs &&
-          cp rootCA.crt server.crt server.key /usr/local/etc/certs &&
-          sudo systemctl start uda.socket &&
-          sudo systemctl enable uda.socket &&
-          nc -4zv localhost 56565 &&
-          export UDA_HOST=localhost &&
-          export UDA_PORT=56565 &&
-          export UDA_CLIENT_SSL_AUTHENTICATE=1 &&
-          export UDA_CLIENT_CA_SSL_CERT=$PWD/rootCA.crt &&
-          export UDA_CLIENT_SSL_CERT=$PWD/client.crt &&
-          export UDA_CLIENT_SSL_KEY=$PWD/client.key &&
+        run: |
+          sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system
+          sudo chown -R $USER:$USER /usr/local/etc
+          # pulls in extra config options from machine.d
+          echo "export UDAHOSTNAME=github-ci-ssl" >> /usr/local/etc/udaserver.cfg
+          ./scripts/create_certs.sh
+          mkdir /usr/local/etc/certs
+          cp rootCA.crt server.crt server.key /usr/local/etc/certs
+          sudo systemctl start uda.socket
+          sudo systemctl enable uda.socket
+          nc -4zv localhost 56565
+          export UDA_HOST=localhost
+          export UDA_PORT=56565
+          export UDA_CLIENT_SSL_AUTHENTICATE=OFF
+          export UDA_CLIENT_CA_SSL_CERT=$PWD/rootCA.crt
+          export UDA_CLIENT_SSL_CERT=$PWD/client.crt
+          export UDA_CLIENT_SSL_KEY=$PWD/client.key
+          set +e
+          /usr/local/bin/uda_cli --request "help::help()" && exit 1 || echo "process failed successfully"
+          set -e
+          export UDA_CLIENT_SSL_AUTHENTICATE=ON
           ./build/test/plugins/plugin_test_testplugin
 
 #      - name: Test

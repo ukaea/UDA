@@ -5,12 +5,16 @@ cmake_policy( SET CMP0048 NEW )
 project( xdr VERSION 4.9.1 )
 
 if( NOT WIN32 )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fno-strict-aliasing" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fno-strict-aliasing -std=gnu89 -Wno-old-style-definition -Wno-strict-prototypes" )
 endif()
 
 include( TestBigEndian )
 
 if( WIN32 )
+  if( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
+    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu89 -Wno-old-style-definition -Wno-strict-prototypes" )
+  endif()
+
   add_definitions( -DBIG_ENDIAN=1 -DLITTLE_ENDIAN=2 )
   test_big_endian( BIG_ENDIAN )
 
@@ -35,6 +39,10 @@ if( BUILD_SHARED_LIBS )
     add_library( ${PROJECT_NAME} SHARED ${SOURCES} )
 else()
     add_library( ${PROJECT_NAME} STATIC ${SOURCES} )
+endif()
+
+if( CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" )
+    target_compile_options( ${PROJECT_NAME} PRIVATE -Wno-incompatible-pointer-types )
 endif()
 
 install(

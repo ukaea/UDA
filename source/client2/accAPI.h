@@ -3,7 +3,6 @@
 
 #ifdef __cplusplus
 #  include <cstdio>
-#  include <cstdbool>
 #else
 #  include <stdio.h>
 #  include <stdbool.h>

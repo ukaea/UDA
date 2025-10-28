@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Server Installation
-nav_order: 4
+nav_order: 2
 ---
 
 # UDA server installation
@@ -148,7 +148,17 @@ There is a directory in `<install_dir>/etc` called `machine.d` in which general 
 
 Most general server options are set in `<install_dir>/etc/udaserver.cfg` including the debug level, the file locations of plugin-registration files, and to add the library locations of uda and any uda-plugin builds (as well as any other dependencies such as imas) to the LD_LIBRARY_PATH. 
 
-Note that the UDA_LOG_LEVEL should Generally be set to ERROR for a production deployment. The DEBUG level will impose severe a performance penalty, but can be used to print some very verbose logs for each incoming request during server development. 
+Note that the UDA_LOG_LEVEL should Generally be set to ERROR for a production deployment. The DEBUG level will impose severe a performance penalty, but can be used to print some very verbose logs for each incoming request during server development.
+
+##### UDA_ALLOWED_PATHS
+This environment variable defines the permitted file paths for the UDA server. By default, all file access is prohibited if this is unset or empty. Multiple paths can be specified using semi-colons (`;`). Setting the path to `/` allows unrestricted access.
+
+**Example**
+```sh
+export UDA_ALLOWED_PATHS=/
+```
+**Security Note**  
+Restrict the paths as narrowly as possible to limit server file access and reduce risk.
 
 ### Plugin-specific options
 
