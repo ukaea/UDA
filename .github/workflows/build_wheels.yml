@@ -1,0 +1,290 @@
+name: build and upload wheels
+
+# Currently we aim to test building python wheels for all pushes to feature and release branches
+# HOWEVER we only want to upload these wheels to testpypi for release candidates, which are considered
+# to be pushes to a release branch or to develop.
+# finally, we only push tagged releases to pypi proper. Note that only a subset of platforms are considered
+# for test builds and the full suite (including longer-running builds) is only run on pushes to tags. 
+# This is controlled using conditional statements for individual jobs and steps in this script. 
+on: 
+  push:
+    tags:
+      - '*'
+    branches:
+      - release/*
+      - main
+      - develop
+
+jobs:
+  build_wheels:
+    name: build ${{matrix.build-platform[2]}} wheels on ${{matrix.build-platform[0]}} ${{matrix.build-platform[1]}}
+    runs-on: ${{matrix.build-platform[0]}}
+    strategy:
+      fail-fast: false
+      matrix:
+        build-platform:
+          # ubuntu/aarch64 emulation and manylinux2014 are both slow running builds 
+          # which are only executed on push to tag. 
+          # Test wheels are also generated for the other platforms (and uploaded to testpypi)
+          # on pushes to release branches and to main
+          - [ubuntu-latest, x86_64, manylinux2014_x86_64, 0.0]
+          - [ubuntu-latest, x86_64, manylinux_2_28_x86_64, 0.0]
+          - [ubuntu-latest, aarch64, manylinux_2_28_aarch64, 0.0]
+          - [macos-13, x86_64, macosx_x86_64, 13.0]
+          - [macos-14, arm64, macosx_arm64, 14.0]
+          - [windows-latest, AMD64, win_amd64, 0.0]
+
+    steps:
+      - uses: actions/checkout@v4
+        # need git tags available for setuptools_scm to grab tags
+        with:
+          fetch-depth: 0
+
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+
+      - name: install windows deps
+        if: runner.os == 'Windows'
+        run: >
+          vcpkg install --triplet x64-windows-static-md --binarysource="clear;x-gha,readwrite"
+          libxml2
+          capnproto
+          boost-program-options
+          boost-format
+          boost-algorithm
+          boost-multi-array
+          openssl
+          dlfcn-win32
+          spdlog 
+
+      - name: build uda on windows
+        if: runner.os == 'Windows'
+        env:
+          XDR_ROOT: extlib/install
+          CMAKE_PREFIX_PATH: C:/vcpkg/installed/x64-windows-static-md
+          Boost_DIR: C:/vcpkg/installed/x64-windows-static-md/share/boost
+          LibXml2_DIR: C:/vcpkg/installed/x64-windows-static-md/share/libxml2
+          CapnProto_DIR: C:/vcpkg/installed/x64-windows-static-md/share/capnproto
+          fmt_DIR: C:/vcpkg/installed/x64-windows-static-md/share/fmt
+        run: >
+          cmake -Bextlib/build  ./extlib
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake 
+          -DVCPKG_TARGET_TRIPLET="x64-windows-static-md"
+          -DVCPKG_HOST_TRIPLET="x64-windows-static-md"
+          -DCMAKE_GENERATOR_PLATFORM=x64
+          -DBUILD_SHARED_LIBS=OFF
+          && cmake --build extlib/build --config Release
+          && cmake --install extlib/build --prefix extlib/install
+          && cmake -Bbuild .
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET="x64-windows-static-md"
+          -DVCPKG_HOST_TRIPLET="x64-windows-static-md"
+          -DCMAKE_GENERATOR_PLATFORM=x64
+          -DBUILD_SHARED_LIBS=ON
+          -DSSLAUTHENTICATION=ON
+          -DCLIENT_ONLY=ON
+          -DENABLE_CAPNP=ON
+          -DNO_JAVA_WRAPPER=ON
+          -DNO_CXX_WRAPPER=ON
+          -DNO_IDL_WRAPPER=ON
+          -DNO_CLI=ON
+          -DNO_MEMCACHE=ON
+          -DCMAKE_INSTALL_PREFIX=install
+          && cmake --build build -j --config Release 
+          && cmake --install build --config Release
+          && ls install/lib
+          && cat install/python_installer/setup.py
+         
+      - name: build windows wheels
+        if: runner.OS == 'Windows'
+        uses: pypa/cibuildwheel@v2.22.0
+        with:
+          package-dir: ${{github.workspace}}/install/python_installer
+          config-file: ${{github.workspace}}/install/python_installer/pyproject.toml
+        env:
+          CIBW_ARCHS: ${{matrix.build-platform[1]}}
+          CIBW_PLATFORM: windows
+          CIBW_BUILD: cp3*-${{matrix.build-platform[2]}}
+          CIBW_SKIP: cp36* cp37* cp313*  
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
+          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
+
+      - name: Build manylinux2014 wheels
+      # this is a slow-running build. Only execute on tag
+      # && 
+      # github.event_name == 'push' && 
+      # startsWith(github.ref, 'refs/tags/')
+        if: >
+          startswith(matrix.build-platform[2], 'manylinux2014') 
+        uses: pypa/cibuildwheel@v2.22.0
+        with:
+          package-dir: ./source/wrappers/python
+          config-file: ./source/wrappers/python/pyproject.toml
+        env:
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
+          CIBW_ARCHS: ${{matrix.build-platform[1]}}
+          CIBW_BUILD: cp*-manylinux*
+          CIBW_SKIP: cp*-musllinux* *-musllinux*
+          CIBW_BEFORE_ALL: >
+            sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && 
+            sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* &&
+            yum update -y &&
+            yum install -y wget openssl-devel libxml2-devel libtirpc-devel  &&
+            cd /tmp  &&
+            wget https://github.com/fmtlib/fmt/archive/refs/tags/10.0.0.tar.gz  &&
+            tar xzf 10.0.0.tar.gz  &&
+            cd fmt-10.0.0  &&
+            cmake -Bbuild -H. -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
+            cmake --build build -j --config Release --target install &&
+            cd /tmp  &&
+            wget https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.tar.gz  &&
+            tar xzf v1.11.0.tar.gz  &&
+            cd spdlog-1.11.0  &&
+            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
+            cmake --build build -j --config Release --target install &&
+            cd /tmp  &&
+            wget https://github.com/capnproto/capnproto/archive/refs/tags/v0.10.4.tar.gz  &&
+            tar xzf v0.10.4.tar.gz  &&
+            cd capnproto-0.10.4  &&
+            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
+            cmake --build build  &&
+            cmake --install build &&
+            cd /tmp  &&
+            wget https://sourceforge.net/projects/boost/files/boost/1.80.0/boost_1_80_0.tar.gz &&
+            tar xzf boost_1_80_0.tar.gz  &&
+            cd boost_1_80_0  &&
+            ./bootstrap.sh --prefix=/usr/local  &&
+            ./b2 --without-python --prefix=/usr/local install &&
+            cd /project  &&
+            cmake -B build -DNO_JAVA_WRAPPER=ON -DBUILD_SHARED_LIBS=ON -DSSLAUTHENTICATION=ON -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
+            cmake --build build -j --config Release --target install &&
+            cp -r /usr/local/python_installer/* /project/source/wrappers/python/ 
+
+      - name: Build manylinux_2_28 wheels
+      # hardware emulation for ubuntu on arm64 archiecture is much slower. Do not run that case except for push to tag.
+        if: >
+          startswith(matrix.build-platform[2], 'manylinux_2_28') && 
+          ! ( startswith(matrix.build-platform[1], 'aarch64') && 
+          !startsWith(github.ref, 'refs/tags/') )
+        uses: pypa/cibuildwheel@v2.22.0
+        with:
+          package-dir: ./source/wrappers/python
+          config-file: ./source/wrappers/python/pyproject.toml
+        env:
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
+          CIBW_ARCHS: ${{matrix.build-platform[1]}}
+          CIBW_BUILD: cp*-manylinux*
+          CIBW_SKIP: cp*-musllinux* *-musllinux*
+          CIBW_BEFORE_ALL: >
+            dnf update -y &&
+            dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &&
+            dnf install -y boost1.78-devel openssl-devel libxml2-devel libtirpc-devel 
+            fmt fmt-devel spdlog spdlog-devel capnproto capnproto-devel &&
+            cd /project &&
+            cmake -B build 
+            -DBUILD_SHARED_LIBS=ON 
+            -DCMAKE_BUILD_TYPE=Release 
+            -DSSLAUTHENTICATION=ON 
+            -DNO_JAVA_WRAPPER=ON 
+            -DENABLE_CAPNP=ON -DCLIENT_ONLY=ON &&
+            cmake --build build -j --config Release --target install &&
+            cp -r /usr/local/python_installer/* /project/source/wrappers/python/ 
+
+      - name: build uda on macos
+        if: runner.os == 'macOS'
+        # note: it's recommended in cibuildwheel to build all deps from source in macos 
+        # instead of using homebrew as this way the wheel will be back-compatible with 
+        # other macos versions. MACOSX_DEPLOYMENT_TARGET will no longer be required if
+        # this change is made.
+        run: >
+          brew update-reset && brew install
+          git
+          boost
+          openssl
+          cmake
+          libxml2
+          spdlog
+          capnp &&
+          cd ${{github.workspace}} &&
+          cmake -B build 
+          -DBUILD_SHARED_LIBS=ON 
+          -DCMAKE_BUILD_TYPE=Release 
+          -DSSLAUTHENTICATION=ON 
+          -DENABLE_CAPNP=ON 
+          -DNO_JAVA_WRAPPER=ON 
+          -DCMAKE_INSTALL_PREFIX=$PWD/install
+          -DCLIENT_ONLY=ON &&
+          cmake --build build -j --config Release --target install &&
+          cp -r $PWD/install/python_installer/* ${{github.workspace}}/source/wrappers/python/
+
+      - name: Build macos wheels
+        if: runner.os == 'macOS'
+        uses: pypa/cibuildwheel@v2.22.0
+        with:
+          package-dir: ./source/wrappers/python
+          config-file: ./source/wrappers/python/pyproject.toml
+        env:
+          CIBW_ARCHS: ${{matrix.build-platform[1]}}
+          CIBW_PLATFORM: macos
+          CIBW_SKIP: cp313*
+          CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
+          MACOSX_DEPLOYMENT_TARGET: ${{matrix.build-platform[3]}}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  upload_pypi:
+    # only upload to pypi for tagged releases
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    environment: 
+      name: pypi
+      url: https://pypi.org/p/uda
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          # unpacks all CIBW artifacts into dist/
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  upload_test_pypi:
+    # push test wheels to testpypi for all intermediate release candidates (release/*, develop, etc.) 
+    # but never for feature branches
+    if: >
+      github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/feature/')
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    environment: 
+      name: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          # unpacks all CIBW artifacts into dist/
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
