@@ -16,6 +16,11 @@ on:
       - develop
       - feature/*
 
+# prevent duplicate CI runs from separate triggers
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   build_wheels:
     name: build ${{matrix.build-platform[2]}} wheels on ${{matrix.build-platform[0]}} ${{matrix.build-platform[1]}}
