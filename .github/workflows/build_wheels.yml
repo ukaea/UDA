@@ -277,7 +277,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: pypi
-      url: https://pypi.org/p/uda
+      url: https://pypi.org/p/pyuda
     permissions:
       id-token: write
     steps:
@@ -335,7 +335,7 @@ jobs:
 
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://pypi.org/p/uda
+          repository-url: https://upload.pypi.org/legacy/
           verbose: true
 
   upload_dummy_repo_to_testpypi:
