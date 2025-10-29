@@ -18,6 +18,7 @@ tracker = "https://github.com/ukaea/UDA/issues"
 [project]
 name = "pyuda"
 dynamic = ["version"]
+description = "Universal Data Access (UDA)"
 readme = {file = 'README.md', content-type = "text/markdown"}
 license = {text = "Apache-2.0 license"}
 dependencies = ["numpy>1.7", "six", "progress"]
