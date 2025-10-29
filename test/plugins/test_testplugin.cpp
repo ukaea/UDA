@@ -1597,8 +1597,13 @@ TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 
     uda::Client client;
 
+#ifdef __APPLE__
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "[testplugin]: Test #1 of Error State Management\n" );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n" );
+#else
     REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "[testplugin]: Test #1 of Error State Management\n[testplugin]: Test #1 of Error State Management\n" );
     REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n[testplugin]: Test #2 of Error State Management\n" );
+#endif
 
 #ifndef FATCLIENT
     // This test hard crashes the server code so can't be run in fat-client mode
@@ -2031,5 +2036,58 @@ TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
     REQUIRE( array[0] == Approx(0.0) );
     REQUIRE( array[10] == Approx(1.0) );
     REQUIRE( array[29] == Approx(2.9) );
+}
+
+TEST_CASE( "Test capnp complex number serialisation", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    int handle = idamGetAPI("TESTPLUGIN::capnp_complex()", "");
+    REQUIRE( handle >= 0 );
+
+    int ec = getIdamErrorCode(handle);
+    REQUIRE( ec == 0 );
+
+    const char* error = getIdamErrorMsg(handle);
+    std::string error_string = error == nullptr ? "" : error;
+    REQUIRE( error_string.empty() );
+
+    auto data_type = getIdamDataType(handle);
+    REQUIRE( data_type == UDA_TYPE_CAPNP );
+
+    auto data = getIdamData(handle);
+    REQUIRE( data != nullptr );
+
+    auto data_n = getIdamDataNum(handle);
+    REQUIRE( data_n >= 0 );
+
+    auto tree = uda_capnp_deserialise(data, data_n);
+
+    auto root = uda_capnp_read_root(tree);
+    auto node = uda_capnp_read_child(tree, root, "complex_array");
+    REQUIRE( node != nullptr );
+
+    auto maybe_rank = uda_capnp_read_rank(node);
+    REQUIRE( maybe_rank.has_value );
+    REQUIRE( maybe_rank.value == 1 );
+
+    auto rank = maybe_rank.value;
+
+    size_t shape[1];
+    bool ok = uda_capnp_read_shape(node, shape);
+    REQUIRE( ok );
+    REQUIRE( shape[0] == 30 );
+
+    COMPLEX array[30];
+    ok = uda_capnp_read_data(node, reinterpret_cast<char*>(&array));
+    REQUIRE( ok );
+
+    REQUIRE( array[0].real == Approx(0.0) );
+    REQUIRE( array[10].real == Approx(1.0) );
+    REQUIRE( array[29].real == Approx(2.9) );
+
+    REQUIRE( array[0].imaginary == Approx(-10.0) );
+    REQUIRE( array[9].real == Approx(-1.0) );
+    REQUIRE( array[3].real == Approx(6.0) );
 }
 #endif // CAPNP_ENABLED

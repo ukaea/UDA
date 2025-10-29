@@ -154,14 +154,7 @@ int makeClientRequestBlock(const char** signals, const char** sources, int count
 }
 
 void freeClientRequestBlock(REQUEST_BLOCK* request_block) {
-    if(request_block != nullptr && request_block->requests != nullptr) {
-        for (int i = 0; i < request_block->num_requests; i++) {
-            freeNameValueList(&request_block->requests[i].nameValueList);
-            freeClientPutDataBlockList(&request_block->requests[i].putDataBlockList);
-        }
-        free(request_block->requests);
-        request_block->requests = nullptr;
-    }
+    freeRequestBlock(request_block);
 }
 
 int shotRequestTest(const char* source)

@@ -13,7 +13,7 @@ default_options['compile_time_env'] = {'CAPNP': @CAPNP_FLAG@}
 extra_link_args = []
 extra_compile_args = ['-std=c++17']
 
-root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
+root = '@CMAKE_INSTALL_PREFIX@'
 
 print('Detected platform: ' + sys.platform)
 print('Detected system: ' + sysconfig.get_platform())
@@ -80,20 +80,26 @@ ext = Extension(
 )
 
 
-def get_version(v):
+def get_version(v, full_version=''):
     if v.count('.') > 2:
         v = ".Post".join(v.rsplit('.', 1))
-    print("setup version = %s" % v)
+        # non-tagged commits should only go to testpypi
+        # where the hash postfix is allowed in the version name
+        # (local commits PEP 440)
+        # this can avoid clashing "postX" versions on different branches
+        # note hash is int-encoded (base 36) to permit upload
+        if '-' in full_version:
+            git_hash = full_version.split('-')[1]
+            v += ".dev%d" % int(git_hash, 36)
+    # print("setup version = %s" % v)
     return v
 
 
 setup(
-    name='uda',
-    version=get_version('@PROJECT_VERSION@'),
-    description='Unified Data Access (UDA)',
-    long_description='Unified Data Access (UDA)',
+    name='pyuda',
+    version=get_version('@PROJECT_VERSION@', '@FULL_VERSION@'),
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
-    packages=['pyuda', 'uda'],
+    packages=['pyuda'],
     ext_modules=cythonize([ext]),
 )

@@ -244,7 +244,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     muntrace();
 #endif
 
-    freeClientRequestBlock(&request_block);
+    freeRequestBlock(&request_block);
     // Unlock the thread
     udaUnlockThread();
     return handle;
@@ -352,6 +352,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     muntrace();
 #endif
 
+    freeRequestBlock(&request_block);
     // Unlock the thread
     udaUnlockThread();
     return err;

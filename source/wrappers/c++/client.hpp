@@ -110,7 +110,9 @@ enum Property
     PROP_VERBOSE,
     PROP_DEBUG,
     PROP_ALTDATA,
-    PROP_ALTRANK
+    PROP_ALTRANK,
+    PROP_DB_ONLY,
+    PROP_IDLE_TIMEOUT
 };
 
 enum ErrorCodes

@@ -7,6 +7,30 @@
 #include <boost/program_options.hpp>
 #include <boost/range/combine.hpp>
 #include <gsl/span>
+#include <type_traits>
+#include <fstream>
+#include <iomanip>
+
+//NOTE: redefinition of UDA complex types here to avoid dragging in unnecessary dependencies.
+// To be removed when headers are cleaned up in uda v3.0
+typedef struct DComplex {
+    double real;
+    double imaginary;
+} DCOMPLEX;
+
+typedef struct Complex {
+    float real;
+    float imaginary;
+} COMPLEX;
+
+template<typename T>
+struct is_uda_complex : std::false_type {};
+
+template<>
+struct is_uda_complex<COMPLEX> : std::true_type {};
+
+template<>
+struct is_uda_complex<DCOMPLEX> : std::true_type {};
 
 struct CLIException : public uda::UDAException
 {
@@ -39,6 +63,21 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
 {
     auto span = gsl::span{ vec.data(), vec.size() };
     out << span;
+    return out;
+}
+
+template<typename T, std::enable_if_t<is_uda_complex<T>::value, bool> = false>
+std::ostream& operator<<(std::ostream& out, const T& complex)
+{
+    std::ios::fmtflags old_flags = out.flags();
+    std::streamsize prec = out.precision();
+    out << std::fixed << std::setprecision(3);
+
+    char sign = (complex.imaginary >= 0) ? '+' : '-';
+    out << complex.real << " " << sign << " " << std::abs(complex.imaginary) << "i";
+
+    out.flags(old_flags);
+    out.precision(prec);
     return out;
 }
 
@@ -219,6 +258,12 @@ void print_capnp_node(TreeReader* tree, NodeReader* node, const std::string& ind
             case UDA_TYPE_DOUBLE:
                 print_capnp_data<double>(node, shape, indent);
                 break;
+            case UDA_TYPE_COMPLEX:
+                print_capnp_data<COMPLEX>(node, shape, indent);
+                break;
+            case UDA_TYPE_DCOMPLEX:
+                print_capnp_data<DCOMPLEX>(node, shape, indent);
+                break;
         }
     }
 
@@ -383,6 +428,41 @@ void conflicting_options(const boost::program_options::variables_map & vm,
     }
 }
 
+void print_result(const uda::Result& res) {
+    if (res.isTree()) {
+        print_tree(res.tree(), "");
+    } else if (res.uda_type() == UDA_TYPE_CAPNP) {
+#ifdef CAPNP_ENABLED
+        print_capnp(res.raw_data(), res.size());
+#else
+        std::cout << "Cap'n Proto not enabled - cannot display data\n";
+#endif
+    } else {
+        print_data(res.data(), res.uda_type());
+    }
+}
+
+void process_request(uda::Client& client, const std::string& request, const std::string& source) {
+    std::cout << "request: " << request << "\n";
+    const auto& res = client.get(request, source); //throws
+    print_result(res);
+}
+
+void process_batch_requests(uda::Client& client, const std::vector<std::string>& requests, const std::string& source) {
+    size_t count = 0;
+    for (const auto& request : requests) {
+        try {
+            process_request(client, request, source);
+            count++;
+        } catch (const std::exception& ex) {
+            std::cout << "error: " << ex.what() << "\n";
+        }
+    }
+    if (count == 0 and !requests.empty()) {
+        throw CLIException("All requests in batch failed");
+    }
+}
+
 int main(int argc, const char** argv)
 {
     po::options_description desc("Allowed options");
@@ -391,6 +471,7 @@ int main(int argc, const char** argv)
             ("host,h", po::value<std::string>()->default_value("localhost"), "server host name")
             ("port,p", po::value<int>()->default_value(56565), "server port")
             ("request", po::value<std::string>(), "request")
+            ("batch-file,f", po::value<std::string>(), "file of batch requests, one per line")
             ("source", po::value<std::string>()->default_value(""), "source")
             ("ping", po::bool_switch(), "ping the server");
 
@@ -402,27 +483,28 @@ int main(int argc, const char** argv)
         po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
         po::notify(vm);
 
-        conflicting_options(vm, "ping", "request");
-        if (!vm["ping"].as<bool>() && vm.count("request") == 0) {
-            throw po::error("either 'ping' or 'request' must be provided");
-        }
-    } catch (po::error& err) {
-        if (vm["help"].as<bool>()) {
+        if (vm.count("help") && vm["help"].as<bool>()) {
             std::cout << "Usage: " << argv[0] << " [options] request\n";
             std::cout << desc << "\n";
-            return 1;
-        } else {
-            std::cout << "Error: " << err.what() << "\n\n";
-            std::cout << "Usage: " << argv[0] << " [options] request\n";
-            std::cout << desc << "\n";
-            return -1;
+            return 0;
         }
-    };
 
-    if (vm["help"].as<bool>()) {
+        conflicting_options(vm, "ping", "request");
+        conflicting_options(vm, "ping", "batch-file");
+        conflicting_options(vm, "request", "batch-file");
+        if (!vm["ping"].as<bool>() && vm.count("request") == 0 && vm.count("batch-file") == 0) {
+            throw po::error("either 'ping', 'request' or 'batch-file' must be provided");
+        }
+    } catch (const po::unknown_option& err) {
+        std::cout << "Error: " << err.what() << "\n\n";
         std::cout << "Usage: " << argv[0] << " [options] request\n";
         std::cout << desc << "\n";
-        return 1;
+        return -1;
+    } catch (po::error& err) {
+        std::cout << "Error: " << err.what() << "\n\n";
+        std::cout << "Usage: " << argv[0] << " [options] request\n";
+        std::cout << desc << "\n";
+        return -1;
     }
 
     if (vm.count("host")) {
@@ -433,39 +515,34 @@ int main(int argc, const char** argv)
         uda::Client::setServerPort(static_cast<int>(vm["port"].as<int>()));
     }
 
-    std::string request;
+    std::vector<std::string> requests;
     if (vm["ping"].as<bool>()) {
-        request = "HELP::ping()";
-    } else {
-        request = vm["request"].as<std::string>();
-    }
-
-    if (request == "-") {
-        std::stringstream ss;
-        std::string line;
-        while (std::getline(std::cin, line)) {
-            ss << line;
+        requests.emplace_back("HELP::ping()");
+    } else if (vm.count("request") > 0) {
+        if (const auto request = vm["request"].as<std::string>(); request == "-") {
+            std::string line;
+            while (std::getline(std::cin, line)) {
+                requests.push_back(line);
+            }
+        } else {
+            requests.emplace_back(request);
         }
-        request = ss.str();
+    } else {
+        std::ifstream batch_file(vm["batch-file"].as<std::string>());
+        std::string line;
+        while (std::getline(batch_file, line)) {
+            requests.push_back(line);
+        }
     }
-    std::cout << "request: " << request << "\n";
 
     std::string source = vm["source"].as<std::string>();
 
     uda::Client client;
     try {
-        auto& res = client.get(request, source);
-
-        if (res.isTree()) {
-            print_tree(res.tree(), "");
-        } else if (res.uda_type() == UDA_TYPE_CAPNP) {
-#ifdef CAPNP_ENABLED
-            print_capnp(res.raw_data(), res.size());
-#else
-            std::cout << "Cap'n Proto not enabled - cannot display data\n";
-#endif
+        if (requests.size() == 1) {
+            process_request(client, requests[0], source);
         } else {
-            print_data(res.data(), res.uda_type());
+            process_batch_requests(client, requests, source);
         }
 
         client.close();
