@@ -270,9 +270,7 @@ jobs:
   
   upload_pypi:
     # only upload to pypi for tagged releases
-    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    if: >
-      github.event_name == 'push'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     needs: build_wheels
     runs-on: ubuntu-latest
     environment: 
@@ -293,9 +291,8 @@ jobs:
   upload_test_pypi:
     # push test wheels to testpypi for all intermediate release candidates (release/*, develop, etc.) 
     # but never for feature branches
-    # && !startsWith(github.ref, 'refs/heads/feature/')
     if: >
-      github.event_name == 'push'
+      github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/feature/')
     needs: build_wheels
     runs-on: ubuntu-latest
     environment: 
@@ -316,11 +313,9 @@ jobs:
           verbose: true
 
   upload_dummy_repo_to_pypi:
-    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    if: >
-      github.event_name == 'push'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     # only upload dummy repo if normal one exists
-    needs: build_wheels
+    needs: upload_pypi
     runs-on: ubuntu-latest
     environment: 
       name: pypi
@@ -340,9 +335,9 @@ jobs:
 
   upload_dummy_repo_to_testpypi:
     if: >
-      github.event_name == 'push'
+      github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/feature/')
     # only upload dummy repo if normal one exists
-    needs: build_wheels
+    needs: upload_test_pypi
     runs-on: ubuntu-latest
     environment: 
       name: testpypi
