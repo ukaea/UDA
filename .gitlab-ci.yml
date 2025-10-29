@@ -1,41 +1,206 @@
-# use the official gcc image, based on debian
-# can use verions as well, like gcc:5.2
-# see https://hub.docker.com/_/gcc/
-image: gcc:7.3
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+
+stages:
+  - build
+  - test
+  - package
+
+default:
+    tags:
+        - freia
+    before_script:
+        - . /etc/profile
+        - module use /usr/local/modules/default
+        - module use /common/software/micromamba/modules
 
 build:
   stage: build
-  # instead of calling g++ directly you can also use some build toolkit like make
-  # install the necessary build tools when needed
-  before_script:
-    - apt update && apt -y install cmake python3-dev libssl-dev libboost-dev swig libxml2-dev pkg-config ninja-build libtirpc-dev
   script:
-    - cmake -GNinja -Bbuild -H. -DCMAKE_INSTALL_PREFIX=. -DTARGET_TYPE=OTHER -DNO_MODULES=ON -DFAT_TESTS=ON
-    - ninja -C build
-    - ninja -C build install
+    - source scripts/cmake-freia.sh -DCMAKE_INSTALL_PREFIX=install -DCLIENT_ONLY=ON -DNO_JAVA_WRAPPER=ON -DSSLAUTHENTICATION=OFF
+    - cmake --build build_freia -j --config Release --target install
   artifacts:
     paths:
-      - lib/
-      - include/
-      - bin/
-      - etc/
-      - python_installer/
-      - build/
-  # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
-  # cache:
-  #   paths:
-  #     - build/
+      - install/
 
-# run tests using the binary built before
-test:
+build_idl84:
+  stage: build
+  script:
+    - source scripts/cmake-freia-idl84.sh -DCMAKE_INSTALL_PREFIX=install_idl84 -DCLIENT_ONLY=ON -DNO_JAVA_WRAPPER=ON -DSSLAUTHENTICATION=OFF
+    - cmake --build build_freia -j --config Release --target install
+  artifacts:
+    paths:
+      - install_idl84/
+
+.build_pyuda_template:
+  stage: test
   dependencies:
     - build
-  stage: test
   script:
-    - cd build/test && LD_LIBRARY_PATH=$PWD/../../lib:$LD_LIBRARY_PATH ctest --timeout 60
+    - module load capnproto/0.10.4 fmt/10.0.0 spdlog/1.11.0 
+    - module swap gcc/11.2.0
+    - module use /common/software/micromamba/modules
+    - module load $PYTHON_MODULE
+
+    - python3 -m venv venv${PYTHON_VERSION} --system-site-packages --symlinks
+    - source venv${PYTHON_VERSION}/bin/activate
+    - python3 -m pip install --upgrade pip wheel setuptools
+    - printf "${PYTHON_REQUIRES}" > requirements.txt
+    - python3 -m pip install -r requirements.txt
+
+    # - sed -i '/oldest-supported-numpy/,+1d' install/python_installer/pyproject.toml
+    - COMPILER_DIR=`echo $PATH | awk -F':' '{for (i =1 ; i< NF ; ++i) {print $i}}' | grep gcc`
+    - export CC=$COMPILER_DIR/gcc
+    - export CXX=$COMPILER_DIR/g++
+    - python3 -m pip install --prefix=install install/python_installer
+    - mkdir -p dist
+    - cp -r install/lib/python${PYTHON_VERSION}/site-packages/*uda* dist
+
+    - export PYTHONPATH=dist:$PYTHONPATH
+    # - export LD_LIBRARY_PATH=install/lib:$LD_LIBRARY_PATH
+    - module use install/modulefiles
+    - UDA_MODULE=`ls install/modulefiles | grep uda`
+    - module load $UDA_MODULE
+    - python -c "import pyuda; client=pyuda.Client();"
+
+    - module load uda-mast
+    - python -c "import mast"
+    - python3 -m pip install pytest
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.ccfe.ac.uk/MAST-U/mastcodes.git
+    - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_geometry.py
+    - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_images.py
+    - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_meta.py
+    - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_signals.py
+    - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_xpad.py
   artifacts:
-    reports:
-      junit:
-        - "*_out.xml"
-        - plugins/*_out.xml
-        - imas/*_out.xml
+    paths:
+      - dist
+
+# python3.5:
+#   extends: .build_pyuda_template
+#   variables:
+#     PYTHON_VERSION: "3.5"
+#     PYTHON_MODULE: "python/3.5"
+#     PYTHON_REQUIRES: "Cython==0.29.32\nprogress"
+#     INSTALL_OPTION: "--prefix=install"
+
+python3.7:
+  extends: .build_pyuda_template
+  variables:
+    PYTHON_VERSION: "3.7"
+    PYTHON_MODULE: "python/3.7"
+    PYTHON_REQUIRES: "progress"
+
+python3.9:
+  extends: .build_pyuda_template
+  variables:
+    PYTHON_VERSION: "3.9"
+    PYTHON_MODULE: "python/3.9"
+    PYTHON_REQUIRES: "progress"
+
+python3.9_minibundle:
+  extends: .build_pyuda_template
+  variables:
+    PYTHON_VERSION: "3.9"
+    PYTHON_MODULE: "python/3.9-minibundle"
+    PYTHON_REQUIRES: "progress"
+
+python3.10_minibundle:
+  extends: .build_pyuda_template
+  variables:
+    PYTHON_VERSION: "3.10"
+    PYTHON_MODULE: "python/3.10-minibundle"
+    PYTHON_REQUIRES: "progress"
+
+python3.11_minibundle:
+  extends: .build_pyuda_template
+  variables:
+    PYTHON_VERSION: "3.11"
+    PYTHON_MODULE: "python/3.11-minibundle"
+    PYTHON_REQUIRES: "progress"
+
+python3.12_minibundle:
+  extends: .build_pyuda_template
+  variables:
+    PYTHON_VERSION: "3.12"
+    PYTHON_MODULE: "python/3.12-minibundle"
+    PYTHON_REQUIRES: "progress"
+
+python3.13_minibundle:
+  extends: .build_pyuda_template
+  variables:
+    PYTHON_VERSION: "3.13"
+    PYTHON_MODULE: "python/3.13-minibundle"
+    PYTHON_REQUIRES: "progress"
+
+.package-template: &package_template
+  stage: package
+  dependencies:
+    - build
+    - build_idl84
+    # - python3.5
+    - python3.7
+    - python3.9
+    - python3.9_minibundle
+    - python3.10_minibundle
+    - python3.11_minibundle
+    - python3.12_minibundle
+    - python3.13_minibundle
+  script:
+    - mkdir -p install/idl/8.3/idl
+    - mkdir -p install/idl/8.4/idl
+
+    # Move IDL 8.3 files
+    - mv install/idl/*.pro install/idl/8.3/idl/
+    - mv install/dlm install/idl/8.3/
+
+    # Move IDL 8.4 files
+    - mv install_idl84/idl/*.pro install/idl/8.4/idl/
+    - mv install_idl84/dlm install/idl/8.4/
+
+    # Create modulefiles
+    # - UDA_GIT_TAG=$(git describe --tags --abbrev=0)
+    - MODULEFILE=$(ls install/modulefiles/uda/* | head -n 1)
+    - cp ${MODULEFILE} ${MODULEFILE}-idl-8.4
+    - sed -ri '/([^\$]UDA_IDL_DIR)/ s/$/\/idl\/8.3/' $MODULEFILE
+    - sed -ri '/([^\$]UDA_IDL_DIR)/ s/$/\/idl\/8.4/' ${MODULEFILE}-idl-8.4
+
+    # Create uda-devel modulefile
+    - MODULE_TAG=${MODULEFILE##*/}
+    - mkdir -p install/modulefiles/uda-devel
+    - DEV_MODULEFILE=install/modulefiles/uda-devel/${MODULE_TAG}
+    - cp ${MODULEFILE} ${DEV_MODULEFILE}
+    - sed -i '/idam/a module              load capnproto\nmodule              load fmt' ${DEV_MODULEFILE}
+
+    - mkdir -p install/python
+    - cp -r dist/* install/python
+
+    - TAG=$(git describe --tags || echo "untagged")
+    - tar -czf uda-$TAG.tar.gz -C install .
+  # artifacts:
+  #   paths:
+  #     - uda-*.tar.gz
+
+package:branch:
+  <<: *package_template
+  artifacts:
+    paths:
+      - uda-*.tar.gz
+    expire_in: 1 week
+  only:
+    - branches
+  except:
+    - tags
+
+package:tag:
+  <<: *package_template
+  artifacts:
+    paths:
+      - uda-*.tar.gz
+    expire_in: 2 years
+  only:
+    - tags
