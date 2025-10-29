@@ -30,10 +30,10 @@ jobs:
           # on pushes to release branches and to main
           # - [ubuntu-latest, x86_64, manylinux2014_x86_64, 0.0]
           - [ubuntu-latest, x86_64, manylinux_2_28_x86_64, 0.0]
-          - [ubuntu-latest, aarch64, manylinux_2_28_aarch64, 0.0]
-          - [macos-13, x86_64, macosx_x86_64, 13.0]
+          # - [ubuntu-latest, aarch64, manylinux_2_28_aarch64, 0.0]
+          # - [macos-13, x86_64, macosx_x86_64, 13.0]
           - [macos-14, arm64, macosx_arm64, 14.0]
-          - [windows-latest, AMD64, win_amd64, 0.0]
+          # - [windows-latest, AMD64, win_amd64, 0.0]
 
     steps:
       - uses: actions/checkout@v5
@@ -268,25 +268,27 @@ jobs:
           path: ${{github.workspace}}/source/wrappers/python/uda/dist/*
 
   
-  # upload_pypi:
-  #   # only upload to pypi for tagged releases
-  #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-  #   needs: build_wheels
-  #   runs-on: ubuntu-latest
-  #   environment: 
-  #     name: pypi
-  #     url: https://pypi.org/p/uda
-  #   permissions:
-  #     id-token: write
-  #   steps:
-  #     - uses: actions/download-artifact@v4
-  #       with:
-  #         # unpacks all CIBW artifacts into dist/
-  #         pattern: cibw-*
-  #         path: dist
-  #         merge-multiple: true
-  #
-  #     - uses: pypa/gh-action-pypi-publish@release/v1
+  upload_pypi:
+    # only upload to pypi for tagged releases
+    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    if: >
+      github.event_name == 'push'
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    environment: 
+      name: pypi
+      url: https://pypi.org/p/uda
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          # unpacks all CIBW artifacts into dist/
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
 
   upload_test_pypi:
     # push test wheels to testpypi for all intermediate release candidates (release/*, develop, etc.) 
@@ -313,6 +315,29 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
           verbose: true
 
+  upload_dummy_repo_to_pypi:
+    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    if: >
+      github.event_name == 'push'
+    # only upload dummy repo if normal one exists
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    environment: 
+      name: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          # unpacks all build artifacts into dist/
+          name: uda-wheels
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://pypi.org/p/uda
+          verbose: true
+
   upload_dummy_repo_to_testpypi:
     if: >
       github.event_name == 'push'
@@ -334,24 +359,3 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
           verbose: true
-    #
-    # steps:
-    #   - uses: actions/download-artifact@v4
-    #     with:
-    #       # unpacks all build artifacts into dist/
-    #       name: uda-wheels
-    #       path: dist
-    #
-    #   - name: Set up Python
-    #     uses: actions/setup-python@v5
-    #     with:
-    #       python-version: '3.11'
-    #
-    #   - name: Install Twine
-    #     run: pip install twine
-    #
-    #   - name: Publish to TestPyPI
-    #     env:
-    #       TWINE_REPOSITORY: testpypi
-    #     run: |
-    #       python -m twine upload --repository $TWINE_REPOSITORY dist/*
