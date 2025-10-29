@@ -23,12 +23,12 @@ if( ENABLE_CAPNP )
 
   target_link_libraries( uda_cli PRIVATE serialisation-static )
   target_compile_definitions( uda_cli PRIVATE CAPNP_ENABLED=1 )
-  
+
   find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
   get_filename_component(STDCXX_LIBRARY_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
-  
+
   if ( "${STDCXX_LIBRARY_DIR}" STREQUAL "" )
-    set ( STDCXX_RPATH "" ) 
+    set ( STDCXX_RPATH "" )
   else()
       set ( STDCXX_RPATH "-Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} -lstdc++" )
   endif()
@@ -41,13 +41,15 @@ if( ENABLE_CAPNP )
 
   set_target_properties( uda_cli
     PROPERTIES
-    LINK_FLAGS "${CAPNP_RPATH} ${STDCXX_RPATH}" 
+    LINK_FLAGS "${CAPNP_RPATH} ${STDCXX_RPATH}"
   )
 endif()
 
 install(
   TARGETS uda_cli
-  DESTINATION bin
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 )
 

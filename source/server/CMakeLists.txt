@@ -207,12 +207,14 @@ endif()
 
 set_target_properties( server-static
   PROPERTIES
-  OUTPUT_NAME ${PROJECT_NAME}_server
+  OUTPUT_NAME ${PROJECT_NAME}_server_static
 )
 
 install(
   TARGETS server-static
-  DESTINATION lib
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 if( BUILD_SHARED_LIBS )
@@ -232,7 +234,9 @@ if( BUILD_SHARED_LIBS )
 
   install(
     TARGETS server-shared
-    DESTINATION lib
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 endif()
 
@@ -252,7 +256,9 @@ if( WIN32 )
 endif()
 
 install( TARGETS server-exe
-  DESTINATION bin
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 ########################################################################################################################
