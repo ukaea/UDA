@@ -92,7 +92,7 @@ def get_version(v, full_version=''):
 
 setup(
     name='ukaea_pyuda_test',
-    version=get_version('@PROJECT_VERSION@'),
+    version=get_version('@PROJECT_VERSION@', '@FULL_VERSION@'),
     description='Unified Data Access (UDA)',
     long_description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
