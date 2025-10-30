@@ -35,3 +35,4 @@ RUN cd /uda && \
     -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
 
 RUN cd /uda && cmake --build build -j "$BUILD_CORES" --config Release --target install
+RUN cd /uda && cmake --build build --target package

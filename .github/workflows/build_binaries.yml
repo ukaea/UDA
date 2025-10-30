@@ -43,15 +43,25 @@ jobs:
 
       - name: Run container
         run: |
-          mkdir -p build_artifacts/${{ matrix.distro }}
+          mkdir -p build_artifacts/${{ matrix.distro }}/bin
+          mkdir -p build_artifacts/${{ matrix.distro }}/pkg
           id=`docker create uda-${{ matrix.distro }}:${{ steps.version.outputs.version }}`
-          docker cp $id:/uda/install build_artifacts/${{ matrix.distro }}
+          docker cp $id:/uda/install build_artifacts/${{ matrix.distro }}/bin
+          docker cp $id:/uda/build/*.deb build_artifacts/${{ matrix.distro }}/pkg || true
+          docker cp $id:/uda/build/*.rpm build_artifacts/${{ matrix.distro }}/pkg || true
           docker rm $id
 
-      - name: Upload artifact for ${{ matrix.distro }}
+      - name: Upload binaries for ${{ matrix.distro }}
         uses: actions/upload-artifact@v4
         with:
           name: uda-${{ steps.version.outputs.version }}-${{ matrix.distro }}
-          path: build_artifacts/${{ matrix.distro }}
+          path: build_artifacts/${{ matrix.distro }}/bin
+          retention-days: ${{ github.ref_type == 'tag' && 365 || 7 }}
+
+      - name: Upload linux packages for ${{ matrix.distro }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: uda-${{ steps.version.outputs.version }}-${{ matrix.distro }}
+          path: build_artifacts/${{ matrix.distro }}/pkg
           retention-days: ${{ github.ref_type == 'tag' && 365 || 7 }}
 
