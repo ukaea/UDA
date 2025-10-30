@@ -41,6 +41,7 @@ jobs:
         run: |
           docker build \
             --build-arg UDA_VERSION=${{ github.sha }} \
+            --build-arg INSTALL_DIR="/usr/local" \
             -f docker/Dockerfile.${{ matrix.distro }} \
             -t uda-${{ matrix.distro }}:${{ steps.version.outputs.version }} .
 
