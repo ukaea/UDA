@@ -49,6 +49,7 @@ jobs:
           docker cp $id:/uda/install build_artifacts/${{ matrix.distro }}/bin
           docker cp $id:/uda/build/*.deb build_artifacts/${{ matrix.distro }}/pkg || true
           docker cp $id:/uda/build/*.rpm build_artifacts/${{ matrix.distro }}/pkg || true
+          docker cp $id:/uda/build/*.tar.gz build_artifacts/${{ matrix.distro }}/pkg || true
           docker rm $id
 
       - name: Upload binaries for ${{ matrix.distro }}
