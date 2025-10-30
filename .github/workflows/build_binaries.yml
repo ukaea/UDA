@@ -49,11 +49,11 @@ jobs:
           mkdir -p build_artifacts/${{ matrix.distro }}/bin
           mkdir -p build_artifacts/${{ matrix.distro }}/pkg
           id=`docker create uda-${{ matrix.distro }}:${{ steps.version.outputs.version }}`
-          docker cp $id:/uda/build build_artifacts/${{ matrix.distro }}/bin
+          docker cp $id:/uda/build build_artifacts/${{ matrix.distro }}
 
-          mv /uda/build/*.deb build_artifacts/${{ matrix.distro }}/pkg || true
-          mv /uda/build/*.rpm build_artifacts/${{ matrix.distro }}/pkg || true
-          mv /uda/build/*.tar.gz build_artifacts/${{ matrix.distro }}/pkg || true
+          mv build_artifacts/${{ matrix.distro }}/build/*.deb build_artifacts/${{ matrix.distro }}/pkg || true
+          mv build_artifacts/${{ matrix.distro }}/build/*.rpm build_artifacts/${{ matrix.distro }}/pkg || true
+          mv build_artifacts/${{ matrix.distro }}/build/*.tar.gz build_artifacts/${{ matrix.distro }}/pkg || true
           docker rm $id
 
       - name: Upload TGZ for ${{ matrix.distro }}
