@@ -45,8 +45,8 @@ jobs:
         run: |
           mkdir -p build_artifacts/${{ matrix.distro }}
           id=`docker create uda-${{ matrix.distro }}:${{ steps.version.outputs.version }}`
-          docker cp "$id":/uda/install build_artifacts/{{ matrix.distro }}
-          docker rm "$id"
+          docker cp $id:/uda/install build_artifacts/${{ matrix.distro }}
+          docker rm $id
 
       - name: Upload artifact for ${{ matrix.distro }}
         uses: actions/upload-artifact@v4
