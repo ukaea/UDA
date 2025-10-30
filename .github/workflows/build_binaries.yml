@@ -26,8 +26,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          tags: true
-
+          fetch-tags: true
 
       - name: get version
         id: version
@@ -45,10 +44,9 @@ jobs:
       - name: Run container
         run: |
           mkdir -p build_artifacts/${{ matrix.distro }}
-          docker run --rm \
-            -v "$PWD/build_artifacts/${{ matrix.distro }}":/uda/install \
-            uda-${{ matrix.distro }}:${{ steps.version.outputs.version }}
-        # bash -c "cp -r /opt/install/* /artifacts/"
+          id=`docker create uda-${{ matrix.distro }}:${{ steps.version.outputs.version }}`
+          docker cp "$id":/uda/install build_artifacts/{{ matrix.distro }}
+          docker rm "$id"
 
       - name: Upload artifact for ${{ matrix.distro }}
         uses: actions/upload-artifact@v4
