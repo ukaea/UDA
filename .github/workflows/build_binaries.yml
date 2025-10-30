@@ -30,6 +30,7 @@ jobs:
 
 
       - name: get version
+        id: version
         run: |
           VERSION=`git describe --tags`
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -37,15 +38,16 @@ jobs:
       - name: Build image for ${{ matrix.distro }}
         run: |
           docker build \
+            --build-arg UDA_VERSION=${{ github.sha }} \
             -f docker/Dockerfile.${{ matrix.distro }} \
-            -t uda:${{ matrix.distro }} .
+            -t uda-${{ matrix.distro }}:${{ steps.version.outputs.version }} .
 
       - name: Run container
         run: |
           mkdir -p build_artifacts/${{ matrix.distro }}
           docker run --rm \
             -v "$PWD/build_artifacts/${{ matrix.distro }}":/uda/install \
-            uda:${{ matrix.distro }} 
+            uda-${{ matrix.distro }}:${{ steps.version.outputs.version }}
         # bash -c "cp -r /opt/install/* /artifacts/"
 
       - name: Upload artifact for ${{ matrix.distro }}
