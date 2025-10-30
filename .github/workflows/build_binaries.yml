@@ -1,0 +1,54 @@
+name: Build binary distributions
+
+on:
+  push:
+    branches: 
+      - develop
+      - main 
+      - feature
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - rocky8
+          # - manylinux2_28
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: get version
+        run: |
+          git fetch --tags
+          VERSION=`git describe --tags`
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build image for ${{ matrix.distro }}
+        run: |
+          docker build \
+            -f docker/Dockerfile.${{ matrix.distro }} \
+            -t uda:${{ matrix.distro }} .
+
+      - name: Run container
+        run: |
+          mkdir -p build_artifacts/${{ matrix.distro }}
+          docker run --rm \
+            -v "$PWD/build_artifacts/${{ matrix.distro }}":/uda/install \
+            uda:${{ matrix.distro }} 
+        # bash -c "cp -r /opt/install/* /artifacts/"
+
+      - name: Upload artifact for ${{ matrix.distro }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: uda-${{ steps.version.outputs.version }}-${{ matrix.distro }}
+          path: build_artifacts/${{ matrix.distro }}
+          retention-days: ${{ github.ref_type == 'tag' && 365 || 7 }}
+

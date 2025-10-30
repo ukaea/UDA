@@ -1,0 +1,36 @@
+FROM rockylinux:8
+
+ARG UDA_VERSION="main"
+ARG SSL_AUTH="ON"
+ARG CAPNP="ON"
+ARG CLIENT_ONLY="OFF"
+ARG INSTALL_DIR="install"
+ARG BUILD_CORES=4
+
+SHELL ["/bin/bash", "-c"]
+
+RUN dnf update -y && \
+  dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
+  dnf group install -y "Development Tools" && \
+  dnf install -y \
+      cmake \
+      boost-devel \
+      openssl-devel \
+      libxml2-devel \
+      libtirpc-devel \
+      fmt fmt-devel \
+      spdlog spdlog-devel \
+      capnproto capnproto-devel
+
+RUN git clone https://github.com/ukaea/UDA.git -b "$UDA_VERSION" /uda
+
+RUN cd /uda && \
+    cmake -B build \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DSSLAUTHENTICATION="$SSL_AUTH" \
+    -DCLIENT_ONLY="$CLIENT_ONLY" \
+    -DENABLE_CAPNP="$CAPNP" \
+    -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
+
+RUN cd /uda && cmake --build build -j "$BUILD_CORES" --config Release --target install
