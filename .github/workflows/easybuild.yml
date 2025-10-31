@@ -39,11 +39,11 @@ jobs:
 
       - name: Generate .eb file
         run: |
-          python scripts/generate_eb.py \
+          python easybuild/generate_eb.py \
             --version "${{ steps.vars.outputs.version }}" \
             --git-sha "${{ github.sha }}" \
-            --template-dir easybuild/templates \
-            --output-dir easybuild/generated
+            --template-dir "${PWD}/easybuild/templates" \
+            --output-dir "${PWD}/easybuild/generated"
 
       - name: Validate generated .eb
         run: |
