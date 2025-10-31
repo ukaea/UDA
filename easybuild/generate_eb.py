@@ -53,6 +53,7 @@ def main():
     parser.add_argument("--checksum", help="SHA256 checksum of source archive")
     parser.add_argument("--git-sha", help="git sha for this version")
     parser.add_argument("--build-type", default=DEFAULT_BUILD_TYPE)
+    parser.add_argument("--python_version", default=DEFAULT_PYTHON_VERSION)
     parser.add_argument("--parallel", type=int, default=DEFAULT_PARALLEL)
     parser.add_argument("--template-dir", default="easybuild/templates")
     parser.add_argument("--output-dir", default="easybuild/generated")
