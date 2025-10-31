@@ -48,6 +48,10 @@ jobs:
       - name: Validate generated .eb
         run: |
           sudo apt install -y lmod
+          dpkg -L lmod | grep libexec
+          source /etc/profile.d/lmod.sh
+          module --version
+          echo "LMOD_CMD=$LMOD_CMD"
           python -m pip install --upgrade easybuild
           eb easybuild/generated/uda-${{ steps.vars.outputs.version }}.eb \
              --robot --dry-run 
