@@ -1,4 +1,4 @@
-easyblock = 'PythonPackage'
+easyblock = 'Bundle'
 
 name = 'pyuda'
 version = '{{ version }}'
@@ -15,10 +15,11 @@ dependencies = [
     ('Python', '{{ python_version }}')
 ]
 
-preinstallopts = 'cd %(EBROOTUDA)s/python_installer && '
-
-installopts = '--prefix=%(installdir)s'
+postinstallcmds = [
+    '$EBROOTPYTHON/bin/python3 -m pip install $EBROOTUDA/python_installer '
+    '--target=%(installdir)s/lib/python%(pyshortver)s/site-packages',
+]
 
 modextravars = {
-    'PYTHONPATH': '%(EBROOTPYTHON)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH',
+    'PYTHONPATH': '%(installdir)s/lib/python%(pyshortver)s/site-packages:\$PYTHONPATH',
 }
