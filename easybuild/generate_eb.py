@@ -23,9 +23,9 @@ PYUDA_TEMPLATE_FILE = "pyuda.eb.j2"
 
 def get_source_url(version):
     if '.' in version:
-        return f"https://github.com/ukaea/UDA/archive/refs/tags/{version}.zip"
+        return "https://github.com/ukaea/UDA/archive/refs/tags"
     else:
-        return f"https://github.com/ukaea/UDA/archive/{version}.zip"
+        return "https://github.com/ukaea/UDA/archive/"
 
 
 def calculate_checksum_from_url(url):
@@ -39,11 +39,6 @@ def calculate_checksum_from_url(url):
     except Exception as e:
         print(f"Warning: could not fetch {url} to compute checksum: {e}")
         return "UNKNOWN"
-
-
-def get_uda_checksum(version):
-    url = get_source_url(version)
-    return calculate_checksum_from_url(url)
 
 
 def main():
@@ -67,15 +62,17 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if args.git_sha:
+        version = args.git_sha
         url = get_source_url(args.git_sha)
     else:
+        version = args.version
         url = get_source_url(args.version)
 
     # Compute checksum if missing
     if args.checksum:
         checksum = args.checksum
     else:
-        checksum = calculate_checksum_from_url(url)
+        checksum = calculate_checksum_from_url(f"{url}/{version}.zip")
 
     env = Environment(loader=FileSystemLoader(args.template_dir), trim_blocks=True, lstrip_blocks=True)
 
@@ -84,6 +81,7 @@ def main():
         version=args.version,
         checksum=checksum,
         source_url=url,
+        source_file=f"{version}.zip",
         toolchain_version=args.toolchain_version,
         build_type=args.build_type,
         parallel=args.parallel,
