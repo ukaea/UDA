@@ -89,7 +89,7 @@ def main():
         parallel=args.parallel,
         date=datetime.date.today().isoformat(),
     )
-    filename = f"pyuda-{args.version}.eb"
+    filename = f"uda-{args.version}.eb"
     out_path = output_dir / filename
     out_path.write_text(rendered)
     print(f"Generated {out_path}")
