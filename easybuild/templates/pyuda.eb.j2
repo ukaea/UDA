@@ -1,0 +1,25 @@
+easyblock = 'PythonPackage'
+
+name = '{{ pyuda }}'
+version = '{{ version }}'
+homepage = 'https://github.com/ukaea/uda'
+description = 'uda python wrapper'
+
+toolchain = {'name': 'GCC', 'version': '{{ toolchain_version }}'}
+
+dependencies = [
+    ('uda', '%{version}s'),
+    ('Python', '{{ python_version }}'
+]
+
+# Point to the python_installer directory inside the C project install
+sourcepath = '%(EBROOTUDA)s/python_installer'
+
+installopts = '--prefix=%(installdir)s'
+
+modextravars = {
+    'PYTHONPATH': '%(EBROOTPYTHON)s/lib/python{{ python_version.split('.')[:2] | join('.') }}/site-packages:$PYTHONPATH',
+}
+
+moduleclass = 'python'
+
