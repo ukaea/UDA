@@ -68,7 +68,7 @@ def main():
         checksum = get_uda_checksum(args.version)
 
     # Load template
-    env = Environment(loader=FileSystemLoader(args.template-dir), trim_blocks=True, lstrip_blocks=True)
+    env = Environment(loader=FileSystemLoader(args.template_dir), trim_blocks=True, lstrip_blocks=True)
     template = env.get_template("UDA_template.eb.j2")
 
     # Render
