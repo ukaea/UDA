@@ -47,11 +47,10 @@ jobs:
 
       - name: Validate generated .eb
         run: |
+          apt install -y lmod
           python -m pip install --upgrade easybuild
           eb easybuild/generated/uda-${{ steps.vars.outputs.version }}.eb \
-             --robot --dry-run \
-             --modules-tool=EnvironmentModulesC \
-             --module-syntax=Tcl
+             --robot --dry-run 
 
       - name: Upload .eb artifact
         uses: actions/upload-artifact@v4
