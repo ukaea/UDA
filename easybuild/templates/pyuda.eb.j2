@@ -7,19 +7,18 @@ description = 'uda python wrapper'
 
 toolchain = {'name': 'GCC', 'version': '{{ toolchain_version }}'}
 
+sources = []
+source_urls = []
+
 dependencies = [
-    ('uda', '%{version}s'),
-    ('Python', '{{ python_version }}'
+    ('uda', '%(version)s'),
+    ('Python', '{{ python_version }}')
 ]
 
-# Point to the python_installer directory inside the C project install
-sourcepath = '%(EBROOTUDA)s/python_installer'
+preinstallopts = 'cd %(EBROOTUDA)s/python_installer && '
 
 installopts = '--prefix=%(installdir)s'
 
 modextravars = {
-    'PYTHONPATH': '%(EBROOTPYTHON)s/lib/python{{ python_version.split('.')[:2] | join('.') }}/site-packages:$PYTHONPATH',
+    'PYTHONPATH': '%(EBROOTPYTHON)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH',
 }
-
-moduleclass = 'python'
-
