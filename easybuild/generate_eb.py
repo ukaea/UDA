@@ -14,8 +14,11 @@ import hashlib
 
 # Default values
 DEFAULT_TOOLCHAIN = "13.2.0"
+DEFAULT_PYTHON_VERSION = "3.11.5"
 DEFAULT_BUILD_TYPE = "Release"
-DEFAULT_PARALLEL = 1
+DEFAULT_PARALLEL = 4
+UDA_TEMPLATE_FILE = "uda.eb.j2"
+PYUDA_TEMPLATE_FILE = "pyuda.eb.j2"
 
 
 def get_source_url(version):
@@ -52,8 +55,9 @@ def main():
     parser.add_argument("--build-type", default=DEFAULT_BUILD_TYPE)
     parser.add_argument("--parallel", type=int, default=DEFAULT_PARALLEL)
     parser.add_argument("--template-dir", default="easybuild/templates")
-    parser.add_argument("--input-file", default="uda.eb.j2")
     parser.add_argument("--output-dir", default="easybuild/generated")
+    parser.add_argument("--uda_template_file", default=UDA_TEMPLATE_FILE)
+    parser.add_argument("--pyuda_template_file", default=PYUDA_TEMPLATE_FILE)
 
     args = parser.parse_args()
 
@@ -72,12 +76,10 @@ def main():
     else:
         checksum = calculate_checksum_from_url(url)
 
-    # Load template
     env = Environment(loader=FileSystemLoader(args.template_dir), trim_blocks=True, lstrip_blocks=True)
-    template = env.get_template(args.input_file)
 
-    # Render
-    rendered = template.render(
+    uda_template = env.get_template(args.uda_template_file)
+    rendered = uda_template.render(
         version=args.version,
         checksum=checksum,
         source_url=url,
@@ -86,9 +88,19 @@ def main():
         parallel=args.parallel,
         date=datetime.date.today().isoformat(),
     )
+    filename = f"pyuda-{args.version}.eb"
+    out_path = output_dir / filename
+    out_path.write_text(rendered)
+    print(f"Generated {out_path}")
 
-    # Output path
-    filename = f"uda-{args.version}.eb"
+    pyuda_template = env.get_template(args.uda_template_file)
+    rendered = pyuda_template.render(
+        version=args.version,
+        toolchain_version=args.toolchain_version,
+        python_version=args.python_version,
+        date=datetime.date.today().isoformat(),
+    )
+    filename = f"pyuda-{args.version}.eb"
     out_path = output_dir / filename
     out_path.write_text(rendered)
     print(f"Generated {out_path}")

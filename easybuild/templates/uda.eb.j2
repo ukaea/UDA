@@ -1,6 +1,6 @@
 easyblock = 'CMakeNinja'
 
-name = 'UDA'
+name = 'uda'
 version = '{{ version }}'
 
 homepage = 'https://github.com/ukaea/UDA'
@@ -10,13 +10,11 @@ toolchain = {'name': 'GCC', 'version': '{{ toolchain_version }}'}
 toolchainopts = {'pic': True}
 
 source_urls = ['{{ source_url }}']
-sources = ['%(version)s.zip']
 checksums = ['{{ checksum }}']
 
 builddependencies = [
     ('CMake', '3.27.6'),
     ('Ninja', '1.11.1'),
-    ('libMemcached', '1.0.18'),
 ]
 
 dependencies = [
