@@ -47,7 +47,7 @@ jobs:
 
       - name: Validate generated .eb
         run: |
-          apt install -y lmod
+          sudo apt install -y lmod
           python -m pip install --upgrade easybuild
           eb easybuild/generated/uda-${{ steps.vars.outputs.version }}.eb \
              --robot --dry-run 
