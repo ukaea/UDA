@@ -61,12 +61,16 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Compute checksum if missing
-    checksum = args.checksum 
-    if not checksum and args.git_sha:
-        checksum = get_uda_checksum(args.git_sha)
+    if args.git_sha:
+        url = get_source_url(args.git_sha)
     else:
-        checksum = get_uda_checksum(args.version)
+        url = get_source_url(args.version)
+
+    # Compute checksum if missing
+    if args.checksum:
+        checksum = args.checksum
+    else:
+        checksum = calculate_checksum_from_url(url)
 
     # Load template
     env = Environment(loader=FileSystemLoader(args.template_dir), trim_blocks=True, lstrip_blocks=True)
@@ -76,6 +80,7 @@ def main():
     rendered = template.render(
         version=args.version,
         checksum=checksum,
+        source_url=url,
         toolchain_version=args.toolchain_version,
         build_type=args.build_type,
         parallel=args.parallel,

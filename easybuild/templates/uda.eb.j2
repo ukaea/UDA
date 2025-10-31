@@ -9,14 +9,7 @@ description = """Universal Data Access"""
 toolchain = {'name': 'GCC', 'version': '{{ toolchain_version }}'}
 toolchainopts = {'pic': True}
 
-{% set tag_pattern = r'^\d+\.\d+\.\d+$' %}
-
-{% if version is match(tag_pattern) %}
-source_urls = ['https://github.com/ukaea/UDA/archive/refs/tags']
-{% else %}
-source_urls = ['https://github.com/ukaea/UDA/archive/']
-{% endif %}
-
+source_urls = ['{{ source_url }}']
 sources = ['%(version)s.zip']
 checksums = ['{{ checksum }}']
 
