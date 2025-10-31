@@ -52,6 +52,7 @@ def main():
     parser.add_argument("--build-type", default=DEFAULT_BUILD_TYPE)
     parser.add_argument("--parallel", type=int, default=DEFAULT_PARALLEL)
     parser.add_argument("--template-dir", default="easybuild/templates")
+    parser.add_argument("--input-file", default="uda.eb.j2")
     parser.add_argument("--output-dir", default="easybuild/generated")
 
     args = parser.parse_args()
@@ -69,7 +70,7 @@ def main():
 
     # Load template
     env = Environment(loader=FileSystemLoader(args.template_dir), trim_blocks=True, lstrip_blocks=True)
-    template = env.get_template("UDA_template.eb.j2")
+    template = env.get_template(args.input_file)
 
     # Render
     rendered = template.render(
