@@ -11,10 +11,10 @@ on:
     tags:
       - '*'
     branches:
-      - release/*
+      # - release/*
       - main
-      - develop
-      - feature/*
+      # - develop
+      # - feature/*
 
 # prevent duplicate CI runs from separate triggers
 concurrency:

@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""
+Generate a versioned EasyBuild .eb file from a Jinja2 template.
+
+Usage:
+    python scripts/generate_eb.py --version 2.8.0 --checksum d5e8b3... > UDA-2.8.0.eb
+"""
+
+import argparse
+import datetime
+from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
+import hashlib
+
+# Default values
+DEFAULT_TOOLCHAIN = "13.2.0"
+DEFAULT_BUILD_TYPE = "Release"
+DEFAULT_PARALLEL = 1
+
+
+def get_source_url(version):
+    if '.' in version:
+        return f"https://github.com/ukaea/UDA/archive/refs/tags/{version}.zip"
+    else:
+        return f"https://github.com/ukaea/UDA/archive/{version}.zip"
+
+
+def calculate_checksum_from_url(url):
+    """Optional helper to compute SHA256 checksum if not provided and file exists."""
+    try:
+        import requests
+        r = requests.get(url, timeout=30)
+        r.raise_for_status()
+        checksum = hashlib.sha256(r.content).hexdigest()
+        return checksum
+    except Exception as e:
+        print(f"Warning: could not fetch {url} to compute checksum: {e}")
+        return "UNKNOWN"
+
+
+def get_uda_checksum(version):
+    url = get_source_url(version)
+    return calculate_checksum_from_url(url)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate an EasyBuild .eb file from a template")
+    parser.add_argument("--version", required=True, help="Version string (e.g., 2.8.0 or main)")
+    parser.add_argument("--toolchain-version", default=DEFAULT_TOOLCHAIN)
+    parser.add_argument("--checksum", help="SHA256 checksum of source archive")
+    parser.add_argument("--git-sha", help="git sha for this version")
+    parser.add_argument("--build-type", default=DEFAULT_BUILD_TYPE)
+    parser.add_argument("--parallel", type=int, default=DEFAULT_PARALLEL)
+    parser.add_argument("--template-dir", default="easybuild/templates")
+    parser.add_argument("--output-dir", default="easybuild/generated")
+
+    args = parser.parse_args()
+
+    # Ensure output directory exists
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Compute checksum if missing
+    checksum = args.checksum 
+    if not checksum and args.git_sha:
+        checksum = get_uda_checksum(args.git_sha)
+    else:
+        checksum = get_uda_checksum(args.version)
+
+    # Load template
+    env = Environment(loader=FileSystemLoader(args.template-dir), trim_blocks=True, lstrip_blocks=True)
+    template = env.get_template("UDA_template.eb.j2")
+
+    # Render
+    rendered = template.render(
+        version=args.version,
+        checksum=checksum,
+        toolchain_version=args.toolchain_version,
+        build_type=args.build_type,
+        parallel=args.parallel,
+        date=datetime.date.today().isoformat(),
+    )
+
+    # Output path
+    filename = f"uda-{args.version}.eb"
+    out_path = output_dir / filename
+    out_path.write_text(rendered)
+    print(f"Generated {out_path}")
+
+
+if __name__ == "__main__":
+    main()
