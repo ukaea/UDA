@@ -94,7 +94,7 @@ def main():
     out_path.write_text(rendered)
     print(f"Generated {out_path}")
 
-    pyuda_template = env.get_template(args.uda_template_file)
+    pyuda_template = env.get_template(args.pyuda_template_file)
     rendered = pyuda_template.render(
         version=args.version,
         toolchain_version=args.toolchain_version,
