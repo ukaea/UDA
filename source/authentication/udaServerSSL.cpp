@@ -11,6 +11,7 @@
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 
+#include <common/uda_env_options.hpp>
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
 #include <server/writer.h>
@@ -280,11 +281,9 @@ int startUdaServerSSL()
     }
 
     // Has the server disabled SSL/TLS authentication?
-    if (!getenv("UDA_SERVER_SSL_AUTHENTICATE")) {
-        g_sslDisabled = true;
+    g_sslDisabled = !uda::common::env_config::evaluate_bool_param("UDA_SERVER_SSL_AUTHENTICATE", false);
+    if (g_sslDisabled) {
         return 0;
-    } else {
-        g_sslDisabled = false;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "SSL Authentication is Enabled!\n");

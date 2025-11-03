@@ -15,7 +15,7 @@ extern "C" {
 LIBRARY_API void allocPluginList(int count, PLUGINLIST* plugin_list);
 LIBRARY_API void freePluginList(PLUGINLIST* plugin_list);
 LIBRARY_API void initPluginData(PLUGIN_DATA* plugin);
-LIBRARY_API int udaServerRedirectStdStreams(int reset);
+LIBRARY_API int udaServerRedirectStdStreams(bool reset, bool cleanup=false);
 LIBRARY_API int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
                                 const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 LIBRARY_API int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request,

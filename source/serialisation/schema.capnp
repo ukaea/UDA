@@ -29,5 +29,7 @@ struct TreeNode {
     flt64 @9;
     string @10;
     void @11;
+    complex @12;
+    dcomplex @13;
   }
 }

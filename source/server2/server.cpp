@@ -4,19 +4,18 @@
 #include <unistd.h>
 #include <fmt/format.h>
 
-#include "clientserver/initStructs.h"
-#include "server_environment.hpp"
-#include "logging/logging.h"
 #include "clientserver/errorLog.h"
-#include "clientserver/udaErrors.h"
+#include "clientserver/initStructs.h"
+#include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
-#include "clientserver/printStructs.h"
 #include "logging/accessLog.h"
+#include "logging/logging.h"
+#include "server_environment.hpp"
+#include "server_exceptions.h"
 #include "server_plugin.h"
 #include "server_processing.h"
 #include "structures/struct.h"
-#include "server_exceptions.h"
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"
 #endif
@@ -702,11 +701,13 @@ int uda::Server::handle_request()
     return err;
 }
 
-unsigned int count_data_block_list_size(const std::vector<DataBlock>& data_blocks, ClientBlock* client_block)
+unsigned int count_data_block_list_size(std::vector<DataBlock>& data_blocks, ClientBlock* client_block)
 {
     unsigned int total = 0;
-    for (const auto& data_block : data_blocks) {
-        total += countDataBlockSize(&data_block, client_block);
+    for (auto& data_block : data_blocks) {
+        unsigned int count = countDataBlockSize(&data_block, client_block);
+        data_block.totalDataBlockSize = count;
+        total += count;
     }
     return total;
 }

@@ -16,6 +16,7 @@
 #endif
 
 #include <logging/logging.h>
+#include <logging/accessLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/allocData.h>
@@ -98,7 +99,7 @@ int getThreadId(thread_t id)
 // Lock the thread and set the previous STATE  
 void udaLockThread()
 {
-    CLIENT_FLAGS* client_flags = udaClientFlags();
+    // CLIENT_FLAGS* client_flags = udaClientFlags();
     static unsigned int mutex_initialised = 0;
 
     if (!mutex_initialised) {
@@ -153,7 +154,7 @@ void udaLockThread()
         //putIdamClientEnvironment(&idamState[id].environment);
         putIdamThreadClientBlock(&idamState[id].client_block);
         putIdamThreadServerBlock(&idamState[id].server_block);
-        client_flags->flags = idamState[id].client_block.clientFlags;
+        // client_flags->flags = idamState[id].client_block.clientFlags;
         putIdamThreadLastHandle(idamState[id].lastHandle);
     } else {
         putIdamThreadLastHandle(-1);
@@ -238,6 +239,9 @@ void putIdamThreadLastHandle(int handle)
 
 void acc_freeDataBlocks()
 {
+    for (auto& data_block : data_blocks) {
+        freeDataBlock(&data_block);
+    }
     data_blocks.clear();
     putIdamThreadLastHandle(-1);
 }
@@ -461,7 +465,7 @@ void udaSetProperty(const char* property)
         } else {
             if (STR_IEQUALS(property, "verbose")) udaSetLogLevel(UDA_LOG_INFO);
             if (STR_IEQUALS(property, "debug")) udaSetLogLevel(UDA_LOG_DEBUG);
-            if (STR_IEQUALS(property, "altData")) client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
+            if (STR_IEQUALS(property, "altData")) client_flags->flags |= CLIENTFLAG_ALTDATA;
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
                 name[55] = '\0';
@@ -475,9 +479,11 @@ void udaSetProperty(const char* property)
                 }
             }
         }
-        if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_REUSELASTHANDLE;
-        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_FREEREUSELASTHANDLE;
-        if (STR_IEQUALS(property, "fileCache")) client_flags->flags = client_flags->flags | CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags |= CLIENTFLAG_REUSELASTHANDLE;
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) client_flags->flags |= CLIENTFLAG_FREEREUSELASTHANDLE;
+        if (STR_IEQUALS(property, "fileCache")) client_flags->flags |= CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "dbOnly")) client_flags->flags |= CLIENTFLAG_DB_ONLY;
+        if (STR_IEQUALS(property, "idleTimeout")) client_flags->flags |= CLIENTFLAG_IDLE_TIMEOUT;
     }
 }
 
@@ -513,6 +519,8 @@ int udaGetProperty(const char* property)
         if (STR_IEQUALS(property, "debug")) return udaGetLogLevel() == UDA_LOG_DEBUG;
         if (STR_IEQUALS(property, "altData")) return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
         if (STR_IEQUALS(property, "fileCache")) return (int)(client_flags->flags & CLIENTFLAG_FILECACHE);
+        if (STR_IEQUALS(property, "dbOnly")) return (int)(client_flags->flags & CLIENTFLAG_DB_ONLY);
+        if (STR_IEQUALS(property, "idleTimeout")) return (int)(client_flags->flags & CLIENTFLAG_IDLE_TIMEOUT);
     }
     return 0;
 }
@@ -551,6 +559,8 @@ void udaResetProperty(const char* property)
             client_flags->flags &= !CLIENTFLAG_FREEREUSELASTHANDLE;
         }
         if (STR_IEQUALS(property, "fileCache")) client_flags->flags &= !CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "dbOnly")) client_flags->flags &= !CLIENTFLAG_DB_ONLY;
+        if (STR_IEQUALS(property, "idleTimeout")) client_flags->flags &= !CLIENTFLAG_IDLE_TIMEOUT;
     }
 }
 
@@ -926,7 +936,9 @@ unsigned int getIdamCachePermission(int handle)
 unsigned int getIdamTotalDataBlockSize(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
-    return data_blocks[handle].totalDataBlockSize;
+    // return data_blocks[handle].totalDataBlockSize;
+    auto data_block = data_blocks[handle];
+    return countDataBlockSize(&data_block, &data_block.client_block);
 }
 
 //!  returns the atomic or structure type id of the data object
@@ -1159,7 +1171,6 @@ char* getIdamSyntheticData(int handle)
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
     if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return nullptr;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return nullptr;
     if (!client_flags->get_synthetic || data_blocks[handle].error_model == ERROR_MODEL_UNKNOWN) {
         return data_blocks[handle].data;
     }
@@ -1179,7 +1190,6 @@ char* getIdamData(int handle)
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
     if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return nullptr;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return nullptr;
     if (!client_flags->get_synthetic) {
         return data_blocks[handle].data;
     } else {
@@ -1518,7 +1528,6 @@ void getIdamDoubleData(int handle, double* fp)
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
     if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return;
 
     if (data_blocks[handle].data_type == UDA_TYPE_DOUBLE) {
         if (!client_flags->get_synthetic)
@@ -1659,7 +1668,6 @@ void getIdamFloatData(int handle, float* fp)
         return;
     }
     if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return;
 
     if (data_blocks[handle].data_type == UDA_TYPE_FLOAT) {
         if (!client_flags->get_synthetic)

@@ -12,9 +12,14 @@ on:
       - '*'
     branches:
       - release/*
-      - feature/*
       - main
       - develop
+      - feature/*
+
+# prevent duplicate CI runs from separate triggers
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   build_wheels:
@@ -36,12 +41,12 @@ jobs:
           - [windows-latest, AMD64, win_amd64, 0.0]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         # need git tags available for setuptools_scm to grab tags
         with:
           fetch-depth: 0
 
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v8
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
@@ -107,7 +112,7 @@ jobs:
          
       - name: build windows wheels
         if: runner.OS == 'Windows'
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v3.2.1
         with:
           package-dir: ${{github.workspace}}/install/python_installer
           config-file: ${{github.workspace}}/install/python_installer/pyproject.toml
@@ -115,17 +120,19 @@ jobs:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: windows
           CIBW_BUILD: cp3*-${{matrix.build-platform[2]}}
-          CIBW_SKIP: cp36* cp37* cp313*  
+          # CIBW_SKIP: cp36* cp37* cp313*  
+          CIBW_SKIP: cp36* cp37* 
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
 
       - name: Build manylinux2014 wheels
       # this is a slow-running build. Only execute on tag
+      # && 
+      # github.event_name == 'push' && 
+      # startsWith(github.ref, 'refs/tags/')
         if: >
-          startswith(matrix.build-platform[2], 'manylinux2014') && 
-          github.event_name == 'push' && 
-          startsWith(github.ref, 'refs/tags/')
-        uses: pypa/cibuildwheel@v2.22.0
+          startswith(matrix.build-platform[2], 'manylinux2014') 
+        uses: pypa/cibuildwheel@v3.2.1
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -156,11 +163,11 @@ jobs:
             wget https://github.com/capnproto/capnproto/archive/refs/tags/v0.10.4.tar.gz  &&
             tar xzf v0.10.4.tar.gz  &&
             cd capnproto-0.10.4  &&
-            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
+            cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON  &&
             cmake --build build  &&
             cmake --install build &&
             cd /tmp  &&
-            wget https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz &&
+            wget https://sourceforge.net/projects/boost/files/boost/1.80.0/boost_1_80_0.tar.gz &&
             tar xzf boost_1_80_0.tar.gz  &&
             cd boost_1_80_0  &&
             ./bootstrap.sh --prefix=/usr/local  &&
@@ -176,7 +183,7 @@ jobs:
           startswith(matrix.build-platform[2], 'manylinux_2_28') && 
           ! ( startswith(matrix.build-platform[1], 'aarch64') && 
           !startsWith(github.ref, 'refs/tags/') )
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v3.2.1
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -230,21 +237,42 @@ jobs:
 
       - name: Build macos wheels
         if: runner.os == 'macOS'
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v3.2.1
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
         env:
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_PLATFORM: macos
+          # CIBW_SKIP: cp313*
           CIBW_BUILD: cp*-${{matrix.build-platform[2]}}
           MACOSX_DEPLOYMENT_TARGET: ${{matrix.build-platform[3]}}
 
-      - uses: actions/upload-artifact@v4
+      - name: upload pyuda cibw build artifacts
+        uses: actions/upload-artifact@v5
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
+      # only build dummy uda package on a single runner (pure python)
+      - name: build uda (dummy package) wheels
+        if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'arm64')
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install --upgrade build setuptools
+          cd ${{github.workspace}}/source/wrappers/python/uda && python -m build --wheel --sdist
+
+      - name: Upload uda build artifacts
+      # only build and upload pure python wheels on a single runner
+        if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'arm64')
+        uses: actions/upload-artifact@v5
+        with:
+          name: uda-wheels
+          path: ${{github.workspace}}/source/wrappers/python/uda/dist/*
+
+  
   upload_pypi:
     # only upload to pypi for tagged releases
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
@@ -252,7 +280,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: pypi
-      url: https://pypi.org/p/uda
+      url: https://pypi.org/p/pyuda
     permissions:
       id-token: write
     steps:
@@ -277,7 +305,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           # unpacks all CIBW artifacts into dist/
           pattern: cibw-*
@@ -287,3 +315,47 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          verbose: true
+
+  upload_dummy_repo_to_pypi:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    # only upload dummy repo if normal one exists
+    needs: upload_pypi
+    runs-on: ubuntu-latest
+    environment: 
+      name: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          # unpacks all build artifacts into dist/
+          name: uda-wheels
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://upload.pypi.org/legacy/
+          verbose: true
+
+  upload_dummy_repo_to_testpypi:
+    if: >
+      github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/feature/')
+    # only upload dummy repo if normal one exists
+    needs: upload_test_pypi
+    runs-on: ubuntu-latest
+    environment: 
+      name: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          # unpacks all build artifacts into dist/
+          name: uda-wheels
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          verbose: true

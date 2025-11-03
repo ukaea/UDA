@@ -151,3 +151,7 @@ cdef class Result:
     def time_dim(self, data_type):
         cdef int order = uda.getIdamOrder(int(self._handle))
         return Dim(self._handle, order, data_type)
+
+    def data_block_size(self):
+        return uda.getIdamTotalDataBlockSize(int(self._handle))
+

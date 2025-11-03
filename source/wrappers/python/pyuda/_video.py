@@ -2,6 +2,7 @@ from __future__ import (division, print_function, absolute_import)
 
 from ._data import Data
 
+import copy
 import json
 import numpy as np
 import base64
@@ -85,3 +86,10 @@ class Video(Data):
 
     def jsonify(self, indent=None):
         raise NotImplementedError("jsonify has not been implement for Video objects")
+
+    def clone(self):
+        """
+        Return a deepcopy of a video object
+        """
+        return copy.deepcopy(self)
+

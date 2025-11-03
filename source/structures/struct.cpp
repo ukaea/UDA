@@ -205,7 +205,7 @@ void expandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* 
     char work[STRING_LENGTH];
     char* p1, * p2, * p3;
 
-    if (buffer[0] != '\t' || buffer[0] != ' ') {
+    if (buffer[0] != '\t' && buffer[0] != ' ') {
         strcpy(expand, "\t");    // Tab out the structure contents
     } else { expand[0] = '\0'; }
     len = (int)strlen(expand);

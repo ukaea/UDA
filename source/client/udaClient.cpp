@@ -59,7 +59,7 @@ LOGSTRUCTLIST* g_log_struct_list = nullptr;
 //----------------------------------------------------------------------------------------------------------------------
 
 CLIENT_BLOCK client_block;
-SERVER_BLOCK server_block;
+thread_local SERVER_BLOCK server_block;
 
 time_t tv_server_start = 0;
 time_t tv_server_end = 0;
@@ -331,7 +331,7 @@ fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG* system_con
 
 CLIENT_FLAGS* udaClientFlags()
 {
-    static CLIENT_FLAGS client_flags = {};
+    static thread_local CLIENT_FLAGS client_flags = {};
     return &client_flags;
 }
 
@@ -376,7 +376,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     unsigned int* private_flags = udaPrivateFlags();
     CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->alt_rank = 0;
-    client_flags->user_timeout = TIMEOUT;
+    // currently no way of knowing if this has been set by udaSetProperty except that it probably won't be 0
+    if (client_flags->user_timeout == 0) {
+        client_flags->user_timeout = TIMEOUT;
+    }
 
     time_t protocol_time;            // Time a Conversation Occured
 
@@ -396,10 +399,6 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     //------------------------------------------------------------------------------
     //-------------------------------------------------------------------------
     // Initialise the Error Stack before Accessing Data
-
-    if (tv_server_start != 0) {
-        freeIdamErrorStack(&server_block.idamerrorstack);    // Free Previous Stack Heap
-    }
 
     initServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
     initUdaErrorStack();
@@ -1113,6 +1112,11 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Normal Exit: Return to Client
 
         std::copy(data_block_indices.begin(), data_block_indices.end(), indices);
+        
+        // reset the timer if only idle time is considered for server timeout instead of total lifetime
+        if (client_flags->flags & CLIENTFLAG_IDLE_TIMEOUT) {
+            time(&tv_server_start);
+        }
         return 0;
 
         //------------------------------------------------------------------------------
@@ -1424,7 +1428,6 @@ void udaFree(int handle)
     }
 
     // closeIdamError(&server_block.idamerrorstack);
-    freeIdamErrorStack(&server_block.idamerrorstack);
     initDataBlock(data_block);
     data_block->handle = -1;        // Flag this as ready for re-use
 }
@@ -1440,14 +1443,6 @@ void udaFreeAll()
     // Free Cache connection object
     uda::cache::free_cache();
 #endif
-
-    for (int i = 0; i < udaGetCurrentDataBlockIndex(); ++i) {
-#ifndef FATCLIENT
-        freeDataBlock(getIdamDataBlock(i));
-#else
-        freeDataBlock(getIdamDataBlock(i));
-#endif
-    }
 
     acc_freeDataBlocks();
 

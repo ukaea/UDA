@@ -3,7 +3,7 @@ Description=@USER@-uda service
 
 [Service]
 ExecStart=@CMAKE_INSTALL_PREFIX@/etc/udaserver.sh
-Type=forking
+Type=exec
 User=@USER@
 #Group=yes
 UMask=002

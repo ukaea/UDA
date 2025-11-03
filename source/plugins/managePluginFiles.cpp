@@ -13,7 +13,7 @@
 #include <clientserver/stringUtils.h>
 
 #define UDA_PLUGIN_FILE_ALLOC       10
-#define MAX_OPEN_PLUGIN_FILE_DESC   50
+#define MAX_OPEN_PLUGIN_FILE_DESC   5
 
 // Initialise the File List and allocate heap for the list
 

@@ -1,0 +1,36 @@
+[build-system]
+requires = [
+    "setuptools>=42"
+]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+homepage = "https://ukaea.github.io/UDA/"
+documentation = "https://ukaea.github.io/UDA/"
+source = "https://github.com/ukaea/UDA"
+tracker = "https://github.com/ukaea/UDA/issues"
+
+[project]
+name = "uda"
+dynamic = ["version"]
+description = "Universal Data Access (UDA)"
+readme = {file = 'README.md', content-type = "text/markdown"}
+license = {text = "Apache-2.0 license"}
+dependencies = ["pyuda"]
+requires-python = ">= 3.5"
+
+classifiers = [
+    'Intended Audience :: Science/Research',
+    'Programming Language :: C',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: MacOS :: MacOS X',
+    'Operating System :: Microsoft :: Windows',
+]
+
+keywords = ["deprecated"]
+
+[project.optional-dependencies]
+plot = ["pyplot"]
+full = ["pyplot", "rich"]

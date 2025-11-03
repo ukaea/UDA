@@ -17,3 +17,6 @@ client = pyuda.Client()
 signal_object = client.get(signal, source)
 
 ```
+
+## Old release versions
+Releases 2.7.6-2.8.1 were uploaded to the uda project on pypi [here](https://pypi.org/project/uda). The project moved here under the pyuda name for release 2.8.2. 
