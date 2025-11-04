@@ -3,7 +3,9 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/initStructs.h>
+#include <exception>
 #include <plugins/utils.h>
+#include <stdexcept>
 #include <version.h>
 
 #include "readBytesNonOptimally.h"
@@ -62,6 +64,7 @@ public:
             return;
         }
         // Free Heap & reset counters
+        file_map_.clear();
         init_ = false;
     }
 
@@ -82,50 +85,57 @@ private:
 
 int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    static BytesPlugin plugin = {};
+    try {
+        static BytesPlugin plugin = {};
 
-    if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-    }
+        if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+            RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
+        }
 
-    plugin_interface->pluginVersion = THISPLUGIN_VERSION;
+        plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    REQUEST_DATA* request = plugin_interface->request_data;
+        REQUEST_DATA* request = plugin_interface->request_data;
 
-    if (plugin_interface->housekeeping || STR_IEQUALS(request->function, "reset")) {
-        plugin.reset(plugin_interface);
-        return 0;
-    }
+        if (plugin_interface->housekeeping || STR_IEQUALS(request->function, "reset")) {
+            plugin.reset(plugin_interface);
+            return 0;
+        }
 
-    plugin.init(plugin_interface);
-    if (STR_IEQUALS(request->function, "init")
-        || STR_IEQUALS(request->function, "initialise")) {
-        return 0;
-    }
+        plugin.init(plugin_interface);
+        if (STR_IEQUALS(request->function, "init")
+                || STR_IEQUALS(request->function, "initialise")) {
+            return 0;
+        }
 
-    //----------------------------------------------------------------------------------------
-    // Plugin Functions
-    //----------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------
+        // Plugin Functions
+        //----------------------------------------------------------------------------------------
 
-    //----------------------------------------------------------------------------------------
-    // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
+        //----------------------------------------------------------------------------------------
+        // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-    if (STR_IEQUALS(request->function, "help")) {
-        return plugin.help(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "version")) {
-        return plugin.version(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "builddate")) {
-        return plugin.build_date(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "defaultmethod")) {
-        return plugin.default_method(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
-        return plugin.max_interface_version(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "read")) {
-        return plugin.read(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "size")) {
-        return plugin.size(plugin_interface);
-    } else {
-        RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
+        if (STR_IEQUALS(request->function, "help")) {
+            return plugin.help(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "version")) {
+            return plugin.version(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "builddate")) {
+            return plugin.build_date(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "defaultmethod")) {
+            return plugin.default_method(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
+            return plugin.max_interface_version(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "read")) {
+            return plugin.read(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "size")) {
+            return plugin.size(plugin_interface);
+        } else {
+            RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
+        }
+    } catch (const std::exception& e) {
+        std::string err_msg = std::string("Excption raised in bytes plugin:") + e.what();
+        RAISE_PLUGIN_ERROR_AND_EXIT(err_msg.c_str(), plugin_interface);
+    } catch (...) {
+        RAISE_PLUGIN_ERROR_AND_EXIT("Unknown exception raised by bytes plugin", plugin_interface);
     }
 }
 
@@ -227,8 +237,12 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     int max_bytes = -1;
     FIND_INT_VALUE(plugin_interface->request_data->nameValueList, max_bytes);
 
-    int offset = -1;
-    FIND_INT_VALUE(plugin_interface->request_data->nameValueList, offset);
+    unsigned long offset = -1;
+    FIND_UNSIGNED_LONG_VALUE(plugin_interface->request_data->nameValueList, offset);
+    auto file_size = filesystem::file_size(path);
+    if (offset > file_size) {
+        RAISE_PLUGIN_ERROR_AND_EXIT("Offset specified is out of bounds", plugin_interface);
+    }
 
     const char* checksum = nullptr;
     FIND_STRING_VALUE(plugin_interface->request_data->nameValueList, checksum);
