@@ -14,6 +14,7 @@
 #include <type_traits>
 #include <regex>
 #include <string>
+#include <cstring>
 
 IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
