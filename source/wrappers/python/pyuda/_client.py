@@ -117,7 +117,7 @@ class Client(with_metaclass(ClientMeta, object)):
             chunk_size = 0
 
         if chunk_size:
-            result = cpyuda.get_data("bytes::size(path={path})".format(path=source_file) % source_file, "")
+            result = cpyuda.get_data("bytes::size(path={path})".format(path=source_file), "")
             size = result.data()
             chunk_size = int(chunk_size * 1024 * 1024)
             count = 0

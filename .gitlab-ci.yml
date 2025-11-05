@@ -75,7 +75,7 @@ build_idl84:
     - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_meta.py
     - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_signals.py
     - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_xpad.py
-    - python3 tests/test_put.py
+    - python3 mastcodes/uda/python/tests/test_put.py
   artifacts:
     paths:
       - dist

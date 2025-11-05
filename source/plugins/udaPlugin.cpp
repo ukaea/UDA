@@ -505,7 +505,8 @@ bool findUnsignedLongValue(const NAMEVALUELIST* namevaluelist, unsigned long* va
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         if (std::strchr(str, '-') != nullptr) {
-            RAISE_PLUGIN_ERROR("Negative value found when unsigned expected");
+            std::string err_msg = std::string("Negative value found when unsigned expected: ") + name + "=" + str;
+            RAISE_PLUGIN_ERROR(err_msg.c_str());
             return false;
         }
         *value = std::strtoul(str, nullptr, 10);

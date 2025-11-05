@@ -240,7 +240,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     unsigned long offset = 0;
     FIND_UNSIGNED_LONG_VALUE(plugin_interface->request_data->nameValueList, offset);
     auto file_size = filesystem::file_size(path);
-    if (offset > file_size) {
+    if (offset >= file_size) {
         RAISE_PLUGIN_ERROR_AND_EXIT("Offset specified is out of bounds", plugin_interface);
     }
 
