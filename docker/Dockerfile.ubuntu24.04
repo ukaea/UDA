@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     cmake \
     build-essential \
+    libtirpc-dev \
     pkg-config \
     libxml2-dev \
     libspdlog-dev \
