@@ -61,7 +61,6 @@ build_idl84:
     - cp -r install/lib/python${PYTHON_VERSION}/site-packages/*uda* dist
 
     - export PYTHONPATH=dist:$PYTHONPATH
-    # - export LD_LIBRARY_PATH=install/lib:$LD_LIBRARY_PATH
     - module use install/modulefiles
     - UDA_MODULE=`ls install/modulefiles | grep uda`
     - module load $UDA_MODULE
@@ -76,6 +75,7 @@ build_idl84:
     - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_meta.py
     - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_signals.py
     - python3 -m pytest -v mastcodes/uda/python/tests/test_uda_xpad.py
+    - python3 tests/test_put.py
   artifacts:
     paths:
       - dist
