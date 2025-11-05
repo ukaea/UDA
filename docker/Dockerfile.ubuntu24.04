@@ -1,4 +1,4 @@
-FROM rockylinux:8
+FROM ubuntu:24.04
 
 ARG UDA_VERSION="main"
 ARG SSL_AUTH="ON"
@@ -7,21 +7,20 @@ ARG CLIENT_ONLY="OFF"
 ARG INSTALL_DIR="/usr"
 ARG BUILD_CORES=4
 
-SHELL ["/bin/bash", "-c"]
-
-RUN dnf update -y && \
-  dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
-  dnf group install -y "Development Tools" && \
-  dnf install -y \
-      cmake \
-      boost-devel \
-      openssl-devel \
-      libxml2-devel \
-      libtirpc-devel \
-      fmt fmt-devel \
-      spdlog spdlog-devel \
-      capnproto capnproto-devel \
-      rpmlint
+RUN apt-get update && apt-get install -y \
+    git \
+    libboost-dev \
+    libboost-program-options-dev \
+    libssl-dev \
+    cmake \
+    build-essential \
+    pkg-config \
+    libxml2-dev \
+    libspdlog-dev \
+    ninja-build \
+    capnproto \
+    libcapnp-dev \
+    lintian
 
 RUN git clone https://github.com/ukaea/UDA.git /uda && \
     git -C /uda checkout "$UDA_VERSION"
@@ -37,4 +36,4 @@ RUN cd /uda && \
 
 RUN cd /uda && cmake --build build -j "$BUILD_CORES" --config Release --target install
 RUN cd /uda && cmake --build build --target package
-RUN rpmlint --fail-on-error build/*.rpm
+RUN lintian --fail-on error build/*.deb

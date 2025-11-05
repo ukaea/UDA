@@ -22,6 +22,7 @@ jobs:
       matrix:
         distro:
           - rocky8
+          - ubuntu24.04
           # - manylinux2_28
 
     steps:
@@ -41,13 +42,13 @@ jobs:
         run: |
           docker build \
             --build-arg UDA_VERSION=${{ github.sha }} \
-            --build-arg INSTALL_DIR="/usr/local" \
+            --build-arg INSTALL_DIR="/usr" \
+            --build-arg CLIENT_ONLY="OFF" \
             -f docker/Dockerfile.${{ matrix.distro }} \
             -t uda-${{ matrix.distro }}:${{ steps.version.outputs.version }} .
 
       - name: extract binaries from container
         run: |
-          mkdir -p build_artifacts/${{ matrix.distro }}/bin
           mkdir -p build_artifacts/${{ matrix.distro }}/pkg
           id=`docker create uda-${{ matrix.distro }}:${{ steps.version.outputs.version }}`
           docker cp $id:/uda/build build_artifacts/${{ matrix.distro }}
