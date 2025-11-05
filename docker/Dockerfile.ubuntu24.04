@@ -20,7 +20,10 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     capnproto \
     libcapnp-dev \
-    lintian
+    lintian && \
+    sudo sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' \
+    /usr/lib/x86_64-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
+
 
 RUN git clone https://github.com/ukaea/UDA.git /uda && \
     git -C /uda checkout "$UDA_VERSION"
