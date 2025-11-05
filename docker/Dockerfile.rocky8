@@ -37,4 +37,4 @@ RUN cd /uda && \
 
 RUN cd /uda && cmake --build build -j "$BUILD_CORES" --config Release --target install
 RUN cd /uda && cmake --build build --target package
-RUN rpmlint --fail-on-error build/*.rpm
+RUN rpmlint --check --verbose /uda/build/*.rpm
