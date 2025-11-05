@@ -55,12 +55,9 @@ int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const
 
     data_block->data_n = buf_size;    // 1 less than no. bytes read: Last Byte is an EOF
 
-    if (offset > 0) {
+    if (offset >= 0) {
         fseek(fh, offset, SEEK_SET);
-    } else {
-        fseek(fh, 0, SEEK_SET);
     }
-
 
     char* bp = nullptr;
     while (!feof(fh)) {

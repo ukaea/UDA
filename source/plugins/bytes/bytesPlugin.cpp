@@ -237,7 +237,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     int max_bytes = -1;
     FIND_INT_VALUE(plugin_interface->request_data->nameValueList, max_bytes);
 
-    unsigned long offset = -1;
+    unsigned long offset = 0;
     FIND_UNSIGNED_LONG_VALUE(plugin_interface->request_data->nameValueList, offset);
     auto file_size = filesystem::file_size(path);
     if (offset > file_size) {
