@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y \
     capnproto \
     libcapnp-dev \
     lintian && \
-    sudo sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' \
+    sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' \
     /usr/lib/x86_64-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
 
 
