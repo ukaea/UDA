@@ -7,7 +7,7 @@ Install the new package directly using:
 pip install pyuda
 ```
 
-Previous release versions (2.7.6-2.8.1) are still hosted here. The first release under the new pyuda name is 2.8.2. 
+Previous release versions (2.7.6-2.8.1) are still hosted here. The first release under the new pyuda name is 2.9.0.
 
 ## Pyuda package description
 

@@ -83,6 +83,8 @@ LIBRARY_API int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, 
 LIBRARY_API bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name);
 LIBRARY_API bool findValue(const NAMEVALUELIST* namevaluelist, const char* name);
 LIBRARY_API bool findIntValue(const NAMEVALUELIST* namevaluelist, int* value, const char* name);
+LIBRARY_API bool findLongIntValue(const NAMEVALUELIST* namevaluelist, long* value, const char* name);
+LIBRARY_API bool findUnsignedLongValue(const NAMEVALUELIST* namevaluelist, unsigned long* value, const char* name);
 LIBRARY_API bool findShortValue(const NAMEVALUELIST* namevaluelist, short* value, const char* name);
 LIBRARY_API bool findCharValue(const NAMEVALUELIST* namevaluelist, char* value, const char* name);
 LIBRARY_API bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* values, const char* name);
@@ -142,6 +144,8 @@ if (!find##TYPE##Array(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(
 }
 
 #define FIND_REQUIRED_INT_VALUE(NAME_VALUE_LIST, VARIABLE)      FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, Int)
+#define FIND_REQUIRED_LONG_VALUE(NAME_VALUE_LIST, VARIABLE)      FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, LongInt)
+#define FIND_REQUIRED_UNSIGNED_LONG_VALUE(NAME_VALUE_LIST, VARIABLE)      FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, UnsignedLong)
 #define FIND_REQUIRED_SHORT_VALUE(NAME_VALUE_LIST, VARIABLE)    FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, Short)
 #define FIND_REQUIRED_CHAR_VALUE(NAME_VALUE_LIST, VARIABLE)     FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, Char)
 #define FIND_REQUIRED_FLOAT_VALUE(NAME_VALUE_LIST, VARIABLE)    FIND_REQUIRED_VALUE(NAME_VALUE_LIST, VARIABLE, Float)
@@ -152,6 +156,8 @@ if (!find##TYPE##Array(&NAME_VALUE_LIST, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(
 #define FIND_REQUIRED_DOUBLE_ARRAY(NAME_VALUE_LIST, VARIABLE)    FIND_REQUIRED_ARRAY(NAME_VALUE_LIST, VARIABLE, Double)
 
 #define FIND_INT_VALUE(NAME_VALUE_LIST, VARIABLE)       findIntValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
+#define FIND_LONG_VALUE(NAME_VALUE_LIST, VARIABLE)       findLongIntValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
+#define FIND_UNSIGNED_LONG_VALUE(NAME_VALUE_LIST, VARIABLE)       findUnsignedLongValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
 #define FIND_SHORT_VALUE(NAME_VALUE_LIST, VARIABLE)     findShortValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
 #define FIND_CHAR_VALUE(NAME_VALUE_LIST, VARIABLE)      findCharValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
 #define FIND_FLOAT_VALUE(NAME_VALUE_LIST, VARIABLE)     findFloatValue(&NAME_VALUE_LIST, &VARIABLE, QUOTE(VARIABLE))
