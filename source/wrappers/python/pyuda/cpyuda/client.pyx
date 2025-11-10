@@ -30,6 +30,8 @@ _properties = {
     "reuselasthandle": ("REUSE_LAST_HANDLE", False),
     "freeandreuselasthandle": ("FREE_AND_REUSE_LAST_HANDLE", False),
     "filecache": ("FILE_CACHE", False),
+    "dbonly": ("DB_ONLY", False),
+    "idletimeout": ("IDLE_TIMEOUT", False),
 }
 
 if PY_MAJOR_VERSION >= 3.0:
@@ -85,6 +87,14 @@ def set_server_port(port):
 
 def close_connection():
     uda.closeAllConnections()
+
+
+def get_server_protocol_version():
+    return uda.getIdamServerVersion()
+
+
+def get_server_uuid():
+    return uda.getIdamServerDOI().decode()
 
 
 def get_data(signal, source):

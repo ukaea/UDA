@@ -3,6 +3,7 @@ from __future__ import (division, print_function, absolute_import)
 from ._utils import (cdata_scalar_to_value, cdata_vector_to_value, cdata_array_to_value)
 from ._data import Data
 
+import copy
 import json
 import itertools
 import numpy as np
@@ -32,7 +33,64 @@ class StructuredDataEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-class StructuredData(Data):
+class StructuredDataImpl(Data):
+    def __repr__(self):
+        return "<Structured Data: {0}>".format(self.name)
+
+    def plot(self):
+        raise NotImplementedError("plot function not implemented for StructuredData objects")
+
+    def widget(self):
+        raise NotImplementedError("widget function not implemented for StructuredData objects")
+
+    def _todict(self):
+        obj = {}
+        for name in self._imported_attrs:
+            obj[name] = getattr(self, name)
+        if len(self.children) > 0:
+            obj['children'] = []
+            for child in self.children:
+                obj['children'].append(child._todict())
+        return obj
+
+    def jsonify(self, indent=None):
+        obj = self._todict()
+        return json.dumps(obj, cls=StructuredDataEncoder, indent=indent)
+
+
+class TreeDisplayer:
+    def _display(self, depth, level):
+        if depth is not None and level > depth:
+            return
+        print(('|' * level + '['), self.name, ']')
+        for name in self._imported_attrs:
+            print(('|' * (level + 1) + '->'), name)
+        for child in self.children:
+            child._display(depth, level+1)
+
+    def display(self, depth=None):
+        self._display(depth, 0)
+
+    def __getitem__(self, item):
+        tokens = tuple(i for i in item.split("/") if len(i) > 0)
+        if len(tokens) == 0:
+            return self
+        if tokens[0] == "ROOT":
+            tokens = tokens[1:]
+        if len(tokens) == 0:
+            return self
+        name = tokens[0]
+        found = tuple(c for c in self.children if c.name.lower() == name.lower())
+        if len(found) == 0:
+            raise KeyError("Cannot find child " + name + " in node " + self.name)
+        if len(found) == 1:
+            child = found[0]
+            return child["/".join(tokens[1:])]
+        else:
+            return [child["/".join(tokens[1:])] for child in found]
+
+
+class StructuredData(StructuredDataImpl, TreeDisplayer):
 
     _translation_table = None
 
@@ -62,36 +120,6 @@ class StructuredData(Data):
                 self._imported_attrs.append(attr_name)
                 setattr(self, attr_name, value)
 
-    def _display(self, depth, level):
-        if depth is not None and level > depth:
-            return
-        print(('|' * level + '['), self._name, ']')
-        for name in self._imported_attrs:
-            print(('|' * (level + 1) + '->'), name)
-        for child in self.children:
-            child._display(depth, level+1)
-
-    def display(self, depth=None):
-        self._display(depth, 0)
-
-    def __getitem__(self, item):
-        tokens = tuple(i for i in item.split("/") if len(i) > 0)
-        if len(tokens) == 0:
-            return self
-        if tokens[0] == "ROOT":
-            tokens = tokens[1:]
-        if len(tokens) == 0:
-            return self
-        name = tokens[0]
-        found = tuple(c for c in self.children if c.name.lower() == name.lower())
-        if len(found) == 0:
-            raise KeyError("Cannot find child " + name + " in node " + self.name)
-        if len(found) == 1:
-            child = found[0]
-            return child["/".join(tokens[1:])]
-        else:
-            return [child["/".join(tokens[1:])] for child in found]
-
     @property
     def children(self):
         if self._children is None:
@@ -118,25 +146,41 @@ class StructuredData(Data):
             name += '_'
         return name
 
-    def __repr__(self):
-        return "<Structured Data: {0}>".format(self._name)
+    def clone(self):
+        """
+        Copy all signal data from cpyuda into a DataOwningSignal object
+        """
+        return copy.deepcopy(self)
 
-    def plot(self):
-        raise NotImplementedError("plot function not implemented for StructuredData objects")
+    def __deepcopy__(self, memo):
+        """
+        Copy all signal data from cpyuda into a DataOwningSignal object
+        """
+        imported_attrs = {attr: copy.deepcopy(getattr(self, attr), memo)
+                          for attr in self._imported_attrs}
 
-    def widget(self):
-        raise NotImplementedError("widget function not implemented for StructuredData objects")
+        return DataOwningStructuredData(children=copy.deepcopy(self.children, memo),
+                                        name=copy.deepcopy(self.name, memo),
+                                        imported_attrs=imported_attrs)
 
-    def _todict(self):
-        obj = {}
-        for name in self._imported_attrs:
-            obj[name] = getattr(self, name)
-        if len(self.children) > 0:
-            obj['children'] = []
-            for child in self.children:
-                obj['children'].append(child._todict())
-        return obj
+    def __reduce__(self):
+        """
+        Overwriting __reduce__ method for pickling pyuda signal objects.
+        This does deep copies of all the data views held by a signal object
+        and constructs a data owning signal object which is picklable and can
+        be loaded from disk without state initialisation errors in cpyuda.
+        """
+        imported_attrs = {attr: copy.deepcopy(getattr(self, attr))
+                          for attr in self._imported_attrs}
+        return (DataOwningStructuredData, (copy.deepcopy(self.children),
+                                           copy.deepcopy(self.name),
+                                           imported_attrs))
 
-    def jsonify(self, indent=None):
-        obj = self._todict()
-        return json.dumps(obj, cls=StructuredDataEncoder, indent=indent)
+
+class DataOwningStructuredData(StructuredDataImpl, TreeDisplayer):
+    def __init__(self, children=None, name=None, imported_attrs=None):
+        self.children = children
+        self.name = name
+        if imported_attrs is not None:
+            for key, val in imported_attrs.items():
+                setattr(self, key, val)

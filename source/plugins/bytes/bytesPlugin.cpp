@@ -3,6 +3,9 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/initStructs.h>
+#include <exception>
+#include <plugins/utils.h>
+#include <stdexcept>
 #include <version.h>
 
 #include "readBytesNonOptimally.h"
@@ -27,6 +30,19 @@ namespace filesystem = std::filesystem;
 #define BYTEFILEOPENERROR           100004
 #define BYTEFILEHEAPERROR           100005
 
+namespace {
+class FileDeleter
+{
+public:
+    void operator()(FILE* file) const
+    {
+        if (file) {
+            fclose(file);
+        }
+    }
+};
+} // anon namespace
+
 class BytesPlugin
 {
 public:
@@ -48,6 +64,7 @@ public:
             return;
         }
         // Free Heap & reset counters
+        file_map_.clear();
         init_ = false;
     }
 
@@ -60,7 +77,7 @@ public:
     int size(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 private:
-    using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
+    using file_ptr = std::unique_ptr<FILE, FileDeleter>;
 
     bool init_ = false;
     std::unordered_map<std::string, file_ptr> file_map_ = {};
@@ -68,50 +85,57 @@ private:
 
 int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    static BytesPlugin plugin = {};
+    try {
+        static BytesPlugin plugin = {};
 
-    if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-    }
+        if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+            RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
+        }
 
-    plugin_interface->pluginVersion = THISPLUGIN_VERSION;
+        plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    REQUEST_DATA* request = plugin_interface->request_data;
+        REQUEST_DATA* request = plugin_interface->request_data;
 
-    if (plugin_interface->housekeeping || STR_IEQUALS(request->function, "reset")) {
-        plugin.reset(plugin_interface);
-        return 0;
-    }
+        if (plugin_interface->housekeeping || STR_IEQUALS(request->function, "reset")) {
+            plugin.reset(plugin_interface);
+            return 0;
+        }
 
-    plugin.init(plugin_interface);
-    if (STR_IEQUALS(request->function, "init")
-        || STR_IEQUALS(request->function, "initialise")) {
-        return 0;
-    }
+        plugin.init(plugin_interface);
+        if (STR_IEQUALS(request->function, "init")
+                || STR_IEQUALS(request->function, "initialise")) {
+            return 0;
+        }
 
-    //----------------------------------------------------------------------------------------
-    // Plugin Functions
-    //----------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------
+        // Plugin Functions
+        //----------------------------------------------------------------------------------------
 
-    //----------------------------------------------------------------------------------------
-    // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
+        //----------------------------------------------------------------------------------------
+        // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-    if (STR_IEQUALS(request->function, "help")) {
-        return plugin.help(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "version")) {
-        return plugin.version(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "builddate")) {
-        return plugin.build_date(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "defaultmethod")) {
-        return plugin.default_method(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
-        return plugin.max_interface_version(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "read")) {
-        return plugin.read(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "size")) {
-        return plugin.size(plugin_interface);
-    } else {
-        RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
+        if (STR_IEQUALS(request->function, "help")) {
+            return plugin.help(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "version")) {
+            return plugin.version(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "builddate")) {
+            return plugin.build_date(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "defaultmethod")) {
+            return plugin.default_method(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
+            return plugin.max_interface_version(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "read")) {
+            return plugin.read(plugin_interface);
+        } else if (STR_IEQUALS(request->function, "size")) {
+            return plugin.size(plugin_interface);
+        } else {
+            RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
+        }
+    } catch (const std::exception& e) {
+        std::string err_msg = std::string("Excption raised in bytes plugin:") + e.what();
+        RAISE_PLUGIN_ERROR_AND_EXIT(err_msg.c_str(), plugin_interface);
+    } catch (...) {
+        RAISE_PLUGIN_ERROR_AND_EXIT("Unknown exception raised by bytes plugin", plugin_interface);
     }
 }
 
@@ -171,36 +195,6 @@ int BytesPlugin::max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
 
-// Check if path starts with pre-approved file path
-// Raises Plugin Error if not
-int check_allowed_path(const char* expandedPath) {
-    std::string full_path;
-    try { 
-        full_path = filesystem::canonical(expandedPath).string();
-    } catch (filesystem::filesystem_error& e) {
-        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
-        RAISE_PLUGIN_ERROR("Provided File Path Not Found!\n");
-    }
-    const char* env_str = std::getenv("UDA_BYTES_PLUGIN_ALLOWED_PATHS");
-    std::vector<std::string> allowed_paths;
-    if (env_str) {
-        // gotta check if environment variable exists before using it
-        boost::split(allowed_paths, env_str, boost::is_any_of(";"));
-    } 
-    bool good_path = false;
-    for (const auto& allowed_path : allowed_paths) {
-        if (full_path.rfind(allowed_path, 0) != std::string::npos) {
-            good_path = true;
-            break;
-        }
-    }
-    if (!good_path) {
-        UDA_LOG(UDA_LOG_DEBUG, "Bad Path Provided %s\n", expandedPath);
-        RAISE_PLUGIN_ERROR("Bad File Path Provided\n");
-    }
-    return 0;
-}
-
 int check_path(const Environment* environment, const std::string& path)
 {
     int err = 0;
@@ -243,8 +237,12 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     int max_bytes = -1;
     FIND_INT_VALUE(plugin_interface->request_data->nameValueList, max_bytes);
 
-    int offset = -1;
-    FIND_INT_VALUE(plugin_interface->request_data->nameValueList, offset);
+    unsigned long offset = 0;
+    FIND_UNSIGNED_LONG_VALUE(plugin_interface->request_data->nameValueList, offset);
+    auto file_size = filesystem::file_size(path);
+    if (offset >= file_size) {
+        RAISE_PLUGIN_ERROR_AND_EXIT("Offset specified is out of bounds", plugin_interface);
+    }
 
     const char* checksum = nullptr;
     FIND_STRING_VALUE(plugin_interface->request_data->nameValueList, checksum);
@@ -274,7 +272,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     FILE* file = nullptr;
     if (file_map_.count(tmp_path) == 0) {
-        file_ptr ptr = {fopen(tmp_path, "rb"), fclose};
+        file_ptr ptr(fopen(tmp_path, "rb"));
         file = ptr.get();
         file_map_.emplace(tmp_path, std::move(ptr));
     } else {

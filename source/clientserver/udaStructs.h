@@ -306,9 +306,11 @@ typedef struct UdaError {
     char msg[STRING_LENGTH];        // Message
 } UDA_ERROR;
 
+#define UDA_MAX_ERRORS 30
+
 typedef struct UdaErrorStack {
     unsigned int nerrors;           // Number of Errors
-    UDA_ERROR* idamerror;           // Array of Errors
+    UDA_ERROR idamerror[UDA_MAX_ERRORS];           // Array of Errors
 } UDA_ERROR_STACK;
 
 typedef struct ServerBlock {
@@ -439,6 +441,10 @@ void freeRequestBlock(REQUEST_BLOCK* request_block);
 //void freeRequestData(REQUEST_DATA* request_data);
 
 void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+
+LIBRARY_API unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block);
+LIBRARY_API unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block);
+
 
 #ifdef __cplusplus
 }

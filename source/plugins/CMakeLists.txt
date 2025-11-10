@@ -3,6 +3,7 @@
 
 find_package( LibXml2 REQUIRED )
 find_package( fmt REQUIRED )
+find_package( Boost REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -12,6 +13,13 @@ else()
   if( TIRPC_FOUND )
     add_definitions( -D__TIRPC__ )
   endif()
+endif()
+
+set ( STDFS_VAR "" )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
+  set( STDFS_VAR "stdc++fs" )
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
+  set( STDFS_VAR "c++fs" )
 endif()
 
 configure_file(
@@ -56,6 +64,7 @@ add_definitions( -DSERVERBUILD )
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${LIBXML2_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
 )
 
 if( MINGW OR WIN32 )
@@ -67,6 +76,7 @@ endif()
 set( SOURCE_FILES
   managePluginFiles.cpp
   udaPlugin.cpp
+  utils.cpp
 )
 
 set( HEADER_FILES
@@ -74,7 +84,8 @@ set( HEADER_FILES
   pluginStructs.h
   udaPlugin.h
   udaPluginFiles.h
-        testplugin/teststructs.h testplugin/teststructs.cpp)
+  utils.h
+)
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
@@ -102,6 +113,7 @@ if( BUILD_SHARED_LIBS )
   target_link_libraries( plugins-shared PRIVATE
     server-static
     ${LINK_LIB}
+    ${STDFS_VAR}
   )
 endif()
 

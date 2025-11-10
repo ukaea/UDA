@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Installing a UDA client
+title: Client installation
 nav_order: 3
 ---
 
@@ -20,7 +20,7 @@ project CMake configuration. It's worth noting, however, that pre-built Docker i
 available for your platform. 
 
 For python specifically, wheels are built for a range of architecure/OS/python-version combinations and all tagged releases 
-past version 2.7.6 are available to pip install through pypi [here](https://pypi.org/project/uda/). Windows is supported 
+past version 2.7.6 are available to pip install through pypi [here](https://pypi.org/project/pyuda/). Windows is supported 
 from version 2.8.0.
 
 The range of available dockerfiles are stored in the UDA repository [here](https://github.com/ukaea/UDA/tree/main/docker), 
@@ -40,7 +40,7 @@ additional client wrapper langauges or additinal platforms for python wheels or 
 python3 -m venv venv
 source venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install uda
+python -m pip install pyuda
 ```
 
 The python syntax to request a data item would then be:
