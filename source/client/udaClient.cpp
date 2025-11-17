@@ -458,6 +458,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 continue;
             }
         }
+        UDA_LOG(UDA_LOG_DEBUG, "Number of cached requests: %d\n", num_cached);
 #  endif // !NOLIBMEMCACHED
 
         //-------------------------------------------------------------------------
