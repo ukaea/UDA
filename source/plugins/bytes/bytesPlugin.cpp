@@ -114,23 +114,30 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         //----------------------------------------------------------------------------------------
         // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
+        int err {0};
         if (STR_IEQUALS(request->function, "help")) {
-            return plugin.help(plugin_interface);
+            err = plugin.help(plugin_interface);
         } else if (STR_IEQUALS(request->function, "version")) {
-            return plugin.version(plugin_interface);
+            err = plugin.version(plugin_interface);
         } else if (STR_IEQUALS(request->function, "builddate")) {
-            return plugin.build_date(plugin_interface);
+            err = plugin.build_date(plugin_interface);
         } else if (STR_IEQUALS(request->function, "defaultmethod")) {
-            return plugin.default_method(plugin_interface);
+            err = plugin.default_method(plugin_interface);
         } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
-            return plugin.max_interface_version(plugin_interface);
+            err = plugin.max_interface_version(plugin_interface);
         } else if (STR_IEQUALS(request->function, "read")) {
-            return plugin.read(plugin_interface);
+            err = plugin.read(plugin_interface);
         } else if (STR_IEQUALS(request->function, "size")) {
-            return plugin.size(plugin_interface);
+            err = plugin.size(plugin_interface);
         } else {
             RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
         }
+
+        if (err != 0) {
+            concatUdaError(&plugin_interface->error_stack);
+        }
+        return err;
+
     } catch (const std::exception& e) {
         std::string err_msg = std::string("Excption raised in bytes plugin:") + e.what();
         RAISE_PLUGIN_ERROR_AND_EXIT(err_msg.c_str(), plugin_interface);
@@ -239,10 +246,6 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     unsigned long offset = 0;
     FIND_UNSIGNED_LONG_VALUE(plugin_interface->request_data->nameValueList, offset);
-    auto file_size = filesystem::file_size(path);
-    if (offset >= file_size) {
-        RAISE_PLUGIN_ERROR_AND_EXIT("Offset specified is out of bounds", plugin_interface);
-    }
 
     const char* checksum = nullptr;
     FIND_STRING_VALUE(plugin_interface->request_data->nameValueList, checksum);
@@ -266,6 +269,14 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     rc = check_path(plugin_interface->environment, tmp_path);
     if (rc != 0) {
         return rc;
+    }
+
+    if (!filesystem::exists(tmp_path)) {
+        std::string msg = std::string("Path does not exist: ") + tmp_path;
+        RAISE_PLUGIN_ERROR_AND_EXIT(msg.c_str(), plugin_interface);
+    }
+    if (offset >= filesystem::file_size(tmp_path)) {
+        RAISE_PLUGIN_ERROR_AND_EXIT("Offset specified is out of bounds", plugin_interface);
     }
 
     errno = 0;
