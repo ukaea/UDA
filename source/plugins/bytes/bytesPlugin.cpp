@@ -254,9 +254,9 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     char tmp_path[MAXPATH];
     StringCopy(tmp_path, path, MAXPATH);
-    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables! \n");
     expand_environment_variables(tmp_path);
-    
+    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
+
     int rc = check_allowed_path(tmp_path);
     if (rc != 0) {
         return rc;
@@ -312,7 +312,27 @@ int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)
     const char* path = "";
     FIND_REQUIRED_STRING_VALUE(plugin_interface->request_data->nameValueList, path);
 
-    size_t file_size = filesystem::file_size(path);
+    char tmp_path[MAXPATH];
+    StringCopy(tmp_path, path, MAXPATH);
+    expand_environment_variables(tmp_path);
+    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
+
+    int rc = check_allowed_path(tmp_path);
+    if (rc != 0) {
+        return rc;
+    }
+
+    rc = check_path(plugin_interface->environment, tmp_path);
+    if (rc != 0) {
+        return rc;
+    }
+
+    if (!filesystem::exists(tmp_path)) {
+        std::string msg = std::string("Path does not exist: ") + tmp_path;
+        RAISE_PLUGIN_ERROR_AND_EXIT(msg.c_str(), plugin_interface);
+    }
+
+    size_t file_size = filesystem::file_size(tmp_path);
 
     return setReturnDataLongScalar(data_block, (long)file_size, nullptr);
 }
