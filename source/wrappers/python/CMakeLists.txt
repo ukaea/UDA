@@ -10,6 +10,11 @@ install( FILES ${CMAKE_CURRENT_LIST_DIR}/uda/__init__.py DESTINATION python_inst
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/pyuda/_version.py.in ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py @ONLY )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/pyuda )
 
+file( GLOB EXAMPLE_SCRIPTS examples/*.py )
+install( FILES ${EXAMPLE_SCRIPTS} DESTINATION python_installer/examples )
+file( GLOB DEV_TEST_SCRIPTS devscripts/*.py )
+install( FILES ${DEV_TEST_SCRIPTS} DESTINATION python_installer/devscripts )
+
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( LibMemcached QUIET )
