@@ -4,7 +4,7 @@ import re
 import json
 from collections import namedtuple
 
-RE_STRING = r'(?P<host>\d+\.\d+\.\d+\.\d+) - (?P<uid>[\w\d_\-]+)? \[(?P<datetime>[a-zA-Z0-9: ]+)\] \[(?P<req_id>\d+) (?P<signal>.+) (?P<exp_no>-?\d+) (?P<pass>-?\d+)  (?P<path>[\w\d\-_\.\/+]+)? (?P<file>[\w\d\-_\.\/+]+)? (?P<format>[a-zA-Z_]+)? (?P<archive>[a-zA-Z_]+)? (?P<device>[a-zA-Z_]+)? \] (?P<err_code>\d+) (?P<db_size>\d+) \[(?P<err_msg>.*)\] (?P<elapsed_time>\d+(?:\.\d*(?:e[+\-]?\d+)?)?) (?P<client_ver>\d+) (?P<server_ver>\d+) \[(?P<client_pid>\d+) (?P<server_pid>\d+)\] \[\]'
+RE_STRING = r'(?P<host>\d+\.\d+\.\d+\.\d+) - (?P<uid>[\w\d_\-]+)? \[(?P<datetime>[a-zA-Z0-9: ]+)\] \[(?P<req_id>\d+) (?P<signal>.+) (?P<exp_no>-?\d+) (?P<pass>-?\d+)  (?P<path>[\w\d\-_\.\/+]+)? (?P<file>[\w\d\-_\.\/+]+)? (?P<format>[a-zA-Z_]+)? (?P<archive>[a-zA-Z_]+)? (?P<device>[a-zA-Z_]+)? \] (?P<err_code>-?\d+) (?P<db_size>\d+) \[(?P<err_msg>.*)\] (?P<elapsed_time>\d+(?:\.\d*(?:e[+\-]?\d+)?)?) (?P<client_ver>\d+) (?P<server_ver>\d+) \[(?P<client_pid>\d+) (?P<server_pid>\d+)\] \[\]'
 
 log_regex = re.compile(RE_STRING)
 

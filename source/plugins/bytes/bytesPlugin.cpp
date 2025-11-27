@@ -114,23 +114,30 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         //----------------------------------------------------------------------------------------
         // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
+        int err {0};
         if (STR_IEQUALS(request->function, "help")) {
-            return plugin.help(plugin_interface);
+            err = plugin.help(plugin_interface);
         } else if (STR_IEQUALS(request->function, "version")) {
-            return plugin.version(plugin_interface);
+            err = plugin.version(plugin_interface);
         } else if (STR_IEQUALS(request->function, "builddate")) {
-            return plugin.build_date(plugin_interface);
+            err = plugin.build_date(plugin_interface);
         } else if (STR_IEQUALS(request->function, "defaultmethod")) {
-            return plugin.default_method(plugin_interface);
+            err = plugin.default_method(plugin_interface);
         } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
-            return plugin.max_interface_version(plugin_interface);
+            err = plugin.max_interface_version(plugin_interface);
         } else if (STR_IEQUALS(request->function, "read")) {
-            return plugin.read(plugin_interface);
+            err = plugin.read(plugin_interface);
         } else if (STR_IEQUALS(request->function, "size")) {
-            return plugin.size(plugin_interface);
+            err = plugin.size(plugin_interface);
         } else {
             RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
         }
+
+        if (err != 0) {
+            concatUdaError(&plugin_interface->error_stack);
+        }
+        return err;
+
     } catch (const std::exception& e) {
         std::string err_msg = std::string("Excption raised in bytes plugin:") + e.what();
         RAISE_PLUGIN_ERROR_AND_EXIT(err_msg.c_str(), plugin_interface);
@@ -203,19 +210,16 @@ int check_path(const Environment* environment, const std::string& path)
     // Block Access to External Users
 
     if (environment->external_user) {
-        err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "This Service is Disabled");
         UDA_LOG(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", path.c_str());
-        return err;
+        RAISE_PLUGIN_ERROR("This Service is Disabled");
     }
 
     //----------------------------------------------------------------------
     // Test the filepath
 
     if (!IsLegalFilePath(path.c_str())) {
-        err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "The directory path has incorrect syntax");
         UDA_LOG(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", path.c_str());
+        RAISE_PLUGIN_ERROR("The directory path has incorrect syntax");
         return err;
     }
 
@@ -239,10 +243,6 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     unsigned long offset = 0;
     FIND_UNSIGNED_LONG_VALUE(plugin_interface->request_data->nameValueList, offset);
-    auto file_size = filesystem::file_size(path);
-    if (offset >= file_size) {
-        RAISE_PLUGIN_ERROR_AND_EXIT("Offset specified is out of bounds", plugin_interface);
-    }
 
     const char* checksum = nullptr;
     FIND_STRING_VALUE(plugin_interface->request_data->nameValueList, checksum);
@@ -251,9 +251,9 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     char tmp_path[MAXPATH];
     StringCopy(tmp_path, path, MAXPATH);
-    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables! \n");
     expand_environment_variables(tmp_path);
-    
+    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
+
     int rc = check_allowed_path(tmp_path);
     if (rc != 0) {
         return rc;
@@ -266,6 +266,14 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     rc = check_path(plugin_interface->environment, tmp_path);
     if (rc != 0) {
         return rc;
+    }
+
+    if (!filesystem::exists(tmp_path)) {
+        std::string msg = std::string("Path does not exist: ") + tmp_path;
+        RAISE_PLUGIN_ERROR(msg.c_str());
+    }
+    if (offset >= filesystem::file_size(tmp_path)) {
+        RAISE_PLUGIN_ERROR("Offset specified is out of bounds");
     }
 
     errno = 0;
@@ -301,7 +309,27 @@ int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)
     const char* path = "";
     FIND_REQUIRED_STRING_VALUE(plugin_interface->request_data->nameValueList, path);
 
-    size_t file_size = filesystem::file_size(path);
+    char tmp_path[MAXPATH];
+    StringCopy(tmp_path, path, MAXPATH);
+    expand_environment_variables(tmp_path);
+    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
+
+    int rc = check_allowed_path(tmp_path);
+    if (rc != 0) {
+        return rc;
+    }
+
+    rc = check_path(plugin_interface->environment, tmp_path);
+    if (rc != 0) {
+        return rc;
+    }
+
+    if (!filesystem::exists(tmp_path)) {
+        std::string msg = std::string("Path does not exist: ") + tmp_path;
+        RAISE_PLUGIN_ERROR(msg.c_str());
+    }
+
+    size_t file_size = filesystem::file_size(tmp_path);
 
     return setReturnDataLongScalar(data_block, (long)file_size, nullptr);
 }
