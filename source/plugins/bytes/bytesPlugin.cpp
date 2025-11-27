@@ -210,19 +210,16 @@ int check_path(const Environment* environment, const std::string& path)
     // Block Access to External Users
 
     if (environment->external_user) {
-        err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "This Service is Disabled");
         UDA_LOG(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", path.c_str());
-        return err;
+        RAISE_PLUGIN_ERROR("This Service is Disabled");
     }
 
     //----------------------------------------------------------------------
     // Test the filepath
 
     if (!IsLegalFilePath(path.c_str())) {
-        err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "The directory path has incorrect syntax");
         UDA_LOG(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", path.c_str());
+        RAISE_PLUGIN_ERROR("The directory path has incorrect syntax");
         return err;
     }
 
@@ -273,10 +270,10 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     if (!filesystem::exists(tmp_path)) {
         std::string msg = std::string("Path does not exist: ") + tmp_path;
-        RAISE_PLUGIN_ERROR_AND_EXIT(msg.c_str(), plugin_interface);
+        RAISE_PLUGIN_ERROR(msg.c_str());
     }
     if (offset >= filesystem::file_size(tmp_path)) {
-        RAISE_PLUGIN_ERROR_AND_EXIT("Offset specified is out of bounds", plugin_interface);
+        RAISE_PLUGIN_ERROR("Offset specified is out of bounds");
     }
 
     errno = 0;
@@ -329,7 +326,7 @@ int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     if (!filesystem::exists(tmp_path)) {
         std::string msg = std::string("Path does not exist: ") + tmp_path;
-        RAISE_PLUGIN_ERROR_AND_EXIT(msg.c_str(), plugin_interface);
+        RAISE_PLUGIN_ERROR(msg.c_str());
     }
 
     size_t file_size = filesystem::file_size(tmp_path);
