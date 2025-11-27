@@ -106,7 +106,7 @@ if( NOT CLIENT_ONLY )
 
   add_library( fat${LIB_NAME}-static STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
   target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LINK_LIB} plugins-static )
-  
+
   if( BUILD_SHARED_LIBS )
     add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
     target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LINK_LIB} plugins-shared )
@@ -115,11 +115,13 @@ endif()
 
 set_target_properties( ${LIB_NAME}-static
   PROPERTIES
-    OUTPUT_NAME ${LIB_NAME}
+    OUTPUT_NAME ${LIB_NAME}_static
 )
 
 install( TARGETS ${LIB_NAME}-static
-  DESTINATION lib
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 if( BUILD_SHARED_LIBS )
@@ -138,7 +140,9 @@ if( BUILD_SHARED_LIBS )
   endif()
 
   install( TARGETS ${LIB_NAME}-shared
-    DESTINATION lib
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 endif()
 
@@ -157,13 +161,15 @@ install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
 if( NOT CLIENT_ONLY )
   set_target_properties( fat${LIB_NAME}-static
     PROPERTIES
-      OUTPUT_NAME fat${LIB_NAME}
+      OUTPUT_NAME fat${LIB_NAME}_static
   )
-  
+
   install( TARGETS fat${LIB_NAME}-static
-    DESTINATION lib
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
-  
+
   if( BUILD_SHARED_LIBS )
     set_target_properties( fat${LIB_NAME}-shared
       PROPERTIES
@@ -180,17 +186,19 @@ if( NOT CLIENT_ONLY )
     endif()
 
     install( TARGETS fat${LIB_NAME}-shared
-      DESTINATION lib
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
   endif()
-  
+
   # pkg-config file
   configure_file(
     ${CMAKE_SOURCE_DIR}/source/etc/uda-fat-cpp.pc.in
     ${CMAKE_BINARY_DIR}/etc/uda/uda-fat-cpp.pc
     @ONLY
   )
-  
+
   install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-fat-cpp.pc
     DESTINATION modulefiles/uda
   )

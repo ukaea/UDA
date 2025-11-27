@@ -140,7 +140,7 @@ endif()
 if( NOT CLIENT_ONLY )
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
   target_link_libraries( fatclient-static PUBLIC plugins-static ${CLIENT_LINK_LIBS} )
-  
+
   if( BUILD_SHARED_LIBS )
     add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
     target_link_libraries( fatclient-shared PUBLIC plugins-shared ${CLIENT_LINK_LIBS} )
@@ -149,11 +149,13 @@ endif()
 
 set_target_properties( client-static
   PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_client
+    OUTPUT_NAME ${PROJECT_NAME}_client_static
 )
 
 install( TARGETS client-static
-  DESTINATION lib
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 if( BUILD_SHARED_LIBS )
@@ -172,7 +174,9 @@ if( BUILD_SHARED_LIBS )
   endif()
 
   install( TARGETS client-shared
-    DESTINATION lib
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 endif()
 
@@ -185,13 +189,15 @@ install( FILES ${HEADER_FILES}
 if( NOT CLIENT_ONLY )
   set_target_properties( fatclient-static
     PROPERTIES
-    OUTPUT_NAME fat${PROJECT_NAME}_client
+    OUTPUT_NAME fat${PROJECT_NAME}_client_static
   )
 
   install( TARGETS fatclient-static
-    DESTINATION lib
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
-  
+
   if( BUILD_SHARED_LIBS )
     set_target_properties( fatclient-shared
       PROPERTIES
@@ -208,7 +214,9 @@ if( NOT CLIENT_ONLY )
     endif()
 
     install( TARGETS fatclient-shared
-      DESTINATION lib
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
   endif()
 endif()

@@ -51,7 +51,7 @@ set( Boost_USE_MULTITHREADED OFF )
 # Version and Machine information
 
 # Set VERSION and FULL_VERSION from `git describe`
-# but use git export attribute for release tarballs 
+# but use git export attribute for release tarballs
 set( GIT_ARCHIVE_DESCRIBE [[$Format:%(describe)$]] )
 include( DetermineVersion )
 
@@ -109,16 +109,16 @@ endif()
 if( NOT WIN32 )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread -Wno-implicit-function-declaration" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -pthread" )
-  
+
   if( MINGW )
     add_definitions( -DMINGW )
   endif()
-  
+
   if( GOPTION )
     message( "Compiling with g option to generate and embed debug information" )
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g" )
-  endif() 
+  endif()
 endif()
 
 if( WIN32 AND NOT MINGW )
@@ -136,12 +136,12 @@ if( WIN32 OR MINGW )
   set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
   set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".dll.lib" ".a" ".lib" )
   if( MINGW )
-    set( IMPLIB_SUFFIX ".dll.a" )
+    set( IMPLIB_SUFFIX ".a" )
   else()
-    set( IMPLIB_SUFFIX ".dll.lib" )
+    set( IMPLIB_SUFFIX ".lib" )
   endif()
   find_package( XDR REQUIRED )
-  
+
   # "-Wl,-z,defs" is an ELF instruction, not supported by Windows
   string( REGEX REPLACE "-Wl,-z,defs" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}" )
 endif()
@@ -184,7 +184,7 @@ endif()
 if( SSLAUTHENTICATION )
   message( "Including SSL/RTL X509 User Authentication" )
   add_definitions( -DSSLAUTHENTICATION )
-endif() 
+endif()
 
 if( BUILD_SHARED_LIBS )
   message( "Build shared libraries asked" )
@@ -256,7 +256,7 @@ if( WIN32 OR MINGW )
     # otherwise it is not able to find files
     set( CPACK_NSIS_FULL_INSTALL "File /r \\\"\\\${INST_DIR_WIN}\\\\*.*\\\"" )
   endif()
-  
+
   set( CPACK_TEMPORARY_INSTALL_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
   set( CPACK_PACKAGE_DIRECTORY "${CMAKE_WIN_BINARY_DIR}" )
   set( CPACK_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
