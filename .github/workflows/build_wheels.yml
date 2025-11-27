@@ -71,6 +71,7 @@ jobs:
           openssl
           dlfcn-win32
           spdlog 
+          curl[openssl]
 
       - name: build uda on windows
         if: runner.os == 'Windows'
@@ -146,7 +147,7 @@ jobs:
             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && 
             sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* &&
             yum update -y &&
-            yum install -y wget openssl-devel libxml2-devel libtirpc-devel  &&
+            yum install -y wget openssl-devel libxml2-devel libtirpc-devel curl-devel &&
             cd /tmp  &&
             wget https://github.com/fmtlib/fmt/archive/refs/tags/10.0.0.tar.gz  &&
             tar xzf 10.0.0.tar.gz  &&
@@ -197,7 +198,7 @@ jobs:
             dnf update -y &&
             dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm &&
             dnf install -y boost1.78-devel openssl-devel libxml2-devel libtirpc-devel 
-            fmt fmt-devel spdlog spdlog-devel capnproto capnproto-devel &&
+            fmt fmt-devel spdlog spdlog-devel capnproto capnproto-devel libcurl-devel &&
             cd /project &&
             cmake -B build 
             -DBUILD_SHARED_LIBS=ON 
