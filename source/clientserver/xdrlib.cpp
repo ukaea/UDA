@@ -226,7 +226,7 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 #endif
     }
 
-    if (protocolVersion >= 10 && str->clientFlags & CLIENTFLAG_AUTHENTICATE) {
+    if (protocolVersion >= 11 && str->clientFlags & CLIENTFLAG_AUTHENTICATE) {
         xdr_authentication_block(xdrs, &str->authenticationBlock);
     }
 

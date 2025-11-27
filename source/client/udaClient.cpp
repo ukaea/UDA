@@ -38,10 +38,7 @@
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
-#if !defined(FATCLIENT) || !defined(NOLIBMEMCACHED)
-//static int protocol_version = 9;
-#endif
-int client_version = 10;          // previous version
+int client_version = 11;
 
 //----------------------------------------------------------------------------------------------------------------------
 // FATCLIENT objects shared with server code
