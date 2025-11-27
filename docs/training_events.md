@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Training and Events (WIP)
-nav_order: 8
+nav_order: 9
 ---
 
 # Training and Events

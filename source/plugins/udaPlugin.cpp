@@ -14,6 +14,7 @@
 #include <type_traits>
 #include <regex>
 #include <string>
+#include <cstring>
 
 #include "authentication/oauth_authentication.h"
 
@@ -42,7 +43,6 @@ IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
     plugin_interface->housekeeping = 0;
     plugin_interface->changePlugin = 0;
     plugin_interface->error_stack.nerrors = 0;
-    plugin_interface->error_stack.idamerror = nullptr;
 
     return plugin_interface;
 }
@@ -480,6 +480,52 @@ bool findIntValue(const NAMEVALUELIST* namevaluelist, int* value, const char* na
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         *value = atoi(str);
+    }
+    return found;
+}
+
+/**
+ * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as a long integer.
+ *
+ * If the argument is found the value associated with the argument is provided via the value parameter and the function
+ * returns 1. Otherwise value is not set and the function returns 0.
+ * @param namevaluelist
+ * @param value
+ * @param name
+ * @return
+ */
+bool findLongIntValue(const NAMEVALUELIST* namevaluelist, long* value, const char* name)
+{
+    const char* str;
+    bool found = findStringValue(namevaluelist, &str, name);
+    if (found) {
+        *value = atol(str);
+    }
+    return found;
+}
+
+/**
+ * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as an
+ *  unsigned long integer.
+ *
+ * If the argument is found the value associated with the argument is provided via the value parameter and the function
+ * returns 1. Otherwise value is not set and the function returns 0.
+ * @param namevaluelist
+ * @param value
+ * @param name
+ * @return
+ */
+bool findUnsignedLongValue(const NAMEVALUELIST* namevaluelist, unsigned long* value, const char* name)
+{
+    const char* str;
+    bool found = findStringValue(namevaluelist, &str, name);
+    if (found) {
+        if (std::strchr(str, '-') != nullptr) {
+            std::string err_msg = std::string("Negative value found when unsigned expected: ") + name + "=" + str;
+            RAISE_PLUGIN_ERROR(err_msg.c_str());
+            return false;
+        }
+        *value = std::strtoul(str, nullptr, 10);
     }
     return found;
 }

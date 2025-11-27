@@ -5,10 +5,22 @@ install( FILES ${CYTHON_FILES} pyuda/cpyuda/uda.pxd DESTINATION python_installer
 file( GLOB INSTALL_FILES pyuda/*.py )
 
 install( FILES ${INSTALL_FILES} DESTINATION python_installer/pyuda )
-install( FILES ${CMAKE_CURRENT_LIST_DIR}/uda/__init__.py DESTINATION python_installer/uda )
 
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/pyuda/_version.py.in ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py @ONLY )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/pyuda )
+
+### extra install steps for the dummy "uda" repo which will mirror "pyuda" on pypi
+set( DUMMY_REPO_FILES 
+    uda/README.md
+    uda/pyproject.toml
+    ${CMAKE_CURRENT_BINARY_DIR}/uda/setup.py
+)
+
+install( FILES ${CMAKE_CURRENT_LIST_DIR}/uda/uda/__init__.py DESTINATION python_installer/uda/uda )
+configure_file( ${CMAKE_CURRENT_LIST_DIR}/uda/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/uda/setup.py @ONLY )
+
+install( FILES ${DUMMY_REPO_FILES} DESTINATION python_installer/uda )
+####
 
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )

@@ -20,5 +20,5 @@ InvalidUseException = cpyuda.InvalidUseException
 Properties = cpyuda.Properties
 
 
-__all__ = (UDAException, ProtocolException, ServerException, InvalidUseException,
-           Client, Signal, Video, Dim, Properties, DEBUG, WARNING, INFO, ERROR)
+__all__ = ("UDAException", "ProtocolException", "ServerException", "InvalidUseException",
+        "Client", "Signal", "Video", "Dim", "Properties", "DEBUG", "WARNING", "INFO", "ERROR")

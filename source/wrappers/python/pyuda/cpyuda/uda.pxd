@@ -7,6 +7,8 @@ cdef extern from "client/udaClient.h":
     const char* getUdaBuildDate();
     void udaFree(int handle);
     CLIENT_FLAGS* udaClientFlags();
+    int getIdamServerVersion();
+    const char* getIdamServerDOI();
 
     ctypedef struct CLIENT_FLAGS
 
