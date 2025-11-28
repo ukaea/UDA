@@ -5,7 +5,7 @@ from collections import namedtuple
 
 ConnectionDetails = namedtuple('ConnectionDetails', ['name', 'port'])
 RequestData = namedtuple('RequestData', ['signal', 'source'])
-# client = pyuda.Client()
+client = pyuda.Client()
 
 class Result(Enum):
     SOME = auto()
@@ -13,7 +13,8 @@ class Result(Enum):
 
 
 def task(queue: mp.Queue, server: ConnectionDetails, request: RequestData):
-    client = pyuda.Client()
+    # move client instantiation here to avoid errors
+    # client = pyuda.Client()
     pyuda.Client.port = server.port
     pyuda.Client.server = server.name
 
@@ -27,6 +28,12 @@ def task(queue: mp.Queue, server: ConnectionDetails, request: RequestData):
 def main():
     server = ConnectionDetails("uda2.mast.l", 56565)
     request = RequestData("help::help()", "")
+
+    # No error if start method is "spawn" or if client is only 
+    # instantiated in task (after fork)
+    mp.set_start_method('fork')
+    print("process start method is: " + mp.get_start_method())
+
     results_q = mp.Queue()
     p = mp.Process(target=task, args=(results_q, server, request))
     p.start()

@@ -41,6 +41,7 @@ else:
 
 
 def set_pid():
+    global _pid
     _pid = os.getpid()
 
 
