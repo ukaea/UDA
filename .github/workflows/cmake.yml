@@ -1,40 +1,246 @@
 name: Build
 
+# on compatibility branch we know this won't compile with newest compilers
+# probably best to revert to building in a centos7 docker image with gcc 4.8.5
+# disable tests for now
 on:
   push:
-    branches: [ "main", "develop", "feature/**", "releases/**" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      # - 2.6.X
+      # - 'feature/**'
+      # - 'release/**'
+  # pull_request:
+  #   branches:
+  #     - 2.6.X
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+# prevent duplicate CI runs from separate triggers
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    # The CMake configure and build commands are platform-agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        release: [Release]
+        ssl: [ON, OFF]
+        client-only: [ON]
+        capnp: [ON, OFF]
+        # exclude:
+        #   - os: windows-latest
+        #     client-only: OFF
+        #   - os: ubuntu-latest
+        #     client-only: ON
+        #   - os: macos-latest
+        #     client-only: ON
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y git libboost-dev libssl-dev cmake build-essential pkg-config libxml2-dev
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Configure CMake
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: cmake -B ${{github.workspace}}/build -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Install linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          sudo apt update && sudo apt install -y
+          git
+          libboost-dev
+          libboost-program-options-dev
+          libssl-dev
+          cmake
+          build-essential
+          pkg-config
+          libxml2-dev
+          ninja-build
+          python3-dev
+          python3-pip
+          python3-venv
+
+      - name: Install Intel compiler
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          sudo apt install -y wget &&
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
+          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list &&
+          sudo apt update &&
+          sudo apt install -y intel-basekit &&
+          sudo apt install -y intel-hpckit
+
+      - name: Install macos dependencies
+        if: matrix.os == 'macos-latest'
+        run: >
+          brew update-reset && brew install
+          git
+          boost
+          openssl
+          cmake
+          pkg-config
+          libxml2
+          ninja
+
+#      - name: Cache windows packages
+#        id: cache-vcpkg
+#        uses: actions/cache@v3
+#        env:
+#          cache-name: cache-vcpkg-packages
+#        with:
+#          path: C:/vcpkg
+#          key: ${{ runner.os }}-build-${{ env.cache-name }}
+
+      # - name: Install windows dependencies
+      #   if: matrix.os == 'windows-latest'
+      #   run: >
+      #     vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
+      #     libxml2
+      #     capnproto
+      #     boost-program-options
+      #     boost-format
+      #     boost-algorithm
+      #     boost-multi-array
+      #     openssl
+      #     dlfcn-win32
+      #     spdlog
+
+      - name: Configure CMake (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          cmake -G Ninja -B build
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DSSLAUTHENTICATION=${{ matrix.ssl }}
+          -DCLIENT_ONLY=${{ matrix.client-only }}
+          -DENABLE_CAPNP=${{ matrix.capnp }}
+
+      - name: Configure CMake (linux Intel)
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          source /opt/intel/oneapi/setvars.sh &&
+          CXX=icpx CC=icx cmake -G Ninja -B build-intel
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DSSLAUTHENTICATION=${{ matrix.ssl }}
+          -DCLIENT_ONLY=${{ matrix.client-only }}
+          -DENABLE_CAPNP=${{ matrix.capnp }}
+
+      - name: Configure CMake (macos)
+        if: matrix.os == 'macos-latest'
+        run: >
+          cmake -G Ninja -B build
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DSSLAUTHENTICATION=${{ matrix.ssl }}
+          -DCLIENT_ONLY=${{ matrix.client-only }}
+          -DENABLE_CAPNP=${{ matrix.capnp }}
+          -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@3)"
+
+      # - name: Configure portable XDR
+      #   if: matrix.os == 'windows-latest'
+      #   run: >
+      #     cd extlib
+      #     && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B build -G "MinGW Makefiles" .
+      #
+      # - name: Build portable XDR
+      #   if: matrix.os == 'windows-latest'
+      #   run: cd extlib && cmake --build build
+      #
+      # - name: Install portable XDR
+      #   if: matrix.os == 'windows-latest'
+      #   run: cd extlib && cmake --install build --prefix install
+      #
+      # - name: Configure CMake (windows)
+      #   if: matrix.os == 'windows-latest'
+      #   run: >
+      #     XDR_ROOT=extlib/install cmake -G "MinGW Makefiles" -B build
+      #     -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+      #     -DBUILD_SHARED_LIBS=ON
+      #     -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+      #     -DSSLAUTHENTICATION=${{ matrix.ssl }}
+      #     -DCLIENT_ONLY=${{ matrix.client-only }}
+      #     -DENABLE_CAPNP=${{ matrix.capnp }}
+      #     -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/uda_install
 
       - name: Build
-        # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        run: cmake --build build --config ${{ matrix.release }}
+
+      - name: Build Intel
+        if: matrix.os == 'ubuntu-latest'
+        run: cmake --build build-intel --config ${{ matrix.release }}
+
+      - name: Install
+        if: matrix.os != 'windows-latest'
+        run: sudo cmake --install build --config ${{ matrix.release }}
+
+      - name: Install
+        if: matrix.os == 'windows-latest'
+        run: cmake --install build --config ${{ matrix.release }}
+
+      - name: Install pyuda
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
+          python3 -m venv ${{github.workspace}}/venv &&
+          source ${{github.workspace}}/venv/bin/activate &&
+          pip3 install --upgrade pip &&
+          pip3 install wheel Cython "numpy<2" six &&
+          pip3 install ${{github.workspace}}/python_installer
+
+      - name: Test pyuda import
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          source ${{github.workspace}}/venv/bin/activate &&
+          python3 -c 'import pyuda; client=pyuda.Client()'
+
+      #
+      # systemd not setup on this branch
+      #
+      # - name: Run non-SSL system tests
+      #   if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'OFF' && matrix.client_only == 'ON'
+      #   run: >
+      #     sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+      #     sudo systemctl start uda.socket &&
+      #     sudo systemctl enable uda.socket &&
+      #     sudo chown -R $USER:$USER /usr/local/etc &&
+      #     nc -4zv localhost 56565 &&
+      #     export UDA_HOST=localhost &&
+      #     export UDA_PORT=56565 &&
+      #     ./build/test/plugins/plugin_test_testplugin
+
+      # - name: Run SSL system tests
+      #   if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
+      #   run: >
+      #     sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system &&
+      #     sudo chown -R $USER:$USER /usr/local/etc &&
+      #     echo "export UDAHOSTNAME=github-ci-ssl" >> /usr/local/etc/udaserver.cfg &&
+      #     ./scripts/create_certs.sh &&
+      #     mkdir /usr/local/etc/certs &&
+      #     cp rootCA.crt server.crt server.key /usr/local/etc/certs &&
+      #     sudo systemctl start uda.socket &&
+      #     sudo systemctl enable uda.socket &&
+      #     nc -4zv localhost 56565 &&
+      #     export UDA_HOST=localhost &&
+      #     export UDA_PORT=56565 &&
+      #     export UDA_CLIENT_SSL_AUTHENTICATE=1 &&
+      #     export UDA_CLIENT_CA_SSL_CERT=$PWD/rootCA.crt &&
+      #     export UDA_CLIENT_SSL_CERT=$PWD/client.crt &&
+      #     export UDA_CLIENT_SSL_KEY=$PWD/client.key &&
+      #     ./build/test/plugins/plugin_test_testplugin
 
 #      - name: Test
-#        working-directory: ${{github.workspace}}/build
+#        working-directory: build
 #        # Execute tests defined by the CMake configuration.
 #        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-#        run: ctest -C ${{env.BUILD_TYPE}}
+#        run: ctest -C ${{ matrix.release }}
 

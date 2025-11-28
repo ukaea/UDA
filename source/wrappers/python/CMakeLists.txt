@@ -11,9 +11,14 @@ add_custom_command(
 
 install( FILES ${CPYTHON_INSTALL_FILE} pyuda/cpyuda/uda.pxd DESTINATION python_installer/pyuda/cpyuda )
 
-file( GLOB INSTALL_FILES pyuda/*.py )
-
+file( GLOB INSTALL_FILES pyuda/*py )
 install( FILES ${INSTALL_FILES} DESTINATION python_installer/pyuda )
+
+# file( GLOB_RECURSE TEST_FILES tests/* )
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests 
+    DESTINATION python_installer 
+    FILES_MATCHING PATTERN "*.py"
+)
 
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/pyuda/_version.py.in ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py @ONLY )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/pyuda )
@@ -31,3 +36,5 @@ get_filename_component( LIBXML_LIB_DIR ${LIBXML2_LIBRARIES} DIRECTORY )
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY )
 
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.py DESTINATION python_installer )
+install( FILES ${CMAKE_CURRENT_LIST_DIR}/pyproject.toml DESTINATION python_installer )
+

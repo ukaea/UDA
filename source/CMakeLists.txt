@@ -78,6 +78,31 @@ set( PKGCONFIG_FILES
   uda-plugins.pc
 )
 
+get_filename_component( LIBXML_LIB_DIR "${LIBXML2_LIBRARIES}" DIRECTORY )
+set( PKGCONFIG_LIBRARIES "-L${LIBXML_LIB_DIR} -lxml2" )
+set( PKGCONFIG_INCLUDES "-I${LIBXML2_INCLUDE_DIR}" )
+set( PKGCONFIG_REQUIRES fmt )
+
+find_package( TIRPC QUIET )
+if( TIRPC_FOUND )
+    set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} libtirpc" )
+endif()
+
+if( ENABLE_CAPNP )
+  set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} capnp" )
+  set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} -luda_serialisation" )
+endif()
+
+find_package( LibMemcached QUIET )
+
+if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+  set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} ${LIBMEMCACHED_LIBRARIES}" )
+endif()
+
+if( TIRPC_FOUND )
+  set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} libtirpc" )
+endif()
+
 foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
   configure_file(
     "${CMAKE_SOURCE_DIR}/source/etc/${PKGCONFIG_FILE}.in"
@@ -85,6 +110,12 @@ foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
     @ONLY
   )
 endforeach()
+
+install(
+  DIRECTORY
+    ${CMAKE_BINARY_DIR}/lib/pkgconfig
+  DESTINATION lib
+)
 
 find_program( XINETD_EXE xinetd PATHS /usr/sbin/ /usr/local/sbin/ )
 

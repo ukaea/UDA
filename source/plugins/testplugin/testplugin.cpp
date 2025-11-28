@@ -3250,12 +3250,12 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     work[0] = '\0';
 
     strcpy(work, "test50 passed parameters and substitutions\n");
-    sprintf(&work[strlen(work)], "Shot number:%d\n", request->exp_number);
-    sprintf(&work[strlen(work)], "Pass number:%d\n", request->pass);
-    sprintf(&work[strlen(work)], "substitution parameters:%s\n", request->tpass);
-    sprintf(&work[strlen(work)], "Number of name-value pairs: %d\n", request->nameValueList.pairCount);
+    snprintf(&work[strlen(work)], (count - strlen(work)), "Shot number:%d\n", request->exp_number);
+    snprintf(&work[strlen(work)], (count - strlen(work)), "Pass number:%d\n", request->pass);
+    snprintf(&work[strlen(work)], (count - strlen(work)), "substitution parameters:%s\n", request->tpass);
+    snprintf(&work[strlen(work)], (count - strlen(work)), "Number of name-value pairs: %d\n", request->nameValueList.pairCount);
     for (int i = 0; i < request->nameValueList.pairCount; i++)
-        sprintf(&work[strlen(work)], "name: %s, value: %s\n", request->nameValueList.nameValue[i].name,
+        snprintf(&work[strlen(work)], (count - strlen(work)), "name: %s, value: %s\n", request->nameValueList.nameValue[i].name,
                 request->nameValueList.nameValue[i].value);
 
     UDA_LOG(UDA_LOG_DEBUG, "test50: %s\n", work);
@@ -3899,7 +3899,7 @@ int createUDTSocket(int* usock, int port, int rendezvous)
     hints.ai_socktype = g_Socket_Type;
 
     char service[16];
-    sprintf(service, "%d", port);
+    snprintf(service, 16, "%d", port);
 
     if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 9991;
@@ -3964,7 +3964,7 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
     hints.ai_socktype = g_Socket_Type;
 
     char service[16];
-    sprintf(service, "%d", port);
+    snprintf(service, 16, "%d", port);
 
     if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 999;
@@ -3999,7 +3999,7 @@ int c_connect(UDTSOCKET* usock, int port)
     hints.ai_socktype = g_Socket_Type;
 
     char buffer[16];
-    sprintf(buffer, "%d", port);
+    snprintf(buffer, 16, "%d", port);
 
     if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
         int err = 999;
@@ -4023,7 +4023,7 @@ int tcp_connect(SYSSOCKET* ssock, int port)
     hints.ai_socktype = g_Socket_Type;
 
     char buffer[16];
-    sprintf(buffer, "%d", port);
+    snprintf(buffer, 16, "%d", port);
 
     if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
         int err = 999;

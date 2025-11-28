@@ -1078,7 +1078,7 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
         }
         data_block->data = (char*)count;
         data_block->data_units[0] = '\0';
-        sprintf(data_block->data_label, "count(dim_id=%d)", dim_id);
+        snprintf(data_block->data_label, STRING_LENGTH, "count(dim_id=%d)", dim_id);
     }
 
     return 0;

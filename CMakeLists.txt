@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.0 )
+cmake_minimum_required( VERSION 3.5 )
 
 ########################################################################################################################
 # Macro used to convert Windows path to Unix
