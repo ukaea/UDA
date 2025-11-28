@@ -1,14 +1,18 @@
 name: Build
 
+# on compatibility branch we know this won't compile with newest compilers
+# probably best to revert to building in a centos7 docker image with gcc 4.8.5
+# disable tests for now
 on:
   push:
     branches:
-      - 2.6.X
-      - 'feature/**'
-      - 'release/**'
-  pull_request:
-    branches:
-      - 2.6.X
+      - main
+      # - 2.6.X
+      # - 'feature/**'
+      # - 'release/**'
+  # pull_request:
+  #   branches:
+  #     - 2.6.X
 
 # prevent duplicate CI runs from separate triggers
 concurrency:
