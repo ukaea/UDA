@@ -22,6 +22,11 @@ configure_file( ${CMAKE_CURRENT_LIST_DIR}/uda/setup.py.in ${CMAKE_CURRENT_BINARY
 install( FILES ${DUMMY_REPO_FILES} DESTINATION python_installer/uda )
 ####
 
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests 
+    DESTINATION python_installer 
+    FILES_MATCHING PATTERN "*.py"
+)
+
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( LibMemcached QUIET )
