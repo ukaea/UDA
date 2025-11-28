@@ -63,7 +63,7 @@ int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const
     while (!feof(fh)) {
         char* newp = (char*)realloc(bp, (size_t)data_block->data_n);
         if (newp == nullptr) {
-            free(bp);
+            if (bp != nullptr) free(bp);
             err = BYTE_FILE_HEAP_ERROR;
             addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Allocate Heap Memory for the File");
             break;

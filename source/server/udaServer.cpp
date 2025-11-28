@@ -7,6 +7,7 @@
 #endif
 
 #include <tuple>
+#include <string>
 
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
@@ -20,6 +21,7 @@
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
 #include <cache/memcache.hpp>
+#include <common/uuid.hpp>
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
@@ -45,6 +47,7 @@
 constexpr int server_version = 10;
 static int protocol_version = 10;
 static int legacy_server_version = 6;
+const static std::string server_uuid = uda::common::uuid::generate_random_uuid();
 
 static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;            // User Defined Structure Types from Data Files & Plugins
 static LOGMALLOCLIST* log_malloc_list = nullptr;                        // List of all Heap Allocations for Data: Freed after data is dispatched
@@ -132,6 +135,7 @@ int udaServer(CLIENT_BLOCK client_block)
 
     initUdaErrorStack();
     initServerBlock(&server_block, server_version);
+    snprintf(server_block.DOI, STRING_LENGTH, "%s", server_uuid.c_str());
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
     initRequestBlock(&request_block);
@@ -899,6 +903,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
         initServerBlock(server_block, server_version);
+        snprintf(server_block->DOI, STRING_LENGTH, "%s", server_uuid.c_str());
 
         //----------------------------------------------------------------------------
         // Server Wait Loop

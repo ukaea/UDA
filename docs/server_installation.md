@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Server Installation
-nav_order: 4
+nav_order: 2
 ---
 
 # UDA server installation

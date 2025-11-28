@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Creating a UDA plugin
-nav_order: 2
+nav_order: 8
 ---
 
 ## UDA plugin

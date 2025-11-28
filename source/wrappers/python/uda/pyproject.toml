@@ -1,11 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=42",
-    "oldest-supported-numpy; python_version <'3.9'",
-    "numpy>=2.0; python_version >='3.9'",
-    "Cython>=0.29, <3.1; python_version=='3.8'",
-    "Cython>=0.29",
-    "six"
+    "setuptools>=42"
 ]
 build-backend = "setuptools.build_meta"
 
@@ -16,12 +11,12 @@ source = "https://github.com/ukaea/UDA"
 tracker = "https://github.com/ukaea/UDA/issues"
 
 [project]
-name = "pyuda"
+name = "uda"
 dynamic = ["version"]
 description = "Universal Data Access (UDA)"
 readme = {file = 'README.md', content-type = "text/markdown"}
 license = {text = "Apache-2.0 license"}
-dependencies = ["numpy>1.7", "six", "progress"]
+dependencies = ["pyuda"]
 requires-python = ">= 3.5"
 
 classifiers = [
@@ -33,6 +28,8 @@ classifiers = [
     'Operating System :: MacOS :: MacOS X',
     'Operating System :: Microsoft :: Windows',
 ]
+
+keywords = ["deprecated"]
 
 [project.optional-dependencies]
 plot = ["pyplot"]

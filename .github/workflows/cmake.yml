@@ -13,6 +13,10 @@ on:
       - main
       - develop
 
+# prevent duplicate CI runs from separate triggers
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -38,9 +42,9 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v8
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
@@ -99,14 +103,14 @@ jobs:
           ninja
           capnp
 
-#      - name: Cache windows packages
-#        id: cache-vcpkg
-#        uses: actions/cache@v3
-#        env:
-#          cache-name: cache-vcpkg-packages
-#        with:
-#          path: C:/vcpkg
-#          key: ${{ runner.os }}-build-${{ env.cache-name }}
+      - name: Cache windows packages
+        id: cache-vcpkg
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-vcpkg-packages
+        with:
+          path: C:/vcpkg
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
 
       - name: Install windows dependencies
         if: matrix.os == 'windows-latest'

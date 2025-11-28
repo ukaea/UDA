@@ -31,10 +31,10 @@ The UDA git repository can be cloned from:
 
 ## Getting the UDA client
 
-The easiest way to obtain the client is to pip install the python wrapper (pyuda), wheels are uploaded for every tagged release from version 2.7.6. Further details are available on [pypi](https://pypi.org/project/uda/).
+The easiest way to obtain the client is to pip install the python wrapper (pyuda), wheels are uploaded for every tagged release from version 2.7.6. Further details are available on [pypi](https://pypi.org/project/pyuda/).
 
 ```sh
-pip install uda
+pip install pyuda
 ```
 
 For any other use cases please see the documentation to build from source [here](https://ukaea.github.io/UDA/client_installation/).
