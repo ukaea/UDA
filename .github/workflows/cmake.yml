@@ -103,14 +103,14 @@ jobs:
           ninja
           capnp
 
-#      - name: Cache windows packages
-#        id: cache-vcpkg
-#        uses: actions/cache@v3
-#        env:
-#          cache-name: cache-vcpkg-packages
-#        with:
-#          path: C:/vcpkg
-#          key: ${{ runner.os }}-build-${{ env.cache-name }}
+      - name: Cache windows packages
+        id: cache-vcpkg
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-vcpkg-packages
+        with:
+          path: C:/vcpkg
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
 
       - name: Install windows dependencies
         if: matrix.os == 'windows-latest'
