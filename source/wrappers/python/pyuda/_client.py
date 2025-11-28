@@ -45,7 +45,7 @@ def _parse_subclient_register_from_env():
      as it would be written to import in python
      e.g. UDA_SUBCLIENTS=mast.MastClient:mast.geom.GeometryClient:another_module.AnotherSubClient
 
-     Throws: ValueError if the UDA_SUBCLIENTS string is misformed (e.g. missing required . char)
+     Throws: UdaSubclientsStringError if the UDA_SUBCLIENTS string is misformed (e.g. missing required . char)
      Throws: KeyError if the environment variable does not exist
 
     """
@@ -208,6 +208,7 @@ class Client(with_metaclass(ClientMeta, object)):
             self._registered_subclients['list_signals'] = mast_client
             self._registered_subclients['put'] = mast_client
             self._registered_subclients['list_shots'] = mast_client
+            self._registered_subclients['list_sources'] = mast_client
         except ImportError:
             pass
 
