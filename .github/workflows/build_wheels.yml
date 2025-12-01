@@ -41,7 +41,7 @@ jobs:
           - [windows-latest, AMD64, win_amd64, 0.0]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         # need git tags available for setuptools_scm to grab tags
         with:
           fetch-depth: 0
