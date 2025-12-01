@@ -105,7 +105,7 @@ jobs:
 
       - name: Cache windows packages
         id: cache-vcpkg
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-vcpkg-packages
         with:
