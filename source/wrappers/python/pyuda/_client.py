@@ -10,7 +10,6 @@ from ._version import __version__
 
 from six import with_metaclass
 import logging
-# from collections import namedtuple
 from collections import defaultdict
 from collections.abc import Iterable
 import sys
@@ -114,7 +113,6 @@ class Client(with_metaclass(ClientMeta, object)):
         subclient_register_path = os.environ["UDA_SUBCLIENT_REGISTER"]
         with open(subclient_register_path, 'r') as file:
             return yaml.safe_load(file)
-
 
     def register_all_subclients(self):
         """
