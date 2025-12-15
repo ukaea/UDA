@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7750746)[https://doi.org/10.5281/zenodo.7750746]
+
 # Universal Data Access (UDA)
 
 ![Build Workflow](https://github.com/ukaea/UDA/actions/workflows/cmake.yml/badge.svg)
