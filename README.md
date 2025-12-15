@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7750746)](https://doi.org/10.5281/zenodo.7750746)
+[![DOI](https://zenodo.org/badge/534629249.svg)](https://doi.org/10.5281/zenodo.7750746)
 
 # Universal Data Access (UDA)
 
