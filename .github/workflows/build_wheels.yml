@@ -249,7 +249,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: ${{matrix.build-platform[3]}}
 
       - name: upload pyuda cibw build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
@@ -267,7 +267,7 @@ jobs:
       - name: Upload uda build artifacts
       # only build and upload pure python wheels on a single runner
         if: runner.os == 'macOS' &&  startswith(matrix.build-platform[1], 'arm64')
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: uda-wheels
           path: ${{github.workspace}}/source/wrappers/python/uda/dist/*
