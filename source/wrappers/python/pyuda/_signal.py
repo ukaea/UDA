@@ -27,7 +27,7 @@ class DimEncoder(json.JSONEncoder):
                 'data': {
                     '_encoding': 'base64',
                     '_dtype': dim.data.dtype.name,
-                    'value': base64.urlsafe_b64encode(dim.data.tostring()).decode()
+                    'value': base64.urlsafe_b64encode(dim.data.tobytes()).decode()
                 },
             }
             return obj
@@ -52,7 +52,7 @@ class SignalEncoder(json.JSONEncoder):
                 'data': {
                     '_encoding': 'base64',
                     '_dtype': data.dtype.name,
-                    'value': base64.urlsafe_b64encode(data.tostring()).decode()
+                    'value': base64.urlsafe_b64encode(data.tobytes()).decode()
                 },
                 'meta': signal.meta,
             }
