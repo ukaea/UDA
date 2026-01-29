@@ -32,21 +32,25 @@ void initSocketList(SOCKETLIST* socks)
 int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh)
 {
     int old_fh = -1;
+	int isock;
+
     if (!getSocket(socks, type, &status, host, port, &old_fh)) {    // Is an Open Socket already listed?
-        if (old_fh == fh) return 0;
+		isock=getSocketRecordId(socks, old_fh);
     }
+	else {
+    	socks->sockets = (Sockets*)realloc(socks->sockets, (socks->nsocks + 1) * sizeof(SOCKETS));
+		isock=socks->nsocks;
+	}
+    socks->sockets[isock].type = type;
+    socks->sockets[isock].status = status;
+    socks->sockets[isock].fh = fh;
+    socks->sockets[isock].port = port;
 
-    socks->sockets = (Sockets*)realloc(socks->sockets, (socks->nsocks + 1) * sizeof(SOCKETS));
-    socks->sockets[socks->nsocks].type = type;
-    socks->sockets[socks->nsocks].status = status;
-    socks->sockets[socks->nsocks].fh = fh;
-    socks->sockets[socks->nsocks].port = port;
-
-    strcpy(socks->sockets[socks->nsocks].host, host);
-    socks->sockets[socks->nsocks].tv_server_start = 0;
-    socks->sockets[socks->nsocks].user_timeout = 0;
-	socks->sockets[socks->nsocks].protocol_version=-1;
-	socks->sockets[socks->nsocks].server_version=0;
+    strcpy(socks->sockets[isock].host, host);
+    socks->sockets[isock].tv_server_start = 0;
+    socks->sockets[isock].user_timeout = 0;
+	socks->sockets[isock].protocol_version=-1;
+	socks->sockets[isock].server_version=0;
 
     (socks->nsocks)++;
     return 0;
