@@ -151,7 +151,7 @@ public:
     static std::string serverHostName();
     static int serverPort();
 
-    const char *getErrorMsg(int handle); 
+    const char *getErrorMsg(int handle);
 
     const uda::Result& get(const std::string& signalName, const std::string& dataSource);
 
@@ -161,7 +161,7 @@ public:
     int getFileID(int handle);
 
     int put(const uda::Signal& putdata);
-    
+
     int put(const std::string& instruction);
 
     int put(const std::string& instruction, char data);
