@@ -124,7 +124,7 @@ class Result;
 class Signal;
 class Client;
 
-class ResultList {
+class LIBRARY_API ResultList {
 public:
     ResultList(std::unordered_map<int, size_t> indices, Client& client);
     const Result& at(int handle) const;
