@@ -77,10 +77,10 @@ jobs:
       # Capnproto package on Ubuntu 24.04 has broken CMake file
       - name: Fix Capnproto on Ubuntu
         if: matrix.os == 'ubuntu-latest'
-        run: >
-          sudo sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' 
-            /usr/lib/x86_64-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
-
+        run: |
+          file=/usr/lib/x86_64-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
+          test -f "$file"
+          sudo sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' "$file"
       - name: Install Intel compiler
         if: matrix.os == 'ubuntu-latest'
         run: >
