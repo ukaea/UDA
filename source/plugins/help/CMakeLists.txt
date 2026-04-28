@@ -33,6 +33,5 @@ uda_plugin(
     ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
-    oauth-objects
     fmt::fmt
 )

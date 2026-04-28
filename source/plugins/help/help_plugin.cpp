@@ -21,13 +21,12 @@
 #include <version.h>
 #include <fmt/format.h>
 
-static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_ping(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_services(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    int err;
     static short init = 0;
 
     //----------------------------------------------------------------------------------------
@@ -36,16 +35,16 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block;
     REQUEST_DATA* request;
 
-    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+    if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
-    idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
+    plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    data_block = idam_plugin_interface->data_block;
-    request = idam_plugin_interface->request_data;
+    data_block = plugin_interface->data_block;
+    request = plugin_interface->request_data;
 
-    unsigned short housekeeping = idam_plugin_interface->housekeeping;
+    unsigned short housekeeping = plugin_interface->housekeeping;
 
     //----------------------------------------------------------------------------------------
     // Heap Housekeeping
@@ -73,51 +72,36 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             return 0;
         }
     }
-
-    if (STR_IEQUALS(request->function, "help") || request->function[0] == '\0') {
-        if (const char* url = getenv("UDA_AUTHORISATION_URL"); url != nullptr) {
-            const auto* email = authPayloadValue("", idam_plugin_interface); // get email
-            bool authorised = false;
-            if (email != nullptr) {
-                const std::string auth_url = std::string{url} + "/" + email;
-                try {
-                    const uda::authentication::CurlWrapper curl_wrapper;
-                    if (const auto response = curl_wrapper.perform_get_request(auth_url); response == "True") {
-                        authorised = true;
-                    }
-                } catch (...) {
-                    authorised = false;
-                }
-            }
-            return setReturnDataString(data_block, authorised ? "authorised" : "unauthorised",
-                "Help help = description of this plugin");
-        }
-
+    int err {0};
+    if (STR_IEQUALS(request->function, "help")) {
         const char* help = "\nHelp\tList of HELP plugin functions:\n\n"
                            "services()\tReturns a list of available services with descriptions\n"
                            "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
                            "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
-        return setReturnDataString(data_block, help, "Help help = description of this plugin");
+        err = setReturnDataString(data_block, help, "Help help = description of this plugin");
     } else if (STR_IEQUALS(request->function, "version")) {
-        return setReturnDataString(data_block, UDA_BUILD_VERSION, "Plugin version number");
+        err = setReturnDataString(data_block, UDA_BUILD_VERSION, "Plugin version number");
     } else if (STR_IEQUALS(request->function, "builddate")) {
-        return setReturnDataString(data_block, __DATE__, "Plugin build date");
+        err = setReturnDataString(data_block, __DATE__, "Plugin build date");
     } else if (STR_IEQUALS(request->function, "defaultmethod")) {
-        return setReturnDataString(data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
+        err = setReturnDataString(data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
     } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
-        return setReturnDataIntScalar(data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
+        err = setReturnDataIntScalar(data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
     } else if (STR_IEQUALS(request->function, "ping") || STR_IEQUALS(request->function, "servertime")) {
-        return do_ping(idam_plugin_interface);
+        err = do_ping(plugin_interface);
     } else if (STR_IEQUALS(request->function, "services")) {
-        return do_services(idam_plugin_interface);
+        err = do_services(plugin_interface);
     } else {
-        RAISE_PLUGIN_ERROR("Unknown function requested!");
+        RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
     }
 
+    if (err != 0) {
+        concatUdaError(&plugin_interface->error_stack);
+    }
     return err;
 }
 
-static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+static int do_ping(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     //----------------------------------------------------------------------------------------
 
@@ -154,20 +138,20 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
     addCompoundField(&usertype, field);
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     // assign the returned data structure
 
     auto data = (HELP_PING*)malloc(sizeof(HELP_PING));
-    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING");        // Register
+    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING");        // Register
 
     data->seconds = (unsigned int)serverTime.tv_sec;
     data->microseconds = (unsigned int)serverTime.tv_usec;
 
     // return to the client
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     data_block->data_type = UDA_TYPE_COMPOUND;
@@ -186,7 +170,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
-static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+static int do_services(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     //======================================================================================
     // Plugin functionality
@@ -201,9 +185,9 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Total Number of registered plugins available
 
-    const ENVIRONMENT* environment = idam_plugin_interface->environment;
+    const ENVIRONMENT* environment = plugin_interface->environment;
 
-    const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
+    const PLUGINLIST* pluginList = plugin_interface->pluginList;
 
     count = 0;
     for (int i = 0; i < pluginList->count; i++) {
@@ -346,5 +330,5 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     doc += "\n\n";
 
-    return setReturnDataString(idam_plugin_interface->data_block, doc.c_str(), "Description of UDA data access services");
+    return setReturnDataString(plugin_interface->data_block, doc.c_str(), "Description of UDA data access services");
 }
