@@ -24,7 +24,7 @@ class VideoEncoder(json.JSONEncoder):
                 'data': {
                     '_encoding': 'base64',
                     '_dtype': data.dtype.name,
-                    'value': base64.urlsafe_b64encode(data.tostring()).decode()
+                    'value': base64.urlsafe_b64encode(data.tobytes()).decode()
                 },
             }
             return obj

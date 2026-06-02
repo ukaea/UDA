@@ -149,7 +149,7 @@ class Client(with_metaclass(ClientMeta, object)):
         result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
 
         if sys.version_info[0] <= 2:
-            result_str = result.data().tostring()
+            result_str = result.data().tobytes()
         else:
             result_str = result.data().tobytes().decode('utf-8')
         return result_str

@@ -1,8 +1,7 @@
-[![DOI](https://zenodo.org/badge/534629249.svg)](https://doi.org/10.5281/zenodo.7750746)
-
 # Universal Data Access (UDA)
 
 ![Build Workflow](https://github.com/ukaea/UDA/actions/workflows/cmake.yml/badge.svg)
+[![DOI](https://zenodo.org/badge/534629249.svg)](https://doi.org/10.5281/zenodo.7750746)
 
 The UDA API provides plugin driven data abstraction.
 
