@@ -1099,69 +1099,87 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
             auth_err_code = uda::authentication::UDA_AUTH_ERR_INVALID_CONFIG;
         } else {
             AUTH_LOG(UDA_LOG_DEBUG, "Auth: server authentication mode: %s\n", auth_mode.c_str());
-            AUTH_LOG(UDA_LOG_DEBUG, "Auth: authentication block type received: %u\n",
-                     client_block->authenticationBlock.authentication_type);
-            AUTH_LOG(UDA_LOG_DEBUG, "Auth: authentication payload length: %u\n",
-                     client_block->authenticationBlock.payload_length);
 
-            if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
-                const auto* raw_payload = client_block->authenticationBlock.payload;
-                const auto  raw_len     = client_block->authenticationBlock.payload_length;
-
-                // Bearer tokens are ASCII; a null byte indicates a malformed or hostile payload.
-                bool has_null = false;
-                for (unsigned int i = 0; i < raw_len; ++i) {
-                    if (raw_payload[i] == '\0') { has_null = true; break; }
-                }
-
-                if (has_null) {
-                    AUTH_LOG(UDA_LOG_ERROR,
-                        "Auth: bearer token contains embedded null byte — rejected\n");
-                    UDA_ADD_ERROR(uda::authentication::UDA_AUTH_ERR_INVALID_TOKEN,
-                        "Bearer token contains embedded null byte");
-                    concatUdaError(&server_block->idamerrorstack);
-                    auth_failed = true;
-                    auth_err_code = uda::authentication::UDA_AUTH_ERR_INVALID_TOKEN;
-                } else {
-                    const std::string token{
-                        reinterpret_cast<const char*>(raw_payload), raw_len};
-                    AUTH_LOG(UDA_LOG_DEBUG, "Auth: token validation started (payload_length=%u)\n",
-                             raw_len);
-                    try {
-                        auth_payload = uda::authentication::authenticate(token);
-                        AUTH_LOG(UDA_LOG_INFO, "Auth: token validation succeeded\n");
-                    } catch (const uda::authentication::AuthError& e) {
-                        const int code = uda::authentication::authErrorToUdaCode(e.code);
-                        AUTH_LOG(UDA_LOG_ERROR, "Auth: token validation failed [%d]: %s\n",
-                                 code, e.what());
-                        UDA_ADD_ERROR(code, e.what());
-                        concatUdaError(&server_block->idamerrorstack);
-                        auth_failed = true;
-                        auth_err_code = code;
-                    } catch (const std::exception& e) {
-                        AUTH_LOG(UDA_LOG_ERROR, "Auth: unexpected exception: %s\n", e.what());
-                        UDA_ADD_ERROR(999, e.what());
-                        concatUdaError(&server_block->idamerrorstack);
-                        auth_failed = true;
-                        auth_err_code = 999;
-                    }
-                }
-
-                // Free XDR-decoded payload — token string already copied above.
-                free(client_block->authenticationBlock.payload);
-                client_block->authenticationBlock.payload = nullptr;
-            } else {
+            // The OIDC auth block (CLIENTFLAG_AUTHENTICATE + payload) was introduced in
+            // protocol version 11. A client reporting a lower version cannot carry a token;
+            // fail immediately with a clear upgrade message rather than a confusing
+            // "no bearer token provided" error.
+            if (client_block->version < server_version) {
                 AUTH_LOG(UDA_LOG_ERROR,
-                    "Auth: no bearer token received from client "
-                    "(authentication_type=%u, expected %u=OAUTH)\n",
-                    client_block->authenticationBlock.authentication_type,
-                    UDA_AUTHENTICATION_OAUTH);
+                    "Auth: client protocol version %u < %u — cannot carry OIDC bearer token; "
+                    "client must be upgraded\n",
+                    client_block->version, server_version);
                 UDA_ADD_ERROR(uda::authentication::UDA_AUTH_ERR_MISSING_TOKEN,
-                    "No bearer token provided; set UDA_AUTH_TOKEN on the client");
+                    "OIDC authentication requires UDA client protocol version 11 or later; "
+                    "upgrade the UDA client library");
                 concatUdaError(&server_block->idamerrorstack);
                 auth_failed = true;
                 auth_err_code = uda::authentication::UDA_AUTH_ERR_MISSING_TOKEN;
-            }
+            } else {
+                AUTH_LOG(UDA_LOG_DEBUG, "Auth: authentication block type received: %u\n",
+                         client_block->authenticationBlock.authentication_type);
+                AUTH_LOG(UDA_LOG_DEBUG, "Auth: authentication payload length: %u\n",
+                         client_block->authenticationBlock.payload_length);
+
+                if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
+                    const auto* raw_payload = client_block->authenticationBlock.payload;
+                    const auto  raw_len     = client_block->authenticationBlock.payload_length;
+
+                    // Bearer tokens are ASCII; a null byte indicates a malformed or hostile payload.
+                    bool has_null = false;
+                    for (unsigned int i = 0; i < raw_len; ++i) {
+                        if (raw_payload[i] == '\0') { has_null = true; break; }
+                    }
+
+                    if (has_null) {
+                        AUTH_LOG(UDA_LOG_ERROR,
+                            "Auth: bearer token contains embedded null byte — rejected\n");
+                        UDA_ADD_ERROR(uda::authentication::UDA_AUTH_ERR_INVALID_TOKEN,
+                            "Bearer token contains embedded null byte");
+                        concatUdaError(&server_block->idamerrorstack);
+                        auth_failed = true;
+                        auth_err_code = uda::authentication::UDA_AUTH_ERR_INVALID_TOKEN;
+                    } else {
+                        const std::string token{
+                            reinterpret_cast<const char*>(raw_payload), raw_len};
+                        AUTH_LOG(UDA_LOG_DEBUG, "Auth: token validation started (payload_length=%u)\n",
+                                 raw_len);
+                        try {
+                            auth_payload = uda::authentication::authenticate(token);
+                            AUTH_LOG(UDA_LOG_INFO, "Auth: token validation succeeded\n");
+                        } catch (const uda::authentication::AuthError& e) {
+                            const int code = uda::authentication::authErrorToUdaCode(e.code);
+                            AUTH_LOG(UDA_LOG_ERROR, "Auth: token validation failed [%d]: %s\n",
+                                     code, e.what());
+                            UDA_ADD_ERROR(code, e.what());
+                            concatUdaError(&server_block->idamerrorstack);
+                            auth_failed = true;
+                            auth_err_code = code;
+                        } catch (const std::exception& e) {
+                            AUTH_LOG(UDA_LOG_ERROR, "Auth: unexpected exception: %s\n", e.what());
+                            UDA_ADD_ERROR(999, e.what());
+                            concatUdaError(&server_block->idamerrorstack);
+                            auth_failed = true;
+                            auth_err_code = 999;
+                        }
+                    }
+
+                    // Free XDR-decoded payload — token string already copied above.
+                    free(client_block->authenticationBlock.payload);
+                    client_block->authenticationBlock.payload = nullptr;
+                } else {
+                    AUTH_LOG(UDA_LOG_ERROR,
+                        "Auth: no bearer token received from client "
+                        "(authentication_type=%u, expected %u=OAUTH)\n",
+                        client_block->authenticationBlock.authentication_type,
+                        UDA_AUTHENTICATION_OAUTH);
+                    UDA_ADD_ERROR(uda::authentication::UDA_AUTH_ERR_MISSING_TOKEN,
+                        "No bearer token provided; set UDA_AUTH_TOKEN on the client");
+                    concatUdaError(&server_block->idamerrorstack);
+                    auth_failed = true;
+                    auth_err_code = uda::authentication::UDA_AUTH_ERR_MISSING_TOKEN;
+                }
+            } // end: client protocol version >= server_version
         }
     }
 
