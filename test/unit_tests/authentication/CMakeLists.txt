@@ -54,6 +54,28 @@ target_link_libraries( test_oidc_verify PRIVATE
 )
 add_test( NAME TestOidcVerify COMMAND test_oidc_verify )
 
+# handshake_auth unit tests (version check, auth_mode check, null-byte check)
+add_library( handshake-auth-test-objects OBJECT
+    ${CMAKE_SOURCE_DIR}/source/server/handshake_auth.cpp
+)
+target_include_directories( handshake-auth-test-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/extlib
+)
+
+add_executable( test_server_auth server_auth.test.cpp )
+target_include_directories( test_server_auth PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/extlib
+)
+target_link_libraries( test_server_auth PRIVATE
+    handshake-auth-test-objects
+    authentication-test-objects
+    Catch2::Catch2WithMain
+    CURL::libcurl
+)
+add_test( NAME TestServerAuth COMMAND test_server_auth )
+
 # TLS integration tests (in-memory handshakes using OpenSSL BIO pairs)
 add_executable( test_tls_integration tls_integration.test.cpp )
 target_include_directories( test_tls_integration PRIVATE

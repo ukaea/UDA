@@ -700,3 +700,39 @@ TEST_CASE("JWKS cache: kid-not-found triggers one force-refresh retry", "[oidc_v
     REQUIRE_NOTHROW( authenticate(token, cfg, rotating_fetch) );
     REQUIRE( fetch_count == 2 ); // initial fetch + one retry
 }
+
+// ---------------------------------------------------------------------------
+// OidcConfig::from_env() round-trip integration test
+
+TEST_CASE("authenticate succeeds when OidcConfig is loaded from environment", "[oidc_verify][integration]")
+{
+    const auto& k = test_key();
+
+    // Use unique values to avoid JWKS/discovery cache interference with other tests.
+    const std::string issuer   = "https://from-env-unique-1.example.com";
+    const std::string jwks_uri = "https://from-env-unique-1.example.com/jwks";
+
+    EnvGuard g_issuer("UDA_SERVER_OIDC_ISSUER",       issuer.c_str());
+    EnvGuard g_jwks  ("UDA_SERVER_OIDC_JWKS_URI",      jwks_uri.c_str());
+    EnvGuard g_algs  ("UDA_SERVER_OIDC_ALLOWED_ALGS",  "RS256");
+    // Ensure no audience or claim-policy env vars leak in from the environment.
+    EnvCleaner cleanup({"UDA_SERVER_OIDC_AUDIENCE", "UDA_SERVER_OIDC_REQUIRED_CLAIMS",
+                        "UDA_SERVER_OIDC_CLIENT_ID", "UDA_SERVER_KEYCLOAK_REALM",
+                        "UDA_SERVER_KEYCLOAK_CLIENT_ID"});
+
+    TokenBuilder tb;
+    tb.issuer = issuer;
+    const std::string token = tb.build(k);
+
+    const OidcConfig cfg = OidcConfig::from_env();
+    REQUIRE( cfg.issuer   == issuer );
+    REQUIRE( cfg.jwks_uri == jwks_uri );
+    // Without UDA_SERVER_OIDC_AUDIENCE, verify_audience defaults false (empty audience)
+    REQUIRE( cfg.verify_audience == false );
+
+    const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
+    PayloadType payload;
+    REQUIRE_NOTHROW( payload = authenticate(token, cfg, fetch) );
+    REQUIRE( payload.count("azp") == 1 );
+    REQUIRE( payload.at("azp") == "test-client" );
+}

@@ -73,6 +73,7 @@ add_definitions( -DSERVERBUILD )
 
 add_library( server-objects OBJECT
   udaServer.cpp
+  handshake_auth.cpp
   udaLegacyServer.cpp
   createXDRStream.cpp
   sleepServer.cpp
