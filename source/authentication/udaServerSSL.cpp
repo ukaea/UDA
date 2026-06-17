@@ -54,45 +54,44 @@ void putUdaServerSSLSocket(int socket) { g_sslSocket = socket; }
 
 bool getUdaServerSSLDisabled() { return g_sslDisabled; }
 
+static const char* server_ssl_error_name(int err)
+{
+    switch (err) {
+        case SSL_ERROR_NONE:           return "SSL_ERROR_NONE";
+        case SSL_ERROR_ZERO_RETURN:    return "SSL_ERROR_ZERO_RETURN";
+        case SSL_ERROR_WANT_READ:      return "SSL_ERROR_WANT_READ";
+        case SSL_ERROR_WANT_WRITE:     return "SSL_ERROR_WANT_WRITE";
+        case SSL_ERROR_WANT_CONNECT:   return "SSL_ERROR_WANT_CONNECT";
+        case SSL_ERROR_WANT_ACCEPT:    return "SSL_ERROR_WANT_ACCEPT";
+        case SSL_ERROR_WANT_X509_LOOKUP: return "SSL_ERROR_WANT_X509_LOOKUP";
+        case SSL_ERROR_SYSCALL:        return "SSL_ERROR_SYSCALL";
+        case SSL_ERROR_SSL:            return "SSL_ERROR_SSL";
+        default:                       return "SSL_ERROR_UNKNOWN";
+    }
+}
+
 void reportServerSSLErrorCode(int rc)
 {
-    int err = SSL_get_error(g_ssl, rc);
-    char msg[256];
-    switch (err) {
-        case SSL_ERROR_NONE:
-            strcpy(msg, "SSL_ERROR_NONE");
-            break;
-        case SSL_ERROR_ZERO_RETURN:
-            strcpy(msg, "SSL_ERROR_ZERO_RETURN");
-            break;
-        case SSL_ERROR_WANT_READ:
-            strcpy(msg, "SSL_ERROR_WANT_READ");
-            break;
-        case SSL_ERROR_WANT_WRITE:
-            strcpy(msg, "SSL_ERROR_WANT_WRITE");
-            break;
-        case SSL_ERROR_WANT_CONNECT:
-            strcpy(msg, "SSL_ERROR_WANT_CONNECT");
-            break;
-        case SSL_ERROR_WANT_ACCEPT:
-            strcpy(msg, "SSL_ERROR_WANT_ACCEPT");
-            break;
-        case SSL_ERROR_WANT_X509_LOOKUP:
-            strcpy(msg, "SSL_ERROR_WANT_X509_LOOKUP");
-            break;
-        case SSL_ERROR_SYSCALL:
-            strcpy(msg, "SSL_ERROR_SYSCALL");
-            break;
-        case SSL_ERROR_SSL:
-            strcpy(msg, "SSL_ERROR_SSL");
-            break;
+    const int err = SSL_get_error(g_ssl, rc);
+    const char* msg = server_ssl_error_name(err);
+    addIdamError(UDA_CODE_ERROR_TYPE, "udaSSL", 999, msg);
+    AUTH_LOG(UDA_LOG_ERROR, "Auth: SSL error: %s\n", msg);
+
+    // Drain the full OpenSSL error queue for diagnostics
+    char detail[256];
+    unsigned long ossl_err;
+    while ((ossl_err = ERR_get_error()) != 0) {
+        ERR_error_string_n(ossl_err, detail, sizeof(detail));
+        AUTH_LOG(UDA_LOG_ERROR, "Auth: SSL error detail: %s\n", detail);
     }
-    err = 999;
-    addIdamError(UDA_CODE_ERROR_TYPE, "udaSSL", err, msg);
-    AUTH_LOG(UDA_LOG_ERROR, "SSL error: %s\n", msg);
-    AUTH_LOG(UDA_LOG_ERROR, "SSL error detail: %s\n", ERR_error_string(ERR_get_error(), nullptr));
+
     if (g_ssl != nullptr) {
-        AUTH_LOG(UDA_LOG_DEBUG, "SSL state: %s\n", SSL_state_string(g_ssl));
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: SSL state: %s\n", SSL_state_string(g_ssl));
+        const long vr = SSL_get_verify_result(g_ssl);
+        if (vr != X509_V_OK) {
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: TLS verify result: %s\n",
+                     X509_verify_cert_error_string(vr));
+        }
     }
 }
 
@@ -346,8 +345,32 @@ int accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
         if (errno != 0) {
             UDA_ADD_SYS_ERROR("SSL Handshake failed!");
         }
-        int err = SSL_get_error(g_ssl, rc);
-        AUTH_LOG(UDA_LOG_ERROR, "TLS handshake failed (SSL_get_error=%d)\n", err);
+        const int err = SSL_get_error(g_ssl, rc);
+        AUTH_LOG(UDA_LOG_ERROR, "Auth: TLS handshake failed (ssl_err=%d)\n", err);
+
+        // Detailed failure classification
+        const long vr = SSL_get_verify_result(g_ssl);
+        if (vr != X509_V_OK) {
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS client cert verification failed: %s\n"
+                "  mode=%s — check UDA_SERVER_CA_TLS_CERT and that client provided a valid cert\n",
+                X509_verify_cert_error_string(vr), tlsModeStr(getServerTlsMode()));
+        } else if (err == SSL_ERROR_SYSCALL) {
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS handshake failed (SSL_ERROR_SYSCALL): connection closed by client "
+                "before handshake completed\n"
+                "  mode=%s — possible causes:\n"
+                "    * client is not using TLS (connecting to TLS server in plaintext)\n"
+                "    * client TLS mode does not match server TLS mode\n"
+                "    * mutual TLS required but client has no certificate\n"
+                "  check UDA_SERVER_TLS_MODE and UDA_CLIENT_TLS_MODE\n",
+                tlsModeStr(getServerTlsMode()));
+        } else {
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS handshake failed (ssl_err=%d mode=%s)\n",
+                err, tlsModeStr(getServerTlsMode()));
+        }
+
         if (err == SSL_ERROR_SYSCALL) {
             UDA_ADD_ERROR(err, "SSL error in SSL_accept, application terminated!");
         }
@@ -355,7 +378,7 @@ int accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
         return err;
     }
 
-    AUTH_LOG(UDA_LOG_INFO, "TLS handshake succeeded (version=%s cipher=%s)\n",
+    AUTH_LOG(UDA_LOG_INFO, "Auth: TLS handshake succeeded (version=%s cipher=%s)\n",
              SSL_get_version(g_ssl), SSL_get_cipher(g_ssl));
 
     // Get the Client's certificate and verify/log according to mode.

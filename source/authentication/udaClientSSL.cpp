@@ -7,7 +7,9 @@
 #include <fcntl.h>
 #include <initializer_list>
 #include <ctime>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <openssl/x509v3.h>
 #include <string>
 
 #include <client/updateSelectParms.h>
@@ -120,44 +122,44 @@ void putUdaClientSSLCTX(SSL_CTX* c)
     g_ctx = c;
 }
 
+static const char* ssl_error_name(int err)
+{
+    switch (err) {
+        case SSL_ERROR_NONE:           return "SSL_ERROR_NONE";
+        case SSL_ERROR_ZERO_RETURN:    return "SSL_ERROR_ZERO_RETURN";
+        case SSL_ERROR_WANT_READ:      return "SSL_ERROR_WANT_READ";
+        case SSL_ERROR_WANT_WRITE:     return "SSL_ERROR_WANT_WRITE";
+        case SSL_ERROR_WANT_CONNECT:   return "SSL_ERROR_WANT_CONNECT";
+        case SSL_ERROR_WANT_ACCEPT:    return "SSL_ERROR_WANT_ACCEPT";
+        case SSL_ERROR_WANT_X509_LOOKUP: return "SSL_ERROR_WANT_X509_LOOKUP";
+        case SSL_ERROR_SYSCALL:        return "SSL_ERROR_SYSCALL";
+        case SSL_ERROR_SSL:            return "SSL_ERROR_SSL";
+        default:                       return "SSL_ERROR_UNKNOWN";
+    }
+}
+
 void reportSSLErrorCode(int rc)
 {
-    int err = SSL_get_error(getUdaClientSSL(), rc);
-    char msg[256];
-    switch (err) {
-        case SSL_ERROR_NONE:
-            strcpy(msg, "SSL_ERROR_NONE");
-            break;
-        case SSL_ERROR_ZERO_RETURN:
-            strcpy(msg, "SSL_ERROR_ZERO_RETURN");
-            break;
-        case SSL_ERROR_WANT_READ:
-            strcpy(msg, "SSL_ERROR_WANT_READ");
-            break;
-        case SSL_ERROR_WANT_WRITE:
-            strcpy(msg, "SSL_ERROR_WANT_WRITE");
-            break;
-        case SSL_ERROR_WANT_CONNECT:
-            strcpy(msg, "SSL_ERROR_WANT_CONNECT");
-            break;
-        case SSL_ERROR_WANT_ACCEPT:
-            strcpy(msg, "SSL_ERROR_WANT_ACCEPT");
-            break;
-        case SSL_ERROR_WANT_X509_LOOKUP:
-            strcpy(msg, "SSL_ERROR_WANT_X509_LOOKUP");
-            break;
-        case SSL_ERROR_SYSCALL:
-            strcpy(msg, "SSL_ERROR_SYSCALL");
-            break;
-        case SSL_ERROR_SSL:
-            strcpy(msg, "SSL_ERROR_SSL");
-            break;
-    }
+    const int err = SSL_get_error(getUdaClientSSL(), rc);
+    const char* msg = ssl_error_name(err);
     UDA_ADD_ERROR(999, msg);
-    AUTH_LOG(UDA_LOG_ERROR, "SSL error: %s\n", msg);
-    AUTH_LOG(UDA_LOG_ERROR, "SSL error detail: %s\n", ERR_error_string(ERR_get_error(), nullptr));
+    AUTH_LOG(UDA_LOG_ERROR, "Auth: SSL error: %s\n", msg);
+
+    // Drain the full OpenSSL error queue
+    char detail[256];
+    unsigned long ossl_err;
+    while ((ossl_err = ERR_get_error()) != 0) {
+        ERR_error_string_n(ossl_err, detail, sizeof(detail));
+        AUTH_LOG(UDA_LOG_ERROR, "Auth: SSL error detail: %s\n", detail);
+    }
+
     if (getUdaClientSSL() != nullptr) {
-        AUTH_LOG(UDA_LOG_DEBUG, "SSL state: %s\n", SSL_state_string(getUdaClientSSL()));
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: SSL state: %s\n", SSL_state_string(getUdaClientSSL()));
+        const long vr = SSL_get_verify_result(getUdaClientSSL());
+        if (vr != X509_V_OK) {
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: TLS verify result: %s\n",
+                     X509_verify_cert_error_string(vr));
+        }
     }
 }
 
@@ -270,45 +272,46 @@ int load_client_certificate(SSL_CTX* ctx, const HostData* host)
         UDA_THROW_ERROR(999, "Unable to parse client certificate [%s] to verify certificate validity");
     }
 
-    const ASN1_TIME* before = X509_get_notBefore(clientCert);
-    const ASN1_TIME* after = X509_get_notAfter(clientCert);
-
     char work[X509_STRING_SIZE];
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 subject: %s\n",
-            X509_NAME_oneline(X509_get_subject_name(clientCert), work, sizeof(work)));
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 issuer: %s\n",
-            X509_NAME_oneline(X509_get_issuer_name(clientCert), work, sizeof(work)));
+    AUTH_LOG(UDA_LOG_DEBUG, "Auth: client cert subject: %s\n",
+             X509_NAME_oneline(X509_get_subject_name(clientCert), work, sizeof(work)));
+    AUTH_LOG(UDA_LOG_DEBUG, "Auth: client cert issuer: %s\n",
+             X509_NAME_oneline(X509_get_issuer_name(clientCert), work, sizeof(work)));
 
-    time_t current_time = time(nullptr);
-    char* c_time_string = ctime(&current_time);
+    // Client cert date validation (UDA_CLIENT_TLS_VERIFY_CERT_DATES, default: enabled)
+    if (clientTlsVerifyCertDates()) {
+        const ASN1_TIME* before = X509_get_notBefore(clientCert);
+        const ASN1_TIME* after  = X509_get_notAfter(clientCert);
+        time_t current_time = time(nullptr);
 
-    std::string before_string = to_string(before);
+        const std::string before_string = to_string(before);
+        const std::string after_string  = to_string(after);
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: client cert validity: %s to %s\n",
+                 before_string.c_str(), after_string.c_str());
 
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before: %s\n", before_string.c_str());
-    int rc = 0;
-    if ((rc = X509_cmp_time(before, &current_time)) >= 0) {
-        // Not Before is after Now!
-        X509_free(clientCert);
-        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-        UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before date is before the current date!\n");
-        UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Validity Date is in the future!\n");
-        UDA_THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Validity Date is in the future");
-    }
-
-    std::string after_string = to_string(after);
-
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after   : %s\n", after_string.c_str());
-    if ((rc = X509_cmp_time(after, &current_time)) <= 0) {// Not After is before Now!
-        X509_free(clientCert);
-        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-        UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after date is after the current date!\n");
-        UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Date has Expired!\n");
-        UDA_THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Date has Expired!");
+        int rc = 0;
+        if ((rc = X509_cmp_time(before, &current_time)) >= 0) {
+            X509_free(clientCert);
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: client cert is not yet valid (notBefore=%s) — "
+                "check system clock or set UDA_CLIENT_TLS_VERIFY_CERT_DATES=0\n",
+                before_string.c_str());
+            UDA_THROW_ERROR(999, "Client TLS certificate validity date is in the future");
+        }
+        if ((rc = X509_cmp_time(after, &current_time)) <= 0) {
+            X509_free(clientCert);
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: client cert has expired (notAfter=%s) — "
+                "renew the client certificate or set UDA_CLIENT_TLS_VERIFY_CERT_DATES=0\n",
+                after_string.c_str());
+            UDA_THROW_ERROR(999, "Client TLS certificate has expired");
+        }
+    } else {
+        AUTH_LOG(UDA_LOG_WARN,
+            "Auth: client cert date validation is DISABLED "
+            "(UDA_CLIENT_TLS_VERIFY_CERT_DATES=0)\n");
     }
     X509_free(clientCert);
-
-    UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-    UDA_LOG(UDA_LOG_DEBUG, "Client certificate date validity checked but not validated \n");
 
     return 0;
 }
@@ -433,18 +436,83 @@ int connect_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
 
     SSL_set_fd(g_ssl, g_sslSocket);
 
+    // Hostname verification (UDA_CLIENT_TLS_VERIFY_HOSTNAME, default: enabled).
+    // Applies to server-only and mutual TLS when the peer is identified by hostname.
+    const std::string server_hostname = (g_host != nullptr) ? g_host->host_name : "";
+    if (!server_hostname.empty()) {
+        // Set SNI extension so the server can select the right certificate
+        SSL_set_tlsext_host_name(g_ssl, server_hostname.c_str());
+
+        if (clientTlsVerifyHostname()) {
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: TLS hostname verification enabled for '%s'\n",
+                     server_hostname.c_str());
+            SSL_set_hostflags(g_ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+            if (SSL_set1_host(g_ssl, server_hostname.c_str()) != 1) {
+                AUTH_LOG(UDA_LOG_ERROR,
+                         "Auth: failed to set hostname '%s' for TLS verification\n",
+                         server_hostname.c_str());
+                UDA_THROW_ERROR(999, "Failed to configure TLS hostname verification");
+            }
+        } else {
+            AUTH_LOG(UDA_LOG_WARN,
+                "Auth: TLS hostname verification is DISABLED "
+                "(UDA_CLIENT_TLS_VERIFY_HOSTNAME=0) for host '%s' — "
+                "this weakens security; enable for production use\n",
+                server_hostname.c_str());
+        }
+    } else {
+        // No hostname available (g_host is null or host_name is empty).
+        // This can happen for connections made without a host config entry.
+        AUTH_LOG(UDA_LOG_DEBUG,
+            "Auth: TLS hostname verification skipped — server hostname is not known at connect time\n");
+    }
+
     // Connect to the server
     int rc;
     if ((rc = SSL_connect(g_ssl)) < 1) {
         const int ssl_err = SSL_get_error(g_ssl, rc);
-        if (ssl_err == SSL_ERROR_SYSCALL) {
-            AUTH_LOG(UDA_LOG_ERROR,
-                "TLS connect failed: connection closed by server before TLS handshake completed — "
-                "the server may not have been compiled with SSLAUTHENTICATION support, "
-                "or UDA_SERVER_TLS_MODE is not set on the server\n");
-        } else {
-            AUTH_LOG(UDA_LOG_ERROR, "TLS connect failed (SSL_get_error=%d)\n", ssl_err);
+
+        // Drain the OpenSSL error queue for detailed diagnostics
+        char ssl_err_buf[256];
+        unsigned long ossl_err;
+        while ((ossl_err = ERR_get_error()) != 0) {
+            ERR_error_string_n(ossl_err, ssl_err_buf, sizeof(ssl_err_buf));
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: TLS error detail: %s\n", ssl_err_buf);
         }
+
+        // Classify common failure modes
+        const long verify_result = SSL_get_verify_result(g_ssl);
+        if (verify_result != X509_V_OK) {
+            const char* reason = X509_verify_cert_error_string(verify_result);
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS certificate verification failed: %s\n"
+                "  mode=%s host='%s' — check UDA_CLIENT_CA_TLS_CERT and UDA_CLIENT_TLS_MODE\n",
+                reason, tlsModeStr(g_tlsMode), server_hostname.c_str());
+
+            // Special-case: hostname mismatch gets its own message
+            if (verify_result == X509_V_ERR_HOSTNAME_MISMATCH) {
+                AUTH_LOG(UDA_LOG_ERROR,
+                    "Auth: TLS hostname verification failed: certificate does not match "
+                    "requested host '%s' — "
+                    "set UDA_CLIENT_TLS_VERIFY_HOSTNAME=0 only if you understand the risk\n",
+                    server_hostname.c_str());
+            }
+        } else if (ssl_err == SSL_ERROR_SYSCALL) {
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS connect failed (SSL_ERROR_SYSCALL): connection was closed by the "
+                "server before the handshake completed\n"
+                "  mode=%s — possible causes:\n"
+                "    * server was not compiled with SSLAUTHENTICATION\n"
+                "    * UDA_SERVER_TLS_MODE is not set or is 'off' on the server\n"
+                "    * client is connecting to a plaintext server with TLS\n"
+                "  check UDA_CLIENT_TLS_MODE and UDA_SERVER_TLS_MODE\n",
+                tlsModeStr(g_tlsMode));
+        } else {
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS connect failed (ssl_err=%d mode=%s host='%s')\n",
+                ssl_err, tlsModeStr(g_tlsMode), server_hostname.c_str());
+        }
+
         if (errno != 0) {
             UDA_ADD_SYS_ERROR("Error connecting to the server!");
         }
@@ -452,8 +520,8 @@ int connect_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
         return 999;
     }
 
-    AUTH_LOG(UDA_LOG_INFO, "TLS connect succeeded (version=%s cipher=%s)\n",
-             SSL_get_version(g_ssl), SSL_get_cipher(g_ssl));
+    AUTH_LOG(UDA_LOG_INFO, "Auth: TLS connect succeeded (version=%s cipher=%s host='%s')\n",
+             SSL_get_version(g_ssl), SSL_get_cipher(g_ssl), server_hostname.c_str());
 
     // Get the Server certificate and verify/log according to mode.
     X509* peer = SSL_get_peer_certificate(g_ssl);
@@ -462,59 +530,61 @@ int connect_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
 
         if ((rc = SSL_get_verify_result(g_ssl)) != X509_V_OK) {
             // returns X509_V_OK if the certificate was not obtained as no error occurred!
-            AUTH_LOG(UDA_LOG_ERROR, "Server cert verification failed: %s\n", X509_verify_cert_error_string(rc));
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: server cert verification failed: %s\n",
+                     X509_verify_cert_error_string(rc));
             UDA_ADD_ERROR(999, X509_verify_cert_error_string(rc));
             X509_free(peer);
             UDA_THROW_ERROR(999, "SSL Server certificate presented but verification error!");
         }
 
         char work[X509_STRING_SIZE];
-        AUTH_LOG(UDA_LOG_INFO, "Server cert verified — subject: %s\n",
+        AUTH_LOG(UDA_LOG_INFO, "Auth: server cert verified — subject: %s\n",
                  X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n",
-                X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: server cert issuer: %s\n",
+                 X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
 
-        // Verify Date validity
+        // Cert date validation (UDA_CLIENT_TLS_VERIFY_CERT_DATES, default: enabled)
+        if (clientTlsVerifyCertDates()) {
+            const ASN1_TIME* before = X509_get_notBefore(peer);
+            const ASN1_TIME* after  = X509_get_notAfter(peer);
+            time_t current_time = time(nullptr);
 
-        const ASN1_TIME* before = X509_get_notBefore(peer);
-        const ASN1_TIME* after = X509_get_notAfter(peer);
+            const std::string before_string = to_string(before);
+            const std::string after_string  = to_string(after);
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: server cert validity: %s to %s\n",
+                     before_string.c_str(), after_string.c_str());
 
-        time_t current_time = time(nullptr);
-        char* c_time_string = ctime(&current_time);
-
-        std::string before_string = to_string(before);
-
-        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before: %s\n", before_string.c_str());
-        if ((rc = X509_cmp_time(before, &current_time)) >= 0) {// Not Before is after Now!
-            X509_free(peer);
-            UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-            UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before date is before the current date!\n");
-            UDA_LOG(UDA_LOG_DEBUG,
-                    "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future!\n");
-            UDA_THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
+            if ((rc = X509_cmp_time(before, &current_time)) >= 0) {
+                X509_free(peer);
+                AUTH_LOG(UDA_LOG_ERROR,
+                    "Auth: server cert is not yet valid (notBefore=%s) — "
+                    "check system clock or set UDA_CLIENT_TLS_VERIFY_CERT_DATES=0\n",
+                    before_string.c_str());
+                UDA_THROW_ERROR(999, "Server TLS certificate validity date is in the future");
+            }
+            if ((rc = X509_cmp_time(after, &current_time)) <= 0) {
+                X509_free(peer);
+                AUTH_LOG(UDA_LOG_ERROR,
+                    "Auth: server cert has expired (notAfter=%s) — "
+                    "renew the server certificate or set UDA_CLIENT_TLS_VERIFY_CERT_DATES=0\n",
+                    after_string.c_str());
+                UDA_THROW_ERROR(999, "Server TLS certificate has expired");
+            }
+        } else {
+            AUTH_LOG(UDA_LOG_WARN,
+                "Auth: server cert date validation is DISABLED "
+                "(UDA_CLIENT_TLS_VERIFY_CERT_DATES=0) — "
+                "this weakens security; enable for production use\n");
         }
-
-        std::string after_string = to_string(after);
-
-        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after   : %s\n", after_string.c_str());
-        if ((rc = X509_cmp_time(after, &current_time)) <= 0) {// Not After is before Now!
-            X509_free(peer);
-            UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-            UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after date is after the current date!\n");
-            UDA_LOG(UDA_LOG_DEBUG, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!\n");
-            UDA_THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!");
-        }
-
-        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
 
         X509_free(peer);
 
     } else {
         if (policy == PeerCertPolicy::Required) {
-            AUTH_LOG(UDA_LOG_ERROR, "Server cert required but not presented\n");
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: server cert required but not presented\n");
             UDA_THROW_ERROR(999, "Server certificate not presented for verification!");
         }
-        AUTH_LOG(UDA_LOG_DEBUG, "No server cert presented; not required in server-only mode\n");
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: no server cert presented; not required in this TLS mode\n");
     }
 
     // SSL/TLS authentication has been passed - do not repeat

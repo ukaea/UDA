@@ -12,7 +12,7 @@ endif()
 
 # Sources
 
-set( HEADER_FILES oauth_authentication.h authLog.h )
+set( HEADER_FILES oauth_authentication.h authLog.h oidc_config.h claim_policy.h )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
@@ -31,15 +31,18 @@ target_include_directories( authentication-client-objects PRIVATE ${CMAKE_SOURCE
 target_link_libraries( authentication-client-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 curl )
 target_compile_definitions( authentication-client-objects PRIVATE )
 
-add_library( oauth-objects OBJECT oauth_authentication.cpp )
-target_include_directories( oauth-objects PRIVATE ${CMAKE_SOURCE_DIR}/extlib )
+add_library( oauth-objects OBJECT oauth_authentication.cpp oidc_config.cpp claim_policy.cpp )
+target_include_directories( oauth-objects PRIVATE ${CMAKE_SOURCE_DIR}/extlib ${CMAKE_SOURCE_DIR}/source )
 target_link_libraries( oauth-objects PUBLIC curl )
 
 if( NOT CLIENT_ONLY )
-  add_library( authentication-server-objects OBJECT udaServerSSL.cpp authLog.cpp utils.cpp oauth_authentication.cpp )
-  target_include_directories( authentication-server-objects PRIVATE ${CMAKE_SOURCE_DIR}/extlib )
+  add_library( authentication-server-objects OBJECT
+    udaServerSSL.cpp authLog.cpp utils.cpp
+    oauth_authentication.cpp oidc_config.cpp claim_policy.cpp )
+  target_include_directories( authentication-server-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/extlib ${CMAKE_SOURCE_DIR}/source )
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
-  target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )
+  target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 curl )
 endif()
 
 install( FILES ${HEADER_FILES}

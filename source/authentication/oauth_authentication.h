@@ -4,7 +4,8 @@
 #include <unordered_map>
 #include <curl/curl.h>
 
-namespace uda::authentication {
+namespace uda {
+namespace authentication {
 
 class CurlWrapper {
 public:
@@ -16,27 +17,29 @@ public:
     CurlWrapper& operator=(const CurlWrapper&) = delete;
     CurlWrapper& operator=(CurlWrapper&&) = delete;
 
-    // Function to perform a GET request
     [[nodiscard]] std::string perform_get_request(const std::string& url) const;
 
 private:
     CURL* handle_;
 
-    // Common options for both GET and POST requests
     void set_common_options(std::string* response_data) const;
-
-    // Handle the cURL response and check for errors
     static void handle_curl_response(CURLcode response);
-
-    // Handle exceptions and print error messages
     static void handle_error(const std::exception& e);
 };
 
+// Decoded JWT payload as a flat string map.
+// Nested JSON claims (e.g. realm_access) are preserved as JSON-encoded strings
+// and can be traversed by ClaimPolicy using dot-separated paths.
 using PayloadType = std::unordered_map<std::string, std::string>;
 
+// Validate a bearer token using the OIDC/JWT configuration from the environment.
+// Reads UDA_SERVER_OIDC_* (preferred) or UDA_SERVER_KEYCLOAK_* (legacy aliases).
+// Throws std::runtime_error on any validation failure.
+// Never logs the raw token value.
 PayloadType authenticate(const std::string& token);
 
-}
+} // namespace authentication
+} // namespace uda
 
 struct AuthPayload {
     const uda::authentication::PayloadType* auth_payload;

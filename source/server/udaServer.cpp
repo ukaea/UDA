@@ -34,9 +34,6 @@
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
 #include "initPluginList.h"
-#include "authentication/oauth_authentication.h"
-#include "authentication/oauth_authentication.h"
-#include "authentication/oauth_authentication.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -1081,62 +1078,81 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
 
     if (err != 0) return err;
 
-    const char* auth = getenv("UDA_SERVER_AUTHENTICATION");
+    const char* auth_env = getenv("UDA_SERVER_AUTHENTICATION");
+    bool auth_failed = false;
 
-    if (auth != nullptr) {
-        if (std::string{auth} != "OAUTH") {
-            UDA_LOG(UDA_LOG_ERROR, "Invalid value for UDA_SERVER_AUTHENTICATION: %s\n", auth);
-            UDA_ADD_ERROR(999, "Invalid authorisation option set on server");
+    if (auth_env != nullptr) {
+        // Accept both "OAUTH" (legacy) and "OIDC" (preferred) spellings
+        const std::string auth_mode{auth_env};
+        const bool is_oidc = (auth_mode == "OAUTH" || auth_mode == "OIDC");
+
+        if (!is_oidc) {
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: invalid UDA_SERVER_AUTHENTICATION value '%s'; expected OIDC or OAUTH\n",
+                auth_env);
+            UDA_ADD_ERROR(999, "Invalid UDA_SERVER_AUTHENTICATION value on server (expected OIDC or OAUTH)");
             concatUdaError(&server_block->idamerrorstack);
+            auth_failed = true;
         } else {
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: server authentication mode: %s\n", auth_mode.c_str());
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: authentication block type received: %u\n",
+                     client_block->authenticationBlock.authentication_type);
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: authentication payload length: %u\n",
+                     client_block->authenticationBlock.payload_length);
+
             if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
-                std::string token{
+                const std::string token{
                     reinterpret_cast<const char*>(client_block->authenticationBlock.payload),
                     client_block->authenticationBlock.payload_length
                 };
+                AUTH_LOG(UDA_LOG_DEBUG, "Auth: token validation started (payload_length=%u)\n",
+                         client_block->authenticationBlock.payload_length);
                 try {
                     auth_payload = uda::authentication::authenticate(token);
+                    AUTH_LOG(UDA_LOG_INFO, "Auth: token validation succeeded\n");
                 } catch (const std::exception& e) {
-                    UDA_LOG(UDA_LOG_ERROR, "Client Block authentication failed: %s\n", e.what());
-                    UDA_ADD_ERROR(999, "Failed to authenticate");
+                    AUTH_LOG(UDA_LOG_ERROR, "Auth: token validation failed: %s\n", e.what());
+                    UDA_ADD_ERROR(999, "Failed to authenticate — bearer token validation failed");
                     concatUdaError(&server_block->idamerrorstack);
+                    auth_failed = true;
                 }
             } else {
-                UDA_LOG(UDA_LOG_ERROR, "No token received\n");
-                UDA_ADD_ERROR(999, "No authorisation token provided");
+                AUTH_LOG(UDA_LOG_ERROR,
+                    "Auth: no bearer token received from client "
+                    "(authentication_type=%u, expected %u=OAUTH)\n",
+                    client_block->authenticationBlock.authentication_type,
+                    UDA_AUTHENTICATION_OAUTH);
+                UDA_ADD_ERROR(999, "No bearer token provided; set UDA_AUTH_TOKEN on the client");
                 concatUdaError(&server_block->idamerrorstack);
+                auth_failed = true;
             }
         }
     }
 
-    // Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
-
-    // Protocol Version: Lower of the client and server version numbers
-    // This defines the set of elements within data structures passed between client and server
-    // Must be the same on both sides of the socket
-    // set in xdr_client
-
-    //protocolVersion = serverVersion;
-    //if(client_block.version < serverVersion) protocolVersion = client_block.version;
-    //if(client_block.version < server_block.version) protocolVersion = client_block.version;
-
-    // Send the server block
+    // Send the server block (with any auth errors included so the client knows why)
 
     UDA_LOG(UDA_LOG_DEBUG, "Sending Initial Server Block \n");
     printServerBlock(*server_block);
 
-    int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;        // Receive Server Block: Server Aknowledgement
+    int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                          server_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 11 Error (Server Block #1)");
     }
 
-    if (!xdrrec_endofrecord(server_output, 1)) {    // Send data now
+    if (!xdrrec_endofrecord(server_output, 1)) {
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Initial Server Block sent without error\n");
+
+    // Auth failure: signal server_closedown so the caller skips the request loop.
+    // The client has already received the error in the server block above.
+    if (auth_failed) {
+        *server_closedown = 1;
+        return 999;
+    }
 
     // If the protocol version is legacy (<=6), then divert full control to a legacy server
 
@@ -1193,10 +1209,15 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
         const bool legacy_on         = evaluate_bool_param("UDA_SERVER_SSL_AUTHENTICATE", false);
 
         if (mode_requests_tls || legacy_on) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999,
-                "TLS/SSL requested via environment (UDA_SERVER_TLS_MODE or UDA_SERVER_SSL_AUTHENTICATE) "
-                "but this server binary was not compiled with SSLAUTHENTICATION support — "
-                "the client TLS handshake will fail; recompile the server with -DSSLAUTHENTICATION");
+            const char* mode_var = std::getenv("UDA_SERVER_TLS_MODE");
+            char msg[512];
+            snprintf(msg, sizeof(msg),
+                "TLS requested by %s=%s but this UDA server was built without SSLAUTHENTICATION. "
+                "Rebuild with SSLAUTHENTICATION enabled or set UDA_SERVER_TLS_MODE=off.",
+                mode_var ? "UDA_SERVER_TLS_MODE" : "UDA_SERVER_SSL_AUTHENTICATE",
+                mode_var ? mode_var : std::getenv("UDA_SERVER_SSL_AUTHENTICATE"));
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, msg);
+            UDA_LOG(UDA_LOG_ERROR, "%s\n", msg);
             return 999;
         }
     }

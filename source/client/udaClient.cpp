@@ -36,6 +36,10 @@
 #  endif
 #endif
 
+#include <authentication/authLog.h>
+#include <authentication/tlsMode.h>
+#include <common/uda_env_options.hpp>
+
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
 int client_version = 11;
@@ -518,7 +522,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             // Connect to the server with SSL (X509) authentication
 
 #  if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-            // Create the SSL binding and context, and verify the server certificate
+            // Create the SSL context and load certificates
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: initialising TLS context\n");
             if ((err = initUdaClientSSL()) != 0) {
                 break;
             }
@@ -542,7 +547,30 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #  if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         // Create the SSL binding and context, and verify the server certificate
         if (initServer) {
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: initiating TLS handshake\n");
             if ((err = startUdaClientSSL()) != 0) {
+                break;
+            }
+        }
+#  elif !defined(FATCLIENT)
+        // This client was not compiled with TLS support.  Fail early if TLS is requested
+        // so the user gets a clear message instead of a cryptic XDR/socket error.
+        {
+            using namespace uda::common::env_config;
+            const bool mode_requests_tls = match_custom_values("UDA_CLIENT_TLS_MODE", {"server", "mutual"});
+            const bool legacy_on         = evaluate_bool_param("UDA_CLIENT_SSL_AUTHENTICATE", false);
+            if (mode_requests_tls || legacy_on) {
+                const char* mode_var = std::getenv("UDA_CLIENT_TLS_MODE");
+                AUTH_LOG(UDA_LOG_ERROR,
+                    "Auth: TLS requested by %s=%s but this UDA client was built without "
+                    "SSLAUTHENTICATION support — rebuild with SSLAUTHENTICATION enabled "
+                    "or set UDA_CLIENT_TLS_MODE=off\n",
+                    mode_var ? "UDA_CLIENT_TLS_MODE" : "UDA_CLIENT_SSL_AUTHENTICATE",
+                    mode_var ? mode_var : std::getenv("UDA_CLIENT_SSL_AUTHENTICATE"));
+                err = 999;
+                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                    "TLS requested but client not built with SSLAUTHENTICATION; "
+                    "rebuild with SSLAUTHENTICATION or set UDA_CLIENT_TLS_MODE=off");
                 break;
             }
         }
@@ -605,10 +633,17 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         const char* token = getenv("UDA_AUTH_TOKEN");
         if (token != nullptr) {
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: UDA_AUTH_TOKEN is set\n");
             client_block.clientFlags |= CLIENTFLAG_AUTHENTICATE;
             client_block.authenticationBlock.authentication_type = UDA_AUTHENTICATION_OAUTH;
+            // Free any existing payload before overwriting (avoids leak on repeated calls)
+            free(client_block.authenticationBlock.payload);
             client_block.authenticationBlock.payload = reinterpret_cast<unsigned char*>(strdup(token));
-            client_block.authenticationBlock.payload_length = strlen(token);
+            client_block.authenticationBlock.payload_length = static_cast<unsigned int>(strlen(token));
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: attached authentication block type=OAUTH payload_length=%u\n",
+                     client_block.authenticationBlock.payload_length);
+        } else {
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: UDA_AUTH_TOKEN not set, no bearer token will be sent\n");
         }
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
