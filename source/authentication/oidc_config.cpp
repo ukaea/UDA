@@ -68,9 +68,6 @@ OidcConfig OidcConfig::from_env()
 
     cfg.verify_issuer   = parse_bool_env("UDA_SERVER_OIDC_VERIFY_ISSUER", true);
     cfg.verify_audience = parse_bool_env("UDA_SERVER_OIDC_VERIFY_AUDIENCE", !cfg.audience.empty());
-    cfg.verify_expiry   = parse_bool_env("UDA_SERVER_OIDC_VERIFY_EXPIRY", true);
-    cfg.verify_nbf      = parse_bool_env("UDA_SERVER_OIDC_VERIFY_NBF", true);
-    cfg.verify_iat      = parse_bool_env("UDA_SERVER_OIDC_VERIFY_IAT", false);
 
     if (const char* v = getenv("UDA_SERVER_OIDC_CLOCK_SKEW_SECONDS")) {
         int skew = atoi(v);

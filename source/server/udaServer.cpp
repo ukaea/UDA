@@ -10,6 +10,7 @@
 #include <string>
 
 #include <authentication/oauth_authentication.h>
+#include <authentication/auth_error.h>
 #include <authentication/authLog.h>
 #include <common/uda_env_options.hpp>
 #include <clientserver/initStructs.h>
@@ -1080,6 +1081,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
 
     const char* auth_env = getenv("UDA_SERVER_AUTHENTICATION");
     bool auth_failed = false;
+    int auth_err_code = 999;
 
     if (auth_env != nullptr) {
         // Accept both "OAUTH" (legacy) and "OIDC" (preferred) spellings
@@ -1090,9 +1092,11 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
             AUTH_LOG(UDA_LOG_ERROR,
                 "Auth: invalid UDA_SERVER_AUTHENTICATION value '%s'; expected OIDC or OAUTH\n",
                 auth_env);
-            UDA_ADD_ERROR(999, "Invalid UDA_SERVER_AUTHENTICATION value on server (expected OIDC or OAUTH)");
+            UDA_ADD_ERROR(uda::authentication::UDA_AUTH_ERR_INVALID_CONFIG,
+                "Invalid UDA_SERVER_AUTHENTICATION value on server (expected OIDC or OAUTH)");
             concatUdaError(&server_block->idamerrorstack);
             auth_failed = true;
+            auth_err_code = uda::authentication::UDA_AUTH_ERR_INVALID_CONFIG;
         } else {
             AUTH_LOG(UDA_LOG_DEBUG, "Auth: server authentication mode: %s\n", auth_mode.c_str());
             AUTH_LOG(UDA_LOG_DEBUG, "Auth: authentication block type received: %u\n",
@@ -1110,11 +1114,20 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
                 try {
                     auth_payload = uda::authentication::authenticate(token);
                     AUTH_LOG(UDA_LOG_INFO, "Auth: token validation succeeded\n");
-                } catch (const std::exception& e) {
-                    AUTH_LOG(UDA_LOG_ERROR, "Auth: token validation failed: %s\n", e.what());
-                    UDA_ADD_ERROR(999, "Failed to authenticate — bearer token validation failed");
+                } catch (const uda::authentication::AuthError& e) {
+                    const int code = uda::authentication::authErrorToUdaCode(e.code);
+                    AUTH_LOG(UDA_LOG_ERROR, "Auth: token validation failed [%d]: %s\n",
+                             code, e.what());
+                    UDA_ADD_ERROR(code, e.what());
                     concatUdaError(&server_block->idamerrorstack);
                     auth_failed = true;
+                    auth_err_code = code;
+                } catch (const std::exception& e) {
+                    AUTH_LOG(UDA_LOG_ERROR, "Auth: unexpected exception: %s\n", e.what());
+                    UDA_ADD_ERROR(999, e.what());
+                    concatUdaError(&server_block->idamerrorstack);
+                    auth_failed = true;
+                    auth_err_code = 999;
                 }
             } else {
                 AUTH_LOG(UDA_LOG_ERROR,
@@ -1122,9 +1135,11 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
                     "(authentication_type=%u, expected %u=OAUTH)\n",
                     client_block->authenticationBlock.authentication_type,
                     UDA_AUTHENTICATION_OAUTH);
-                UDA_ADD_ERROR(999, "No bearer token provided; set UDA_AUTH_TOKEN on the client");
+                UDA_ADD_ERROR(uda::authentication::UDA_AUTH_ERR_MISSING_TOKEN,
+                    "No bearer token provided; set UDA_AUTH_TOKEN on the client");
                 concatUdaError(&server_block->idamerrorstack);
                 auth_failed = true;
+                auth_err_code = uda::authentication::UDA_AUTH_ERR_MISSING_TOKEN;
             }
         }
     }
@@ -1148,10 +1163,10 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
     UDA_LOG(UDA_LOG_DEBUG, "Initial Server Block sent without error\n");
 
     // Auth failure: signal server_closedown so the caller skips the request loop.
-    // The client has already received the error in the server block above.
+    // The client has already received the stable error code in the server block above.
     if (auth_failed) {
         *server_closedown = 1;
-        return 999;
+        return auth_err_code;
     }
 
     // If the protocol version is legacy (<=6), then divert full control to a legacy server

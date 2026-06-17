@@ -110,33 +110,12 @@ inline bool tlsEnvRequestsTls(const char* mode_var, const char* legacy_auth_var)
     return v == "1" || v == "true" || v == "yes" || v == "on";
 }
 
-// TLS verification policy helpers.
-// These read env vars at call time and return a bool.
-
 // UDA_CLIENT_TLS_VERIFY_HOSTNAME: default enabled (1).
 // Disable with =0 to skip hostname verification (logs a warning).
 inline bool clientTlsVerifyHostname()
 {
     const char* v = std::getenv("UDA_CLIENT_TLS_VERIFY_HOSTNAME");
     if (!v) return true; // secure default
-    const std::string s = normalise_tls_mode(v);
-    return s != "0" && s != "false" && s != "no" && s != "off";
-}
-
-// UDA_CLIENT_TLS_VERIFY_CERT_DATES: default enabled (1).
-inline bool clientTlsVerifyCertDates()
-{
-    const char* v = std::getenv("UDA_CLIENT_TLS_VERIFY_CERT_DATES");
-    if (!v) return true;
-    const std::string s = normalise_tls_mode(v);
-    return s != "0" && s != "false" && s != "no" && s != "off";
-}
-
-// UDA_SERVER_TLS_VERIFY_CLIENT_CERT_DATES: default enabled (1).
-inline bool serverTlsVerifyClientCertDates()
-{
-    const char* v = std::getenv("UDA_SERVER_TLS_VERIFY_CLIENT_CERT_DATES");
-    if (!v) return true;
     const std::string s = normalise_tls_mode(v);
     return s != "0" && s != "false" && s != "no" && s != "off";
 }

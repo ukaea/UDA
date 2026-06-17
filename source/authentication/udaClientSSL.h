@@ -37,6 +37,11 @@ int readUdaClientSSL(void* iohandle, char* buf, int count);
 int writeUdaClientSSL(void* iohandle, char* buf, int count);
 void putClientHost(const HostData* host);
 
+// Set the resolved hostname of the server we are about to connect to.
+// Called by connection.cpp with the final hostname before SSL handshake.
+// This ensures hostname verification works even when no host-list entry exists.
+void putClientHostname(const std::string& hostname);
+
 #endif // SSLAUTHENTICATION
 
 #endif // UDA_AUTHENTICATION_CLIENT_SSL_H

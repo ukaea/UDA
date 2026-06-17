@@ -553,9 +553,12 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
 	environment->protocol_version=client_version;
 	environment->server_version=0;
 
-    // Write the socket number to the SSL functions
+    // Write the socket number and resolved hostname to the SSL functions.
+    // putClientHostname() must be called with the final connected hostname so that
+    // TLS hostname verification works even when no host-list entry exists (g_host == nullptr).
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+    putClientHostname(environment->server_host);
     putUdaClientSSLSocket(client_socket);
 #endif
 
