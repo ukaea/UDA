@@ -10,6 +10,8 @@
 #include <string>
 
 #include <authentication/oauth_authentication.h>
+#include <authentication/authLog.h>
+#include <common/uda_env_options.hpp>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/manageSockets.h>
@@ -964,6 +966,7 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     fflush(nullptr);
 
     udaCloseLogging();
+    closeAuthLog();
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
@@ -1173,12 +1176,30 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
     // Identify the authenticated user for service authorisation
 
     putUdaServerSSLSocket(0);
-    
+
     int err = 0;
     if ((err = startUdaServerSSL()) != 0) {
         return err;
     }
 
+#else
+    // Server was not compiled with SSL support.  Fail early if the operator has set TLS env vars —
+    // without this check the client sends a TLS ClientHello, the server tries to parse it as an
+    // XDR record mark (~369 MB length field), and both sides hang until timeout with no
+    // intelligible error message.
+    {
+        using namespace uda::common::env_config;
+        const bool mode_requests_tls = match_custom_values("UDA_SERVER_TLS_MODE", {"server", "mutual"});
+        const bool legacy_on         = evaluate_bool_param("UDA_SERVER_SSL_AUTHENTICATE", false);
+
+        if (mode_requests_tls || legacy_on) {
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999,
+                "TLS/SSL requested via environment (UDA_SERVER_TLS_MODE or UDA_SERVER_SSL_AUTHENTICATE) "
+                "but this server binary was not compiled with SSLAUTHENTICATION support — "
+                "the client TLS handshake will fail; recompile the server with -DSSLAUTHENTICATION");
+            return 999;
+        }
+    }
 #endif
 
     //-------------------------------------------------------------------------

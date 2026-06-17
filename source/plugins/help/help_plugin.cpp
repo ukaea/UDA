@@ -18,12 +18,15 @@
 #include <plugins/udaPlugin.h>
 #include <clientserver/stringUtils.h>
 #include <authentication/oauth_authentication.h>
+#include <common/uda_env_options.hpp>
 #include <version.h>
 #include <fmt/format.h>
 
 static int do_ping(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 static int do_services(IDAM_PLUGIN_INTERFACE* plugin_interface);
+
+static int do_server_metadata(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
@@ -75,9 +78,10 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     int err {0};
     if (STR_IEQUALS(request->function, "help")) {
         const char* help = "\nHelp\tList of HELP plugin functions:\n\n"
-                           "services()\tReturns a list of available services with descriptions\n"
-                           "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
-                           "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
+                           "services()\t\tReturns a list of available services with descriptions\n"
+                           "ping()\t\t\tReturn the Local Server Time in seconds and microseconds\n"
+                           "servertime()\t\tReturn the Local Server Time in seconds and microseconds\n"
+                           "servermetadata()\tReturn server compilation flags and runtime configuration\n\n";
         err = setReturnDataString(data_block, help, "Help help = description of this plugin");
     } else if (STR_IEQUALS(request->function, "version")) {
         err = setReturnDataString(data_block, UDA_BUILD_VERSION, "Plugin version number");
@@ -91,6 +95,8 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         err = do_ping(plugin_interface);
     } else if (STR_IEQUALS(request->function, "services")) {
         err = do_services(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "servermetadata")) {
+        err = do_server_metadata(plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
     }
@@ -331,4 +337,74 @@ static int do_services(IDAM_PLUGIN_INTERFACE* plugin_interface)
     doc += "\n\n";
 
     return setReturnDataString(plugin_interface->data_block, doc.c_str(), "Description of UDA data access services");
+}
+
+static int do_server_metadata(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    using namespace uda::common::env_config;
+
+    std::string meta;
+
+    // --- Compile-time capabilities ---
+
+#ifdef SSLAUTHENTICATION
+    meta += "ssl_authentication=1\n";
+#else
+    meta += "ssl_authentication=0\n";
+#endif
+
+#ifdef CAPNP_ENABLED
+    meta += "capnp_enabled=1\n";
+#else
+    meta += "capnp_enabled=0\n";
+#endif
+
+#ifdef FATCLIENT
+    meta += "fat_client=1\n";
+#else
+    meta += "fat_client=0\n";
+#endif
+
+#ifdef SECURITYENABLED
+    meta += "security_enabled=1\n";
+#else
+    meta += "security_enabled=0\n";
+#endif
+
+#ifdef EXTERNAL_USER
+    meta += "external_user_forced=1\n";
+#else
+    meta += "external_user_forced=0\n";
+#endif
+
+    // --- Build info ---
+
+    meta += fmt::format("server_version={}\n", UDA_BUILD_VERSION);
+    meta += fmt::format("build_date={}\n", __DATE__);
+
+    // --- Runtime: TLS ---
+    // Report effective TLS mode. UDA_SERVER_SSL_AUTHENTICATE is the legacy boolean fallback
+    // that implies mutual TLS when no explicit mode is set.
+
+    const char* tls_mode_env = getenv("UDA_SERVER_TLS_MODE");
+    if (tls_mode_env != nullptr && tls_mode_env[0] != '\0') {
+        meta += fmt::format("tls_mode={}\n", tls_mode_env);
+    } else if (evaluate_bool_param("UDA_SERVER_SSL_AUTHENTICATE", false)) {
+        meta += "tls_mode=mutual\n";
+    } else {
+        meta += "tls_mode=off\n";
+    }
+
+    // --- Runtime: authentication ---
+
+    const char* auth_env = getenv("UDA_SERVER_AUTHENTICATION");
+    meta += fmt::format("authentication={}\n", auth_env != nullptr ? auth_env : "none");
+
+    // Report whether Keycloak is configured without exposing the realm URL or client ID.
+    const bool keycloak_configured = getenv("UDA_SERVER_KEYCLOAK_REALM") != nullptr
+                                  && getenv("UDA_SERVER_KEYCLOAK_CLIENT_ID") != nullptr;
+    meta += fmt::format("keycloak_configured={}\n", keycloak_configured ? 1 : 0);
+
+    return setReturnDataString(plugin_interface->data_block, meta.c_str(),
+                               "Server compilation flags and runtime configuration");
 }

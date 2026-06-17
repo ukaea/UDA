@@ -131,6 +131,10 @@ int udaServerRedirectStdStreams(bool reset, bool cleanup)
     static char temp_file[MAXPATH] = { 0 };
 
     if (cleanup) {
+        if (plugin_redirect_fh == nullptr) {
+            return 0;
+        }
+
         UDA_LOG(UDA_LOG_DEBUG, "Closing redirect file\n");
 
         errno = 0;

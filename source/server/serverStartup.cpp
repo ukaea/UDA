@@ -8,6 +8,7 @@
 #include <clientserver/errorLog.h>
 
 #include "getServerEnvironment.h"
+#include <authentication/authLog.h>
 
 int startup()
 {
@@ -72,6 +73,10 @@ int startup()
             udaSetLogFile(UDA_LOG_DEBUG, dbgout);
             udaSetLogFile(UDA_LOG_INFO, dbgout);
         }
+    }
+
+    if (environment->loglevel < UDA_LOG_NONE) {
+        openAuthLog(environment->logdir, environment->logmode);
     }
 
     printServerEnvironment(environment);

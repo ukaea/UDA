@@ -75,6 +75,16 @@ inline TlsMode getClientTlsMode()
     return getTlsMode("UDA_CLIENT_TLS_MODE", "UDA_CLIENT_SSL_AUTHENTICATE");
 }
 
+inline const char* tlsModeStr(TlsMode mode)
+{
+    switch (mode) {
+        case TlsMode::Off:        return "off";
+        case TlsMode::ServerOnly: return "server-only";
+        case TlsMode::Mutual:     return "mutual";
+    }
+    return "unknown";
+}
+
 inline bool isValidTlsModeEnv(const char* var_name)
 {
     const char* value = std::getenv(var_name);
