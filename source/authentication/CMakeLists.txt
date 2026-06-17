@@ -1,4 +1,5 @@
 find_package( OpenSSL REQUIRED )
+find_package( CURL REQUIRED )
 find_package( LibXml2 REQUIRED )
 
 if( WIN32 OR MINGW )
@@ -28,12 +29,8 @@ endif()
 
 add_library( authentication-client-objects OBJECT udaClientSSL.cpp authLog.cpp utils.cpp )
 target_include_directories( authentication-client-objects PRIVATE ${CMAKE_SOURCE_DIR}/extlib )
-target_link_libraries( authentication-client-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 curl )
+target_link_libraries( authentication-client-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 CURL::libcurl )
 target_compile_definitions( authentication-client-objects PRIVATE )
-
-add_library( oauth-objects OBJECT oauth_authentication.cpp oidc_config.cpp claim_policy.cpp )
-target_include_directories( oauth-objects PRIVATE ${CMAKE_SOURCE_DIR}/extlib ${CMAKE_SOURCE_DIR}/source )
-target_link_libraries( oauth-objects PUBLIC curl )
 
 if( NOT CLIENT_ONLY )
   add_library( authentication-server-objects OBJECT
@@ -42,7 +39,7 @@ if( NOT CLIENT_ONLY )
   target_include_directories( authentication-server-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/extlib ${CMAKE_SOURCE_DIR}/source )
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
-  target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 curl )
+  target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 CURL::libcurl )
 endif()
 
 install( FILES ${HEADER_FILES}

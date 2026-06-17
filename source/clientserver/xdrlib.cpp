@@ -72,15 +72,34 @@ bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str)
     return rc;
 }
 
+// Hard ceiling on bearer-token payload size from the wire.
+// Prevents a malicious peer from forcing huge allocation before authentication is checked.
+static constexpr unsigned int MAX_AUTH_PAYLOAD_LENGTH = 16384;
+
 bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str) {
     int rc = xdr_u_int(xdrs, &str->authentication_type)
          && xdr_u_int(xdrs, &str->payload_length);
 
+    if (!rc) return 0;
+
+    if (str->payload_length > MAX_AUTH_PAYLOAD_LENGTH) {
+        UDA_LOG(UDA_LOG_ERROR,
+            "xdr_authentication_block: payload_length %u exceeds maximum %u — rejecting\n",
+            str->payload_length, MAX_AUTH_PAYLOAD_LENGTH);
+        return 0;
+    }
+
     if (str->payload_length > 0) {
         if (xdrs->x_op == XDR_DECODE) {
-            str->payload = static_cast<unsigned char*>(calloc(str->payload_length + 1, sizeof(unsigned char)));
+            str->payload = static_cast<unsigned char*>(
+                calloc(str->payload_length + 1, sizeof(unsigned char)));
+            if (!str->payload) {
+                UDA_LOG(UDA_LOG_ERROR, "xdr_authentication_block: calloc failed\n");
+                return 0;
+            }
         }
 
+        // payload_length is guaranteed <= MAX_AUTH_PAYLOAD_LENGTH (16384) here; cast is safe.
         rc = rc && xdr_vector(xdrs, reinterpret_cast<char*>(str->payload),
                               static_cast<int>(str->payload_length),
                               sizeof(unsigned char), reinterpret_cast<xdrproc_t>(xdr_u_char));
@@ -227,7 +246,7 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
     }
 
     if (protocolVersion >= 11 && str->clientFlags & CLIENTFLAG_AUTHENTICATE) {
-        xdr_authentication_block(xdrs, &str->authenticationBlock);
+        rc = rc && xdr_authentication_block(xdrs, &str->authenticationBlock);
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "protocolVersion %d\n", protocolVersion);

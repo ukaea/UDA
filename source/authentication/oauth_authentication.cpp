@@ -48,6 +48,9 @@ struct JwksEntry {
 struct JwksCache {
     std::mutex mutex;
     std::unordered_map<std::string, JwksEntry> entries;
+    // Caches discovery_url -> resolved jwks_uri. The jwks_uri from a discovery document is
+    // stable across the lifetime of a process; no TTL is needed here.
+    std::unordered_map<std::string, std::string> discovery_uris;
     int ttl_seconds;
 
     JwksCache() {
@@ -103,7 +106,7 @@ std::string curl_http_fetch(const std::string& url)
     if (!allow_http) {
         const bool is_https = url.size() >= 8 && url.substr(0, 8) == "https://";
         if (!is_https) {
-            throw AuthError(AuthErrorCode::JwksFetchFailed,
+            throw AuthError(AuthErrorCode::InvalidConfig,
                 "OIDC fetch rejected non-HTTPS URL '" + url + "' — "
                 "set UDA_SERVER_OIDC_ALLOW_HTTP=1 to override (testing only)");
         }
@@ -167,6 +170,20 @@ public:
         }
 
         const std::string discovery_url = cfg_.issuer + "/.well-known/openid-configuration";
+
+        // Check discovery cache before fetching (jwks_uri is stable for the life of the process)
+        {
+            auto& cache = global_jwks_cache();
+            std::lock_guard<std::mutex> lock(cache.mutex);
+            const auto it = cache.discovery_uris.find(discovery_url);
+            if (it != cache.discovery_uris.end()) {
+                jwks_uri_ = it->second;
+                AUTH_LOG(UDA_LOG_DEBUG,
+                    "Auth: using cached JWKS URI from discovery: %s\n", jwks_uri_.c_str());
+                return;
+            }
+        }
+
         AUTH_LOG(UDA_LOG_DEBUG, "Auth: fetching OIDC discovery from %s\n", discovery_url.c_str());
 
         json discovery;
@@ -194,6 +211,12 @@ public:
                 "OIDC discovery document missing jwks_uri field");
         }
         AUTH_LOG(UDA_LOG_DEBUG, "Auth: resolved JWKS URI: %s\n", jwks_uri_.c_str());
+
+        {
+            auto& cache = global_jwks_cache();
+            std::lock_guard<std::mutex> lock(cache.mutex);
+            cache.discovery_uris[discovery_url] = jwks_uri_;
+        }
     }
 
     // Verify token; returns decoded payload map.
@@ -219,7 +242,10 @@ public:
             throw; // typed failures from verify_with_jwks — no retry
         } catch (const std::exception& e) {
             const std::string first_error = e.what();
-            // Only retry on kid-not-found; all other jwt-cpp errors are not stale-cache issues
+            // Only retry on kid-not-found; all other jwt-cpp errors are not stale-cache issues.
+            // The substring "kid not found" is load-bearing: it comes from jwt-cpp's
+            // jwt_object_set::get_jwk() when the requested kid is absent from the key set.
+            // If jwt-cpp changes this message, the retry will silently stop working.
             if (std::string(first_error).find("kid not found") == std::string::npos) {
                 throw AuthError(AuthErrorCode::InvalidToken, first_error);
             }

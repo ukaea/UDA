@@ -1,4 +1,5 @@
 find_package( OpenSSL REQUIRED )
+find_package( CURL REQUIRED )
 
 # authentication-test-objects: compile authentication sources without SSLAUTHENTICATION
 # (avoids pulling in OpenSSL client/server SSL code) so unit tests can link cleanly.
@@ -12,7 +13,7 @@ target_include_directories( authentication-test-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/extlib
 )
-target_link_libraries( authentication-test-objects PRIVATE curl )
+target_link_libraries( authentication-test-objects PRIVATE CURL::libcurl )
 
 # oidc_config tests
 add_executable( test_oidc_config oidc_config.test.cpp )
@@ -23,7 +24,7 @@ target_include_directories( test_oidc_config PRIVATE
 target_link_libraries( test_oidc_config PRIVATE
     authentication-test-objects
     Catch2::Catch2WithMain
-    curl
+    CURL::libcurl
 )
 add_test( NAME TestOidcConfig COMMAND test_oidc_config )
 
@@ -49,7 +50,7 @@ target_link_libraries( test_oidc_verify PRIVATE
     authentication-test-objects
     Catch2::Catch2WithMain
     OpenSSL::Crypto
-    curl
+    CURL::libcurl
 )
 add_test( NAME TestOidcVerify COMMAND test_oidc_verify )
 

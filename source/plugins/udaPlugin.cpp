@@ -350,6 +350,9 @@ int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE typ
  * @return the value found in the auth payload or nullptr if not found
  */
 const char* authPayloadValue(const char* key, const IDAM_PLUGIN_INTERFACE* plugin_interface) {
+    if (!plugin_interface || !plugin_interface->auth_payload || !plugin_interface->auth_payload->auth_payload) {
+        return nullptr;
+    }
     const auto& payload = plugin_interface->auth_payload->auth_payload;
     if (payload->count(key) == 0) {
         return nullptr;

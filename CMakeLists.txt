@@ -181,10 +181,11 @@ if( NOT CLIENT_ONLY AND NOT BUILD_SHARED_LIBS )
   message( FATAL_ERROR "cannot compile client AND server when BUILD_SHARED_LIBS is not set" )
 endif()
 
+option( SSLAUTHENTICATION "Enable TLS/SSL and OIDC bearer-token authentication" OFF )
 if( SSLAUTHENTICATION )
   message( "Including SSL/RTL X509 User Authentication" )
   add_definitions( -DSSLAUTHENTICATION )
-endif() 
+endif()
 
 if( BUILD_SHARED_LIBS )
   message( "Build shared libraries asked" )
