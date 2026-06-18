@@ -17,6 +17,7 @@
 #include <cstring>
 
 #include "authentication/oauth_authentication.h"
+#include <nlohmann/json.hpp>
 
 IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
@@ -358,6 +359,128 @@ const char* authPayloadValue(const char* key, const IDAM_PLUGIN_INTERFACE* plugi
         return nullptr;
     }
     return payload->at(key).c_str();
+}
+
+namespace {
+
+// Parse a single path component that may carry an array index suffix.
+// "roles[0]" → ("roles", 0)    "realm_access" → ("realm_access", -1)
+std::pair<std::string, int> parse_path_component(const std::string& s)
+{
+    const auto open = s.rfind('[');
+    if (open == std::string::npos || s.back() != ']') {
+        return {s, -1};
+    }
+    const std::string key     = s.substr(0, open);
+    const std::string idx_str = s.substr(open + 1, s.size() - open - 2);
+    try {
+        return {key, std::stoi(idx_str)};
+    } catch (...) {
+        return {s, -1}; // malformed index — treat the whole token as a key name
+    }
+}
+
+} // anonymous namespace
+
+const char* authPayloadPath(const char* path, const IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    // Stable buffer for the returned C string — valid until the next call.
+    static std::string result_buf;
+
+    if (!plugin_interface || !plugin_interface->auth_payload
+        || !plugin_interface->auth_payload->auth_payload
+        || !path || !path[0]) {
+        return nullptr;
+    }
+    const auto& payload = *plugin_interface->auth_payload->auth_payload;
+
+    // Split the dot-separated path into components.
+    std::vector<std::string> parts;
+    {
+        const std::string p{path};
+        std::string::size_type start = 0;
+        while (true) {
+            const auto dot = p.find('.', start);
+            parts.push_back(p.substr(start, dot == std::string::npos ? std::string::npos : dot - start));
+            if (dot == std::string::npos) break;
+            start = dot + 1;
+        }
+    }
+
+    // First component: direct PayloadType map lookup.
+    const auto [key0, idx0] = parse_path_component(parts[0]);
+    const auto it = payload.find(key0);
+    if (it == payload.end()) return nullptr;
+
+    // Fast path: single flat key, no array index.
+    if (parts.size() == 1 && idx0 < 0) {
+        result_buf = it->second;
+        return result_buf.c_str();
+    }
+
+    // The payload value is a JSON string (for array/object claims).
+    nlohmann::json j;
+    try {
+        j = nlohmann::json::parse(it->second);
+    } catch (...) {
+        return nullptr; // claim value is a plain string — can't navigate further
+    }
+
+    // Apply array index to the first component if present.
+    if (idx0 >= 0) {
+        if (!j.is_array() || idx0 >= static_cast<int>(j.size())) return nullptr;
+        j = j[idx0];
+    }
+
+    // Walk remaining components.
+    for (std::size_t i = 1; i < parts.size(); ++i) {
+        const auto [key, idx] = parse_path_component(parts[i]);
+        if (!j.is_object()) return nullptr;
+        const auto jit = j.find(key);
+        if (jit == j.end()) return nullptr;
+        j = *jit;
+        if (idx >= 0) {
+            if (!j.is_array() || idx >= static_cast<int>(j.size())) return nullptr;
+            j = j[idx];
+        }
+    }
+
+    // Leaf: strings are returned without JSON quoting; everything else is serialised.
+    result_buf = j.is_string() ? j.get<std::string>() : j.dump();
+    return result_buf.c_str();
+}
+
+bool authPayloadContains(const char* key, const char* value,
+                         const IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    if (!key || !value) return false;
+
+    const char* claim = authPayloadValue(key, plugin_interface);
+    if (!claim) return false;
+
+    // For JSON-array claims: check element membership.
+    try {
+        const auto j = nlohmann::json::parse(claim);
+        if (j.is_array()) {
+            for (const auto& el : j) {
+                if (el.is_string() && el.get<std::string>() == value) return true;
+            }
+            return false;
+        }
+    } catch (...) {}
+
+    // For plain string claims: check whitespace-delimited word membership.
+    // Handles scope = "openid uda.read" and similar claim formats.
+    const std::string_view sv{claim};
+    const std::string_view target{value};
+    std::string_view::size_type pos = 0;
+    while (pos < sv.size()) {
+        const auto space = sv.find(' ', pos);
+        const auto end   = (space == std::string_view::npos) ? sv.size() : space;
+        if (sv.substr(pos, end - pos) == target) return true;
+        pos = (space == std::string_view::npos) ? sv.size() : space + 1;
+    }
+    return false;
 }
 
 /**

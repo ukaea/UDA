@@ -60,6 +60,7 @@ add_definitions( -DSERVERBUILD )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/extlib
   ${LIBXML2_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
 )

@@ -1,6 +1,7 @@
 #include "help_plugin.h"
 
 #include <cstdlib>
+#include <string>
 
 #ifdef __GNUC__
 
@@ -8,6 +9,10 @@
 
 #else
 #  include <winsock2.h>
+#endif
+
+#ifdef OIDCAUTHENTICATION
+#  include <curl/curl.h>
 #endif
 
 #include <clientserver/initStructs.h>
@@ -27,6 +32,10 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* plugin_interface);
 static int do_services(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 static int do_server_metadata(IDAM_PLUGIN_INTERFACE* plugin_interface);
+
+#ifdef OIDCAUTHENTICATION
+static int do_authorisation_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+#endif
 
 int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
@@ -81,8 +90,18 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
                            "services()\t\tReturns a list of available services with descriptions\n"
                            "ping()\t\t\tReturn the Local Server Time in seconds and microseconds\n"
                            "servertime()\t\tReturn the Local Server Time in seconds and microseconds\n"
-                           "servermetadata()\tReturn server compilation flags and runtime configuration\n\n";
+                           "servermetadata()\tReturn server compilation flags and runtime configuration\n"
+#ifdef OIDCAUTHENTICATION
+                           "authorise()\t\tTest token claim against an external authorisation service\n"
+                           "\t\t\t  Env: UDA_HELP_AUTHZ_URL, UDA_HELP_AUTHZ_CLAIM, UDA_HELP_AUTHZ_EXPECT\n"
+#endif
+                           "\n";
         err = setReturnDataString(data_block, help, "Help help = description of this plugin");
+#ifdef OIDCAUTHENTICATION
+    } else if (STR_IEQUALS(request->function, "authorise")
+            || STR_IEQUALS(request->function, "authorize")) {
+        err = do_authorisation_test(plugin_interface);
+#endif
     } else if (STR_IEQUALS(request->function, "version")) {
         err = setReturnDataString(data_block, UDA_BUILD_VERSION, "Plugin version number");
     } else if (STR_IEQUALS(request->function, "builddate")) {
@@ -338,6 +357,81 @@ static int do_services(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     return setReturnDataString(plugin_interface->data_block, doc.c_str(), "Description of UDA data access services");
 }
+
+#ifdef OIDCAUTHENTICATION
+
+// Test whether the token bearer is authorised by an external HTTP service.
+//
+// Configuration (all via environment variables):
+//   UDA_HELP_AUTHZ_URL   — base URL of the authorisation service, required.
+//   UDA_HELP_AUTHZ_CLAIM — JWT claim whose value is sent as the ?value= parameter
+//                          (dot-path notation supported, e.g. "realm_access.roles[0]").
+//                          Defaults to "preferred_username".
+//   UDA_HELP_AUTHZ_EXPECT — expected response body string for an authorised result.
+//                           Defaults to "True".
+//
+// The service is called as:
+//   GET {UDA_HELP_AUTHZ_URL}?claim={claim_name}&value={url-encoded claim value}
+//
+// Returns "authorised" or "unauthorised" as a string data block.
+static int do_authorisation_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+
+    const char* base_url = getenv("UDA_HELP_AUTHZ_URL");
+    if (!base_url || !base_url[0]) {
+        return setReturnDataString(data_block, "unauthorised: UDA_HELP_AUTHZ_URL not set",
+                                   "HELP authorisation check");
+    }
+
+    const char* claim_name = getenv("UDA_HELP_AUTHZ_CLAIM");
+    if (!claim_name || !claim_name[0]) {
+        claim_name = "preferred_username";
+    }
+
+    const char* expected = getenv("UDA_HELP_AUTHZ_EXPECT");
+    if (!expected || !expected[0]) {
+        expected = "True";
+    }
+
+    // authPayloadPath supports dot-path notation (e.g. "realm_access.roles[0]")
+    // and falls back to a flat key lookup for simple claim names.
+    const char* claim_value = authPayloadPath(claim_name, plugin_interface);
+    if (!claim_value || !claim_value[0]) {
+        return setReturnDataString(data_block, "unauthorised: claim not found in token",
+                                   "HELP authorisation check");
+    }
+
+    // URL-encode the claim name and value so they are safe as query parameters.
+    // curl_easy_escape requires a handle but does not perform any network operation.
+    CURL* tmp = curl_easy_init();
+    if (!tmp) {
+        return setReturnDataString(data_block, "unauthorised: curl init failed",
+                                   "HELP authorisation check");
+    }
+    char* escaped_name  = curl_easy_escape(tmp, claim_name,  0);
+    char* escaped_value = curl_easy_escape(tmp, claim_value, 0);
+    const std::string auth_url = std::string{base_url}
+                                + "?claim=" + (escaped_name  ? escaped_name  : claim_name)
+                                + "&value=" + (escaped_value ? escaped_value : claim_value);
+    curl_free(escaped_name);
+    curl_free(escaped_value);
+    curl_easy_cleanup(tmp);
+
+    try {
+        const uda::authentication::CurlWrapper curl;
+        const std::string response = curl.perform_get_request(auth_url);
+        const bool authorised = (response == expected);
+        return setReturnDataString(data_block,
+                                   authorised ? "authorised" : "unauthorised",
+                                   "HELP authorisation check");
+    } catch (...) {
+        return setReturnDataString(data_block, "unauthorised: authorisation service error",
+                                   "HELP authorisation check");
+    }
+}
+
+#endif // OIDCAUTHENTICATION
 
 static int do_server_metadata(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {

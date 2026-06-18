@@ -4,6 +4,11 @@
 find_package( LibXml2 QUIET )
 find_package( fmt REQUIRED )
 
+if( ENABLE_OIDC_AUTH )
+  find_package( CURL REQUIRED )
+  set( HELP_AUTHZ_LINK_LIBS CURL::libcurl )
+endif()
+
 if( NOT LIBXML2_FOUND )
   message( WARNING "Libxml2 not found - skipping help plugin" )
   return()
@@ -34,4 +39,5 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     fmt::fmt
+    ${HELP_AUTHZ_LINK_LIBS}
 )
