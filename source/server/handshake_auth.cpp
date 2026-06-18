@@ -3,6 +3,7 @@
 #include <authentication/auth_error.h>
 #include <authentication/authLog.h>
 #include <authentication/oidc_config.h>
+#include <authentication/refusal_log.h>
 #include <clientserver/udaDefines.h>
 #include <clientserver/udaErrors.h>
 
@@ -11,6 +12,47 @@ namespace uda::server {
 // Protocol version at which CLIENTFLAG_AUTHENTICATE and the AUTHENTICATION_BLOCK were
 // introduced. Clients below this version cannot carry a bearer token at all.
 static constexpr int OIDC_MIN_CLIENT_PROTOCOL = 11;
+
+// Map AuthErrorCode to the RefusalReason used in the audit log.
+static uda::authentication::RefusalReason oidc_refusal_reason(
+    uda::authentication::AuthErrorCode code) noexcept
+{
+    using namespace uda::authentication;
+    switch (code) {
+        case AuthErrorCode::MissingToken:     return RefusalReason::OidcTokenMissing;
+        case AuthErrorCode::InvalidToken:     return RefusalReason::OidcTokenInvalidSignature;
+        case AuthErrorCode::ClaimPolicyFailed:return RefusalReason::OidcClaimPolicyFailed;
+        case AuthErrorCode::TlsHostnameMismatch:
+        case AuthErrorCode::DiscoveryFailed:
+        case AuthErrorCode::JwksFetchFailed:
+        case AuthErrorCode::InvalidConfig:    return RefusalReason::OidcConfigInvalid;
+        default:                              return RefusalReason::OidcTokenInvalidSignature;
+    }
+}
+
+// Build the common part of a RefusalRecord for OIDC gate failures.
+static uda::authentication::RefusalRecord make_oidc_record(
+    const CLIENT_BLOCK* cb,
+    uda::authentication::RefusalReason reason,
+    int uda_error_code,
+    const std::string& message,
+    const std::string& token_error = "")
+{
+    using namespace uda::authentication;
+    RefusalRecord rec;
+    rec.stage          = RefusalStage::OidcAuth;
+    rec.reason         = reason;
+    rec.uda_error_code = uda_error_code;
+    rec.message        = message;
+    rec.peer           = get_peer_info(0);  // UDA server always uses fd 0 (inetd convention)
+    rec.client_version  = cb->version;
+    rec.client_username = cb->uid;
+    rec.token_error    = token_error;
+    try {
+        rec.oidc_issuer = OidcConfig::from_env().issuer;
+    } catch (...) {}
+    return rec;
+}
 
 AuthGateResult check_oidc_client_auth(
     const CLIENT_BLOCK*              client_block,
@@ -30,6 +72,8 @@ AuthGateResult check_oidc_client_auth(
         result.error_code = UDA_AUTH_ERR_INVALID_CONFIG;
         result.message    = std::string("Invalid UDA_SERVER_AUTHENTICATION value '")
                             + auth_mode + "' (expected OIDC or OAUTH)";
+        record_refused_request(make_oidc_record(client_block,
+            RefusalReason::OidcConfigInvalid, result.error_code, result.message));
         return result;
     }
 
@@ -43,6 +87,12 @@ AuthGateResult check_oidc_client_auth(
         result.error_code = UDA_AUTH_ERR_MISSING_TOKEN;
         result.message    = "OIDC authentication requires UDA client protocol version 11 "
                             "or later; upgrade the UDA client library";
+        {
+            auto rec = make_oidc_record(client_block,
+                RefusalReason::ClientProtocolTooOld, result.error_code, result.message);
+            rec.stage = RefusalStage::Protocol;
+            record_refused_request(rec);
+        }
         return result;
     }
 
@@ -59,6 +109,8 @@ AuthGateResult check_oidc_client_auth(
         result.failed     = true;
         result.error_code = UDA_AUTH_ERR_MISSING_TOKEN;
         result.message    = "No bearer token provided; set UDA_AUTH_TOKEN on the client";
+        record_refused_request(make_oidc_record(client_block,
+            RefusalReason::OidcTokenMissing, result.error_code, result.message, "missing"));
         return result;
     }
 
@@ -73,6 +125,8 @@ AuthGateResult check_oidc_client_auth(
         result.failed     = true;
         result.error_code = UDA_AUTH_ERR_MISSING_TOKEN;
         result.message    = "Bearer token is missing (null payload)";
+        record_refused_request(make_oidc_record(client_block,
+            RefusalReason::OidcTokenMissing, result.error_code, result.message, "missing"));
         return result;
     }
 
@@ -83,6 +137,9 @@ AuthGateResult check_oidc_client_auth(
             result.failed     = true;
             result.error_code = UDA_AUTH_ERR_INVALID_TOKEN;
             result.message    = "Bearer token contains embedded null byte";
+            record_refused_request(make_oidc_record(client_block,
+                RefusalReason::OidcTokenInvalidSignature, result.error_code, result.message,
+                "invalid"));
             return result;
         }
     }
@@ -99,11 +156,15 @@ AuthGateResult check_oidc_client_auth(
         result.failed     = true;
         result.error_code = code;
         result.message    = e.what();
+        record_refused_request(make_oidc_record(client_block,
+            oidc_refusal_reason(e.code), code, e.what()));
     } catch (const std::exception& e) {
         AUTH_LOG(UDA_LOG_ERROR, "Auth: unexpected exception: %s\n", e.what());
         result.failed     = true;
         result.error_code = 999;
         result.message    = e.what();
+        record_refused_request(make_oidc_record(client_block,
+            RefusalReason::OidcTokenInvalidSignature, 999, e.what()));
     }
 
     return result;

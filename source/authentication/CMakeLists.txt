@@ -29,7 +29,7 @@ endif()
 
 set( HEADER_FILES
   oauth_authentication.h authLog.h oidc_config.h claim_policy.h
-  jwks_cache.h tls_policy.h
+  jwks_cache.h tls_policy.h refusal_log.h
 )
 
 include_directories(
@@ -55,7 +55,7 @@ endif()
 
 if( NOT CLIENT_ONLY )
   # Server objects: TLS + OIDC — include only what is enabled
-  set( SERVER_AUTH_SRCS authLog.cpp utils.cpp )
+  set( SERVER_AUTH_SRCS authLog.cpp utils.cpp refusal_log.cpp )
   if( ENABLE_TLS )
     list( APPEND SERVER_AUTH_SRCS udaServerSSL.cpp )
   endif()

@@ -9,6 +9,9 @@
 
 #include "getServerEnvironment.h"
 #include <authentication/authLog.h>
+#if defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)
+#  include <authentication/refusal_log.h>
+#endif
 
 int startup()
 {
@@ -77,6 +80,9 @@ int startup()
 
     if (environment->loglevel < UDA_LOG_NONE) {
         openAuthLog(environment->logdir, environment->logmode);
+#if defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)
+        uda::authentication::open_refusal_log(environment->logdir, environment->logmode);
+#endif
     }
 
     printServerEnvironment(environment);

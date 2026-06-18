@@ -7,6 +7,8 @@ endif()
 
 if( ENABLE_OIDC_AUTH )
 
+set( AUTH_TEST_LOGGING_OBJECTS $<TARGET_OBJECTS:logging-client-objects> )
+
 # authentication-test-objects: compile authentication sources without SSLAUTHENTICATION
 # (avoids pulling in OpenSSL client/server SSL code) so unit tests can link cleanly.
 add_library( authentication-test-objects OBJECT
@@ -20,10 +22,10 @@ target_include_directories( authentication-test-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/extlib
 )
-target_link_libraries( authentication-test-objects PRIVATE CURL::libcurl )
+target_link_libraries( authentication-test-objects PRIVATE CURL::libcurl OpenSSL::Crypto )
 
 # oidc_config tests
-add_executable( test_oidc_config oidc_config.test.cpp )
+add_executable( test_oidc_config oidc_config.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_oidc_config PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/extlib
@@ -36,7 +38,7 @@ target_link_libraries( test_oidc_config PRIVATE
 add_test( NAME TestOidcConfig COMMAND test_oidc_config )
 
 # claim_policy tests
-add_executable( test_claim_policy claim_policy.test.cpp )
+add_executable( test_claim_policy claim_policy.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_claim_policy PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/extlib
@@ -48,7 +50,7 @@ target_link_libraries( test_claim_policy PRIVATE
 add_test( NAME TestClaimPolicy COMMAND test_claim_policy )
 
 # oidc_verify tests (JWT sign/verify using mock HTTP fetcher)
-add_executable( test_oidc_verify oidc_verify.test.cpp )
+add_executable( test_oidc_verify oidc_verify.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_oidc_verify PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/extlib
@@ -70,7 +72,7 @@ target_include_directories( handshake-auth-test-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/extlib
 )
 
-add_executable( test_server_auth server_auth.test.cpp )
+add_executable( test_server_auth server_auth.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_server_auth PRIVATE
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/extlib

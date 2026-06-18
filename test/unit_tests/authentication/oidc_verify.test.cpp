@@ -717,9 +717,10 @@ TEST_CASE("authenticate succeeds when OidcConfig is loaded from environment", "[
     EnvGuard g_jwks  ("UDA_SERVER_OIDC_JWKS_URI",      jwks_uri.c_str());
     EnvGuard g_algs  ("UDA_SERVER_OIDC_ALLOWED_ALGS",  "RS256");
     // Ensure no audience or claim-policy env vars leak in from the environment.
-    EnvCleaner cleanup({"UDA_SERVER_OIDC_AUDIENCE", "UDA_SERVER_OIDC_REQUIRED_CLAIMS",
+    EnvCleaner cleanup({"UDA_SERVER_OIDC_REQUIRED_CLAIMS",
                         "UDA_SERVER_OIDC_CLIENT_ID", "UDA_SERVER_KEYCLOAK_REALM",
                         "UDA_SERVER_KEYCLOAK_CLIENT_ID"});
+    EnvGuard g_audience("UDA_SERVER_OIDC_AUDIENCE", "test-audience");
 
     TokenBuilder tb;
     tb.issuer = issuer;
@@ -728,8 +729,8 @@ TEST_CASE("authenticate succeeds when OidcConfig is loaded from environment", "[
     const OidcConfig cfg = OidcConfig::from_env();
     REQUIRE( cfg.issuer   == issuer );
     REQUIRE( cfg.jwks_uri == jwks_uri );
-    // Without UDA_SERVER_OIDC_AUDIENCE, verify_audience defaults false (empty audience)
-    REQUIRE( cfg.verify_audience == false );
+    REQUIRE( cfg.audience == "test-audience" );
+    REQUIRE( cfg.verify_audience == true );
 
     const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
     PayloadType payload;

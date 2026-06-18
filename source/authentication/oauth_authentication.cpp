@@ -237,12 +237,26 @@ private:
         const jwt::decoded_jwt<jwt::traits::kazuho_picojson>& decoded,
         const std::string& jwks_json) const
     {
+        const auto jwks_doc = json::parse(jwks_json);
+        bool kid_found = false;
+        if (jwks_doc.contains("keys") && jwks_doc["keys"].is_array()) {
+            for (const auto& key : jwks_doc["keys"]) {
+                if (key.value("kid", "") == decoded.get_key_id()) {
+                    kid_found = true;
+                    break;
+                }
+            }
+        }
+        if (!kid_found) {
+            throw std::runtime_error("kid not found");
+        }
+
         const auto jwk = jwt::parse_jwks(jwks_json).get_jwk(decoded.get_key_id());
         AUTH_LOG(UDA_LOG_DEBUG, "Auth: JWK key found (kid=%s)\n", decoded.get_key_id().c_str());
 
         std::string pub_key_pem;
-        const auto x5c = jwk.get_x5c_key_value();
-        if (!x5c.empty()) {
+        if (jwk.has_x5c()) {
+            const auto x5c = jwk.get_x5c_key_value();
             AUTH_LOG(UDA_LOG_DEBUG, "Auth: using x5c component for signature verification\n");
             pub_key_pem = jwt::helper::convert_base64_der_to_pem(x5c);
         } else {
