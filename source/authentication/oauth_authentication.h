@@ -1,6 +1,7 @@
 #pragma once
 
 #include "auth_error.h"
+#include "jwks_cache.h"
 #include "oidc_config.h"
 
 #include <functional>
@@ -34,6 +35,13 @@ std::string curl_http_fetch(const std::string& url);
 PayloadType authenticate(const std::string& token,
                          const OidcConfig& cfg,
                          const HttpFetcher& fetcher);
+
+// Four-argument overload: same as above but uses an explicit JwksCache instead of the
+// process-global one. Construct a fresh JwksCache(ttl_s) per test for full isolation.
+PayloadType authenticate(const std::string& token,
+                         const OidcConfig& cfg,
+                         const HttpFetcher& fetcher,
+                         JwksCache& cache);
 
 // Convenience wrapper: reads OidcConfig from environment and uses cURL.
 PayloadType authenticate(const std::string& token);

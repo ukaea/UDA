@@ -1,5 +1,6 @@
 #include "oauth_authentication.h"
 #include "claim_policy.h"
+#include "jwks_cache.h"
 #include "authLog.h"
 
 #include <chrono>
@@ -33,44 +34,11 @@ size_t write_callback(void* contents, size_t size, size_t count, std::string* ou
 
 using json = nlohmann::json;
 
-// -------------------------------------------------------------------------
-// JWKS cache — process-global, TTL-based, mutex-protected
-//
-// TTL is read once from UDA_SERVER_OIDC_JWKS_CACHE_TTL at first use.
-// Fetches are done outside the lock to avoid holding it during network I/O.
-// A force-refresh bypasses the TTL check (used on kid-not-found retry).
-
-struct JwksEntry {
-    std::string json_str;
-    std::chrono::steady_clock::time_point fetched_at;
-};
-
-struct JwksCache {
-    std::mutex mutex;
-    std::unordered_map<std::string, JwksEntry> entries;
-    // Caches discovery_url -> resolved jwks_uri. The jwks_uri from a discovery document is
-    // stable across the lifetime of a process; no TTL is needed here.
-    std::unordered_map<std::string, std::string> discovery_uris;
-    int ttl_seconds;
-
-    JwksCache() {
-        const char* ttl_env = std::getenv("UDA_SERVER_OIDC_JWKS_CACHE_TTL");
-        int ttl = ttl_env ? std::atoi(ttl_env) : 300;
-        ttl_seconds = ttl > 0 ? ttl : 300;
-    }
-};
-
-JwksCache& global_jwks_cache()
-{
-    static JwksCache cache;
-    return cache;
-}
-
 std::string fetch_jwks_cached(const std::string& uri,
                               const HttpFetcher& fetcher,
+                              JwksCache& cache,
                               bool force_refresh = false)
 {
-    auto& cache = global_jwks_cache();
 
     if (!force_refresh) {
         std::lock_guard<std::mutex> lock(cache.mutex);
@@ -154,8 +122,8 @@ namespace detail {
 
 class OidcCTX {
 public:
-    OidcCTX(const OidcConfig& cfg, const HttpFetcher& fetcher)
-        : cfg_(cfg), fetcher_(fetcher)
+    OidcCTX(const OidcConfig& cfg, const HttpFetcher& fetcher, JwksCache& cache)
+        : cfg_(cfg), fetcher_(fetcher), cache_(cache)
     {
         if (!cfg_.jwks_uri.empty()) {
             jwks_uri_ = cfg_.jwks_uri;
@@ -173,10 +141,9 @@ public:
 
         // Check discovery cache before fetching (jwks_uri is stable for the life of the process)
         {
-            auto& cache = global_jwks_cache();
-            std::lock_guard<std::mutex> lock(cache.mutex);
-            const auto it = cache.discovery_uris.find(discovery_url);
-            if (it != cache.discovery_uris.end()) {
+            std::lock_guard<std::mutex> lock(cache_.mutex);
+            const auto it = cache_.discovery_uris.find(discovery_url);
+            if (it != cache_.discovery_uris.end()) {
                 jwks_uri_ = it->second;
                 AUTH_LOG(UDA_LOG_DEBUG,
                     "Auth: using cached JWKS URI from discovery: %s\n", jwks_uri_.c_str());
@@ -213,9 +180,8 @@ public:
         AUTH_LOG(UDA_LOG_DEBUG, "Auth: resolved JWKS URI: %s\n", jwks_uri_.c_str());
 
         {
-            auto& cache = global_jwks_cache();
-            std::lock_guard<std::mutex> lock(cache.mutex);
-            cache.discovery_uris[discovery_url] = jwks_uri_;
+            std::lock_guard<std::mutex> lock(cache_.mutex);
+            cache_.discovery_uris[discovery_url] = jwks_uri_;
         }
     }
 
@@ -228,7 +194,7 @@ public:
 
         std::string jwks_json;
         try {
-            jwks_json = fetch_jwks_cached(jwks_uri_, fetcher_);
+            jwks_json = fetch_jwks_cached(jwks_uri_, fetcher_, cache_);
         } catch (const AuthError&) {
             throw;
         } catch (const std::exception& e) {
@@ -253,7 +219,7 @@ public:
             AUTH_LOG(UDA_LOG_DEBUG,
                 "Auth: kid not found in cached JWKS, refreshing (possible key rotation)\n");
             try {
-                const std::string fresh = fetch_jwks_cached(jwks_uri_, fetcher_, true);
+                const std::string fresh = fetch_jwks_cached(jwks_uri_, fetcher_, cache_, true);
                 return verify_with_jwks(decoded, fresh);
             } catch (const AuthError&) {
                 throw;
@@ -343,17 +309,19 @@ private:
 
     const OidcConfig& cfg_;
     const HttpFetcher& fetcher_;
+    JwksCache& cache_;
     std::string jwks_uri_;
 };
 
 } // namespace detail
 
 // -------------------------------------------------------------------------
-// authenticate() — testable two-argument form
+// authenticate_impl — shared implementation used by both public overloads
 
-PayloadType authenticate(const std::string& token,
-                         const OidcConfig& cfg,
-                         const HttpFetcher& fetcher)
+static PayloadType authenticate_impl(const std::string& token,
+                                     const OidcConfig& cfg,
+                                     const HttpFetcher& fetcher,
+                                     JwksCache& cache)
 {
     if (token.empty()) {
         throw AuthError(AuthErrorCode::MissingToken,
@@ -398,7 +366,7 @@ PayloadType authenticate(const std::string& token,
         cfg.issuer.c_str(), cfg.client_id.c_str(), cfg.audience.c_str(),
         cfg.verify_issuer, cfg.verify_audience, cfg.clock_skew_seconds);
 
-    const detail::OidcCTX ctx(cfg, fetcher);
+    const detail::OidcCTX ctx(cfg, fetcher, cache);
     PayloadType payload = ctx.verify_token(token);
 
     // Legacy Keycloak azp == client_id check when no explicit required_claims is set
@@ -435,11 +403,26 @@ PayloadType authenticate(const std::string& token,
 }
 
 // -------------------------------------------------------------------------
-// authenticate() — production entry point: reads env, uses cURL
+// Public authenticate() overloads
+
+PayloadType authenticate(const std::string& token,
+                         const OidcConfig& cfg,
+                         const HttpFetcher& fetcher)
+{
+    return authenticate_impl(token, cfg, fetcher, global_jwks_cache());
+}
+
+PayloadType authenticate(const std::string& token,
+                         const OidcConfig& cfg,
+                         const HttpFetcher& fetcher,
+                         JwksCache& cache)
+{
+    return authenticate_impl(token, cfg, fetcher, cache);
+}
 
 PayloadType authenticate(const std::string& token)
 {
-    return authenticate(token, OidcConfig::from_env(), curl_http_fetch);
+    return authenticate_impl(token, OidcConfig::from_env(), curl_http_fetch, global_jwks_cache());
 }
 
 } // namespace authentication

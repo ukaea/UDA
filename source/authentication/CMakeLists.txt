@@ -1,25 +1,34 @@
-find_package( OpenSSL REQUIRED )
-find_package( CURL REQUIRED )
+if( TLSAUTHENTICATION OR OIDCAUTHENTICATION )
+  find_package( OpenSSL REQUIRED )
+endif()
+
+if( OIDCAUTHENTICATION )
+  find_package( CURL REQUIRED )
+endif()
+
 find_package( LibXml2 REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
 else()
-  find_package( TIRPC QUIET)
+  find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
     add_definitions( -D__TIRPC__ )
   endif()
 endif()
 
-# Sources
-
-set( HEADER_FILES oauth_authentication.h authLog.h oidc_config.h claim_policy.h )
+set( HEADER_FILES
+  oauth_authentication.h authLog.h oidc_config.h claim_policy.h
+  jwks_cache.h tls_policy.h
+)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
-  ${OPENSSL_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
 )
+if( TLSAUTHENTICATION OR OIDCAUTHENTICATION )
+  include_directories( ${OPENSSL_INCLUDE_DIR} )
+endif()
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
@@ -27,19 +36,34 @@ elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
 endif()
 
+# Client objects: TLS only (clients send tokens but do not validate them)
 add_library( authentication-client-objects OBJECT udaClientSSL.cpp authLog.cpp utils.cpp )
 target_include_directories( authentication-client-objects PRIVATE ${CMAKE_SOURCE_DIR}/extlib )
-target_link_libraries( authentication-client-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 CURL::libcurl )
-target_compile_definitions( authentication-client-objects PRIVATE )
+if( TLSAUTHENTICATION )
+  target_link_libraries( authentication-client-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )
+endif()
 
 if( NOT CLIENT_ONLY )
-  add_library( authentication-server-objects OBJECT
-    udaServerSSL.cpp authLog.cpp utils.cpp
-    oauth_authentication.cpp oidc_config.cpp claim_policy.cpp )
+  # Server objects: TLS + OIDC — include only what is enabled
+  set( SERVER_AUTH_SRCS authLog.cpp utils.cpp )
+  if( TLSAUTHENTICATION )
+    list( APPEND SERVER_AUTH_SRCS udaServerSSL.cpp )
+  endif()
+  if( OIDCAUTHENTICATION )
+    list( APPEND SERVER_AUTH_SRCS
+      oauth_authentication.cpp oidc_config.cpp claim_policy.cpp jwks_cache.cpp )
+  endif()
+
+  add_library( authentication-server-objects OBJECT ${SERVER_AUTH_SRCS} )
   target_include_directories( authentication-server-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/extlib ${CMAKE_SOURCE_DIR}/source )
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
-  target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 CURL::libcurl )
+  if( TLSAUTHENTICATION )
+    target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )
+  endif()
+  if( OIDCAUTHENTICATION )
+    target_link_libraries( authentication-server-objects PRIVATE OpenSSL::Crypto CURL::libcurl )
+  endif()
 endif()
 
 install( FILES ${HEADER_FILES}

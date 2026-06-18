@@ -181,10 +181,24 @@ if( NOT CLIENT_ONLY AND NOT BUILD_SHARED_LIBS )
   message( FATAL_ERROR "cannot compile client AND server when BUILD_SHARED_LIBS is not set" )
 endif()
 
-option( SSLAUTHENTICATION "Enable TLS/SSL and OIDC bearer-token authentication" OFF )
+option( TLSAUTHENTICATION  "Enable TLS/SSL transport encryption" OFF )
+option( OIDCAUTHENTICATION "Enable OIDC bearer-token authentication" OFF )
+option( SSLAUTHENTICATION  "Enable TLS and OIDC authentication (umbrella for TLSAUTHENTICATION + OIDCAUTHENTICATION)" OFF )
+
 if( SSLAUTHENTICATION )
-  message( "Including SSL/RTL X509 User Authentication" )
+  set( TLSAUTHENTICATION  ON CACHE BOOL "Activated by SSLAUTHENTICATION" FORCE )
+  set( OIDCAUTHENTICATION ON CACHE BOOL "Activated by SSLAUTHENTICATION" FORCE )
+endif()
+
+if( TLSAUTHENTICATION )
+  message( "Including TLS/SSL transport authentication" )
   add_definitions( -DSSLAUTHENTICATION )
+  add_definitions( -DTLSAUTHENTICATION )
+endif()
+
+if( OIDCAUTHENTICATION )
+  message( "Including OIDC bearer-token authentication" )
+  add_definitions( -DOIDCAUTHENTICATION )
 endif()
 
 if( BUILD_SHARED_LIBS )

@@ -471,3 +471,81 @@ TEST_CASE("Mutual TLS: invalid (self-signed) client cert — server rejects", "[
                                               "test-server.example.com", false);
     REQUIRE( s_res != 1 ); // server must reject rogue cert
 }
+
+TEST_CASE("Mutual TLS: expired client cert — server rejects", "[tls_integration]")
+{
+    const auto& f = fixture();
+    // Generate a client cert that expired yesterday
+    auto exp_client_key  = generate_key();
+    auto exp_client_cert = make_cert(exp_client_key.get(), f.ca_key.get(), f.ca_cert.get(),
+                                     "Expired Client", -1); // expired
+    const std::string exp_cert_pem = cert_to_pem(exp_client_cert.get());
+    const std::string exp_key_pem  = key_to_pem(exp_client_key.get());
+
+    SslCtxPtr c_ctx = make_client_ctx(f.ca_pem, true);
+    BioPtr ccbio(BIO_new_mem_buf(exp_cert_pem.data(), static_cast<int>(exp_cert_pem.size())));
+    X509Ptr cc(PEM_read_bio_X509(ccbio.get(), nullptr, nullptr, nullptr));
+    SSL_CTX_use_certificate(c_ctx.get(), cc.get());
+    BioPtr ckbio(BIO_new_mem_buf(exp_key_pem.data(), static_cast<int>(exp_key_pem.size())));
+    EVP_PKEY* ck = PEM_read_bio_PrivateKey(ckbio.get(), nullptr, nullptr, nullptr);
+    SSL_CTX_use_PrivateKey(c_ctx.get(), ck);
+    EVP_PKEY_free(ck);
+
+    SslCtxPtr s_ctx = make_server_ctx(f.server_cert_pem, f.server_key_pem, f.ca_pem, true);
+    const auto [c_res, s_res] = do_handshake(c_ctx.get(), s_ctx.get(),
+                                              "test-server.example.com", true);
+    REQUIRE( s_res != 1 ); // server must reject expired client cert
+}
+
+TEST_CASE("TLS server-only: IP SAN mismatch — client rejects wrong IP", "[tls_integration]")
+{
+    const auto& f = fixture();
+    auto ip_key  = generate_key();
+    auto ip_cert = make_cert(ip_key.get(), f.ca_key.get(), f.ca_cert.get(),
+                              "127.0.0.1", 365, nullptr, "127.0.0.1");
+    const std::string ip_cert_pem = cert_to_pem(ip_cert.get());
+    const std::string ip_key_pem  = key_to_pem(ip_key.get());
+
+    SslCtxPtr c_ctx = make_client_ctx(f.ca_pem, true);
+    SslCtxPtr s_ctx = make_server_ctx(ip_cert_pem, ip_key_pem);
+
+    // Cert has SAN for 127.0.0.1, but client verifies against 192.0.2.1
+    const auto [c_res, s_res] = do_handshake(c_ctx.get(), s_ctx.get(), "192.0.2.1", true);
+    REQUIRE( c_res != 1 ); // client must reject: cert IP SAN does not match
+}
+
+TEST_CASE("TLS server-only: wildcard DNS SAN matches subdomain", "[tls_integration]")
+{
+    const auto& f = fixture();
+    auto wc_key  = generate_key();
+    auto wc_cert = make_cert(wc_key.get(), f.ca_key.get(), f.ca_cert.get(),
+                              "*.example.com", 365, "*.example.com");
+    const std::string wc_cert_pem = cert_to_pem(wc_cert.get());
+    const std::string wc_key_pem  = key_to_pem(wc_key.get());
+
+    SslCtxPtr c_ctx = make_client_ctx(f.ca_pem, true);
+    SslCtxPtr s_ctx = make_server_ctx(wc_cert_pem, wc_key_pem);
+
+    const auto [c_res, s_res] = do_handshake(c_ctx.get(), s_ctx.get(), "host.example.com", true);
+    REQUIRE( c_res == 1 );
+    REQUIRE( s_res == 1 );
+}
+
+TEST_CASE("TLS server-only: partial wildcard rejected with NO_PARTIAL_WILDCARDS flag", "[tls_integration]")
+{
+    const auto& f = fixture();
+    auto wc_key  = generate_key();
+    auto wc_cert = make_cert(wc_key.get(), f.ca_key.get(), f.ca_cert.get(),
+                              "*.example.com", 365, "*.example.com");
+    const std::string wc_cert_pem = cert_to_pem(wc_cert.get());
+    const std::string wc_key_pem  = key_to_pem(wc_key.get());
+
+    SslCtxPtr c_ctx = make_client_ctx(f.ca_pem, true);
+    SslCtxPtr s_ctx = make_server_ctx(wc_cert_pem, wc_key_pem);
+
+    // X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS means *.example.com does NOT match
+    // deep.sub.example.com (only single-label wildcards are allowed)
+    const auto [c_res, s_res] = do_handshake(c_ctx.get(), s_ctx.get(),
+                                              "deep.sub.example.com", true);
+    REQUIRE( c_res != 1 ); // wildcard *.example.com should not match deep.sub.example.com
+}

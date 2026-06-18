@@ -26,6 +26,7 @@
 #include <authentication/oauth_authentication.h>
 #include <authentication/oidc_config.h>
 #include <authentication/auth_error.h>
+#include <authentication/jwks_cache.h>
 
 using namespace uda::authentication;
 using json = nlohmann::json;
@@ -735,4 +736,46 @@ TEST_CASE("authenticate succeeds when OidcConfig is loaded from environment", "[
     REQUIRE_NOTHROW( payload = authenticate(token, cfg, fetch) );
     REQUIRE( payload.count("azp") == 1 );
     REQUIRE( payload.at("azp") == "test-client" );
+}
+
+// ---------------------------------------------------------------------------
+// JwksCache injection — test isolation via explicit cache
+
+TEST_CASE("authenticate with explicit cache: second call reuses cached JWKS", "[oidc_verify]")
+{
+    const auto& k = test_key();
+    const OidcConfig cfg = make_cfg("https://test-issuer.example.com", "test-audience",
+                                    "https://explicit-cache-test-1.example.com/jwks");
+    const std::string token = TokenBuilder{}.build(k);
+
+    int fetch_count = 0;
+    const HttpFetcher counting_fetch = [&](const std::string&) -> std::string {
+        ++fetch_count;
+        return k.jwks_json;
+    };
+
+    JwksCache fresh_cache(300);
+    REQUIRE_NOTHROW( authenticate(token, cfg, counting_fetch, fresh_cache) );
+    REQUIRE_NOTHROW( authenticate(token, cfg, counting_fetch, fresh_cache) );
+    REQUIRE( fetch_count == 1 ); // second call hits the injected cache
+}
+
+TEST_CASE("authenticate with explicit cache: fresh cache does not share entries with global", "[oidc_verify]")
+{
+    const auto& k = test_key();
+    // Use a URI that's definitely been fetched by other tests (via global cache)
+    const OidcConfig cfg = make_cfg("https://test-issuer.example.com", "test-audience",
+                                    "https://test-issuer.example.com/jwks");
+    const std::string token = TokenBuilder{}.build(k);
+
+    int fetch_count = 0;
+    const HttpFetcher counting_fetch = [&](const std::string&) -> std::string {
+        ++fetch_count;
+        return k.jwks_json;
+    };
+
+    // Fresh cache starts empty — must fetch even if global cache has this URI
+    JwksCache fresh_cache(300);
+    REQUIRE_NOTHROW( authenticate(token, cfg, counting_fetch, fresh_cache) );
+    REQUIRE( fetch_count == 1 );
 }
