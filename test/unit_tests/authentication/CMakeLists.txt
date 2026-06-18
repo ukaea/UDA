@@ -63,6 +63,21 @@ target_link_libraries( test_oidc_verify PRIVATE
 )
 add_test( NAME TestOidcVerify COMMAND test_oidc_verify )
 
+# provider_matrix tests (generic OIDC / Keycloak / SciTokens claim shapes)
+add_executable( test_provider_matrix provider_matrix.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
+target_include_directories( test_provider_matrix PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/extlib
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries( test_provider_matrix PRIVATE
+    authentication-test-objects
+    Catch2::Catch2WithMain
+    OpenSSL::Crypto
+    CURL::libcurl
+)
+add_test( NAME TestProviderMatrix COMMAND test_provider_matrix )
+
 # handshake_auth unit tests (version check, auth_mode check, null-byte check)
 add_library( handshake-auth-test-objects OBJECT
     ${CMAKE_SOURCE_DIR}/source/server/handshake_auth.cpp
