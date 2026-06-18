@@ -29,7 +29,15 @@
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
 #include "getServerEnvironment.h"
-#include "handshake_auth.h"
+#ifdef OIDCAUTHENTICATION
+#  include "handshake_auth.h"
+#else
+#  include <string>
+#  include <unordered_map>
+namespace uda { namespace authentication {
+using PayloadType = std::unordered_map<std::string, std::string>;
+} }
+#endif
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
@@ -1080,10 +1088,11 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
 
     if (err != 0) return err;
 
-    const char* auth_env = getenv("UDA_SERVER_AUTHENTICATION");
     bool auth_failed = false;
     int auth_err_code = 999;
 
+#ifdef OIDCAUTHENTICATION
+    const char* auth_env = getenv("UDA_SERVER_AUTHENTICATION");
     if (auth_env != nullptr) {
         const auto gate = uda::server::check_oidc_client_auth(client_block, auth_env);
         if (gate.failed) {
@@ -1100,6 +1109,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
             client_block->authenticationBlock.payload = nullptr;
         }
     }
+#endif
 
     // Send the server block (with any auth errors included so the client knows why)
 

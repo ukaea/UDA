@@ -1,9 +1,11 @@
-find_package( OpenSSL REQUIRED )
-if( OIDCAUTHENTICATION )
+if( ENABLE_TLS OR ENABLE_OIDC_AUTH )
+  find_package( OpenSSL REQUIRED )
+endif()
+if( ENABLE_OIDC_AUTH )
   find_package( CURL REQUIRED )
 endif()
 
-if( OIDCAUTHENTICATION )
+if( ENABLE_OIDC_AUTH )
 
 # authentication-test-objects: compile authentication sources without SSLAUTHENTICATION
 # (avoids pulling in OpenSSL client/server SSL code) so unit tests can link cleanly.
@@ -81,10 +83,10 @@ target_link_libraries( test_server_auth PRIVATE
 )
 add_test( NAME TestServerAuth COMMAND test_server_auth )
 
-endif() # OIDCAUTHENTICATION
+endif() # ENABLE_OIDC_AUTH
 
 # TLS integration tests (in-memory handshakes using OpenSSL BIO pairs)
-if( TLSAUTHENTICATION )
+if( ENABLE_TLS )
 add_executable( test_tls_integration tls_integration.test.cpp )
 target_include_directories( test_tls_integration PRIVATE
     ${CMAKE_SOURCE_DIR}/source
@@ -96,4 +98,4 @@ target_link_libraries( test_tls_integration PRIVATE
     OpenSSL::Crypto
 )
 add_test( NAME TestTlsIntegration COMMAND test_tls_integration )
-endif() # TLSAUTHENTICATION
+endif() # ENABLE_TLS

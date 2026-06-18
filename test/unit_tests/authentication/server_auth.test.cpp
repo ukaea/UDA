@@ -102,6 +102,18 @@ TEST_CASE("check_oidc_client_auth returns MissingToken when authentication_type 
 // ---------------------------------------------------------------------------
 // Null byte in payload
 
+TEST_CASE("check_oidc_client_auth returns MissingToken when payload pointer is null", "[server_auth]")
+{
+    CLIENT_BLOCK cb = make_client_block(11);
+    cb.authenticationBlock.authentication_type = UDA_AUTHENTICATION_OAUTH;
+    cb.authenticationBlock.payload_length = 32;
+    cb.authenticationBlock.payload = nullptr; // null pointer with nonzero length
+
+    const auto result = check_oidc_client_auth(&cb, "OIDC", never_fetch());
+    REQUIRE( result.failed );
+    REQUIRE( result.error_code == UDA_AUTH_ERR_MISSING_TOKEN );
+}
+
 TEST_CASE("check_oidc_client_auth returns InvalidToken when bearer token contains null byte", "[server_auth]")
 {
     // Payload with an embedded null: "abc\0def"

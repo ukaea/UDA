@@ -65,6 +65,17 @@ AuthGateResult check_oidc_client_auth(
     const auto* raw_payload = client_block->authenticationBlock.payload;
     const auto  raw_len     = client_block->authenticationBlock.payload_length;
 
+    if (raw_payload == nullptr) {
+        AUTH_LOG(UDA_LOG_ERROR,
+            "Auth: OAUTH authentication_type set but payload pointer is null "
+            "(payload_length=%u) — possible XDR decode failure or internal caller bug\n",
+            raw_len);
+        result.failed     = true;
+        result.error_code = UDA_AUTH_ERR_MISSING_TOKEN;
+        result.message    = "Bearer token is missing (null payload)";
+        return result;
+    }
+
     // Bearer tokens are ASCII; a null byte indicates a malformed or hostile payload.
     for (unsigned int i = 0; i < raw_len; ++i) {
         if (raw_payload[i] == '\0') {
