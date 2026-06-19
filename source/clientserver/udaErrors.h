@@ -139,4 +139,18 @@
 #define IDA_ERROR_RETURNING_DIMENSION_UNITS     112
 #define IDA_ERROR_RETURNING_DIMENSION_VALUES    113
 
+//-------------------------------------------------------
+// Authentication and TLS error codes
+
+#define UDA_AUTH_ERR_MISSING_TOKEN              700
+#define UDA_AUTH_ERR_INVALID_CONFIG             701
+#define UDA_AUTH_ERR_DISCOVERY_FAILED           702
+#define UDA_AUTH_ERR_JWKS_FETCH                 703
+#define UDA_AUTH_ERR_INVALID_TOKEN              704
+#define UDA_AUTH_ERR_CLAIM_POLICY               705
+
+#define UDA_TLS_ERR_CONFIG                      710
+#define UDA_TLS_ERR_HANDSHAKE                   711
+#define UDA_TLS_ERR_HOSTNAME_MISMATCH           712
+
 #endif // UDA_CLIENTSERVER_UDAERRORS_H

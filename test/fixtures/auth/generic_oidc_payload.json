@@ -1,0 +1,13 @@
+{
+  "_comment": "Representative decoded payload for a generic OIDC provider (e.g. Auth0, Okta).",
+  "_comment_timing": "exp/iat/nbf are not included — TokenBuilder sets them at test runtime.",
+
+  "iss": "https://oidc.example.com",
+  "aud": "uda",
+  "sub": "1234567890",
+  "azp": "uda-client",
+  "preferred_username": "alice",
+  "email": "alice@example.com",
+  "email_verified": true,
+  "scope": "openid profile email uda.read"
+}

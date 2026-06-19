@@ -75,6 +75,16 @@ inline TlsMode getClientTlsMode()
     return getTlsMode("UDA_CLIENT_TLS_MODE", "UDA_CLIENT_SSL_AUTHENTICATE");
 }
 
+inline const char* tlsModeStr(TlsMode mode)
+{
+    switch (mode) {
+        case TlsMode::Off:        return "off";
+        case TlsMode::ServerOnly: return "server-only";
+        case TlsMode::Mutual:     return "mutual";
+    }
+    return "unknown";
+}
+
 inline bool isValidTlsModeEnv(const char* var_name)
 {
     const char* value = std::getenv(var_name);
@@ -84,4 +94,28 @@ inline bool isValidTlsModeEnv(const char* var_name)
 
     const std::string mode = normalise_tls_mode(value);
     return mode == "off" || mode == "server" || mode == "mutual";
+}
+
+// Returns true if a TLS env var requests any TLS mode (server or mutual).
+// Used for compile/runtime mismatch detection.
+inline bool tlsEnvRequestsTls(const char* mode_var, const char* legacy_auth_var)
+{
+    if (const char* mode = std::getenv(mode_var)) {
+        const std::string s = normalise_tls_mode(mode);
+        if (s == "server" || s == "mutual") return true;
+    }
+    const char* legacy = std::getenv(legacy_auth_var);
+    if (!legacy) return false;
+    const std::string v = normalise_tls_mode(legacy);
+    return v == "1" || v == "true" || v == "yes" || v == "on";
+}
+
+// UDA_CLIENT_TLS_VERIFY_HOSTNAME: default enabled (1).
+// Disable with =0 to skip hostname verification (logs a warning).
+inline bool clientTlsVerifyHostname()
+{
+    const char* v = std::getenv("UDA_CLIENT_TLS_VERIFY_HOSTNAME");
+    if (!v) return true; // secure default
+    const std::string s = normalise_tls_mode(v);
+    return s != "0" && s != "false" && s != "no" && s != "off";
 }

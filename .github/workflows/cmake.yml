@@ -85,10 +85,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: >
           sudo apt install -y wget gpg ca-certificates &&
-          wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB 
-          | gpg --dearmor 
+          wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          | gpg --dearmor
           | sudo tee /usr/share/keyrings/intel-oneapi-archive-keyring.gpg > /dev/null &&
-          echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" 
+          echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main"
           | sudo tee /etc/apt/sources.list.d/oneAPI.list &&
           sudo apt-get update &&
           sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp
@@ -145,7 +145,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: >
           source /opt/intel/oneapi/setvars.sh &&
-          CC="$(command -v icx)" CXX="$(command -v icpx)" 
+          CC="$(command -v icx)" CXX="$(command -v icpx)"
           cmake -G Ninja -B build-intel
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
@@ -266,4 +266,3 @@ jobs:
 #        # Execute tests defined by the CMake configuration.
 #        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
 #        run: ctest -C ${{ matrix.release }}
-

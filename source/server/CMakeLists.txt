@@ -71,8 +71,14 @@ add_definitions( -DSERVERBUILD )
 ########################################################################################################################
 # Targets
 
+set( SERVER_AUTH_SRCS )
+if( ENABLE_OIDC_AUTH )
+  list( APPEND SERVER_AUTH_SRCS handshake_auth.cpp )
+endif()
+
 add_library( server-objects OBJECT
   udaServer.cpp
+  ${SERVER_AUTH_SRCS}
   udaLegacyServer.cpp
   createXDRStream.cpp
   sleepServer.cpp

@@ -22,9 +22,35 @@
 
 #define VERIFY_DEPTH 4
 
+#include <memory>
+#include <string>
+#include "tlsMode.h"
+
 #include <client/udaClientHostList.h>
 #include <clientserver/export.h>
 #include <clientserver/socketStructs.h>
+
+struct EvpPkeyDeleter { void operator()(EVP_PKEY* p) const noexcept { if (p) EVP_PKEY_free(p); } };
+struct SslDeleter     { void operator()(SSL* p)      const noexcept { if (p) SSL_free(p); } };
+struct SslCtxDeleter  { void operator()(SSL_CTX* p)  const noexcept { if (p) SSL_CTX_free(p); } };
+
+using SslPtr    = std::unique_ptr<SSL,     SslDeleter>;
+using SslCtxPtr = std::unique_ptr<SSL_CTX, SslCtxDeleter>;
+
+struct HostData;  // forward declaration if not already visible
+
+struct ClientSslState {
+    bool        ssl_disabled        = true;
+    int         ssl_protocol        = 0;
+    int         ssl_socket          = -1;
+    bool        ssl_ok              = false;
+    bool        ssl_init            = false;
+    SslPtr      ssl;
+    SslCtxPtr   ctx;
+    const HostData* host            = nullptr;
+    TlsMode     tls_mode            = TlsMode::Off;
+    std::string connected_hostname;
+};
 
 bool getUdaClientSSLDisabled();
 SSL* getUdaClientSSL();
@@ -36,6 +62,11 @@ int startUdaClientSSL();
 int readUdaClientSSL(void* iohandle, char* buf, int count);
 int writeUdaClientSSL(void* iohandle, char* buf, int count);
 void putClientHost(const HostData* host);
+
+// Set the resolved hostname of the server we are about to connect to.
+// Called by connection.cpp with the final hostname before SSL handshake.
+// This ensures hostname verification works even when no host-list entry exists.
+void putClientHostname(const std::string& hostname);
 
 #endif // SSLAUTHENTICATION
 

@@ -181,10 +181,35 @@ if( NOT CLIENT_ONLY AND NOT BUILD_SHARED_LIBS )
   message( FATAL_ERROR "cannot compile client AND server when BUILD_SHARED_LIBS is not set" )
 endif()
 
-if( SSLAUTHENTICATION )
-  message( "Including SSL/RTL X509 User Authentication" )
+option( ENABLE_TLS      "Enable TLS/SSL transport encryption" OFF )
+option( ENABLE_OIDC_AUTH "Enable OIDC bearer-token authentication" OFF )
+option( ENABLE_AUTH     "Enable TLS and OIDC authentication (umbrella)" OFF )
+# Legacy compatibility — SSLAUTHENTICATION activates both TLS and OIDC as before
+option( SSLAUTHENTICATION "Legacy umbrella; prefer ENABLE_AUTH" OFF )
+option( ALLOW_OIDC_WITHOUT_TLS "Allow OIDC auth without TLS encryption (for testing only)" OFF )
+
+if( ENABLE_AUTH OR SSLAUTHENTICATION )
+  set( ENABLE_TLS      ON CACHE BOOL "Activated by ENABLE_AUTH / SSLAUTHENTICATION" FORCE )
+  set( ENABLE_OIDC_AUTH ON CACHE BOOL "Activated by ENABLE_AUTH / SSLAUTHENTICATION" FORCE )
+endif()
+
+# When OIDC auth is enabled, TLS encryption is required by default so tokens are not
+# sent in plaintext. Set ALLOW_OIDC_WITHOUT_TLS=ON to override (testing only).
+if( ENABLE_OIDC_AUTH AND NOT ENABLE_TLS AND NOT ALLOW_OIDC_WITHOUT_TLS )
+  message( STATUS "ENABLE_OIDC_AUTH: auto-enabling ENABLE_TLS (set ALLOW_OIDC_WITHOUT_TLS=ON to skip)" )
+  set( ENABLE_TLS ON CACHE BOOL "Auto-enabled by ENABLE_OIDC_AUTH" FORCE )
+endif()
+
+if( ENABLE_TLS )
+  message( "Including TLS/SSL transport authentication" )
   add_definitions( -DSSLAUTHENTICATION )
-endif() 
+  add_definitions( -DTLSAUTHENTICATION )
+endif()
+
+if( ENABLE_OIDC_AUTH )
+  message( "Including OIDC bearer-token authentication" )
+  add_definitions( -DOIDCAUTHENTICATION )
+endif()
 
 if( BUILD_SHARED_LIBS )
   message( "Build shared libraries asked" )

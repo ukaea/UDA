@@ -1,13 +1,17 @@
 #if defined(SSLAUTHENTICATION) && !defined(SERVERBUILD) && !defined(FATCLIENT)
 
 #include "udaClientSSL.h"
+#include "auth_error.h"
 #include "tlsMode.h"
+#include "tls_policy.h"
 
 #include <cstdio>
 #include <fcntl.h>
 #include <initializer_list>
 #include <ctime>
+#include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <openssl/x509v3.h>
 #include <string>
 
 #include <client/updateSelectParms.h>
@@ -15,52 +19,54 @@
 #include <logging/logging.h>
 #include <client/udaClientHostList.h>
 
+#include "authLog.h"
 #include "utils.h"
 
-static bool g_sslDisabled = true;   // Default state is not SSL authentication
-static int g_sslProtocol = 0;       // The default server host name has the SSL protocol name prefix or
-static int g_sslSocket = -1;
-static bool g_sslOK = false;        // SSL Authentication has been passed sucessfully: default is NOT Passed
-static bool g_sslInit = false;      // Global initialisation of SSL completed
-static SSL* g_ssl = nullptr;
-static SSL_CTX* g_ctx = nullptr;
-static const HostData* g_host = nullptr;
-static TlsMode g_tlsMode = TlsMode::Off;
+static ClientSslState g_state;
 
-static SSL_CTX* create_client_context();
-static int load_client_certificate(SSL_CTX* ctx, const HostData* host);
-static int load_ca_certificates(SSL_CTX* ctx, const std::string& path);
-static int configure_client_tls_server_only(SSL_CTX* ctx, const HostData* host);
-static int configure_client_tls_mutual(SSL_CTX* ctx, const HostData* host);
-static int connect_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy);
+using uda::authentication::AuthError;
+using uda::authentication::AuthErrorCode;
+using uda::authentication::authErrorToUdaCode;
+
+static SslCtxPtr create_client_context();
+static void load_client_certificate(SSL_CTX* ctx, const HostData* host);
+static void load_ca_certificates(SSL_CTX* ctx, const std::string& path);
+static void configure_client_tls_server_only(SSL_CTX* ctx, const HostData* host);
+static void configure_client_tls_mutual(SSL_CTX* ctx, const HostData* host);
+static void connect_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy);
 
 void putClientHost(const HostData* host)
 {
-    g_host = host;
+    g_state.host = host;
+}
+
+void putClientHostname(const std::string& hostname)
+{
+    g_state.connected_hostname = hostname;
 }
 
 bool getUdaClientSSLDisabled()
 {
-    return g_sslDisabled;
+    return g_state.ssl_disabled;
 }
 
 void putUdaClientSSLProtocol(int specified)
 {
-    g_sslProtocol = specified;
+    g_state.ssl_protocol = specified;
 }
 
 void putUdaClientSSLSocket(int s)
 {
-    g_sslSocket = s;
+    g_state.ssl_socket = s;
 }
 
 static void init_ssl_library()
 {
-    if (g_sslInit) {
-        return;    // Already initialised
+    if (g_state.ssl_init) {
+        return;
     }
     if (getenv("UDA_SSL_INITIALISED")) {
-        g_sslInit = true;
+        g_state.ssl_init = true;
         UDA_LOG(UDA_LOG_DEBUG, "Prior SSL initialisation\n");
         return;
     }
@@ -74,88 +80,68 @@ static void init_ssl_library()
 #else
     setenv("UDA_SSL_INITIALISED", "1", 0);
 #endif
-    g_sslInit = true;
+    g_state.ssl_init = true;
     UDA_LOG(UDA_LOG_DEBUG, "SSL initialised\n");
 }
 
 void closeUdaClientSSL()
 {
-    // Requires re-initialisation
-    if (g_sslDisabled) {
+    if (g_state.ssl_disabled) {
         return;
     }
-    g_sslOK = false;
-    g_sslSocket = -1;
-    g_sslProtocol = 0;
-    g_sslDisabled = true;
-    g_tlsMode = TlsMode::Off;
-    SSL* ssl = g_ssl;
-    if (ssl != nullptr) {
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-    }
-    SSL_CTX* ctx = g_ctx;
-    if (ctx != nullptr) {
-        SSL_CTX_free(ctx);
-    }
-    g_ssl = nullptr;
-    g_ctx = nullptr;
+    if (g_state.ssl) SSL_shutdown(g_state.ssl.get());
 #ifdef _WIN32
     _putenv_s("UDA_SSL_INITIALISED", nullptr);
 #else
     unsetenv("UDA_SSL_INITIALISED");
 #endif
-    g_sslInit = false;
+    g_state = ClientSslState{};
     UDA_LOG(UDA_LOG_DEBUG, "SSL closed\n");
 }
 
 SSL* getUdaClientSSL()
 {
-    return g_ssl;
+    return g_state.ssl.get();
 }
 
-void putUdaClientSSLCTX(SSL_CTX* c)
+static const char* ssl_error_name(int err)
 {
-    g_ctx = c;
+    switch (err) {
+        case SSL_ERROR_NONE:             return "SSL_ERROR_NONE";
+        case SSL_ERROR_ZERO_RETURN:      return "SSL_ERROR_ZERO_RETURN";
+        case SSL_ERROR_WANT_READ:        return "SSL_ERROR_WANT_READ";
+        case SSL_ERROR_WANT_WRITE:       return "SSL_ERROR_WANT_WRITE";
+        case SSL_ERROR_WANT_CONNECT:     return "SSL_ERROR_WANT_CONNECT";
+        case SSL_ERROR_WANT_ACCEPT:      return "SSL_ERROR_WANT_ACCEPT";
+        case SSL_ERROR_WANT_X509_LOOKUP: return "SSL_ERROR_WANT_X509_LOOKUP";
+        case SSL_ERROR_SYSCALL:          return "SSL_ERROR_SYSCALL";
+        case SSL_ERROR_SSL:              return "SSL_ERROR_SSL";
+        default:                         return "SSL_ERROR_UNKNOWN";
+    }
 }
 
 void reportSSLErrorCode(int rc)
 {
-    int err = SSL_get_error(getUdaClientSSL(), rc);
-    char msg[256];
-    switch (err) {
-        case SSL_ERROR_NONE:
-            strcpy(msg, "SSL_ERROR_NONE");
-            break;
-        case SSL_ERROR_ZERO_RETURN:
-            strcpy(msg, "SSL_ERROR_ZERO_RETURN");
-            break;
-        case SSL_ERROR_WANT_READ:
-            strcpy(msg, "SSL_ERROR_WANT_READ");
-            break;
-        case SSL_ERROR_WANT_WRITE:
-            strcpy(msg, "SSL_ERROR_WANT_WRITE");
-            break;
-        case SSL_ERROR_WANT_CONNECT:
-            strcpy(msg, "SSL_ERROR_WANT_CONNECT");
-            break;
-        case SSL_ERROR_WANT_ACCEPT:
-            strcpy(msg, "SSL_ERROR_WANT_ACCEPT");
-            break;
-        case SSL_ERROR_WANT_X509_LOOKUP:
-            strcpy(msg, "SSL_ERROR_WANT_X509_LOOKUP");
-            break;
-        case SSL_ERROR_SYSCALL:
-            strcpy(msg, "SSL_ERROR_SYSCALL");
-            break;
-        case SSL_ERROR_SSL:
-            strcpy(msg, "SSL_ERROR_SSL");
-            break;
-    }
+    const int err = SSL_get_error(getUdaClientSSL(), rc);
+    const char* msg = ssl_error_name(err);
     UDA_ADD_ERROR(999, msg);
-    UDA_LOG(UDA_LOG_DEBUG, "Error - %s\n", msg);
-    UDA_LOG(UDA_LOG_DEBUG, "Error - %s\n", ERR_error_string(ERR_get_error(), nullptr));
-    UDA_LOG(UDA_LOG_DEBUG, "State - %s\n", SSL_state_string(getUdaClientSSL()));
+    AUTH_LOG(UDA_LOG_ERROR, "Auth: SSL error: %s\n", msg);
+
+    char detail[256];
+    unsigned long ossl_err;
+    while ((ossl_err = ERR_get_error()) != 0) {
+        ERR_error_string_n(ossl_err, detail, sizeof(detail));
+        AUTH_LOG(UDA_LOG_ERROR, "Auth: SSL error detail: %s\n", detail);
+    }
+
+    if (getUdaClientSSL() != nullptr) {
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: SSL state: %s\n", SSL_state_string(getUdaClientSSL()));
+        const long vr = SSL_get_verify_result(getUdaClientSSL());
+        if (vr != X509_V_OK) {
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: TLS verify result: %s\n",
+                     X509_verify_cert_error_string(vr));
+        }
+    }
 }
 
 static const char* first_env(const std::initializer_list<const char*>& names)
@@ -169,7 +155,8 @@ static const char* first_env(const std::initializer_list<const char*>& names)
     return nullptr;
 }
 
-static const char* first_env_or_host(const std::initializer_list<const char*>& names, const std::string& host_value)
+static const char* first_env_or_host(const std::initializer_list<const char*>& names,
+                                     const std::string& host_value)
 {
     if (const char* value = first_env(names)) {
         return value;
@@ -177,367 +164,355 @@ static const char* first_env_or_host(const std::initializer_list<const char*>& n
     return host_value.empty() ? nullptr : host_value.c_str();
 }
 
-SSL_CTX* create_client_context()
+// -------------------------------------------------------------------------
+// Internal TLS setup — throw AuthError; no UDA error stack manipulation.
+// Translation to UDA error codes happens only in the boundary functions
+// (initUdaClientSSL, startUdaClientSSL).
+
+static SslCtxPtr create_client_context()
 {
-    const SSL_METHOD* method = SSLv23_client_method(); // standard TCP
-
-    // method = DTLSv1_client_method()// reliable UDP
-
-    SSL_CTX* ctx = SSL_CTX_new(method);
-    putUdaClientSSLCTX(ctx);
-
+    const SSL_METHOD* method = SSLv23_client_method();
+    SslCtxPtr ctx(SSL_CTX_new(method));
     if (!ctx) {
-        UDA_ADD_ERROR(999, "Unable to create SSL context");
-        return nullptr;
+        throw AuthError(AuthErrorCode::TlsConfigError, "Unable to create SSL context");
     }
-
-    // Disable SSLv2 for v3 and TSLv1  negotiation 
-
-    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2);
-
-/*
-// Set the Cipher List 
-   if (SSL_CTX_set_cipher_list(g_ctx, "AES128-SHA") <= 0) {
-      printf("Error setting the cipher list.\n");
-      exit(0);
-   }    
-*/
-
+    SSL_CTX_set_options(ctx.get(), SSL_OP_NO_SSLv2);
     UDA_LOG(UDA_LOG_DEBUG, "SSL Context created\n");
-
     return ctx;
 }
 
-int load_client_certificate(SSL_CTX* ctx, const HostData* host)
+static void load_client_certificate(SSL_CTX* ctx, const HostData* host)
 {
     const std::string empty;
     const std::string& host_cert = host == nullptr ? empty : host->certificate;
-    const std::string& host_key = host == nullptr ? empty : host->key;
+    const std::string& host_key  = host == nullptr ? empty : host->key;
 
     const char* cert = first_env_or_host({"UDA_CLIENT_TLS_CERT", "UDA_CLIENT_SSL_CERT"}, host_cert);
-    const char* key = first_env_or_host({"UDA_CLIENT_TLS_KEY", "UDA_CLIENT_SSL_KEY"}, host_key);
+    const char* key  = first_env_or_host({"UDA_CLIENT_TLS_KEY",  "UDA_CLIENT_SSL_KEY"},  host_key);
 
-    if (!cert || !key) {
-        if (!cert) {
-            UDA_LOG(UDA_LOG_DEBUG, "No Client TLS certificate\n");
-            UDA_ADD_ERROR(999, "No client TLS certificate; set UDA_CLIENT_TLS_CERT or UDA_CLIENT_SSL_CERT");
-        }
-        if (!key) {
-            UDA_LOG(UDA_LOG_DEBUG, "No Client Private Key\n");
-            UDA_ADD_ERROR(999, "No client TLS key; set UDA_CLIENT_TLS_KEY or UDA_CLIENT_SSL_KEY");
-        }
-        UDA_LOG(UDA_LOG_DEBUG, "Error: No client TLS certificate and/or private key!\n");
-        return 999;
+    if (!cert) {
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "No client TLS certificate; set UDA_CLIENT_TLS_CERT or UDA_CLIENT_SSL_CERT");
+    }
+    if (!key) {
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "No client TLS key; set UDA_CLIENT_TLS_KEY or UDA_CLIENT_SSL_KEY");
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Client SSL certificates: %s\n", cert);
     UDA_LOG(UDA_LOG_DEBUG, "Client SSL key: %s\n", key);
 
     if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM) <= 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client certificate!\n");
-        UDA_THROW_ERROR(999, "Failed to set the client certificate!");
+        throw AuthError(AuthErrorCode::TlsConfigError, "Failed to load client certificate");
     }
-
     if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client key!\n");
-        UDA_THROW_ERROR(999, "Failed to set the client key!");
+        throw AuthError(AuthErrorCode::TlsConfigError, "Failed to load client private key");
     }
-
-    // Check key and certificate match
     if (SSL_CTX_check_private_key(ctx) == 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error: Private key does not match the certificate public key!\n");
-        UDA_THROW_ERROR(999, "Private key does not match the certificate public key!");
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "Client private key does not match the certificate public key");
     }
 
-    // validate the client's certificate
+    // Read the cert to check validity dates and log subject/issuer.
+    // This provides a clear early failure before the server rejects the cert at handshake time.
     FILE* fd = fopen(cert, "r");
-
     if (!fd) {
-        UDA_LOG(UDA_LOG_DEBUG, "Unable to open client certificate [%s] to verify certificate validity\n", cert);
-        UDA_THROW_ERROR(999, "Unable to open client certificate to verify certificate validity!");
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            std::string("Unable to open client certificate to check validity: ") + cert);
     }
-
-    X509* clientCert = PEM_read_X509(fd, nullptr, nullptr, nullptr);
-
+    X509* client_cert = PEM_read_X509(fd, nullptr, nullptr, nullptr);
     fclose(fd);
-
-    if (!clientCert) {
-        X509_free(clientCert);
-        UDA_LOG(UDA_LOG_DEBUG, "Unable to parse client certificate [%s] to verify certificate validity\n", cert);
-        UDA_THROW_ERROR(999, "Unable to parse client certificate [%s] to verify certificate validity");
+    if (!client_cert) {
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            std::string("Unable to parse client certificate: ") + cert);
     }
-
-    const ASN1_TIME* before = X509_get_notBefore(clientCert);
-    const ASN1_TIME* after = X509_get_notAfter(clientCert);
 
     char work[X509_STRING_SIZE];
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 subject: %s\n",
-            X509_NAME_oneline(X509_get_subject_name(clientCert), work, sizeof(work)));
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 issuer: %s\n",
-            X509_NAME_oneline(X509_get_issuer_name(clientCert), work, sizeof(work)));
+    AUTH_LOG(UDA_LOG_DEBUG, "Auth: client cert subject: %s\n",
+             X509_NAME_oneline(X509_get_subject_name(client_cert), work, sizeof(work)));
+    AUTH_LOG(UDA_LOG_DEBUG, "Auth: client cert issuer: %s\n",
+             X509_NAME_oneline(X509_get_issuer_name(client_cert), work, sizeof(work)));
 
-    time_t current_time = time(nullptr);
-    char* c_time_string = ctime(&current_time);
+    const ASN1_TIME* before = X509_get_notBefore(client_cert);
+    const ASN1_TIME* after  = X509_get_notAfter(client_cert);
+    time_t now = time(nullptr);
 
-    std::string before_string = to_string(before);
+    const std::string before_str = to_string(before);
+    const std::string after_str  = to_string(after);
+    AUTH_LOG(UDA_LOG_DEBUG, "Auth: client cert validity: %s to %s\n",
+             before_str.c_str(), after_str.c_str());
 
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before: %s\n", before_string.c_str());
-    int rc = 0;
-    if ((rc = X509_cmp_time(before, &current_time)) >= 0) {
-        // Not Before is after Now!
-        X509_free(clientCert);
-        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-        UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before date is before the current date!\n");
-        UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Validity Date is in the future!\n");
-        UDA_THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Validity Date is in the future");
+    if (X509_cmp_time(before, &now) >= 0) {
+        X509_free(client_cert);
+        AUTH_LOG(UDA_LOG_ERROR,
+            "Auth: client cert is not yet valid (notBefore=%s)\n", before_str.c_str());
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "Client TLS certificate validity date is in the future (notBefore=" + before_str + ")");
     }
-
-    std::string after_string = to_string(after);
-
-    UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after   : %s\n", after_string.c_str());
-    if ((rc = X509_cmp_time(after, &current_time)) <= 0) {// Not After is before Now!
-        X509_free(clientCert);
-        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-        UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after date is after the current date!\n");
-        UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Date has Expired!\n");
-        UDA_THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Date has Expired!");
+    if (X509_cmp_time(after, &now) <= 0) {
+        X509_free(client_cert);
+        AUTH_LOG(UDA_LOG_ERROR,
+            "Auth: client cert has expired (notAfter=%s)\n", after_str.c_str());
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "Client TLS certificate has expired (notAfter=" + after_str + ")");
     }
-    X509_free(clientCert);
-
-    UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-    UDA_LOG(UDA_LOG_DEBUG, "Client certificate date validity checked but not validated \n");
-
-    return 0;
+    X509_free(client_cert);
 }
 
-int load_ca_certificates(SSL_CTX* ctx, const std::string& path)
+static void load_ca_certificates(SSL_CTX* ctx, const std::string& path)
 {
     if (path.empty()) {
-        UDA_LOG(UDA_LOG_DEBUG, "No CA TLS certificate\n");
-        UDA_THROW_ERROR(999, "No Certificate Authority certificate; set UDA_CLIENT_CA_TLS_CERT or UDA_CLIENT_CA_SSL_CERT");
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "No CA certificate path; set UDA_CLIENT_CA_TLS_CERT or UDA_CLIENT_CA_SSL_CERT");
     }
-
     UDA_LOG(UDA_LOG_DEBUG, "CA SSL certificates: %s\n", path.c_str());
-
-    // Load certificates of trusted CAs based on file provided
     if (SSL_CTX_load_verify_locations(ctx, path.c_str(), nullptr) < 1) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error: Error setting the certificate authority verify locations!\n");
-        UDA_THROW_ERROR(999, "Error setting the certificate authority verify locations!");
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "Failed to load CA certificates from: " + path);
     }
-
-    return 0;
 }
 
-int configure_client_tls_server_only(SSL_CTX* ctx, const HostData* host)
+static void configure_client_tls_server_only(SSL_CTX* ctx, const HostData* host)
 {
     const std::string empty;
     const std::string& host_ca = host == nullptr ? empty : host->ca_certificate;
-    const char* ca = first_env_or_host({"UDA_CLIENT_CA_TLS_CERT", "UDA_CLIENT_TLS_CA_CERT", "UDA_CLIENT_CA_SSL_CERT"},
-                                       host_ca);
+    const char* ca = first_env_or_host(
+        {"UDA_CLIENT_CA_TLS_CERT", "UDA_CLIENT_TLS_CA_CERT", "UDA_CLIENT_CA_SSL_CERT"}, host_ca);
 
-    if (load_ca_certificates(ctx, ca == nullptr ? "" : ca) != 0) {
-        return 999;
-    }
+    load_ca_certificates(ctx, ca == nullptr ? "" : ca);
     SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
     SSL_CTX_set_verify_depth(ctx, VERIFY_DEPTH);
-
     UDA_LOG(UDA_LOG_DEBUG, "Server-only TLS context configured\n");
-    return 0;
 }
 
-int configure_client_tls_mutual(SSL_CTX* ctx, const HostData* host)
+static void configure_client_tls_mutual(SSL_CTX* ctx, const HostData* host)
 {
     const std::string empty;
     const std::string& host_ca = host == nullptr ? empty : host->ca_certificate;
-    const char* ca = first_env_or_host({"UDA_CLIENT_CA_TLS_CERT", "UDA_CLIENT_TLS_CA_CERT", "UDA_CLIENT_CA_SSL_CERT"},
-                                       host_ca);
+    const char* ca = first_env_or_host(
+        {"UDA_CLIENT_CA_TLS_CERT", "UDA_CLIENT_TLS_CA_CERT", "UDA_CLIENT_CA_SSL_CERT"}, host_ca);
 
-    if (load_ca_certificates(ctx, ca == nullptr ? "" : ca) != 0 || load_client_certificate(ctx, host) != 0) {
-        return 999;
-    }
+    load_ca_certificates(ctx, ca == nullptr ? "" : ca);
+    load_client_certificate(ctx, host);
     SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, nullptr);
     SSL_CTX_set_verify_depth(ctx, VERIFY_DEPTH);
-
     UDA_LOG(UDA_LOG_DEBUG, "Mutual TLS context configured\n");
-    return 0;
 }
+
+static void connect_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
+{
+    AUTH_LOG(UDA_LOG_DEBUG, "Initiating TLS connect (peer cert policy: %s)\n",
+             policy == PeerCertPolicy::Required ? "required" : "not-required");
+
+    g_state.ssl.reset(SSL_new(ctx));
+    if (g_state.ssl == nullptr) {
+        throw AuthError(AuthErrorCode::TlsHandshakeFailed, "SSL_new failed");
+    }
+
+    SSL_set_fd(g_state.ssl.get(), g_state.ssl_socket);
+
+    const std::string server_hostname = uda::authentication::select_verification_hostname(
+        g_state.connected_hostname,
+        g_state.host != nullptr ? g_state.host->host_name : "");
+
+    if (!server_hostname.empty()) {
+        SSL_set_tlsext_host_name(g_state.ssl.get(), server_hostname.c_str());
+
+        if (clientTlsVerifyHostname()) {
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: TLS hostname verification enabled for '%s'\n",
+                     server_hostname.c_str());
+            SSL_set_hostflags(g_state.ssl.get(), X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+            if (SSL_set1_host(g_state.ssl.get(), server_hostname.c_str()) != 1) {
+                throw AuthError(AuthErrorCode::TlsConfigError,
+                    "Failed to configure TLS hostname verification for '" + server_hostname + "'");
+            }
+        } else {
+            AUTH_LOG(UDA_LOG_WARN,
+                "Auth: TLS hostname verification is DISABLED "
+                "(UDA_CLIENT_TLS_VERIFY_HOSTNAME=0) for host '%s'\n",
+                server_hostname.c_str());
+        }
+    } else {
+        AUTH_LOG(UDA_LOG_DEBUG,
+            "Auth: TLS hostname verification skipped — server hostname unknown at connect time\n");
+    }
+
+    int rc;
+    if ((rc = SSL_connect(g_state.ssl.get())) < 1) {
+        const int ssl_err = SSL_get_error(g_state.ssl.get(), rc);
+
+        // Drain OpenSSL error queue for diagnostics
+        char ssl_err_buf[256];
+        unsigned long ossl_err;
+        while ((ossl_err = ERR_get_error()) != 0) {
+            ERR_error_string_n(ossl_err, ssl_err_buf, sizeof(ssl_err_buf));
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: TLS error detail: %s\n", ssl_err_buf);
+        }
+
+        if (g_state.ssl != nullptr) {
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: SSL state: %s\n", SSL_state_string(g_state.ssl.get()));
+        }
+
+        const long vr = SSL_get_verify_result(g_state.ssl.get());
+        if (vr != X509_V_OK) {
+            const char* reason = X509_verify_cert_error_string(vr);
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS certificate verification failed: %s (mode=%s host='%s')\n",
+                reason, tlsModeStr(g_state.tls_mode), server_hostname.c_str());
+
+            if (vr == X509_V_ERR_HOSTNAME_MISMATCH) {
+                throw AuthError(AuthErrorCode::TlsHostnameMismatch,
+                    std::string("TLS hostname verification failed — certificate does not match '")
+                    + server_hostname + "': " + reason);
+            }
+            throw AuthError(AuthErrorCode::TlsHandshakeFailed,
+                std::string("TLS certificate verification failed: ") + reason);
+        }
+
+        if (ssl_err == SSL_ERROR_SYSCALL) {
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS connect failed (SSL_ERROR_SYSCALL): connection closed by server "
+                "before handshake (mode=%s) — check UDA_CLIENT_TLS_MODE / UDA_SERVER_TLS_MODE\n",
+                tlsModeStr(g_state.tls_mode));
+        } else {
+            AUTH_LOG(UDA_LOG_ERROR,
+                "Auth: TLS connect failed (ssl_err=%s mode=%s host='%s')\n",
+                ssl_error_name(ssl_err), tlsModeStr(g_state.tls_mode), server_hostname.c_str());
+        }
+
+        if (errno != 0) {
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: system error: %s\n", strerror(errno));
+        }
+
+        throw AuthError(AuthErrorCode::TlsHandshakeFailed,
+            std::string("TLS connect failed (") + ssl_error_name(ssl_err) + ")");
+    }
+
+    AUTH_LOG(UDA_LOG_INFO, "Auth: TLS connect succeeded (version=%s cipher=%s host='%s')\n",
+             SSL_get_version(g_state.ssl.get()), SSL_get_cipher(g_state.ssl.get()), server_hostname.c_str());
+
+    X509* peer = SSL_get_peer_certificate(g_state.ssl.get());
+
+    if (peer != nullptr) {
+        if ((rc = SSL_get_verify_result(g_state.ssl.get())) != X509_V_OK) {
+            const char* reason = X509_verify_cert_error_string(rc);
+            AUTH_LOG(UDA_LOG_ERROR, "Auth: server cert verification failed: %s\n", reason);
+            X509_free(peer);
+            throw AuthError(AuthErrorCode::TlsHandshakeFailed,
+                std::string("Server certificate verification failed: ") + reason);
+        }
+
+        char work[X509_STRING_SIZE];
+        AUTH_LOG(UDA_LOG_INFO, "Auth: server cert verified — subject: %s\n",
+                 X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: server cert issuer: %s\n",
+                 X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
+
+        // Date verification is performed by OpenSSL during SSL_connect() above.
+        // Log dates for diagnostics only.
+        const ASN1_TIME* before = X509_get_notBefore(peer);
+        const ASN1_TIME* after  = X509_get_notAfter(peer);
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: server cert validity: %s to %s\n",
+                 to_string(before).c_str(), to_string(after).c_str());
+
+        X509_free(peer);
+    } else {
+        if (policy == PeerCertPolicy::Required) {
+            throw AuthError(AuthErrorCode::TlsHandshakeFailed,
+                "Server certificate not presented for verification");
+        }
+        AUTH_LOG(UDA_LOG_DEBUG, "Auth: no server cert presented; not required in this TLS mode\n");
+    }
+
+    g_state.ssl_ok = true;
+}
+
+// -------------------------------------------------------------------------
+// Boundary functions — catch AuthError, translate to UDA error stack, return stable code
 
 int initUdaClientSSL()
 {
-    // Has SSL/TLS authentication already been passed?
-    if (g_sslOK) {
+    if (g_state.ssl_ok) {
         return 0;
     }
 
-    if (!isValidTlsModeEnv("UDA_CLIENT_TLS_MODE")) {
-        getClientTlsMode();
-        UDA_THROW_ERROR(999, "Invalid client TLS mode!");
-    }
+    try {
+        if (!isValidTlsModeEnv("UDA_CLIENT_TLS_MODE")) {
+            getClientTlsMode();
+            throw AuthError(AuthErrorCode::TlsConfigError, "Invalid client TLS mode");
+        }
 
-    TlsMode mode = getClientTlsMode();
+        TlsMode mode = getClientTlsMode();
 
-    // Preserve legacy behaviour: SSL:// and SSL host config imply mutual TLS unless the new mode var overrides them.
-    if (!isTlsModeSet("UDA_CLIENT_TLS_MODE") && mode == TlsMode::Off &&
-        (g_sslProtocol || (g_host != nullptr && g_host->isSSL))) {
-        mode = TlsMode::Mutual;
-    }
+        mode = uda::authentication::resolve_client_tls_mode(
+            mode,
+            isTlsModeSet("UDA_CLIENT_TLS_MODE"),
+            g_state.ssl_protocol != 0,
+            g_state.host != nullptr && g_state.host->isSSL);
 
-    g_tlsMode = mode;
-    g_sslDisabled = mode == TlsMode::Off;
-    if (g_sslDisabled) {
-        return 0;
-    }
-
-    UDA_LOG(UDA_LOG_DEBUG, "SSL/TLS is Enabled!\n");
-
-    // Initialise
-
-    init_ssl_library();
-
-    if (!(g_ctx = create_client_context())) {
-        UDA_THROW_ERROR(999, "Unable to create the SSL context!");
-    }
-
-    switch (mode) {
-        case TlsMode::Off:
+        g_state.tls_mode = mode;
+        AUTH_LOG(UDA_LOG_INFO, "Client TLS mode: %s\n", tlsModeStr(mode));
+        g_state.ssl_disabled = mode == TlsMode::Off;
+        if (g_state.ssl_disabled) {
             return 0;
-        case TlsMode::ServerOnly:
-            if (configure_client_tls_server_only(g_ctx, g_host) != 0) {
-                UDA_THROW_ERROR(999, "Unable to configure the server-only TLS context!");
-            }
-            return 0;
-        case TlsMode::Mutual:
-            if (configure_client_tls_mutual(g_ctx, g_host) != 0) {
-                UDA_THROW_ERROR(999, "Unable to configure the mutual TLS context!");
-            }
-            return 0;
+        }
+
+        AUTH_LOG(UDA_LOG_INFO, "Client TLS enabled\n");
+        init_ssl_library();
+
+        g_state.ctx = create_client_context();
+
+        switch (mode) {
+            case TlsMode::Off:
+                return 0;
+            case TlsMode::ServerOnly:
+                configure_client_tls_server_only(g_state.ctx.get(), g_state.host);
+                return 0;
+            case TlsMode::Mutual:
+                configure_client_tls_mutual(g_state.ctx.get(), g_state.host);
+                return 0;
+        }
+
+        throw AuthError(AuthErrorCode::TlsConfigError, "Unsupported client TLS mode");
+
+    } catch (const AuthError& e) {
+        AUTH_LOG(UDA_LOG_ERROR, "Auth: TLS init failed [%d]: %s\n",
+                 authErrorToUdaCode(e.code), e.what());
+        UDA_ADD_ERROR(authErrorToUdaCode(e.code), e.what());
+        return authErrorToUdaCode(e.code);
     }
-
-    UDA_THROW_ERROR(999, "Unsupported client TLS mode!");
-}
-
-int connect_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
-{
-    // Bind an SSL object with the socket
-
-    g_ssl = SSL_new(ctx);
-    SSL_set_fd(g_ssl, g_sslSocket);
-
-    // Connect to the server
-    int rc;
-    if ((rc = SSL_connect(g_ssl)) < 1) {
-        UDA_LOG(UDA_LOG_DEBUG, "Error connecting to the server!\n");
-        if (errno != 0) {
-            UDA_ADD_SYS_ERROR("Error connecting to the server!");
-        }
-        reportSSLErrorCode(rc);
-        return 999;
-    }
-
-    // Get the Server certificate and verify/log according to mode.
-    X509* peer = SSL_get_peer_certificate(g_ssl);
-
-    if (peer != nullptr) {
-
-        if ((rc = SSL_get_verify_result(g_ssl)) != X509_V_OK) {
-            // returns X509_V_OK if the certificate was not obtained as no error occurred!
-            UDA_ADD_ERROR(999, X509_verify_cert_error_string(rc));
-            X509_free(peer);
-            UDA_LOG(UDA_LOG_DEBUG, "SSL Server certificate presented but verification error!\n");
-            UDA_THROW_ERROR(999, "SSL Server certificate presented but verification error!");
-        }
-
-        // Server's details - not required apart from logging
-
-        char work[X509_STRING_SIZE];
-        UDA_LOG(UDA_LOG_DEBUG, "Server certificate verified\n");
-        UDA_LOG(UDA_LOG_DEBUG, "X509 subject: %s\n",
-                X509_NAME_oneline(X509_get_subject_name(peer), work, sizeof(work)));
-        UDA_LOG(UDA_LOG_DEBUG, "X509 issuer: %s\n",
-                X509_NAME_oneline(X509_get_issuer_name(peer), work, sizeof(work)));
-
-        // Verify Date validity
-
-        const ASN1_TIME* before = X509_get_notBefore(peer);
-        const ASN1_TIME* after = X509_get_notAfter(peer);
-
-        time_t current_time = time(nullptr);
-        char* c_time_string = ctime(&current_time);
-
-        std::string before_string = to_string(before);
-
-        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before: %s\n", before_string.c_str());
-        if ((rc = X509_cmp_time(before, &current_time)) >= 0) {// Not Before is after Now!
-            X509_free(peer);
-            UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-            UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before date is before the current date!\n");
-            UDA_LOG(UDA_LOG_DEBUG,
-                    "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future!\n");
-            UDA_THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
-        }
-
-        std::string after_string = to_string(after);
-
-        UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after   : %s\n", after_string.c_str());
-        if ((rc = X509_cmp_time(after, &current_time)) <= 0) {// Not After is before Now!
-            X509_free(peer);
-            UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-            UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after date is after the current date!\n");
-            UDA_LOG(UDA_LOG_DEBUG, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!\n");
-            UDA_THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!");
-        }
-
-        UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
-
-        X509_free(peer);
-
-    } else {
-        if (policy == PeerCertPolicy::Required) {
-            UDA_LOG(UDA_LOG_DEBUG, "Server certificate not presented for verification!\n");
-            UDA_THROW_ERROR(999, "Server certificate not presented for verification!");
-        }
-        UDA_LOG(UDA_LOG_DEBUG, "Server certificate not presented; not required by TLS mode\n");
-    }
-
-    // Print out connection details
-
-    UDA_LOG(UDA_LOG_DEBUG, "SSL version: %s\n", SSL_get_version(g_ssl));
-    UDA_LOG(UDA_LOG_DEBUG, "SSL cipher: %s\n", SSL_get_cipher(g_ssl));
-
-    // SSL/TLS authentication has been passed - do not repeat
-
-    g_sslOK = true;
-
-    return 0;
 }
 
 int startUdaClientSSL()
 {
-    if (g_sslDisabled) {
+    if (g_state.ssl_disabled) {
         return 0;
     }
 
-    const PeerCertPolicy policy = g_tlsMode == TlsMode::Mutual ? PeerCertPolicy::Required : PeerCertPolicy::NotRequired;
-    return connect_tls_connection(g_ctx, policy);
+    const PeerCertPolicy policy = uda::authentication::peer_cert_policy(g_state.tls_mode);
+
+    try {
+        connect_tls_connection(g_state.ctx.get(), policy);
+        return 0;
+    } catch (const AuthError& e) {
+        AUTH_LOG(UDA_LOG_ERROR, "Auth: TLS connect failed [%d]: %s\n",
+                 authErrorToUdaCode(e.code), e.what());
+        UDA_ADD_ERROR(authErrorToUdaCode(e.code), e.what());
+        return authErrorToUdaCode(e.code);
+    }
 }
 
 int writeUdaClientSSL(void* iohandle, char* buf, int count)
 {
-    // This routine is only called when there is something to write to the Server
-    // SSL uses an all or nothing approach when the socket is blocking - an SSL error or incomplete write
-    // means the write has failed
-
     int rc, err = 0;
 
-    fd_set wfds;        // File Descriptor Set for Writing to the Socket
+    fd_set wfds;
     struct timeval tv;
 
-    // Block till it's possible to write to the socket or timeout
+    udaUpdateSelectParms(g_state.ssl_socket, &wfds, &tv);
 
-    udaUpdateSelectParms(g_sslSocket, &wfds, &tv);
-
-    while ((rc = select(g_sslSocket + 1, nullptr, &wfds, nullptr, &tv)) <= 0) {
-        if (rc < 0) {    // Error
+    while ((rc = select(g_state.ssl_socket + 1, nullptr, &wfds, nullptr, &tv)) <= 0) {
+        if (rc < 0) {
             if (errno == EBADF) {
                 UDA_LOG(UDA_LOG_DEBUG, "Socket is closed! Data access failed!.\n");
             } else {
@@ -548,24 +523,21 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
 
 #ifndef _WIN32
         int fopts = 0;
-        if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 || errno == EBADF) {
-            // Is the socket closed? Check status flags
+        if ((rc = fcntl(g_state.ssl_socket, F_GETFL, &fopts)) < 0 || errno == EBADF) {
             err = 999;
             UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
             return -1;
         }
 #endif
 
-        udaUpdateSelectParms(g_sslSocket, &wfds, &tv);
+        udaUpdateSelectParms(g_state.ssl_socket, &wfds, &tv);
     }
-
-    // set SSL_MODE_AUTO_RETRY flag of the SSL_CTX_set_mode to disable automatic renegotiation?
 
     rc = SSL_write(getUdaClientSSL(), buf, count);
 
     switch (SSL_get_error(getUdaClientSSL(), rc)) {
         case SSL_ERROR_NONE:
-            if (rc != count) {    // Check the write is complete
+            if (rc != count) {
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Incomplete write to socket!\n");
                 addIdamError(UDA_CODE_ERROR_TYPE, "writeUdaClientSSL", err, "Incomplete write to socket!");
@@ -580,8 +552,8 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
             addIdamError(UDA_CODE_ERROR_TYPE, "writeUdaClientSSL", err, "Write to socket failed!");
 #ifndef _WIN32
             int fopts = 0;
-            if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||
-                errno == EBADF) {    // Is the socket closed? Check status flags
+            if ((rc = fcntl(g_state.ssl_socket, F_GETFL, &fopts)) < 0 ||
+                errno == EBADF) {
                 UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
             }
 #endif
@@ -599,14 +571,12 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
 
     int maxloop = 0;
 
-    // Wait till it's possible to read from socket 
+    udaUpdateSelectParms(g_state.ssl_socket, &rfds, &tv);
 
-    udaUpdateSelectParms(g_sslSocket, &rfds, &tv);
-
-    while (((rc = select(g_sslSocket + 1, &rfds, nullptr, nullptr, &tv)) <= 0)
+    while (((rc = select(g_state.ssl_socket + 1, &rfds, nullptr, nullptr, &tv)) <= 0)
             && maxloop++ < MAXLOOP) {
 
-        if (rc < 0) {    // Error
+        if (rc < 0) {
             int serrno = errno;
             addIdamError(UDA_SYSTEM_ERROR_TYPE, "readUdaClientSSL", errno, "Socket is Closed!");
             if (serrno == EBADF) {
@@ -623,29 +593,27 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
         }
 #ifndef _WIN32
         int fopts = 0;
-        if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||
-            errno == EBADF) {    // Is the socket closed? Check status flags
+        if ((rc = fcntl(g_state.ssl_socket, F_GETFL, &fopts)) < 0 ||
+            errno == EBADF) {
             err = 999;
             UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
             return -1;
         }
 #endif
 
-        udaUpdateSelectParms(g_sslSocket, &rfds, &tv);        // Keep blocking and wait for data
+        udaUpdateSelectParms(g_state.ssl_socket, &rfds, &tv);
     }
-
-// First byte of encrypted data received but need the full record in buffer before SSL can decrypt
 
     int blocked;
     do {
         blocked = 0;
         rc = SSL_read(getUdaClientSSL(), buf, count);
 
-        switch (SSL_get_error(getUdaClientSSL(), rc)) {    // check for SSL errors
-            case SSL_ERROR_NONE:                // clean read
+        switch (SSL_get_error(getUdaClientSSL(), rc)) {
+            case SSL_ERROR_NONE:
                 break;
 
-            case SSL_ERROR_ZERO_RETURN:    // connection closed by server (not caught by select?)
+            case SSL_ERROR_ZERO_RETURN:
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Server socket connection closed!\n");
@@ -653,42 +621,42 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
                              "Server socket connection closed!");
                 return -1;
 
-            case SSL_ERROR_WANT_READ:    // the operation did not complete, try again
+            case SSL_ERROR_WANT_READ:
                 blocked = 1;
                 break;
 
-            case SSL_ERROR_WANT_WRITE:    //the operation did not complete, error
+            case SSL_ERROR_WANT_WRITE:
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "A read operation failed!\n");
                 addIdamError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "A read operation failed!");
                 return -1;
 
-            case SSL_ERROR_SYSCALL:    //some I/O error occured - disconnect?
+            case SSL_ERROR_SYSCALL:
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Socket read I/O error!\n");
                 addIdamError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "Socket read I/O error!");
                 return -1;
 
-            default:            //some other error
+            default:
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!\n");
                 addIdamError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "Read from socket failed!");
 #ifndef _WIN32
                 int fopts = 0;
-                if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||
-                    errno == EBADF) {    // Is the socket closed? Check status flags
+                if ((rc = fcntl(g_state.ssl_socket, F_GETFL, &fopts)) < 0 ||
+                    errno == EBADF) {
                     UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
                 }
 #endif
                 return -1;
         }
 
-    } while (SSL_pending(getUdaClientSSL()) && !blocked);    // data remaining in buffer or re-read attempt
+    } while (SSL_pending(getUdaClientSSL()) && !blocked);
 
     return rc;
 }
 
-#endif   // !SERVERBUILD && SSLAUTHENTICATION 
+#endif   // !SERVERBUILD && SSLAUTHENTICATION
