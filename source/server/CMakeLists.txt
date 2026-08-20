@@ -22,6 +22,7 @@ endif()
 set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
+  createXDRStream.cpp
   getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
@@ -33,7 +34,6 @@ set( SRC_FILES
   serverStartup.cpp
   serverSubsetData.cpp
   writer.cpp
-  createXDRStream.cpp
 )
 
 set( HEADER_FILES
@@ -55,6 +55,11 @@ set( HEADER_FILES
   udaServer.h
   writer.h
 )
+
+if( ENABLE_LANDLOCK )
+  list( APPEND SRC_FILES landlock.cpp )
+  list( APPEND HEADER_FILES landlock.h )
+endif(  )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
@@ -80,6 +85,10 @@ add_library( server-objects OBJECT
 )
 target_link_libraries( server-objects PRIVATE fmt::fmt Boost::boost )
 
+if( ENABLE_LANDLOCK )
+  target_compile_definitions( server-objects PRIVATE -DUSE_LANDLOCK )
+endif()
+
 add_library( fatserver-objects OBJECT
   fatServer.cpp
   ${SRC_FILES}
@@ -87,7 +96,11 @@ add_library( fatserver-objects OBJECT
 )
 target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
 
+if( ENABLE_LANDLOCK )
+  target_compile_definitions( fatserver-objects PRIVATE -DUSE_LANDLOCK )
+endif()
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
+
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>

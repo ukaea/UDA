@@ -161,6 +161,7 @@ option( SERVER_ONLY "Only build UDA server" OFF )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( NO_MEMCACHE "Do not attempt to build with libmemcached support" ON )
 option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
+option( ENABLE_LANDLOCK "Enable landlock file restriction" OFF )
 
 # Wrapper configuration
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )

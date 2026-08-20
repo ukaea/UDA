@@ -1,5 +1,6 @@
 #include <fmt/format.h>
 #include <cstdio>
+#include <boost/algorithm/string.hpp>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else
@@ -18,7 +19,6 @@
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
-#include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
 #include <cache/memcache.hpp>
 #include <common/uuid.hpp>
@@ -32,6 +32,9 @@
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
 #include "initPluginList.h"
+#ifdef USE_LANDLOCK
+#include "landlock.h"
+#endif
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -1124,7 +1127,27 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
         addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Fatal Error Opening the Server Logs");
         concatUdaError(&server_block->idamerrorstack);
         initUdaErrorStack();
+        return err;
     }
+
+#ifdef USE_LANDLOCK
+    std::vector<std::string> paths;
+    const char* paths_env = getenv("UDA_ENABLE_PATHS");
+    if (paths_env != nullptr) {
+        boost::split(paths, paths_env, boost::is_any_of(":"), boost::token_compress_on);
+    }
+    try {
+        uda::server::landlock::add_paths(paths);
+    } catch (std::exception& e) {
+        UDA_LOG(UDA_LOG_ERROR, "Landlock failed: %s\n", e.what());
+        return 999;
+    }
+    if (paths_env != nullptr) {
+        UDA_LOG(UDA_LOG_DEBUG, "Landlock created for paths: %s\n", paths_env);
+    } else {
+        UDA_LOG(UDA_LOG_DEBUG, "Landlock not initialised - UDA_ENABLE_PATHS not defined\n");
+    }
+#endif
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
 
