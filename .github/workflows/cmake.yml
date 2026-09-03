@@ -46,6 +46,8 @@ jobs:
 
       - uses: actions/github-script@v9
         with:
+          fetch-depth: 0
+          fetch-tags: true
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
@@ -70,25 +72,26 @@ jobs:
           python3-dev
           python3-pip
           python3-venv
+          libcurl4-openssl-dev
 
       # Capnproto package on Ubuntu 24.04 has broken CMake file
       - name: Fix Capnproto on Ubuntu
         if: matrix.os == 'ubuntu-latest'
-        run: >
-          sudo sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' \
-            /usr/lib/x86_64-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
-
+        run: |
+          file=/usr/lib/x86_64-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
+          test -f "$file"
+          sudo sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' "$file"
       - name: Install Intel compiler
         if: matrix.os == 'ubuntu-latest'
         run: >
-          sudo apt install -y wget &&
-          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
-          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
-          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list &&
-          sudo apt update &&
-          sudo apt install -y intel-basekit &&
-          sudo apt install -y intel-hpckit
-
+          sudo apt install -y wget gpg ca-certificates &&
+          wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB 
+          | gpg --dearmor 
+          | sudo tee /usr/share/keyrings/intel-oneapi-archive-keyring.gpg > /dev/null &&
+          echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" 
+          | sudo tee /etc/apt/sources.list.d/oneAPI.list &&
+          sudo apt-get update &&
+          sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
         run: >
@@ -126,6 +129,7 @@ jobs:
           dlfcn-win32
           spdlog
           liblzma
+          curl[openssl]
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
@@ -141,7 +145,8 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: >
           source /opt/intel/oneapi/setvars.sh &&
-          CXX=icpx CC=icx cmake -G Ninja -B build-intel
+          CC="$(command -v icx)" CXX="$(command -v icpx)" 
+          cmake -G Ninja -B build-intel
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
           -DSSLAUTHENTICATION=${{ matrix.ssl }}

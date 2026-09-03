@@ -9,6 +9,7 @@
 #include <tuple>
 #include <string>
 
+#include <authentication/oauth_authentication.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/manageSockets.h>
@@ -18,7 +19,6 @@
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
-#include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
 #include <cache/memcache.hpp>
 #include <common/uuid.hpp>
@@ -32,6 +32,9 @@
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
 #include "initPluginList.h"
+#include "authentication/oauth_authentication.h"
+#include "authentication/oauth_authentication.h"
+#include "authentication/oauth_authentication.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -44,8 +47,8 @@
 //--------------------------------------------------------------------------------------
 // static globals
 
-constexpr int server_version = 10;
-static int protocol_version = 10;
+constexpr int server_version = 11;
+static int protocol_version = 11;
 static int legacy_server_version = 6;
 const static std::string server_uuid = uda::common::uuid::generate_random_uuid();
 
@@ -75,15 +78,15 @@ static int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& s
 static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
-                         uda::cache::UdaCache* cache,
-                         LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
-                         int* server_timeout);
+                         uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
+                         const unsigned int* total_datablock_size, int* server_timeout,
+                         const uda::authentication::PayloadType& auth_payload);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                         ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                         XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
-                        int* server_tot_block_time, int* server_timeout);
+                        int* server_tot_block_time, int* server_timeout, const uda::authentication::PayloadType& auth_payload);
 
 static int
 reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block, int trap1Err,
@@ -98,7 +101,7 @@ static int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_b
 #else
 static int
 handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
-                LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output);
+                LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output, uda::authentication::PayloadType& auth_payload);
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -107,8 +110,7 @@ handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* ser
 int udaServer(CLIENT_BLOCK client_block)
 {
     int err = 0;
-    METADATA_BLOCK metadata_block;
-    memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
+    METADATA_BLOCK metadata_block = {};
 
     REQUEST_BLOCK request_block;
     SERVER_BLOCK server_block;
@@ -129,6 +131,8 @@ int udaServer(CLIENT_BLOCK client_block)
     io_data.server_tot_block_time = &server_tot_block_time;
     io_data.server_timeout = &server_timeout;
 
+    uda::authentication::PayloadType auth_payload;
+
     //-------------------------------------------------------------------------
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
@@ -144,14 +148,16 @@ int udaServer(CLIENT_BLOCK client_block)
 
     static unsigned int total_datablock_size = 0;
 
-    if ((err = startupServer(&server_block, server_input, server_output, &io_data)) != 0) return err;
+    if ((err = startupServer(&server_block, server_input, server_output, &io_data)) != 0) {
+        return err;
+    }
 
 #ifdef SECURITYENABLED
     err = authenticateClient(&client_block, &server_block);
 #else
     int server_closedown = 0;
     err = handshakeClient(&client_block, &server_block, &server_closedown, &log_struct_list, server_input,
-                          server_output);
+                          server_output, auth_payload);
 #endif
 
     DATA_BLOCK_LIST data_block_list;
@@ -162,7 +168,7 @@ int udaServer(CLIENT_BLOCK client_block)
         int fatal = 0;
         doServerLoop(&request_block, &data_block_list, &client_block, &server_block, &metadata_block, &actions_desc,
                      &actions_sig, &fatal, cache, &log_struct_list, server_input, server_output,
-                     &total_datablock_size, &server_tot_block_time, &server_timeout);
+                     &total_datablock_size, &server_tot_block_time, &server_timeout, auth_payload);
     }
 
     err = doServerClosedown(&client_block, &request_block, &data_block_list, server_tot_block_time, server_timeout);
@@ -379,7 +385,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
                   LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
-                  int* server_timeout)
+                  int* server_timeout, const uda::authentication::PayloadType& auth_payload)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -730,7 +736,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
         int depth = 0;
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                         &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
+                         &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version,
+                         auth_payload);
 
         cache_write(cache, request, data_block, log_malloc_list, user_defined_type_list, environment, 8, CLIENTFLAG_CACHE,
                     log_struct_list, private_flags, malloc_source);
@@ -818,7 +825,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                  ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                  XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int* server_tot_block_time,
-                 int* server_timeout)
+                 int* server_timeout, const uda::authentication::PayloadType& auth_payload)
 {
     int err = 0;
 
@@ -840,7 +847,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
                             data_block_list, fatal, &server_closedown, cache, log_struct_list, server_input,
-                            total_datablock_size, server_timeout);
+                            total_datablock_size, server_timeout, auth_payload);
 
         // Reset server block time to zero so that we only kill the server after TIMEOUT minutes of inactivity
         *server_tot_block_time = 0;
@@ -1028,7 +1035,8 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 #endif
 
 int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
-                    LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output)
+                    LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                    uda::authentication::PayloadType& auth_payload)
 {
     // Exchange version details - once only
 
@@ -1070,6 +1078,34 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
 
     if (err != 0) return err;
 
+    const char* auth = getenv("UDA_SERVER_AUTHENTICATION");
+
+    if (auth != nullptr) {
+        if (std::string{auth} != "OAUTH") {
+            UDA_LOG(UDA_LOG_ERROR, "Invalid value for UDA_SERVER_AUTHENTICATION: %s\n", auth);
+            UDA_ADD_ERROR(999, "Invalid authorisation option set on server");
+            concatUdaError(&server_block->idamerrorstack);
+        } else {
+            if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
+                std::string token{
+                    reinterpret_cast<const char*>(client_block->authenticationBlock.payload),
+                    client_block->authenticationBlock.payload_length
+                };
+                try {
+                    auth_payload = uda::authentication::authenticate(token);
+                } catch (const std::exception& e) {
+                    UDA_LOG(UDA_LOG_ERROR, "Client Block authentication failed: %s\n", e.what());
+                    UDA_ADD_ERROR(999, "Failed to authenticate");
+                    concatUdaError(&server_block->idamerrorstack);
+                }
+            } else {
+                UDA_LOG(UDA_LOG_ERROR, "No token received\n");
+                UDA_ADD_ERROR(999, "No authorisation token provided");
+                concatUdaError(&server_block->idamerrorstack);
+            }
+        }
+    }
+
     // Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
 
     // Protocol Version: Lower of the client and server version numbers
@@ -1105,7 +1141,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
         UDA_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server\n");
         UDA_LOG(UDA_LOG_DEBUG, "Client protocol %d\n", client_block->version);
         return legacyServer(*client_block, &pluginList, log_malloc_list, user_defined_type_list, &socket_list,
-                            protocol_version, server_input, server_output, 0, malloc_source);
+                            protocol_version, server_input, server_output, 0, malloc_source, auth_payload);
     }
 
     return err;

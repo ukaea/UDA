@@ -31,9 +31,8 @@ namespace filesystem = std::filesystem;
 #define BYTEFILEHEAPERROR           100005
 
 namespace {
-class FileDeleter
+struct FileDeleter
 {
-public:
     void operator()(FILE* file) const
     {
         if (file) {
@@ -45,7 +44,7 @@ public:
 
 class BytesPlugin
 {
-public:
+    public:
     void init(IDAM_PLUGIN_INTERFACE* plugin_interface)
     {
         REQUEST_DATA* request = plugin_interface->request_data;
@@ -76,7 +75,7 @@ public:
     int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
     int size(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-private:
+    private:
     using file_ptr = std::unique_ptr<FILE, FileDeleter>;
 
     bool init_ = false;
@@ -280,7 +279,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     FILE* file = nullptr;
     if (file_map_.count(tmp_path) == 0) {
-        file_ptr ptr(fopen(tmp_path, "rb"));
+        file_ptr ptr{fopen(tmp_path, "rb")};
         file = ptr.get();
         file_map_.emplace(tmp_path, std::move(ptr));
     } else {

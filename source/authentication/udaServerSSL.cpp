@@ -2,16 +2,18 @@
 
 #include "udaServerSSL.h"
 #include "server/createXDRStream.h"
+#include "tlsMode.h"
 
 #include <fcntl.h>
+#include <initializer_list>
 #include <openssl/asn1.h>
 #include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
+#include <string>
 
-#include <common/uda_env_options.hpp>
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
 #include <server/writer.h>
@@ -38,8 +40,12 @@ static SSL* g_ssl = nullptr;
 static SSL_CTX* g_ctx = nullptr;
 
 static void initUdaServerSSL();
-static SSL_CTX* createUdaServerSSLContext();
-static int configureUdaServerSSLContext();
+static SSL_CTX* create_server_context();
+static int load_server_certificate(SSL_CTX* ctx);
+static int load_ca_certificates(SSL_CTX* ctx, const std::string& path);
+static int configure_server_tls_server_only(SSL_CTX* ctx);
+static int configure_server_tls_mutual(SSL_CTX* ctx);
+static int accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy);
 static X509_CRL* loadUdaServerSSLCrl(const char* crlist);
 static int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL) * crls);
 
@@ -135,7 +141,18 @@ void closeUdaServerSSL()
     UDA_LOG(UDA_LOG_DEBUG, "SSL closed\n");
 }
 
-SSL_CTX* createUdaServerSSLContext()
+static const char* first_env(const std::initializer_list<const char*>& names)
+{
+    for (const char* name : names) {
+        const char* value = getenv(name);
+        if (value != nullptr && value[0] != '\0') {
+            return value;
+        }
+    }
+    return nullptr;
+}
+
+SSL_CTX* create_server_context()
 {
     const SSL_METHOD* method = SSLv23_server_method(); // standard TCP
 
@@ -157,61 +174,83 @@ SSL_CTX* createUdaServerSSLContext()
     return g_ctx;
 }
 
-int configureUdaServerSSLContext()
+int load_server_certificate(SSL_CTX* ctx)
 {
-    const char* cert = getenv("UDA_SERVER_SSL_CERT");
-    const char* key = getenv("UDA_SERVER_SSL_KEY");
-    const char* ca = getenv("UDA_SERVER_CA_SSL_CERT");
-    const char* crlist = getenv("UDA_SERVER_CA_SSL_CRL");
+    const char* cert = first_env({"UDA_SERVER_TLS_CERT", "UDA_SERVER_SSL_CERT"});
+    const char* key = first_env({"UDA_SERVER_TLS_KEY", "UDA_SERVER_SSL_KEY"});
 
-    if (!cert || !key || !ca) {
+    if (!cert || !key) {
         if (!cert) {
-            UDA_ADD_ERROR(999, "No server SSL certificate!");
+            UDA_ADD_ERROR(999, "No server TLS certificate; set UDA_SERVER_TLS_CERT or UDA_SERVER_SSL_CERT");
         }
         if (!key) {
-            UDA_ADD_ERROR(999, "No server SSL key!");
+            UDA_ADD_ERROR(999, "No server TLS key; set UDA_SERVER_TLS_KEY or UDA_SERVER_SSL_KEY");
         }
-        if (!ca) {
-            UDA_ADD_ERROR(999, "No Certificate Authority certificate!");
-        }
-        //        if (!crlist) {
-        //            UDA_ADD_ERROR(999, "No Certificate Revocation List!");
-        //        }
-        UDA_LOG(UDA_LOG_DEBUG, "Certificate/Key/CRL environment variable problem!\n");
-        return 999;
+        UDA_THROW_ERROR(999, "Server TLS certificate/key environment variable problem!");
     }
 
-    if (SSL_CTX_use_certificate_file(g_ctx, cert, SSL_FILETYPE_PEM) <= 0) {
+    if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM) <= 0) {
         UDA_THROW_ERROR(999, "Failed to set the server certificate!");
     }
 
-    if (SSL_CTX_use_PrivateKey_file(g_ctx, key, SSL_FILETYPE_PEM) <= 0) {
+    if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
         UDA_THROW_ERROR(999, "Failed to set the server key!");
     }
 
     // Check key and certificate match
-    if (SSL_CTX_check_private_key(g_ctx) == 0) {
+    if (SSL_CTX_check_private_key(ctx) == 0) {
         UDA_THROW_ERROR(999, "Private key does not match the certificate public key!");
     }
 
+    return 0;
+}
+
+int load_ca_certificates(SSL_CTX* ctx, const std::string& path)
+{
+    if (path.empty()) {
+        UDA_THROW_ERROR(999, "No Certificate Authority certificate; set UDA_SERVER_CA_TLS_CERT or UDA_SERVER_CA_SSL_CERT");
+    }
+
     // Load certificates of trusted CAs
-    if (SSL_CTX_load_verify_locations(g_ctx, ca, nullptr) < 1) {
+    if (SSL_CTX_load_verify_locations(ctx, path.c_str(), nullptr) < 1) {
         UDA_THROW_ERROR(999, "Error setting the Cetificate Authority verify locations!");
     }
 
+    return 0;
+}
+
+int configure_server_tls_server_only(SSL_CTX* ctx)
+{
+    if (load_server_certificate(ctx) != 0) {
+        return 999;
+    }
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, nullptr);
+    SSL_CTX_set_verify_depth(ctx, VERIFY_DEPTH);
+    UDA_LOG(UDA_LOG_DEBUG, "Server-only TLS context configured\n");
+    return 0;
+}
+
+int configure_server_tls_mutual(SSL_CTX* ctx)
+{
+    const char* ca = first_env({"UDA_SERVER_CA_TLS_CERT", "UDA_SERVER_TLS_CA_CERT", "UDA_SERVER_CA_SSL_CERT"});
+    const char* crlist = first_env({"UDA_SERVER_CA_TLS_CRL", "UDA_SERVER_TLS_CA_CRL", "UDA_SERVER_CA_SSL_CRL"});
+
+    if (load_server_certificate(ctx) != 0 || load_ca_certificates(ctx, ca == nullptr ? "" : ca) != 0) {
+        return 999;
+    }
     // Peer certificate verification
-    SSL_CTX_set_verify(g_ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
-    SSL_CTX_set_verify_depth(g_ctx, VERIFY_DEPTH);
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
+    SSL_CTX_set_verify_depth(ctx, VERIFY_DEPTH);
 
     if (crlist != nullptr) {
         // Add verification against the Certificate Revocation List
         X509_VERIFY_PARAM* params = X509_VERIFY_PARAM_new();
         X509_VERIFY_PARAM_set_flags(params, X509_V_FLAG_CRL_CHECK);
-        SSL_CTX_set1_param(g_ctx, params);
+        SSL_CTX_set1_param(ctx, params);
 
         X509_CRL* crl = loadUdaServerSSLCrl(crlist);
         if (!crl) {
-            return 999; // CRL not loaded
+            UDA_THROW_ERROR(999, "CRL not loaded");
         }
 
         STACK_OF(X509_CRL)* crls = sk_X509_CRL_new_null();
@@ -220,13 +259,12 @@ int configureUdaServerSSLContext()
             UDA_THROW_ERROR(999, "Error loading the CRL for client certificate verification!");
         }
 
-        X509_STORE* st = SSL_CTX_get_cert_store(g_ctx);
+        X509_STORE* st = SSL_CTX_get_cert_store(ctx);
         addUdaServerSSLCrlsStore(st, crls);
-        SSL_CTX_set1_verify_cert_store(g_ctx, st);
+        SSL_CTX_set1_verify_cert_store(ctx, st);
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "SSL Context configured\n");
-
+    UDA_LOG(UDA_LOG_DEBUG, "Mutual TLS context configured\n");
     return 0;
 }
 
@@ -271,35 +309,12 @@ int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL) * crls)
     return 1;
 }
 
-int startUdaServerSSL()
+int accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
 {
     int rc;
 
-    // Has SSL/TLS authentication already been passed?
-    if (g_sslOK) {
-        return 0;
-    }
-
-    // Has the server disabled SSL/TLS authentication?
-    g_sslDisabled = !uda::common::env_config::evaluate_bool_param("UDA_SERVER_SSL_AUTHENTICATE", false);
-    if (g_sslDisabled) {
-        return 0;
-    }
-
-    UDA_LOG(UDA_LOG_DEBUG, "SSL Authentication is Enabled!\n");
-
-    // Initialise
-    initUdaServerSSL();
-
-    if (!(g_ctx = createUdaServerSSLContext())) {
-        UDA_THROW_ERROR(999, "Unable to create the SSL context!");
-    }
-    if (configureUdaServerSSLContext() != 0) {
-        UDA_THROW_ERROR(999, "Unable to configure the SSL context!");
-    }
-
     // Bind an SSL object with the socket
-    g_ssl = SSL_new(g_ctx);
+    g_ssl = SSL_new(ctx);
     if ((rc = SSL_set_fd(g_ssl, g_sslSocket)) < 1) {
         UDA_LOG(UDA_LOG_DEBUG, "Error - Unable to bind the socket to SSL!\n");
         UDA_THROW_ERROR(999, "Unable to bind the socket to SSL!");
@@ -320,11 +335,11 @@ int startUdaServerSSL()
         return err;
     }
 
-    // Get the Client's certificate and verify
+    // Get the Client's certificate and verify/log according to mode.
     X509* peer = SSL_get_peer_certificate(g_ssl);
 
     if (peer != nullptr) {
-        if ((rc = (int)SSL_get_verify_result(g_ssl)) != X509_V_OK) {
+        if (policy == PeerCertPolicy::Required && (rc = (int)SSL_get_verify_result(g_ssl)) != X509_V_OK) {
             // returns X509_V_OK if the certificate was not obtained as no error occured!
             X509_free(peer);
             UDA_LOG(UDA_LOG_DEBUG, "SSL Client certificate presented but verification error!\n");
@@ -346,13 +361,15 @@ int startUdaServerSSL()
         std::string before_string = to_string(before);
         std::string after_string = to_string(after);
 
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %d\n", before_string.c_str());
-        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %d\n", after_string.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "X509 not before: %s\n", before_string.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "X509 not after: %s\n", after_string.c_str());
         X509_free(peer);
     } else {
-        X509_free(peer);
-        UDA_LOG(UDA_LOG_DEBUG, "Client certificate not presented for verification!\n");
-        UDA_THROW_ERROR(999, "Client certificate not presented for verification!");
+        if (policy == PeerCertPolicy::Required) {
+            UDA_LOG(UDA_LOG_DEBUG, "Client certificate not presented for verification!\n");
+            UDA_THROW_ERROR(999, "Client certificate not presented for verification!");
+        }
+        UDA_LOG(UDA_LOG_DEBUG, "Client certificate not presented; not required by TLS mode\n");
     }
 
     // Print out connection details
@@ -365,6 +382,51 @@ int startUdaServerSSL()
     g_sslOK = true;
 
     return 0;
+}
+
+int startUdaServerSSL()
+{
+    // Has SSL/TLS authentication already been passed?
+    if (g_sslOK) {
+        return 0;
+    }
+
+    if (!isValidTlsModeEnv("UDA_SERVER_TLS_MODE")) {
+        getServerTlsMode();
+        UDA_THROW_ERROR(999, "Invalid server TLS mode!");
+    }
+
+    const TlsMode mode = getServerTlsMode();
+    g_sslDisabled = mode == TlsMode::Off;
+    if (g_sslDisabled) {
+        return 0;
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "SSL/TLS is Enabled!\n");
+
+    // Initialise
+    initUdaServerSSL();
+
+    if (!(g_ctx = create_server_context())) {
+        UDA_THROW_ERROR(999, "Unable to create the SSL context!");
+    }
+
+    switch (mode) {
+        case TlsMode::Off:
+            return 0;
+        case TlsMode::ServerOnly:
+            if (configure_server_tls_server_only(g_ctx) != 0) {
+                UDA_THROW_ERROR(999, "Unable to configure the server-only TLS context!");
+            }
+            return accept_tls_connection(g_ctx, PeerCertPolicy::NotRequired);
+        case TlsMode::Mutual:
+            if (configure_server_tls_mutual(g_ctx) != 0) {
+                UDA_THROW_ERROR(999, "Unable to configure the mutual TLS context!");
+            }
+            return accept_tls_connection(g_ctx, PeerCertPolicy::Required);
+    }
+
+    UDA_THROW_ERROR(999, "Unsupported server TLS mode!");
 }
 
 #ifdef UNUSED

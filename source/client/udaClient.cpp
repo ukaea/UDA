@@ -38,10 +38,7 @@
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
-#if !defined(FATCLIENT) || !defined(NOLIBMEMCACHED)
-//static int protocol_version = 9;
-#endif
-int client_version = 10;          // previous version
+int client_version = 11;
 
 //----------------------------------------------------------------------------------------------------------------------
 // FATCLIENT objects shared with server code
@@ -606,6 +603,14 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         //------------------------------------------------------------------------------
         // User Authentication at startup
 
+        const char* token = getenv("UDA_AUTH_TOKEN");
+        if (token != nullptr) {
+            client_block.clientFlags |= CLIENTFLAG_AUTHENTICATE;
+            client_block.authenticationBlock.authentication_type = UDA_AUTHENTICATION_OAUTH;
+            client_block.authenticationBlock.payload = reinterpret_cast<unsigned char*>(strdup(token));
+            client_block.authenticationBlock.payload_length = strlen(token);
+        }
+
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 
 #ifdef SECURITYENABLED
@@ -1050,7 +1055,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         //------------------------------------------------------------------------------
         // End of Error Trap Loop
 
-    } while (0);
+    } while (false);
 
     // 4 Possible Error States:
     //
@@ -1241,8 +1246,6 @@ void udaFree(int handle)
     // Free Heap Memory (Not the Data Blocks themselves: These will be re-used.)
 
     char* cptr;
-    DIMS* ddims;
-    int rank;
 
     DATA_BLOCK* data_block = getIdamDataBlock(handle);
 
@@ -1336,8 +1339,8 @@ void udaFree(int handle)
             break;
     }
 
-    rank = data_block->rank;
-    ddims = data_block->dims;
+    const int rank = static_cast<int>(data_block->rank);
+    DIMS* ddims = data_block->dims;
 
     if ((cptr = data_block->data) != nullptr) {
         free(cptr);
@@ -1653,7 +1656,7 @@ const char* getIdamServerErrorMsg()
 */
 int getIdamServerErrorStackSize()
 {
-    return server_block.idamerrorstack.nerrors;     // Server Error Stack Size (No.Records)
+    return static_cast<int>(server_block.idamerrorstack.nerrors);     // Server Error Stack Size (No.Records)
 }
 
 //! the Type of server error of a specific server error record

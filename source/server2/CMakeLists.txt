@@ -5,6 +5,7 @@ find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( spdlog REQUIRED )
 find_package( fmt REQUIRED )
+find_package( Boost REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -51,7 +52,7 @@ add_definitions( -DSERVERBUILD )
 add_library( server2-objects OBJECT
   ${SRC_FILES}
 )
-target_link_libraries( server2-objects PRIVATE spdlog::spdlog fmt::fmt )
+target_link_libraries( server2-objects PRIVATE spdlog::spdlog fmt::fmt Boost::boost )
 
 set( SERVER2_OBJ
   $<TARGET_OBJECTS:server2-objects>
@@ -78,12 +79,12 @@ elseif(TIRPC_FOUND )
   set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
 endif()
 
-target_link_libraries( server2-static PRIVATE ${LINK_XDR} fmt::fmt )
+target_link_libraries( server2-static PRIVATE ${LINK_XDR} fmt::fmt curl )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server2-shared PRIVATE ${LINK_XDR} fmt::fmt )
+  target_link_libraries( server2-shared PRIVATE ${LINK_XDR} fmt::fmt curl )
 endif()
 
-add_executable( server2-exe ${EXE_FLAG} server_main.cpp)
+add_executable( server2-exe ${EXE_FLAG} server_main.cpp )
 
 ########################################################################################################################
 # Add libraries
@@ -159,6 +160,7 @@ target_link_libraries( server2-exe PRIVATE
   ${LINK_M}
   ${LINK_DL}
   ${LINK_XDR}
+  Boost::boost
 )
 
 if( NOT WIN32 AND NOT MINGW )

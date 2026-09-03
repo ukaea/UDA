@@ -60,7 +60,7 @@ link_directories( ${CMAKE_BINARY_DIR}/source/wrappers/c++ )
 
 file( GLOB HELPER_FILES "test_helpers.*" )
 
-set( LIBRARIES )
+set( LIBRARIES curl )
 set( EXE_FLAG )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )

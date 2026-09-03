@@ -3,6 +3,7 @@
 #include <logging/logging.h>
 #include <clientserver/makeRequestBlock.h>
 
+#include "makeRequestBlock.h"
 #include "udaTypes.h"
 
 void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
@@ -13,6 +14,12 @@ void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 //    initPutDataBlockList(putDataBlockList);
 }
 
+void freeRequestData(REQUEST_DATA* request_data)
+{
+    freeNameValueList(&request_data->nameValueList);
+    freePutDataBlockList(&request_data->putDataBlockList);
+}
+
 void freeRequestBlock(REQUEST_BLOCK* request_block)
 {
     if(request_block == nullptr) {
@@ -20,8 +27,7 @@ void freeRequestBlock(REQUEST_BLOCK* request_block)
     }
     if (request_block->requests != nullptr) {
         for (int i = 0; i < request_block->num_requests; i++) {
-            freeNameValueList(&request_block->requests[i].nameValueList);
-            freePutDataBlockList(&request_block->requests[i].putDataBlockList);
+            freeRequestData(&request_block->requests[i]);
         }
         free(request_block->requests);
         request_block->requests = nullptr;
