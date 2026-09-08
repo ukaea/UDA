@@ -430,7 +430,7 @@ typedef struct Environment {
 
 void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
-void freeDataBlock(DATA_BLOCK* data_block);
+LIBRARY_API void freeDataBlock(DATA_BLOCK* data_block);
 
 void freeDataBlockList(DATA_BLOCK_LIST* data_block_list);
 
