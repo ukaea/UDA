@@ -42,7 +42,7 @@ def _parse_subclient_register_from_env():
      Input string should be formatted as a colon-delimited list,
      with each entry containing the module path to the subclient class,
      as it would be written to import in python
-     e.g. UDA_SUBCLIENTS=mast.MastClient:mast.geom.GeometryClient:another_module.AnotherSubClient
+     e.g. UDA_SUBCLIENTS=mast.MastClient:mast.geom.GeomClient:another_module.AnotherSubClient
 
      Throws: UdaSubclientsStringError if the UDA_SUBCLIENTS string is misformed (e.g. missing required . char)
      Throws: KeyError if the environment variable does not exist
@@ -54,7 +54,7 @@ def _parse_subclient_register_from_env():
     if subclients_string == "":
         return {}
 
-    string_validator = re.fullmatch(r'(([a-zA-z]\w*)(\.[a-zA-z]\w*)+:?)+', subclients_string)
+    string_validator = re.fullmatch(r'(([a-zA-Z]\w*)(\.[a-zA-Z]\w*)+:?)+', subclients_string)
     if string_validator is None:
         raise UdaSubclientsStringError("UDA_SUBCLIENTS string is incorrectly formatted")
 
@@ -64,6 +64,7 @@ def _parse_subclient_register_from_env():
         module_path, subclient_class = entry.rsplit('.', maxsplit=1)
         subclient_register[module_path].append(subclient_class)
     return dict(subclient_register)
+
 
 class ClientMeta(type):
     """
@@ -107,12 +108,6 @@ class Client(with_metaclass(ClientMeta, object)):
 
         self._registered_subclients = {}
         self.register_all_subclients()
-
-    def _parse_subclient_register_from_yaml(self):
-        import yaml
-        subclient_register_path = os.environ["UDA_SUBCLIENT_REGISTER"]
-        with open(subclient_register_path, 'r') as file:
-            return yaml.safe_load(file)
 
     def register_all_subclients(self):
         """
@@ -163,11 +158,10 @@ class Client(with_metaclass(ClientMeta, object)):
                           "not conform to the new interface. Falling back to legacy subclient "
                           "registration method. This behaviour will be deprecated along with the "
                           "fallback method in a later release", UdaSubclientDeprecationWarning)
-            self.register_legacy_subclients
+            self.register_legacy_subclients()
 
     def register_legacy_subclients(self):
         # this warning will annoy all non-mast users until we deprecate
-        # when do we plan deprecation?
         warnings.warn("WARNING: The pyuda client has fallen back to using the legacy "
                       "subclient registration routine, possibly "
                       " because the UDA_SUBCLIENTS "
@@ -177,7 +171,7 @@ class Client(with_metaclass(ClientMeta, object)):
                       "used in this legacy routine will not be reported, which "
                       "will frustrate debugging if you require this functionality\n\n"
                       "This legacy (mast-specific) routine will be deprecated "
-                      "in a future v3.x release. \n\n"
+                      "in a future release. \n\n"
                       "Consider using the UDA_SUBCLIENTS "
                       "environment variable if your code relies on subclient "
                       "features such as list_signals.\n\n"
@@ -201,6 +195,7 @@ class Client(with_metaclass(ClientMeta, object)):
             self._registered_subclients['listGeomGroups'] = geom_client
             self._registered_subclients['list'] = mast_client
             self._registered_subclients['list_archive_files'] = mast_client
+            self._registered_subclients['list_archive_file_info'] = mast_client
             self._registered_subclients['list_archive_directories'] = mast_client
             self._registered_subclients['list_file_signals'] = mast_client            
             self._registered_subclients['list_signals'] = mast_client
@@ -217,9 +212,10 @@ class Client(with_metaclass(ClientMeta, object)):
 
     def register_method(self, method, subclient_instance):
         if method in self._registered_subclients:
-            previous = self._registered_subclients[method].__name__
-            warnings.warn(f"The subclient method \"{method.__name__}\" previously registered to {previous} "
-                          f"has been overwritten by {subclient_instance.__name__}")
+            previous = type(self._registered_subclients[method]).__name__
+            warnings.warn("The subclient method \"{0}\" previously registered to {1} "
+                          "has been overwritten by {2}".format(method, previous,
+                                                               type(subclient_instance).__name__))
         self._registered_subclients[method] = subclient_instance
 
     def get_file(self, source_file, output_file=None):

@@ -1,4 +1,6 @@
 class TestClient:
+    __test__ = False  # not a pytest test class
+
     _exported_methods = [
             "speak",
             "greet"
@@ -18,3 +20,10 @@ class TestClient:
 
     def greet(self):
         return "hello from the test sub-client"
+
+
+class NoRegisterClient:
+    """Subclient from an old package that predates the register() interface"""
+
+    def __init__(self, client):
+        self.client = client

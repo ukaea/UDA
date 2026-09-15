@@ -1,7 +1,5 @@
 import pytest
 import pyuda
-import os
-# import warnings
 from pyuda._client import _parse_subclient_register_from_env, UdaSubclientsStringError
 import test_client
 
@@ -24,13 +22,13 @@ import test_client
                                           id="multiple_nested_entries"
                                           ),
                          ])
-def test_env_parser(input_string, expected):
-    os.environ["UDA_SUBCLIENTS"] = input_string
+def test_env_parser(monkeypatch, input_string, expected):
+    monkeypatch.setenv("UDA_SUBCLIENTS", input_string)
     assert _parse_subclient_register_from_env() == expected
 
 
-def test_env_parser_throws_when_var_unset():
-    del os.environ["UDA_SUBCLIENTS"]
+def test_env_parser_throws_when_var_unset(monkeypatch):
+    monkeypatch.delenv("UDA_SUBCLIENTS", raising=False)
     with pytest.raises(KeyError):
         _parse_subclient_register_from_env()
 
@@ -43,48 +41,70 @@ def test_env_parser_throws_when_var_unset():
                              pytest.param("wrong.Wrong;not_right.NotRight",
                                           UdaSubclientsStringError,
                                           id="wrong_delimiter"),
+                             pytest.param("wrong.[Wrong",
+                                          UdaSubclientsStringError,
+                                          id="non_alphanumeric_character"),
                              ])
-def test_env_parser_throws_when_var_misformatted(input_string, error):
-    os.environ["UDA_SUBCLIENTS"] = input_string
+def test_env_parser_throws_when_var_misformatted(monkeypatch, input_string, error):
+    monkeypatch.setenv("UDA_SUBCLIENTS", input_string)
     with pytest.raises(error):
         _parse_subclient_register_from_env()
 
 
-def test_empty_string_skips_subclient_registration(recwarn):
-    os.environ["UDA_SUBCLIENTS"] = ""
+def test_empty_string_skips_subclient_registration(monkeypatch, recwarn):
+    monkeypatch.setenv("UDA_SUBCLIENTS", "")
     client = pyuda.Client()
     for warning in recwarn:
-        assert not issubclass(warning.category, pyuda.SubClientDeprecationWarning)
+        assert not issubclass(warning.category, pyuda.UdaSubclientDeprecationWarning)
     assert client._registered_subclients == {}
 
 
-def test_register_subclient_manually_from_classmethod():
-    os.environ["UDA_SUBCLIENTS"] = ""
+def test_register_subclient_manually_from_classmethod(monkeypatch):
+    monkeypatch.setenv("UDA_SUBCLIENTS", "")
     client = pyuda.Client()
     test_client.TestClient.register(client)
     assert client.speak() == "woof"
 
 
-def test_register_subclient_manually_from_pyuda_client():
-    os.environ["UDA_SUBCLIENTS"] = ""
+def test_register_subclient_manually_from_pyuda_client(monkeypatch):
+    monkeypatch.setenv("UDA_SUBCLIENTS", "")
     client = pyuda.Client()
     client.register_subclient(test_client.TestClient)
     assert client.speak() == "woof"
 
 
-def test_register_sub_client_method_from_env():
-    os.environ["UDA_SUBCLIENTS"] = "test_client.TestClient"
+def test_register_sub_client_method_from_env(monkeypatch):
+    monkeypatch.setenv("UDA_SUBCLIENTS", "test_client.TestClient")
     client = pyuda.Client()
     assert client.speak() == "woof"
 
 
-def test_module_not_found_raised():
-    os.environ["UDA_SUBCLIENTS"] = "not_installed.FakeClient"
-    with pytest.raises(ModuleNotFoundError):
+def test_reregistering_method_warns_and_overwrites(monkeypatch):
+    monkeypatch.setenv("UDA_SUBCLIENTS", "test_client.TestClient")
+    client = pyuda.Client()
+    previous = client._registered_subclients["speak"]
+    with pytest.warns(UserWarning, match="overwritten by TestClient"):
+        client.register_subclient(test_client.TestClient)
+    assert client._registered_subclients["speak"] is not previous
+    assert client.speak() == "woof"
+
+
+def test_subclient_without_register_method_falls_back_to_legacy(monkeypatch):
+    calls = []
+    monkeypatch.setattr(pyuda.Client, "register_legacy_subclients", lambda self: calls.append(self))
+    monkeypatch.setenv("UDA_SUBCLIENTS", "test_client.test_client.NoRegisterClient")
+    with pytest.warns(pyuda.UdaSubclientDeprecationWarning):
+        client = pyuda.Client()
+    assert calls == [client]
+
+
+def test_module_not_found_raised(monkeypatch):
+    monkeypatch.setenv("UDA_SUBCLIENTS", "not_installed.FakeClient")
+    with pytest.raises(ImportError):
         pyuda.Client()
 
 
-def test_module_not_found_for_subclient_dependency():
-    os.environ["UDA_SUBCLIENTS"] = "breaking_client.FakeClient"
-    with pytest.raises(ModuleNotFoundError):
+def test_module_not_found_for_subclient_dependency(monkeypatch):
+    monkeypatch.setenv("UDA_SUBCLIENTS", "breaking_client.FakeClient")
+    with pytest.raises(ImportError):
         pyuda.Client()
