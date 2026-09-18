@@ -371,20 +371,52 @@ HTTP endpoint, configured with `UDA_HELP_AUTHZ_URL`, `UDA_HELP_AUTHZ_CLAIM` and
 `UDA_HELP_AUTHZ_EXPECT`. It is a test and demonstration function, not an access control
 mechanism.
 
-## When the token is validated
+## Session lifetime
 
-The bearer token is validated **once per connection**, during the handshake. The client
-re-sends the client block on every request, but the server does not re-verify the token:
-the claims established at handshake are used for the life of the connection.
+**An authenticated session lasts for the lifetime of the client–server connection or the
+lifetime of the token, whichever is shorter.**
 
-This is deliberate — it keeps per-request cost off the data path — but it has a
-consequence worth stating plainly: **a token that expires mid-connection continues to
-work until the connection closes.** The bound on that is the server lifetime, set by the
-client's `UDA_TIMEOUT` and enforced as `server_timeout`. Deployments that need tighter
-revocation should set a shorter server timeout rather than relying on token expiry.
+You attach a token obtained elsewhere; the server verifies it once, during the handshake;
+and the claims from that single verification are what the connection runs on. When the
+token's own expiry passes, the server closes the connection.
 
-A client that changes its token mid-connection is not supported: the resent token is
-ignored, not rejected. Reconnect to authenticate with a different token.
+That is the whole rule. The detail behind it:
+
+- **The token is verified once, not per request.** Verification happens at the handshake.
+  No signature check, no JWKS lookup and no claim evaluation happens on the data path.
+- **The token sent with later requests is ignored, not examined.** The client re-sends the
+  client block, token included, with every request, because the wire format is fixed by
+  the protocol version. From the handshake onwards the server reads those bytes and drops
+  them without decoding: nothing is allocated, nothing is parsed, and no later token is
+  ever trusted.
+- **Expiry is enforced before each request is served**, using the expiry from the token
+  verified at the handshake, and the same clock skew allowance used to verify it. Once it
+  passes, the server refuses with error **706** and closes the connection. The client
+  receives the error before the socket closes, so it can tell an expired session from a
+  network failure.
+- **A connection may therefore end at any time**, when its token expires. Clients that
+  hold long-lived connections should expect 706 and reconnect with a fresh token.
+
+### Changing token mid-session is not supported
+
+A client cannot change identity on an existing connection. A different token sent on a
+connection that is already established is ignored — not honoured, and not rejected.
+
+**To use a new token, open a new connection.** That is the client's responsibility: UDA
+has no mechanism for a server to answer a request while also saying "by the way, the token
+you just sent was ignored", and inventing one for this case is not worth the protocol
+surface.
+
+Caveats worth stating plainly:
+
+- A token refreshed mid-session has no effect until the client reconnects, and nothing
+  reports that.
+- A token revoked at the identity provider continues to work until it expires or the
+  connection closes. Revocation is not observed; only expiry is. Deployments needing
+  prompt revocation should issue short-lived tokens, which shortens the session with them.
+- Nothing in a response identifies which token authorised it. Recording a token
+  fingerprint against each request is a natural extension when provenance work needs it,
+  and would be the point at which a server could report the token actually in scope.
 
 ## Client compatibility
 

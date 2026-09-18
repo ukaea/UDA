@@ -1,0 +1,29 @@
+# GitGuardian configuration.
+#
+# The paths below are a disposable test rig: a Keycloak realm that exists only to be
+# imported into a throwaway container on a developer machine or a CI runner, together with
+# the scripts that drive it. Its credentials are deliberately fixed and published, because
+# the tests and the documentation both have to name them. They grant access to nothing:
+# the realm is created at container start and destroyed with the container, it is bound to
+# loopback, and it is never deployed.
+#
+# The ignores are listed file by file rather than as a directory glob, so that a real
+# credential accidentally added elsewhere under test/ or demo/ is still caught.
+#
+# Note for reviewers: if a genuine secret ever needs to exist for these tests, it must come
+# from the environment or a CI secret, not from these files.
+
+version: 2
+
+secret:
+  ignored-paths:
+    # Keycloak realm import: client secret and the two test users' passwords.
+    - test/e2e/keycloak/uda-test-realm.json
+    # Obtains tokens from the realm above; defaults name the same test credentials.
+    - test/e2e/keycloak/mint-token.sh
+    # Bring-up for the rig; sets the throwaway Keycloak bootstrap admin password.
+    - test/e2e/keycloak/docker-compose.yml
+    - demo/oidc/docker-compose.yml
+    # Documentation that has to state the credentials for the rig to be usable.
+    - test/e2e/keycloak/README.md
+    - demo/oidc/README.md

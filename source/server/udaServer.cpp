@@ -52,6 +52,9 @@ using PayloadType = std::unordered_map<std::string, std::string>;
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaServerSSL.h>
 #endif
+#include <ctime>
+
+#include <authentication/auth_session.h>
 #include <authentication/refusal_log.h>
 
 //--------------------------------------------------------------------------------------
@@ -90,13 +93,16 @@ static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_bloc
                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
                          uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
                          const unsigned int* total_datablock_size, int* server_timeout,
-                         const uda::authentication::PayloadType& auth_payload);
+                         const uda::authentication::PayloadType& auth_payload,
+                         const uda::authentication::AuthSession& auth_session);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                         ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                         XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
-                        int* server_tot_block_time, int* server_timeout, const uda::authentication::PayloadType& auth_payload);
+                        int* server_tot_block_time, int* server_timeout,
+                        const uda::authentication::PayloadType& auth_payload,
+                        const uda::authentication::AuthSession& auth_session);
 
 static int
 reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block, int trap1Err,
@@ -111,7 +117,9 @@ static int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_b
 #else
 static int
 handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
-                LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output, uda::authentication::PayloadType& auth_payload);
+                LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                uda::authentication::PayloadType& auth_payload,
+                uda::authentication::AuthSession& auth_session);
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -142,6 +150,7 @@ int udaServer(CLIENT_BLOCK client_block)
     io_data.server_timeout = &server_timeout;
 
     uda::authentication::PayloadType auth_payload;
+    uda::authentication::AuthSession auth_session;
 
     //-------------------------------------------------------------------------
     // Initialise the Error Stack & the Server Status Structure
@@ -167,7 +176,7 @@ int udaServer(CLIENT_BLOCK client_block)
 #else
     int server_closedown = 0;
     err = handshakeClient(&client_block, &server_block, &server_closedown, &log_struct_list, server_input,
-                          server_output, auth_payload);
+                          server_output, auth_payload, auth_session);
 #endif
 
     DATA_BLOCK_LIST data_block_list;
@@ -178,7 +187,8 @@ int udaServer(CLIENT_BLOCK client_block)
         int fatal = 0;
         doServerLoop(&request_block, &data_block_list, &client_block, &server_block, &metadata_block, &actions_desc,
                      &actions_sig, &fatal, cache, &log_struct_list, server_input, server_output,
-                     &total_datablock_size, &server_tot_block_time, &server_timeout, auth_payload);
+                     &total_datablock_size, &server_tot_block_time, &server_timeout, auth_payload,
+                     auth_session);
     }
 
     err = doServerClosedown(&client_block, &request_block, &data_block_list, server_tot_block_time, server_timeout);
@@ -395,7 +405,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
                   LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
-                  int* server_timeout, const uda::authentication::PayloadType& auth_payload)
+                  int* server_timeout, const uda::authentication::PayloadType& auth_payload,
+                  const uda::authentication::AuthSession& auth_session)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -437,6 +448,37 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
         *fatal = 1;
         return err;
+    }
+
+    // The session is bounded by the token as well as by the connection: it lasts for the
+    // lifetime of the connection or the lifetime of the token, whichever is shorter.
+    //
+    // This is checked here, having just received the request, rather than before the
+    // server blocks waiting for one. The server can sit idle for minutes between
+    // requests, so a check made before the wait is a check against a time that has since
+    // passed — and it would serve one more request on an expired token.
+    //
+    // The expiry comes from the token verified at the handshake, not from whatever the
+    // client last sent: a later token is not decoded at all, let alone trusted.
+    if (auth_session.expired(std::time(nullptr))) {
+        AUTH_LOG(UDA_LOG_INFO,
+            "Auth: bearer token for this session has expired; closing the connection\n");
+        {
+            using namespace uda::authentication;
+            RefusalRecord rec;
+            rec.stage           = RefusalStage::OidcAuth;
+            rec.reason          = RefusalReason::OidcTokenExpired;
+            rec.uda_error_code  = UDA_AUTH_ERR_TOKEN_EXPIRED;
+            rec.message         = "Session token expired mid-connection; connection closed";
+            rec.peer            = get_peer_info(INETD_SOCKET_FD);
+            rec.client_version  = client_block->version;
+            rec.client_username = client_block->uid;
+            rec.token_error     = "expired";
+            record_refused_request(rec);
+        }
+        *server_closedown = 1;
+        UDA_THROW_ERROR(UDA_AUTH_ERR_TOKEN_EXPIRED,
+            "The bearer token for this session has expired; reconnect with a new token");
     }
 
     *server_timeout = client_block->timeout;         // User specified Server Lifetime
@@ -842,7 +884,8 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                  ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                  XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int* server_tot_block_time,
-                 int* server_timeout, const uda::authentication::PayloadType& auth_payload)
+                 int* server_timeout, const uda::authentication::PayloadType& auth_payload,
+                 const uda::authentication::AuthSession& auth_session)
 {
     int err = 0;
 
@@ -864,12 +907,20 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
                             data_block_list, fatal, &server_closedown, cache, log_struct_list, server_input,
-                            total_datablock_size, server_timeout, auth_payload);
+                            total_datablock_size, server_timeout, auth_payload, auth_session);
 
         // Reset server block time to zero so that we only kill the server after TIMEOUT minutes of inactivity
         *server_tot_block_time = 0;
 
         if (server_closedown) {
+            // A closedown carrying an error means the server is ending the session for a
+            // reason the client needs to know — an expired session token, say. Say so
+            // before closing, or the client sees only a dropped socket and reports
+            // "No Data waiting at Socket", which explains nothing.
+            if (err != 0) {
+                reportToClient(server_block, data_block_list, client_block, err, metadata_block,
+                               log_struct_list, server_input, server_output, total_datablock_size);
+            }
             break;
         }
 
@@ -1055,7 +1106,8 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 
 int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
                     LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
-                    uda::authentication::PayloadType& auth_payload)
+                    uda::authentication::PayloadType& auth_payload,
+                    uda::authentication::AuthSession& auth_session)
 {
     // Exchange version details - once only
 
@@ -1123,12 +1175,27 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
             auth_err_code = gate.error_code;
         } else {
             auth_payload = gate.auth_payload;
+            // The session lasts for the connection or the token, whichever is shorter.
+            auth_session = uda::authentication::make_auth_session(
+                auth_payload, uda::authentication::OidcConfig::from_env().clock_skew_seconds);
+            const long remaining = auth_session.seconds_remaining(std::time(nullptr));
+            if (remaining >= 0) {
+                AUTH_LOG(UDA_LOG_INFO,
+                    "Auth: session authenticated; token expires in %lds, connection will close then\n",
+                    remaining);
+            } else {
+                AUTH_LOG(UDA_LOG_INFO,
+                    "Auth: session authenticated; token carries no expiry, session bounded by the connection\n");
+            }
         }
-        // Free XDR-decoded payload regardless of auth outcome (allocated by xdr_authentication_block)
+        // Free the XDR-decoded payload regardless of auth outcome. From here the token has
+        // served its purpose: the session runs on the claims just verified, and later
+        // copies arriving with each request are dropped without being decoded at all.
         if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
             free(client_block->authenticationBlock.payload);
             client_block->authenticationBlock.payload = nullptr;
         }
+        udaDiscardAuthenticationPayload(true);
     }
 #endif
 

@@ -22,6 +22,7 @@ add_library( authentication-test-objects OBJECT
     ${CMAKE_SOURCE_DIR}/source/authentication/authLog.cpp
     ${CMAKE_SOURCE_DIR}/source/authentication/jwks_cache.cpp
     ${CMAKE_SOURCE_DIR}/source/authentication/refusal_log.cpp
+    ${CMAKE_SOURCE_DIR}/source/authentication/auth_session.cpp
     ${CMAKE_SOURCE_DIR}/source/authentication/http_get.cpp
 )
 target_compile_definitions( authentication-test-objects PRIVATE -DOIDCAUTHENTICATION )
@@ -102,15 +103,6 @@ target_link_libraries( handshake-auth-test-objects PRIVATE
     jwt-cpp::jwt-cpp
 )
 
-# handshake_auth.cpp reads the server TLS mode; tlsMode.h reports an invalid mode value
-# through the UDA error stack, so the test link needs errorLog and stringUtils.
-add_library( handshake-auth-test-support OBJECT
-    ${CMAKE_SOURCE_DIR}/source/clientserver/errorLog.cpp
-    ${CMAKE_SOURCE_DIR}/source/clientserver/stringUtils.cpp
-)
-target_include_directories( handshake-auth-test-support PRIVATE
-    ${CMAKE_SOURCE_DIR}/source
-)
 
 add_executable( test_server_auth server_auth.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_server_auth PRIVATE
@@ -120,7 +112,6 @@ target_link_libraries( test_server_auth PRIVATE
     nlohmann_json::nlohmann_json
     jwt-cpp::jwt-cpp
     handshake-auth-test-objects
-    handshake-auth-test-support
     authentication-test-objects
     Catch2::Catch2WithMain
     CURL::libcurl
@@ -166,6 +157,20 @@ if( TIRPC_FOUND )
   target_link_libraries( test_xdr_auth_block PRIVATE ${TIRPC_LIBRARIES} )
 endif()
 add_test( NAME TestXdrAuthBlock COMMAND test_xdr_auth_block )
+
+# auth_session tests (how long an authenticated connection lasts)
+add_executable( test_auth_session auth_session.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
+target_include_directories( test_auth_session PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries( test_auth_session PRIVATE
+    nlohmann_json::nlohmann_json
+    authentication-test-objects
+    Catch2::Catch2WithMain
+    CURL::libcurl
+)
+add_test( NAME TestAuthSession COMMAND test_auth_session )
 
 # claim_access tests (shared claim-path engine used by ClaimPolicy and the plugin API)
 add_executable( test_claim_access claim_access.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )

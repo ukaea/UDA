@@ -7,9 +7,19 @@
 // sees and the thing the error-code table in docs/authentication.md promises.
 //
 //   uda_connect_check [--host H] [--port P] [--request "HELP::ping()"]
-//                     [--repeat N] [--quiet]
+//                     [--repeat N] [--interval S] [--client-version N] [--quiet]
 //
-// --repeat issues N requests on the one connection. That is the path where the client
+// --client-version makes the client announce an older protocol version. The wire format
+// of the client block is driven entirely by that number — the authentication block is
+// only serialised when both ends are at protocol 11 or above — so this produces a
+// genuinely protocol-N client rather than an imitation of one. It is how the
+// old-client-against-new-server compatibility row is tested without keeping an old build
+// around.
+//
+// --repeat issues N requests on the one connection, --interval sleeps between them. The
+// two together hold a connection open across a token's expiry, which is how the session
+// lifetime rule is checked: the connection must stop serving once the token it was
+// established with has expired. That is the path where the client
 // block — bearer token included — is re-sent and re-decoded per request, so it is what
 // exercises the per-request decode rather than just the handshake.
 //
@@ -26,8 +36,13 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <chrono>
 #include <iostream>
 #include <string>
+#include <thread>
+
+// Defined in the client library; the version the client announces in the client block.
+extern int client_version;
 
 int main(int argc, char** argv)
 {
@@ -35,6 +50,8 @@ int main(int argc, char** argv)
     std::string request = "HELP::ping()";
     int         port    = 56565;
     int         repeat  = 1;
+    int         announce_version = 0; // 0 = leave the library default
+    int         interval = 0;         // seconds to wait between repeated requests
     bool        quiet   = false;
 
     if (const char* h = std::getenv("UDA_HOST")) { host = h; }
@@ -50,12 +67,19 @@ int main(int argc, char** argv)
         else if (a == "--port")    port    = std::atoi(next().c_str());
         else if (a == "--request") request = next();
         else if (a == "--repeat")  repeat  = std::atoi(next().c_str());
+        else if (a == "--client-version") announce_version = std::atoi(next().c_str());
+        else if (a == "--interval") interval = std::atoi(next().c_str());
         else if (a == "--quiet")   quiet   = true;
         else {
             std::cerr << "usage: " << argv[0]
-                      << " [--host H] [--port P] [--request R] [--repeat N] [--quiet]\n";
+                      << " [--host H] [--port P] [--request R] [--repeat N]"
+                         " [--interval S] [--client-version N] [--quiet]\n";
             return 3;
         }
+    }
+
+    if (announce_version > 0) {
+        client_version = announce_version;
     }
 
     putIdamServerHost(host.c_str());
@@ -63,6 +87,13 @@ int main(int argc, char** argv)
 
     int handle = -1;
     for (int n = 0; n < (repeat > 0 ? repeat : 1); ++n) {
+        if (n > 0 && interval > 0) {
+            if (!quiet) {
+                std::cout << "  waiting " << interval << "s before request " << (n + 1)
+                          << "..." << std::endl;
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(interval));
+        }
         handle = idamGetAPI(request.c_str(), "");
         if (handle < 0) {
             break;

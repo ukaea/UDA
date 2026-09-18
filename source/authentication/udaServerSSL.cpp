@@ -529,8 +529,7 @@ int startUdaServerSSL()
 
     try {
         if (!isValidTlsModeEnv("UDA_SERVER_TLS_MODE")) {
-            getServerTlsMode();
-            throw AuthError(AuthErrorCode::TlsConfigError, "Invalid server TLS mode");
+            throw AuthError(AuthErrorCode::TlsConfigError, tlsModeErrorMessage("UDA_SERVER_TLS_MODE"));
         }
 
         const TlsMode mode = getServerTlsMode();

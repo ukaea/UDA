@@ -436,8 +436,7 @@ int initUdaClientSSL()
 
     try {
         if (!isValidTlsModeEnv("UDA_CLIENT_TLS_MODE")) {
-            getClientTlsMode();
-            throw AuthError(AuthErrorCode::TlsConfigError, "Invalid client TLS mode");
+            throw AuthError(AuthErrorCode::TlsConfigError, tlsModeErrorMessage("UDA_CLIENT_TLS_MODE"));
         }
 
         TlsMode mode = getClientTlsMode();

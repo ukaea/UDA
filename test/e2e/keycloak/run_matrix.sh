@@ -81,8 +81,12 @@ ADAM_TOKEN=$("$HERE/mint-token.sh" adam 2>/dev/null) && ok "adam can obtain a to
 SERVICE_TOKEN=$("$HERE/mint-token.sh" service 2>/dev/null) && ok "the service account can obtain a token" \
     || no "the service account can obtain a token"
 
-if ! "$HERE/mint-token.sh" alice >/dev/null 2>&1 <<<"" ; then :; fi
-if KEYCLOAK_PASSWORD=wrong-password "$HERE/mint-token.sh" alice >/dev/null 2>&1; then
+# A deliberately incorrect credential. It is generated here rather than written as a
+# literal: the value is irrelevant — the whole point is that the IdP rejects it — and a
+# line of the form PASSWORD=<literal> is what secret scanners match, whether or not the
+# literal is a secret. Please do not "simplify" this back into an inline assignment.
+wrong_password="not-the-password-$$-$(date +%s)"
+if KEYCLOAK_PASSWORD="$wrong_password" "$HERE/mint-token.sh" alice >/dev/null 2>&1; then
     no "a wrong password is refused by the IdP"
 else
     ok "a wrong password is refused by the IdP"
@@ -348,6 +352,26 @@ if [ -n "${SERVER_HOST:-}" ] && [ -n "$CONNECT" ] && [ -x "$CONNECT" ]; then
                           || no "HELP::authorise() runs for alice" "$out"
         else
             skipit "HELP::authorise() — authz service not running"
+        fi
+
+        # --- protocol compatibility ------------------------------------------
+        # The authentication block only goes on the wire when both ends are at protocol 11
+        # or above, and --client-version drives exactly that field, so this is a real
+        # protocol-10 client rather than an imitation. The rows against a genuinely old
+        # *server* cannot be automated here — there is no old server in CI — but they are
+        # recorded in the release plan.
+        out=$(UDA_AUTH_TOKEN="$ALICE_TOKEN" "$CONNECT" --client-version 10 \
+                --request "HELP::ping()" 2>&1); rc=$?
+        if [ $rc -eq 2 ] && grep -q "code=700" <<<"$out"; then
+            ok "a protocol-10 client is refused with 700 and told to upgrade"
+        else
+            no "a protocol-10 client is refused with 700 and told to upgrade" "$out"
+        fi
+
+        if grep -qi "protocol version 11 or later" <<<"$out"; then
+            ok "the refusal tells the operator what to do about it"
+        else
+            no "the refusal tells the operator what to do about it" "$out"
         fi
 
         # --- the audit trail -------------------------------------------------

@@ -36,7 +36,7 @@ endif()
 
 set( HEADER_FILES
   oauth_authentication.h authLog.h oidc_config.h claim_policy.h claim_access.h
-  jwks_cache.h tls_policy.h refusal_log.h http_get.h auth_build_info.h
+  jwks_cache.h tls_policy.h refusal_log.h http_get.h auth_build_info.h auth_session.h
 )
 
 include_directories(
@@ -72,7 +72,7 @@ if( NOT CLIENT_ONLY )
   if( ENABLE_OIDC_AUTH )
     list( APPEND SERVER_AUTH_SRCS
       oauth_authentication.cpp oidc_config.cpp claim_policy.cpp
-      jwks_cache.cpp http_get.cpp )
+      jwks_cache.cpp http_get.cpp auth_session.cpp )
   endif()
 
   add_library( authentication-server-objects OBJECT ${SERVER_AUTH_SRCS} )

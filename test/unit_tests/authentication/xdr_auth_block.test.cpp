@@ -196,3 +196,88 @@ TEST_CASE("a zero-length payload clears a previously decoded one", "[xdr_auth][l
 
     free(in_a.payload);
 }
+
+TEST_CASE("discard mode consumes the payload without allocating it", "[xdr_auth][session]")
+{
+    // After the handshake the server has no use for the token — the session runs on the
+    // claims verified once, at the handshake. But the client still sends the block with
+    // every request, because the wire format is fixed by the protocol version. So the
+    // bytes must still be read, or the XDR stream desynchronises and every subsequent
+    // field is garbage. Discard mode reads them and drops them.
+    const std::string token = "header.payload.signature";
+    AUTHENTICATION_BLOCK in = make_block(token);
+
+    std::vector<char> buffer(4096);
+    const unsigned int used = encode(in, buffer);
+
+    AUTHENTICATION_BLOCK out = {};
+
+    udaDiscardAuthenticationPayload(true);
+    REQUIRE(decode_into(buffer, used, out));
+    udaDiscardAuthenticationPayload(false);
+
+    // The header fields are still decoded — only the payload is dropped.
+    REQUIRE(out.authentication_type == in.authentication_type);
+    REQUIRE(out.payload_length == token.size());
+
+    // Nothing was allocated, and nothing is left for a caller to mistake for a live token.
+    REQUIRE(out.payload == nullptr);
+
+    free(in.payload);
+}
+
+TEST_CASE("discard mode leaves the stream positioned correctly", "[xdr_auth][session]")
+{
+    // The real risk of dropping a field is reading the wrong number of bytes. Encode an
+    // auth block followed by a sentinel, discard the block, and check the sentinel is
+    // still exactly where it should be.
+    const std::string token = "a.reasonably.long.token.value.for.this.purpose";
+    AUTHENTICATION_BLOCK in = make_block(token);
+    const unsigned int sentinel_value = 0xABCDEF01;
+
+    std::vector<char> buffer(8192);
+    XDR xdrs;
+    xdrmem_create(&xdrs, buffer.data(), static_cast<unsigned int>(buffer.size()), XDR_ENCODE);
+    REQUIRE(xdr_authentication_block(&xdrs, &in) != 0);
+    unsigned int sentinel_out = sentinel_value;
+    REQUIRE(xdr_u_int(&xdrs, &sentinel_out) != 0);
+    const unsigned int used = xdr_getpos(&xdrs);
+    xdr_destroy(&xdrs);
+
+    AUTHENTICATION_BLOCK out = {};
+    unsigned int sentinel_in = 0;
+
+    udaDiscardAuthenticationPayload(true);
+    xdrmem_create(&xdrs, buffer.data(), used, XDR_DECODE);
+    REQUIRE(xdr_authentication_block(&xdrs, &out) != 0);
+    REQUIRE(xdr_u_int(&xdrs, &sentinel_in) != 0);
+    xdr_destroy(&xdrs);
+    udaDiscardAuthenticationPayload(false);
+
+    REQUIRE(sentinel_in == sentinel_value);
+    REQUIRE(out.payload == nullptr);
+
+    free(in.payload);
+}
+
+TEST_CASE("discard mode releases a payload decoded before it was enabled", "[xdr_auth][session]")
+{
+    // The handshake decodes the token for real; discard mode is switched on afterwards.
+    // The first request to arrive in discard mode must not leave the handshake's buffer
+    // attached to the block.
+    AUTHENTICATION_BLOCK in = make_block("first.real.token");
+    std::vector<char> buffer(4096);
+    const unsigned int used = encode(in, buffer);
+
+    AUTHENTICATION_BLOCK out = {};
+    REQUIRE(decode_into(buffer, used, out));
+    REQUIRE(out.payload != nullptr);
+
+    udaDiscardAuthenticationPayload(true);
+    REQUIRE(decode_into(buffer, used, out));
+    udaDiscardAuthenticationPayload(false);
+
+    REQUIRE(out.payload == nullptr);
+
+    free(in.payload);
+}

@@ -76,6 +76,21 @@ bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str)
 // Prevents a malicious peer from forcing huge allocation before authentication is checked.
 static constexpr unsigned int MAX_AUTH_PAYLOAD_LENGTH = 16384;
 
+// After the handshake the server has no use for the token: authentication is established
+// once per connection, and the claims from that one verification are what the rest of the
+// session runs on. The client still sends the block on every request — the wire format is
+// fixed by the protocol version, not by what either side currently wants — so the bytes
+// must still be consumed or the XDR stream desynchronises. Consuming them into a reusable
+// scratch buffer means no allocation and no parsing per request.
+//
+// Set by the server once the handshake is complete. The client never sets it.
+static bool g_discard_auth_payload = false;
+
+void udaDiscardAuthenticationPayload(bool discard)
+{
+    g_discard_auth_payload = discard;
+}
+
 bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str) {
     int rc = xdr_u_int(xdrs, &str->authentication_type)
          && xdr_u_int(xdrs, &str->payload_length);
@@ -95,11 +110,22 @@ bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str) {
     }
 
     if (str->payload_length > 0) {
+        // payload_length is guaranteed <= MAX_AUTH_PAYLOAD_LENGTH (16384) here; casts are safe.
+        if (xdrs->x_op == XDR_DECODE && g_discard_auth_payload) {
+            // Read and drop. Nothing is allocated and str->payload stays null, so a caller
+            // that reaches for the token after the handshake finds nothing rather than a
+            // stale value it might be tempted to trust.
+            static unsigned char scratch[MAX_AUTH_PAYLOAD_LENGTH];
+            free(str->payload);
+            str->payload = nullptr;
+            return rc && xdr_vector(xdrs, reinterpret_cast<char*>(scratch),
+                                    static_cast<int>(str->payload_length),
+                                    sizeof(unsigned char), reinterpret_cast<xdrproc_t>(xdr_u_char));
+        }
+
         if (xdrs->x_op == XDR_DECODE) {
-            // The server re-receives the CLIENT_BLOCK on every request, so this decode
-            // runs repeatedly on the same struct. Release any buffer from a previous
-            // decode before allocating: without this each request leaks up to
-            // MAX_AUTH_PAYLOAD_LENGTH for the lifetime of the connection.
+            // Release any buffer from a previous decode before allocating, so that a
+            // repeated decode into the same struct replaces rather than orphans.
             free(str->payload);
             str->payload = static_cast<unsigned char*>(
                 calloc(str->payload_length + 1, sizeof(unsigned char)));
@@ -109,7 +135,6 @@ bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str) {
             }
         }
 
-        // payload_length is guaranteed <= MAX_AUTH_PAYLOAD_LENGTH (16384) here; cast is safe.
         rc = rc && xdr_vector(xdrs, reinterpret_cast<char*>(str->payload),
                               static_cast<int>(str->payload_length),
                               sizeof(unsigned char), reinterpret_cast<xdrproc_t>(xdr_u_char));

@@ -10,6 +10,18 @@ tokens, and puts them through UDA's real verification code.
 Everything here binds to loopback and uses fixed, well-known test credentials. It is for a
 developer machine or a CI runner. Never expose it, and never reuse the realm.
 
+### About the credentials in this directory
+
+The client secret and the users' passwords are written down here on purpose: the realm is
+created from this file when the container starts and destroyed with it, and both the tests
+and this document have to name them to be usable. They grant access to nothing outside the
+throwaway container.
+
+They are declared in `.gitguardian.yaml` at the repository root, file by file, so that
+secret scanning does not flag them while still catching anything added elsewhere. If these
+tests ever need a real credential, it must come from the environment or a CI secret rather
+than from a file in here.
+
 ## Running it
 
 ```sh
