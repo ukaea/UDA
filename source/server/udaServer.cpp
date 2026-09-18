@@ -52,9 +52,7 @@ using PayloadType = std::unordered_map<std::string, std::string>;
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaServerSSL.h>
 #endif
-#if defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)
-#  include <authentication/refusal_log.h>
-#endif
+#include <authentication/refusal_log.h>
 
 //--------------------------------------------------------------------------------------
 // static globals
@@ -408,6 +406,13 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     //       Pass Back and Await Client Instruction
 
     int err = 0;
+
+    // The client re-sends the CLIENT_BLOCK, bearer token included, on every request, and
+    // initClientBlock zeroes the authentication block. Release the previous request's
+    // decoded payload first — otherwise each request orphans up to
+    // MAX_AUTH_PAYLOAD_LENGTH for the lifetime of the connection.
+    free(client_block->authenticationBlock.payload);
+    client_block->authenticationBlock.payload = nullptr;
 
     initClientBlock(client_block, 0, "");
 
@@ -977,9 +982,7 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
 
     udaCloseLogging();
     closeAuthLog();
-#if defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)
     uda::authentication::close_refusal_log();
-#endif
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
@@ -1077,19 +1080,18 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
                              malloc_source)) != 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
-#if defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)
             {
-                uda::authentication::RefusalRecord rec;
-                rec.stage          = uda::authentication::RefusalStage::ClientBlock;
-                rec.reason         = uda::authentication::RefusalReason::ClientBlockMalformed;
+                using namespace uda::authentication;
+                RefusalRecord rec;
+                rec.stage          = RefusalStage::ClientBlock;
+                rec.reason         = RefusalReason::ClientBlockMalformed;
                 rec.uda_error_code = err;
                 rec.message        = "CLIENT_BLOCK XDR decode failure (Protocol 10)";
-                rec.peer           = uda::authentication::get_peer_info(0);
+                rec.peer           = get_peer_info(INETD_SOCKET_FD);
                 rec.client_version = client_block->version;
                 rec.decode_error   = "Protocol 10 Error";
-                uda::authentication::record_refused_request(rec);
+                record_refused_request(rec);
             }
-#endif
         }
 
         if (err == 0) {

@@ -31,7 +31,7 @@
 #include <openssl/ssl.h>
 
 #include <nlohmann/json.hpp>
-#include <jwt-cpp/jwt.h>
+#include <jwt-cpp/traits/nlohmann-json/defaults.h>
 
 #include <authentication/oauth_authentication.h>
 #include <authentication/oidc_config.h>
@@ -173,7 +173,7 @@ static RsaTestKey generate_rsa_test_key(const std::string& kid = "test-key-1")
 //
 // extra_claims: arbitrary JSON object merged into the payload, useful for
 //   provider-specific claims like realm_access, wlcg.groups, resource_access.
-//   Nested objects and arrays are passed through picojson so jwt-cpp can encode them.
+//   Nested objects and arrays are handed to jwt-cpp as nlohmann values directly.
 //   Keys that duplicate standard fields (iss, aud, azp, scope) take no effect — the
 //   standard fields are set first and jwt-cpp ignores duplicate claim names.
 //
@@ -191,7 +191,7 @@ struct TokenBuilder {
     std::string              sign_alg        = "RS256";
     int                      nbf_offset_secs = 0;    // > 0 → not yet valid
     std::vector<std::string> audience_arr;            // when set, serialises as JSON array
-    json                     extra_claims;            // merged into payload via picojson
+    json                     extra_claims;            // merged into the payload as-is
 
     std::string build(const RsaTestKey& k) const
     {
@@ -207,8 +207,8 @@ struct TokenBuilder {
             .set_payload_claim("scope", jwt::claim(std::string(scope)));
 
         if (!audience_arr.empty()) {
-            std::set<std::string> aud_set(audience_arr.begin(), audience_arr.end());
-            creator.set_audience(aud_set);
+            json::array_t aud_arr(audience_arr.begin(), audience_arr.end());
+            creator.set_audience(aud_arr);
         } else {
             creator.set_audience(audience);
         }
@@ -219,14 +219,10 @@ struct TokenBuilder {
             creator.set_not_before(now + std::chrono::seconds(nbf_offset_secs));
         }
 
-        // Merge extra_claims by round-tripping through picojson so jwt-cpp
-        // can encode nested objects and arrays.
+        // With nlohmann traits a claim value is just an nlohmann value — no round-trip
+        // through a second JSON library, and no silent drop when that parse failed.
         for (const auto& [cname, cval] : extra_claims.items()) {
-            picojson::value pv;
-            const std::string err = picojson::parse(pv, cval.dump());
-            if (err.empty()) {
-                creator.set_payload_claim(cname, jwt::claim(pv));
-            }
+            creator.set_payload_claim(cname, jwt::claim(cval));
         }
 
         if (sign_alg == "RS384") {

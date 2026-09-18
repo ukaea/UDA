@@ -2,7 +2,13 @@
 
 // refused_requests.log API.
 // One JSON Lines record per connection/request that was refused before completing normally.
-// Compiled and active when SSLAUTHENTICATION or OIDCAUTHENTICATION is enabled (server only).
+//
+// This is an audit artifact, not a debug log:
+//   - it is always opened in append mode, never truncated (the server is fork-per-connection,
+//     so a truncating open would let each new connection erase the previous one's records);
+//   - it is not gated on the debug log level;
+//   - each record is written with a single write call so that concurrent server processes
+//     appending to the same file cannot interleave a record with another record's newline.
 //
 // Call open_refusal_log() at server startup alongside openAuthLog().
 // Call close_refusal_log() at shutdown alongside closeAuthLog().
@@ -10,8 +16,10 @@
 //   - TLS handshake / config failure  (udaServerSSL.cpp)
 //   - OIDC gate failure               (handshake_auth.cpp)
 //   - Client block decode failure      (udaServer.cpp)
-
-#if defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)
+//
+// The record types below are always defined so that call-sites need no #ifdef guards.
+// The three functions are real only in a server build with TLS and/or OIDC compiled in;
+// elsewhere (fat-client builds, auth-free builds) they are inline no-ops.
 
 #include <string>
 
@@ -93,17 +101,43 @@ struct RefusalRecord {
     std::string   decode_error;
 };
 
+#if (defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)) && !defined(FATCLIENT)
+
 // ---------------------------------------------------------------------------
 // API
+
+// Stable wire spellings for the two vocabularies. Exposed so that tests and the
+// documented log schema are generated from the same source as the log itself.
+const char* stage_str(RefusalStage s) noexcept;
+const char* reason_code_str(RefusalReason r) noexcept;
+
+// Serialise one record to its JSON Lines form (without the trailing newline).
+// Exposed for testing; record_refused_request() writes exactly this.
+std::string format_refusal_record(const RefusalRecord& rec);
+
+// The UDA server is launched per connection by inetd / systemd socket activation with
+// the connected socket already on fd 0. Call sites that have no fd of their own use this
+// rather than a bare literal, so the assumption lives in one place.
+inline constexpr int INETD_SOCKET_FD = 0;
 
 // Extract peer IP and port from a connected socket fd (POSIX getpeername).
 // Returns empty PeerInfo on failure.
 PeerInfo get_peer_info(int fd) noexcept;
 
-void open_refusal_log(const char* logdir, const char* logmode);
+// Open <logdir>/refused_requests.log. Always append mode — see the note above.
+void open_refusal_log(const char* logdir);
 void close_refusal_log();
 void record_refused_request(const RefusalRecord& rec);
 
-}} // namespace uda::authentication
+#else
 
-#endif // SSLAUTHENTICATION || OIDCAUTHENTICATION
+// Fat-client and auth-free builds: no server, so nothing to audit.
+inline constexpr int INETD_SOCKET_FD = 0;
+inline PeerInfo get_peer_info(int) noexcept { return {}; }
+inline void open_refusal_log(const char*) {}
+inline void close_refusal_log() {}
+inline void record_refused_request(const RefusalRecord&) {}
+
+#endif
+
+}} // namespace uda::authentication

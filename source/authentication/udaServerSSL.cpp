@@ -53,8 +53,15 @@ struct ServerSslState {
 static ServerSslState g_state;
 
 using uda::authentication::AuthError;
+using uda::authentication::first_env;
 using uda::authentication::AuthErrorCode;
 using uda::authentication::authErrorToUdaCode;
+using uda::authentication::get_peer_info;
+using uda::authentication::record_refused_request;
+using uda::authentication::RefusalReason;
+using uda::authentication::RefusalRecord;
+using uda::authentication::RefusalStage;
+using uda::authentication::TlsRefusalFields;
 
 static void initUdaServerSSL();
 static SslCtxPtr create_server_context();
@@ -145,30 +152,27 @@ void closeUdaServerSSL()
     UDA_LOG(UDA_LOG_DEBUG, "SSL closed\n");
 }
 
-static const char* first_env(const std::initializer_list<const char*>& names)
-{
-    for (const char* name : names) {
-        const char* value = getenv(name);
-        if (value != nullptr && value[0] != '\0') {
-            return value;
-        }
-    }
-    return nullptr;
-}
-
 // -------------------------------------------------------------------------
 // Internal TLS setup — throw AuthError; no UDA error stack manipulation.
 // Translation to UDA error codes happens only in the boundary (startUdaServerSSL).
 
 static SslCtxPtr create_server_context()
 {
-    const SSL_METHOD* method = SSLv23_server_method();
+    // TLS_server_method negotiates the highest protocol both sides support; the explicit
+    // minimum is what keeps TLS 1.0 and 1.1 off the table. Disabling SSLv2 alone left
+    // both of those negotiable.
+    const SSL_METHOD* method = TLS_server_method();
     SslCtxPtr ctx(SSL_CTX_new(method));
     if (!ctx) {
         throw AuthError(AuthErrorCode::TlsConfigError, "Unable to create SSL context");
     }
-    SSL_CTX_set_options(ctx.get(), SSL_OP_NO_SSLv2);
-    UDA_LOG(UDA_LOG_DEBUG, "SSL Context created\n");
+    if (SSL_CTX_set_min_proto_version(ctx.get(), TLS1_2_VERSION) != 1) {
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "Unable to set the minimum TLS protocol version to 1.2");
+    }
+    SSL_CTX_set_options(ctx.get(), SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
+                                   SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
+    UDA_LOG(UDA_LOG_DEBUG, "SSL Context created (TLS 1.2 minimum)\n");
     return ctx;
 }
 
@@ -237,24 +241,47 @@ static void configure_server_tls_mutual(SSL_CTX* ctx)
     SSL_CTX_set_verify_depth(ctx, VERIFY_DEPTH);
 
     if (crlist != nullptr) {
-        X509_VERIFY_PARAM* params = X509_VERIFY_PARAM_new();
-        X509_VERIFY_PARAM_set_flags(params, X509_V_FLAG_CRL_CHECK);
-        SSL_CTX_set1_param(ctx, params);
+        // SSL_CTX_set1_param copies, so the parameter object is ours to free.
+        std::unique_ptr<X509_VERIFY_PARAM, decltype(&X509_VERIFY_PARAM_free)>
+            params(X509_VERIFY_PARAM_new(), X509_VERIFY_PARAM_free);
+        if (!params) {
+            throw AuthError(AuthErrorCode::TlsConfigError,
+                "Unable to allocate certificate verification parameters");
+        }
+        // CRL_CHECK_ALL, not CRL_CHECK: the latter only consults the CRL for the leaf
+        // certificate, so a revoked intermediate would still verify.
+        X509_VERIFY_PARAM_set_flags(params.get(),
+                                    X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL);
+        SSL_CTX_set1_param(ctx, params.get());
 
         X509_CRL* crl = loadUdaServerSSLCrl(crlist);
         if (!crl) {
             throw AuthError(AuthErrorCode::TlsConfigError, "Failed to load CRL");
         }
 
-        STACK_OF(X509_CRL)* crls = sk_X509_CRL_new_null();
-        if (!crls || !sk_X509_CRL_push(crls, crl)) {
+        // An expired CRL fails every client verification with an error that looks like a
+        // client problem, so say so plainly at load time instead.
+        const ASN1_TIME* next_update = X509_CRL_get0_nextUpdate(crl);
+        if (next_update != nullptr && X509_cmp_current_time(next_update) < 0) {
+            X509_CRL_free(crl);
+            throw AuthError(AuthErrorCode::TlsConfigError,
+                std::string("CRL '") + crlist + "' has expired (nextUpdate is in the past); "
+                "every client certificate will fail verification until it is refreshed");
+        }
+
+        // sk_X509_CRL_free is a macro, so it needs wrapping to be a deleter.
+        const auto crl_stack_free = [](STACK_OF(X509_CRL)* s) { if (s) sk_X509_CRL_free(s); };
+        std::unique_ptr<STACK_OF(X509_CRL), decltype(crl_stack_free)>
+            crls(sk_X509_CRL_new_null(), crl_stack_free);
+        if (!crls || !sk_X509_CRL_push(crls.get(), crl)) {
             X509_CRL_free(crl);
             throw AuthError(AuthErrorCode::TlsConfigError,
                 "Failed to add CRL to certificate store");
         }
+        // The stack owns `crl` from here; the store takes its own references.
 
         X509_STORE* st = SSL_CTX_get_cert_store(ctx);
-        addUdaServerSSLCrlsStore(st, crls);
+        addUdaServerSSLCrlsStore(st, crls.get());
         SSL_CTX_set1_verify_cert_store(ctx, st);
     }
 
@@ -353,6 +380,44 @@ static TlsRefusalFields extract_cert_fields(X509* peer, SSL* ssl) noexcept
     return f;
 }
 
+// Build the audit record for a TLS refusal. Every TLS refusal goes through here, so that
+// each site names only what is specific to it — the stage, peer, TLS mode and certificate
+// fields are filled in by construction rather than by copy-paste.
+static RefusalRecord tls_refusal_record(RefusalReason reason,
+                                        const std::string& msg,
+                                        AuthErrorCode code,
+                                        RefusalStage stage)
+{
+    SSL* ssl = g_state.ssl.get();
+
+    RefusalRecord rec;
+    rec.stage          = stage;
+    rec.reason         = reason;
+    rec.uda_error_code = authErrorToUdaCode(code);
+    rec.message        = msg;
+    rec.peer           = get_peer_info(g_state.ssl_socket);
+
+    // Capture the offending certificate when there is one. This is what makes a
+    // "client cert expired" line actionable — it names which certificate expired.
+    X509* peer = (ssl != nullptr) ? SSL_get_peer_certificate(ssl) : nullptr;
+    rec.tls          = extract_cert_fields(peer, ssl);
+    rec.tls.tls_mode = tlsModeStr(getServerTlsMode());
+    if (peer != nullptr) {
+        X509_free(peer);
+    }
+    return rec;
+}
+
+// Record a refused connection and throw.
+[[noreturn]] static void refuse_tls(RefusalReason reason,
+                                    const std::string& msg,
+                                    AuthErrorCode code = AuthErrorCode::TlsHandshakeFailed,
+                                    RefusalStage stage = RefusalStage::TlsHandshake)
+{
+    record_refused_request(tls_refusal_record(reason, msg, code, stage));
+    throw AuthError(code, msg);
+}
+
 static void accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
 {
     int rc;
@@ -362,29 +427,11 @@ static void accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
 
     g_state.ssl.reset(SSL_new(ctx));
     if (g_state.ssl == nullptr) {
-        const std::string msg = "SSL_new failed (server-side resource error)";
-        RefusalRecord rec;
-        rec.stage          = RefusalStage::TlsHandshake;
-        rec.reason         = RefusalReason::TlsHandshakeFailed;
-        rec.uda_error_code = authErrorToUdaCode(AuthErrorCode::TlsHandshakeFailed);
-        rec.message        = msg;
-        rec.peer           = get_peer_info(g_state.ssl_socket);
-        rec.tls.tls_mode   = tlsModeStr(getServerTlsMode());
-        record_refused_request(rec);
-        throw AuthError(AuthErrorCode::TlsHandshakeFailed, msg);
+        refuse_tls(RefusalReason::TlsHandshakeFailed, "SSL_new failed (server-side resource error)");
     }
 
     if ((rc = SSL_set_fd(g_state.ssl.get(), g_state.ssl_socket)) < 1) {
-        const std::string msg = "Unable to bind socket to SSL";
-        RefusalRecord rec;
-        rec.stage          = RefusalStage::TlsHandshake;
-        rec.reason         = RefusalReason::TlsHandshakeFailed;
-        rec.uda_error_code = authErrorToUdaCode(AuthErrorCode::TlsHandshakeFailed);
-        rec.message        = msg;
-        rec.peer           = get_peer_info(g_state.ssl_socket);
-        rec.tls.tls_mode   = tlsModeStr(getServerTlsMode());
-        record_refused_request(rec);
-        throw AuthError(AuthErrorCode::TlsHandshakeFailed, msg);
+        refuse_tls(RefusalReason::TlsHandshakeFailed, "Unable to bind socket to SSL");
     }
 
     if ((rc = SSL_accept(g_state.ssl.get())) < 1) {
@@ -428,24 +475,9 @@ static void accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
             AUTH_LOG(UDA_LOG_ERROR, "Auth: system error: %s\n", strerror(errno));
         }
 
-        const std::string err_msg =
-            std::string("TLS handshake failed (") + server_ssl_error_name(ssl_err) + ")";
-
-        {
-            RefusalRecord rec;
-            rec.stage          = RefusalStage::TlsHandshake;
-            rec.reason         = (vr != X509_V_OK)
-                                 ? classify_verify_result(vr)
-                                 : RefusalReason::TlsHandshakeFailed;
-            rec.uda_error_code = authErrorToUdaCode(AuthErrorCode::TlsHandshakeFailed);
-            rec.message        = err_msg;
-            rec.peer           = get_peer_info(g_state.ssl_socket);
-            rec.tls            = extract_cert_fields(nullptr, g_state.ssl.get());
-            rec.tls.tls_mode   = tlsModeStr(getServerTlsMode());
-            record_refused_request(rec);
-        }
-
-        throw AuthError(AuthErrorCode::TlsHandshakeFailed, err_msg);
+        refuse_tls((vr != X509_V_OK) ? classify_verify_result(vr)
+                                      : RefusalReason::TlsHandshakeFailed,
+                   std::string("TLS handshake failed (") + server_ssl_error_name(ssl_err) + ")");
     }
 
     AUTH_LOG(UDA_LOG_INFO, "Auth: TLS handshake succeeded (version=%s cipher=%s)\n",
@@ -460,19 +492,8 @@ static void accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
             AUTH_LOG(UDA_LOG_ERROR, "Auth: client cert verification failed: %s\n", reason);
             const std::string err_msg =
                 std::string("Client certificate verification failed: ") + reason;
-            {
-                RefusalRecord rec;
-                rec.stage          = RefusalStage::TlsHandshake;
-                rec.reason         = classify_verify_result(static_cast<long>(rc));
-                rec.uda_error_code = authErrorToUdaCode(AuthErrorCode::TlsHandshakeFailed);
-                rec.message        = err_msg;
-                rec.peer           = get_peer_info(g_state.ssl_socket);
-                rec.tls            = extract_cert_fields(peer, g_state.ssl.get());
-                rec.tls.tls_mode   = tlsModeStr(getServerTlsMode());
-                record_refused_request(rec);
-            }
             X509_free(peer);
-            throw AuthError(AuthErrorCode::TlsHandshakeFailed, err_msg);
+            refuse_tls(classify_verify_result(static_cast<long>(rc)), err_msg);
         }
 
         char work[X509_STRING_SIZE];
@@ -488,19 +509,8 @@ static void accept_tls_connection(SSL_CTX* ctx, PeerCertPolicy policy)
         X509_free(peer);
     } else {
         if (policy == PeerCertPolicy::Required) {
-            const std::string err_msg = "Client certificate not presented for verification";
-            {
-                RefusalRecord rec;
-                rec.stage          = RefusalStage::TlsHandshake;
-                rec.reason         = RefusalReason::TlsClientCertMissing;
-                rec.uda_error_code = authErrorToUdaCode(AuthErrorCode::TlsHandshakeFailed);
-                rec.message        = err_msg;
-                rec.peer           = get_peer_info(g_state.ssl_socket);
-                rec.tls            = extract_cert_fields(nullptr, g_state.ssl.get());
-                rec.tls.tls_mode   = tlsModeStr(getServerTlsMode());
-                record_refused_request(rec);
-            }
-            throw AuthError(AuthErrorCode::TlsHandshakeFailed, err_msg);
+            refuse_tls(RefusalReason::TlsClientCertMissing,
+                       "Client certificate not presented for verification");
         }
         AUTH_LOG(UDA_LOG_DEBUG, "Auth: no client cert presented; not required in server-only mode\n");
     }
@@ -559,14 +569,9 @@ int startUdaServerSSL()
         // Config errors are logged here; handshake errors were already logged inside
         // accept_tls_connection before they were thrown.
         if (e.code == AuthErrorCode::TlsConfigError) {
-            RefusalRecord rec;
-            rec.stage          = RefusalStage::TlsConfig;
-            rec.reason         = RefusalReason::TlsServerCertConfigError;
-            rec.uda_error_code = authErrorToUdaCode(e.code);
-            rec.message        = e.what();
-            rec.peer           = get_peer_info(g_state.ssl_socket);
-            rec.tls.tls_mode   = tlsModeStr(getServerTlsMode());
-            record_refused_request(rec);
+            record_refused_request(tls_refusal_record(
+                RefusalReason::TlsServerCertConfigError, e.what(),
+                e.code, RefusalStage::TlsConfig));
         }
         return authErrorToUdaCode(e.code);
     }

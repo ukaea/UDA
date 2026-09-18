@@ -82,6 +82,11 @@ bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str) {
 
     if (!rc) return 0;
 
+    if (xdrs->x_op == XDR_DECODE && str->payload_length == 0) {
+        free(str->payload);
+        str->payload = nullptr;
+    }
+
     if (str->payload_length > MAX_AUTH_PAYLOAD_LENGTH) {
         UDA_LOG(UDA_LOG_ERROR,
             "xdr_authentication_block: payload_length %u exceeds maximum %u — rejecting\n",
@@ -91,6 +96,11 @@ bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str) {
 
     if (str->payload_length > 0) {
         if (xdrs->x_op == XDR_DECODE) {
+            // The server re-receives the CLIENT_BLOCK on every request, so this decode
+            // runs repeatedly on the same struct. Release any buffer from a previous
+            // decode before allocating: without this each request leaks up to
+            // MAX_AUTH_PAYLOAD_LENGTH for the lifetime of the connection.
+            free(str->payload);
             str->payload = static_cast<unsigned char*>(
                 calloc(str->payload_length + 1, sizeof(unsigned char)));
             if (!str->payload) {

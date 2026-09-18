@@ -25,6 +25,7 @@
 static ClientSslState g_state;
 
 using uda::authentication::AuthError;
+using uda::authentication::first_env;
 using uda::authentication::AuthErrorCode;
 using uda::authentication::authErrorToUdaCode;
 
@@ -144,17 +145,6 @@ void reportSSLErrorCode(int rc)
     }
 }
 
-static const char* first_env(const std::initializer_list<const char*>& names)
-{
-    for (const char* name : names) {
-        const char* value = getenv(name);
-        if (value != nullptr && value[0] != '\0') {
-            return value;
-        }
-    }
-    return nullptr;
-}
-
 static const char* first_env_or_host(const std::initializer_list<const char*>& names,
                                      const std::string& host_value)
 {
@@ -171,13 +161,21 @@ static const char* first_env_or_host(const std::initializer_list<const char*>& n
 
 static SslCtxPtr create_client_context()
 {
-    const SSL_METHOD* method = SSLv23_client_method();
+    // TLS_client_method negotiates the highest protocol both sides support; the explicit
+    // minimum is what keeps TLS 1.0 and 1.1 off the table. Disabling SSLv2 alone left
+    // both of those negotiable.
+    const SSL_METHOD* method = TLS_client_method();
     SslCtxPtr ctx(SSL_CTX_new(method));
     if (!ctx) {
         throw AuthError(AuthErrorCode::TlsConfigError, "Unable to create SSL context");
     }
-    SSL_CTX_set_options(ctx.get(), SSL_OP_NO_SSLv2);
-    UDA_LOG(UDA_LOG_DEBUG, "SSL Context created\n");
+    if (SSL_CTX_set_min_proto_version(ctx.get(), TLS1_2_VERSION) != 1) {
+        throw AuthError(AuthErrorCode::TlsConfigError,
+            "Unable to set the minimum TLS protocol version to 1.2");
+    }
+    SSL_CTX_set_options(ctx.get(), SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
+                                   SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
+    UDA_LOG(UDA_LOG_DEBUG, "SSL Context created (TLS 1.2 minimum)\n");
     return ctx;
 }
 

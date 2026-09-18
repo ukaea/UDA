@@ -44,7 +44,7 @@ void allocPluginList(int count, PLUGINLIST* plugin_list)
 void resetPlugins(const PLUGINLIST* plugin_list)
 {
     REQUEST_DATA request_block;
-    IDAM_PLUGIN_INTERFACE idam_plugin_interface;
+    IDAM_PLUGIN_INTERFACE idam_plugin_interface = {};
     initRequestData(&request_block);
     strcpy(request_block.function, "reset");
 
@@ -398,7 +398,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     int err, rc;
     DATA_BLOCK data_block;
-    IDAM_PLUGIN_INTERFACE idam_plugin_interface;
+    IDAM_PLUGIN_INTERFACE idam_plugin_interface = {};
 
     // Initialise the Data Block
 
@@ -546,7 +546,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
                             const ENVIRONMENT* environment)
 {
     int err, rc;
-    IDAM_PLUGIN_INTERFACE idam_plugin_interface;
+    IDAM_PLUGIN_INTERFACE idam_plugin_interface = {};
 
     // Check the Interface Compliance
 

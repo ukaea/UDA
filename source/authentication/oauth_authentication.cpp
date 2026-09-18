@@ -1,36 +1,23 @@
 #include "oauth_authentication.h"
 #include "claim_policy.h"
 #include "jwks_cache.h"
+#include "http_get.h"
 #include "authLog.h"
 
 #include <chrono>
 #include <mutex>
 #include <string>
 #include <unordered_map>
-#include <curl/curl.h>
 #include <nlohmann/json.hpp>
-#include <jwt-cpp/jwt.h>
+// nlohmann traits, not the jwt-cpp default picojson traits: UDA already parses
+// every JSON document with nlohmann, and this defines JWT_DISABLE_PICOJSON so the
+// second JSON library is not compiled at all.
+#include <jwt-cpp/traits/nlohmann-json/defaults.h>
 
 namespace uda {
 namespace authentication {
 
-// -------------------------------------------------------------------------
-// cURL global init — once per process, never cleaned up (safe for a library)
-
 namespace {
-
-void ensure_curl_initialized()
-{
-    static std::once_flag flag;
-    std::call_once(flag, [] { curl_global_init(CURL_GLOBAL_DEFAULT); });
-}
-
-size_t write_callback(void* contents, size_t size, size_t count, std::string* output)
-{
-    const size_t total = size * count;
-    output->append(static_cast<char*>(contents), total);
-    return total;
-}
 
 using json = nlohmann::json;
 
@@ -66,53 +53,11 @@ std::string fetch_jwks_cached(const std::string& uri,
 } // namespace
 
 // -------------------------------------------------------------------------
-// curl_http_fetch — default HTTP fetcher with hardened options
+// curl_http_fetch — the OIDC discovery/JWKS policy over the shared http_get
 
 std::string curl_http_fetch(const std::string& url)
 {
-    const bool allow_http = (std::getenv("UDA_SERVER_OIDC_ALLOW_HTTP") != nullptr);
-    if (!allow_http) {
-        const bool is_https = url.size() >= 8 && url.substr(0, 8) == "https://";
-        if (!is_https) {
-            throw AuthError(AuthErrorCode::InvalidConfig,
-                "OIDC fetch rejected non-HTTPS URL '" + url + "' — "
-                "set UDA_SERVER_OIDC_ALLOW_HTTP=1 to override (testing only)");
-        }
-    }
-
-    ensure_curl_initialized();
-    CURL* handle = curl_easy_init();
-    if (!handle) {
-        throw AuthError(AuthErrorCode::JwksFetchFailed, "curl_easy_init() failed");
-    }
-
-    std::string response;
-    char errbuf[CURL_ERROR_SIZE] = {};
-
-    curl_easy_setopt(handle, CURLOPT_URL,            url.c_str());
-    curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION,  write_callback);
-    curl_easy_setopt(handle, CURLOPT_WRITEDATA,      &response);
-    curl_easy_setopt(handle, CURLOPT_ERRORBUFFER,    errbuf);
-    curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT, 10L);
-    curl_easy_setopt(handle, CURLOPT_TIMEOUT,        30L);
-    curl_easy_setopt(handle, CURLOPT_FAILONERROR,    1L);
-    curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(handle, CURLOPT_MAXREDIRS,      3L);
-
-    const CURLcode rc = curl_easy_perform(handle);
-
-    if (rc != CURLE_OK) {
-        long http_code = 0;
-        curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_code);
-        curl_easy_cleanup(handle);
-        throw AuthError(AuthErrorCode::JwksFetchFailed,
-            "HTTP GET '" + url + "' failed: " +
-            (errbuf[0] ? errbuf : curl_easy_strerror(rc)) +
-            (http_code > 0 ? " (HTTP " + std::to_string(http_code) + ")" : ""));
-    }
-
-    curl_easy_cleanup(handle);
-    return response;
+    return http_get(url); // defaults are the OIDC discovery/JWKS policy
 }
 
 // -------------------------------------------------------------------------
@@ -186,11 +131,31 @@ public:
     }
 
     // Verify token; returns decoded payload map.
-    // On kid-not-found with a stale JWKS, refreshes once (handles key rotation).
-    // Never logs or exposes the raw token.
+    // On an unknown key id, refreshes the JWKS once and retries — this is what makes
+    // issuer key rotation transparent. Never logs or exposes the raw token.
     [[nodiscard]] PayloadType verify_token(const std::string& token) const
     {
-        const auto decoded = jwt::decode(token);
+        // jwt::decode throws its own exception types for a token that is not even
+        // structurally a JWT (bad base64, wrong segment count). Those are token faults,
+        // not internal errors, so they are classified here rather than escaping the
+        // AuthError family and surfacing to the client as a generic 999.
+        const auto decoded = [&] {
+            try {
+                return jwt::decode(token);
+            } catch (const std::exception& e) {
+                throw AuthError(AuthErrorCode::InvalidToken,
+                    std::string("Token is not a well-formed JWT: ") + e.what());
+            }
+        }();
+
+        // Without a key id there is nothing to look up in the JWKS, and no amount of
+        // refreshing will help. Fail here rather than letting the missing-claim exception
+        // masquerade as a key-rotation signal below.
+        if (!decoded.has_key_id()) {
+            throw AuthError(AuthErrorCode::InvalidToken,
+                "Token header has no 'kid'; cannot select a signing key from the issuer's JWKS");
+        }
+        const std::string kid = decoded.get_key_id();
 
         std::string jwks_json;
         try {
@@ -204,53 +169,65 @@ public:
 
         try {
             return verify_with_jwks(decoded, jwks_json);
-        } catch (const AuthError&) {
-            throw; // typed failures from verify_with_jwks — no retry
-        } catch (const std::exception& e) {
-            const std::string first_error = e.what();
-            // Only retry on kid-not-found; all other jwt-cpp errors are not stale-cache issues.
-            // The substring "kid not found" is load-bearing: it comes from jwt-cpp's
-            // jwt_object_set::get_jwk() when the requested kid is absent from the key set.
-            // If jwt-cpp changes this message, the retry will silently stop working.
-            if (std::string(first_error).find("kid not found") == std::string::npos) {
-                throw AuthError(AuthErrorCode::InvalidToken, first_error);
-            }
-
+        } catch (const jwt::error::claim_not_present_exception&) {
+            // The key id is absent from the cached key set — the issuer has most likely
+            // rotated its signing keys. Refresh once and retry.
             AUTH_LOG(UDA_LOG_DEBUG,
-                "Auth: kid not found in cached JWKS, refreshing (possible key rotation)\n");
-            try {
-                const std::string fresh = fetch_jwks_cached(jwks_uri_, fetcher_, cache_, true);
-                return verify_with_jwks(decoded, fresh);
-            } catch (const AuthError&) {
-                throw;
-            } catch (const std::exception& e2) {
-                throw AuthError(AuthErrorCode::InvalidToken, e2.what());
-            }
+                "Auth: key id not found in cached JWKS, refreshing (possible key rotation)\n");
+        }
+
+        try {
+            const std::string fresh = fetch_jwks_cached(jwks_uri_, fetcher_, cache_, true);
+            return verify_with_jwks(decoded, fresh);
+        } catch (const AuthError&) {
+            throw;
+        } catch (const jwt::error::claim_not_present_exception&) {
+            throw AuthError(AuthErrorCode::InvalidToken,
+                "Token key id '" + kid + "' is not present in the issuer's JWKS");
+        } catch (const std::exception& e) {
+            throw AuthError(AuthErrorCode::InvalidToken, e.what());
         }
     }
 
 private:
-    // Verify decoded token against a given JWKS JSON string.
-    // Throws AuthError(InvalidConfig) for bad algorithm config, AuthError(InvalidToken) for
-    // claim mismatches; lets jwt-cpp std::exceptions propagate as-is for the kid-retry logic.
-    [[nodiscard]] PayloadType verify_with_jwks(
-        const jwt::decoded_jwt<jwt::traits::kazuho_picojson>& decoded,
-        const std::string& jwks_json) const
+    // Map a jwt-cpp verification failure onto a typed AuthErrorCode. The distinction
+    // matters operationally: "your token expired" and "bad signature" call for very
+    // different responses, and they end up in different refused_requests.log reason codes.
+    [[nodiscard]] AuthErrorCode classify_verification_error(
+        const std::error_code& ec,
+        const jwt::decoded_jwt<jwt::traits::nlohmann_json>& decoded) const
     {
-        const auto jwks_doc = json::parse(jwks_json);
-        bool kid_found = false;
-        if (jwks_doc.contains("keys") && jwks_doc["keys"].is_array()) {
-            for (const auto& key : jwks_doc["keys"]) {
-                if (key.value("kid", "") == decoded.get_key_id()) {
-                    kid_found = true;
-                    break;
+        using jwt::error::token_verification_error;
+
+        if (ec == token_verification_error::token_expired) {
+            return AuthErrorCode::TokenExpired;
+        }
+        if (ec == token_verification_error::audience_missmatch) {
+            return AuthErrorCode::TokenBadAudience;
+        }
+        // A claim mismatch is reported generically, so check whether it was the issuer.
+        if (ec == token_verification_error::claim_value_missmatch ||
+            ec == token_verification_error::missing_claim) {
+            if (cfg_.verify_issuer && !cfg_.issuer.empty()) {
+                const bool issuer_ok = decoded.has_issuer() && decoded.get_issuer() == cfg_.issuer;
+                if (!issuer_ok) {
+                    return AuthErrorCode::TokenBadIssuer;
                 }
             }
         }
-        if (!kid_found) {
-            throw std::runtime_error("kid not found");
-        }
+        return AuthErrorCode::InvalidToken;
+    }
 
+    // Verify decoded token against a given JWKS JSON string.
+    // Throws AuthError(InvalidConfig) for bad algorithm config and a classified
+    // AuthError for claim/signature failures. Lets jwt-cpp's claim_not_present_exception
+    // escape so that verify_token can retry against a refreshed key set.
+    [[nodiscard]] PayloadType verify_with_jwks(
+        const jwt::decoded_jwt<jwt::traits::nlohmann_json>& decoded,
+        const std::string& jwks_json) const
+    {
+        // get_jwk throws claim_not_present_exception when the key id is absent; that is
+        // the rotation signal verify_token retries on.
         const auto jwk = jwt::parse_jwks(jwks_json).get_jwk(decoded.get_key_id());
         AUTH_LOG(UDA_LOG_DEBUG, "Auth: JWK key found (kid=%s)\n", decoded.get_key_id().c_str());
 
@@ -259,11 +236,21 @@ private:
             const auto x5c = jwk.get_x5c_key_value();
             AUTH_LOG(UDA_LOG_DEBUG, "Auth: using x5c component for signature verification\n");
             pub_key_pem = jwt::helper::convert_base64_der_to_pem(x5c);
-        } else {
+        } else if (jwk.has_jwk_claim("n") && jwk.has_jwk_claim("e")) {
             AUTH_LOG(UDA_LOG_DEBUG, "Auth: using RSA n+e components for signature verification\n");
             const auto modulus  = jwk.get_jwk_claim("n").as_string();
             const auto exponent = jwk.get_jwk_claim("e").as_string();
             pub_key_pem = jwt::helper::create_public_key_from_rsa_components(modulus, exponent);
+        } else if (jwk.has_jwk_claim("x") && jwk.has_jwk_claim("y")) {
+            AUTH_LOG(UDA_LOG_DEBUG, "Auth: using EC x+y components for signature verification\n");
+            const auto curve = jwk.has_jwk_claim("crv") ? jwk.get_jwk_claim("crv").as_string() : "";
+            const auto x     = jwk.get_jwk_claim("x").as_string();
+            const auto y     = jwk.get_jwk_claim("y").as_string();
+            pub_key_pem = jwt::helper::create_public_key_from_ec_components(curve, x, y);
+        } else {
+            throw AuthError(AuthErrorCode::InvalidToken,
+                "JWKS entry for kid '" + decoded.get_key_id() +
+                "' has no usable key material (expected x5c, RSA n/e, or EC x/y)");
         }
 
         const auto leeway = static_cast<size_t>(
@@ -275,25 +262,22 @@ private:
 
         bool any_alg = false;
         for (const auto& alg : cfg_.allowed_algs) {
-            if (alg == "RS256") {
-                verifier.allow_algorithm(jwt::algorithm::rs256(pub_key_pem, "", "", ""));
-                any_alg = true;
-            } else if (alg == "RS384") {
-                verifier.allow_algorithm(jwt::algorithm::rs384(pub_key_pem, "", "", ""));
-                any_alg = true;
-            } else if (alg == "RS512") {
-                verifier.allow_algorithm(jwt::algorithm::rs512(pub_key_pem, "", "", ""));
-                any_alg = true;
-            } else {
+            if      (alg == "RS256") { verifier.allow_algorithm(jwt::algorithm::rs256(pub_key_pem, "", "", "")); any_alg = true; }
+            else if (alg == "RS384") { verifier.allow_algorithm(jwt::algorithm::rs384(pub_key_pem, "", "", "")); any_alg = true; }
+            else if (alg == "RS512") { verifier.allow_algorithm(jwt::algorithm::rs512(pub_key_pem, "", "", "")); any_alg = true; }
+            else if (alg == "ES256") { verifier.allow_algorithm(jwt::algorithm::es256(pub_key_pem, "", "", "")); any_alg = true; }
+            else if (alg == "ES384") { verifier.allow_algorithm(jwt::algorithm::es384(pub_key_pem, "", "", "")); any_alg = true; }
+            else if (alg == "ES512") { verifier.allow_algorithm(jwt::algorithm::es512(pub_key_pem, "", "", "")); any_alg = true; }
+            else {
                 AUTH_LOG(UDA_LOG_WARN,
                     "Auth: unsupported algorithm '%s' in UDA_SERVER_OIDC_ALLOWED_ALGS "
-                    "(supported: RS256, RS384, RS512)\n", alg.c_str());
+                    "(supported: RS256, RS384, RS512, ES256, ES384, ES512)\n", alg.c_str());
             }
         }
         if (!any_alg) {
             throw AuthError(AuthErrorCode::InvalidConfig,
                 "No supported algorithms configured in UDA_SERVER_OIDC_ALLOWED_ALGS; "
-                "supported: RS256, RS384, RS512");
+                "supported: RS256, RS384, RS512, ES256, ES384, ES512");
         }
 
         if (cfg_.verify_issuer && !cfg_.issuer.empty()) {
@@ -303,12 +287,17 @@ private:
             verifier.with_audience(cfg_.audience);
         }
 
-        verifier.verify(decoded);
+        // Use the error_code overload so the failure can be classified rather than
+        // flattened into one opaque exception.
+        std::error_code ec;
+        verifier.verify(decoded, ec);
+        if (ec) {
+            throw AuthError(classify_verification_error(ec, decoded), ec.message());
+        }
         AUTH_LOG(UDA_LOG_DEBUG, "Auth: JWT signature and claims verified\n");
 
-        // Parse payload from the base64url-decoded JSON string using nlohmann/json,
-        // avoiding picojson types entirely. String claims are stored as plain strings;
-        // arrays, objects, and numbers are JSON-serialised so ClaimPolicy can parse them.
+        // String claims are stored as plain strings; arrays, objects and numbers are
+        // JSON-serialised so ClaimPolicy can parse them back.
         const json payload_json = json::parse(decoded.get_payload());
         PayloadType payload_map;
         for (const auto& [key, val] : payload_json.items()) {

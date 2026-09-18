@@ -1,15 +1,14 @@
 #include "claim_policy.h"
+#include "claim_access.h"
 
 #include <algorithm>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
-#include <nlohmann/json.hpp>
 
 namespace uda {
 namespace authentication {
 
-using json = nlohmann::json;
 using PayloadMap = std::unordered_map<std::string, std::string>;
 
 namespace {
@@ -37,72 +36,9 @@ std::vector<std::string> split(const std::string& s, char delim)
     return result;
 }
 
-// Resolve a dot-separated claim path against the flat payload map.
-// The first component is looked up directly; remaining components navigate
-// into a JSON-encoded nested value (e.g. realm_access.roles → parse
-// map["realm_access"] as JSON, then get ["roles"]).
-std::optional<std::string> resolve_path(const PayloadMap& payload, const std::string& path)
-{
-    const auto dot = path.find('.');
-    if (dot == std::string::npos) {
-        auto it = payload.find(path);
-        if (it == payload.end()) return std::nullopt;
-        return it->second;
-    }
-
-    const std::string root = path.substr(0, dot);
-    const std::string rest = path.substr(dot + 1);
-
-    auto it = payload.find(root);
-    if (it == payload.end()) return std::nullopt;
-
-    try {
-        auto j = json::parse(it->second);
-        const auto parts = split(rest, '.');
-        json cur = j;
-        for (const auto& part : parts) {
-            if (!cur.is_object() || !cur.contains(part)) return std::nullopt;
-            cur = cur[part];
-        }
-        if (cur.is_string()) return cur.get<std::string>();
-        return cur.dump();
-    } catch (...) {
-        return std::nullopt;
-    }
-}
-
-// Check whether val (a plain string or JSON array string) contains needle as an element.
-bool value_contains_element(const std::string& val, const std::string& needle)
-{
-    if (!val.empty() && val.front() == '[') {
-        try {
-            const auto arr = json::parse(val);
-            if (arr.is_array()) {
-                for (const auto& elem : arr) {
-                    if (elem.is_string() && elem.get<std::string>() == needle) return true;
-                    if (!elem.is_string() && elem.dump() == needle) return true;
-                }
-                return false;
-            }
-        } catch (...) {}
-    }
-    return val.find(needle) != std::string::npos;
-}
-
-// Check whether val contains word as a whitespace-delimited token.
-bool value_contains_word(const std::string& val, const std::string& word)
-{
-    std::istringstream ss(val);
-    std::string token;
-    while (ss >> token) {
-        if (token == word) return true;
-    }
-    return false;
-}
-
 bool check_rule(const ClaimRule& rule, const PayloadMap& payload, std::string& error)
 {
-    const auto maybe_val = resolve_path(payload, rule.path);
+    const auto maybe_val = resolve_claim(payload, rule.path);
 
     switch (rule.op) {
         case ClaimOp::Exists:
@@ -128,7 +64,7 @@ bool check_rule(const ClaimRule& rule, const PayloadMap& payload, std::string& e
                 error = "Required claim '" + rule.path + "' is missing";
                 return false;
             }
-            if (!value_contains_element(*maybe_val, rule.value)) {
+            if (!claim_contains_element(*maybe_val, rule.value)) {
                 error = "Claim '" + rule.path + "' does not contain '" + rule.value + "'";
                 return false;
             }
@@ -139,7 +75,7 @@ bool check_rule(const ClaimRule& rule, const PayloadMap& payload, std::string& e
                 error = "Required claim '" + rule.path + "' is missing";
                 return false;
             }
-            if (!value_contains_word(*maybe_val, rule.value)) {
+            if (!claim_contains_word(*maybe_val, rule.value)) {
                 error = "Claim '" + rule.path + "' does not contain word '" + rule.value + "'";
                 return false;
             }
@@ -152,7 +88,7 @@ bool check_rule(const ClaimRule& rule, const PayloadMap& payload, std::string& e
             }
             const auto options = split(rule.value, ',');
             for (const auto& opt : options) {
-                if (value_contains_element(*maybe_val, opt)) return true;
+                if (claim_contains_element(*maybe_val, opt)) return true;
             }
             error = "Claim '" + rule.path + "' does not contain any of '" + rule.value + "'";
             return false;

@@ -39,26 +39,24 @@ void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 LIBRARY_API const char* authPayloadValue(const char* key, const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-// Navigate a dot-separated path (with optional [n] array indexing) into the JWT payload.
+// Navigate a claim path into the verified JWT payload. See authentication/claim_access.h
+// for the path syntax — the same syntax is used by UDA_SERVER_OIDC_REQUIRED_CLAIMS.
 // Examples:
 //   authPayloadPath("preferred_username", pi)  → same as authPayloadValue
 //   authPayloadPath("realm_access.roles[0]", pi) → first element of the roles array
 //   authPayloadPath("resource_access.uda-client.roles[1]", pi) → nested navigation
+//   authPayloadPath("wlcg\\.groups", pi)          → claim name containing a literal dot
 //
-// Returns a pointer into internal static storage valid until the next call.
+// Returns a pointer into internal static storage valid until the next call. The UDA
+// server handles one client connection per process, so that storage is per-request.
 // Returns nullptr if any path segment is missing or a type mismatch occurs.
-//
-// Note: top-level claim keys containing literal dots (e.g. "wlcg.groups") cannot
-// be reached by path navigation — use authPayloadValue("wlcg.groups", pi) instead.
 LIBRARY_API const char* authPayloadPath(const char* path, const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-// Return true if the top-level claim named `key` contains `value` as a member.
-// For JSON-array claims (e.g. realm_access.roles stored as a JSON string):
-//   checks whether `value` is an element of the array.
-// For plain string claims (e.g. scope = "openid uda.read"):
-//   checks whether `value` appears as a whitespace-delimited word.
-// The `key` argument is a flat top-level claim name — not a dot-path.
-LIBRARY_API bool authPayloadContains(const char* key, const char* value, const IDAM_PLUGIN_INTERFACE* plugin_interface);
+// Return true if the claim at `path` contains `value` as a member.
+// JSON-array claims (e.g. realm_access.roles) are tested for element membership;
+// anything else is treated as a whitespace-delimited token list, which covers `scope`.
+// `path` accepts the same syntax as authPayloadPath.
+LIBRARY_API bool authPayloadContains(const char* path, const char* value, const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 LIBRARY_API int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
 LIBRARY_API int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);

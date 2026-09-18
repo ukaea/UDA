@@ -203,12 +203,15 @@ endif()
 if( ENABLE_TLS )
   message( "Including TLS/SSL transport authentication" )
   add_definitions( -DSSLAUTHENTICATION )
-  add_definitions( -DTLSAUTHENTICATION )
 endif()
 
 if( ENABLE_OIDC_AUTH )
   message( "Including OIDC bearer-token authentication" )
   add_definitions( -DOIDCAUTHENTICATION )
+  # jwt-cpp defaults to picojson traits. UDA uses nlohmann everywhere, so picojson is
+  # disabled globally rather than per-include: the setting changes jwt-cpp's own types,
+  # so every translation unit that sees jwt.h must agree on it.
+  add_definitions( -DJWT_DISABLE_PICOJSON )
 endif()
 
 if( BUILD_SHARED_LIBS )

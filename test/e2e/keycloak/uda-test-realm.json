@@ -1,0 +1,117 @@
+{
+  "realm": "uda-test",
+  "enabled": true,
+  "sslRequired": "none",
+  "clients": [
+    {
+      "clientId": "uda-client",
+      "name": "UDA local token test client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "uda-test-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "uda-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "uda",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "introspection-client-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "uda-client",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "uda-groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "groups",
+            "full.path": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "uda-user"
+      },
+      {
+        "name": "uda-observer"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "alice",
+      "enabled": true,
+      "email": "alice@example.com",
+      "firstName": "Alice",
+      "lastName": "Smith",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "alice-test-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "uda-user"
+      ],
+      "groups": [
+        "/uda-users"
+      ]
+    },
+    {
+      "username": "adam",
+      "enabled": true,
+      "email": "adam@example.com",
+      "firstName": "Adam",
+      "lastName": "Jones",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "adam-test-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "uda-observer"
+      ],
+      "groups": [
+        "/uda-observers"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "uda-users",
+      "path": "/uda-users"
+    },
+    {
+      "name": "uda-observers",
+      "path": "/uda-observers"
+    }
+  ]
+}

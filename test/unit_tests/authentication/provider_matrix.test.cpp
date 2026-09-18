@@ -259,7 +259,7 @@ TEST_CASE("reject: token with wrong issuer", "[provider_matrix][reject]")
     JwksCache cache(300);
     require_auth_error(
         [&]{ authenticate(tb.build(k), cfg, make_jwks_fetcher(k.jwks_json), cache); },
-        AuthErrorCode::InvalidToken);
+        AuthErrorCode::TokenBadIssuer);
 }
 
 TEST_CASE("reject: token with wrong string audience", "[provider_matrix][reject]")
@@ -274,7 +274,7 @@ TEST_CASE("reject: token with wrong string audience", "[provider_matrix][reject]
     JwksCache cache(300);
     require_auth_error(
         [&]{ authenticate(tb.build(k), cfg, make_jwks_fetcher(k.jwks_json), cache); },
-        AuthErrorCode::InvalidToken);
+        AuthErrorCode::TokenBadAudience);
 }
 
 TEST_CASE("accept: array audience with matching element", "[provider_matrix]")
@@ -310,7 +310,7 @@ TEST_CASE("reject: array audience with no matching element", "[provider_matrix][
     JwksCache cache(300);
     require_auth_error(
         [&]{ authenticate(tb.build(k), cfg, make_jwks_fetcher(k.jwks_json), cache); },
-        AuthErrorCode::InvalidToken);
+        AuthErrorCode::TokenBadAudience);
 }
 
 TEST_CASE("reject: expired token", "[provider_matrix][reject]")
@@ -326,7 +326,7 @@ TEST_CASE("reject: expired token", "[provider_matrix][reject]")
     JwksCache cache(300);
     require_auth_error(
         [&]{ authenticate(tb.build(k), cfg, make_jwks_fetcher(k.jwks_json), cache); },
-        AuthErrorCode::InvalidToken);
+        AuthErrorCode::TokenExpired);
 }
 
 TEST_CASE("reject: not-yet-valid token (future nbf)", "[provider_matrix][reject]")
@@ -342,7 +342,7 @@ TEST_CASE("reject: not-yet-valid token (future nbf)", "[provider_matrix][reject]
     JwksCache cache(300);
     require_auth_error(
         [&]{ authenticate(tb.build(k), cfg, make_jwks_fetcher(k.jwks_json), cache); },
-        AuthErrorCode::InvalidToken);
+        AuthErrorCode::TokenExpired);
 }
 
 TEST_CASE("reject: RS256 token when only RS512 is permitted", "[provider_matrix][reject]")

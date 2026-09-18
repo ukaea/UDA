@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdlib>
+#include <initializer_list>
 #include <string>
 #include "tlsMode.h"
 
@@ -36,15 +38,18 @@ inline PeerCertPolicy peer_cert_policy(TlsMode mode) noexcept
     return mode == TlsMode::Mutual ? PeerCertPolicy::Required : PeerCertPolicy::NotRequired;
 }
 
-// Select the first non-empty string from a list of candidates (env-var results or host values).
-// Returns an empty string if all candidates are null or empty.
-inline std::string select_first_path(std::initializer_list<const char*> candidates,
-                                      const std::string& fallback = "") noexcept
+// Return the value of the first of `names` that is set and non-empty, or nullptr.
+// Both the client and server TLS setup read their certificate paths through a chain of
+// preferred-then-legacy variable names; this is the one implementation of that chain.
+inline const char* first_env(const std::initializer_list<const char*>& names) noexcept
 {
-    for (const char* v : candidates) {
-        if (v != nullptr && v[0] != '\0') return v;
+    for (const char* name : names) {
+        const char* value = std::getenv(name);
+        if (value != nullptr && value[0] != '\0') {
+            return value;
+        }
     }
-    return fallback;
+    return nullptr;
 }
 
 } } // namespace uda::authentication

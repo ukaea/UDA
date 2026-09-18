@@ -221,6 +221,13 @@ jobs:
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'
 
+      # Unit tests run on both ssl=ON and ssl=OFF. The authentication suites are only
+      # configured when ENABLE_OIDC_AUTH is on, which only happens on the ssl=ON job, so
+      # gating this on ssl=OFF alone means they never run at all.
+      - name: Run unit tests
+        if: matrix.os == 'ubuntu-latest'
+        run: ctest -V --test-dir build/test/unit_tests --output-on-failure
+
       - name: Run non-SSL system tests
         if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'OFF'
         run: >
@@ -233,11 +240,12 @@ jobs:
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
           ./build/test/plugins/plugin_test_testplugin &&
-          ctest -V --test-dir build/test/unit_tests --output-on-failure &&
           uda_cli --help && uda_cli --request "help::help()"
 
+      # NB: this was previously gated on ubuntu-22.04, which is not in the matrix, so the
+      # step never ran. The matrix uses ubuntu-latest.
       - name: Run SSL system tests
-        if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
         run: |
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system
           sudo chown -R $USER:$USER /usr/local/etc

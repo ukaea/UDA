@@ -112,7 +112,7 @@ TEST_CASE("ClaimPolicy::check equals — claim missing", "[claim_policy]")
 TEST_CASE("ClaimPolicy::check contains — JSON array with matching element", "[claim_policy]")
 {
     const ClaimPolicy p = ClaimPolicy::parse("roles:contains:uda-user");
-    // picojson-style JSON array string as stored by jwt-cpp payload serialisation
+    // JSON array string, as stored in PayloadType by the payload serialisation
     Payload payload{{"roles", R"(["uda-user","uda-admin"])"}};
     std::string err;
     REQUIRE( p.check(payload, err) );

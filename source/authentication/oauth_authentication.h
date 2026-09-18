@@ -1,6 +1,7 @@
 #pragma once
 
 #include "auth_error.h"
+#include "http_get.h"
 #include "jwks_cache.h"
 #include "oidc_config.h"
 
@@ -21,10 +22,7 @@ using PayloadType = std::unordered_map<std::string, std::string>;
 // Injectable for unit tests via authenticate(token, cfg, fetcher).
 using HttpFetcher = std::function<std::string(const std::string& url)>;
 
-// Default HTTP fetcher using cURL.
-// Enforces HTTPS unless UDA_SERVER_OIDC_ALLOW_HTTP=1 is set.
-// Sets connect timeout (10 s) and total timeout (30 s).
-// Follows up to 3 redirects. Fails on HTTP 4xx/5xx.
+// Default HTTP fetcher for OIDC discovery and JWKS: http_get with the OIDC policy.
 // Throws AuthError(DiscoveryFailed|JwksFetchFailed, ...) on network or HTTP error.
 std::string curl_http_fetch(const std::string& url);
 

@@ -21,7 +21,7 @@
 #include <openssl/ssl.h>
 
 #include <nlohmann/json.hpp>
-#include <jwt-cpp/jwt.h>
+#include <jwt-cpp/traits/nlohmann-json/defaults.h>
 
 #include <authentication/oauth_authentication.h>
 #include <authentication/oidc_config.h>
@@ -259,7 +259,6 @@ TEST_CASE("authenticate throws on empty token", "[oidc_verify]")
     const OidcConfig cfg    = make_cfg();
     const HttpFetcher fetch = make_jwks_fetcher(test_key().jwks_json);
 
-    REQUIRE_THROWS_AS( authenticate("", cfg, fetch), AuthError );
     require_auth_error([&]{ authenticate("", cfg, fetch); }, AuthErrorCode::MissingToken);
 }
 
@@ -274,7 +273,6 @@ TEST_CASE("authenticate throws when no issuer and no jwks_uri configured", "[oid
     // issuer and jwks_uri both empty
     const HttpFetcher fetch = make_jwks_fetcher(test_key().jwks_json);
 
-    REQUIRE_THROWS_AS( authenticate("some-token", cfg, fetch), AuthError );
     require_auth_error(
         [&]{ authenticate("some-token", cfg, fetch); },
         AuthErrorCode::InvalidConfig);
@@ -292,8 +290,7 @@ TEST_CASE("authenticate rejects expired token", "[oidc_verify]")
     const OidcConfig cfg    = make_cfg(); // clock_skew_seconds=5, not enough to cover 60 s expiry
     const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
 
-    REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
-    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::InvalidToken);
+    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::TokenExpired);
 }
 
 // ---------------------------------------------------------------------------
@@ -309,8 +306,7 @@ TEST_CASE("authenticate rejects token with wrong issuer", "[oidc_verify]")
     const OidcConfig cfg    = make_cfg();
     const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
 
-    REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
-    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::InvalidToken);
+    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::TokenBadIssuer);
 }
 
 // ---------------------------------------------------------------------------
@@ -326,8 +322,7 @@ TEST_CASE("authenticate rejects token with wrong audience", "[oidc_verify]")
     const OidcConfig cfg    = make_cfg();
     const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
 
-    REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
-    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::InvalidToken);
+    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::TokenBadAudience);
 }
 
 // ---------------------------------------------------------------------------
@@ -374,7 +369,6 @@ TEST_CASE("authenticate applies legacy azp check when using Keycloak config", "[
         cfg.legacy_keycloak_config = true;
 
         const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
-        REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
         require_auth_error(
             [&]{ authenticate(token, cfg, fetch); },
             AuthErrorCode::ClaimPolicyFailed);
@@ -405,7 +399,6 @@ TEST_CASE("authenticate applies UDA_SERVER_OIDC_REQUIRED_CLAIMS policy", "[oidc_
         OidcConfig cfg           = make_cfg();
         cfg.required_claims      = "scope:contains_word:uda.read";
         const HttpFetcher fetch  = make_jwks_fetcher(k.jwks_json);
-        REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
         require_auth_error(
             [&]{ authenticate(token, cfg, fetch); },
             AuthErrorCode::ClaimPolicyFailed);
@@ -423,7 +416,6 @@ TEST_CASE("authenticate throws on malformed UDA_SERVER_OIDC_REQUIRED_CLAIMS", "[
     cfg.required_claims      = "bad_rule_no_op";
     const HttpFetcher fetch  = make_jwks_fetcher(k.jwks_json);
 
-    REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
     require_auth_error(
         [&]{ authenticate(token, cfg, fetch); },
         AuthErrorCode::InvalidConfig);
@@ -449,7 +441,6 @@ TEST_CASE("authenticate requires claim policy or explicit opt-out", "[oidc_verif
         cfg.verify_audience = false;
         cfg.clock_skew_seconds = 5;
         // no audience, no required_claims, no legacy client_id
-        REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
         require_auth_error(
             [&]{ authenticate(token, cfg, fetch); },
             AuthErrorCode::InvalidConfig);
@@ -472,27 +463,124 @@ TEST_CASE("authenticate requires claim policy or explicit opt-out", "[oidc_verif
 // ---------------------------------------------------------------------------
 // Unsupported algorithm
 
-TEST_CASE("authenticate throws when token uses unsupported algorithm", "[oidc_verify]")
+TEST_CASE("authenticate rejects a token signed with an unsupported algorithm", "[oidc_verify]")
 {
-    // Build an HS256 token (symmetric) — we only support RS256/384/512
-    const std::string secret = "test-secret-key-long-enough-for-hmac";
+    // The token carries the SAME kid as the JWKS key, so it gets past key selection and
+    // the algorithm whitelist is what has to reject it. (A token with no kid is rejected
+    // earlier, for a different reason — see the no-kid case below.)
+    const auto& k = test_key();
+    const std::string token = jwt::create()
+        .set_type("JWT")
+        .set_key_id(k.kid)
+        .set_issuer("https://test-issuer.example.com")
+        .set_audience("test-audience")
+        .set_expires_at(std::chrono::system_clock::now() + std::chrono::minutes{5})
+        .set_payload_claim("azp", jwt::claim(std::string("test-client")))
+        .sign(jwt::algorithm::hs256{"test-secret-key-long-enough-for-hmac"});
+
+    OidcConfig cfg          = make_cfg();
+    cfg.required_claims     = "";
+    const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
+
+    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::InvalidToken);
+}
+
+TEST_CASE("authenticate rejects algorithm confusion: HS256 signed with the RSA public key",
+          "[oidc_verify][attack]")
+{
+    // The classic JWT attack. The RSA public key is, by definition, public. If the
+    // verifier trusted the token's own `alg` header it would HMAC-verify using that
+    // public key as the shared secret — which the attacker also has — and accept a token
+    // it never signed. The whitelist must pin the algorithm to what the key is for.
+    const auto& k = test_key();
+    const std::string forged = jwt::create()
+        .set_type("JWT")
+        .set_key_id(k.kid)
+        .set_issuer("https://test-issuer.example.com")
+        .set_audience("test-audience")
+        .set_expires_at(std::chrono::system_clock::now() + std::chrono::minutes{5})
+        .set_payload_claim("azp", jwt::claim(std::string("test-client")))
+        .set_payload_claim("sub", jwt::claim(std::string("attacker")))
+        .sign(jwt::algorithm::hs256{k.public_pem}); // the public key as the HMAC secret
+
+    OidcConfig cfg          = make_cfg();
+    cfg.required_claims     = "";
+    const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
+
+    require_auth_error([&]{ authenticate(forged, cfg, fetch); }, AuthErrorCode::InvalidToken);
+}
+
+TEST_CASE("authenticate rejects an unsigned token (alg: none)", "[oidc_verify][attack]")
+{
+    // The other attack that matters: strip the signature and set alg to none. An
+    // unsigned token must never be accepted, whatever its claims say.
+    const auto& k = test_key();
+    const std::string unsigned_token = jwt::create()
+        .set_type("JWT")
+        .set_key_id(k.kid)
+        .set_issuer("https://test-issuer.example.com")
+        .set_audience("test-audience")
+        .set_expires_at(std::chrono::system_clock::now() + std::chrono::minutes{5})
+        .set_payload_claim("azp", jwt::claim(std::string("test-client")))
+        .set_payload_claim("sub", jwt::claim(std::string("attacker")))
+        .sign(jwt::algorithm::none{});
+
+    OidcConfig cfg          = make_cfg();
+    cfg.required_claims     = "";
+    const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
+
+    require_auth_error([&]{ authenticate(unsigned_token, cfg, fetch); },
+                       AuthErrorCode::InvalidToken);
+}
+
+TEST_CASE("authenticate rejects a token whose signature was replaced", "[oidc_verify][attack]")
+{
+    // A validly-structured token whose signature segment has been tampered with.
+    const auto& k = test_key();
+    std::string token = TokenBuilder{}.build(k);
+
+    const auto last_dot = token.rfind('.');
+    REQUIRE(last_dot != std::string::npos);
+    // Flip a character in the signature, keeping it base64url-legal.
+    token[last_dot + 1] = (token[last_dot + 1] == 'A') ? 'B' : 'A';
+
+    OidcConfig cfg          = make_cfg();
+    cfg.required_claims     = "";
+    const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
+
+    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::InvalidToken);
+}
+
+TEST_CASE("authenticate rejects a token with no kid", "[oidc_verify]")
+{
+    // Distinct from the algorithm cases above: without a kid there is no way to select a
+    // key from the JWKS, and no amount of refreshing will help.
     const std::string token = jwt::create()
         .set_type("JWT")
         .set_issuer("https://test-issuer.example.com")
         .set_audience("test-audience")
         .set_expires_at(std::chrono::system_clock::now() + std::chrono::minutes{5})
         .set_payload_claim("azp", jwt::claim(std::string("test-client")))
-        .sign(jwt::algorithm::hs256{secret});
+        .sign(jwt::algorithm::hs256{"test-secret-key-long-enough-for-hmac"});
 
-    OidcConfig cfg           = make_cfg();
-    cfg.required_claims      = ""; // use audience as the only policy
-    const HttpFetcher fetch  = make_jwks_fetcher(test_key().jwks_json);
+    OidcConfig cfg          = make_cfg();
+    cfg.required_claims     = "";
+    const HttpFetcher fetch = make_jwks_fetcher(test_key().jwks_json);
 
-    // RS256 verifier will reject HS256 token (kid lookup fails → InvalidToken)
-    REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
-    require_auth_error(
-        [&]{ authenticate(token, cfg, fetch); },
-        AuthErrorCode::InvalidToken);
+    require_auth_error([&]{ authenticate(token, cfg, fetch); }, AuthErrorCode::InvalidToken);
+}
+
+TEST_CASE("authenticate rejects a structurally malformed token", "[oidc_verify]")
+{
+    // Not a JWT at all. This must be a classified token failure (704), not an
+    // unclassified internal error.
+    OidcConfig cfg          = make_cfg();
+    cfg.required_claims     = "";
+    const HttpFetcher fetch = make_jwks_fetcher(test_key().jwks_json);
+
+    for (const char* bad : {"not.a.jwt", "aaaa", "...", "a.b", "a.b.c.d"}) {
+        require_auth_error([&]{ authenticate(bad, cfg, fetch); }, AuthErrorCode::InvalidToken);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -554,27 +642,26 @@ TEST_CASE("authenticate rejects discovery when issuer in doc mismatches config",
         return k.jwks_json;
     };
 
-    REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
     require_auth_error(
         [&]{ authenticate(token, cfg, fetch); },
         AuthErrorCode::InvalidConfig);
 }
 
 // ---------------------------------------------------------------------------
-// Array-claim regression: nlohmann/json must produce JSON array string, not "array"
+// Array-claim regression
 //
-// Prior picojson bug: picojson::value::to_str() returned the literal string "array" for
-// array-typed claims instead of the JSON-serialised array. Fixed by using
-// decoded.get_payload() + nlohmann/json for payload map construction.
+// An array-typed claim must reach PayloadType as its JSON serialisation. An earlier
+// implementation stored the literal string "array" instead, because picojson's
+// value::to_str() reports the type name rather than the contents for non-scalars.
+// Kept as a regression test: the payload map is built from the decoded payload JSON,
+// so any claim type must round-trip as JSON text.
 
 TEST_CASE("authenticate exposes array claim as JSON string, not literal 'array'", "[oidc_verify]")
 {
     const auto& k = test_key();
 
     // Build a token with an array payload claim "roles"
-    picojson::array roles_arr;
-    roles_arr.emplace_back(picojson::value(std::string("admin")));
-    roles_arr.emplace_back(picojson::value(std::string("user")));
+    const json roles_arr = json::array({"admin", "user"});
 
     auto now = std::chrono::system_clock::now();
     const std::string token = jwt::create()
@@ -585,7 +672,7 @@ TEST_CASE("authenticate exposes array claim as JSON string, not literal 'array'"
         .set_expires_at(now + std::chrono::minutes{5})
         .set_key_id("test-key-1")
         .set_payload_claim("azp",   jwt::claim(std::string("test-client")))
-        .set_payload_claim("roles", jwt::claim(picojson::value(roles_arr)))
+        .set_payload_claim("roles", jwt::claim(roles_arr))
         .sign(jwt::algorithm::rs256(k.public_pem, k.private_pem, "", ""));
 
     const OidcConfig cfg    = make_cfg();
@@ -596,7 +683,6 @@ TEST_CASE("authenticate exposes array claim as JSON string, not literal 'array'"
 
     REQUIRE( payload.count("roles") == 1 );
     const std::string roles_val = payload.at("roles");
-    // Prior picojson bug produced the literal string "array"; nlohmann produces JSON
     REQUIRE( roles_val != "array" );
     const auto roles_json = json::parse(roles_val);
     REQUIRE( roles_json.is_array() );
@@ -646,7 +732,6 @@ TEST_CASE("authenticate rejects RS256 token when only RS512 is allowed", "[oidc_
     cfg.allowed_algs = {"RS512"};
     const HttpFetcher fetch = make_jwks_fetcher(k.jwks_json);
 
-    REQUIRE_THROWS_AS( authenticate(token, cfg, fetch), AuthError );
     require_auth_error(
         [&]{ authenticate(token, cfg, fetch); },
         AuthErrorCode::InvalidToken);

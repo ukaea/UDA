@@ -22,7 +22,7 @@
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <clientserver/stringUtils.h>
-#include <authentication/oauth_authentication.h>
+#include <authentication/http_get.h>
 #include <common/uda_env_options.hpp>
 #include <version.h>
 #include <fmt/format.h>
@@ -418,17 +418,27 @@ static int do_authorisation_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
     curl_free(escaped_value);
     curl_easy_cleanup(tmp);
 
+    // The authorisation service is a local, deployment-private endpoint, so it is
+    // reached with short timeouts and without the HTTPS requirement that applies to
+    // OIDC discovery. Everything else — redirect policy, HTTP error handling — is
+    // shared with the OIDC fetch path.
+    uda::authentication::HttpGetOptions opts;
+    opts.connect_timeout_ms = 2000;
+    opts.total_timeout_ms   = 5000;
+    opts.require_https      = false;
+
+    std::string response;
     try {
-        const uda::authentication::CurlWrapper curl;
-        const std::string response = curl.perform_get_request(auth_url);
-        const bool authorised = (response == expected);
-        return setReturnDataString(data_block,
-                                   authorised ? "authorised" : "unauthorised",
-                                   "HELP authorisation check");
-    } catch (...) {
+        response = uda::authentication::http_get(auth_url, opts);
+    } catch (const std::exception& e) {
+        UDA_LOG(UDA_LOG_ERROR, "HELP::authorise: authorisation service error: %s\n", e.what());
         return setReturnDataString(data_block, "unauthorised: authorisation service error",
                                    "HELP authorisation check");
     }
+
+    return setReturnDataString(data_block,
+                               response == expected ? "authorised" : "unauthorised",
+                               "HELP authorisation check");
 }
 
 #endif // OIDCAUTHENTICATION
@@ -494,10 +504,33 @@ static int do_server_metadata(IDAM_PLUGIN_INTERFACE* plugin_interface)
     const char* auth_env = getenv("UDA_SERVER_AUTHENTICATION");
     meta += fmt::format("authentication={}\n", auth_env != nullptr ? auth_env : "none");
 
-    // Report whether Keycloak is configured without exposing the realm URL or client ID.
-    const bool keycloak_configured = getenv("UDA_SERVER_KEYCLOAK_REALM") != nullptr
-                                  && getenv("UDA_SERVER_KEYCLOAK_CLIENT_ID") != nullptr;
-    meta += fmt::format("keycloak_configured={}\n", keycloak_configured ? 1 : 0);
+    // Report whether an issuer and a claim policy are configured, without exposing the
+    // issuer URL, client id or policy itself.
+    //
+    // NB: this deliberately covers the current UDA_SERVER_OIDC_* variables as well as the
+    // legacy UDA_SERVER_KEYCLOAK_* ones. Checking only the legacy names reported "not
+    // configured" on a correctly configured new-style server, which is exactly backwards
+    // for the question this endpoint exists to answer.
+    const bool issuer_configured = getenv("UDA_SERVER_OIDC_ISSUER") != nullptr
+                                || getenv("UDA_SERVER_OIDC_JWKS_URI") != nullptr
+                                || getenv("UDA_SERVER_KEYCLOAK_REALM") != nullptr;
+
+    const char* policy = getenv("UDA_SERVER_OIDC_POLICY");
+    const bool policy_disabled = policy != nullptr && std::string(policy) == "none";
+    const bool policy_configured = !policy_disabled
+                                && (getenv("UDA_SERVER_OIDC_AUDIENCE") != nullptr
+                                 || getenv("UDA_SERVER_OIDC_REQUIRED_CLAIMS") != nullptr
+                                 || getenv("UDA_SERVER_KEYCLOAK_CLIENT_ID") != nullptr);
+
+    const bool legacy_config = getenv("UDA_SERVER_KEYCLOAK_REALM") != nullptr
+                            && getenv("UDA_SERVER_OIDC_ISSUER") == nullptr;
+
+    meta += fmt::format("oidc_issuer_configured={}\n", issuer_configured ? 1 : 0);
+    meta += fmt::format("oidc_claim_policy_configured={}\n", policy_configured ? 1 : 0);
+    meta += fmt::format("oidc_policy_none={}\n", policy_disabled ? 1 : 0);
+    meta += fmt::format("oidc_legacy_keycloak_config={}\n", legacy_config ? 1 : 0);
+    // Retained under its old name for anything already parsing this output.
+    meta += fmt::format("keycloak_configured={}\n", legacy_config ? 1 : 0);
 
     return setReturnDataString(plugin_interface->data_block, meta.c_str(),
                                "Server compilation flags and runtime configuration");

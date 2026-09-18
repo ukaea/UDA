@@ -148,6 +148,11 @@
 #define UDA_AUTH_ERR_JWKS_FETCH                 703
 #define UDA_AUTH_ERR_INVALID_TOKEN              704
 #define UDA_AUTH_ERR_CLAIM_POLICY               705
+// 706-708 distinguish the three token rejections an operator can act on, and which
+// would otherwise be indistinguishable from a bad signature (704).
+#define UDA_AUTH_ERR_TOKEN_EXPIRED              706
+#define UDA_AUTH_ERR_TOKEN_BAD_ISSUER           707
+#define UDA_AUTH_ERR_TOKEN_BAD_AUDIENCE         708
 
 #define UDA_TLS_ERR_CONFIG                      710
 #define UDA_TLS_ERR_HANDSHAKE                   711

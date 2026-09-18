@@ -1026,7 +1026,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
     // Test for known File formats and Server protocols
 
     {
-        IDAM_PLUGIN_INTERFACE plugin_interface;
+        IDAM_PLUGIN_INTERFACE plugin_interface = {};
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
 

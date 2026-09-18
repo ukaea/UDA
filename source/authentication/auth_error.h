@@ -16,7 +16,10 @@ enum class AuthErrorCode {
     InvalidConfig,
     DiscoveryFailed,
     JwksFetchFailed,
-    InvalidToken,
+    InvalidToken,      // signature invalid, malformed, or otherwise unusable
+    TokenExpired,      // exp in the past (or nbf in the future) beyond the clock skew
+    TokenBadIssuer,    // iss does not match the configured issuer
+    TokenBadAudience,  // aud does not contain the configured audience
     ClaimPolicyFailed,
     TlsConfigError,
     TlsHandshakeFailed,
@@ -40,6 +43,9 @@ inline int authErrorToUdaCode(AuthErrorCode code) noexcept
         case AuthErrorCode::DiscoveryFailed:     return UDA_AUTH_ERR_DISCOVERY_FAILED;
         case AuthErrorCode::JwksFetchFailed:     return UDA_AUTH_ERR_JWKS_FETCH;
         case AuthErrorCode::InvalidToken:        return UDA_AUTH_ERR_INVALID_TOKEN;
+        case AuthErrorCode::TokenExpired:        return UDA_AUTH_ERR_TOKEN_EXPIRED;
+        case AuthErrorCode::TokenBadIssuer:      return UDA_AUTH_ERR_TOKEN_BAD_ISSUER;
+        case AuthErrorCode::TokenBadAudience:    return UDA_AUTH_ERR_TOKEN_BAD_AUDIENCE;
         case AuthErrorCode::ClaimPolicyFailed:   return UDA_AUTH_ERR_CLAIM_POLICY;
         case AuthErrorCode::TlsConfigError:      return UDA_TLS_ERR_CONFIG;
         case AuthErrorCode::TlsHandshakeFailed:  return UDA_TLS_ERR_HANDSHAKE;

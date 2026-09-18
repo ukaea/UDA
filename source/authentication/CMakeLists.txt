@@ -1,10 +1,17 @@
 if( NOT ENABLE_TLS AND NOT ENABLE_OIDC_AUTH )
-  # Neither TLS nor OIDC is enabled; define empty stub targets so that
-  # source/client and source/server always have these target names available.
-  add_library( authentication-client-objects OBJECT )
+  # Neither TLS nor OIDC is enabled. Define stub targets so that source/client and
+  # source/server always have these target names available. They still carry
+  # auth_build_info.cpp: CMake rejects an OBJECT library with no sources, and the
+  # build-info predicates are meaningful (and false) in exactly this configuration.
+  add_library( authentication-client-objects OBJECT auth_build_info.cpp claim_access.cpp )
+  target_include_directories( authentication-client-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/extlib )
   if( NOT CLIENT_ONLY )
-    add_library( authentication-server-objects OBJECT )
+    add_library( authentication-server-objects OBJECT auth_build_info.cpp claim_access.cpp )
+    target_include_directories( authentication-server-objects PRIVATE
+      ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/extlib )
   endif()
+  install( FILES auth_build_info.h claim_access.h DESTINATION include/uda/authentication )
   return()
 endif()
 
@@ -28,8 +35,8 @@ else()
 endif()
 
 set( HEADER_FILES
-  oauth_authentication.h authLog.h oidc_config.h claim_policy.h
-  jwks_cache.h tls_policy.h refusal_log.h
+  oauth_authentication.h authLog.h oidc_config.h claim_policy.h claim_access.h
+  jwks_cache.h tls_policy.h refusal_log.h http_get.h auth_build_info.h
 )
 
 include_directories(
@@ -47,7 +54,10 @@ elseif( TIRPC_FOUND )
 endif()
 
 # Client objects: TLS only (clients send tokens but do not validate them)
-add_library( authentication-client-objects OBJECT udaClientSSL.cpp authLog.cpp utils.cpp )
+# claim_access is here rather than in the OIDC-only list because the plugin claim
+# helpers in udaPlugin.cpp are declared unconditionally, and plugins link the client lib.
+add_library( authentication-client-objects OBJECT
+  udaClientSSL.cpp authLog.cpp utils.cpp auth_build_info.cpp claim_access.cpp )
 target_include_directories( authentication-client-objects PRIVATE ${CMAKE_SOURCE_DIR}/extlib )
 if( ENABLE_TLS )
   target_link_libraries( authentication-client-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )
@@ -55,13 +65,14 @@ endif()
 
 if( NOT CLIENT_ONLY )
   # Server objects: TLS + OIDC — include only what is enabled
-  set( SERVER_AUTH_SRCS authLog.cpp utils.cpp refusal_log.cpp )
+  set( SERVER_AUTH_SRCS authLog.cpp utils.cpp refusal_log.cpp auth_build_info.cpp claim_access.cpp )
   if( ENABLE_TLS )
     list( APPEND SERVER_AUTH_SRCS udaServerSSL.cpp )
   endif()
   if( ENABLE_OIDC_AUTH )
     list( APPEND SERVER_AUTH_SRCS
-      oauth_authentication.cpp oidc_config.cpp claim_policy.cpp jwks_cache.cpp )
+      oauth_authentication.cpp oidc_config.cpp claim_policy.cpp
+      jwks_cache.cpp http_get.cpp )
   endif()
 
   add_library( authentication-server-objects OBJECT ${SERVER_AUTH_SRCS} )

@@ -634,6 +634,20 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         const char* token = getenv("UDA_AUTH_TOKEN");
         if (token != nullptr) {
             AUTH_LOG(UDA_LOG_DEBUG, "Auth: UDA_AUTH_TOKEN is set\n");
+
+            // A bearer token on an unencrypted connection is readable by anything on the
+            // path. UDA does not refuse to send it — local testing against a development
+            // IdP over plain HTTP/TCP is a legitimate workflow — but it says so clearly.
+            // Set UDA_ALLOW_TOKEN_WITHOUT_TLS=1 to silence this once the risk is accepted.
+            if (getClientTlsMode() == TlsMode::Off
+                && getenv("UDA_ALLOW_TOKEN_WITHOUT_TLS") == nullptr) {
+                AUTH_LOG(UDA_LOG_WARN,
+                    "Auth: sending a bearer token over an unencrypted connection "
+                    "(UDA_CLIENT_TLS_MODE=off) — the token is exposed to anything on the "
+                    "network path. Set UDA_CLIENT_TLS_MODE=server or mutual, or set "
+                    "UDA_ALLOW_TOKEN_WITHOUT_TLS=1 to acknowledge this.\n");
+            }
+
             client_block.clientFlags |= CLIENTFLAG_AUTHENTICATE;
             client_block.authenticationBlock.authentication_type = UDA_AUTHENTICATION_OAUTH;
             // Free any existing payload before overwriting (avoids leak on repeated calls)

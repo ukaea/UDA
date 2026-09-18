@@ -1,6 +1,6 @@
-#if defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)
-
 #include "refusal_log.h"
+
+#if (defined(SSLAUTHENTICATION) || defined(OIDCAUTHENTICATION)) && !defined(FATCLIENT)
 
 #include <cerrno>
 #include <cstdio>
@@ -9,8 +9,11 @@
 #include <mutex>
 #include <string>
 
+#include <nlohmann/json.hpp>
+
 #ifndef _WIN32
 #  include <arpa/inet.h>
+#  include <fcntl.h>
 #  include <netinet/in.h>
 #  include <sys/socket.h>
 #  include <sys/time.h>
@@ -24,27 +27,38 @@
 namespace uda { namespace authentication {
 
 // ---------------------------------------------------------------------------
-// Log file state
+// Log file state.
+//
+// A file descriptor rather than a FILE*, so that each record goes out as one
+// write(2) on an O_APPEND descriptor. That is what makes concurrent appends from
+// independent server processes safe: the kernel serialises the seek-to-end and the
+// write, and a single sub-PIPE_BUF write cannot be split by another process's write.
 
-static FILE*      g_log = nullptr;
+static int        g_fd = -1;
 static std::mutex g_mutex;
 
-void open_refusal_log(const char* logdir, const char* logmode)
+void open_refusal_log(const char* logdir)
 {
-    if (logdir == nullptr || logdir[0] == '\0') return;
-    std::string path = std::string(logdir) + "refused_requests.log";
-    const char* mode = (logmode != nullptr && logmode[0] != '\0') ? logmode : "w";
+    if (logdir == nullptr || logdir[0] == '\0') {
+        return;
+    }
+    const std::string path = std::string(logdir) + "refused_requests.log";
+
     std::lock_guard<std::mutex> lk(g_mutex);
-    if (g_log != nullptr) fclose(g_log);
-    g_log = fopen(path.c_str(), mode);
+    if (g_fd >= 0) {
+        close(g_fd);
+    }
+    // Always O_APPEND: this is an audit trail, and the server forks per connection.
+    // Opening it for truncation would let each new connection erase its predecessors.
+    g_fd = open(path.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0640);
 }
 
 void close_refusal_log()
 {
     std::lock_guard<std::mutex> lk(g_mutex);
-    if (g_log != nullptr) {
-        fclose(g_log);
-        g_log = nullptr;
+    if (g_fd >= 0) {
+        close(g_fd);
+        g_fd = -1;
     }
 }
 
@@ -78,9 +92,10 @@ PeerInfo get_peer_info(int fd) noexcept
 }
 
 // ---------------------------------------------------------------------------
-// Stable string conversions (keep in sync with reason_code values in the header)
+// Stable string conversions — these are the wire vocabulary. Changing a spelling
+// here breaks downstream SIEM rules; add new values rather than renaming old ones.
 
-static const char* stage_str(RefusalStage s) noexcept
+const char* stage_str(RefusalStage s) noexcept
 {
     switch (s) {
         case RefusalStage::TlsConfig:    return "tls_config";
@@ -92,7 +107,7 @@ static const char* stage_str(RefusalStage s) noexcept
     return "unknown";
 }
 
-static const char* reason_code_str(RefusalReason r) noexcept
+const char* reason_code_str(RefusalReason r) noexcept
 {
     switch (r) {
         case RefusalReason::TlsServerCertConfigError: return "TLS_SERVER_CERT_CONFIG_ERROR";
@@ -117,65 +132,34 @@ static const char* reason_code_str(RefusalReason r) noexcept
 }
 
 // ---------------------------------------------------------------------------
-// Minimal JSON builder — no external dependencies, no allocator surprises.
+// Record serialisation
 
 namespace {
 
-std::string json_escape(const std::string& s)
+// ordered_json, not json: the field order below is part of the log's readability
+// contract, and nlohmann's default json object sorts keys alphabetically.
+using ordered_json = nlohmann::ordered_json;
+
+// Optional-field helpers. Empty strings and sentinel numbers are omitted entirely
+// rather than emitted as "" or 0, so a record carries only the fields that apply
+// to its stage.
+void put(ordered_json& j, const char* key, const std::string& val)
 {
-    std::string out;
-    out.reserve(s.size() + 4);
-    for (unsigned char c : s) {
-        if      (c == '"')  { out += "\\\""; }
-        else if (c == '\\') { out += "\\\\"; }
-        else if (c == '\n') { out += "\\n";  }
-        else if (c == '\r') { out += "\\r";  }
-        else if (c == '\t') { out += "\\t";  }
-        else if (c < 0x20)  { /* strip other control chars */ }
-        else                { out += static_cast<char>(c); }
+    if (!val.empty()) {
+        j[key] = val;
     }
-    return out;
 }
 
-struct JsonObj {
-    std::string buf;
-    bool first = true;
-
-    JsonObj() { buf.reserve(512); buf += '{'; }
-
-    void comma() { if (!first) buf += ','; first = false; }
-
-    JsonObj& s(const char* key, const std::string& val) {
-        if (val.empty()) return *this;
-        comma();
-        buf += '"'; buf += key; buf += "\":\"";
-        buf += json_escape(val);
-        buf += '"';
-        return *this;
+void put_if(ordered_json& j, const char* key, long val, long sentinel = 0)
+{
+    if (val != sentinel) {
+        j[key] = val;
     }
+}
 
-    JsonObj& s(const char* key, const char* val) {
-        if (val == nullptr || val[0] == '\0') return *this;
-        return s(key, std::string(val));
-    }
-
-    // Always emit this integer field.
-    JsonObj& n(const char* key, long val) {
-        comma();
-        buf += '"'; buf += key; buf += "\":";
-        buf += std::to_string(val);
-        return *this;
-    }
-
-    // Emit only when val differs from sentinel.
-    JsonObj& n_if(const char* key, long val, long sentinel = 0) {
-        if (val == sentinel) return *this;
-        return n(key, val);
-    }
-
-    std::string finish() { buf += '}'; return buf; }
-};
-
+// Note: this server does not run on Windows, so the POSIX-only timestamp path is
+// the only one that matters. gmtime() rather than gmtime_r() is safe here because
+// the server is fork-per-connection and single-threaded.
 std::string iso8601_utc_ms()
 {
 #ifndef _WIN32
@@ -188,65 +172,92 @@ std::string iso8601_utc_ms()
     snprintf(full, sizeof(full), "%s.%03dZ", tbuf, static_cast<int>(tv.tv_usec / 1000));
     return full;
 #else
-    return "";
+    return "unknown";
+#endif
+}
+
+long current_pid()
+{
+#ifndef _WIN32
+    return static_cast<long>(getpid());
+#else
+    return static_cast<long>(_getpid());
 #endif
 }
 
 } // anonymous namespace
+
+std::string format_refusal_record(const RefusalRecord& rec)
+{
+    ordered_json j;
+
+    j["ts"]          = iso8601_utc_ms();
+    j["event"]       = "refused_request";
+    j["stage"]       = stage_str(rec.stage);
+    j["outcome"]     = "refused";
+    j["reason_code"] = reason_code_str(rec.reason);
+    put_if(j, "uda_error_code", rec.uda_error_code);
+    put(j, "message", rec.message);
+    put(j, "peer_ip", rec.peer.ip);
+    put_if(j, "peer_port", rec.peer.port);
+    j["server_pid"] = current_pid();
+
+    // Common client fields
+    put(j, "client_username", rec.client_username);
+    put_if(j, "client_version", rec.client_version);
+
+    // TLS fields — only present on TLS stages
+    put(j, "tls_mode",    rec.tls.tls_mode);
+    put(j, "tls_version", rec.tls.tls_version);
+    put(j, "tls_cipher",  rec.tls.tls_cipher);
+    put_if(j, "client_cert_verify_result", rec.tls.client_cert_verify_result, /* sentinel= */ -1);
+    put(j, "client_cert_subject",            rec.tls.client_cert_subject);
+    put(j, "client_cert_issuer",             rec.tls.client_cert_issuer);
+    put(j, "client_cert_serial",             rec.tls.client_cert_serial);
+    put(j, "client_cert_not_before",         rec.tls.client_cert_not_before);
+    put(j, "client_cert_not_after",          rec.tls.client_cert_not_after);
+    put(j, "client_cert_fingerprint_sha256", rec.tls.client_cert_fingerprint_sha256);
+
+    // OIDC fields — only present on OidcAuth stage
+    put(j, "token_error",     rec.token_error);
+    put(j, "oidc_issuer",     rec.oidc_issuer);
+    put(j, "oidc_sub_sha256", rec.oidc_sub_sha256);
+
+    // Protocol / client block detail
+    put(j, "decode_error", rec.decode_error);
+
+    return j.dump();
+}
 
 // ---------------------------------------------------------------------------
 // Record writer
 
 void record_refused_request(const RefusalRecord& rec)
 {
-#ifndef _WIN32
-    const long pid = static_cast<long>(getpid());
-#else
-    const long pid = static_cast<long>(_getpid());
-#endif
-
-    std::string line =
-        JsonObj{}
-            .s("ts",           iso8601_utc_ms())
-            .s("event",        "refused_request")
-            .s("stage",        stage_str(rec.stage))
-            .s("outcome",      "refused")
-            .s("reason_code",  reason_code_str(rec.reason))
-            .n_if("uda_error_code", rec.uda_error_code)
-            .s("message",      rec.message)
-            .s("peer_ip",      rec.peer.ip)
-            .n_if("peer_port", rec.peer.port)
-            .n("server_pid",   pid)
-            // Common client fields
-            .s("client_username",  rec.client_username)
-            .n_if("client_version", static_cast<long>(rec.client_version))
-            // TLS fields — only present on TLS stages
-            .s("tls_mode",     rec.tls.tls_mode)
-            .s("tls_version",  rec.tls.tls_version)
-            .s("tls_cipher",   rec.tls.tls_cipher)
-            .n_if("client_cert_verify_result",
-                  rec.tls.client_cert_verify_result, /* sentinel= */ -1)
-            .s("client_cert_subject",            rec.tls.client_cert_subject)
-            .s("client_cert_issuer",             rec.tls.client_cert_issuer)
-            .s("client_cert_serial",             rec.tls.client_cert_serial)
-            .s("client_cert_not_before",         rec.tls.client_cert_not_before)
-            .s("client_cert_not_after",          rec.tls.client_cert_not_after)
-            .s("client_cert_fingerprint_sha256", rec.tls.client_cert_fingerprint_sha256)
-            // OIDC fields — only present on OidcAuth stage
-            .s("token_error",    rec.token_error)
-            .s("oidc_issuer",    rec.oidc_issuer)
-            .s("oidc_sub_sha256",rec.oidc_sub_sha256)
-            // Protocol / client block detail
-            .s("decode_error",   rec.decode_error)
-            .finish();
-
     std::lock_guard<std::mutex> lk(g_mutex);
-    if (g_log == nullptr) return;
-    fputs(line.c_str(), g_log);
-    fputc('\n', g_log);
-    fflush(g_log);
+    if (g_fd < 0) {
+        return;
+    }
+
+    std::string line = format_refusal_record(rec);
+    line += '\n';
+
+    // One write, newline included — see the note on g_fd.
+    const char* p    = line.c_str();
+    size_t      left = line.size();
+    while (left > 0) {
+        const ssize_t n = write(g_fd, p, left);
+        if (n <= 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            return; // the audit log must never take the server down
+        }
+        p    += n;
+        left -= static_cast<size_t>(n);
+    }
 }
 
 }} // namespace uda::authentication
 
-#endif // SSLAUTHENTICATION || OIDCAUTHENTICATION
+#endif // (SSLAUTHENTICATION || OIDCAUTHENTICATION) && !FATCLIENT
