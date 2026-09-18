@@ -269,6 +269,36 @@ jobs:
           export UDA_CLIENT_SSL_AUTHENTICATE=ON
           ./build/test/plugins/plugin_test_testplugin
 
+      # The OIDC end-to-end suite: a disposable Keycloak, real tokens, a real UDA server.
+      # It is the only thing that checks UDA against an actual identity provider rather
+      # than against generated keys and mock fetchers.
+      - name: Run OIDC end-to-end tests
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
+        run: |
+          cd test/e2e/keycloak
+          docker compose up -d --build
+          # Wait for the realm to be served, not merely for the container to start.
+          for i in $(seq 1 60); do
+            if curl -fsS --max-time 3 \
+                 http://127.0.0.1:8080/realms/uda-test/.well-known/openid-configuration \
+                 > /dev/null 2>&1; then
+              echo "keycloak ready after ${i} attempts"; break
+            fi
+            sleep 5
+          done
+          cd "$GITHUB_WORKSPACE"
+          cmake --install build --prefix "$GITHUB_WORKSPACE/e2e-install"
+          UDA_INSTALL="$GITHUB_WORKSPACE/e2e-install" \
+          UDA_TOKEN_CHECK="$GITHUB_WORKSPACE/build/test/e2e/keycloak/uda_token_check" \
+          UDA_CONNECT_CHECK="$GITHUB_WORKSPACE/build/test/e2e/keycloak/uda_connect_check" \
+            ./test/e2e/keycloak/run_matrix.sh
+
+      - name: Collect end-to-end logs on failure
+        if: failure() && matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
+        run: |
+          cd test/e2e/keycloak
+          docker compose logs --tail 100 || true
+
 #      - name: Test
 #        working-directory: build
 #        # Execute tests defined by the CMake configuration.

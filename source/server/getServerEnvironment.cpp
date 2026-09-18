@@ -50,12 +50,22 @@ ENVIRONMENT* getServerEnvironment()
 
     // Log Output Write Mode
 
-    strcpy(g_environ.logmode, "w");                    // Write & Replace Mode
+    // Append, not truncate.
+    //
+    // The server forks per connection, so every connection opens these files afresh. In
+    // truncate mode that means each new connection destroys the previous connection's
+    // logs, and the files only ever hold whatever the most recent client did — which is
+    // the opposite of what a log is for, and actively unhelpful when the thing being
+    // diagnosed is intermittent.
+    //
+    // Append also means the files grow without bound, so a deployment wants log rotation.
+    // UDA_LOG_MODE=w restores the old truncating behaviour for anyone who relied on it.
+    strcpy(g_environ.logmode, "a");
     if ((env = getenv("UDA_LOG_MODE")) != nullptr) {
-        if (env[0] == 'a' && strlen(env) == 1) {
-            g_environ.logmode[0] = 'a';
+        if (env[0] == 'w' && strlen(env) == 1) {
+            g_environ.logmode[0] = 'w';
         }
-    }    // Append Mode
+    }
 
     //-------------------------------------------------------------------------------------------
     // API Defaults

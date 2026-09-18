@@ -282,6 +282,13 @@ sees a local TLS error, and the server's specific reason is recorded server-side
 | 711 | `TLS_HANDSHAKE` | TLS handshake failed, including client certificate rejection |
 | 712 | `TLS_HOSTNAME_MISMATCH` | The server certificate does not match the connected hostname |
 
+## Log files
+
+The server forks per connection, and its log files are opened in **append** mode so that
+records from successive connections accumulate. They therefore grow without bound and a
+deployment should rotate them. `UDA_LOG_MODE=w` restores the previous truncate-on-open
+behaviour, in which each new connection discarded the previous connection's logs.
+
 ## Audit log: `refused_requests.log`
 
 Every connection refused before it completes normally is recorded as one JSON object per

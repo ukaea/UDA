@@ -237,10 +237,202 @@ fi
 # ---------------------------------------------------------------------------
 group "UDA server connection"
 
-if [ -n "${UDA_SERVER_BIN:-}" ] && [ -x "${UDA_SERVER_BIN}" ]; then
-    skipit "UDA server scenarios not yet scripted — see test/e2e/keycloak/README.md"
+# Everything above stops at the token. This group drives a real UDA server over a real
+# socket: the protocol-11 handshake carrying the authentication block, the server-side
+# OIDC gate, a plugin call, and the error code the client actually receives.
+#
+# Set UDA_INSTALL to an install prefix built with -DENABLE_AUTH=ON. The server is started
+# here, under inetd_shim.py, and stopped on exit.
+CONNECT=${UDA_CONNECT_CHECK:-}
+if [ -z "$CONNECT" ]; then
+    for candidate in \
+        "$HERE/../../../build-auth-tests-review/test/e2e/keycloak/uda_connect_check" \
+        "$HERE/../../../build/test/e2e/keycloak/uda_connect_check"; do
+        [ -x "$candidate" ] && { CONNECT=$candidate; break; }
+    done
+fi
+
+UDA_INSTALL=${UDA_INSTALL:-}
+SERVER_PORT=${UDA_E2E_PORT:-56570}
+SERVER_PID=""
+OWN_SERVER=0
+LOGDIR=""
+
+stop_server() {
+    if [ -n "$SERVER_PID" ]; then
+        kill "$SERVER_PID" 2>/dev/null
+        wait "$SERVER_PID" 2>/dev/null
+        SERVER_PID=""
+    fi
+}
+trap stop_server EXIT
+
+# Two ways to get a server:
+#   UDA_EXTERNAL_SERVER=1  one is already running and managed elsewhere — launchd, systemd
+#                          socket activation, a container. Point UDA_HOST/UDA_PORT at it.
+#                          This is the mode that validates a real deployment rather than
+#                          one this script spawned.
+#   UDA_INSTALL=<prefix>   start one here for the duration of the run.
+#
+# In external mode the log assertions need to know where the server writes; set
+# UDA_E2E_LOGDIR. Without it they are skipped rather than guessed at.
+if [ "${UDA_EXTERNAL_SERVER:-0}" = "1" ]; then
+    SERVER_HOST=${UDA_HOST:-127.0.0.1}
+    SERVER_PORT=${UDA_PORT:-$SERVER_PORT}
+    LOGDIR=${UDA_E2E_LOGDIR:-}
+elif [ -n "$UDA_INSTALL" ] && [ -x "$UDA_INSTALL/bin/uda_server" ]; then
+    OWN_SERVER=1
+    SERVER_HOST=127.0.0.1
+    LOGDIR=$(mktemp -d "${TMPDIR:-/tmp}/uda-e2e-logs.XXXXXX")
+fi
+
+if [ -n "${SERVER_HOST:-}" ] && [ -n "$CONNECT" ] && [ -x "$CONNECT" ]; then
+
+    if [ "$OWN_SERVER" = "1" ]; then
+        UDA_E2E_LOGDIR="$LOGDIR" "$HERE/run_server.sh" \
+            --install "$UDA_INSTALL" --port "$SERVER_PORT" --mode oidc \
+            > "$LOGDIR/server.out" 2>&1 &
+        SERVER_PID=$!
+
+        # Wait for the listener rather than sleeping a fixed amount.
+        for _ in $(seq 1 30); do
+            if nc -z "$SERVER_HOST" "$SERVER_PORT" 2>/dev/null; then break; fi
+            sleep 0.2
+        done
+    fi
+
+    export UDA_HOST=$SERVER_HOST
+    export UDA_PORT=$SERVER_PORT
+
+    if nc -z "$SERVER_HOST" "$SERVER_PORT" 2>/dev/null; then
+        # alice: authorised, so a normal request must simply work.
+        out=$(UDA_AUTH_TOKEN="$ALICE_TOKEN" "$CONNECT" --request "HELP::ping()" 2>&1); rc=$?
+        [ $rc -eq 0 ] && ok "alice completes a real request" || no "alice completes a real request" "$out"
+
+        # adam: authenticated, refused by policy, and the refusal must reach the client as
+        # the documented code rather than a generic protocol failure.
+        out=$(UDA_AUTH_TOKEN="$ADAM_TOKEN" "$CONNECT" --request "HELP::ping()" 2>&1); rc=$?
+        if [ $rc -eq 2 ] && grep -q "code=705" <<<"$out"; then
+            ok "adam is refused at the server with code 705"
+        else
+            no "adam is refused at the server with code 705" "$out"
+        fi
+
+        # No token at all.
+        out=$(env -u UDA_AUTH_TOKEN "$CONNECT" --request "HELP::ping()" 2>&1); rc=$?
+        if [ $rc -eq 2 ] && grep -q "code=700" <<<"$out"; then
+            ok "a connection with no token is refused with code 700"
+        else
+            no "a connection with no token is refused with code 700" "$out"
+        fi
+
+        # A malformed token must be refused as a token fault, not an internal error.
+        out=$(UDA_AUTH_TOKEN="not.a.jwt" "$CONNECT" --request "HELP::ping()" 2>&1); rc=$?
+        if [ $rc -eq 2 ] && grep -q "code=704" <<<"$out"; then
+            ok "a malformed token is refused with code 704"
+        else
+            no "a malformed token is refused with code 704" "$out"
+        fi
+
+        # Many requests on one connection. This is the path where the client block, bearer
+        # token included, is re-sent and re-decoded per request.
+        out=$(UDA_AUTH_TOKEN="$ALICE_TOKEN" "$CONNECT" --request "HELP::ping()" --repeat 25 2>&1); rc=$?
+        [ $rc -eq 0 ] && ok "25 requests on one connection" || no "25 requests on one connection" "$out"
+
+        # HELP::authorise() reads a claim from the verified token and asks the external
+        # service about it. Both users authenticate; the service is configured to allow
+        # only alice, so this exercises authorisation downstream of authentication.
+        if curl -fsS --max-time 5 "${AUTHZ_URL%/authorize}/health" >/dev/null 2>&1; then
+            out=$(UDA_AUTH_TOKEN="$ALICE_TOKEN" "$CONNECT" --request "HELP::authorise()" 2>&1); rc=$?
+            [ $rc -eq 0 ] && ok "HELP::authorise() runs for alice" \
+                          || no "HELP::authorise() runs for alice" "$out"
+        else
+            skipit "HELP::authorise() — authz service not running"
+        fi
+
+        # --- the audit trail -------------------------------------------------
+        if [ -z "$LOGDIR" ]; then
+            skipit "audit log assertions — set UDA_E2E_LOGDIR to the server's log directory"
+        else
+        REFUSALS="$LOGDIR/refused_requests.log"
+        if [ -f "$REFUSALS" ]; then
+            ok "refused_requests.log was created"
+
+            if [ "$(wc -l < "$REFUSALS" | tr -d ' ')" -ge 3 ]; then
+                # Three refusals happened above. If the log truncated per connection —
+                # which it did before it was opened in append mode — only the last would
+                # survive, and this is the assertion that catches a regression.
+                ok "every refusal is retained, not truncated by the next connection"
+            else
+                no "every refusal is retained, not truncated by the next connection" \
+                   "$(wc -l < "$REFUSALS") records"
+            fi
+
+            if grep -q '"reason_code":"OIDC_CLAIM_POLICY_FAILED"' "$REFUSALS"; then
+                ok "adam's refusal is recorded as OIDC_CLAIM_POLICY_FAILED"
+            else
+                no "adam's refusal is recorded as OIDC_CLAIM_POLICY_FAILED"
+            fi
+
+            if grep -q '"reason_code":"OIDC_TOKEN_MISSING"' "$REFUSALS"; then
+                ok "the missing-token refusal is recorded as OIDC_TOKEN_MISSING"
+            else
+                no "the missing-token refusal is recorded as OIDC_TOKEN_MISSING"
+            fi
+
+            if python3 -c "
+import json,sys
+pids=set()
+for line in open('$REFUSALS'):
+    line=line.strip()
+    if line:
+        pids.add(json.loads(line).get('server_pid'))
+sys.exit(0 if len(pids) > 1 else 1)" 2>/dev/null; then
+                ok "each refusal names its own server process"
+            else
+                no "each refusal names its own server process"
+            fi
+
+            if python3 -c "
+import json,sys
+for line in open('$REFUSALS'):
+    line=line.strip()
+    if line:
+        json.loads(line)
+sys.exit(0)" 2>/dev/null; then
+                ok "every record is valid JSON"
+            else
+                no "every record is valid JSON"
+            fi
+
+            # alice succeeded, so nothing of hers belongs in a log of refusals.
+            if grep -q "alice" "$REFUSALS"; then
+                no "a successful connection leaves no refusal record"
+            else
+                ok "a successful connection leaves no refusal record"
+            fi
+        else
+            no "refused_requests.log was created" "not found in $LOGDIR"
+        fi
+        fi
+    else
+        no "the UDA server is reachable" "nothing listening on ${SERVER_HOST}:${SERVER_PORT}"
+        [ "$OWN_SERVER" = "1" ] && { printf '       server output:\n'; sed 's/^/       /' "$LOGDIR/server.out" | head -10; }
+    fi
+
+    stop_server
+    # Only clean up logs this script created.
+    if [ "$OWN_SERVER" = "1" ]; then
+        if [ "${UDA_E2E_KEEP_LOGS:-0}" = "1" ]; then
+            printf '  logs kept in %s\n' "$LOGDIR"
+        else
+            rm -rf "$LOGDIR"
+        fi
+    fi
 else
-    skipit "no UDA server configured (set UDA_SERVER_BIN); token and policy checks still ran"
+    skipit "no UDA server available"
+    skipit "  either UDA_INSTALL=<prefix built with -DENABLE_AUTH=ON> to start one here,"
+    skipit "  or UDA_EXTERNAL_SERVER=1 with UDA_HOST/UDA_PORT for one already running"
 fi
 
 # ---------------------------------------------------------------------------

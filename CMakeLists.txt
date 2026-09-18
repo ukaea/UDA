@@ -214,6 +214,17 @@ if( ENABLE_OIDC_AUTH )
   add_definitions( -DJWT_DISABLE_PICOJSON )
 endif()
 
+# External header-only dependencies (nlohmann/json, jwt-cpp): system packages where
+# available, pinned downloads otherwise. See cmake/UdaExternalDependencies.cmake.
+include( UdaExternalDependencies )
+
+# nlohmann/json is used by the client as well as the server, so it is always needed.
+uda_require_nlohmann_json()
+
+if( ENABLE_OIDC_AUTH )
+  uda_require_jwt_cpp()
+endif()
+
 if( BUILD_SHARED_LIBS )
   message( "Build shared libraries asked" )
 endif()

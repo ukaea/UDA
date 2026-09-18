@@ -27,17 +27,19 @@ add_library( authentication-test-objects OBJECT
 target_compile_definitions( authentication-test-objects PRIVATE -DOIDCAUTHENTICATION )
 target_include_directories( authentication-test-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
 )
-target_link_libraries( authentication-test-objects PRIVATE CURL::libcurl OpenSSL::Crypto )
+target_link_libraries( authentication-test-objects PRIVATE
+    nlohmann_json::nlohmann_json
+    jwt-cpp::jwt-cpp
+    CURL::libcurl OpenSSL::Crypto )
 
 # oidc_config tests
 add_executable( test_oidc_config oidc_config.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_oidc_config PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
 )
 target_link_libraries( test_oidc_config PRIVATE
+    nlohmann_json::nlohmann_json
     authentication-test-objects
     Catch2::Catch2WithMain
     CURL::libcurl
@@ -48,9 +50,9 @@ add_test( NAME TestOidcConfig COMMAND test_oidc_config )
 add_executable( test_claim_policy claim_policy.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_claim_policy PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
 )
 target_link_libraries( test_claim_policy PRIVATE
+    nlohmann_json::nlohmann_json
     authentication-test-objects
     Catch2::Catch2WithMain
 )
@@ -60,9 +62,10 @@ add_test( NAME TestClaimPolicy COMMAND test_claim_policy )
 add_executable( test_oidc_verify oidc_verify.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_oidc_verify PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
 )
 target_link_libraries( test_oidc_verify PRIVATE
+    nlohmann_json::nlohmann_json
+    jwt-cpp::jwt-cpp
     authentication-test-objects
     Catch2::Catch2WithMain
     OpenSSL::Crypto
@@ -74,10 +77,11 @@ add_test( NAME TestOidcVerify COMMAND test_oidc_verify )
 add_executable( test_provider_matrix provider_matrix.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_provider_matrix PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries( test_provider_matrix PRIVATE
+    nlohmann_json::nlohmann_json
+    jwt-cpp::jwt-cpp
     authentication-test-objects
     Catch2::Catch2WithMain
     OpenSSL::Crypto
@@ -91,9 +95,12 @@ add_library( handshake-auth-test-objects OBJECT
 )
 target_include_directories( handshake-auth-test-objects PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
 )
 target_compile_definitions( handshake-auth-test-objects PRIVATE -DOIDCAUTHENTICATION )
+target_link_libraries( handshake-auth-test-objects PRIVATE
+    nlohmann_json::nlohmann_json
+    jwt-cpp::jwt-cpp
+)
 
 # handshake_auth.cpp reads the server TLS mode; tlsMode.h reports an invalid mode value
 # through the UDA error stack, so the test link needs errorLog and stringUtils.
@@ -103,15 +110,15 @@ add_library( handshake-auth-test-support OBJECT
 )
 target_include_directories( handshake-auth-test-support PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
 )
 
 add_executable( test_server_auth server_auth.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_server_auth PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
 )
 target_link_libraries( test_server_auth PRIVATE
+    nlohmann_json::nlohmann_json
+    jwt-cpp::jwt-cpp
     handshake-auth-test-objects
     handshake-auth-test-support
     authentication-test-objects
@@ -124,24 +131,50 @@ add_test( NAME TestServerAuth COMMAND test_server_auth )
 add_executable( test_refusal_log refusal_log.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_refusal_log PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries( test_refusal_log PRIVATE
+    nlohmann_json::nlohmann_json
     authentication-test-objects
     Catch2::Catch2WithMain
     CURL::libcurl
 )
 add_test( NAME TestRefusalLog COMMAND test_refusal_log )
 
+# xdr_authentication_block tests (wire decoder for the bearer token)
+add_executable( test_xdr_auth_block xdr_auth_block.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
+target_include_directories( test_xdr_auth_block PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+)
+# xdrlib.cpp reaches into the structures code, so link the object libraries that already
+# carry it rather than compiling it standalone.
+target_sources( test_xdr_auth_block PRIVATE
+    $<TARGET_OBJECTS:clientserver-client-objects>
+    $<TARGET_OBJECTS:structures-client-objects>
+)
+find_package( fmt REQUIRED )
+find_package( LibXml2 REQUIRED )
+target_link_libraries( test_xdr_auth_block PRIVATE
+    nlohmann_json::nlohmann_json
+    Catch2::Catch2WithMain
+    LibXml2::LibXml2
+    fmt::fmt
+    OpenSSL::Crypto
+)
+if( TIRPC_FOUND )
+  target_include_directories( test_xdr_auth_block PRIVATE ${TIRPC_INCLUDE_DIR} )
+  target_link_libraries( test_xdr_auth_block PRIVATE ${TIRPC_LIBRARIES} )
+endif()
+add_test( NAME TestXdrAuthBlock COMMAND test_xdr_auth_block )
+
 # claim_access tests (shared claim-path engine used by ClaimPolicy and the plugin API)
 add_executable( test_claim_access claim_access.test.cpp ${AUTH_TEST_LOGGING_OBJECTS} )
 target_include_directories( test_claim_access PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries( test_claim_access PRIVATE
+    nlohmann_json::nlohmann_json
     authentication-test-objects
     Catch2::Catch2WithMain
     CURL::libcurl
@@ -155,9 +188,9 @@ if( ENABLE_TLS )
 add_executable( test_tls_integration tls_integration.test.cpp )
 target_include_directories( test_tls_integration PRIVATE
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/extlib
 )
 target_link_libraries( test_tls_integration PRIVATE
+    nlohmann_json::nlohmann_json
     Catch2::Catch2WithMain
     OpenSSL::SSL
     OpenSSL::Crypto

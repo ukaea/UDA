@@ -4,12 +4,12 @@ if( NOT ENABLE_TLS AND NOT ENABLE_OIDC_AUTH )
   # auth_build_info.cpp: CMake rejects an OBJECT library with no sources, and the
   # build-info predicates are meaningful (and false) in exactly this configuration.
   add_library( authentication-client-objects OBJECT auth_build_info.cpp claim_access.cpp )
-  target_include_directories( authentication-client-objects PRIVATE
-    ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/extlib )
+  target_include_directories( authentication-client-objects PRIVATE ${CMAKE_SOURCE_DIR}/source )
+  target_link_libraries( authentication-client-objects PRIVATE nlohmann_json::nlohmann_json )
   if( NOT CLIENT_ONLY )
     add_library( authentication-server-objects OBJECT auth_build_info.cpp claim_access.cpp )
-    target_include_directories( authentication-server-objects PRIVATE
-      ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/extlib )
+    target_include_directories( authentication-server-objects PRIVATE ${CMAKE_SOURCE_DIR}/source )
+    target_link_libraries( authentication-server-objects PRIVATE nlohmann_json::nlohmann_json )
   endif()
   install( FILES auth_build_info.h claim_access.h DESTINATION include/uda/authentication )
   return()
@@ -58,7 +58,7 @@ endif()
 # helpers in udaPlugin.cpp are declared unconditionally, and plugins link the client lib.
 add_library( authentication-client-objects OBJECT
   udaClientSSL.cpp authLog.cpp utils.cpp auth_build_info.cpp claim_access.cpp )
-target_include_directories( authentication-client-objects PRIVATE ${CMAKE_SOURCE_DIR}/extlib )
+target_link_libraries( authentication-client-objects PRIVATE nlohmann_json::nlohmann_json )
 if( ENABLE_TLS )
   target_link_libraries( authentication-client-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )
 endif()
@@ -76,8 +76,11 @@ if( NOT CLIENT_ONLY )
   endif()
 
   add_library( authentication-server-objects OBJECT ${SERVER_AUTH_SRCS} )
-  target_include_directories( authentication-server-objects PRIVATE
-    ${CMAKE_SOURCE_DIR}/extlib ${CMAKE_SOURCE_DIR}/source )
+  target_include_directories( authentication-server-objects PRIVATE ${CMAKE_SOURCE_DIR}/source )
+  target_link_libraries( authentication-server-objects PRIVATE nlohmann_json::nlohmann_json )
+  if( ENABLE_OIDC_AUTH )
+    target_link_libraries( authentication-server-objects PRIVATE jwt-cpp::jwt-cpp )
+  endif()
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
   if( ENABLE_TLS )
     target_link_libraries( authentication-server-objects PRIVATE OpenSSL::SSL LibXml2::LibXml2 )

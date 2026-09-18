@@ -62,7 +62,6 @@ include_directories(
   ${LIBXML2_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${fmt_SOURCE_DIR}/include
-  ${CMAKE_SOURCE_DIR}/extlib
   ${Boost_INCLUDE_DIRS}
 )
 
@@ -86,6 +85,10 @@ add_library( server-objects OBJECT
   ${HEADER_FILES}
 )
 target_link_libraries( server-objects PRIVATE fmt::fmt Boost::boost )
+if( ENABLE_OIDC_AUTH )
+  # handshake_auth.cpp and udaServer.cpp reach the auth headers, which use both.
+  target_link_libraries( server-objects PRIVATE nlohmann_json::nlohmann_json jwt-cpp::jwt-cpp )
+endif()
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp
@@ -93,6 +96,9 @@ add_library( fatserver-objects OBJECT
   ${HEADER_FILES}
 )
 target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
+if( ENABLE_OIDC_AUTH )
+  target_link_libraries( fatserver-objects PRIVATE nlohmann_json::nlohmann_json jwt-cpp::jwt-cpp )
+endif()
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ

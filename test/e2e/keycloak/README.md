@@ -14,9 +14,14 @@ developer machine or a CI runner. Never expose it, and never reuse the realm.
 
 ```sh
 docker compose up -d --build     # Keycloak + the dummy authorisation service
-./run_matrix.sh
+UDA_INSTALL=/path/to/install ./run_matrix.sh
 docker compose down
 ```
+
+`UDA_INSTALL` is an install prefix from a build with `-DENABLE_AUTH=ON`
+(`cmake --install`). Given one, the suite starts a real UDA server, drives real requests
+through it, and asserts on the audit log. Without one, the token and claim-policy groups
+still run and the connection group reports SKIP.
 
 `run_matrix.sh --list` shows the scenario groups without running them.
 
@@ -92,25 +97,58 @@ Exit status: `0` accepted, `2` refused (the UDA error code and reason are printe
 usage or internal error. `--allow-http` is needed only because this local rig serves plain
 HTTP; a real deployment must not set it.
 
-## Pointing a UDA server at the rig
+## Running a UDA server by hand
 
-Build with `-DENABLE_AUTH=ON`, then configure the server process:
+`run_matrix.sh` starts and stops a server itself, but it is often more useful to leave one
+running and poke at it.
 
 ```sh
-export UDA_SERVER_AUTHENTICATION=OIDC
-export UDA_SERVER_OIDC_ISSUER=http://127.0.0.1:8080/realms/uda-test
-export UDA_SERVER_OIDC_AUDIENCE=uda
-export UDA_SERVER_OIDC_REQUIRED_CLAIMS='groups:contains:/uda-users'
-export UDA_SERVER_OIDC_ALLOW_HTTP=1
-export UDA_ALLOW_TOKEN_WITHOUT_TLS=1   # this rig is plain HTTP on loopback
+./run_server.sh --install /path/to/install --port 56570 --mode oidc
 ```
 
-Then, from a client with alice's token exported, a normal request succeeds; with adam's it
-fails with UDA error 705 and a `OIDC_CLAIM_POLICY_FAILED` line in
-`refused_requests.log`.
+`server_env.sh` holds the configuration: it sources the installed `udaserver.cfg` and then
+layers the test overrides on top, which is how a deployment layers `machine.d` config over
+the defaults. `--mode none` starts the same server with no authentication, which is the
+baseline to reach for when something fails and you need to know whether the transport or
+the auth is at fault.
 
-Driving a real UDA server from `run_matrix.sh` is not yet scripted — the connection group
-reports SKIP. That is the next piece of work.
+Then, from another terminal:
+
+```sh
+export UDA_HOST=127.0.0.1 UDA_PORT=56570
+UDA_AUTH_TOKEN=$(./mint-token.sh alice) uda_connect_check   # OK
+UDA_AUTH_TOKEN=$(./mint-token.sh adam)  uda_connect_check   # REFUSED code=705
+uda_connect_check                                           # REFUSED code=700
+```
+
+`uda_connect_check --repeat N` issues N requests on one connection, which is the path that
+re-sends and re-decodes the client block, bearer token included.
+
+### Why there is an inetd shim
+
+The UDA server is not a daemon. It handles exactly one connection, on file descriptor 0,
+and exits; in production inetd or systemd socket activation arranges that. `inetd_shim.py`
+reproduces the same contract in about forty lines, because systemd is not available on
+macOS and because depending on it would make the suite unrunnable on a developer machine.
+
+The fork-per-connection shape is not a convenience. It is the model the server is written
+against, and several behaviours the suite asserts on depend on it: each refusal record
+naming its own `server_pid`, the audit log surviving across connections, and one
+authentication per connection.
+
+### What the connection group proves
+
+The offline tests verify tokens. This group verifies a system:
+
+- a protocol-11 handshake carrying the authentication block
+- the server-side OIDC gate, and that a refusal reaches the client as the documented
+  numeric code rather than a generic protocol failure
+- that a refusal is written to `refused_requests.log`, with the right reason code
+- that records from separate connections **accumulate**. The log is opened in append mode
+  precisely because the server forks per connection; a truncating open would let each new
+  connection erase its predecessor's evidence, and this assertion is what would catch that
+  regressing
+- that a successful connection leaves no refusal record
 
 ## The authorisation service
 

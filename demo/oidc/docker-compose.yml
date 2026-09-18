@@ -1,0 +1,64 @@
+# The whole demonstrator: an identity provider, a UDA server that trusts it, and a small
+# authorisation service.
+#
+#   cd demo/oidc
+#   docker compose up -d --build        (the first build takes a few minutes)
+#   ./demo.sh
+#
+# Everything is on loopback with fixed test credentials. It is a demonstrator; do not
+# expose it and do not copy its settings into a real deployment.
+
+name: uda-oidc-demo
+
+services:
+  keycloak:
+    build:
+      context: ../../test/e2e/keycloak
+    container_name: uda-demo-keycloak
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin-test-password
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && echo -e 'GET /realms/uda-test/.well-known/openid-configuration HTTP/1.1\\r\\nHost: 127.0.0.1\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q jwks_uri <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 15s
+
+  authz:
+    image: python:3.12-slim
+    container_name: uda-demo-authz
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - ../../test/e2e/keycloak/authz_server.py:/srv/authz_server.py:ro
+    environment:
+      AUTHZ_HOST: 0.0.0.0
+      AUTHZ_ALLOWED_CLAIM: preferred_username
+      AUTHZ_ALLOWED_VALUE: alice
+    command: ["python3", "/srv/authz_server.py"]
+
+  uda:
+    build:
+      context: ../..
+      dockerfile: demo/oidc/Dockerfile.uda-server
+    container_name: uda-demo-server
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    ports:
+      # Published on 56600 rather than UDA's default 56565, so the demonstrator can run
+      # alongside an existing UDA server on the same machine. Override with UDA_DEMO_PORT.
+      - "127.0.0.1:${UDA_DEMO_PORT:-56600}:56565"
+    environment:
+      # Tokens are minted from the host, so their `iss` says 127.0.0.1:8080 and the issuer
+      # configured here must match that string exactly. The keys, though, have to be
+      # fetched from somewhere this container can actually reach — hence the explicit
+      # JWKS URI pointing at the Keycloak service inside the compose network.
+      UDA_DEMO_ISSUER: http://127.0.0.1:8080/realms/uda-test
+      UDA_DEMO_JWKS_URI: http://keycloak:8080/realms/uda-test/protocol/openid-connect/certs
+      UDA_DEMO_AUDIENCE: uda
+      UDA_DEMO_POLICY: groups:contains:/uda-users
+      UDA_DEMO_AUTHZ_URL: http://authz:8765/authorize

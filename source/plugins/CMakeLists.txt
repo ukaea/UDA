@@ -60,7 +60,6 @@ add_definitions( -DSERVERBUILD )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/extlib
   ${LIBXML2_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
 )
@@ -86,6 +85,8 @@ set( HEADER_FILES
 )
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
+# udaPlugin.cpp reads verified JWT claims through claim_access, which uses nlohmann.
+target_link_libraries( plugins-objects PRIVATE nlohmann_json::nlohmann_json )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
 if( BUILD_SHARED_LIBS )
   add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
