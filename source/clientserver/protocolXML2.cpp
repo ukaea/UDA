@@ -126,7 +126,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
     if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {        // Intermediate XDR File, not stream
         if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
             // File to record XDR encoded data
-            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+            snprintf(tempFile, MAXPATH, "%s/idamXDRXXXXXX", env);
         }
     }
 

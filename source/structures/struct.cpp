@@ -218,7 +218,7 @@ void expandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* 
                 } else {
                     for (int j = 0; j < defCount; j++) {
                         if (!strcmp((char*)defnames[j], work)) {
-                            sprintf(work, " = %d]", defvalues[j]);   // Array size
+                            snprintf(work, STRING_LENGTH, " = %d]", defvalues[j]);   // Array size
                             strncat(expand, &p1[1], p2 - &p1[1]);
                             len = len + (int)(p2 - &p1[1]);
                             expand[len] = '\0';

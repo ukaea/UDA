@@ -291,12 +291,6 @@ install(
 
 install(
   DIRECTORY
-    ${CMAKE_BINARY_DIR}/lib/pkgconfig
-  DESTINATION lib
-)
-
-install(
-  DIRECTORY
     ${CMAKE_SOURCE_DIR}/source/etc/machine.d
   DESTINATION etc
 )

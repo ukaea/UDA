@@ -192,7 +192,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         char* env;
                         if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
                             // File to record XDR encoded data
-                            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+                            snprintf(tempFile, MAXPATH, "%s/idamXDRXXXXXX", env);
                         }
 
                         // Server calling another server

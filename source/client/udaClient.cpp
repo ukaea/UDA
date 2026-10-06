@@ -1422,14 +1422,6 @@ void idamFreeAll()
     idamFreeCache();
 #endif
 
-    for (int i = 0; i < acc_getCurrentDataBlockIndex(); ++i) {
-#ifndef FATCLIENT
-        freeDataBlock(getIdamDataBlock(i));
-#else
-        freeDataBlock(getIdamDataBlock(i));
-#endif
-    }
-
     acc_freeDataBlocks();
 
 #ifndef FATCLIENT

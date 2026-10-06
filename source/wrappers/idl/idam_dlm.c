@@ -2878,16 +2878,8 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     //fprintf(stdout,"data's get_bad          : %d\n", data_get_bad);
     //fprintf(stdout,"get_bad Client value    : %d\n", client_get_bad);
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
-        if (kw.verbose) {
-            fprintf(stdout,
-                    "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
-        }
-
-        IDL_KW_FREE;
-        restoreIdamProperties(cblock);
-        return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
-    }
+    // UKAEA issue #196: the get_bad property no longer blocks access to good data - bad data are
+    // returned only when get_bad is set, but good data are always returned (see accAPI.cpp)
 
     //--------------------------------------------------------------------------
     // Prepare return Structure: Size is Base Structure + Data Array Length
@@ -3291,16 +3283,8 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------
     // Check Status and BAD Property
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
-        if (kw.verbose) {
-            fprintf(stdout,
-                    "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
-        }
-
-        IDL_KW_FREE;
-        restoreIdamProperties(cblock);
-        return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
-    }
+    // UKAEA issue #196: the get_bad property no longer blocks access to good data - bad data are
+    // returned only when get_bad is set, but good data are always returned (see accAPI.cpp)
 
     //--------------------------------------------------------------------------
     // Return Data
@@ -3529,16 +3513,8 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------
     // Check Status and BAD Property
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
-        if (kw.verbose) {
-            fprintf(stdout,
-                    "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
-        }
-
-        IDL_KW_FREE;
-        restoreIdamProperties(cblock);
-        return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
-    }
+    // UKAEA issue #196: the get_bad property no longer blocks access to good data - bad data are
+    // returned only when get_bad is set, but good data are always returned (see accAPI.cpp)
 
     //--------------------------------------------------------------------------
     // Return Data
@@ -3919,16 +3895,8 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------
     // Check Status and BAD Property
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
-        if (kw.verbose) {
-            fprintf(stdout,
-                    "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
-        }
-
-        IDL_KW_FREE;
-        restoreIdamProperties(cblock);
-        return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
-    }
+    // UKAEA issue #196: the get_bad property no longer blocks access to good data - bad data are
+    // returned only when get_bad is set, but good data are always returned (see accAPI.cpp)
 
     //---------------------------------------------------------------------------
     // Check Rank
@@ -4258,16 +4226,8 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------
     // Check Status and BAD Property
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
-        if (kw.verbose) {
-            fprintf(stdout,
-                    "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
-        }
-
-        IDL_KW_FREE;
-        restoreIdamProperties(cblock);
-        return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
-    }
+    // UKAEA issue #196: the get_bad property no longer blocks access to good data - bad data are
+    // returned only when get_bad is set, but good data are always returned (see accAPI.cpp)
 
     //--------------------------------------------------------------------------
     // Check Rank

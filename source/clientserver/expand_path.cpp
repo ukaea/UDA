@@ -419,7 +419,7 @@ int linkReplacement(char* path)
     // If the user has embedded linux commands within the source string, they will be exposed here
     // within the client's environment - not the server's.
 
-    sprintf(cmd, "ls -l %s 2>&1;", path);
+    snprintf(cmd, STRING_LENGTH, "ls -l %s 2>&1;", path);
 
     errno = 0;
     if ((ph = popen(cmd, "r")) == nullptr) {
@@ -542,7 +542,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     */
 
 #ifdef SCRATCHDIR
-    sprintf(scratch, "/%s/", SCRATCHDIR);
+    snprintf(scratch, STRING_LENGTH, "/%s/", SCRATCHDIR);
     lscratch = (int)strlen(scratch);
 #else
     strcpy(scratch, "/scratch/");
@@ -558,7 +558,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     // Override compiler options
 
     if ((env = getenv("UDA_SCRATCHNAME")) != nullptr) {    // Check for Environment Variable
-        sprintf(scratch, "/%s/", env);
+        snprintf(scratch, STRING_LENGTH, "/%s/", env);
         lscratch = (int)strlen(scratch);
     }
 
@@ -647,7 +647,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if ((fp = strrchr(path, '/')) == nullptr) {        // Search backwards - extract filename
             strcpy(work1, path);
-            sprintf(path, "%s/%s", cwd, work1);        // prepend the CWD and return
+            snprintf(path, STRING_LENGTH, "%s/%s", cwd, work1);        // prepend the CWD and return
             if ((err = linkReplacement(path)) != 0) return err;
             if ((err = pathReplacement(path, environment)) != 0) return err;
 
@@ -759,7 +759,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         //! Prepend the expanded/resolved directory name to the File Name
 
-        sprintf(path, "%s/%s", work1, file);        // Prepend the path to the filename
+        snprintf(path, STRING_LENGTH, "%s/%s", work1, file);        // Prepend the path to the filename
 
     }    // End of t1 - t5 tests
 
@@ -793,13 +793,13 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
             }
 
             if (strlen(netname) > 0 && strlen(host) > 0) {
-                sprintf(path, "/%s/%s%s", netname, host, work);    // prepend /netname/hostname to /scratch/...
+                snprintf(path, STRING_LENGTH, "/%s/%s%s", netname, host, work);    // prepend /netname/hostname to /scratch/...
             } else {
                 if (strlen(netname) > 0) {
-                    sprintf(path, "/%s%s", netname, work);
+                    snprintf(path, STRING_LENGTH, "/%s%s", netname, work);
                 } else {
                     if (strlen(host) > 0) {
-                        sprintf(path, "/%s%s", host, work);
+                        snprintf(path, STRING_LENGTH, "/%s%s", host, work);
                     }
                 }
             }

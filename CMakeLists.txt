@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.0 )
+cmake_minimum_required( VERSION 3.5 )
 
 ########################################################################################################################
 # Macro used to convert Windows path to Unix
@@ -152,7 +152,7 @@ endif()
 ########################################################################################################################
 # Build options
 
-option( CLIENT_ONLY "Only build UDA client" OFF )
+option( CLIENT_ONLY "Only build UDA client" ON )
 option( SERVER_ONLY "Only build UDA server" OFF )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( NO_MEMCACHE "Do not attempt to build with libmemcached support" OFF )
@@ -225,6 +225,31 @@ if( WIN32 OR MINGW )
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
     DESTINATION lib
 	  FILES_MATCHING PATTERN "*xdr*"
+  )
+endif()
+
+########################################################################################################################
+# Installed-client consumer test
+#
+# Checks the installed libraries and pkg-config files the way a downstream
+# application uses them - see test/consumer/check_install.sh. It reports as
+# skipped until "cmake --install" has been run, so:
+#
+#   cmake --build <build> --target install && ctest --test-dir <build> -R consumer_install
+
+option( CONSUMER_TEST "Register a ctest test that checks the installed client against test/consumer" ON )
+
+if( CONSUMER_TEST AND NOT WIN32 )
+  enable_testing()
+
+  add_test(
+    NAME consumer_install
+    COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/test/consumer/check_install.sh ${CMAKE_INSTALL_PREFIX}
+  )
+
+  set_tests_properties( consumer_install
+    PROPERTIES
+      SKIP_RETURN_CODE 77
   )
 endif()
 

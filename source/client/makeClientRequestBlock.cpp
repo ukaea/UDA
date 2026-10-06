@@ -73,7 +73,7 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
             THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
         char* test = (char*)malloc((lstr + 1) * sizeof(char));
-        sprintf(test, "%s%s%s", environment->api_device, request->api_delim, request->source);
+        snprintf(test, (lstr + 1), "%s%s%s", environment->api_device, request->api_delim, request->source);
         strcpy(request->source, test);
         free(test);
     }
@@ -85,7 +85,7 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
             THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
         char* test = (char*)malloc((lstr + 1) * sizeof(char));
-        sprintf(test, "%s%s%s", environment->api_archive, request->api_delim, request->signal);
+        snprintf(test, (lstr+1), "%s%s%s", environment->api_archive, request->api_delim, request->signal);
         strcpy(request->signal, test);
         free(test);
     }

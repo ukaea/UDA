@@ -344,11 +344,12 @@ Notes: there are three pathways depending on the request pattern
 
     if (pathway == 1) {    // Request via the Database
 
-        char signal[2 * MAXNAME + 2];
-        char source[2 * MAXNAME + 2];
+        const auto lstr = 2 * MAXNAME + 2;
+        char signal[lstr];
+        char source[lstr];
 
-        sprintf(signal, "%s::%s", data_source->archive, signal_desc->signal_name);
-        sprintf(source, "%s::%d", data_source->device_name, data_source->exp_number);
+        snprintf(signal, lstr, "%s::%s", data_source->archive, signal_desc->signal_name);
+        snprintf(source, lstr, "%s::%d", data_source->device_name, data_source->exp_number);
 
         if (data_source->server[0] != '\0') {
             char* p = nullptr, * s = nullptr;

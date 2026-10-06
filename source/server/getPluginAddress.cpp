@@ -24,8 +24,9 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
     const char* plugin_dir = getenv("UDA_PLUGIN_DIR");
     char* full_path;
     if (plugin_dir != nullptr) {
-        full_path = (char*)malloc(strlen(plugin_dir) + strlen(library) + 2);
-        sprintf(full_path, "%s/%s", plugin_dir, library);
+        const auto lstr = strlen(plugin_dir) + strlen(library) + 2;
+        full_path = (char*)malloc(lstr);
+        snprintf(full_path, lstr, "%s/%s", plugin_dir, library);
     } else {
         full_path = strdup(library);
     }
