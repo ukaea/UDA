@@ -8,5 +8,7 @@ Name: UDA
 Description: The Universal Data Access library
 URL: http://www.iter.org/UDA
 Version: @PROJECT_VERSION@
-Cflags: -std=c++11 -I${includedir} -I${includedir}/c++
-Libs: -L${libdir} -luda_cpp @CACHE_LIBRARIES@
+Cflags: -std=c++11 -I${includedir} -I${includedir}/c++ @PKGCONFIG_INCLUDES@ @PKGCONFIG_CPP_INCLUDES@
+Libs: -L${libdir} -luda_cpp @CACHE_LIBRARIES@ @PKGCONFIG_LIBRARIES@
+Libs.private: @PKGCONFIG_LIBS_PRIVATE@
+Requires: @PKGCONFIG_REQUIRES@

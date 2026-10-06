@@ -2,6 +2,7 @@ from __future__ import (division, print_function, absolute_import)
 
 from ._data import Data
 
+import copy
 import json
 import numpy as np
 import base64
@@ -23,7 +24,7 @@ class VideoEncoder(json.JSONEncoder):
                 'data': {
                     '_encoding': 'base64',
                     '_dtype': data.dtype.name,
-                    'value': base64.urlsafe_b64encode(data.tostring()).decode()
+                    'value': base64.urlsafe_b64encode(data.tobytes()).decode()
                 },
             }
             return obj
@@ -85,3 +86,10 @@ class Video(Data):
 
     def jsonify(self, indent=None):
         raise NotImplementedError("jsonify has not been implement for Video objects")
+
+    def clone(self):
+        """
+        Return a deepcopy of a video object
+        """
+        return copy.deepcopy(self)
+

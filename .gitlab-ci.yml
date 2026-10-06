@@ -37,6 +37,15 @@ build_idl84:
     paths:
       - install_idl84/
 
+consumer:
+  stage: test
+  dependencies:
+    - build
+  script:
+    # check the installed client the way a downstream application uses it:
+    # pkg-config flags only, shared and static, C and C++
+    - CMAKE=cmake3 sh test/consumer/check_install.sh "$CI_PROJECT_DIR/install"
+
 .build_pyuda_template:
   stage: test
   dependencies:

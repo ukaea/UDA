@@ -242,6 +242,9 @@ void putIdamThreadLastHandle(int handle)
 
 void acc_freeDataBlocks()
 {
+    for (auto& data_block : data_blocks) {
+        freeDataBlock(&data_block);
+    }
     data_blocks.clear();
     putIdamThreadLastHandle(-1);
 }

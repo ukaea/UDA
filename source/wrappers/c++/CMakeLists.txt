@@ -138,17 +138,7 @@ if( BUILD_SHARED_LIBS )
   )
 endif()
 
-# pkg-config file
-configure_file(
-  ${CMAKE_SOURCE_DIR}/source/etc/uda-cpp.pc.in
-  ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
-  @ONLY
-)
-
-install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
-  DESTINATION modulefiles/uda
-)
-
+# pkg-config files (uda-cpp.pc, uda-fat-cpp.pc) are generated and installed to lib/pkgconfig by source/CMakeLists.txt
 
 if( NOT CLIENT_ONLY )
   set_target_properties( fat${LIB_NAME}-static
@@ -179,17 +169,6 @@ if( NOT CLIENT_ONLY )
       DESTINATION lib
     )
   endif()
-  
-  # pkg-config file
-  configure_file(
-    ${CMAKE_SOURCE_DIR}/source/etc/uda-fat-cpp.pc.in
-    ${CMAKE_BINARY_DIR}/etc/uda/uda-fat-cpp.pc
-    @ONLY
-  )
-  
-  install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-fat-cpp.pc
-    DESTINATION modulefiles/uda
-  )
 endif()
 
 set( INSTALL_FILES

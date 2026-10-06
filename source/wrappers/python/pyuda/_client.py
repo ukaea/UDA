@@ -10,6 +10,7 @@ from ._version import __version__
 
 from six import with_metaclass
 import logging
+import math
 from collections import defaultdict
 from collections.abc import Iterable
 import sys
@@ -22,8 +23,7 @@ except ImportError:
 
 
 class UdaSubclientDeprecationWarning(UserWarning):
-    def __init__(self, message):
-        super().__init__(UdaSubclientDeprecationWarning, message)
+    pass
 
 
 class UdaSubclientInterfaceError(cpyuda.UDAException):
@@ -88,6 +88,16 @@ class ClientMeta(type):
     @server.setter
     def server(cls, value):
         cpyuda.set_server_host_name(value)
+
+
+def _target(server, port, queue):
+    Client.port = port
+    Client.server = server
+    try:
+        result = cpyuda.get_data("help::help()", "")
+        queue.put(result.is_string())
+    except cpyuda.ServerException as ex:
+        print("cpyuda.ServerException: %s" % ex)
 
 
 class Client(with_metaclass(ClientMeta, object)):
@@ -218,18 +228,50 @@ class Client(with_metaclass(ClientMeta, object)):
                                                                type(subclient_instance).__name__))
         self._registered_subclients[method] = subclient_instance
 
-    def get_file(self, source_file, output_file=None):
+    def get_file(self, source_file, output_file=None, chunk_size=1):
         """
         Retrieve file using bytes plugin and write to file
-        :param source_file: the full path to the file
-        :param output_file: the name of the output file
+        :param str      source_file: the full path to the file
+        :param str|None output_file: the name of the output file
+        :param int      chunk_size: download chunk size in MB, set to 0 to download the file in one chunk
         :return:
         """
+        if chunk_size < 0:
+            raise ValueError("chunk_size must not be negative")
 
-        result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
+        # bytes::size() function won't exist in some old servers,
+        # check for compatible plugin version.
+        # automatic versioning was introduced for bytes plugin
+        # in release 2.8.1, this changed the return type from int to str
+        # (servers without a version function raise a ServerException)
+        try:
+            result = cpyuda.get_data("bytes::version()", "")
+            if not result.is_string():
+                chunk_size = 0
+        except cpyuda.ServerException:
+            chunk_size = 0
 
-        with open(output_file, 'wb') as f_out:
-            result.data().tofile(f_out)
+        if chunk_size:
+            from progress.bar import Bar
+            result = cpyuda.get_data("bytes::size(path={path})".format(path=source_file), "")
+            size = result.data()
+            chunk_size = int(chunk_size * 1024 * 1024)
+            count = 0
+            steps = math.ceil(size / chunk_size)
+            bar = Bar('Downloading', max=steps, suffix='%(percent)d%%')
+            with open(output_file, 'wb') as f_out:
+                while count < size:
+                    result = cpyuda.get_data("bytes::read(path={path}, max_bytes={max_bytes}, offset={offset}, /opaque)".format(path=source_file, max_bytes=chunk_size, offset=count), "")
+                    data = result.data()
+                    count += data.size
+                    data.tofile(f_out)
+                    bar.next()
+            print(flush=True)
+        else:
+            result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
+
+            with open(output_file, 'wb') as f_out:
+                result.data().tofile(f_out)
 
         return
 
@@ -243,7 +285,7 @@ class Client(with_metaclass(ClientMeta, object)):
         result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
 
         if sys.version_info[0] <= 2:
-            result_str = result.data().tostring()
+            result_str = result.data().tobytes()
         else:
             result_str = result.data().tobytes().decode('utf-8')
         return result_str
@@ -324,3 +366,27 @@ class Client(with_metaclass(ClientMeta, object)):
 
     def reset_connection(self):
         cpyuda.reset_connection()
+
+    @classmethod
+    def test_connection(cls, timeout=1):
+        import multiprocessing
+        queue = multiprocessing.Queue()
+        p = multiprocessing.Process(target=_target, args=(cls.server, cls.port, queue))
+        p.start()
+        p.join(timeout)
+        if p.is_alive():
+            p.terminate()
+            p.join()
+            raise TimeoutError("Connection test timed out after %1.2f seconds"
+                               % timeout)
+        if queue.empty():
+            return False
+        return queue.get()
+
+    @classmethod
+    def query_server_version(cls):
+        result = cpyuda.get_data("help::version()", "")
+        if not result.is_string():
+            warnings.warn("Server versions before 2.8.1 do not report their software version through this interface")
+            return None
+        return result.data()

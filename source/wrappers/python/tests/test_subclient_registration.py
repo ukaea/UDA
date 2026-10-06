@@ -93,9 +93,10 @@ def test_subclient_without_register_method_falls_back_to_legacy(monkeypatch):
     calls = []
     monkeypatch.setattr(pyuda.Client, "register_legacy_subclients", lambda self: calls.append(self))
     monkeypatch.setenv("UDA_SUBCLIENTS", "test_client.test_client.NoRegisterClient")
-    with pytest.warns(pyuda.UdaSubclientDeprecationWarning):
+    with pytest.warns(pyuda.UdaSubclientDeprecationWarning) as record:
         client = pyuda.Client()
     assert calls == [client]
+    assert str(record[0].message).startswith("WARNING: one of the subclient classes specified")
 
 
 def test_module_not_found_raised(monkeypatch):
