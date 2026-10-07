@@ -1842,14 +1842,14 @@ TEST_CASE( "Run plugin - call a plugin", "[plugins][TESTPLUGIN]" )
 
     auto str = std::string{ data };
 
-    std::string expected = "\n"
-            "Help\tList of HELP plugin functions:\n"
-            "\n"
-            "services()\tReturns a list of available services with descriptions\n"
-            "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
-            "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
+    std::string expected_header = "\nHelp\tList of HELP plugin functions:\n\n";
+    const std::string help = str;
 
-    REQUIRE( str == expected );
+    // the help text varies with build options (e.g. OIDC authentication), so check the stable parts
+    REQUIRE( help.find(expected_header) == 0 );
+    for (const char* line : {"services()", "ping()", "servertime()", "servermetadata()"}) {
+        REQUIRE( help.find(line) != std::string::npos );
+    }
 }
 
 TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGIN]" )
