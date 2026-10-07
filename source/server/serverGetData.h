@@ -13,5 +13,3 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                ACTIONS* actions_desc, ACTIONS* actions_sig, const PLUGINLIST* pluginlist,
                LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list,
                int protocolVersion, const uda::authentication::PayloadType& auth_payload);
-
-

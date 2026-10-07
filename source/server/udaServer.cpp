@@ -10,6 +10,9 @@
 #include <string>
 
 #include <authentication/oauth_authentication.h>
+#include <authentication/auth_error.h>
+#include <authentication/authLog.h>
+#include <common/uda_env_options.hpp>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/manageSockets.h>
@@ -26,15 +29,21 @@
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
 #include "getServerEnvironment.h"
+#ifdef OIDCAUTHENTICATION
+#  include "handshake_auth.h"
+#else
+#  include <string>
+#  include <unordered_map>
+namespace uda { namespace authentication {
+using PayloadType = std::unordered_map<std::string, std::string>;
+} }
+#endif
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
 #include "initPluginList.h"
-#include "authentication/oauth_authentication.h"
-#include "authentication/oauth_authentication.h"
-#include "authentication/oauth_authentication.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -43,6 +52,10 @@
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaServerSSL.h>
 #endif
+#include <ctime>
+
+#include <authentication/auth_session.h>
+#include <authentication/refusal_log.h>
 
 //--------------------------------------------------------------------------------------
 // static globals
@@ -80,13 +93,16 @@ static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_bloc
                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
                          uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
                          const unsigned int* total_datablock_size, int* server_timeout,
-                         const uda::authentication::PayloadType& auth_payload);
+                         const uda::authentication::PayloadType& auth_payload,
+                         const uda::authentication::AuthSession& auth_session);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                         ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                         XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
-                        int* server_tot_block_time, int* server_timeout, const uda::authentication::PayloadType& auth_payload);
+                        int* server_tot_block_time, int* server_timeout,
+                        const uda::authentication::PayloadType& auth_payload,
+                        const uda::authentication::AuthSession& auth_session);
 
 static int
 reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block, int trap1Err,
@@ -101,7 +117,9 @@ static int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_b
 #else
 static int
 handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
-                LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output, uda::authentication::PayloadType& auth_payload);
+                LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                uda::authentication::PayloadType& auth_payload,
+                uda::authentication::AuthSession& auth_session);
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -132,6 +150,7 @@ int udaServer(CLIENT_BLOCK client_block)
     io_data.server_timeout = &server_timeout;
 
     uda::authentication::PayloadType auth_payload;
+    uda::authentication::AuthSession auth_session;
 
     //-------------------------------------------------------------------------
     // Initialise the Error Stack & the Server Status Structure
@@ -157,7 +176,7 @@ int udaServer(CLIENT_BLOCK client_block)
 #else
     int server_closedown = 0;
     err = handshakeClient(&client_block, &server_block, &server_closedown, &log_struct_list, server_input,
-                          server_output, auth_payload);
+                          server_output, auth_payload, auth_session);
 #endif
 
     DATA_BLOCK_LIST data_block_list;
@@ -168,7 +187,8 @@ int udaServer(CLIENT_BLOCK client_block)
         int fatal = 0;
         doServerLoop(&request_block, &data_block_list, &client_block, &server_block, &metadata_block, &actions_desc,
                      &actions_sig, &fatal, cache, &log_struct_list, server_input, server_output,
-                     &total_datablock_size, &server_tot_block_time, &server_timeout, auth_payload);
+                     &total_datablock_size, &server_tot_block_time, &server_timeout, auth_payload,
+                     auth_session);
     }
 
     err = doServerClosedown(&client_block, &request_block, &data_block_list, server_tot_block_time, server_timeout);
@@ -385,7 +405,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
                   LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
-                  int* server_timeout, const uda::authentication::PayloadType& auth_payload)
+                  int* server_timeout, const uda::authentication::PayloadType& auth_payload,
+                  const uda::authentication::AuthSession& auth_session)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -396,6 +417,13 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     //       Pass Back and Await Client Instruction
 
     int err = 0;
+
+    // The client re-sends the CLIENT_BLOCK, bearer token included, on every request, and
+    // initClientBlock zeroes the authentication block. Release the previous request's
+    // decoded payload first — otherwise each request orphans up to
+    // MAX_AUTH_PAYLOAD_LENGTH for the lifetime of the connection.
+    free(client_block->authenticationBlock.payload);
+    client_block->authenticationBlock.payload = nullptr;
 
     initClientBlock(client_block, 0, "");
 
@@ -420,6 +448,37 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
         *fatal = 1;
         return err;
+    }
+
+    // The session is bounded by the token as well as by the connection: it lasts for the
+    // lifetime of the connection or the lifetime of the token, whichever is shorter.
+    //
+    // This is checked here, having just received the request, rather than before the
+    // server blocks waiting for one. The server can sit idle for minutes between
+    // requests, so a check made before the wait is a check against a time that has since
+    // passed — and it would serve one more request on an expired token.
+    //
+    // The expiry comes from the token verified at the handshake, not from whatever the
+    // client last sent: a later token is not decoded at all, let alone trusted.
+    if (auth_session.expired(std::time(nullptr))) {
+        AUTH_LOG(UDA_LOG_INFO,
+            "Auth: bearer token for this session has expired; closing the connection\n");
+        {
+            using namespace uda::authentication;
+            RefusalRecord rec;
+            rec.stage           = RefusalStage::OidcAuth;
+            rec.reason          = RefusalReason::OidcTokenExpired;
+            rec.uda_error_code  = UDA_AUTH_ERR_TOKEN_EXPIRED;
+            rec.message         = "Session token expired mid-connection; connection closed";
+            rec.peer            = get_peer_info(INETD_SOCKET_FD);
+            rec.client_version  = client_block->version;
+            rec.client_username = client_block->uid;
+            rec.token_error     = "expired";
+            record_refused_request(rec);
+        }
+        *server_closedown = 1;
+        UDA_THROW_ERROR(UDA_AUTH_ERR_TOKEN_EXPIRED,
+            "The bearer token for this session has expired; reconnect with a new token");
     }
 
     *server_timeout = client_block->timeout;         // User specified Server Lifetime
@@ -825,7 +884,8 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                  ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                  XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int* server_tot_block_time,
-                 int* server_timeout, const uda::authentication::PayloadType& auth_payload)
+                 int* server_timeout, const uda::authentication::PayloadType& auth_payload,
+                 const uda::authentication::AuthSession& auth_session)
 {
     int err = 0;
 
@@ -847,12 +907,20 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
                             data_block_list, fatal, &server_closedown, cache, log_struct_list, server_input,
-                            total_datablock_size, server_timeout, auth_payload);
+                            total_datablock_size, server_timeout, auth_payload, auth_session);
 
         // Reset server block time to zero so that we only kill the server after TIMEOUT minutes of inactivity
         *server_tot_block_time = 0;
 
         if (server_closedown) {
+            // A closedown carrying an error means the server is ending the session for a
+            // reason the client needs to know — an expired session token, say. Say so
+            // before closing, or the client sees only a dropped socket and reports
+            // "No Data waiting at Socket", which explains nothing.
+            if (err != 0) {
+                reportToClient(server_block, data_block_list, client_block, err, metadata_block,
+                               log_struct_list, server_input, server_output, total_datablock_size);
+            }
             break;
         }
 
@@ -964,6 +1032,8 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     fflush(nullptr);
 
     udaCloseLogging();
+    closeAuthLog();
+    uda::authentication::close_refusal_log();
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
@@ -1036,7 +1106,8 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 
 int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
                     LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
-                    uda::authentication::PayloadType& auth_payload)
+                    uda::authentication::PayloadType& auth_payload,
+                    uda::authentication::AuthSession& auth_session)
 {
     // Exchange version details - once only
 
@@ -1061,6 +1132,18 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
                              malloc_source)) != 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
+            {
+                using namespace uda::authentication;
+                RefusalRecord rec;
+                rec.stage          = RefusalStage::ClientBlock;
+                rec.reason         = RefusalReason::ClientBlockMalformed;
+                rec.uda_error_code = err;
+                rec.message        = "CLIENT_BLOCK XDR decode failure (Protocol 10)";
+                rec.peer           = get_peer_info(INETD_SOCKET_FD);
+                rec.client_version = client_block->version;
+                rec.decode_error   = "Protocol 10 Error";
+                record_refused_request(rec);
+            }
         }
 
         if (err == 0) {
@@ -1078,62 +1161,68 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
 
     if (err != 0) return err;
 
-    const char* auth = getenv("UDA_SERVER_AUTHENTICATION");
+    bool auth_failed = false;
+    int auth_err_code = 999;
 
-    if (auth != nullptr) {
-        if (std::string{auth} != "OAUTH") {
-            UDA_LOG(UDA_LOG_ERROR, "Invalid value for UDA_SERVER_AUTHENTICATION: %s\n", auth);
-            UDA_ADD_ERROR(999, "Invalid authorisation option set on server");
+#ifdef OIDCAUTHENTICATION
+    const char* auth_env = getenv("UDA_SERVER_AUTHENTICATION");
+    if (auth_env != nullptr) {
+        const auto gate = uda::server::check_oidc_client_auth(client_block, auth_env);
+        if (gate.failed) {
+            UDA_ADD_ERROR(gate.error_code, gate.message.c_str());
             concatUdaError(&server_block->idamerrorstack);
+            auth_failed   = true;
+            auth_err_code = gate.error_code;
         } else {
-            if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
-                std::string token{
-                    reinterpret_cast<const char*>(client_block->authenticationBlock.payload),
-                    client_block->authenticationBlock.payload_length
-                };
-                try {
-                    auth_payload = uda::authentication::authenticate(token);
-                } catch (const std::exception& e) {
-                    UDA_LOG(UDA_LOG_ERROR, "Client Block authentication failed: %s\n", e.what());
-                    UDA_ADD_ERROR(999, "Failed to authenticate");
-                    concatUdaError(&server_block->idamerrorstack);
-                }
+            auth_payload = gate.auth_payload;
+            // The session lasts for the connection or the token, whichever is shorter.
+            auth_session = uda::authentication::make_auth_session(
+                auth_payload, uda::authentication::OidcConfig::from_env().clock_skew_seconds);
+            const long remaining = auth_session.seconds_remaining(std::time(nullptr));
+            if (remaining >= 0) {
+                AUTH_LOG(UDA_LOG_INFO,
+                    "Auth: session authenticated; token expires in %lds, connection will close then\n",
+                    remaining);
             } else {
-                UDA_LOG(UDA_LOG_ERROR, "No token received\n");
-                UDA_ADD_ERROR(999, "No authorisation token provided");
-                concatUdaError(&server_block->idamerrorstack);
+                AUTH_LOG(UDA_LOG_INFO,
+                    "Auth: session authenticated; token carries no expiry, session bounded by the connection\n");
             }
         }
+        // Free the XDR-decoded payload regardless of auth outcome. From here the token has
+        // served its purpose: the session runs on the claims just verified, and later
+        // copies arriving with each request are dropped without being decoded at all.
+        if (client_block->authenticationBlock.authentication_type == UDA_AUTHENTICATION_OAUTH) {
+            free(client_block->authenticationBlock.payload);
+            client_block->authenticationBlock.payload = nullptr;
+        }
+        udaDiscardAuthenticationPayload(true);
     }
+#endif
 
-    // Flush (mark as at EOF) the input socket buffer (not all client state data may have been read - version dependent)
-
-    // Protocol Version: Lower of the client and server version numbers
-    // This defines the set of elements within data structures passed between client and server
-    // Must be the same on both sides of the socket
-    // set in xdr_client
-
-    //protocolVersion = serverVersion;
-    //if(client_block.version < serverVersion) protocolVersion = client_block.version;
-    //if(client_block.version < server_block.version) protocolVersion = client_block.version;
-
-    // Send the server block
+    // Send the server block (with any auth errors included so the client knows why)
 
     UDA_LOG(UDA_LOG_DEBUG, "Sending Initial Server Block \n");
     printServerBlock(*server_block);
 
-    int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;        // Receive Server Block: Server Aknowledgement
+    int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                          server_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
         UDA_THROW_ERROR(err, "Protocol 11 Error (Server Block #1)");
     }
 
-    if (!xdrrec_endofrecord(server_output, 1)) {    // Send data now
+    if (!xdrrec_endofrecord(server_output, 1)) {
         UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Initial Server Block sent without error\n");
+
+    // Auth failure: signal server_closedown so the caller skips the request loop.
+    // The client has already received the stable error code in the server block above.
+    if (auth_failed) {
+        *server_closedown = 1;
+        return auth_err_code;
+    }
 
     // If the protocol version is legacy (<=6), then divert full control to a legacy server
 
@@ -1173,12 +1262,35 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
     // Identify the authenticated user for service authorisation
 
     putUdaServerSSLSocket(0);
-    
+
     int err = 0;
     if ((err = startUdaServerSSL()) != 0) {
         return err;
     }
 
+#else
+    // Server was not compiled with SSL support.  Fail early if the operator has set TLS env vars —
+    // without this check the client sends a TLS ClientHello, the server tries to parse it as an
+    // XDR record mark (~369 MB length field), and both sides hang until timeout with no
+    // intelligible error message.
+    {
+        using namespace uda::common::env_config;
+        const bool mode_requests_tls = match_custom_values("UDA_SERVER_TLS_MODE", {"server", "mutual"});
+        const bool legacy_on         = evaluate_bool_param("UDA_SERVER_SSL_AUTHENTICATE", false);
+
+        if (mode_requests_tls || legacy_on) {
+            const char* mode_var = std::getenv("UDA_SERVER_TLS_MODE");
+            char msg[512];
+            snprintf(msg, sizeof(msg),
+                "TLS requested by %s=%s but this UDA server was built without SSLAUTHENTICATION. "
+                "Rebuild with SSLAUTHENTICATION enabled or set UDA_SERVER_TLS_MODE=off.",
+                mode_var ? "UDA_SERVER_TLS_MODE" : "UDA_SERVER_SSL_AUTHENTICATE",
+                mode_var ? mode_var : std::getenv("UDA_SERVER_SSL_AUTHENTICATE"));
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, msg);
+            UDA_LOG(UDA_LOG_ERROR, "%s\n", msg);
+            return 999;
+        }
+    }
 #endif
 
     //-------------------------------------------------------------------------

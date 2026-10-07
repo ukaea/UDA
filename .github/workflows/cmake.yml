@@ -85,10 +85,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: >
           sudo apt install -y wget gpg ca-certificates &&
-          wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB 
-          | gpg --dearmor 
+          wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          | gpg --dearmor
           | sudo tee /usr/share/keyrings/intel-oneapi-archive-keyring.gpg > /dev/null &&
-          echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" 
+          echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main"
           | sudo tee /etc/apt/sources.list.d/oneAPI.list &&
           sudo apt-get update &&
           sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp
@@ -145,7 +145,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: >
           source /opt/intel/oneapi/setvars.sh &&
-          CC="$(command -v icx)" CXX="$(command -v icpx)" 
+          CC="$(command -v icx)" CXX="$(command -v icpx)"
           cmake -G Ninja -B build-intel
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
@@ -221,6 +221,13 @@ jobs:
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'
 
+      # Unit tests run on both ssl=ON and ssl=OFF. The authentication suites are only
+      # configured when ENABLE_OIDC_AUTH is on, which only happens on the ssl=ON job, so
+      # gating this on ssl=OFF alone means they never run at all.
+      - name: Run unit tests
+        if: matrix.os == 'ubuntu-latest'
+        run: ctest -V --test-dir build/test/unit_tests --output-on-failure
+
       - name: Run non-SSL system tests
         if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'OFF'
         run: >
@@ -233,11 +240,12 @@ jobs:
           export UDA_HOST=localhost &&
           export UDA_PORT=56565 &&
           ./build/test/plugins/plugin_test_testplugin &&
-          ctest -V --test-dir build/test/unit_tests --output-on-failure &&
           uda_cli --help && uda_cli --request "help::help()"
 
+      # NB: this was previously gated on ubuntu-22.04, which is not in the matrix, so the
+      # step never ran. The matrix uses ubuntu-latest.
       - name: Run SSL system tests
-        if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
         run: |
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system
           sudo chown -R $USER:$USER /usr/local/etc
@@ -261,9 +269,38 @@ jobs:
           export UDA_CLIENT_SSL_AUTHENTICATE=ON
           ./build/test/plugins/plugin_test_testplugin
 
+      # The OIDC end-to-end suite: a disposable Keycloak, real tokens, a real UDA server.
+      # It is the only thing that checks UDA against an actual identity provider rather
+      # than against generated keys and mock fetchers.
+      - name: Run OIDC end-to-end tests
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
+        run: |
+          cd test/e2e/keycloak
+          docker compose up -d --build
+          # Wait for the realm to be served, not merely for the container to start.
+          for i in $(seq 1 60); do
+            if curl -fsS --max-time 3 \
+                 http://127.0.0.1:8080/realms/uda-test/.well-known/openid-configuration \
+                 > /dev/null 2>&1; then
+              echo "keycloak ready after ${i} attempts"; break
+            fi
+            sleep 5
+          done
+          cd "$GITHUB_WORKSPACE"
+          cmake --install build --prefix "$GITHUB_WORKSPACE/e2e-install"
+          UDA_INSTALL="$GITHUB_WORKSPACE/e2e-install" \
+          UDA_TOKEN_CHECK="$GITHUB_WORKSPACE/build/test/e2e/keycloak/uda_token_check" \
+          UDA_CONNECT_CHECK="$GITHUB_WORKSPACE/build/test/e2e/keycloak/uda_connect_check" \
+            ./test/e2e/keycloak/run_matrix.sh
+
+      - name: Collect end-to-end logs on failure
+        if: failure() && matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
+        run: |
+          cd test/e2e/keycloak
+          docker compose logs --tail 100 || true
+
 #      - name: Test
 #        working-directory: build
 #        # Execute tests defined by the CMake configuration.
 #        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
 #        run: ctest -C ${{ matrix.release }}
-

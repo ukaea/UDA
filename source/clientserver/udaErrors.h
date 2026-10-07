@@ -139,4 +139,23 @@
 #define IDA_ERROR_RETURNING_DIMENSION_UNITS     112
 #define IDA_ERROR_RETURNING_DIMENSION_VALUES    113
 
+//-------------------------------------------------------
+// Authentication and TLS error codes
+
+#define UDA_AUTH_ERR_MISSING_TOKEN              700
+#define UDA_AUTH_ERR_INVALID_CONFIG             701
+#define UDA_AUTH_ERR_DISCOVERY_FAILED           702
+#define UDA_AUTH_ERR_JWKS_FETCH                 703
+#define UDA_AUTH_ERR_INVALID_TOKEN              704
+#define UDA_AUTH_ERR_CLAIM_POLICY               705
+// 706-708 distinguish the three token rejections an operator can act on, and which
+// would otherwise be indistinguishable from a bad signature (704).
+#define UDA_AUTH_ERR_TOKEN_EXPIRED              706
+#define UDA_AUTH_ERR_TOKEN_BAD_ISSUER           707
+#define UDA_AUTH_ERR_TOKEN_BAD_AUDIENCE         708
+
+#define UDA_TLS_ERR_CONFIG                      710
+#define UDA_TLS_ERR_HANDSHAKE                   711
+#define UDA_TLS_ERR_HOSTNAME_MISMATCH           712
+
 #endif // UDA_CLIENTSERVER_UDAERRORS_H

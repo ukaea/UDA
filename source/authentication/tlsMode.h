@@ -6,7 +6,6 @@
 #include <string>
 #include <string_view>
 
-#include <clientserver/errorLog.h>
 
 enum class TlsMode {
     Off,
@@ -27,9 +26,16 @@ inline std::string normalise_tls_mode(std::string_view mode)
     return value;
 }
 
-inline TlsMode parseTlsMode(const char* var_name, const char* value)
+// Parse a TLS mode string. An unrecognised value yields Off; whether the value was valid
+// in the first place is answered by isValidTlsModeEnv, and reported by the boundary.
+//
+// This deliberately does not touch the UDA error stack. It is policy code — the layer
+// that decides what a string means — and pushing an error from here would report a
+// problem at a point that cannot also decide what to do about it. The boundary functions
+// (startUdaServerSSL, initUdaClientSSL) do both, together.
+inline TlsMode parseTlsMode(const char* value) noexcept
 {
-    const std::string mode = normalise_tls_mode(value);
+    const std::string mode = normalise_tls_mode(value == nullptr ? "" : value);
     if (mode == "off") {
         return TlsMode::Off;
     }
@@ -39,9 +45,6 @@ inline TlsMode parseTlsMode(const char* var_name, const char* value)
     if (mode == "mutual") {
         return TlsMode::Mutual;
     }
-
-    std::string msg = std::string("Invalid ") + var_name + " value '" + value + "'; expected off, server, or mutual";
-    UDA_ADD_ERROR(999, msg.c_str());
     return TlsMode::Off;
 }
 
@@ -53,7 +56,7 @@ inline bool isTlsModeSet(const char* var_name)
 inline TlsMode getTlsMode(const char* mode_var, const char* legacy_auth_var)
 {
     if (const char* mode = std::getenv(mode_var)) {
-        return parseTlsMode(mode_var, mode);
+        return parseTlsMode(mode);
     }
 
     const char* legacy = std::getenv(legacy_auth_var);
@@ -75,6 +78,25 @@ inline TlsMode getClientTlsMode()
     return getTlsMode("UDA_CLIENT_TLS_MODE", "UDA_CLIENT_SSL_AUTHENTICATE");
 }
 
+inline const char* tlsModeStr(TlsMode mode)
+{
+    switch (mode) {
+        case TlsMode::Off:        return "off";
+        case TlsMode::ServerOnly: return "server-only";
+        case TlsMode::Mutual:     return "mutual";
+    }
+    return "unknown";
+}
+
+// The message a boundary should report when isValidTlsModeEnv says no. Naming the
+// offending value is the whole point of the diagnostic.
+inline std::string tlsModeErrorMessage(const char* var_name)
+{
+    const char* value = std::getenv(var_name);
+    return std::string("Invalid ") + var_name + " value '" + (value == nullptr ? "" : value)
+         + "'; expected off, server, or mutual";
+}
+
 inline bool isValidTlsModeEnv(const char* var_name)
 {
     const char* value = std::getenv(var_name);
@@ -84,4 +106,15 @@ inline bool isValidTlsModeEnv(const char* var_name)
 
     const std::string mode = normalise_tls_mode(value);
     return mode == "off" || mode == "server" || mode == "mutual";
+}
+
+
+// UDA_CLIENT_TLS_VERIFY_HOSTNAME: default enabled (1).
+// Disable with =0 to skip hostname verification (logs a warning).
+inline bool clientTlsVerifyHostname()
+{
+    const char* v = std::getenv("UDA_CLIENT_TLS_VERIFY_HOSTNAME");
+    if (!v) return true; // secure default
+    const std::string s = normalise_tls_mode(v);
+    return s != "0" && s != "false" && s != "no" && s != "off";
 }

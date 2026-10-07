@@ -16,6 +16,7 @@
 #include <string>
 #include <cstring>
 
+#include "authentication/claim_access.h"
 #include "authentication/oauth_authentication.h"
 
 IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
@@ -350,11 +351,57 @@ int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE typ
  * @return the value found in the auth payload or nullptr if not found
  */
 const char* authPayloadValue(const char* key, const IDAM_PLUGIN_INTERFACE* plugin_interface) {
+    if (!plugin_interface || !plugin_interface->auth_payload || !plugin_interface->auth_payload->auth_payload) {
+        return nullptr;
+    }
     const auto& payload = plugin_interface->auth_payload->auth_payload;
     if (payload->count(key) == 0) {
         return nullptr;
     }
     return payload->at(key).c_str();
+}
+
+namespace {
+
+// The verified claim map for this request, or nullptr if this invocation path carries no
+// authenticated token.
+const uda::authentication::ClaimMap* claims_of(const IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    if (!plugin_interface || !plugin_interface->auth_payload) {
+        return nullptr;
+    }
+    return plugin_interface->auth_payload->auth_payload;
+}
+
+} // anonymous namespace
+
+const char* authPayloadPath(const char* path, const IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    // Stable buffer for the returned C string — valid until the next call on this process.
+    // Safe because the UDA server handles exactly one client connection per process.
+    static std::string result_buf;
+
+    const auto* payload = claims_of(plugin_interface);
+    if (!payload || !path || !path[0]) {
+        return nullptr;
+    }
+
+    const auto value = uda::authentication::resolve_claim(*payload, path);
+    if (!value) {
+        return nullptr;
+    }
+    result_buf = *value;
+    return result_buf.c_str();
+}
+
+bool authPayloadContains(const char* key, const char* value,
+                         const IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    const auto* payload = claims_of(plugin_interface);
+    if (!payload || !key || !value) {
+        return false;
+    }
+    return uda::authentication::claim_contains(*payload, key, value);
 }
 
 /**
