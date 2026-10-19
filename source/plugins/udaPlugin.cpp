@@ -15,6 +15,7 @@
 #include <regex>
 #include <string>
 #include <cstring>
+#include <nlohmann/json.hpp>
 
 #include "authentication/claim_access.h"
 #include "authentication/oauth_authentication.h"
@@ -374,6 +375,23 @@ const uda::authentication::ClaimMap* claims_of(const IDAM_PLUGIN_INTERFACE* plug
 }
 
 } // anonymous namespace
+
+const char* authPayloadJSONString(const IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    // Stable buffer for the returned C string — valid until the next call on this process.
+    // Safe because the UDA server handles exactly one client connection per process.
+    static std::string result_buf;
+
+    const auto* payload = claims_of(plugin_interface);
+    if (!payload) {
+        return nullptr;
+    }
+
+    auto json = nlohmann::json{*payload};
+    result_buf = json.dump();
+
+    return result_buf.c_str();
+}
 
 const char* authPayloadPath(const char* path, const IDAM_PLUGIN_INTERFACE* plugin_interface)
 {

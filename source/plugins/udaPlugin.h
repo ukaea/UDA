@@ -52,6 +52,9 @@ LIBRARY_API const char* authPayloadValue(const char* key, const IDAM_PLUGIN_INTE
 // Returns nullptr if any path segment is missing or a type mismatch occurs.
 LIBRARY_API const char* authPayloadPath(const char* path, const IDAM_PLUGIN_INTERFACE* plugin_interface);
 
+// Return the full JWT payload as a JSON encoded string.
+LIBRARY_API const char* authPayloadJSONString(const IDAM_PLUGIN_INTERFACE* plugin_interface);
+
 // Return true if the claim at `path` contains `value` as a member.
 // JSON-array claims (e.g. realm_access.roles) are tested for element membership;
 // anything else is treated as a whitespace-delimited token list, which covers `scope`.

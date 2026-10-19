@@ -8,6 +8,7 @@
 // only one place where UDA's HTTP timeout, redirect and error policy is defined.
 
 #include <string>
+#include <nlohmann/json_fwd.hpp>
 
 namespace uda {
 namespace authentication {
@@ -27,6 +28,10 @@ struct HttpGetOptions {
 // Throws AuthError(InvalidConfig) for a rejected scheme and AuthError(JwksFetchFailed)
 // for a network or HTTP failure.
 std::string http_get(const std::string& url, const HttpGetOptions& opts = {});
+std::string http_put(
+    const std::string& url,
+    const nlohmann::json& payload,
+    const HttpGetOptions& opts = {});
 
 } // namespace authentication
 } // namespace uda

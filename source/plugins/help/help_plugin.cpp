@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <nlohmann/json.hpp>
 
 #ifdef __GNUC__
 
@@ -384,10 +385,10 @@ static int do_authorisation_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
                                    "HELP authorisation check");
     }
 
-    const char* claim_name = getenv("UDA_HELP_AUTHZ_CLAIM");
-    if (!claim_name || !claim_name[0]) {
-        claim_name = "preferred_username";
-    }
+    // const char* claim_name = getenv("UDA_HELP_AUTHZ_CLAIM");
+    // if (!claim_name || !claim_name[0]) {
+    //     claim_name = "preferred_username";
+    // }
 
     const char* expected = getenv("UDA_HELP_AUTHZ_EXPECT");
     if (!expected || !expected[0]) {
@@ -396,11 +397,11 @@ static int do_authorisation_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     // authPayloadPath supports dot-path notation (e.g. "realm_access.roles[0]")
     // and falls back to a flat key lookup for simple claim names.
-    const char* claim_value = authPayloadPath(claim_name, plugin_interface);
-    if (!claim_value || !claim_value[0]) {
-        return setReturnDataString(data_block, "unauthorised: claim not found in token",
-                                   "HELP authorisation check");
-    }
+    // const char* claim_value = authPayloadPath(claim_name, plugin_interface);
+    // if (!claim_value || !claim_value[0]) {
+    //     return setReturnDataString(data_block, "unauthorised: claim not found in token",
+    //                                "HELP authorisation check");
+    // }
 
     // URL-encode the claim name and value so they are safe as query parameters.
     // curl_easy_escape requires a handle but does not perform any network operation.
@@ -409,13 +410,31 @@ static int do_authorisation_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
         return setReturnDataString(data_block, "unauthorised: curl init failed",
                                    "HELP authorisation check");
     }
-    char* escaped_name  = curl_easy_escape(tmp, claim_name,  0);
-    char* escaped_value = curl_easy_escape(tmp, claim_value, 0);
-    const std::string auth_url = std::string{base_url}
-                                + "?claim=" + (escaped_name  ? escaped_name  : claim_name)
-                                + "&value=" + (escaped_value ? escaped_value : claim_value);
-    curl_free(escaped_name);
-    curl_free(escaped_value);
+    // char* escaped_name  = curl_easy_escape(tmp, claim_name,  0);
+    // char* escaped_value = curl_easy_escape(tmp, claim_value, 0);
+    // const std::string auth_url = std::string{base_url}
+    //                             + "?claim=" + (escaped_name  ? escaped_name  : claim_name)
+    //                             + "&value=" + (escaped_value ? escaped_value : claim_value);
+    // curl_free(escaped_name);
+    // curl_free(escaped_value);
+
+
+    // Endpoint for AuthZEN Access Evaluation
+    const std::string auth_url = std::string{base_url} + "/access/v1";
+
+    const char* email = authPayloadPath("email", plugin_interface);
+    char* escaped_email  = curl_easy_escape(tmp, email,  0);
+    const auto* claims_json_string = authPayloadJSONString(plugin_interface);
+    auto claims_json = nlohmann::json::parse(claims_json_string);
+
+    nlohmann::json authzen_access_request = {
+        { "subject", { {  "type", "user" }, { "id", escaped_email } } },
+        { "resource", { { "type", "IDS" }, { "id", "summary" } } },
+        { "action", { "name", "can_read" } },
+        { "content", { "claims", claims_json } },
+    };
+
+    curl_free(escaped_email);
     curl_easy_cleanup(tmp);
 
     // The authorisation service is a local, deployment-private endpoint, so it is
@@ -429,7 +448,7 @@ static int do_authorisation_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     std::string response;
     try {
-        response = uda::authentication::http_get(auth_url, opts);
+        response = uda::authentication::http_put(auth_url, authzen_access_request, opts);
     } catch (const std::exception& e) {
         UDA_LOG(UDA_LOG_ERROR, "HELP::authorise: authorisation service error: %s\n", e.what());
         return setReturnDataString(data_block, "unauthorised: authorisation service error",
