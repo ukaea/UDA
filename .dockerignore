@@ -1,0 +1,19 @@
+# Build and install trees. These must never enter a build context: a CMakeCache.txt
+# carrying host paths makes an in-container configure fail outright, and they are large.
+build/
+build-*/
+install/
+install-*/
+_deps/
+.cache/
+
+.git/
+.github/
+.claude/
+
+# Local scratch
+*.patch
+*.log
+temp
+tmp
+venv/

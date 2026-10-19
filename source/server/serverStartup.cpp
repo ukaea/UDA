@@ -8,6 +8,8 @@
 #include <clientserver/errorLog.h>
 
 #include "getServerEnvironment.h"
+#include <authentication/authLog.h>
+#include <authentication/refusal_log.h>
 
 int startup()
 {
@@ -73,6 +75,16 @@ int startup()
             udaSetLogFile(UDA_LOG_INFO, dbgout);
         }
     }
+
+    // auth.log is diagnostic, so it follows the debug log level.
+    if (environment->loglevel < UDA_LOG_NONE) {
+        openAuthLog(environment->logdir, environment->logmode);
+    }
+
+    // refused_requests.log is an audit trail, not a log level. It is opened regardless of
+    // UDA_LOG, so that turning down debug logging in production does not silently switch
+    // off the record of refused connections. It appends; it is never truncated.
+    uda::authentication::open_refusal_log(environment->logdir);
 
     printServerEnvironment(environment);
 

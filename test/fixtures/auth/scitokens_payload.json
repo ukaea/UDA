@@ -1,0 +1,15 @@
+{
+  "_comment": "Representative decoded payload for a SciTokens 2.0 / WLCG Token Profile provider.",
+  "_comment_timing": "exp/iat/nbf are not included — TokenBuilder sets them at test runtime.",
+
+  "iss": "https://scitokens.example",
+  "aud": "uda",
+  "sub": "alice",
+
+  "scope": "read:/uda write:/uda compute.read",
+
+  "wlcg.ver": "1.0",
+  "wlcg.groups": ["/uda", "/uda/ops", "/atlas"],
+
+  "jti": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}

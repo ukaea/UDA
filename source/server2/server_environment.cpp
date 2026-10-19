@@ -47,12 +47,14 @@ uda::server::Environment::Environment()
 
     // Log Output Write Mode
 
-    strcpy(environment_.logmode, "w");                    // Write & Replace Mode
+    // Append, not truncate — see the note in server/getServerEnvironment.cpp.
+    // UDA_LOG_MODE=w restores the old truncating behaviour.
+    strcpy(environment_.logmode, "a");
     if ((env = getenv("UDA_LOG_MODE")) != nullptr) {
-        if (env[0] == 'a' && strlen(env) == 1) {
-            environment_.logmode[0] = 'a';
+        if (env[0] == 'w' && strlen(env) == 1) {
+            environment_.logmode[0] = 'w';
         }
-    }    // Append Mode
+    }
 
     //-------------------------------------------------------------------------------------------
     // API Defaults

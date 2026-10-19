@@ -1,0 +1,40 @@
+# Brings up the whole local test rig: a disposable Keycloak with the uda-test realm,
+# and the dummy authorisation service that HELP::authorise() calls.
+#
+#   docker compose up -d --build
+#   ./run_matrix.sh
+#   docker compose down
+#
+# Everything here is bound to loopback and uses fixed, well-known test credentials.
+# It is for a developer machine or a CI runner. Never expose it.
+
+services:
+  keycloak:
+    build: .
+    container_name: uda-test-keycloak
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin-test-password
+    healthcheck:
+      # The realm's discovery document answering is the signal that the import finished
+      # and the realm is actually serving.
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && echo -e 'GET /realms/uda-test/.well-known/openid-configuration HTTP/1.1\\r\\nHost: 127.0.0.1\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q jwks_uri <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 15s
+
+  authz:
+    image: python:3.12-slim
+    container_name: uda-test-authz
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - ./authz_server.py:/srv/authz_server.py:ro
+    environment:
+      AUTHZ_HOST: 0.0.0.0
+      AUTHZ_ALLOWED_CLAIM: preferred_username
+      AUTHZ_ALLOWED_VALUE: alice
+    command: ["python3", "/srv/authz_server.py"]

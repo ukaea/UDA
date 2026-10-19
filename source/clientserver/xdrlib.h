@@ -30,6 +30,11 @@ int wrap_string(XDR* xdrs, char* sp);
 int WrapXDRString(XDR* xdrs, const char* sp, int maxlen);
 
 bool_t xdr_authentication_block(XDR* xdrs, AUTHENTICATION_BLOCK* str);
+
+// Server only. After the handshake the token has already been verified and the session
+// runs on the claims from that verification, so subsequent copies are read off the wire
+// and dropped without being allocated or parsed. See the note in xdrlib.cpp.
+void udaDiscardAuthenticationPayload(bool discard);
 bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str);
 bool_t xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str);
 bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str);

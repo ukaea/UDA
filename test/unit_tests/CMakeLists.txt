@@ -8,3 +8,4 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable( Catch2 )
 add_subdirectory( common )
+add_subdirectory( authentication )

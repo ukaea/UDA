@@ -24,14 +24,15 @@ TEST_CASE( "Test HELP::help() function", "[HELP][plugins]" )
 
     REQUIRE( str != nullptr );
 
-    std::string expected =
-            "\nHelp\tList of HELP plugin functions:\n"
-            "\n"
-            "services()\tReturns a list of available services with descriptions\n"
-            "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
-            "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
+    std::string expected_header = "\nHelp\tList of HELP plugin functions:\n\n";
 
-    REQUIRE( str->str() == expected );
+    const std::string help = str->str();
+
+    // the help text varies with build options (e.g. OIDC authentication), so check the stable parts
+    REQUIRE( help.find(expected_header) == 0 );
+    for (const char* line : {"services()", "ping()", "servertime()", "servermetadata()"}) {
+        REQUIRE( help.find(line) != std::string::npos );
+    }
 }
 
 TEST_CASE( "Test HELP::services() function", "[HELP][plugins]" )

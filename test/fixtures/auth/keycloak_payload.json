@@ -1,0 +1,31 @@
+{
+  "_comment": "Representative decoded payload for a Keycloak OIDC provider.",
+  "_comment_timing": "exp/iat/nbf/auth_time are not included — TokenBuilder sets them at test runtime.",
+
+  "iss": "https://keycloak.example/realms/test",
+  "aud": "uda",
+  "sub": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "azp": "uda-client",
+  "preferred_username": "alice",
+  "email": "alice@example.com",
+  "email_verified": true,
+  "name": "Alice Smith",
+  "given_name": "Alice",
+  "family_name": "Smith",
+
+  "realm_access": {
+    "roles": ["uda-user", "offline_access", "uma_authorization"]
+  },
+
+  "resource_access": {
+    "uda-client": {
+      "roles": ["data-read", "data-write"]
+    },
+    "account": {
+      "roles": ["manage-account", "view-profile"]
+    }
+  },
+
+  "scope": "openid profile email",
+  "typ": "Bearer"
+}

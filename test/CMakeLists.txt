@@ -160,6 +160,9 @@ endmacro( BUILD_TEST )
 add_subdirectory( plugins )
 # add_subdirectory( imas )
 add_subdirectory( unit_tests )
+if( NOT CLIENT_ONLY )
+  add_subdirectory( e2e/keycloak )
+endif()
 
 add_definitions( -D__USE_XOPEN2K8 )
 

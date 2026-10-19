@@ -1,0 +1,77 @@
+# A UDA server with OIDC bearer-token authentication, built from this checkout.
+#
+# Built for the demonstrator in this directory: it runs in the foreground under a small
+# socket supervisor, so it needs neither inetd nor systemd and behaves the same on any
+# machine that can run a container.
+#
+# Build from the repository root:
+#   docker build -f demo/oidc/Dockerfile.uda-server -t uda-oidc-demo .
+
+FROM ubuntu:22.04 AS build
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    ca-certificates \
+    libboost-dev \
+    libboost-program-options-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    nlohmann-json3-dev \
+    cmake \
+    build-essential \
+    pkg-config \
+    libxml2-dev \
+    libspdlog-dev \
+    libfmt-dev \
+    ninja-build \
+    libtirpc-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY . /uda
+
+# ENABLE_AUTH turns on both TLS transport and OIDC bearer-token authentication.
+# nlohmann/json comes from the distribution package above; jwt-cpp is not packaged in
+# Ubuntu 22.04, so the build fetches the pinned version.
+RUN cmake -G Ninja -S /uda -B /build \
+      -DBUILD_SHARED_LIBS=ON \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DENABLE_AUTH=ON \
+      -DCLIENT_ONLY=OFF \
+      -DENABLE_CAPNP=OFF \
+      -DNO_MEMCACHE=ON \
+      -DNO_CLI=ON \
+      -DNO_WRAPPERS=OFF \
+      -DCMAKE_INSTALL_PREFIX=/opt/uda \
+ && cmake --build /build --config Release \
+ && cmake --install /build --config Release
+
+# ---------------------------------------------------------------------------------------
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libssl3 \
+    libcurl4 \
+    libxml2 \
+    libspdlog1 \
+    libfmt8 \
+    libtirpc3 \
+    libboost-program-options1.74.0 \
+    python3 \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /opt/uda /opt/uda
+COPY demo/oidc/serve.py /opt/uda/serve.py
+COPY demo/oidc/uda-oidc.cfg /opt/uda/etc/plugins.d/zz-uda-oidc.cfg
+
+ENV UDA_ROOT=/opt/uda
+ENV LD_LIBRARY_PATH=/opt/uda/lib:/opt/uda/lib/plugins
+
+EXPOSE 56565
+
+# The UDA server handles one connection and exits — that is its design, not a limitation.
+# serve.py accepts connections and forks it per connection, which is what inetd and
+# systemd socket activation do in a real deployment.
+CMD ["python3", "/opt/uda/serve.py", "--server", "/opt/uda/etc/udaserver.sh", "--port", "56565", "--host", "0.0.0.0"]
