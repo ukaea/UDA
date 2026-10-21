@@ -9,6 +9,11 @@ install( FILES ${INSTALL_FILES} DESTINATION python_installer/pyuda )
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/pyuda/_version.py.in ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py @ONLY )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/pyuda )
 
+file( GLOB EXAMPLE_SCRIPTS examples/*.py )
+install( FILES ${EXAMPLE_SCRIPTS} DESTINATION python_installer/examples )
+file( GLOB DEV_TEST_SCRIPTS devscripts/*.py )
+install( FILES ${DEV_TEST_SCRIPTS} DESTINATION python_installer/devscripts )
+
 ### extra install steps for the dummy "uda" repo which will mirror "pyuda" on pypi
 set( DUMMY_REPO_FILES 
     uda/README.md
