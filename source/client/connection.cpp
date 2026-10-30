@@ -45,6 +45,7 @@
 
 #include <clientserver/errorLog.h>
 #include <clientserver/manageSockets.h>
+#include <clientserver/streamCompression.h>
 #include <client/udaClient.h>
 #include <client/udaClientHostList.h>
 #include <logging/logging.h>
@@ -66,6 +67,34 @@
 
 static int client_socket = -1;
 static SOCKETLIST client_socketlist;   // List of open sockets
+
+#ifdef UDA_ZLIB_COMPRESSION
+// Decompressed bytes received from the server that have not yet been consumed by the XDR layer
+static uda::compression::ReadBuffer g_ClientReadBuffer;
+
+// Read exactly n bytes from the socket. Returns 1 on success, 0 on end of stream and -1 on error.
+static int readExact(char* buf, size_t n)
+{
+    size_t received = 0;
+    while (received < n) {
+        int rc;
+#  ifndef _WIN32
+        while (((rc = (int)read(client_socket, buf + received, n - received)) == -1) && (errno == EINTR)) {}
+#  else
+        while (((rc = recv(client_socket, buf + received, (int)(n - received), 0)) == SOCKET_ERROR) &&
+               (errno == EINTR)) {}
+#  endif
+        if (rc < 0) {
+            return -1;
+        }
+        if (rc == 0) {
+            return 0;
+        }
+        received += rc;
+    }
+    return 1;
+}
+#endif // UDA_ZLIB_COMPRESSION
 
 int connectionOpen()
 {
@@ -243,6 +272,10 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
         // Check Already Opened?
         return 0;
     }
+
+#ifdef UDA_ZLIB_COMPRESSION
+    g_ClientReadBuffer.clear(); // A new connection must not see data from a previous one
+#endif
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     putUdaClientSSLSocket(client_socket);
@@ -576,6 +609,10 @@ void closeConnection(ClosedownType type)
     }
 
     client_socket = -1;
+
+#ifdef UDA_ZLIB_COMPRESSION
+    g_ClientReadBuffer.clear(); // Discard any data left over from the closed connection
+#endif
 }
 
 int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
@@ -588,6 +625,21 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 
     fd_set wfds;
     struct timeval tv = {};
+
+#ifdef UDA_ZLIB_COMPRESSION
+    // Compress the buffer into a single frame; this is what actually goes on the wire
+
+    std::vector<char> frame;
+    if (!uda::compression::compress_frame(buf, count, frame)) {
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1, "Failed to compress data for server");
+        return -1;
+    }
+    const char* out = frame.data();
+    size_t total = frame.size();
+#else
+    const char* out = buf;
+    size_t total = (size_t)count;
+#endif
 
     udaUpdateSelectParms(client_socket, &wfds, &tv);
 
@@ -634,14 +686,17 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 
     // Write to socket, checking for EINTR, as happens if called from IDL
 
-    while (BytesSent < (unsigned int)count) {
+    while (BytesSent < total) {
 #ifndef _WIN32
-        while (((rc = (int)write(client_socket, buf, count)) == -1) && (errno == EINTR)) {}
+        while (((rc = (int)write(client_socket, out, total - BytesSent)) == -1) && (errno == EINTR)) {}
 #else
-        while (((rc = send(client_socket, buf , count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
+        while (((rc = send(client_socket, out, (int)(total - BytesSent), 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
+        if (rc < 0) {
+            break;
+        }
         BytesSent += rc;
-        buf += rc;
+        out += rc;
     }
 
 // Restore the original SIGPIPE handler set by the application
@@ -653,16 +708,29 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
     }
 #endif
 
+#ifdef UDA_ZLIB_COMPRESSION
+    // The XDR layer expects the number of (uncompressed) bytes it supplied to be returned on success
+
+    return rc < 0 ? rc : count;
+#else
     return rc;
+#endif
 }
 
 int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 {
-    int rc;
     fd_set rfds;
     struct timeval tv = {};
 
     int maxloop = 0;
+
+#ifdef UDA_ZLIB_COMPRESSION
+    // Hand back any previously decompressed data before touching the socket
+
+    if (!g_ClientReadBuffer.empty()) {
+        return g_ClientReadBuffer.take(buf, count);
+    }
+#endif
 
     errno = 0;
 
@@ -674,6 +742,37 @@ int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
         udaUpdateSelectParms(client_socket, &rfds, &tv);        // Keep trying ...
     }
 
+#ifdef UDA_ZLIB_COMPRESSION
+    // Read a complete compressed frame, inflate it and return as much as the caller asked for
+
+    unsigned char header[uda::compression::g_FrameHeaderSize];
+    std::uint32_t compressed_size = 0;
+    std::uint32_t original_size = 0;
+
+    if (readExact(reinterpret_cast<char*>(header), sizeof(header)) != 1) {
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1, "No Data waiting at Socket when Data Expected!");
+        return -1;
+    }
+    if (!uda::compression::parse_frame_header(header, compressed_size, original_size)) {
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1, "Invalid compressed frame header received from server");
+        return -1;
+    }
+
+    std::vector<char> payload(compressed_size);
+    if (readExact(payload.data(), payload.size()) != 1) {
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1, "Connection closed while reading compressed data");
+        return -1;
+    }
+    if (!uda::compression::decompress_frame(payload.data(), compressed_size, original_size,
+                                            g_ClientReadBuffer.reset())) {
+        g_ClientReadBuffer.clear();
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1, "Failed to decompress data received from server");
+        return -1;
+    }
+
+    return g_ClientReadBuffer.take(buf, count);
+#else
+    int rc;
     // Read from it, checking for EINTR, as happens if called from IDL
 
 #ifndef _WIN32
@@ -694,4 +793,5 @@ int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
     }
 
     return rc;
+#endif // UDA_ZLIB_COMPRESSION
 }

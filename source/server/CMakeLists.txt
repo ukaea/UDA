@@ -85,7 +85,7 @@ add_library( fatserver-objects OBJECT
   ${SRC_FILES}
   ${HEADER_FILES}
 )
-target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
+target_link_libraries( fatserver-objects PRIVATE fmt::fmt ${UDA_ZLIB_LIBRARIES} )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ
@@ -113,9 +113,9 @@ elseif(TIRPC_FOUND )
   set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
 endif()
 
-target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
+target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt ${UDA_ZLIB_LIBRARIES} )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt )
+  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt ${UDA_ZLIB_LIBRARIES} )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )

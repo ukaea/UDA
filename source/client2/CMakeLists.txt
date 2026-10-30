@@ -137,11 +137,11 @@ endif()
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient2-static STATIC ${FATCLIENT_OBJS} )
-  target_link_libraries( fatclient2-static PRIVATE plugins-static ${CLIENT_LINK_LIBS} )
+  target_link_libraries( fatclient2-static PRIVATE plugins-static ${CLIENT_LINK_LIBS} ${UDA_ZLIB_LIBRARIES} )
   
   if( BUILD_SHARED_LIBS )
     add_library( fatclient2-shared SHARED ${FATCLIENT_OBJS} )
-    target_link_libraries( fatclient2-shared PRIVATE plugins-shared ${CLIENT_LINK_LIBS} )
+    target_link_libraries( fatclient2-shared PRIVATE plugins-shared ${CLIENT_LINK_LIBS} ${UDA_ZLIB_LIBRARIES} )
   endif()
 endif()
 

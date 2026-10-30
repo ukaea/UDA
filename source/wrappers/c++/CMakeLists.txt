@@ -82,11 +82,11 @@ elseif( TIRPC_FOUND )
 endif()
 
 add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-target_link_libraries( ${LIB_NAME}-static PRIVATE ${LINK_LIB} )
+target_link_libraries( ${LIB_NAME}-static PRIVATE ${LINK_LIB} ${UDA_ZLIB_LIBRARIES} )
 
 if( BUILD_SHARED_LIBS )
   add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LINK_LIB} )
+  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LINK_LIB} ${UDA_ZLIB_LIBRARIES} )
 endif()
 
 if( NOT CLIENT_ONLY )
@@ -104,11 +104,11 @@ if( NOT CLIENT_ONLY )
   )
 
   add_library( fat${LIB_NAME}-static STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-  target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LINK_LIB} plugins-static )
+  target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LINK_LIB} plugins-static ${UDA_ZLIB_LIBRARIES} )
   
   if( BUILD_SHARED_LIBS )
     add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LINK_LIB} plugins-shared )
+    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LINK_LIB} plugins-shared ${UDA_ZLIB_LIBRARIES} )
   endif()
 endif()
 
