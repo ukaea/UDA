@@ -130,6 +130,7 @@ jobs:
           dlfcn-win32
           spdlog
           liblzma
+          zlib
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
