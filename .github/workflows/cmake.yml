@@ -25,9 +25,11 @@ jobs:
 #        os: [ubuntu-latest, windows-latest, macos-latest]
         os: [windows-latest]
         release: [Release]
-        ssl: [ON, OFF]
+#        ssl: [ON, OFF]
+        ssl: [OFF]
         client-only: [ON, OFF]
-        capnp: [ON, OFF]
+#        capnp: [ON, OFF]
+        capnp: [ON]
         exclude:
           - os: windows-latest
             client-only: OFF
@@ -185,6 +187,7 @@ jobs:
         run: >
           XDR_ROOT=extlib/install cmake -G "MinGW Makefiles" -B build
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=x64-mingw-static
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
