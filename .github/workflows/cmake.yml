@@ -27,9 +27,14 @@ jobs:
         ssl: [ON, OFF]
         client-only: [ON, OFF]
         capnp: [ON, OFF]
+        zlib: [ON, OFF]
         exclude:
           - os: windows-latest
             client-only: OFF
+            zlib: ON
+          - os: windows-latest
+            client-only: OFF
+            zlib: OFF
           - os: ubuntu-latest
             client-only: ON
           - os: macos-latest
@@ -140,6 +145,7 @@ jobs:
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
+          -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
 
       - name: Configure CMake (linux Intel)
         if: matrix.os == 'ubuntu-latest'
@@ -152,7 +158,8 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.release }} \
             -DSSLAUTHENTICATION=${{ matrix.ssl }} \
             -DCLIENT_ONLY=${{ matrix.client-only }} \
-            -DENABLE_CAPNP=${{ matrix.capnp }}
+            -DENABLE_CAPNP=${{ matrix.capnp }} \
+            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
 
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'
@@ -164,6 +171,7 @@ jobs:
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
           -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@3)"
+          -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
 
       - name: Configure portable XDR
         if: matrix.os == 'windows-latest'
