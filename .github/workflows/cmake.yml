@@ -31,10 +31,6 @@ jobs:
         exclude:
           - os: windows-latest
             client-only: OFF
-            zlib: ON
-          - os: windows-latest
-            client-only: OFF
-            zlib: OFF
           - os: ubuntu-latest
             client-only: ON
           - os: macos-latest
