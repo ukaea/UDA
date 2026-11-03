@@ -25,11 +25,9 @@ jobs:
 #        os: [ubuntu-latest, windows-latest, macos-latest]
         os: [windows-latest]
         release: [Release]
-#        ssl: [ON, OFF]
-        ssl: [OFF]
+        ssl: [ON, OFF]
         client-only: [ON, OFF]
-#        capnp: [ON, OFF]
-        capnp: [ON]
+        capnp: [ON, OFF]
         exclude:
           - os: windows-latest
             client-only: OFF
