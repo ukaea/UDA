@@ -6,6 +6,11 @@
 
 #include <unordered_map>
 
+int udaCancelAPI(void)
+{
+    return uda::client::ThreadClient::instance().cancel() ? 1 : 0;
+}
+
 int udaGetAPI(const char *data_object, const char *data_source)
 {
     auto& client = uda::client::ThreadClient::instance();

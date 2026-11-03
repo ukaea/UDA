@@ -12,6 +12,7 @@
 #include "connection.h"
 
 #include <cstdlib>
+#include <atomic>
 #include <cerrno>
 #include <csignal>
 #include <vector>
@@ -65,11 +66,32 @@
 #define PORT_STRING    64
 
 static int client_socket = -1;
+// Published socket for cancellation from a different thread. The request
+// thread owns socket lifetime and XDR cleanup.
+static std::atomic<int> cancel_socket{-1};
+static std::atomic<bool> cancelled{false};
 static SOCKETLIST client_socketlist;   // List of open sockets
 
 int connectionOpen()
 {
     return client_socket != -1;
+}
+
+int connectionCancelled()
+{
+    return cancelled.load() ? 1 : 0;
+}
+ 
+int cancelConnection()
+{
+    int fd = cancel_socket.load();
+    if (fd < 0 || cancelled.exchange(true)) return 0;
+    const char command = 'C';
+    bool sent = ::send(fd, &command, 1, MSG_OOB) == 1;
+    // Wake any blocked recv/select on the query thread. Only the query
+    // thread can close the socket and destroy the XDR streams.
+    ::shutdown(fd, SHUT_RDWR);
+    return sent ? 1 : 0;
 }
 
 int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
@@ -126,6 +148,8 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
         client_socket = client_socketlist.sockets[newsocketId].fh;
         *client_input = client_socketlist.sockets[newsocketId].Input;
         *client_output = client_socketlist.sockets[newsocketId].Output;
+		cancel_socket.store(client_socket);
+        cancelled.store(false);
 
         environment->server_change_socket = 0;
         environment->server_socket = client_socketlist.sockets[newsocketId].fh;
@@ -559,6 +583,9 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
     putUdaClientSSLSocket(client_socket);
 #endif
 
+	cancel_socket.store(client_socket);
+    cancelled.store(false);
+
     return 0;
 }
 
@@ -569,6 +596,7 @@ void closeAllConnections()
 
 void closeConnection(ClosedownType type)
 {
+	cancel_socket.store(-1);
     if (client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {
         closeClientSocket(&client_socketlist, client_socket);
     } else {
@@ -576,6 +604,7 @@ void closeConnection(ClosedownType type)
     }
 
     client_socket = -1;
+	cancelled.store(false);
 }
 
 int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)

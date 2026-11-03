@@ -7,6 +7,10 @@
 #endif
 
 #include <tuple>
+#include <cstdlib>
+#include <unistd.h>
+#include <csignal>
+#include <fcntl.h>
 #include <string>
 
 #include <clientserver/initStructs.h>
@@ -40,6 +44,18 @@
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaServerSSL.h>
 #endif
+
+void hard_cancel(int) { _exit(0); }
+ 
+void enable_hard_cancel()
+{
+        if (fcntl(STDIN_FILENO, F_SETOWN, getpid()) == -1) return;
+    
+        struct sigaction action = {};
+    action.sa_handler = hard_cancel;
+    sigemptyset(&action.sa_mask);
+    sigaction(SIGURG, &action, nullptr);
+}
 
 //--------------------------------------------------------------------------------------
 // static globals
@@ -145,6 +161,8 @@ int udaServer(CLIENT_BLOCK client_block)
     static unsigned int total_datablock_size = 0;
 
     if ((err = startupServer(&server_block, server_input, server_output, &io_data)) != 0) return err;
+
+	enable_hard_cancel();
 
 #ifdef SECURITYENABLED
     err = authenticateClient(&client_block, &server_block);

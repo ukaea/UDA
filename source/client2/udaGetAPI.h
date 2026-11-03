@@ -14,6 +14,7 @@ extern "C" {
 #  define idamGetBatchAPIWithHost idamGetBatchAPIWithHostFat
 #endif
 
+LIBRARY_API int udaCancelAPI(void);
 LIBRARY_API int udaGetAPI(const char *data_object, const char *data_source);
 LIBRARY_API int udaGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles);
 LIBRARY_API int udaGetAPIWithHost(const char *data_object, const char *data_source, const char *host, int port);

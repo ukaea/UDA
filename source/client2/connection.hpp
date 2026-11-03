@@ -4,6 +4,7 @@
 #define UDA_CLIENT_CONNECTION_H
 
 #include <vector>
+#include <atomic>
 
 #include <clientserver/socketStructs.h>
 #include <clientserver/udaStructs.h>
@@ -27,6 +28,12 @@ public:
         , socket_list()
     {}
     int open();
+
+	// May be called from a second thread while a query is blocking in get().
+    // Cancels the entire server session, not just an individual batched request.
+    bool cancel();
+    bool cancelled() const { return cancelled_.load(); }
+
     int reconnect(XDR** client_input, XDR** client_output, time_t* tv_server_start, int* user_timeout);
     int create(XDR* client_input, XDR* client_output, const HostList& host_list);
     void close_down(ClosedownType type);
@@ -36,6 +43,7 @@ public:
 
 private:
     int client_socket = -1;
+	std::atomic<bool> cancelled_{false};
     Environment& environment;
     std::vector<Sockets> socket_list;   // List of open sockets
 

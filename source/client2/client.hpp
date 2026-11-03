@@ -46,6 +46,10 @@ public:
     void set_host(std::string_view host);
     void set_port(int port);
     void clear();
+
+	// Thread-safe cancellation signal; the caller must join the query thread
+    // before reusing this Client or destroying its XDR streams.
+    bool cancel();
     DATA_BLOCK* current_data_block();
     DATA_BLOCK* data_block(int handle);
     int new_handle();

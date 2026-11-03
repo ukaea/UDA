@@ -473,6 +473,12 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             }
         }
 
+		// Cancellation invalidates TCP/XDR framing: only this request thread
+        // closes the old session and recreates the streams.
+        if (connectionCancelled()) {
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs);
+        }
+
         //-------------------------------------------------------------------------
         // Server Age (secs) = Time since the Server was last called
 
