@@ -65,6 +65,19 @@ int uda::client::Connection::open()
     return client_socket != -1;
 }
 
+bool uda::client::Connection::cancel()
+{
+    const int fd = client_socket;
+    if (fd < 0 || cancelled_.exchange(true)) return false;
+    // An out-of-band byte is delivered on the *existing* TCP connection.
+    // The server's SIGURG handler terminates its connection-specific process.
+    const char command = 'C';
+    const bool sent = ::send(fd, &command, 1, MSG_OOB) == 1;
+    // Wake a client thread blocked in read/select without destroying XDR here.
+    ::shutdown(fd, SHUT_RDWR);
+    return sent;
+}
+
 int uda::client::Connection::find_socket(int fh)
 {
     int i = 0;
@@ -554,6 +567,7 @@ void uda::client::Connection::close_down(ClosedownType type)
     }
 
     client_socket = -1;
+	cancelled_.store(false);
 }
 
 void update_select_params(int fd, fd_set *rfds, struct timeval *tv) {

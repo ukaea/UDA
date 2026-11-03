@@ -14,6 +14,10 @@ extern "C" {
 #  define idamGetBatchAPIWithHost idamGetBatchAPIWithHostFat
 #endif
 
+// Returns 1 when the urgent cancellation byte was sent, 0 otherwise.
+// Call from another thread; not supported with TLS or FATCLIENT.
+LIBRARY_API int udaCancelAPI(void);
+
 LIBRARY_API int idamGetAPI(const char *data_object, const char *data_source);
 LIBRARY_API int idamGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles);
 LIBRARY_API int idamGetAPIWithHost(const char *data_object, const char *data_source, const char *host, int port);

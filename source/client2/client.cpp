@@ -310,6 +310,14 @@ int uda::client::Client::get_server_error_stack_record_code(int record)
 
 int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 {
+
+	// A previous cancellation invalidated the socket and XDR framing.
+    // Only the query thread performs the actual teardown/reconnect.
+    if (connection_.cancelled()) {
+        closedown(ClosedownType::CLOSE_SOCKETS, &connection_, client_input_, client_output_,
+                  &reopen_logs_, &env_host_, &env_port_);
+    }
+
     initServerBlock(&server_block_, 0);
     initUdaErrorStack();
 
@@ -827,6 +835,11 @@ int uda::client::Client::receive_server_block()
     printServerBlock(server_block_);
 
     return 0;
+}
+
+bool uda::client::Client::cancel()
+{
+    return connection_.cancel();
 }
 
 void uda::client::Client::clear()

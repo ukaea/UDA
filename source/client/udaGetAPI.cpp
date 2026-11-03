@@ -22,12 +22,18 @@
 #include "makeClientRequestBlock.h"
 #include "startup.h"
 #include "udaClient.h"
+#include "connection.h"
 #include "accAPI.h"
 #include "getEnvironment.h"
 
 #ifdef MEMDEBUG
 #include <mcheck.h>
 #endif
+
+int udaCancelAPI(void)
+{
+    return cancelConnection();
+}
 
 //! the principal IDAM API
 /** All requests are passed via two string arguments. These take multiple forms or patterns.\n\n

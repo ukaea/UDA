@@ -2,6 +2,9 @@
 
 #include <string>
 #include <unistd.h>
+#include <csignal>
+#include <fcntl.h>
+#include <sys/socket.h>
 #include <fmt/format.h>
 
 #include "clientserver/errorLog.h"
@@ -19,6 +22,17 @@
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"
 #endif
+
+void cancel_session(int) { _exit(0); } // Async-signal-safe; no C++ destructors.
+ 
+void enable_session_cancel()
+{
+    if (fcntl(STDIN_FILENO, F_SETOWN, getpid()) == -1) return;
+    struct sigaction action = {};
+    action.sa_handler = cancel_session;
+    sigemptyset(&action.sa_mask);
+    sigaction(SIGURG, &action, nullptr);
+}
 
 void free_data_blocks(std::vector<DataBlock>& data_blocks)
 {
@@ -159,6 +173,7 @@ void uda::Server::startup()
 void uda::Server::run()
 {
     startup();
+	enable_session_cancel();
     handshake_client();
     if (!server_closedown_) {
         loop();
