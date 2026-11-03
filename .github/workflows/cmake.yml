@@ -194,6 +194,7 @@ jobs:
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/uda_install
+          -DZLIB_USE_STATIC_LIBS=ON
 
       - name: Build
         run: cmake --build build --config ${{ matrix.release }}
