@@ -80,14 +80,17 @@ jobs:
 
       - name: Install Intel compiler
         if: matrix.os == 'ubuntu-latest'
-        run: >
-          sudo apt install -y wget &&
-          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
-          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&
-          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list &&
-          sudo apt update &&
-          sudo apt install -y intel-basekit &&
-          sudo apt install -y intel-hpckit
+        shell: bash
+        run: |
+          wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB |
+            gpg --dearmor |
+            sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+          
+          echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" |
+            sudo tee /etc/apt/sources.list.d/oneAPI.list
+          
+          sudo apt update
+          sudo apt install -y intel-oneapi-compiler-dpcpp-cpp
 
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
@@ -126,6 +129,7 @@ jobs:
           dlfcn-win32
           spdlog
           liblzma
+          zlib
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
@@ -139,14 +143,16 @@ jobs:
 
       - name: Configure CMake (linux Intel)
         if: matrix.os == 'ubuntu-latest'
-        run: >
-          source /opt/intel/oneapi/setvars.sh &&
-          CXX=icpx CC=icx cmake -G Ninja -B build-intel
-          -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DSSLAUTHENTICATION=${{ matrix.ssl }}
-          -DCLIENT_ONLY=${{ matrix.client-only }}
-          -DENABLE_CAPNP=${{ matrix.capnp }}
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          icx --version
+          icpx --version
+          CXX=icpx CC=icx cmake -G Ninja -B build-intel \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCMAKE_BUILD_TYPE=${{ matrix.release }} \
+            -DSSLAUTHENTICATION=${{ matrix.ssl }} \
+            -DCLIENT_ONLY=${{ matrix.client-only }} \
+            -DENABLE_CAPNP=${{ matrix.capnp }}
 
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'
@@ -178,12 +184,14 @@ jobs:
         run: >
           XDR_ROOT=extlib/install cmake -G "MinGW Makefiles" -B build
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=x64-mingw-static
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/uda_install
+          -DZLIB_USE_STATIC_LIBS=ON
 
       - name: Build
         run: cmake --build build --config ${{ matrix.release }}
