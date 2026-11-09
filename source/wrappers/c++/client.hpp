@@ -124,7 +124,7 @@ class Result;
 class Signal;
 class Client;
 
-class ResultList {
+class LIBRARY_API ResultList {
 public:
     ResultList(std::unordered_map<int, size_t> indices, Client& client);
     const Result& at(int handle) const;
@@ -151,7 +151,7 @@ public:
     static std::string serverHostName();
     static int serverPort();
 
-    const char *getErrorMsg(int handle); 
+    const char *getErrorMsg(int handle);
 
     const uda::Result& get(const std::string& signalName, const std::string& dataSource);
 
@@ -161,7 +161,7 @@ public:
     int getFileID(int handle);
 
     int put(const uda::Signal& putdata);
-    
+
     int put(const std::string& instruction);
 
     int put(const std::string& instruction, char data);
