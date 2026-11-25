@@ -54,6 +54,7 @@ else()
   add_subdirectory( template )
   add_subdirectory( testplugin )
   add_subdirectory( uda )
+  add_subdirectory( netcdf )
 endif( DEFINED BUILD_PLUGINS )
 
 add_definitions( -DSERVERBUILD )
@@ -148,5 +149,3 @@ endif()
 install( FILES ${HEADER_FILES}
   DESTINATION include/uda/plugins
 )
-
-
