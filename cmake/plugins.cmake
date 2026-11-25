@@ -108,17 +108,23 @@ macro( uda_plugin )
 
   install(
     TARGETS ${PLUGIN_LIBNAME}
-    DESTINATION lib/plugins
+    DESTINATION ${UDA_INSTALL_PLUGINDIR}
+    COMPONENT plugins
   )
 
   install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf
-    DESTINATION etc/plugins
+    DESTINATION ${UDA_INSTALL_PLUGIN_CONFIGDIR}
+    COMPONENT plugins
   )
 
   foreach( INSTALL_FILE ${PLUGIN_EXTRA_INSTALL_FILES} )
     get_filename_component( INSTALL_DIR ${INSTALL_FILE} DIRECTORY )
-    install( FILES ${INSTALL_FILE} DESTINATION etc/plugins/${INSTALL_DIR} )
+    install(
+      FILES ${INSTALL_FILE}
+      DESTINATION ${UDA_INSTALL_PLUGIN_CONFIGDIR}/${INSTALL_DIR}
+      COMPONENT plugins
+    )
   endforeach()
 
   #targetFormat, formatClass="function", librarySymbol, libraryName, methodName, interface, cachePermission, publicUse, description, example

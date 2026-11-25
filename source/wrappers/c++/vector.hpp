@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <boost/any.hpp>
 
-#include <clientserver/export.h>
+#include "export.hpp"
 #include "data.hpp"
 
 #if defined(_WIN32)
@@ -19,7 +19,7 @@
 
 namespace uda {
 
-class LIBRARY_API Vector : public Data {
+class UDA_CXX_API Vector : public Data {
 public:
     template <typename T>
     Vector(T* array, size_t size)

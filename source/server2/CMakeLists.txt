@@ -5,6 +5,7 @@ find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( spdlog REQUIRED )
 find_package( fmt REQUIRED )
+find_package( Boost REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -51,7 +52,7 @@ add_definitions( -DSERVERBUILD )
 add_library( server2-objects OBJECT
   ${SRC_FILES}
 )
-target_link_libraries( server2-objects PRIVATE spdlog::spdlog fmt::fmt )
+target_link_libraries( server2-objects PRIVATE Boost::boost spdlog::spdlog fmt::fmt )
 
 set( SERVER2_OBJ
   $<TARGET_OBJECTS:server2-objects>
@@ -152,6 +153,7 @@ else()
 endif()
 
 target_link_libraries( server2-exe PRIVATE
+  Boost::boost
   ${SERVER_LINKING}
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
@@ -179,7 +181,8 @@ set_target_properties( server2-static
 
 install(
   TARGETS server2-static
-  DESTINATION lib
+  DESTINATION ${UDA_INSTALL_LIBDIR}
+  COMPONENT development
 )
 
 if( BUILD_SHARED_LIBS )
@@ -199,7 +202,8 @@ if( BUILD_SHARED_LIBS )
 
   install(
     TARGETS server2-shared
-    DESTINATION lib
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT server
   )
 endif()
 
@@ -219,7 +223,8 @@ if( WIN32 )
 endif()
 
 install( TARGETS server2-exe
-  DESTINATION bin
+  DESTINATION ${UDA_INSTALL_BINDIR}
+  COMPONENT server
 )
 
 ########################################################################################################################
@@ -236,15 +241,12 @@ set( ETC_FILES
   launchd.udaserver.plist
 )
 
-set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
-
 foreach( ETC_FILE ${ETC_FILES} )
   configure_file(
     "${CMAKE_SOURCE_DIR}/source/etc/${ETC_FILE}.in"
     "${CMAKE_BINARY_DIR}/etc/${ETC_FILE}"
     @ONLY
   )
-  list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
 endforeach()
 
 configure_file(
@@ -255,38 +257,34 @@ configure_file(
 
 install(
   FILES
-    ${GEN_ETC_FILES}
-  DESTINATION etc
+    ${CMAKE_BINARY_DIR}/etc/udaserver.cfg
+    ${CMAKE_BINARY_DIR}/etc/xinetd.conf
+    ${CMAKE_BINARY_DIR}/etc/README.md
+    ${CMAKE_BINARY_DIR}/etc/launchd.udaserver.plist
+    ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
+  DESTINATION ${UDA_INSTALL_CONFIGDIR}
+  COMPONENT server
 )
 
 install(
   DIRECTORY
-    ${CMAKE_BINARY_DIR}/lib/pkgconfig
-  DESTINATION lib
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_SOURCE_DIR}/source/etc/machine.d
-  DESTINATION etc
+    ${CMAKE_SOURCE_DIR}/source/etc/machine.d/
+  DESTINATION ${UDA_INSTALL_MACHINE_CONFIGDIR}
+  COMPONENT server
 )
 
 install(
   FILES
     ${CMAKE_BINARY_DIR}/etc/udaserver.sh
     ${CMAKE_BINARY_DIR}/etc/rc.uda
-  DESTINATION etc
+  DESTINATION ${UDA_INSTALL_SERVER_SCRIPTDIR}
+  COMPONENT server
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ
 )
 
 install(
   DIRECTORY
-    ${CMAKE_BINARY_DIR}/etc/plugins.d
-  DESTINATION etc
-)
-
-install(
-  FILES
-    ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
-  DESTINATION etc
+    ${CMAKE_BINARY_DIR}/etc/plugins.d/
+  DESTINATION ${UDA_INSTALL_PLUGIN_FRAGMENTDIR}
+  COMPONENT server
 )

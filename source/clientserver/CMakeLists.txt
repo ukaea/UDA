@@ -133,5 +133,6 @@ endif()
 file( GLOB HEADER_FILES "*.h" )
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/clientserver
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/clientserver
+  COMPONENT development
 )

@@ -14,6 +14,8 @@ extra_link_args = []
 extra_compile_args = ['-std=c++17']
 
 root = '@CMAKE_INSTALL_PREFIX@'
+uda_include_dir = '@UDA_INSTALL_FULL_INCLUDEDIR@'
+uda_lib_dir = '@UDA_INSTALL_FULL_LIBDIR@'
 
 print('Detected platform: ' + sys.platform)
 print('Detected system: ' + sysconfig.get_platform())
@@ -27,7 +29,7 @@ elif sys.platform.lower() == 'darwin':
     stalib_ext = 'a'
     dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
-    extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
+    extra_link_args.append('-Wl,-rpath,%s' % uda_lib_dir)
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
@@ -53,7 +55,7 @@ ext = Extension(
         '/usr/include/tirpc',
         '@TIRPC_PYUDA_INCLUDE_DIR@',
         '@LIBXML2_INCLUDE_DIR@',
-        os.path.join(root, 'include', 'uda'),
+        uda_include_dir,
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),
@@ -72,7 +74,7 @@ ext = Extension(
         '@CAPNP_LIB_DIR@',
         '@FMT_LIB_DIR@'
     ])),
-    extra_objects=[os.path.join(root, 'lib', uda_lib) for uda_lib in uda_libs],
+    extra_objects=[os.path.join(uda_lib_dir, uda_lib) for uda_lib in uda_libs],
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
     language='c++',

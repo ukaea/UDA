@@ -1,7 +1,9 @@
 #ifndef UDA_CLIENTSERVER_EXPORT_H
 #define UDA_CLIENTSERVER_EXPORT_H
 
-#ifdef _WIN32
+#if defined(UDA_STATIC)
+#  define LIBRARY_API
+#elif defined(_WIN32)
 #  ifdef UDA_EXPORT
 #    define LIBRARY_API __declspec(dllexport)
 #  else

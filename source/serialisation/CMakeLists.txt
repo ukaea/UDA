@@ -19,11 +19,13 @@ set_target_properties( serialisation-static
 )
 
 install( TARGETS serialisation-static
-  DESTINATION lib
+  DESTINATION ${UDA_INSTALL_LIBDIR}
+  COMPONENT development
 )
 
 file( GLOB HEADER_FILES "*.h" )
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/serialisation
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/serialisation
+  COMPONENT development
 )

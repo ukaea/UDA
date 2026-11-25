@@ -1729,8 +1729,6 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     int handle, rank, order, status, error_code;
     char* error_msg;
 
-    char testfile[4];
-
     char* defArchive = "mast";  // ***** Check for Environment Variables
     char* defDevice = "mast";
 
@@ -2426,6 +2424,15 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Select the Appropriate API
 
+    // The legacy idamClientTestAPI was removed from the core client. Do not
+    // leave unresolved references in the DLM or silently issue a real request.
+    if (kw.istest) {
+        fprintf(stderr, "CALLIDAM: the legacy TEST keyword is not supported by this UDA client\n");
+        IDL_KW_FREE;
+        udaRestoreProperties(cblock);
+        return IDL_GettmpLong(GDE_NO_API_IDENTIFIED);
+    }
+
     if (useIdamGetAPI) {
         if (kw.debug) {
             fprintf(stdout, "idamGetAPI args: ('%s','%s')\n", signal, source);
@@ -2438,15 +2445,9 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                 fprintf(stdout, "IDAM API args: ('%s', %ld)\n", signal, (long)exp_number);
             }
 
-            if (!kw.istest) {
-                char exp_str[1000];
-                sprintf(exp_str, "%d", (int)exp_number);
-                handle = idamGetAPI(signal, exp_str);
-            } else {
-                strncpy(testfile, signal, 3);
-                testfile[3] = '\0';
-                handle = idamClientTestAPI(testfile, signal, -1, (int)exp_number);
-            }
+            char exp_str[1000];
+            sprintf(exp_str, "%d", (int)exp_number);
+            handle = idamGetAPI(signal, exp_str);
 
         } else {
 
@@ -2482,11 +2483,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                                     (long)pass, (long)exp_number);
                         }
 
-                        if (!kw.istest) {
-                            handle = idamClientAPI(file, signal, (int)pass, (int)exp_number);
-                        } else {
-                            handle = idamClientTestAPI(file, signal, (int)pass, (int)exp_number);
-                        }
+                        handle = idamClientAPI(file, signal, (int)pass, (int)exp_number);
                     } else {
                         if (kw.debug) {
                             fprintf(stdout, "IDAM File API args: ('%s','%s','%s')\n", file, signal, format);

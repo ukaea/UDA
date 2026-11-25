@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <boost/any.hpp>
-#include <clientserver/export.h>
+#include "export.hpp"
 
 #include "dim.hpp"
 #include "data.hpp"
@@ -20,7 +20,7 @@ namespace uda {
 class Client;
 class Result;
 
-class LIBRARY_API Array : public Data {
+class UDA_CXX_API Array : public Data {
 public:
     template <typename T>
     Array(T* data, const uda::Result* result)

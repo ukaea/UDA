@@ -1,0 +1,14 @@
+@PACKAGE_INIT@
+
+include( CMakeFindDependencyMacro )
+find_dependency( UDA @UDA_VERSION@ EXACT CONFIG COMPONENTS Client )
+find_dependency( Boost 1.60 )
+
+if( @BUILD_SHARED_LIBS@ AND NOT TARGET UDA::client_shared )
+  set( UDACpp_FOUND FALSE )
+  set( UDACpp_NOT_FOUND_MESSAGE "UDACpp requires the shared UDA client from the matching UDA installation" )
+  return()
+endif()
+
+include( "${CMAKE_CURRENT_LIST_DIR}/UDACppTargets.cmake" )
+check_required_components( UDACpp )

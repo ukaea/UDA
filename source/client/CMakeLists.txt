@@ -29,6 +29,27 @@ else()
   add_definitions( -DNOLIBMEMCACHED )
 endif()
 
+set( UDA_PACKAGE_NEEDS_TIRPC OFF CACHE INTERNAL "" FORCE )
+set( UDA_PACKAGE_NEEDS_XDR OFF CACHE INTERNAL "" FORCE )
+set( UDA_PACKAGE_NEEDS_LIBMEMCACHED OFF CACHE INTERNAL "" FORCE )
+if( TIRPC_FOUND )
+  set( UDA_PACKAGE_NEEDS_TIRPC ON CACHE INTERNAL "" FORCE )
+endif()
+if( XDR_FOUND )
+  set( UDA_PACKAGE_NEEDS_XDR ON CACHE INTERNAL "" FORCE )
+endif()
+if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+  set( UDA_PACKAGE_NEEDS_LIBMEMCACHED ON CACHE INTERNAL "" FORCE )
+endif()
+set( UDA_PACKAGE_NEEDS_DLFCN_WIN32 OFF CACHE INTERNAL "" FORCE )
+set( UDA_PACKAGE_NEEDS_ICONV OFF CACHE INTERNAL "" FORCE )
+if( WIN32 OR MINGW )
+  set( UDA_PACKAGE_NEEDS_DLFCN_WIN32 ON CACHE INTERNAL "" FORCE )
+endif()
+if( MINGW AND NOT CLIENT_ONLY )
+  set( UDA_PACKAGE_NEEDS_ICONV ON CACHE INTERNAL "" FORCE )
+endif()
+
 ########################################################################################################################
 # Sources
 
@@ -107,11 +128,26 @@ set( FATCLIENT_OBJS
 )
 
 add_library( client-static STATIC ${CLIENT_OBJS} )
+add_library( UDA::client_static ALIAS client-static )
+target_compile_definitions( client-static INTERFACE UDA_STATIC )
+# The archive contains objects compiled by these targets, not its own sources.
+foreach( _UDA_OBJECT_TARGET IN ITEMS client-objects clientserver-client-objects
+    cache-objects logging-client-objects structures-client-objects
+    authentication-client-objects )
+  set_target_properties( ${_UDA_OBJECT_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON )
+endforeach()
+unset( _UDA_OBJECT_TARGET )
 if( BUILD_SHARED_LIBS )
   add_library( client-shared SHARED ${CLIENT_OBJS} )
+  add_library( UDA::client_shared ALIAS client-shared )
 endif()
 
-set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} ${LIBXML2_LIBRARIES} fmt::fmt )
+set( CLIENT_LINK_LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt Threads::Threads )
+# udaStructs.h includes parseXML.h, which exposes libxml2 types.
+set( CLIENT_PUBLIC_LINK_LIBS LibXml2::LibXml2 )
+if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+  list( APPEND CLIENT_LINK_LIBS LibMemcached::LibMemcached )
+endif()
 if( NOT CLIENT_ONLY )
   if( MINGW )
     set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} Iconv::Iconv liblzma::liblzma crypt32 )
@@ -120,7 +156,8 @@ endif()
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 ${XDR_LIBRARIES} )
+  list( APPEND CLIENT_LINK_LIBS ws2_32 )
+  list( APPEND CLIENT_PUBLIC_LINK_LIBS XDR::XDR )
   if ( MINGW )
     set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl crypt32 stdc++ pthread )
   else()
@@ -128,21 +165,41 @@ if( MINGW OR WIN32 )
   endif()
 elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${TIRPC_LIBRARIES} )
+  list( APPEND CLIENT_PUBLIC_LINK_LIBS TIRPC::TIRPC )
 endif()
 
-target_link_libraries( client-static PUBLIC ${CLIENT_LINK_LIBS} )
+target_include_directories( client-static PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/source>
+  $<INSTALL_INTERFACE:${UDA_INSTALL_INCLUDEDIR}>
+)
+set_target_properties( client-static PROPERTIES
+  EXPORT_NAME client_static
+  POSITION_INDEPENDENT_CODE ON
+)
+
+target_link_libraries( client-static
+  PUBLIC ${CLIENT_PUBLIC_LINK_LIBS}
+  PRIVATE ${CLIENT_LINK_LIBS}
+)
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( client-shared PUBLIC ${CLIENT_LINK_LIBS} )
+  target_include_directories( client-shared PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/source>
+    $<INSTALL_INTERFACE:${UDA_INSTALL_INCLUDEDIR}>
+  )
+  set_target_properties( client-shared PROPERTIES EXPORT_NAME client_shared )
+  target_link_libraries( client-shared
+    PUBLIC ${CLIENT_PUBLIC_LINK_LIBS}
+    PRIVATE ${CLIENT_LINK_LIBS}
+  )
 endif()
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
-  target_link_libraries( fatclient-static PUBLIC plugins-static ${CLIENT_LINK_LIBS} )
+  target_link_libraries( fatclient-static PUBLIC plugins-static ${CLIENT_LINK_LIBS} ${CLIENT_PUBLIC_LINK_LIBS} )
   
   if( BUILD_SHARED_LIBS )
     add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
-    target_link_libraries( fatclient-shared PUBLIC plugins-shared ${CLIENT_LINK_LIBS} )
+    target_link_libraries( fatclient-shared PUBLIC plugins-shared ${CLIENT_LINK_LIBS} ${CLIENT_PUBLIC_LINK_LIBS} )
   endif()
 endif()
 
@@ -152,7 +209,9 @@ set_target_properties( client-static
 )
 
 install( TARGETS client-static
-  DESTINATION lib
+  EXPORT UDAClientTargets
+  DESTINATION ${UDA_INSTALL_LIBDIR}
+  COMPONENT development
 )
 
 if( BUILD_SHARED_LIBS )
@@ -171,14 +230,17 @@ if( BUILD_SHARED_LIBS )
   endif()
 
   install( TARGETS client-shared
-    DESTINATION lib
+    EXPORT UDAClientTargets
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT client-runtime
   )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/client
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/client
+  COMPONENT development
 )
 
 if( NOT CLIENT_ONLY )
@@ -188,7 +250,8 @@ if( NOT CLIENT_ONLY )
   )
 
   install( TARGETS fatclient-static
-    DESTINATION lib
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT development
   )
   
   if( BUILD_SHARED_LIBS )
@@ -207,7 +270,8 @@ if( NOT CLIENT_ONLY )
     endif()
 
     install( TARGETS fatclient-shared
-      DESTINATION lib
+      DESTINATION ${UDA_INSTALL_LIBDIR}
+      COMPONENT client-runtime
   )
   endif()
 endif()

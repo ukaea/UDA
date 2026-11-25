@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include <clientserver/export.h>
+#include "export.hpp"
 
 #ifdef __GNUC__
 #  include <cxxabi.h>
@@ -21,7 +21,7 @@
 
 namespace uda {
 
-class LIBRARY_API StructData {
+class UDA_CXX_API StructData {
 public:
     explicit StructData(bool isnull = false)
             : data_()

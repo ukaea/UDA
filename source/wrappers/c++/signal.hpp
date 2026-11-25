@@ -2,7 +2,7 @@
 #define UDA_WRAPPERS_CPP_SIGNAL_H
 
 #include "array.hpp"
-#include <clientserver/export.h>
+#include "export.hpp"
 
 #if defined(_WIN32)
 #  if !defined(__GNUC__)
@@ -18,7 +18,7 @@ enum SignalClass {
     ANALYSED, RAW, MODELLED
 };
 
-class LIBRARY_API Signal
+class UDA_CXX_API Signal
 {
 public:
     Signal(const uda::Array& array, SignalClass signal_class, const std::string& alias, const std::string& title,

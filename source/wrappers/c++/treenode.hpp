@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "export.hpp"
 
 #include "scalar.hpp"
 #include "vector.hpp"
@@ -14,7 +14,7 @@
 
 namespace uda {
 
-class LIBRARY_API TreeNode
+class UDA_CXX_API TreeNode
 {
 public:
     TreeNode findStructureDefinition(const std::string& name);

@@ -1,12 +1,15 @@
 # pkg-config file for the Universal Data Access library - for plugin development
-prefix=@CMAKE_INSTALL_PREFIX@
+prefix=@UDA_PKGCONFIG_PREFIX@
 exec_prefix=${prefix}
-includedir=${prefix}/include/uda
-libdir=${exec_prefix}/lib
+includedir=@UDA_PKGCONFIG_INCLUDEDIR@
+libdir=@UDA_PKGCONFIG_LIBDIR@
 
 Name: UDA
 Description: The Universal Data Access library
 URL: https://ukaea.github.io/UDA/
 Version: @PROJECT_VERSION@
-Cflags: -I${includedir} @PKGCONFIG_INCLUDES@
-Libs: -L${libdir} -luda_plugins -luda_server @PKGCONFIG_LIBRARIES@
+Cflags: -I${includedir}
+Libs: -L${libdir} -luda_plugins -luda_server
+Requires: @UDA_PC_REQUIRES@
+Requires.private: @UDA_PC_REQUIRES_PRIVATE@
+Libs.private: @UDA_PC_LIBS_PRIVATE@

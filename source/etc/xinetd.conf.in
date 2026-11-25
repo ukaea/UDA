@@ -12,7 +12,7 @@ service @USER@uda
     socket_type     = stream
     wait            = no
     user            = @USER@
-    server          = @CMAKE_INSTALL_PREFIX@/etc/udaserver.sh
+    server          = @UDA_INSTALL_FULL_SERVER_SCRIPTDIR@/udaserver.sh
     #env             = UDAHOSTNAME=uda-external-jet
 
     instances       = 100
@@ -22,7 +22,7 @@ service @USER@uda
     groups          = yes
     umask           = 002
 
-    log_type        = FILE @CMAKE_INSTALL_PREFIX@/etc/xinetd.logfile
+    log_type        = FILE @UDA_INSTALL_FULL_LOGDIR@/xinetd.logfile
     log_on_success  += DURATION USERID
     log_on_failure  += USERID
 }

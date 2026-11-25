@@ -1,13 +1,25 @@
 file( GLOB CYTHON_FILES pyuda/cpyuda/*.pyx )
 
-install( FILES ${CYTHON_FILES} pyuda/cpyuda/uda.pxd DESTINATION python_installer/pyuda/cpyuda )
+install(
+  FILES ${CYTHON_FILES} pyuda/cpyuda/uda.pxd
+  DESTINATION ${UDA_INSTALL_PYTHON_SOURCE_DIR}/pyuda/cpyuda
+  COMPONENT python-source
+)
 
 file( GLOB INSTALL_FILES pyuda/*.py )
 
-install( FILES ${INSTALL_FILES} DESTINATION python_installer/pyuda )
+install(
+  FILES ${INSTALL_FILES}
+  DESTINATION ${UDA_INSTALL_PYTHON_SOURCE_DIR}/pyuda
+  COMPONENT python-source
+)
 
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/pyuda/_version.py.in ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py @ONLY )
-install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/pyuda )
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py
+  DESTINATION ${UDA_INSTALL_PYTHON_SOURCE_DIR}/pyuda
+  COMPONENT python-source
+)
 
 ### extra install steps for the dummy "uda" repo which will mirror "pyuda" on pypi
 set( DUMMY_REPO_FILES 
@@ -16,15 +28,25 @@ set( DUMMY_REPO_FILES
     ${CMAKE_CURRENT_BINARY_DIR}/uda/setup.py
 )
 
-install( FILES ${CMAKE_CURRENT_LIST_DIR}/uda/uda/__init__.py DESTINATION python_installer/uda/uda )
+install(
+  FILES ${CMAKE_CURRENT_LIST_DIR}/uda/uda/__init__.py
+  DESTINATION ${UDA_INSTALL_PYTHON_SOURCE_DIR}/uda/uda
+  COMPONENT python-source
+)
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/uda/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/uda/setup.py @ONLY )
 
-install( FILES ${DUMMY_REPO_FILES} DESTINATION python_installer/uda )
+install(
+  FILES ${DUMMY_REPO_FILES}
+  DESTINATION ${UDA_INSTALL_PYTHON_SOURCE_DIR}/uda
+  COMPONENT python-source
+)
 ####
 
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
-find_package( LibMemcached QUIET )
+if( NOT NO_MEMCACHE )
+  find_package( LibMemcached QUIET )
+endif()
 find_package( fmt REQUIRED )
 find_package( TIRPC QUIET )
 find_package( XDR QUIET )
@@ -35,7 +57,7 @@ get_filename_component(STDCXX_LIB_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
 set( UDA_LIBS )
 set( EXTRA_LIBS ${EXTRA_LIBS} fmt )
 
-if( LIBMEMCACHED_FOUND )
+if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
   set( EXTRA_LIBS ${EXTRA_LIBS} memcached )
 endif()
 if( ENABLE_CAPNP )
@@ -87,6 +109,11 @@ else()
   configure_file( ${CMAKE_CURRENT_LIST_DIR}/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY )
 endif()
 
-install( FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.py DESTINATION python_installer )
-install( FILES ${CMAKE_CURRENT_LIST_DIR}/pyproject.toml DESTINATION python_installer )
-install( FILES ${CMAKE_CURRENT_LIST_DIR}/README.md DESTINATION python_installer )
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/setup.py
+    ${CMAKE_CURRENT_LIST_DIR}/pyproject.toml
+    ${CMAKE_CURRENT_LIST_DIR}/README.md
+  DESTINATION ${UDA_INSTALL_PYTHON_SOURCE_DIR}
+  COMPONENT python-source
+)

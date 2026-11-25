@@ -44,10 +44,10 @@ else()
   add_jar( ${JAR_NAME} jIdam/Idam.java
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
   )
-  install_jni_symlink( ${JAR_NAME} java )
+  install_jni_symlink( ${JAR_NAME} ${UDA_INSTALL_JAVA_DIR} )
 endif()
 
-install_jar( ${JAR_NAME} java )
+install_jar( ${JAR_NAME} ${UDA_INSTALL_JAVA_DIR} )
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES
@@ -64,5 +64,6 @@ if( WIN32 )
 endif()
 
 install( TARGETS ${LIB_NAME}
-  DESTINATION lib
+  DESTINATION ${UDA_INSTALL_LIBDIR}
+  COMPONENT java
 )

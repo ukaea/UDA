@@ -1,0 +1,52 @@
+@PACKAGE_INIT@
+
+include( CMakeFindDependencyMacro )
+
+# Function scope restores the caller's module path even if find_dependency
+# returns early for a missing dependency. Imported targets remain in the
+# caller's directory scope.
+function( _uda_find_dependencies )
+  list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Modules" )
+  find_dependency( OpenSSL )
+  find_dependency( LibXml2 )
+  find_dependency( fmt CONFIG )
+  find_dependency( Threads )
+
+  if( @UDA_PACKAGE_NEEDS_TIRPC@ )
+    find_dependency( TIRPC )
+  endif()
+
+  if( @UDA_PACKAGE_NEEDS_XDR@ )
+    find_dependency( XDR )
+  endif()
+
+  if( @UDA_PACKAGE_NEEDS_LIBMEMCACHED@ )
+    find_dependency( LibMemcached )
+  endif()
+
+  if( @UDA_PACKAGE_NEEDS_DLFCN_WIN32@ )
+    find_dependency( dlfcn-win32 CONFIG )
+  endif()
+
+  if( @UDA_PACKAGE_NEEDS_ICONV@ )
+    find_dependency( Iconv )
+    find_dependency( liblzma CONFIG )
+  endif()
+
+  set( _UDA_DEPENDENCIES_FOUND TRUE PARENT_SCOPE )
+endfunction()
+
+set( _UDA_DEPENDENCIES_FOUND FALSE )
+_uda_find_dependencies()
+if( NOT _UDA_DEPENDENCIES_FOUND )
+  set( UDA_FOUND FALSE )
+  set( UDA_NOT_FOUND_MESSAGE "A required UDA client dependency could not be found" )
+  unset( _UDA_DEPENDENCIES_FOUND )
+  return()
+endif()
+unset( _UDA_DEPENDENCIES_FOUND )
+
+include( "${CMAKE_CURRENT_LIST_DIR}/UDAClientTargets.cmake" )
+
+set( UDA_Client_FOUND TRUE )
+check_required_components( UDA )

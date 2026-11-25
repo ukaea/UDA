@@ -76,7 +76,11 @@ configure_file(
   @ONLY
 )
 
-install( FILES uda.h ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
+install(
+  FILES uda.h ${CMAKE_BINARY_DIR}/source/version.h
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}
+  COMPONENT development
+)
 
 set( ENV_PATH )
 if( WIN32 AND NOT MINGW )
@@ -96,87 +100,45 @@ configure_file(
 
 install(
   FILES ${CMAKE_BINARY_DIR}/bin/install_plugin
-  DESTINATION bin
+  DESTINATION ${UDA_INSTALL_BINDIR}
+  COMPONENT tools
   PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 )
 
-set( PKGCONFIG_FILES
-  uda-client.pc
-  uda-fat-client.pc
-  uda-cpp.pc
-  uda-fat-cpp.pc
-  uda-plugins.pc
-)
+if( NOT CLIENT_ONLY )
+  find_program( XINETD_EXE xinetd PATHS /usr/sbin/ /usr/local/sbin/ )
 
-get_filename_component( LIBXML_LIB_DIR "${LIBXML2_LIBRARIES}" DIRECTORY )
-set( PKGCONFIG_LIBRARIES "-L${LIBXML_LIB_DIR} -lxml2" )
-set( PKGCONFIG_INCLUDES "-I${LIBXML2_INCLUDE_DIR}" )
-set( PKGCONFIG_REQUIRES fmt )
-
-find_package( TIRPC QUIET )
-if( TIRPC_FOUND )
-    set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} libtirpc" )
-endif()
-
-if( ENABLE_CAPNP )
-  set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} capnp" )
-  set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} -luda_serialisation" )
-endif()
-
-find_package( LibMemcached QUIET )
-
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
-  set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} ${LIBMEMCACHED_LIBRARIES}" )
-endif()
-
-if( TIRPC_FOUND )
-  set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} libtirpc" )
-endif()
-
-foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
   configure_file(
-    "${CMAKE_SOURCE_DIR}/source/etc/${PKGCONFIG_FILE}.in"
-    "${CMAKE_BINARY_DIR}/lib/pkgconfig/${PKGCONFIG_FILE}"
-    @ONLY
-  )
-endforeach()
-
-install(
-  DIRECTORY
-    ${CMAKE_BINARY_DIR}/lib/pkgconfig
-  DESTINATION lib
-)
-
-find_program( XINETD_EXE xinetd PATHS /usr/sbin/ /usr/local/sbin/ )
-
-configure_file(
-  ${CMAKE_SOURCE_DIR}/source/etc/rc.uda.in
-  ${CMAKE_BINARY_DIR}/etc/rc.uda
-  @ONLY
-)
-
-install(
-  FILES ${CMAKE_BINARY_DIR}/etc/rc.uda
-  DESTINATION etc
-  PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
-)
-
-set( SERVICE_FILES
-  uda.socket
-  uda@.service
-)
-
-foreach( SERVICE_FILE ${SERVICE_FILES} )
-  configure_file(
-    "${CMAKE_SOURCE_DIR}/source/etc/${SERVICE_FILE}.in"
-    "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+    ${CMAKE_SOURCE_DIR}/source/etc/rc.uda.in
+    ${CMAKE_BINARY_DIR}/etc/rc.uda
     @ONLY
   )
 
   install(
-    FILES "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
-    DESTINATION etc
-    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+    FILES ${CMAKE_BINARY_DIR}/etc/rc.uda
+    DESTINATION ${UDA_INSTALL_SERVER_SCRIPTDIR}
+    COMPONENT server
+    PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
   )
-endforeach()
+
+  set( SERVICE_FILES
+    uda.socket
+    uda@.service
+  )
+
+  foreach( SERVICE_FILE ${SERVICE_FILES} )
+    configure_file(
+      "${CMAKE_SOURCE_DIR}/source/etc/${SERVICE_FILE}.in"
+      "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+      @ONLY
+    )
+
+    install(
+      FILES "${CMAKE_BINARY_DIR}/etc/${SERVICE_FILE}"
+      DESTINATION ${UDA_INSTALL_SERVICEDIR}
+      COMPONENT server
+      PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+    )
+  endforeach()
+endif()
 

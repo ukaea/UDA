@@ -1,3 +1,49 @@
+if( CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR )
+  cmake_minimum_required( VERSION 3.12 )
+  project( uda_cpp LANGUAGES CXX )
+  include( "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/UDAInstallDirs.cmake" )
+endif()
+
+set( SRC_FILES
+  array.cpp
+  client.cpp
+  data.cpp
+  dim.cpp
+  result.cpp
+  scalar.cpp
+  string.cpp
+  structdata.cpp
+  treenode.cpp
+  vector.cpp
+  signal.cpp
+)
+
+set( INSTALL_FILES
+  UDA.hpp
+  array.hpp
+  client.hpp
+  data.hpp
+  dim.hpp
+  export.hpp
+  result.hpp
+  scalar.hpp
+  signal.hpp
+  string.hpp
+  structdata.hpp
+  treenode.hpp
+  vector.hpp
+)
+
+install( FILES ${INSTALL_FILES}
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/c++
+  COMPONENT development
+)
+
+if( CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR )
+  include( "${CMAKE_CURRENT_SOURCE_DIR}/Standalone.cmake" )
+  return()
+endif()
+
 ########################################################################################################################
 # Dependencies
 
@@ -24,20 +70,6 @@ endif()
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
 
 set( LIB_NAME ${PROJECT_NAME}_cpp )
-
-set( SRC_FILES
-  array.cpp
-  client.cpp
-  data.cpp
-  dim.cpp
-  result.cpp
-  scalar.cpp
-  string.cpp
-  structdata.cpp
-  treenode.cpp
-  vector.cpp
-  signal.cpp
-)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
@@ -118,7 +150,8 @@ set_target_properties( ${LIB_NAME}-static
 )
 
 install( TARGETS ${LIB_NAME}-static
-  DESTINATION lib
+  DESTINATION ${UDA_INSTALL_LIBDIR}
+  COMPONENT development
 )
 
 if( BUILD_SHARED_LIBS )
@@ -137,21 +170,10 @@ if( BUILD_SHARED_LIBS )
   endif()
 
   install( TARGETS ${LIB_NAME}-shared
-    DESTINATION lib
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT client-runtime
   )
 endif()
-
-# pkg-config file
-configure_file(
-  ${CMAKE_SOURCE_DIR}/source/etc/uda-cpp.pc.in
-  ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
-  @ONLY
-)
-
-install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
-  DESTINATION modulefiles/uda
-)
-
 
 if( NOT CLIENT_ONLY )
   set_target_properties( fat${LIB_NAME}-static
@@ -160,7 +182,8 @@ if( NOT CLIENT_ONLY )
   )
   
   install( TARGETS fat${LIB_NAME}-static
-    DESTINATION lib
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT development
   )
   
   if( BUILD_SHARED_LIBS )
@@ -179,36 +202,9 @@ if( NOT CLIENT_ONLY )
     endif()
 
     install( TARGETS fat${LIB_NAME}-shared
-      DESTINATION lib
+      DESTINATION ${UDA_INSTALL_LIBDIR}
+      COMPONENT client-runtime
     )
   endif()
   
-  # pkg-config file
-  configure_file(
-    ${CMAKE_SOURCE_DIR}/source/etc/uda-fat-cpp.pc.in
-    ${CMAKE_BINARY_DIR}/etc/uda/uda-fat-cpp.pc
-    @ONLY
-  )
-  
-  install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-fat-cpp.pc
-    DESTINATION modulefiles/uda
-  )
 endif()
-
-set( INSTALL_FILES
-  UDA.hpp
-  array.hpp
-  client.hpp
-  data.hpp
-  dim.hpp
-  result.hpp
-  scalar.hpp
-  string.hpp
-  structdata.hpp
-  treenode.hpp
-  vector.hpp
-)
-
-install( FILES ${INSTALL_FILES}
-  DESTINATION include/uda/c++
-)

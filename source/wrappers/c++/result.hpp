@@ -6,7 +6,7 @@
 #include <boost/noncopyable.hpp>
 #include <map>
 
-#include <clientserver/export.h>
+#include "export.hpp"
 #include "dim.hpp"
 #include "treenode.hpp"
 
@@ -22,7 +22,7 @@ namespace uda {
 
 class Data;
 
-class LIBRARY_API Result : private boost::noncopyable {
+class UDA_CXX_API Result : private boost::noncopyable {
 public:
     enum DataType {
         DATA, ERRORS

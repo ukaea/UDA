@@ -13,9 +13,9 @@ setenv              UDA_DIR             $UDA_DIR
 setenv              UDA_HOST            @UDA_HOST@
 setenv              UDA_PORT            @UDA_PORT@
 
-prepend-path        PYTHONPATH          $UDA_DIR/python
-prepend-path        LD_LIBRARY_PATH     $UDA_DIR/lib
-prepend-path        IDL_DLM_PATH        $UDA_IDL_DIR/dlm
-prepend-path        IDL_PATH            $UDA_IDL_DIR/idl
-prepend-path        PKG_CONFIG_PATH     $UDA_DIR/lib/pkgconfig
-set-alias           uda                 $UDA_DIR/bin/uda_cli
+prepend-path        PYTHONPATH          @UDA_INSTALL_FULL_PYTHONDIR@
+prepend-path        LD_LIBRARY_PATH     @UDA_INSTALL_FULL_LIBDIR@
+prepend-path        IDL_DLM_PATH        @UDA_INSTALL_FULL_IDL_DLM_DIR@
+prepend-path        IDL_PATH            @UDA_INSTALL_FULL_IDL_PRO_DIR@
+prepend-path        PKG_CONFIG_PATH     @UDA_INSTALL_FULL_PKGCONFIGDIR@
+set-alias           uda                 @UDA_INSTALL_FULL_BINDIR@/uda_cli

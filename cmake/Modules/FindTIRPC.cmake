@@ -20,32 +20,32 @@ if( TIRPC_INCLUDE_DIR AND TIRPC_LIBRARIES )
   set( TIRPC_FIND_QUIETLY TRUE )
 endif( TIRPC_INCLUDE_DIR AND TIRPC_LIBRARIES )
 
-find_package(PkgConfig)
-
-pkg_search_module(TIRPC libtirpc QUIET )
-
-if(${TIRPC_FOUND})
-  SET(TIRPC_LIBRARIES ${TIRPC_LIBRARIES})      
-  SET(TIRPC_INCLUDE_DIR ${TIRPC_INCLUDEDIR}/tirpc)
-
-else()
-  find_path(TIRPC_INCLUDE_DIR rpc/xdr.h
-        HINTS
-          ${TIRPC_ROOT}
-        extlib
-          ENV TIRPC_ROOT           
-          ENV EBROOTLIBTIRPC         
-        PATH_SUFFIXES include include/rpc )
-  find_library( TIRPC_LIBRARIES NAMES tirpc 
-        HINTS
-          ${TIRPC_ROOT}
-        extlib
-          ENV TIRPC_ROOT
-          ENV EBROOTLIBTIRPC
-        PATH_SUFFIXES lib lib64 )          
+find_package( PkgConfig QUIET )
+if( PkgConfig_FOUND )
+  pkg_check_modules( PC_TIRPC QUIET libtirpc )
 endif()
+
+find_path( TIRPC_INCLUDE_DIR rpc/xdr.h
+  HINTS ${TIRPC_ROOT} ENV TIRPC_ROOT ENV EBROOTLIBTIRPC
+  ${PC_TIRPC_INCLUDE_DIRS} ${PC_TIRPC_INCLUDEDIR}
+  PATH_SUFFIXES include/tirpc include tirpc
+)
+find_library( TIRPC_LIBRARIES NAMES tirpc
+  HINTS ${TIRPC_ROOT} ENV TIRPC_ROOT ENV EBROOTLIBTIRPC
+  ${PC_TIRPC_LIBRARY_DIRS}
+  PATH_SUFFIXES lib lib64
+)
 
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( TIRPC DEFAULT_MSG TIRPC_LIBRARIES TIRPC_INCLUDE_DIR )
 
 mark_as_advanced( TIRPC_LIBRARIES TIRPC_INCLUDE_DIR )
+
+if( TIRPC_FOUND AND NOT TARGET TIRPC::TIRPC )
+  add_library( TIRPC::TIRPC INTERFACE IMPORTED )
+  set_target_properties( TIRPC::TIRPC PROPERTIES
+    INTERFACE_COMPILE_DEFINITIONS "__TIRPC__"
+    INTERFACE_INCLUDE_DIRECTORIES "${TIRPC_INCLUDE_DIR}"
+    INTERFACE_LINK_LIBRARIES "${TIRPC_LIBRARIES}"
+  )
+endif()

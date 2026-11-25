@@ -151,7 +151,8 @@ set_target_properties( client2-static
 )
 
 install( TARGETS client2-static
-  DESTINATION lib
+  DESTINATION ${UDA_INSTALL_LIBDIR}
+  COMPONENT development
 )
 
 if( BUILD_SHARED_LIBS )
@@ -170,14 +171,16 @@ if( BUILD_SHARED_LIBS )
   endif()
 
   install( TARGETS client2-shared
-    DESTINATION lib
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT client-runtime
   )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/client2
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/client2
+  COMPONENT development
 )
 
 if( NOT CLIENT_ONLY )
@@ -187,7 +190,8 @@ if( NOT CLIENT_ONLY )
   )
 
   install( TARGETS fatclient2-static
-    DESTINATION lib
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT development
   )
   
   if( BUILD_SHARED_LIBS )
@@ -206,7 +210,8 @@ if( NOT CLIENT_ONLY )
     endif()
 
     install( TARGETS fatclient2-shared
-      DESTINATION lib
+      DESTINATION ${UDA_INSTALL_LIBDIR}
+      COMPONENT client-runtime
   )
   endif()
 endif()

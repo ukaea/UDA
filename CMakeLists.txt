@@ -57,7 +57,13 @@ include( DetermineVersion )
 
 project( uda VERSION ${VERSION} )
 
+# Discover the thread flags before the legacy compiler flags add -pthread.
+# The installed CMake package and pkg-config consumers have their own flags.
+find_package( Threads REQUIRED )
+
 set( USER $ENV{USER} )
+
+include( UDAInstallDirs )
 
 ########################################################################################################################
 # Compiler configuration
@@ -198,6 +204,8 @@ set( UDA_SERVER_HOST "`hostname`" CACHE STRING "define hostname in server config
 # Source directories
 
 add_subdirectory( source )
+include( UDAPkgConfig )
+uda_install_pkgconfig()
 if( NOT CLIENT_ONLY )
   add_subdirectory( test )
 endif()
@@ -213,14 +221,58 @@ configure_file(
 
 install(
   FILES ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
-  DESTINATION modulefiles/uda
+  DESTINATION ${UDA_INSTALL_MODULEDIR}
+  COMPONENT tools
+)
+
+########################################################################################################################
+# Installed CMake package for client consumers
+
+include( CMakePackageConfigHelpers )
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/UDAConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/UDAConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/UDAConfig.cmake
+  INSTALL_DESTINATION ${UDA_INSTALL_CMAKEDIR}
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/UDAConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/UDAConfigVersion.cmake
+  DESTINATION ${UDA_INSTALL_CMAKEDIR}
+  COMPONENT development
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindTIRPC.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindXDR.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindLibMemcached.cmake
+  DESTINATION ${UDA_INSTALL_CMAKEDIR}/Modules
+  COMPONENT development
+)
+
+install(
+  EXPORT UDAClientTargets
+  FILE UDAClientTargets.cmake
+  NAMESPACE UDA::
+  DESTINATION ${UDA_INSTALL_CMAKEDIR}
+  COMPONENT development
 )
 
 # Portablexdr 4.9.1 libraries
 if( WIN32 OR MINGW )
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
-    DESTINATION lib
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT client-runtime
       FILES_MATCHING PATTERN "*xdr*"
   )
   return()

@@ -47,6 +47,8 @@ Cmake configuration options
 |------|-----------|-------------|
 |BUILD_SHARED_LIBS:BOOL | ON | Build shared libraries|
 |CMAKE_INSTALL_PREFIX:PATH | /usr/local | Install path prefix, prepended onto install directories.|
+|UDA_INSTALL_LAYOUT:STRING | LEGACY | Installation layout. `LEGACY` preserves the prefix-local UDA tree; `SYSTEM` uses GNU system directories and places configuration under `/etc/uda`.|
+|UDA_INSTALL_PKGCONFIG:BOOL | ON on Unix; OFF on Windows | Install legacy Unix pkg-config compatibility metadata. CMake package exports are always installed.|
 |CMAKE_BUILD_TYPE:STRING | Debug | Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ...|
 |UDA_SERVER_HOST:STRING | `hostname` | define hostname in server configuration files|
 |UDA_SERVER_PORT:STRING | 56565 | define port number in server configuration files|
@@ -69,6 +71,34 @@ Cmake configuration options
 export UDA_ROOT=/usr/local
 cmake -Bbuild -H. -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$UDA_ROOT -DCMAKE_BUILD_TYPE=Release
 ```
+
+For a system installation or a staged RPM/DEB filesystem, select the system
+layout explicitly:
+
+```bash
+cmake -Bbuild -H. \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DUDA_INSTALL_LAYOUT=SYSTEM \
+    -DCMAKE_BUILD_TYPE=Release
+```
+
+Selecting the layout only controls install destinations. It does not select a
+package generator or otherwise change the build workflow.
+
+`SYSTEM` honors `CMAKE_INSTALL_LIBDIR` (including `lib64` and multiarch paths).
+Systemd units use the separate `UDA_INSTALL_SYSTEMD_UNITDIR`, defaulting to
+`lib/systemd/system` relative to the install prefix. Set it to an absolute or
+prefix-relative path when a distribution requires a different location.
+The plugin helper accepts `--config-dir` to override its configured plugin
+configuration directory.
+
+The service templates still require deployment configuration: select an
+appropriate service user and provision writable log/runtime directories before
+starting the server. Layout selection does not create users or set ownership.
+With prefix `/usr`, configuration is under `/etc/uda`, scripts under
+`/usr/libexec/uda`, and logs under `/var/log/uda`. The runtime directory follows
+GNUInstallDirs' `CMAKE_INSTALL_RUNSTATEDIR`.
 
 **Build**
 

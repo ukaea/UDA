@@ -39,7 +39,8 @@ install(
     ${CMAKE_CURRENT_BINARY_DIR}/udaPlugins.conf
     ${CMAKE_CURRENT_BINARY_DIR}/test_plugin.cpp
   DESTINATION
-    etc/plugins
+    ${UDA_INSTALL_PLUGIN_CONFIGDIR}
+  COMPONENT plugins
 )
 
 file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/server/plugins.d" )
@@ -121,7 +122,8 @@ set_target_properties( plugins-static
 
 install(
   TARGETS plugins-static
-  DESTINATION lib
+  DESTINATION ${UDA_INSTALL_LIBDIR}
+  COMPONENT development
 )
 
 if( BUILD_SHARED_LIBS )
@@ -141,12 +143,14 @@ if( BUILD_SHARED_LIBS )
 
   install(
     TARGETS plugins-shared
-    DESTINATION lib
+    DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT plugins
   )
 endif()
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/plugins
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/plugins
+  COMPONENT development
 )
 
 
