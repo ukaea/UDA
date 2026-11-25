@@ -4,11 +4,11 @@ include( CMakeFindDependencyMacro )
 find_dependency( UDA @UDA_VERSION@ EXACT CONFIG COMPONENTS Client )
 find_dependency( Boost 1.60 )
 
-if( @BUILD_SHARED_LIBS@ AND NOT TARGET UDA::client_shared )
-  set( UDACpp_FOUND FALSE )
-  set( UDACpp_NOT_FOUND_MESSAGE "UDACpp requires the shared UDA client from the matching UDA installation" )
-  return()
-endif()
-
 include( "${CMAKE_CURRENT_LIST_DIR}/UDACppTargets.cmake" )
+
+# UDA::cpp_shared needs UDA::client_shared, which is only present when the client runtime is installed.
+# Its absence must not stop static consumers; they simply do not get the shared target.
+if( EXISTS "${CMAKE_CURRENT_LIST_DIR}/UDACppSharedTargets.cmake" AND TARGET UDA::client_shared )
+  include( "${CMAKE_CURRENT_LIST_DIR}/UDACppSharedTargets.cmake" )
+endif()
 check_required_components( UDACpp )

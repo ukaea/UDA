@@ -1,5 +1,14 @@
 include( GNUInstallDirs )
 
+# On Windows a static archive and the import library of a shared library share the .lib extension, so
+# static archives carry a _static suffix there. Unix archives keep their names (libuda_client.a), which
+# pkg-config and existing link lines rely on.
+if( WIN32 )
+  set( UDA_STATIC_LIB_SUFFIX "_static" )
+else()
+  set( UDA_STATIC_LIB_SUFFIX "" )
+endif()
+
 set( UDA_INSTALL_LAYOUT "LEGACY" CACHE STRING
   "UDA installation layout (LEGACY or SYSTEM)" )
 set_property( CACHE UDA_INSTALL_LAYOUT PROPERTY STRINGS LEGACY SYSTEM )

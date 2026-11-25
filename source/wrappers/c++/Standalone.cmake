@@ -13,9 +13,14 @@ function( uda_add_cpp_wrapper KIND )
   string( TOLOWER "${KIND}" _kind )
   set( _target "uda_cpp-${_kind}" )
   add_library( ${_target} ${KIND} ${SRC_FILES} )
+  if( _kind STREQUAL "shared" )
+    set( _export UDACppSharedTargets )
+  else()
+    set( _export UDACppTargets )
+  endif()
   set_target_properties( ${_target} PROPERTIES
     EXPORT_NAME "cpp_${_kind}"
-    OUTPUT_NAME uda_cpp
+    OUTPUT_NAME uda_cpp${_name_suffix}
   )
   target_compile_features( ${_target} PUBLIC cxx_std_17 )
   target_include_directories( ${_target} PUBLIC
@@ -28,6 +33,7 @@ function( uda_add_cpp_wrapper KIND )
     target_compile_definitions( ${_target} PUBLIC UDA_CXX_STATIC )
     set_target_properties( ${_target} PROPERTIES POSITION_INDEPENDENT_CODE ON )
     set( _runtime_component development )
+    set( _name_suffix "${UDA_STATIC_LIB_SUFFIX}" )
   else()
     target_compile_definitions( ${_target} PUBLIC UDA_CXX_SHARED PRIVATE UDA_CXX_EXPORT )
     set_target_properties( ${_target} PROPERTIES VERSION "${UDA_VERSION}" SOVERSION "${UDA_VERSION_MAJOR}" )
@@ -38,9 +44,10 @@ function( uda_add_cpp_wrapper KIND )
       set_property( TARGET ${_target} APPEND_STRING PROPERTY LINK_FLAGS " -Wl,-z,defs" )
     endif()
     set( _runtime_component client-runtime )
+    set( _name_suffix "" )
   endif()
 
-  install( TARGETS ${_target} EXPORT UDACppTargets
+  install( TARGETS ${_target} EXPORT ${_export}
     ARCHIVE DESTINATION "${UDA_INSTALL_LIBDIR}" COMPONENT development
     LIBRARY DESTINATION "${UDA_INSTALL_LIBDIR}" COMPONENT ${_runtime_component} NAMELINK_COMPONENT development
     RUNTIME DESTINATION "${UDA_INSTALL_BINDIR}" COMPONENT ${_runtime_component}
@@ -74,3 +81,10 @@ install( EXPORT UDACppTargets
   DESTINATION "${_cpp_package_dir}"
   COMPONENT development
 )
+if( BUILD_SHARED_LIBS )
+  install( EXPORT UDACppSharedTargets
+    NAMESPACE UDA::
+    DESTINATION "${_cpp_package_dir}"
+    COMPONENT client-runtime
+  )
+endif()

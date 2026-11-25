@@ -91,20 +91,15 @@ set( HEADER_FILES
   legacy_client.h
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${OPENSSL_INCLUDE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${fmt_SOURCE_DIR}/include
-  ${Boost_INCLUDE_DIRS}
-)
-
+# Include paths come from the object targets rather than directory-wide include_directories().
 add_library( client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-target_link_libraries( client-objects PUBLIC fmt::fmt )
+target_include_directories( client-objects PRIVATE ${CMAKE_SOURCE_DIR}/source ${Boost_INCLUDE_DIRS} )
+target_link_libraries( client-objects PUBLIC fmt::fmt PRIVATE OpenSSL::SSL OpenSSL::Crypto LibXml2::LibXml2 )
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-objects OBJECT ${SRC_FILES} )
-  target_link_libraries( fatclient-objects PUBLIC fmt::fmt )
+  target_include_directories( fatclient-objects PRIVATE ${CMAKE_SOURCE_DIR}/source ${Boost_INCLUDE_DIRS} )
+  target_link_libraries( fatclient-objects PUBLIC fmt::fmt PRIVATE OpenSSL::SSL OpenSSL::Crypto LibXml2::LibXml2 )
 
   target_compile_definitions( fatclient-objects PUBLIC -DFATCLIENT )
 endif()
@@ -155,7 +150,10 @@ if( NOT CLIENT_ONLY )
 endif()
 
 if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
+  target_link_libraries( client-objects PRIVATE XDR::XDR )
+  if( TARGET fatclient-objects )
+    target_link_libraries( fatclient-objects PRIVATE XDR::XDR )
+  endif()
   list( APPEND CLIENT_LINK_LIBS ws2_32 )
   list( APPEND CLIENT_PUBLIC_LINK_LIBS XDR::XDR )
   if ( MINGW )
@@ -164,7 +162,10 @@ if( MINGW OR WIN32 )
     set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl )
   endif()
 elseif( TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
+  target_link_libraries( client-objects PRIVATE TIRPC::TIRPC )
+  if( TARGET fatclient-objects )
+    target_link_libraries( fatclient-objects PRIVATE TIRPC::TIRPC )
+  endif()
   list( APPEND CLIENT_PUBLIC_LINK_LIBS TIRPC::TIRPC )
 endif()
 
@@ -205,12 +206,14 @@ endif()
 
 set_target_properties( client-static
   PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_client
+    OUTPUT_NAME ${PROJECT_NAME}_client${UDA_STATIC_LIB_SUFFIX}
 )
 
 install( TARGETS client-static
   EXPORT UDAClientTargets
-  DESTINATION ${UDA_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
   COMPONENT development
 )
 
@@ -230,8 +233,10 @@ if( BUILD_SHARED_LIBS )
   endif()
 
   install( TARGETS client-shared
-    EXPORT UDAClientTargets
-    DESTINATION ${UDA_INSTALL_LIBDIR}
+    EXPORT UDAClientSharedTargets
+    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
     COMPONENT client-runtime
   )
 endif()
@@ -246,11 +251,13 @@ install( FILES ${HEADER_FILES}
 if( NOT CLIENT_ONLY )
   set_target_properties( fatclient-static
     PROPERTIES
-    OUTPUT_NAME fat${PROJECT_NAME}_client
+    OUTPUT_NAME fat${PROJECT_NAME}_client${UDA_STATIC_LIB_SUFFIX}
   )
 
   install( TARGETS fatclient-static
-    DESTINATION ${UDA_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
     COMPONENT development
   )
   
@@ -270,7 +277,9 @@ if( NOT CLIENT_ONLY )
     endif()
 
     install( TARGETS fatclient-shared
-      DESTINATION ${UDA_INSTALL_LIBDIR}
+      RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
+      LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
       COMPONENT client-runtime
   )
   endif()

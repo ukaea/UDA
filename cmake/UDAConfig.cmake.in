@@ -48,5 +48,10 @@ unset( _UDA_DEPENDENCIES_FOUND )
 
 include( "${CMAKE_CURRENT_LIST_DIR}/UDAClientTargets.cmake" )
 
+# UDA::client_shared is only present when the client-runtime component is installed.
+if( EXISTS "${CMAKE_CURRENT_LIST_DIR}/UDAClientSharedTargets.cmake" )
+  include( "${CMAKE_CURRENT_LIST_DIR}/UDAClientSharedTargets.cmake" )
+endif()
+
 set( UDA_Client_FOUND TRUE )
 check_required_components( UDA )

@@ -428,19 +428,19 @@ typedef struct Environment {
 	int server_version;
 } ENVIRONMENT;
 
-void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+LIBRARY_API void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
-void freeDataBlock(DATA_BLOCK* data_block);
+LIBRARY_API void freeDataBlock(DATA_BLOCK* data_block);
 
-void freeDataBlockList(DATA_BLOCK_LIST* data_block_list);
+LIBRARY_API void freeDataBlockList(DATA_BLOCK_LIST* data_block_list);
 
-void freeReducedDataBlock(DATA_BLOCK* data_block);
+LIBRARY_API void freeReducedDataBlock(DATA_BLOCK* data_block);
 
-void freeRequestBlock(REQUEST_BLOCK* request_block);
+LIBRARY_API void freeRequestBlock(REQUEST_BLOCK* request_block);
 
 //void freeRequestData(REQUEST_DATA* request_data);
 
-void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+LIBRARY_API void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 LIBRARY_API unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block);
 LIBRARY_API unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block);

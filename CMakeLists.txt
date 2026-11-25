@@ -142,9 +142,9 @@ if( WIN32 OR MINGW )
   set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
   set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".dll.lib" ".a" ".lib" )
   if( MINGW )
-    set( IMPLIB_SUFFIX ".dll.a" )
+    set( IMPLIB_SUFFIX ".a" )
   else()
-    set( IMPLIB_SUFFIX ".dll.lib" )
+    set( IMPLIB_SUFFIX ".lib" )
   endif()
   find_package( XDR REQUIRED )
   
@@ -259,6 +259,8 @@ install(
   COMPONENT development
 )
 
+# Static client targets are usable from the development component alone. The shared client
+# targets reference the runtime library, so they are exported with the runtime component.
 install(
   EXPORT UDAClientTargets
   FILE UDAClientTargets.cmake
@@ -266,6 +268,16 @@ install(
   DESTINATION ${UDA_INSTALL_CMAKEDIR}
   COMPONENT development
 )
+
+if( BUILD_SHARED_LIBS )
+  install(
+    EXPORT UDAClientSharedTargets
+    FILE UDAClientSharedTargets.cmake
+    NAMESPACE UDA::
+    DESTINATION ${UDA_INSTALL_CMAKEDIR}
+    COMPONENT client-runtime
+  )
+endif()
 
 # Portablexdr 4.9.1 libraries
 if( WIN32 OR MINGW )
@@ -282,6 +294,12 @@ endif()
 # Package creations
 
 include( InstallRequiredSystemLibraries )
+
+# The development component's shared client targets (UDA::client_shared) load the runtime library,
+# so the development package must declare its dependency on the runtime package.
+if( BUILD_SHARED_LIBS )
+  set( CPACK_COMPONENT_DEVELOPMENT_DEPENDS client-runtime )
+endif()
 
 set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Universal Data Access library" )
 set( CPACK_PACKAGE_VENDOR "ITER" )
