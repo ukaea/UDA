@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <string>
 #include <netcdf.h>
 
 namespace uda::plugins::netcdf {

@@ -1,9 +1,12 @@
 #include "read_netcdf.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <variant>
 #include <vector>
 

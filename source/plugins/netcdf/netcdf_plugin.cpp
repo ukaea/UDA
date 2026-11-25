@@ -1,5 +1,9 @@
 #include "netcdf_plugin.hpp"
 
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 #include <clientserver/stringUtils.h>
 
 #include "read_netcdf.hpp"
@@ -19,6 +23,8 @@ public:
 
     void reset() {
         init_ = false;
+        // closes all cached file handles
+        files_.clear();
     }
 
     static int help(IDAM_PLUGIN_INTERFACE* plugin_interface);
@@ -34,7 +40,20 @@ public:
     int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 private:
+    /**
+     * Get the cached handle for a file, opening (and caching) it if it is not already open.
+     * If opening fails nothing is cached and the exception propagates to the caller.
+     */
+    const FileHandle& get_file(const std::string& file_path) {
+        auto it = files_.find(file_path);
+        if (it == files_.end()) {
+            it = files_.emplace(file_path, std::make_unique<FileHandle>(file_path)).first;
+        }
+        return *it->second;
+    }
+
     bool init_ = false;
+    std::unordered_map<std::string, std::unique_ptr<FileHandle>> files_;
 };
 
 } // namespace uda::plugins::netcdf
@@ -152,10 +171,9 @@ int uda::plugins::netcdf::Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface) 
 
     int err_code = 0;
 
-    // TODO: file handle caching (reuse an already open handle rather than reopening on every call)
     // TODO: write the tree to the UDA data block (ignored for now)
 
-    FileHandle file(file_path);
+    const FileHandle& file = get_file(file_path);
     [[maybe_unused]] Node tree = read_netcdf_tree(file, data_path);
 
     return err_code;
