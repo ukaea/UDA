@@ -11,9 +11,6 @@ if( WIN32 OR MINGW )
   find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
-  endif()
 endif()
 
 ########################################################################################################################
@@ -56,17 +53,6 @@ set( HEADER_FILES
   writer.h
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${fmt_SOURCE_DIR}/include
-  ${Boost_INCLUDE_DIRS}
-)
-
-add_definitions( -DSERVERBUILD )
-
 ########################################################################################################################
 # Targets
 
@@ -78,14 +64,18 @@ add_library( server-objects OBJECT
   ${SRC_FILES}
   ${HEADER_FILES}
 )
-target_link_libraries( server-objects PRIVATE fmt::fmt Boost::boost )
+target_include_directories( server-objects PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( server-objects PRIVATE SERVERBUILD )
+target_link_libraries( server-objects PRIVATE fmt::fmt Boost::boost OpenSSL::SSL LibXml2::LibXml2 )
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
-target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
+target_include_directories( fatserver-objects PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( fatserver-objects PRIVATE SERVERBUILD )
+target_link_libraries( fatserver-objects PRIVATE fmt::fmt Boost::boost OpenSSL::SSL LibXml2::LibXml2 )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ
@@ -106,11 +96,18 @@ set( LINK_XDR )
 set( EXE_FLAG )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-  set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
+  set( LINK_XDR XDR::XDR ws2_32 )
+elseif( TIRPC_FOUND )
+  set( LINK_XDR TIRPC::TIRPC )
+endif()
+
+# The object libraries compile the RPC/XDR code, so they need the same headers and -D__TIRPC__ as the archives.
+target_link_libraries( server-objects PRIVATE ${LINK_XDR} )
+target_link_libraries( fatserver-objects PRIVATE ${LINK_XDR} )
+
+set( LINK_MEMCACHED )
+if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+  set( LINK_MEMCACHED LibMemcached::LibMemcached )
 endif()
 
 target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
@@ -119,6 +116,8 @@ if( BUILD_SHARED_LIBS )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
+target_include_directories( server-exe PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( server-exe PRIVATE SERVERBUILD )
 
 ########################################################################################################################
 # Add libraries
@@ -151,9 +150,9 @@ endif()
 
 target_link_libraries( server-static PRIVATE
   ${CLIENT_STATIC}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
+  OpenSSL::SSL OpenSSL::Crypto
+  LibXml2::LibXml2
+  ${LINK_MEMCACHED}
   ${LINK_DL}
 )
 
@@ -169,9 +168,9 @@ if( BUILD_SHARED_LIBS )
 
   target_link_libraries( server-shared PRIVATE
     ${CLIENT_SHARED}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
+    OpenSSL::SSL OpenSSL::Crypto
+    LibXml2::LibXml2
+    ${LINK_MEMCACHED}
     ${LINK_DL}
   )
 endif()
@@ -186,16 +185,16 @@ endif()
 
 target_link_libraries( server-exe PRIVATE
   ${SERVER_LINKING}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
+  OpenSSL::SSL OpenSSL::Crypto
+  LibXml2::LibXml2
+  ${LINK_MEMCACHED}
   ${LINK_M}
   ${LINK_DL}
   ${LINK_XDR}
 )
 
 if( NOT WIN32 AND NOT MINGW )
-  target_link_libraries( server-exe LINK_PRIVATE c )
+  target_link_libraries( server-exe PRIVATE c )
 endif()
 
 if( NOT APPLE AND ( NOT WIN32 OR ( WIN32 AND MINGW ) ) )

@@ -12,9 +12,6 @@ if( WIN32 OR MINGW )
   find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
-  endif()
 endif()
 
 ########################################################################################################################
@@ -35,24 +32,15 @@ set( SRC_FILES
   xdr_protocol.cpp
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${spdlog_SOURCE_DIR}/include
-  ${fmt_SOURCE_DIR}/include
-)
-
-add_definitions( -DSERVERBUILD )
-
 ########################################################################################################################
 # Targets
 
 add_library( server2-objects OBJECT
   ${SRC_FILES}
 )
-target_link_libraries( server2-objects PRIVATE Boost::boost spdlog::spdlog fmt::fmt )
+target_include_directories( server2-objects PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( server2-objects PRIVATE SERVERBUILD )
+target_link_libraries( server2-objects PRIVATE Boost::boost spdlog::spdlog fmt::fmt OpenSSL::SSL LibXml2::LibXml2 )
 
 set( SERVER2_OBJ
   $<TARGET_OBJECTS:server2-objects>
@@ -72,11 +60,17 @@ set( LINK_XDR )
 set( EXE_FLAG )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-  set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
+  set( LINK_XDR XDR::XDR ws2_32 )
+elseif( TIRPC_FOUND )
+  set( LINK_XDR TIRPC::TIRPC )
+endif()
+
+# The object libraries compile the RPC/XDR code, so they need the same headers and -D__TIRPC__ as the archives.
+target_link_libraries( server2-objects PRIVATE ${LINK_XDR} )
+
+set( LINK_MEMCACHED )
+if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+  set( LINK_MEMCACHED LibMemcached::LibMemcached )
 endif()
 
 target_link_libraries( server2-static PRIVATE ${LINK_XDR} fmt::fmt )
@@ -84,7 +78,9 @@ if( BUILD_SHARED_LIBS )
   target_link_libraries( server2-shared PRIVATE ${LINK_XDR} fmt::fmt )
 endif()
 
-add_executable( server2-exe ${EXE_FLAG} server_main.cpp)
+add_executable( server2-exe ${EXE_FLAG} server_main.cpp )
+target_include_directories( server2-exe PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( server2-exe PRIVATE SERVERBUILD )
 
 ########################################################################################################################
 # Add libraries
@@ -117,9 +113,9 @@ endif()
 
 target_link_libraries( server2-static PRIVATE
   ${CLIENT_STATIC}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
+  OpenSSL::SSL OpenSSL::Crypto
+  LibXml2::LibXml2
+  ${LINK_MEMCACHED}
   ${LINK_DL}
   fmt::fmt
 )
@@ -136,9 +132,9 @@ if( BUILD_SHARED_LIBS )
 
   target_link_libraries( server2-shared PRIVATE
     ${CLIENT_SHARED}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
+    OpenSSL::SSL OpenSSL::Crypto
+    LibXml2::LibXml2
+    ${LINK_MEMCACHED}
     ${LINK_DL}
     fmt::fmt
   )
@@ -155,16 +151,16 @@ endif()
 target_link_libraries( server2-exe PRIVATE
   Boost::boost
   ${SERVER_LINKING}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
+  OpenSSL::SSL OpenSSL::Crypto
+  LibXml2::LibXml2
+  ${LINK_MEMCACHED}
   ${LINK_M}
   ${LINK_DL}
   ${LINK_XDR}
 )
 
 if( NOT WIN32 AND NOT MINGW )
-  target_link_libraries( server2-exe LINK_PRIVATE c )
+  target_link_libraries( server2-exe PRIVATE c )
 endif()
 
 if( NOT APPLE AND ( NOT WIN32 OR ( WIN32 AND MINGW ) ) )

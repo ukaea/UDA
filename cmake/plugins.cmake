@@ -43,18 +43,9 @@ macro( uda_plugin )
     set( PLUGIN_VERSION "0.0.0" )
   endif()
 
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/source
-  )
-
   if( NOT APPLE AND NOT WIN32 AND NOT MINGW AND CMAKE_COMPILER_IS_GNUCC )
     set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs" )
   endif()
-
-  include_directories( SYSTEM /opt/local/include )
-  foreach( INCLUDE_DIR ${PLUGIN_EXTRA_INCLUDE_DIRS} )
-    include_directories( SYSTEM ${INCLUDE_DIR} )
-  endforeach()
 
   foreach( LINK_DIR ${PLUGIN_EXTRA_LINK_DIRS} )
     link_directories( ${LINK_DIR} )
@@ -76,29 +67,34 @@ macro( uda_plugin )
     )
   endif()
 
-  if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-    add_definitions( -DA64 )
-  endif()
+  # Include paths and definitions are set on the plugin target, not the directory.
+  target_include_directories( ${PLUGIN_LIBNAME} PRIVATE ${CMAKE_SOURCE_DIR}/source )
+  target_include_directories( ${PLUGIN_LIBNAME} SYSTEM PRIVATE /opt/local/include ${PLUGIN_EXTRA_INCLUDE_DIRS} )
 
-  add_definitions( -DSERVERBUILD )
+  target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE SERVERBUILD )
+  if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE A64 )
+  endif()
+  # EXTRA_DEFINITIONS are macro names without the leading -D.
   foreach( DEF ${PLUGIN_EXTRA_DEFINITIONS} )
-    add_definitions( ${DEF} )
+    target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE ${DEF} )
   endforeach()
 
-  set( LIBRARIES client-shared plugins-shared ${OPENSSL_LIBRARIES} )
+  set( LIBRARIES client-shared plugins-shared OpenSSL::SSL OpenSSL::Crypto )
   if( ENABLE_CAPNP )
-    set( LIBRARIES ${LIBRARIES} serialisation-static )
+    list( APPEND LIBRARIES serialisation-static )
   endif()
   if( WIN32 OR MINGW )
     if( MINGW )
-      set( LIBRARIES ${LIBRARIES} ${XDR_LIBRARIES} dlfcn-win32::dl stdc++ )
+      list( APPEND LIBRARIES XDR::XDR dlfcn-win32::dl stdc++ )
     else()
-      set( LIBRARIES ${LIBRARIES} ${XDR_LIBRARIES} dlfcn-win32::dl )
+      list( APPEND LIBRARIES XDR::XDR dlfcn-win32::dl )
     endif()
-  elseif(TIRPC_FOUND)
-    set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES})
+  elseif( TIRPC_FOUND )
+    # TIRPC::TIRPC also supplies the -D__TIRPC__ definition.
+    list( APPEND LIBRARIES TIRPC::TIRPC )
   else()
-    set( LIBRARIES ${LIBRARIES} dl stdc++ )
+    list( APPEND LIBRARIES dl stdc++ )
   endif()
 
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized )

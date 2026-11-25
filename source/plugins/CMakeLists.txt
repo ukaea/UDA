@@ -10,9 +10,6 @@ if( WIN32 OR MINGW )
   find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
-  endif()
 endif()
 
 set ( STDFS_VAR "" )
@@ -57,20 +54,6 @@ else()
   add_subdirectory( uda )
 endif( DEFINED BUILD_PLUGINS )
 
-add_definitions( -DSERVERBUILD )
-
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${LIBXML2_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS}
-)
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif(TIRPC_FOUND)
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
 set( SOURCE_FILES
   managePluginFiles.cpp
   udaPlugin.cpp
@@ -86,21 +69,26 @@ set( HEADER_FILES
 )
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
+target_include_directories( plugins-objects PRIVATE ${CMAKE_SOURCE_DIR}/source )
+target_compile_definitions( plugins-objects PRIVATE SERVERBUILD )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
 if( BUILD_SHARED_LIBS )
   add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
 endif()
 
-set( LINK_LIB ${LIBXML2_LIBRARIES} fmt::fmt )
+set( LINK_LIB LibXml2::LibXml2 fmt::fmt )
 if( WIN32 OR MINGW )
   if( MINGW )
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl stdc++ )
+    set( LINK_LIB ${LINK_LIB} XDR::XDR ws2_32 dlfcn-win32::dl stdc++ )
   else()
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
+    set( LINK_LIB ${LINK_LIB} XDR::XDR ws2_32 dlfcn-win32::dl )
   endif()
-elseif(TIRPC_FOUND)
-  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES} )
+elseif( TIRPC_FOUND )
+  set( LINK_LIB ${LINK_LIB} TIRPC::TIRPC )
 endif()
+
+# Objects need the same headers and dependencies as the archives that contain them.
+target_link_libraries( plugins-objects PRIVATE ${LINK_LIB} Boost::boost )
 
 target_link_libraries( plugins-static PRIVATE
   #server-static

@@ -17,8 +17,6 @@ uda_plugin(
   EXAMPLE "TEMPLATEPLUGIN::functionName()"
   LIBNAME template_plugin
   SOURCES templatePlugin.cpp
-  EXTRA_INCLUDE_DIRS
-    ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS
-    ${LIBXML2_LIBRARIES}
+    LibXml2::LibXml2
 )
