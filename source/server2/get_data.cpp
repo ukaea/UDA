@@ -1,3 +1,4 @@
+#include <server/pluginInterface.h>
 #include "get_data.hpp"
 #include "clientserver/stringUtils.h"
 #include "clientserver/errorLog.h"
@@ -1035,7 +1036,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
         initDataBlock(data_block);
 
         auto plugin_list = plugins_.as_plugin_list();
-        plugin_interface.interfaceVersion = 1;
+        udaInitHostPluginInterface(&plugin_interface, nullptr);
         plugin_interface.pluginVersion = 0;
         plugin_interface.sqlConnectionType = 0;
         plugin_interface.data_block = data_block;
@@ -1051,7 +1052,6 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
         plugin_interface.pluginList = &plugin_list;
         plugin_interface.userdefinedtypelist = user_defined_type_list_;
         plugin_interface.logmalloclist = log_malloc_list_;
-        plugin_interface.error_stack.nerrors = 0;
 
         int plugin_request = REQUEST_READ_UNKNOWN;
 
@@ -1088,6 +1088,12 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_request, metadata_block_.data_source.format);
 
+                // Reject incompatible registrations before invoking any plugin code
+                if (int version_err = udaCheckPluginInterfaceVersion(&maybe_plugin.get())) {
+                    return version_err;
+                }
+                udaSetPluginInterfaceTarget(&plugin_interface, &maybe_plugin.get());
+
 #ifndef FATCLIENT
                 // Redirect Output to temporary file if no file handles passed
                 int reset = 0;
@@ -1099,11 +1105,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
 
                 // Call the plugin
                 int err = maybe_plugin.get().idamPlugin(&plugin_interface);
-                for (unsigned int i = 0; i < plugin_interface.error_stack.nerrors; ++i) {
-                    auto error = &plugin_interface.error_stack.idamerror[i];
-                    addIdamError(error->type, error->location, error->code, error->msg);
-                }
-                freeIdamErrorStack(&plugin_interface.error_stack);
+                udaCollectPluginErrors(&plugin_interface);
 
 #ifndef FATCLIENT
                 // Reset Redirected Output

@@ -209,7 +209,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                             }
                             break;
 
-                        case 5:    // Minimum Plugin Interface Version
+                        case 5:    // Maximum Plugin Interface Version supported by the plugin (default 1)
                             if (strlen(next) > 0) {
                                 plugin_list->plugin[plugin_list->count].interfaceVersion = (unsigned short)atoi(next);
                             }

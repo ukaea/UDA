@@ -20,6 +20,7 @@ namespace filesystem = std::filesystem;
 #endif
 
 #include <boost/algorithm/string.hpp>
+#include <memory>
 #include <string>
 
 namespace {
@@ -34,15 +35,22 @@ bool starts_with(const std::string& string, const std::string& search_string) {
 
 }
 
-// Check if path starts with pre-approved file path
-// Raises Plugin Error if not
-int check_allowed_path(const char* expanded_path) {
+// Check if the canonical form of expanded_path starts with one of the pre-approved paths in UDA_ALLOWED_PATHS
+// (';' separated). An empty or unset list rejects every path. Diagnostics go to the given interface's host log
+// and the outcome is recorded on its error stack.
+int udaCheckAllowedPath(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* expanded_path)
+{
+    if (expanded_path == nullptr) {
+        UDA_PLUGIN_RAISE_ERROR(plugin_interface, "Provided File Path Not Found!");
+    }
+
     std::string full_path;
     try {
         full_path = filesystem::canonical(expanded_path).string();
     } catch (filesystem::filesystem_error& e) {
-        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", full_path.c_str(), e.what());
-        RAISE_PLUGIN_ERROR("Provided File Path Not Found!");
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", expanded_path,
+                       e.what());
+        UDA_PLUGIN_RAISE_ERROR(plugin_interface, "Provided File Path Not Found!");
     }
     const char* env_str = std::getenv("UDA_ALLOWED_PATHS");
 
@@ -51,7 +59,7 @@ int check_allowed_path(const char* expanded_path) {
         // Checking if environment variable exists before using it
         boost::split(allowed_paths, env_str, boost::is_any_of(";"));
     } else {
-        UDA_LOG(UDA_LOG_WARN, "UDA_ALLOWED_PATHS not found or empty, rejecting all paths\n");
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_WARN, "UDA_ALLOWED_PATHS not found or empty, rejecting all paths\n");
     }
 
     bool good_path = false;
@@ -62,9 +70,24 @@ int check_allowed_path(const char* expanded_path) {
         }
     }
     if (!good_path) {
-        UDA_LOG(UDA_LOG_ERROR, "Bad Path Provided %s\n", expanded_path);
         std::string error_msg("Bad Path Provided " + std::string(expanded_path));
-        RAISE_PLUGIN_ERROR(error_msg.c_str());
+        UDA_PLUGIN_RAISE_ERROR(plugin_interface, error_msg.c_str());
     }
     return 0;
+}
+
+// Legacy form: records into library-global error state (see udaCheckAllowedPath() for the interface-aware form)
+int check_allowed_path(const char* expanded_path)
+{
+    // A local version-1 interface: the plugin logging helpers fall back to the legacy logger
+    auto plugin_interface = std::make_unique<IDAM_PLUGIN_INTERFACE>();
+    plugin_interface->interfaceVersion = 1;
+    plugin_interface->error_stack.nerrors = 0;
+
+    int err = udaCheckAllowedPath(plugin_interface.get(), expanded_path);
+    for (unsigned int i = 0; i < plugin_interface->error_stack.nerrors; ++i) {
+        const UDA_ERROR* error = &plugin_interface->error_stack.idamerror[i];
+        addIdamError(error->type, error->location, error->code, error->msg);
+    }
+    return err;
 }

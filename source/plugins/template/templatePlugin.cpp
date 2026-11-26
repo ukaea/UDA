@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------
 * v1 UDA Plugin Template: Standardised plugin design template, just add ...
 *
-* Input Arguments:    IDAM_PLUGIN_INTERFACE *idam_plugin_interface
+* Input Arguments:    IDAM_PLUGIN_INTERFACE *plugin_interface
 *
 * Returns:        0 if the plugin functionality was successful
 *            otherwise a Error Code is returned
@@ -18,6 +18,9 @@
 *        future reference.
 *
 *---------------------------------------------------------------------------------------------------------------*/
+// Route the legacy RAISE_PLUGIN_ERROR / FIND_REQUIRED_* macros through the plugin interface in scope
+#define UDA_PLUGIN_INTERFACE_VAR plugin_interface
+
 #include "templatePlugin.h"
 
 #ifdef __GNUC__
@@ -132,55 +135,55 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
 /**
  * Help: A Description of library functionality
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int TemplatePlugin::help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     const char* help = "\ntemplatePlugin: Add Functions Names, Syntax, and Descriptions\n\n";
     const char* desc = "templatePlugin: help = description of this plugin";
 
-    return setReturnDataString(idam_plugin_interface->data_block, help, desc);
+    return setReturnDataString(plugin_interface->data_block, help, desc);
 }
 
 /**
  * Plugin version
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int TemplatePlugin::version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(idam_plugin_interface->data_block, UDA_BUILD_VERSION, "Plugin version number");
+    return setReturnDataString(plugin_interface->data_block, UDA_BUILD_VERSION, "Plugin version number");
 }
 
 /**
  * Plugin Build Date
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int TemplatePlugin::build_date(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::build_date(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
+    return setReturnDataString(plugin_interface->data_block, __DATE__, "Plugin build date");
 }
 
 /**
  * Plugin Default Method
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int TemplatePlugin::default_method(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::default_method(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
+    return setReturnDataString(plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
 }
 
 /**
  * Plugin Maximum Interface Version
- * @param idam_plugin_interface
+ * @param plugin_interface
  * @return
  */
-int TemplatePlugin::max_interface_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
+    return setReturnDataIntScalar(plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
 
 namespace {
@@ -200,11 +203,11 @@ std::string to_string(T* array, size_t size) {
 
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
-int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
 
-    NameValueList& nvl = idam_plugin_interface->request_data->nameValueList;
+    NameValueList& nvl = plugin_interface->request_data->nameValueList;
 
     const char* required = nullptr;
     FIND_REQUIRED_STRING_VALUE(nvl, required);

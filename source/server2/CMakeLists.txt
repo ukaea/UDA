@@ -32,6 +32,7 @@ set( SRC_FILES
   server_processing.cpp
   server_subset_data.cpp
   xdr_protocol.cpp
+  ${CMAKE_SOURCE_DIR}/source/server/pluginInterface.cpp
 )
 
 include_directories(

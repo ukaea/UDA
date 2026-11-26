@@ -144,6 +144,10 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                            &actions_desc, &actions_sig);
     if (err != 0) {
+        // Make sure the failure is reported to the client with its detail, or with a fallback record if none
+        concatUdaError(&server_block->idamerrorstack);
+        closeUdaError();
+        udaEnsureErrorRecorded(&server_block->idamerrorstack, err, __func__);
         return err;
     }
 

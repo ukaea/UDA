@@ -22,16 +22,18 @@ endif()
 set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
+  createPluginInterface.cpp
   getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
   makeServerRequestBlock.cpp
+  pluginInterface.cpp
   serverGetData.cpp
   serverLegacyPlugin.cpp
   serverPlugin.cpp
   serverProcessing.cpp
+  serverParseServerSide.cpp
   serverStartup.cpp
-  serverSubsetData.cpp
   writer.cpp
   createXDRStream.cpp
 )
@@ -44,10 +46,12 @@ set( HEADER_FILES
   getServerEnvironment.h
   initPluginList.h
   makeServerRequestBlock.h
+  pluginInterface.h
   serverGetData.h
   serverLegacyPlugin.h
   serverPlugin.h
   serverProcessing.h
+  serverParseServerSide.h
   serverStartup.h
   serverSubsetData.h
   sleepServer.h
@@ -70,6 +74,11 @@ add_definitions( -DSERVERBUILD )
 ########################################################################################################################
 # Targets
 
+# Server-support: code shared by the server and the plugin support library (libuda_plugins), which uses it for
+# nested callPlugin() subsetting. It must depend only on clientserver/structures/logging, never on the server.
+add_library( server-support-objects OBJECT serverSubsetData.cpp serverSubsetData.h )
+target_link_libraries( server-support-objects PRIVATE Boost::boost )
+
 add_library( server-objects OBJECT
   udaServer.cpp
   udaLegacyServer.cpp
@@ -82,6 +91,7 @@ target_link_libraries( server-objects PRIVATE fmt::fmt Boost::boost )
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp
+  serverSubsetData.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
@@ -90,6 +100,7 @@ target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
+  $<TARGET_OBJECTS:server-support-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>

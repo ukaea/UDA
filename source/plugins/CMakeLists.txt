@@ -85,9 +85,16 @@ set( HEADER_FILES
 )
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
-add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
+
+# The plugin support library carries the server-support objects (subsetting for nested callPlugin()) but never the
+# server itself, so it has no copy of the server's logger or error-stack state
+set( PLUGINS_OBJ
+  $<TARGET_OBJECTS:plugins-objects>
+  $<TARGET_OBJECTS:server-support-objects>
+)
+add_library( plugins-static STATIC ${PLUGINS_OBJ} )
 if( BUILD_SHARED_LIBS )
-  add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
+  add_library( plugins-shared SHARED ${PLUGINS_OBJ} )
 endif()
 
 set( LINK_LIB ${LIBXML2_LIBRARIES} fmt::fmt )
@@ -108,7 +115,7 @@ target_link_libraries( plugins-static PRIVATE
 
 if( BUILD_SHARED_LIBS )
   target_link_libraries( plugins-shared PRIVATE
-    server-static
+    client-shared
     ${LINK_LIB}
     ${STDFS_VAR}
   )

@@ -23,6 +23,17 @@ enum pluginClass {
 struct PluginList;              // Forward declaration
 typedef struct PluginList PLUGINLIST;
 
+// Highest plugin interface version supported by this host. Version 2 appends the host logging fields below.
+#define UDA_PLUGIN_INTERFACE_VERSION 2
+
+/**
+ * Host-owned logging sink (interface version 2).
+ *
+ * Called synchronously. The message is fully formatted (no trailing newline is required) and, like context, is
+ * only valid for the duration of the call: plugins must not retain either pointer. level is a LOG_LEVEL value.
+ */
+typedef void (*UDA_PLUGIN_LOG_FUNCTION)(void* context, int level, const char* file, int line, const char* message);
+
 typedef struct IdamPluginInterface {    // Standard Plugin interface
     unsigned short interfaceVersion;    // Interface Version
     unsigned short pluginVersion;       // Plugin Version
@@ -43,6 +54,10 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     void* sqlConnection;                // Opaque structure
     const PLUGINLIST* pluginList;       // List of data readers, filters, models, and servers
     UDA_ERROR_STACK error_stack;
+    // ---- Interface version 2: only read these when interfaceVersion >= 2 ----
+    UDA_PLUGIN_LOG_FUNCTION log_function;   // Host logging sink; NULL => plugin logging is a no-op
+    void* log_context;                      // Host-owned context passed to log_function; valid for this call only
+    int log_level;                          // Host's current minimum LOG_LEVEL, so plugins can skip formatting
 } IDAM_PLUGIN_INTERFACE;
 
 typedef int (* PLUGINFUNP)(IDAM_PLUGIN_INTERFACE*);             // Plugin function type
@@ -66,7 +81,8 @@ typedef struct PluginData {
     unsigned short cachePermission;     // The server's internal state may be dependent on previous calls
     // so the returned data are not suitable for caching on the client.
     // This is used to inform the client how to manage the returned data
-    unsigned short interfaceVersion;    // Maximum interface version the plugin is compliant with (Minimum is 1)
+    unsigned short interfaceVersion;    // Maximum interface version the plugin supports (registration config
+                                        // column 5; 0 or missing => 1)
     void* pluginHandle;                 // Plugin Library handle
     PLUGINFUNP idamPlugin;              // Plugin function address
 } PLUGIN_DATA;

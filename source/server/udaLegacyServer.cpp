@@ -431,6 +431,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         //----------------------------------------------------------------------------
         // Start of Error Trap Loop #2
 
+        const int trap1_err = err;
+
         do {
             UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #2 Loop\n");
 
@@ -439,6 +441,12 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
             concatUdaError(&server_block.idamerrorstack); // Update Server State with Error Stack
             closeUdaError();
+
+            // A failed request must always carry an error record so the header reports the failure
+            if (udaEnsureErrorRecorded(&server_block.idamerrorstack, trap1_err, __func__)) {
+                UDA_LOG(UDA_LOG_WARN, "Request failed with error %d but no error was recorded: adding fallback error\n",
+                        trap1_err);
+            }
 
             printServerBlock(server_block);
 
@@ -458,11 +466,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 break;
             }
 
-            if (server_block.idamerrorstack.nerrors > 0) {
-                err = server_block.idamerrorstack.idamerror[0].code;
-            } else {
-                err = 0;
-            }
+            err = server_block.error;
 
             if (err != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop\n");

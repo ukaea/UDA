@@ -38,7 +38,7 @@ private:
     void startup();
     void loop();
     int handle_request();
-    int report_to_client();
+    int report_to_client(int request_err);
     void handshake_client();
     void start_logs();
     int get_data(int* depth, RequestData* request_data, DataBlock* data_block, int protocol_version);

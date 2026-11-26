@@ -1,3 +1,6 @@
+// Route the legacy RAISE_PLUGIN_ERROR / FIND_REQUIRED_* macros through the plugin interface in scope
+#define UDA_PLUGIN_INTERFACE_VAR idam_plugin_interface
+
 #include "help_plugin.h"
 
 #include <cstdlib>

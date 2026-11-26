@@ -96,15 +96,19 @@ void printIdamErrorStack()
 //            1 => Code Error
 //            2 => Plugin Error
 
-void addIdamError(int type, const char* location, int code, const char* msg)
+namespace {
+
+// Build a single error record. Strings are copied, truncated and terminated; null strings are treated as empty.
+// System errors have the strerror() text for their code appended to the message.
+UDA_ERROR make_error(int type, const char* location, int code, const char* msg)
 {
-    UDA_ERROR error;
+    UDA_ERROR error = {};
 
     error.type = type;
     error.code = code;
-    strncpy(error.location, location, STRING_LENGTH - 1);
+    strncpy(error.location, location != nullptr ? location : "", STRING_LENGTH - 1);
     error.location[STRING_LENGTH - 1] = '\0';
-    strncpy(error.msg, msg, STRING_LENGTH - 1);
+    strncpy(error.msg, msg != nullptr ? msg : "", STRING_LENGTH - 1);
     error.msg[STRING_LENGTH - 1] = '\0';
 
     size_t lmsg0 = strlen(error.msg);
@@ -128,7 +132,78 @@ void addIdamError(int type, const char* location, int code, const char* msg)
         }
     }
 
-    udaerrorstack.push_back(error);
+    return error;
+}
+
+} // namespace
+
+void addIdamError(int type, const char* location, int code, const char* msg)
+{
+    udaerrorstack.push_back(make_error(type, location, code, msg));
+}
+
+int udaAddErrorToStack(UDA_ERROR_STACK* error_stack, int type, const char* location, int code, const char* msg)
+{
+    if (error_stack == nullptr) {
+        return -1;
+    }
+    if (error_stack->nerrors >= UDA_MAX_ERRORS) {
+        // Keep the earliest records: the first record is the root cause and drives the response header
+        return 1;
+    }
+    error_stack->idamerror[error_stack->nerrors] = make_error(type, location, code, msg);
+    error_stack->nerrors++;
+    return 0;
+}
+
+int udaAppendErrorStack(UDA_ERROR_STACK* error_stack, const UDA_ERROR_STACK* source)
+{
+    if (error_stack == nullptr || source == nullptr) {
+        return -1;
+    }
+    int rc = 0;
+    unsigned int count = source->nerrors < UDA_MAX_ERRORS ? source->nerrors : UDA_MAX_ERRORS;
+    for (unsigned int i = 0; i < count; ++i) {
+        if (error_stack->nerrors >= UDA_MAX_ERRORS) {
+            rc = 1;
+            break;
+        }
+        error_stack->idamerror[error_stack->nerrors++] = source->idamerror[i];
+    }
+    return rc;
+}
+
+int udaEnsureErrorRecorded(UDA_ERROR_STACK* error_stack, int code, const char* location)
+{
+    if (error_stack == nullptr || code == 0 || error_stack->nerrors > 0) {
+        return 0;
+    }
+    char msg[STRING_LENGTH];
+    snprintf(msg, STRING_LENGTH, "Request failed with error code %d but no error details were reported", code);
+    udaAddErrorToStack(error_stack, UDA_CODE_ERROR_TYPE, location, code, msg);
+    return 1;
+}
+
+int udaMoveErrorsSince(int start, UDA_ERROR_STACK* error_stack)
+{
+    if (start < 0) {
+        start = 0;
+    }
+    if (static_cast<size_t>(start) >= udaerrorstack.size()) {
+        return 0;
+    }
+    int rc = 0;
+    if (error_stack != nullptr) {
+        for (size_t i = start; i < udaerrorstack.size(); ++i) {
+            if (error_stack->nerrors >= UDA_MAX_ERRORS) {
+                rc = 1;
+                break;
+            }
+            error_stack->idamerror[error_stack->nerrors++] = udaerrorstack[i];
+        }
+    }
+    udaerrorstack.resize(start);
+    return rc;
 }
 
 // Concatenate Error Stack structures

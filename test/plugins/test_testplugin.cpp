@@ -3,6 +3,7 @@
 
 #include <c++/UDA.hpp>
 #include <serialisation/capnp_serialisation.h>
+#include <client/accAPI.h>
 
 TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
 {
@@ -1597,18 +1598,86 @@ TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
 
     uda::Client client;
 
-#ifdef __APPLE__
+    // Errors travel on the plugin interface, so they are reported exactly once on every platform
     REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "[testplugin]: Test #1 of Error State Management\n" );
     REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n" );
-#else
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=1)", ""), "[testplugin]: Test #1 of Error State Management\n[testplugin]: Test #1 of Error State Management\n" );
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n[testplugin]: Test #2 of Error State Management\n" );
-#endif
 
 #ifndef FATCLIENT
     // This test hard crashes the server code so can't be run in fat-client mode
     REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), Catch::Contains("[idamClient]:  Protocol 11 Error (Server Block #2)") );
 #endif
+}
+
+namespace {
+
+int count_errors_containing(const UDA_ERROR_STACK* errors, const std::string& text)
+{
+    int count = 0;
+    for (unsigned int i = 0; i < errors->nerrors; ++i) {
+        if (std::string(errors->idamerror[i].msg).find(text) != std::string::npos) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+} // namespace
+
+TEST_CASE( "Run silent_error_test - failure without an error record keeps its code", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    REQUIRE_THROWS_AS( client.get("TESTPLUGIN::silent_error_test()", ""), uda::ServerException );
+
+    UDA_ERROR_STACK* errors = getUdaServerErrorStack();
+    REQUIRE( errors->nerrors >= 1 );
+    REQUIRE( errors->idamerror[0].code == 9876 );
+    REQUIRE_THAT( std::string(errors->idamerror[0].msg), Catch::Contains("error code 9876") );
+}
+
+TEST_CASE( "Run call_plugin_error_test - nested child error arrives once before parent context", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    REQUIRE_THROWS_AS( client.get("TESTPLUGIN::call_plugin_error_test()", ""), uda::ServerException );
+
+    UDA_ERROR_STACK* errors = getUdaServerErrorStack();
+    REQUIRE( errors->nerrors >= 2 );
+    REQUIRE( errors->idamerror[0].code == 9877 );
+    REQUIRE( std::string(errors->idamerror[0].msg) == "Detailed error from the child plugin" );
+    REQUIRE( count_errors_containing(errors, "Detailed error from the child plugin") == 1 );
+    REQUIRE( count_errors_containing(errors, "Plugin call failed: TESTPLUGIN::detailed_error_test()") == 1 );
+}
+
+TEST_CASE( "Run call_plugin_silent_error_test - silent nested failure keeps its code", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    REQUIRE_THROWS_AS( client.get("TESTPLUGIN::call_plugin_silent_error_test()", ""), uda::ServerException );
+
+    UDA_ERROR_STACK* errors = getUdaServerErrorStack();
+    REQUIRE( errors->nerrors >= 1 );
+    REQUIRE( errors->idamerror[0].code == 9876 );
+}
+
+TEST_CASE( "Run call_plugin_error_subset_test - child failure is not replaced by subsetting", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    REQUIRE_THROWS_AS( client.get("TESTPLUGIN::call_plugin_error_subset_test()", ""), uda::ServerException );
+
+    UDA_ERROR_STACK* errors = getUdaServerErrorStack();
+    REQUIRE( errors->nerrors >= 1 );
+    REQUIRE( errors->idamerror[0].code == 9877 );
+    REQUIRE( count_errors_containing(errors, "Detailed error from the child plugin") == 1 );
 }
 
 TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGIN]" )

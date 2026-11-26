@@ -1,62 +1,20 @@
 #include "udaPlugin.h"
-#include "server/initPluginList.h"
-#include "server/serverPlugin.h"
 #include "structures/struct.h"
 #include "server/serverSubsetData.h"
 
-#include <server/getServerEnvironment.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <version.h>
 
+#include <algorithm>
+#include <cstdarg>
+#include <memory>
 #include <type_traits>
 #include <regex>
 #include <string>
 #include <cstring>
-
-IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
-{
-    auto plugin_interface = (IDAM_PLUGIN_INTERFACE*)calloc(1, sizeof(IDAM_PLUGIN_INTERFACE));
-    auto environment = getServerEnvironment();
-    auto plugin_list = (PLUGINLIST*)calloc(1, sizeof(PLUGINLIST));
-
-    initPluginList(plugin_list, environment);
-
-    auto request_data = (REQUEST_DATA*)calloc(1, sizeof(REQUEST_DATA));
-    makeRequestData(request_data, *plugin_list, environment);
-
-    auto user_defined_type_list = (USERDEFINEDTYPELIST*)calloc(1, sizeof(USERDEFINEDTYPELIST));
-    auto log_malloc_list = (LOGMALLOCLIST*)calloc(1, sizeof(LOGMALLOCLIST));
-
-    plugin_interface->request_data = request_data;
-    plugin_interface->pluginList = plugin_list;
-    plugin_interface->environment = environment;
-    plugin_interface->userdefinedtypelist = user_defined_type_list;
-    plugin_interface->logmalloclist = log_malloc_list;
-
-    plugin_interface->interfaceVersion = 1;
-    plugin_interface->pluginVersion = 0;
-    plugin_interface->housekeeping = 0;
-    plugin_interface->changePlugin = 0;
-    plugin_interface->error_stack.nerrors = 0;
-
-    return plugin_interface;
-}
-
-void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface)
-{
-    free(plugin_interface->request_data);
-    freeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
-    free(plugin_interface->userdefinedtypelist);
-    freeMallocLogList(plugin_interface->logmalloclist);
-    free(plugin_interface->logmalloclist);
-    freePluginList((PLUGINLIST*)plugin_interface->pluginList);
-    free((PLUGINLIST*)plugin_interface->pluginList);
-    free((ENVIRONMENT*)plugin_interface->environment);
-    free(plugin_interface);
-}
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
@@ -657,38 +615,209 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
     return found;
 }
 
-int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
+int udaPluginAddError(IDAM_PLUGIN_INTERFACE* plugin_interface, int type, const char* location, int code,
+                      const char* msg)
 {
-    IDAM_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
-    REQUEST_DATA request = *old_plugin_interface->request_data;
-    idam_plugin_interface.request_data = &request;
+    if (plugin_interface == nullptr) {
+        return -1;
+    }
+    return udaAddErrorToStack(&plugin_interface->error_stack, type, location, code, msg);
+}
+
+int udaPluginAddErrorF(IDAM_PLUGIN_INTERFACE* plugin_interface, int type, const char* location, int code,
+                       const char* fmt, ...)
+{
+    char msg[STRING_LENGTH];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, STRING_LENGTH, fmt, args);
+    va_end(args);
+    return udaPluginAddError(plugin_interface, type, location, code, msg);
+}
+
+bool udaPluginLogEnabled(const IDAM_PLUGIN_INTERFACE* plugin_interface, int level)
+{
+    if (plugin_interface != nullptr && plugin_interface->interfaceVersion >= 2) {
+        return plugin_interface->log_function != nullptr && level >= plugin_interface->log_level;
+    }
+    // Legacy host: defer to the logger of the library this plugin is bound to
+    return level >= udaGetLogLevel();
+}
+
+void udaPluginLog(const IDAM_PLUGIN_INTERFACE* plugin_interface, int level, const char* file, int line,
+                  const char* fmt, ...)
+{
+    char msg[STRING_LENGTH];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, STRING_LENGTH, fmt, args);
+    va_end(args);
+
+    if (plugin_interface != nullptr && plugin_interface->interfaceVersion >= 2) {
+        if (plugin_interface->log_function != nullptr) {
+            plugin_interface->log_function(plugin_interface->log_context, level, file, line, msg);
+        }
+        return;
+    }
+    udaLog((LOG_LEVEL)level, "%s:%d >> %s", file != nullptr ? file : "", line, msg);
+}
+
+namespace {
+
+// Logging context for a nested call: forwards to the parent's sink, identifying the child plugin.
+// Lives on udaCallPlugin()'s stack, so is valid for exactly the duration of the child call.
+struct NestedLogContext {
+    UDA_PLUGIN_LOG_FUNCTION parent_function;
+    void* parent_context;
+    const char* child_name;
+};
+
+void nested_log(void* context, int level, const char* file, int line, const char* message)
+{
+    auto nested = static_cast<NestedLogContext*>(context);
+    if (nested == nullptr || nested->parent_function == nullptr) {
+        return;
+    }
+    char msg[STRING_LENGTH];
+    snprintf(msg, STRING_LENGTH, "[%s] %s", nested->child_name, message != nullptr ? message : "");
+    nested->parent_function(nested->parent_context, level, file, line, msg);
+}
+
+void add_parent_error(IDAM_PLUGIN_INTERFACE* plugin_interface, int code, const char* msg)
+{
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_ERROR, "%s\n", msg);
+    udaPluginAddError(plugin_interface, UDA_CODE_ERROR_TYPE, "callPlugin", code, msg);
+}
+
+} // namespace
+
+int udaCallPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* signal)
+{
+    if (plugin_interface == nullptr) {
+        return 999;
+    }
+
+    const PLUGINLIST* pluginlist = plugin_interface->pluginList;
+    if (pluginlist == nullptr || signal == nullptr) {
+        add_parent_error(plugin_interface, 999, "No plugin list or request available for the plugin call");
+        return 999;
+    }
+
+    if (strlen(signal) >= MAXMETA) {
+        add_parent_error(plugin_interface, 999, "Plugin call request is too long");
+        return 999;
+    }
+
+    // The child interface shares the parent's data block, environment and logging context, but starts with an
+    // empty error stack so that only its own records are merged back below
+    auto child_interface = std::make_unique<IDAM_PLUGIN_INTERFACE>(*plugin_interface);
+    child_interface->error_stack.nerrors = 0;
+
+    REQUEST_DATA request = *plugin_interface->request_data;
+    child_interface->request_data = &request;
 
     request.source[0] = '\0';
     strcpy(request.signal, signal);
-    makeRequestData(&request, *pluginlist, old_plugin_interface->environment);
+
+    // makeRequestData still records into library-global error state: on failure, move those records to the parent
+    int global_errors = udaNumErrors();
+    int err = makeRequestData(&request, *pluginlist, plugin_interface->environment);
+    if (err != 0) {
+        udaMoveErrorsSince(global_errors, &plugin_interface->error_stack);
+        udaPluginAddErrorF(plugin_interface, UDA_CODE_ERROR_TYPE, "callPlugin", err,
+                           "Unable to parse plugin call request: %s", signal);
+        return err;
+    }
 
     request.request = findPluginRequestByFormat(request.format, pluginlist);
     if (request.request == REQUEST_READ_UNKNOWN) {
-        RAISE_PLUGIN_ERROR("Plugin not found!");
+        char msg[STRING_LENGTH];
+        snprintf(msg, STRING_LENGTH, "Plugin not found for request: %s", signal);
+        add_parent_error(plugin_interface, 999, msg);
+        return 999;
     }
 
-    int err = 0;
     int id = findPluginIdByRequest(request.request, pluginlist);
-    PLUGIN_DATA* plugin = &(pluginlist->plugin[id]);
-    if (id >= 0 && plugin->idamPlugin != nullptr) {
-        err = plugin->idamPlugin(&idam_plugin_interface);    // Call the data reader
-    } else {
-        RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
+    const PLUGIN_DATA* plugin = id >= 0 ? &pluginlist->plugin[id] : nullptr;
+    if (plugin == nullptr || plugin->idamPlugin == nullptr) {
+        add_parent_error(plugin_interface, 999, "Data Access is not available for this data request!");
+        return 999;
     }
 
-    // Apply subsettinng
+    int registered_version = plugin->interfaceVersion > 0 ? plugin->interfaceVersion : 1;
+    if (registered_version > UDA_PLUGIN_INTERFACE_VERSION) {
+        char msg[STRING_LENGTH];
+        snprintf(msg, STRING_LENGTH, "Plugin %s requires interface version %d but this host supports up to %d",
+                 plugin->format, registered_version, UDA_PLUGIN_INTERFACE_VERSION);
+        add_parent_error(plugin_interface, 999, msg);
+        return 999;
+    }
+    // The appended (version >= 2) fields are only known to be valid when the parent was given them
+    int host_version = plugin_interface->interfaceVersion >= 2 ? UDA_PLUGIN_INTERFACE_VERSION : 1;
+    child_interface->interfaceVersion = (unsigned short)std::min(registered_version, host_version);
+
+    NestedLogContext nested_log_context = {};
+    if (host_version >= 2 && plugin_interface->log_function != nullptr) {
+        nested_log_context.parent_function = plugin_interface->log_function;
+        nested_log_context.parent_context = plugin_interface->log_context;
+        nested_log_context.child_name = plugin->format;
+        child_interface->log_function = nested_log;
+        child_interface->log_context = &nested_log_context;
+    }
+
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "Calling plugin %s: %s\n", plugin->format, signal);
+
+    err = plugin->idamPlugin(child_interface.get());    // Call the data reader
+
+    if (err != 0) {
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_ERROR, "Plugin %s returned error %d for request: %s\n",
+                       plugin->format, err, signal);
+        // Guarantee the child's failure carries at least one record of its own
+        udaEnsureErrorRecorded(&child_interface->error_stack, err, plugin->format);
+    }
+
+    // Child records first (root cause), then any context the parent adds
+    udaAppendErrorStack(&plugin_interface->error_stack, &child_interface->error_stack);
+
+    if (err != 0) {
+        return err;
+    }
+
+    // Apply subsetting
     if (request.datasubset.nbound > 0) {
         ACTION action = {};
         initAction(&action);
         action.actionType = UDA_SUBSET_TYPE;
         action.subset = request.datasubset;
-        err = serverSubsetData(idam_plugin_interface.data_block, action, idam_plugin_interface.logmalloclist);
+        global_errors = udaNumErrors();
+        err = serverSubsetData(child_interface->data_block, action, child_interface->logmalloclist);
+        if (err != 0) {
+            udaMoveErrorsSince(global_errors, &plugin_interface->error_stack);
+            char msg[STRING_LENGTH];
+            snprintf(msg, STRING_LENGTH, "Subsetting failed for plugin call request: %s", signal);
+            add_parent_error(plugin_interface, err, msg);
+            return err;
+        }
     }
 
+    return 0;
+}
+
+int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
+{
+    if (old_plugin_interface == nullptr) {
+        return 999;
+    }
+    // The parent interface is always a writable host object (the child already writes to its data_block); the
+    // const qualifier is historical. Errors from the child are merged into the parent's error_stack.
+    auto plugin_interface = const_cast<IDAM_PLUGIN_INTERFACE*>(old_plugin_interface);
+    if (pluginlist == old_plugin_interface->pluginList) {
+        return udaCallPlugin(plugin_interface, signal);
+    }
+    // Caller supplied a different plugin list: honour it for this call only
+    const PLUGINLIST* saved = plugin_interface->pluginList;
+    plugin_interface->pluginList = pluginlist;
+    int err = udaCallPlugin(plugin_interface, signal);
+    plugin_interface->pluginList = saved;
     return err;
 }

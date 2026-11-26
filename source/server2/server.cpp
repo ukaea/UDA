@@ -246,7 +246,7 @@ void uda::Server::loop()
 
         UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: %d [%d]\n", err, (int)fatal_error_);
 
-        err = report_to_client();
+        err = report_to_client(err);
 
         UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
         UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, (int)fatal_error_);
@@ -724,7 +724,7 @@ void print_data_blocks(const std::vector<DataBlock>& data_blocks)
     }
 }
 
-int uda::Server::report_to_client()
+int uda::Server::report_to_client(int request_err)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -734,6 +734,13 @@ int uda::Server::report_to_client()
     closeUdaError();
 
     int err = 0;
+
+    // A failed request must always carry an error record: the header and the decision to skip the data payload
+    // below are both driven from this single error state
+    if (udaEnsureErrorRecorded(&server_block_.idamerrorstack, request_err, __func__)) {
+        UDA_LOG(UDA_LOG_WARN, "Request failed with error %d but no error was recorded: adding fallback error\n",
+                request_err);
+    }
 
     if (server_block_.idamerrorstack.nerrors > 0) {
         server_block_.error = server_block_.idamerrorstack.idamerror[0].code;
@@ -752,8 +759,8 @@ int uda::Server::report_to_client()
 
     err = protocol_.send_server_block(server_block_, log_malloc_list_, user_defined_type_list_);
 
-    if (server_block_.idamerrorstack.nerrors > 0) {
-        err = server_block_.idamerrorstack.idamerror[0].code;
+    if (err == 0) {
+        err = server_block_.error;
     }
 
     if (err != 0) {

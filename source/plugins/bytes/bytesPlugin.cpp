@@ -1,3 +1,6 @@
+// Route the legacy RAISE_PLUGIN_ERROR / FIND_REQUIRED_* macros through the plugin interface in scope
+#define UDA_PLUGIN_INTERFACE_VAR plugin_interface
+
 #include "bytesPlugin.h"
 
 #include <clientserver/stringUtils.h>
@@ -133,13 +136,10 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
             RAISE_PLUGIN_ERROR_AND_EXIT("Unknown function requested!", plugin_interface);
         }
 
-        if (err != 0) {
-            concatUdaError(&plugin_interface->error_stack);
-        }
         return err;
 
     } catch (const std::exception& e) {
-        std::string err_msg = std::string("Excption raised in bytes plugin:") + e.what();
+        std::string err_msg = std::string("Exception raised in bytes plugin: ") + e.what();
         RAISE_PLUGIN_ERROR_AND_EXIT(err_msg.c_str(), plugin_interface);
     } catch (...) {
         RAISE_PLUGIN_ERROR_AND_EXIT("Unknown exception raised by bytes plugin", plugin_interface);
@@ -202,15 +202,16 @@ int BytesPlugin::max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
 
-int check_path(const Environment* environment, const std::string& path)
+int check_path(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& path)
 {
+    const ENVIRONMENT* environment = plugin_interface->environment;
     int err = 0;
 
     //----------------------------------------------------------------------
     // Block Access to External Users
 
     if (environment->external_user) {
-        UDA_LOG(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", path.c_str());
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", path.c_str());
         RAISE_PLUGIN_ERROR("This Service is Disabled");
     }
 
@@ -218,15 +219,14 @@ int check_path(const Environment* environment, const std::string& path)
     // Test the filepath
 
     if (!IsLegalFilePath(path.c_str())) {
-        UDA_LOG(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", path.c_str());
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", path.c_str());
         RAISE_PLUGIN_ERROR("The directory path has incorrect syntax");
-        return err;
     }
 
     //----------------------------------------------------------------------
     // Data Source Details
 
-    UDA_LOG(UDA_LOG_DEBUG, "File Name  : %s \n", path.c_str());
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "File Name  : %s \n", path.c_str());
 
     return err;
 }
@@ -252,9 +252,9 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     char tmp_path[MAXPATH];
     StringCopy(tmp_path, path, MAXPATH);
     expand_environment_variables(tmp_path);
-    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
 
-    int rc = check_allowed_path(tmp_path);
+    int rc = udaCheckAllowedPath(plugin_interface, tmp_path);
     if (rc != 0) {
         return rc;
     }
@@ -263,7 +263,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
         checksum = "";
     }
 
-    rc = check_path(plugin_interface->environment, tmp_path);
+    rc = check_path(plugin_interface, tmp_path);
     if (rc != 0) {
         return rc;
     }
@@ -292,14 +292,15 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (file == nullptr || ferror(file) || serrno != 0) {
         int err = BYTEFILEOPENERROR;
         if (serrno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, "readBytes", serrno, "");
+            UDA_PLUGIN_ADD_SYS_ERROR(plugin_interface, serrno, "");
         }
-        addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Open the File for Read Access");
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_ERROR, "Unable to Open the File for Read Access: %s\n", tmp_path);
+        UDA_PLUGIN_ADD_ERROR(plugin_interface, err, "Unable to Open the File for Read Access");
         file_map_.erase(tmp_path);
         return err;
     }
 
-    return readBytes(file, data_block, offset, max_bytes, checksum, opaque);
+    return readBytes(plugin_interface, file, data_block, offset, max_bytes, checksum, opaque);
 }
 
 int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)
@@ -312,14 +313,14 @@ int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)
     char tmp_path[MAXPATH];
     StringCopy(tmp_path, path, MAXPATH);
     expand_environment_variables(tmp_path);
-    UDA_LOG(UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
 
-    int rc = check_allowed_path(tmp_path);
+    int rc = udaCheckAllowedPath(plugin_interface, tmp_path);
     if (rc != 0) {
         return rc;
     }
 
-    rc = check_path(plugin_interface->environment, tmp_path);
+    rc = check_path(plugin_interface, tmp_path);
     if (rc != 0) {
         return rc;
     }

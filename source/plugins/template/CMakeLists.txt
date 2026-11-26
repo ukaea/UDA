@@ -16,6 +16,7 @@ uda_plugin(
   DESCRIPTION "Standardised Plugin Template"
   EXAMPLE "TEMPLATEPLUGIN::functionName()"
   LIBNAME template_plugin
+  INTERFACE_VERSION 2
   SOURCES templatePlugin.cpp
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}

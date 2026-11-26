@@ -184,6 +184,13 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 
     int err = 0;
 
+    // A failed request must always carry an error record: the header and the decision to skip the data payload
+    // below are both driven from this single error state
+    if (udaEnsureErrorRecorded(&server_block->idamerrorstack, trap1Err, __func__)) {
+        UDA_LOG(UDA_LOG_WARN, "Request failed with error %d but no error was recorded: adding fallback error\n",
+                trap1Err);
+    }
+
     if (server_block->idamerrorstack.nerrors > 0) {
         server_block->error = server_block->idamerrorstack.idamerror[0].code;
         strcpy(server_block->msg, server_block->idamerrorstack.idamerror[0].msg);
@@ -210,11 +217,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 
     UDA_LOG(UDA_LOG_DEBUG, "Server Block Sent to Client without error\n");
 
-    if (server_block->idamerrorstack.nerrors > 0) {
-        err = server_block->idamerrorstack.idamerror[0].code;
-    } else {
-        err = trap1Err;
-    }
+    err = server_block->error;
 
     if (err != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Error Forces Exiting of Server Error Trap #2 Loop\n");

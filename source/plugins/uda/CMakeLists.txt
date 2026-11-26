@@ -28,6 +28,7 @@ uda_plugin(
   DESCRIPTION "forward on requests to the UDA client"
   EXAMPLE "UDA::get(host=idam0, port=56565, signal=ip, source=12345)"
   LIBNAME uda_plugin
+  INTERFACE_VERSION 2
   SOURCES uda_plugin.cpp
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}

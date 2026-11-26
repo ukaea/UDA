@@ -28,6 +28,7 @@ uda_plugin(
   DESCRIPTION "Service Discovery: list the details on all registered services"
   EXAMPLE "HELP::services()"
   LIBNAME help_plugin
+  INTERFACE_VERSION 2
   SOURCES help_plugin.cpp
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}

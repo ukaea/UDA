@@ -17,6 +17,9 @@
 *
 *---------------------------------------------------------------------------------------------------------------*/
 
+// Route the legacy RAISE_PLUGIN_ERROR / FIND_REQUIRED_* macros through the plugin interface in scope
+#define UDA_PLUGIN_INTERFACE_VAR plugin_interface
+
 #include "testplugin.h"
 
 #include <cstdlib>
@@ -136,6 +139,11 @@ static int do_call_plugin_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
 static int do_call_plugin_test_index(IDAM_PLUGIN_INTERFACE* plugin_interface);
 static int do_call_plugin_test_slice(IDAM_PLUGIN_INTERFACE* plugin_interface);
 static int do_call_plugin_test_stride(IDAM_PLUGIN_INTERFACE* plugin_interface);
+static int do_silent_error_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+static int do_detailed_error_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+static int do_call_plugin_error_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+static int do_call_plugin_silent_error_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+static int do_call_plugin_error_subset_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 static int do_emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
@@ -175,7 +183,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Interface exchanged on entry\n");
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "Interface exchanged on entry\n");
 
     //----------------------------------------------------------------------------------------
     // Heap Housekeeping
@@ -188,7 +196,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (housekeeping || STR_IEQUALS(request->function, "reset")) {
         if (!init) return 0;        // Not previously initialised: Nothing to do!
         init = 0;
-        UDA_LOG(UDA_LOG_DEBUG, "reset function executed\n");
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "reset function executed\n");
         return 0;
     }
 
@@ -198,7 +206,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (!init || STR_IEQUALS(request->function, "init")
         || STR_IEQUALS(request->function, "initialise")) {
         init = 1;
-        UDA_LOG(UDA_LOG_DEBUG, "plugin initialised\n");
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "plugin initialised\n");
         if (STR_IEQUALS(request->function, "init")
             || STR_IEQUALS(request->function, "initialise")) {
             return 0;
@@ -210,11 +218,11 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         RAISE_PLUGIN_ERROR("Unable to define Data Structures - nullptr list!");
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "entering init_structure_definitions\n");
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "entering init_structure_definitions\n");
 
     init_structure_definitions(plugin_interface);
 
-    UDA_LOG(UDA_LOG_DEBUG, "return from init_structure_definitions\n");
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "return from init_structure_definitions\n");
 
     //----------------------------------------------------------------------------------------
     // Plugin Functions
@@ -327,6 +335,16 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         err = do_array1dtest(plugin_interface);
     } else if (STR_IEQUALS(request->function, "call_plugin_test")) {
         err = do_call_plugin_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "silent_error_test")) {
+        err = do_silent_error_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "detailed_error_test")) {
+        err = do_detailed_error_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "call_plugin_error_test")) {
+        err = do_call_plugin_error_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "call_plugin_silent_error_test")) {
+        err = do_call_plugin_silent_error_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "call_plugin_error_subset_test")) {
+        err = do_call_plugin_error_subset_test(plugin_interface);
     } else if (STR_IEQUALS(request->function, "call_plugin_test_index")) {
         err = do_call_plugin_test_index(plugin_interface);
     } else if (STR_IEQUALS(request->function, "call_plugin_test_slice")) {
@@ -361,31 +379,31 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 #endif // CAPNP_ENABLED
     } else {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Unknown function requested!");
+        udaPluginAddError(plugin_interface, UDA_CODE_ERROR_TYPE, "testplugin", err, "Unknown function requested!");
     }
 
     return err;
 }
 
-void testError1()
+void testError1(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     // Test of Error Management within Plugins
     int err = 9991;
-    addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #1 of Error State Management");
+    udaPluginAddError(plugin_interface, UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #1 of Error State Management");
 }
 
-void testError2()
+void testError2(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     // Test of Error Management within Plugins
     int err = 9992;
-    addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #2 of Error State Management");
+    udaPluginAddError(plugin_interface, UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #2 of Error State Management");
 }
 
 static int do_help(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
-    UDA_LOG(UDA_LOG_DEBUG, "help function called\n");
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "help function called\n");
 
     const char* help = "\nTestplugin: Functions Names and Test Descriptions/n/n"
                        "test0-test9: String passing tests\n"
@@ -462,7 +480,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* plugin_interface)
     strcpy(data_block->data_label, "");
     strcpy(data_block->data_units, "");
 
-    UDA_LOG(UDA_LOG_DEBUG, "help function completed\n");
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "help function completed\n");
 
     return 0;
 }
@@ -3160,11 +3178,11 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* plugin_interface)
 // For this test, all blocks must be of the same type: request_block->putDataBlockList.putDataBlock[0].data_type;
 // Repeat call with changing types may cause client side issues!
 
-    UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block->putDataBlockList.blockCount);
 
     if (request_block->putDataBlockList.blockCount == 0) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "No Put Data Blocks to process!");
+        UDA_PLUGIN_ADD_ERROR(plugin_interface, err, "No Put Data Blocks to process!");
         return err;
     }
 
@@ -3232,8 +3250,8 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* plugin_interface)
         blocks[i].dataCount = request_block->putDataBlockList.putDataBlock[i].count;
         blocks[i].data = (void*) request_block->putDataBlockList.putDataBlock[i].data;
 
-        UDA_LOG(UDA_LOG_DEBUG, "data type : %d\n", request_block->putDataBlockList.putDataBlock[0].data_type);
-        UDA_LOG(UDA_LOG_DEBUG, "data count: %d\n", request_block->putDataBlockList.putDataBlock[0].count);
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "data type : %d\n", request_block->putDataBlockList.putDataBlock[0].data_type);
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "data count: %d\n", request_block->putDataBlockList.putDataBlock[0].count);
 
 // Data blocks already allocated and will be freed by a separate process so use addNonMalloc instead of addMalloc
 
@@ -3280,7 +3298,7 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* plugin_interface)
     DATA_BLOCK* data_block = plugin_interface->data_block;
     REQUEST_DATA* request = plugin_interface->request_data;
 
-    UDA_LOG(UDA_LOG_DEBUG, "TESTPLUGIN test50\n");
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "TESTPLUGIN test50\n");
     printRequestData(*request);
 
     // Return an array of strings with all passed parameters and substitutions
@@ -3295,7 +3313,7 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* plugin_interface)
                             request->nameValueList.nameValue[i].value);
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "test50: %s\n", work.c_str());
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "test50: %s\n", work.c_str());
 
     initDataBlock(data_block);
 
@@ -3802,6 +3820,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (signal != nullptr || source != nullptr) {            // Identify the plugin to test
 
         next_plugin_interface = *plugin_interface;    // New plugin interface
+        next_plugin_interface.error_stack.nerrors = 0;  // Only the child's own errors are merged back below
 
         next_plugin_interface.request_data = &next_request;
         strcpy(next_request.api_delim, request->api_delim);
@@ -3814,10 +3833,17 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         for (int i = 0; i < pluginList->count; i++) {
             if (next_request.request == pluginList->plugin[i].request) {
                 if (pluginList->plugin[i].idamPlugin != nullptr) {
+                    // Never offer the child a newer interface than it is registered for
+                    unsigned short registered = pluginList->plugin[i].interfaceVersion > 0
+                                                ? pluginList->plugin[i].interfaceVersion : 1;
+                    if (registered < next_plugin_interface.interfaceVersion) {
+                        next_plugin_interface.interfaceVersion = registered;
+                    }
                     err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
+                    udaAppendErrorStack(&plugin_interface->error_stack, &next_plugin_interface.error_stack);
                 } else {
                     err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, "No Data Access plugin available for this data request", err, "");
+                    UDA_PLUGIN_ADD_ERROR(plugin_interface, err, "No Data Access plugin available for this data request");
                 }
                 break;
             }
@@ -3832,32 +3858,23 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 //======================================================================================
 // Test error condition passing...
 
-// The IDAM server uses a data structure with global scope to stack error messages and codes.
-// The scope does not extend to external plugin libraries.
-// Adding errors to an error stack is done using the function exposed by the server library.
-// No state is maintained by this function and the stack structure is passed by argument.
-// The server error structure is passed into plugins using an accessor function: getIdamServerPluginErrorStack()
-// To maintain consistency with existing legacy code, use a local structure with a global scope (plugin library only)
-// A final necessary step is to concatenate this local structure with the server structure before returning.
-// When testing the plugin, errors are doubled (tripled!) up as both stacks are the same.
+// Errors are recorded directly on the plugin interface's error stack, which the server collects after the call.
+// No library-global error state is involved, so each error is reported exactly once.
 static int do_errortest(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     int err = 0;
     int test = 0;
 
-    initUdaErrorStack();
     REQUEST_DATA* request = plugin_interface->request_data;
 
     FIND_REQUIRED_INT_VALUE(request->nameValueList, test);
 
     switch (test) {
         case 1:
-            testError1();
-            concatUdaError(&plugin_interface->error_stack);
+            testError1(plugin_interface);
             return err;
         case 2:
-            testError2();
-            concatUdaError(&plugin_interface->error_stack);
+            testError2(plugin_interface);
             return err;
         case 3: {
             const char* p = "crash!";        // force a server crash! (write to read-only memory)
@@ -3871,7 +3888,7 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* plugin_interface)
         }
     }
 
-    UDA_THROW_ERROR(9990 + test, "Test of Error State Management");
+    UDA_PLUGIN_RAISE_ERROR_CODE(plugin_interface, 9990 + test, "Test of Error State Management");
 }
 
 static int do_scalartest(IDAM_PLUGIN_INTERFACE* plugin_interface)
@@ -3941,6 +3958,37 @@ int do_call_plugin_test_slice(IDAM_PLUGIN_INTERFACE* plugin_interface)
 int do_call_plugin_test_stride(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[::2]", plugin_interface);
+}
+
+// Fails without recording any error: the server must still report the failure with this code
+int do_silent_error_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    return 9876;
+}
+
+// Fails with a detailed error record
+int do_detailed_error_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    UDA_PLUGIN_RAISE_ERROR_CODE(plugin_interface, 9877, "Detailed error from the child plugin");
+}
+
+// The child's detailed error must arrive exactly once, before the parent's context
+int do_call_plugin_error_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    CALL_PLUGIN(plugin_interface, "%s", "TESTPLUGIN::detailed_error_test()");
+    return 0;
+}
+
+// A silent child failure must still carry its code
+int do_call_plugin_silent_error_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    return udaCallPlugin(plugin_interface, "TESTPLUGIN::silent_error_test()");
+}
+
+// A child failure must be returned rather than replaced by the result of subsetting
+int do_call_plugin_error_subset_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::detailed_error_test()[0:5]", plugin_interface);
 }
 
 #ifdef CAPNP_ENABLED

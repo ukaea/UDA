@@ -2,8 +2,10 @@
 * Identify the correct UDA Data Server Plugin
 *---------------------------------------------------------------------------------------------------------------------*/
 #include "serverPlugin.h"
+#include "pluginInterface.h"
 
 #include <cstdlib>
+#include <memory>
 #include <cerrno>
 #include <dlfcn.h>
 #include <cstring>
@@ -44,16 +46,20 @@ void allocPluginList(int count, PLUGINLIST* plugin_list)
 void resetPlugins(const PLUGINLIST* plugin_list)
 {
     REQUEST_DATA request_block;
-    IDAM_PLUGIN_INTERFACE idam_plugin_interface;
     initRequestData(&request_block);
     strcpy(request_block.function, "reset");
 
-    idam_plugin_interface.interfaceVersion = 1;
-    idam_plugin_interface.housekeeping = 1;            // Force a full reset
-    idam_plugin_interface.request_data = &request_block;
+    auto idam_plugin_interface = std::make_unique<IDAM_PLUGIN_INTERFACE>();
     for (int i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].pluginHandle != nullptr) {
-            plugin_list->plugin[i].idamPlugin(&idam_plugin_interface);        // Call the housekeeping method
+        const PLUGIN_DATA* plugin = &plugin_list->plugin[i];
+        if (plugin->pluginHandle != nullptr && plugin->idamPlugin != nullptr
+                && plugin->interfaceVersion <= UDA_PLUGIN_INTERFACE_VERSION) {
+            udaInitHostPluginInterface(idam_plugin_interface.get(), plugin);
+            idam_plugin_interface->housekeeping = 1;            // Force a full reset
+            idam_plugin_interface->request_data = &request_block;
+            idam_plugin_interface->pluginList = plugin_list;
+            plugin->idamPlugin(idam_plugin_interface.get());    // Call the housekeeping method
+            udaCollectPluginErrors(idam_plugin_interface.get());
         }
     }
 }
@@ -404,8 +410,8 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     // Check the Interface Compliance
 
-    if (plugin_list->plugin[plugin_id].interfaceVersion > 1) {
-        UDA_THROW_ERROR(999, "The Provenance Plugin's Interface Version is not Implemented.");
+    if ((err = udaCheckPluginInterfaceVersion(&plugin_list->plugin[plugin_id])) != 0) {
+        return err;
     }
 
     USERDEFINEDTYPELIST userdefinedtypelist;
@@ -414,7 +420,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     LOGMALLOCLIST logmalloclist;
     initLogMallocList(&logmalloclist);
 
-    idam_plugin_interface.interfaceVersion = 1;
+    udaInitHostPluginInterface(&idam_plugin_interface, &plugin_list->plugin[plugin_id]);
     idam_plugin_interface.pluginVersion = 0;
     idam_plugin_interface.data_block = &data_block;
     idam_plugin_interface.client_block = client_block;
@@ -427,7 +433,6 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     idam_plugin_interface.pluginList = plugin_list;
     idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
     idam_plugin_interface.logmalloclist = &logmalloclist;
-    idam_plugin_interface.error_stack.nerrors = 0;
 
     // Redirect Output to temporary file if no file handles passed
 
@@ -441,6 +446,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     UDA_LOG(UDA_LOG_DEBUG, "entering the provenance plugin\n");
 
     err = plugin_list->plugin[plugin_id].idamPlugin(&idam_plugin_interface);
+    udaCollectPluginErrors(&idam_plugin_interface);
 
     UDA_LOG(UDA_LOG_DEBUG, "returned from the provenance plugin\n");
 
@@ -546,8 +552,8 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
 
     // Check the Interface Compliance
 
-    if (plugin_list->plugin[plugin_id].interfaceVersion > 1) {
-        UDA_THROW_ERROR(999, "The Plugin's Interface Version is not Implemented.");
+    if ((err = udaCheckPluginInterfaceVersion(&plugin_list->plugin[plugin_id])) != 0) {
+        return err;
     }
 
     DATA_BLOCK data_block;
@@ -560,7 +566,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     LOGMALLOCLIST logmalloclist;
     initLogMallocList(&logmalloclist);
 
-    idam_plugin_interface.interfaceVersion = 1;
+    udaInitHostPluginInterface(&idam_plugin_interface, &plugin_list->plugin[plugin_id]);
     idam_plugin_interface.pluginVersion = 0;
     idam_plugin_interface.data_block = &data_block;
     idam_plugin_interface.client_block = nullptr;
@@ -573,7 +579,6 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     idam_plugin_interface.pluginList = plugin_list;
     idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
     idam_plugin_interface.logmalloclist = &logmalloclist;
-    idam_plugin_interface.error_stack.nerrors = 0;
 
     // Redirect Output to temporary file if no file handles passed
 
@@ -585,6 +590,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     // Call the plugin (Error handling is managed within)
 
     err = plugin_list->plugin[plugin_id].idamPlugin(&idam_plugin_interface);
+    udaCollectPluginErrors(&idam_plugin_interface);
 
     // Reset Redirected Output
 

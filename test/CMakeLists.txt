@@ -7,6 +7,18 @@ endif()
 
 enable_testing()
 
+# Plugin support / plugin libraries must not embed the server or its logger and error-stack state
+if( BUILD_SHARED_LIBS AND NOT WIN32 AND NOT MINGW AND TARGET plugins-shared )
+  set( LINK_GUARD_LIBS $<TARGET_FILE:plugins-shared> )
+  foreach( GUARD_PLUGIN bytes_plugin help_plugin template_plugin testplugin_plugin uda_plugin )
+    if( TARGET ${GUARD_PLUGIN} )
+      list( APPEND LINK_GUARD_LIBS $<TARGET_FILE:${GUARD_PLUGIN}> )
+    endif()
+  endforeach()
+  add_test( NAME plugin_link_guard
+    COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} "-DLIBS=${LINK_GUARD_LIBS}" -P ${CMAKE_SOURCE_DIR}/cmake/checkPluginSymbols.cmake )
+endif()
+
 find_package( Boost )
 find_package( OpenSSL )
 find_package( LibXml2 )

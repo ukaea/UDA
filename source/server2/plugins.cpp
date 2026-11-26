@@ -125,7 +125,7 @@ int process_line(const std::string& line, PluginData& plugin)
                 break;
 
             case 5:
-                // Minimum Plugin Interface Version
+                // Maximum Plugin Interface Version supported by the plugin (default 1)
                 if (!token.empty()) {
                     plugin.interfaceVersion = (unsigned short)atoi(token.c_str());
                 }

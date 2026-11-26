@@ -24,7 +24,7 @@
 #include <cerrno>
 #include <cstdlib>
 
-#include <logging/logging.h>
+#include <plugins/udaPlugin.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <plugins/bytes/md5Sum.h>
@@ -40,7 +40,8 @@
 #define BYTE_FILE_MD5DIFF             100007
 #define BYTE_FILE_READ_ERROR          100008
 
-int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const std::string& checksum, bool opaque)
+int readBytes(IDAM_PLUGIN_INTERFACE* plugin_interface, FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes,
+              const std::string& checksum, bool opaque)
 {
     int err = 0;
 
@@ -65,7 +66,7 @@ int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const
         if (newp == nullptr) {
             if (bp != nullptr) free(bp);
             err = BYTE_FILE_HEAP_ERROR;
-            addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Allocate Heap Memory for the File");
+            udaPluginAddError(plugin_interface, UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Allocate Heap Memory for the File");
             break;
         }
         bp = newp;
@@ -77,9 +78,9 @@ int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const
         if (n_read == 0 || serrno != 0) {
             int err = BYTE_FILE_READ_ERROR;
             if (serrno != 0) {
-                addIdamError(UDA_SYSTEM_ERROR_TYPE, "readBytes", serrno, "");
+                udaPluginAddError(plugin_interface, UDA_SYSTEM_ERROR_TYPE, "readBytes", serrno, "");
             }
-            addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Open the File for Read Access");
+            udaPluginAddError(plugin_interface, UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Open the File for Read Access");
         }
 
         nchar += n_read;
@@ -106,8 +107,8 @@ int readBytes(FILE* fh, DATA_BLOCK* data_block, int offset, int max_bytes, const
         md5Sum(bp, data_block->data_n, md5check);
         strcpy(data_block->data_desc, md5check);    // Pass back the Checksum to the Client
 
-        UDA_LOG(UDA_LOG_DEBUG, "File Size          : %d \n", nchar);
-        UDA_LOG(UDA_LOG_DEBUG, "Read Checksum      : %s \n", md5check);
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "File Size          : %d \n", nchar);
+        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "Read Checksum      : %s \n", md5check);
     }
 
     //----------------------------------------------------------------------

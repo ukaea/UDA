@@ -28,6 +28,7 @@ uda_plugin(
   DESCRIPTION "Generate Test Data"
   EXAMPLE "TESTPLUGIN::test1()"
   LIBNAME testplugin_plugin
+  INTERFACE_VERSION 2
   SOURCES testplugin.cpp teststructs.cpp
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}

@@ -26,7 +26,7 @@ macro( uda_plugin )
   include( CMakeParseArguments )
 
   set( optionArgs )
-  set( oneValueArgs NAME LIBNAME ENTRY_FUNC DESCRIPTION EXAMPLE CONFIG_FILE TYPE EXTENSION VERSION )
+  set( oneValueArgs NAME LIBNAME ENTRY_FUNC DESCRIPTION EXAMPLE CONFIG_FILE TYPE EXTENSION VERSION INTERFACE_VERSION )
   set( multiValueArgs SOURCES EXTRA_INCLUDE_DIRS EXTRA_LINK_DIRS EXTRA_LINK_LIBS EXTRA_DEFINITIONS EXTRA_INSTALL_FILES EXTRA_NAMES )
 
   cmake_parse_arguments(
@@ -41,6 +41,13 @@ macro( uda_plugin )
 
   if( NOT PLUGIN_VERSION )
     set( PLUGIN_VERSION "0.0.0" )
+  endif()
+
+  # Maximum plugin interface version the plugin binary supports. This is written into the generated registration
+  # config and must match the plugin's own THISPLUGIN_MAX_INTERFACE_VERSION, so configs and binaries are deployed
+  # together. Version 2 adds host-owned logging.
+  if( NOT PLUGIN_INTERFACE_VERSION )
+    set( PLUGIN_INTERFACE_VERSION 1 )
   endif()
 
   include_directories(
@@ -143,16 +150,15 @@ macro( uda_plugin )
     set( PLUGIN_EXTENSION "*" )
   endif()
 
-  file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf"
-    "${PLUGIN_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
-  file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf"
-    "${PLUGIN_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
+  set( PLUGIN_CONF_FILE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf" )
+  set( PLUGIN_CONF_FIELDS "${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, ${PLUGIN_INTERFACE_VERSION}, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}" )
+
+  file( WRITE "${PLUGIN_CONF_FILE}" "${PLUGIN_NAME}, ${PLUGIN_CONF_FIELDS}\n" )
+  file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf" "${PLUGIN_NAME}, ${PLUGIN_CONF_FIELDS}\n" )
 
   foreach( EXTRA_NAME ${PLUGIN_EXTRA_NAMES} )
-    file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf"
-      "${EXTRA_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
-    file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf"
-      "${EXTRA_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
+    file( APPEND "${PLUGIN_CONF_FILE}" "${EXTRA_NAME}, ${PLUGIN_CONF_FIELDS}\n" )
+    file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf" "${EXTRA_NAME}, ${PLUGIN_CONF_FIELDS}\n" )
   endforeach()
 
   if( NOT EXISTS "${CMAKE_BINARY_DIR}/etc/plugins.d" )
