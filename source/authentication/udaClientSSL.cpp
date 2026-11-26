@@ -15,6 +15,11 @@
 
 #include "utils.h"
 
+// X509_cmp_time is deprecated in OpenSSL 4.0. Its replacement is a separate change to the
+// certificate checks; until then, keep the deprecation warning from failing -Werror builds.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 static bool g_sslDisabled = true;   // Default state is not SSL authentication
 static int g_sslProtocol = 0;       // The default server host name has the SSL protocol name prefix or
 static int g_sslSocket = -1;
@@ -629,5 +634,7 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
 
     return rc;
 }
+
+#pragma GCC diagnostic pop
 
 #endif   // !SERVERBUILD && SSLAUTHENTICATION 

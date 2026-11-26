@@ -37,31 +37,61 @@ pkgconfig_dir() {
 }
 
 # On Windows a DLL that cannot be found opens a modal dialog, which hangs CI until ctest times out.
-# Check each executable's DLL imports first, so the missing DLL is named in the log instead.
-check_windows_dlls() {
-  local dir=$1 exe dll system_dir missing=0
-  command -v objdump >/dev/null 2>&1 || { echo "note: objdump not found, skipping DLL check" >&2; return 0; }
+# Check every DLL the executables need, transitively, and run each one briefly, so a missing DLL
+# or a start-up hang is reported in the log within seconds instead of after the ctest timeout.
+check_windows_executables() {
+  local dir=$1 system_dir posix_path path dll file missing=0
+  local -a exes queue
+  local -A seen=()
+  mapfile -t exes < <(find "$dir" -maxdepth 1 -name '*.exe')
   system_dir=$(cygpath -u "${SYSTEMROOT:-C:/Windows}")
   # PATH can hold Windows entries such as D:/a/...; convert it first so ':' only separates entries.
-  local posix_path
   posix_path=$(cygpath -pu "$PATH")
-  # True if the DLL is in a PATH directory or the system directory (names are case-insensitive).
-  dll_found() {
-    local IFS=: d
+
+  # Print the first PATH directory, then the system directory, that holds the DLL.
+  find_dll() {
+    local IFS=: d hit
     for d in $posix_path "$system_dir"; do
-      [[ -n "$d" && -n "$(find "$d" -maxdepth 1 -iname "$1" -print -quit 2>/dev/null)" ]] && return 0
+      [[ -n "$d" ]] || continue
+      hit=$(find "$d" -maxdepth 1 -iname "$1" -print -quit 2>/dev/null)
+      if [[ -n "$hit" ]]; then echo "$hit"; return 0; fi
     done
     return 1
   }
-  while IFS= read -r exe; do
-    while IFS= read -r dll; do
-      case "$dll" in api-ms-win-*|ext-ms-*) continue ;; esac
-      if ! dll_found "$dll"; then
-        echo "error: $(basename "$exe") needs $dll, which is not on PATH or in $system_dir" >&2
-        missing=1
-      fi
-    done < <(objdump -p "$exe" | sed -n 's/^[[:space:]]*DLL Name: //p')
-  done < <(find "$dir" -maxdepth 1 -name '*.exe')
+
+  if command -v objdump >/dev/null 2>&1; then
+    queue=("${exes[@]}")
+    while (( ${#queue[@]} )); do
+      file=${queue[0]}
+      queue=("${queue[@]:1}")
+      while IFS= read -r dll; do
+        case "$dll" in api-ms-win-*|ext-ms-*) continue ;; esac
+        [[ -n "${seen[${dll,,}]:-}" ]] && continue
+        seen[${dll,,}]=1
+        if ! path=$(find_dll "$dll"); then
+          echo "error: $(basename "$file") needs $dll, which is not on PATH or in $system_dir" >&2
+          missing=1
+          continue
+        fi
+        # Follow DLLs from the install and toolchain directories; system DLLs are taken as given.
+        case "$path" in "$system_dir"/*) ;; *) queue+=("$path") ;; esac
+      done < <(objdump -p "$file" | sed -n 's/^[[:space:]]*DLL Name: //p')
+    done
+  else
+    echo "note: objdump not found, skipping the DLL check" >&2
+  fi
+
+  # A start-up hang is reported here; ctest would otherwise wait out its full timeout.
+  for file in "${exes[@]}"; do
+    timeout 30 "$file" > /dev/null 2>&1 && continue
+    status=$?
+    if (( status == 124 )); then
+      echo "error: $(basename "$file") did not exit within 30 s" >&2
+    else
+      echo "error: $(basename "$file") exited with status $status" >&2
+    fi
+    missing=1
+  done
   return $missing
 }
 
@@ -69,7 +99,7 @@ run_build_and_test() {
   local name=$1
   cmake --build "$name" --config "$config"
   if [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]]; then
-    check_windows_dlls "$name" || exit 1
+    check_windows_executables "$name" || exit 1
   fi
   (cd "$name" && ctest -C "$config" --timeout 120 --output-on-failure)
 }
