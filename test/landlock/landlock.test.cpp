@@ -208,11 +208,23 @@ static void exercise(const std::string& name, const std::string& root)
         return;
     }
     if (name == "library") {
+        // The same existing library outside the allowlist must remain inaccessible.
+        check_open(outside + "/plugin.so", O_RDONLY, false);
+        void* denied = dlopen((outside + "/plugin.so").c_str(), RTLD_NOW);
+        if (denied != nullptr)
+            dlclose(denied);
+        require(denied == nullptr, "shared library outside the allowlist could be loaded");
+        dlerror(); // Discard the expected denial before checking the permitted load.
         void* handle = dlopen((ro + "/plugin.so").c_str(), RTLD_NOW);
-        require(handle != nullptr, "read-only shared library could not be loaded");
+        if (handle == nullptr) {
+            const char* error = dlerror();
+            throw std::runtime_error("read-only shared library could not be loaded: " +
+                                     std::string(error != nullptr ? error : "unknown loader error"));
+        }
         auto function = reinterpret_cast<int (*)()>(dlsym(handle, "landlock_fixture_value"));
         require(function != nullptr && function() == 42, "shared library call failed");
         dlclose(handle);
+        check_open(ro + "/plugin.so", O_WRONLY, false);
         return;
     }
     if (name == "execute") {
@@ -289,6 +301,7 @@ int main(int argc, char** argv)
         fs::create_symlink(root + "/outside/data", root + "/ro/escape");
         fs::create_symlink(root + "/ro/data", root + "/ro/inside");
         fs::copy_file(argv[2], root + "/ro/plugin.so");
+        fs::copy_file(argv[2], root + "/outside/plugin.so");
         const pid_t child = fork();
         require(child >= 0, "fork failed");
         if (child == 0) {

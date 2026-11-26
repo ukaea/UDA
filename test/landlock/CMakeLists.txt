@@ -13,6 +13,10 @@ if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" )
 endif()
 
 add_library( landlock_fixture SHARED fixture.cpp )
+# This fixture only returns an integer and needs no startup code or runtime libraries.
+# Avoid implicit compiler runtimes (e.g. oneAPI libraries under /opt) that are outside
+# the test policy: this test should exercise loading the fixture, not its toolchain.
+set_property( TARGET landlock_fixture APPEND_STRING PROPERTY LINK_FLAGS " -nostdlib" )
 add_executable( test_landlock
   landlock.test.cpp
   ../../source/server/landlock.cpp
