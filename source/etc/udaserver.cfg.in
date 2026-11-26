@@ -47,3 +47,16 @@ export DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
 # the environment variable is unset. Use semi-colons (;) to deliminate multiple allowed paths
 # set the path to "/" to allow everything to be accessed
 export UDA_ALLOWED_PATHS=
+
+#------------------------------------------------------------------------------------------------------
+# Optional Linux Landlock policy (requires ENABLE_LANDLOCK=ON and kernel ABI >= 3).
+# Colon-separated absolute paths; files and directories must already exist.
+# Leave all three UNSET to disable. Any exported class enables enforcement;
+# an empty value grants nothing. Read/read-write never imply execute permission.
+# Directory grants include descendants; overlapping grants combine permissions.
+# Configure runtime libraries, plugin configuration, certificates and data as needed.
+# export UDA_LANDLOCK_READONLY_PATHS="$UDA_ROOT/etc:$UDA_ROOT/lib:/srv/uda/data:/usr/lib:/lib"
+# export UDA_LANDLOCK_READWRITE_PATHS="/var/tmp/uda"
+# export UDA_PLUGIN_REDIRECT_DIR="/var/tmp/uda"
+# export UDA_LANDLOCK_EXECUTE_PATHS="/usr/bin/some-helper:/lib/ld-linux-aarch64.so.1"
+# See the server installation guide for loader/interpreter and security limitations.

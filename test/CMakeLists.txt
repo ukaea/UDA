@@ -1,7 +1,12 @@
 ########################################################################################################################
 
+if( ENABLE_LANDLOCK )
+  enable_testing()
+  add_subdirectory( landlock )
+endif()
+
 if( NO_WRAPPERS )
-  message( WARNING "C++ wrapper not built - skipping tests" )
+  message( WARNING "C++ wrapper not built - skipping wrapper tests" )
   return()
 endif()
 

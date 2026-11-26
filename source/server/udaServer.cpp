@@ -1,6 +1,5 @@
 #include <fmt/format.h>
 #include <cstdio>
-#include <boost/algorithm/string.hpp>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else
@@ -9,6 +8,7 @@
 
 #include <tuple>
 #include <string>
+#include <stdexcept>
 
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
@@ -32,9 +32,7 @@
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
 #include "initPluginList.h"
-#ifdef USE_LANDLOCK
 #include "landlock.h"
-#endif
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -1130,24 +1128,25 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
         return err;
     }
 
-#ifdef USE_LANDLOCK
-    std::vector<std::string> paths;
-    const char* paths_env = getenv("UDA_ENABLE_PATHS");
-    if (paths_env != nullptr) {
-        boost::split(paths, paths_env, boost::is_any_of(":"), boost::token_compress_on);
-    }
     try {
-        uda::server::landlock::add_paths(paths);
-    } catch (std::exception& e) {
+        const auto policy = uda::server::landlock::policy_from_environment();
+        if (policy.enabled) {
+#ifdef USE_LANDLOCK
+            uda::server::landlock::enforce_path_policy(policy);
+            UDA_LOG(UDA_LOG_DEBUG, "Landlock filesystem policy enforced\n");
+#else
+            throw std::runtime_error("Landlock policy requested but UDA was built without ENABLE_LANDLOCK=ON");
+#endif
+        } else {
+            UDA_LOG(UDA_LOG_DEBUG, "Landlock disabled: no permission classes configured\n");
+        }
+    } catch (const std::exception& e) {
         UDA_LOG(UDA_LOG_ERROR, "Landlock failed: %s\n", e.what());
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, e.what());
+        concatUdaError(&server_block->idamerrorstack);
+        initUdaErrorStack();
         return 999;
     }
-    if (paths_env != nullptr) {
-        UDA_LOG(UDA_LOG_DEBUG, "Landlock created for paths: %s\n", paths_env);
-    } else {
-        UDA_LOG(UDA_LOG_DEBUG, "Landlock not initialised - UDA_ENABLE_PATHS not defined\n");
-    }
-#endif
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
 

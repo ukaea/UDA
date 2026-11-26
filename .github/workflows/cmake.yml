@@ -136,6 +136,7 @@ jobs:
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
+          -DENABLE_LANDLOCK=ON
 
       - name: Configure CMake (linux Intel)
         if: matrix.os == 'ubuntu-latest'
@@ -147,6 +148,7 @@ jobs:
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
+          -DENABLE_LANDLOCK=ON
 
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'
@@ -191,6 +193,12 @@ jobs:
       - name: Build Intel
         if: matrix.os == 'ubuntu-latest'
         run: cmake --build build-intel --config ${{ matrix.release }}
+
+      - name: Test Landlock enforcement
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          ctest --test-dir build/test/landlock --output-on-failure
+          ctest --test-dir build-intel/test/landlock --output-on-failure
 
       - name: Install
         if: matrix.os != 'windows-latest'

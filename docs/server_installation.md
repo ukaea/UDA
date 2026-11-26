@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Server Installation
+has_children: true
 nav_order: 2
 ---
 
@@ -159,6 +160,16 @@ export UDA_ALLOWED_PATHS=/
 ```
 **Security Note**  
 Restrict the paths as narrowly as possible to limit server file access and reduce risk.
+
+### Linux filesystem restrictions with Landlock
+
+UDA supports optional kernel-enforced filesystem restrictions through Landlock.
+Build with `-DENABLE_LANDLOCK=ON` and configure separate read-only, read/write and
+execute path lists. Read access does not grant execution permission.
+
+See [Server sandboxing](/UDA/server_sandboxing) for configuration, examples,
+limitations, Linux testing from macOS, and administrator-managed alternatives such
+as systemd, AppArmor/SELinux, containers and Seatbelt.
 
 ### Plugin-specific options
 

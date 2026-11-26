@@ -26,6 +26,7 @@ set( SRC_FILES
   getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
+  landlock_config.cpp
   makeServerRequestBlock.cpp
   serverGetData.cpp
   serverLegacyPlugin.cpp
@@ -43,6 +44,7 @@ set( HEADER_FILES
   getPluginAddress.h
   getServerEnvironment.h
   initPluginList.h
+  landlock.h
   makeServerRequestBlock.h
   serverGetData.h
   serverLegacyPlugin.h
@@ -58,8 +60,7 @@ set( HEADER_FILES
 
 if( ENABLE_LANDLOCK )
   list( APPEND SRC_FILES landlock.cpp )
-  list( APPEND HEADER_FILES landlock.h )
-endif(  )
+endif()
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source

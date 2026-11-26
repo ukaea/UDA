@@ -162,6 +162,25 @@ option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( NO_MEMCACHE "Do not attempt to build with libmemcached support" ON )
 option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
 option( ENABLE_LANDLOCK "Enable landlock file restriction" OFF )
+if(ENABLE_LANDLOCK)
+    if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" )
+        message( FATAL_ERROR "Landlock requires Linux" )
+    endif()
+    include( CheckCXXSourceCompiles )
+    check_cxx_source_compiles( "
+      #include <fcntl.h>
+      #include <linux/landlock.h>
+      #include <sys/syscall.h>
+      int main() {
+        landlock_ruleset_attr attr{};
+        attr.handled_access_fs = LANDLOCK_ACCESS_FS_REFER | LANDLOCK_ACCESS_FS_TRUNCATE;
+        (void)attr;
+        return O_PATH + SYS_landlock_create_ruleset + SYS_landlock_add_rule + SYS_landlock_restrict_self;
+      }" UDA_HAVE_LANDLOCK_ABI3_HEADERS )
+    if( NOT UDA_HAVE_LANDLOCK_ABI3_HEADERS )
+        message( FATAL_ERROR "Landlock requires Linux headers with ABI 3 support and Landlock syscall definitions" )
+    endif()
+endif()
 
 # Wrapper configuration
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
