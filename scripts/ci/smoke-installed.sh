@@ -42,10 +42,13 @@ check_windows_dlls() {
   local dir=$1 exe dll system_dir missing=0
   command -v objdump >/dev/null 2>&1 || { echo "note: objdump not found, skipping DLL check" >&2; return 0; }
   system_dir=$(cygpath -u "${SYSTEMROOT:-C:/Windows}")
+  # PATH can hold Windows entries such as D:/a/...; convert it first so ':' only separates entries.
+  local posix_path
+  posix_path=$(cygpath -pu "$PATH")
   # True if the DLL is in a PATH directory or the system directory (names are case-insensitive).
   dll_found() {
     local IFS=: d
-    for d in $PATH "$system_dir"; do
+    for d in $posix_path "$system_dir"; do
       [[ -n "$d" && -n "$(find "$d" -maxdepth 1 -iname "$1" -print -quit 2>/dev/null)" ]] && return 0
     done
     return 1
