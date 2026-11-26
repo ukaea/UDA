@@ -1,10 +1,15 @@
 include( GNUInstallDirs )
 
-# On Windows a static archive and the import library of a shared library share the .lib extension, so
-# static archives carry a _static suffix there. Unix archives keep their names (libuda_client.a), which
-# pkg-config and existing link lines rely on.
+# Windows library naming. A static archive and the import library of a shared library would both be
+# named *.lib, so static archives carry a _static suffix there. Unix archives keep their names
+# (libuda_client.a), which pkg-config and existing link lines rely on.
 if( WIN32 )
   set( UDA_STATIC_LIB_SUFFIX "_static" )
+  if( MINGW )
+    set( IMPLIB_SUFFIX ".a" )
+  else()
+    set( IMPLIB_SUFFIX ".lib" )
+  endif()
 else()
   set( UDA_STATIC_LIB_SUFFIX "" )
 endif()
@@ -23,6 +28,7 @@ endif()
 
 if( UDA_INSTALL_LAYOUT STREQUAL "LEGACY" )
   set( UDA_INSTALL_BINDIR "bin" )
+  set( UDA_INSTALL_TOOLSDIR "bin" )
   set( UDA_INSTALL_LIBDIR "lib" )
   set( UDA_INSTALL_INCLUDEDIR "include/uda" )
   set( UDA_INSTALL_PKGCONFIGDIR "lib/pkgconfig" )
@@ -47,6 +53,7 @@ if( UDA_INSTALL_LAYOUT STREQUAL "LEGACY" )
   set( UDA_INSTALL_REST_INCLUDEDIR "include/udarest" )
 else()
   set( UDA_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}" )
+  set( UDA_INSTALL_TOOLSDIR "${CMAKE_INSTALL_DATADIR}/uda/tools" )
   set( UDA_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" )
   set( UDA_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/uda" )
   set( UDA_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig" )
@@ -73,35 +80,27 @@ else()
   set( UDA_INSTALL_REST_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/udarest" )
 endif()
 
-function( _uda_make_full_install_path OUTPUT_VAR INSTALL_DIR )
-  if( IS_ABSOLUTE "${INSTALL_DIR}" )
-    set( _FULL_PATH "${INSTALL_DIR}" )
-  else()
-    set( _FULL_PATH "${CMAKE_INSTALL_PREFIX}/${INSTALL_DIR}" )
-  endif()
-  set( ${OUTPUT_VAR} "${_FULL_PATH}" PARENT_SCOPE )
-endfunction()
-
+# Absolute copies of every destination, for templates and install rules. Relative destinations are
+# taken from the install prefix, absolute ones are used unchanged.
 foreach( _UDA_DIR IN ITEMS
     BINDIR LIBDIR INCLUDEDIR PKGCONFIGDIR CMAKEDIR CONFIGDIR SERVER_SCRIPTDIR
     SERVICEDIR LOGDIR RUNDIR PYTHONDIR PLUGINDIR PLUGIN_CONFIGDIR PLUGIN_FRAGMENTDIR
     MACHINE_CONFIGDIR MODULEDIR WRAPPER_PKGCONFIGDIR IDL_DLM_DIR FAT_IDL_DLM_DIR IDL_PRO_DIR
     PYTHON_SOURCE_DIR JAVA_DIR REST_INCLUDEDIR )
-  _uda_make_full_install_path(
-    UDA_INSTALL_FULL_${_UDA_DIR}
-    "${UDA_INSTALL_${_UDA_DIR}}" )
+  get_filename_component( UDA_INSTALL_FULL_${_UDA_DIR} "${UDA_INSTALL_${_UDA_DIR}}"
+    ABSOLUTE BASE_DIR "${CMAKE_INSTALL_PREFIX}" )
 endforeach()
-
 unset( _UDA_DIR )
 
-# Preserve pkg-config's prefix override for prefix-relative destinations.
-foreach( _UDA_PC_DIR IN ITEMS INCLUDEDIR LIBDIR )
-  if( IS_ABSOLUTE "${UDA_INSTALL_${_UDA_PC_DIR}}" )
-    set( UDA_PKGCONFIG_${_UDA_PC_DIR} "${UDA_INSTALL_${_UDA_PC_DIR}}" )
-  elseif( _UDA_PC_DIR STREQUAL "LIBDIR" )
-    set( UDA_PKGCONFIG_${_UDA_PC_DIR} "\${exec_prefix}/${UDA_INSTALL_${_UDA_PC_DIR}}" )
-  else()
-    set( UDA_PKGCONFIG_${_UDA_PC_DIR} "\${prefix}/${UDA_INSTALL_${_UDA_PC_DIR}}" )
-  endif()
-endforeach()
-unset( _UDA_PC_DIR )
+# pkg-config templates. Relative directories are written relative to the .pc file's ${prefix}
+# (or ${exec_prefix} for libdir), which keeps the installed tree relocatable.
+if( IS_ABSOLUTE "${UDA_INSTALL_INCLUDEDIR}" )
+  set( UDA_PKGCONFIG_INCLUDEDIR "${UDA_INSTALL_INCLUDEDIR}" )
+else()
+  set( UDA_PKGCONFIG_INCLUDEDIR "\${prefix}/${UDA_INSTALL_INCLUDEDIR}" )
+endif()
+if( IS_ABSOLUTE "${UDA_INSTALL_LIBDIR}" )
+  set( UDA_PKGCONFIG_LIBDIR "${UDA_INSTALL_LIBDIR}" )
+else()
+  set( UDA_PKGCONFIG_LIBDIR "\${exec_prefix}/${UDA_INSTALL_LIBDIR}" )
+endif()

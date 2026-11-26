@@ -1,0 +1,53 @@
+FROM ubuntu:24.04
+
+ARG SSL_AUTH="ON"
+ARG CAPNP="ON"
+ARG CLIENT_ONLY="OFF"
+ARG INSTALL_DIR="/usr"
+ARG BUILD_CORES=4
+
+# The smoke-test script needs bash.
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y \
+    git \
+    libboost-dev \
+    libboost-program-options-dev \
+    libssl-dev \
+    cmake \
+    build-essential \
+    libtirpc-dev \
+    pkg-config \
+    libxml2-dev \
+    liblzma-dev \
+    zlib1g-dev \
+    libspdlog-dev \
+    ninja-build \
+    capnproto \
+    libcapnp-dev \
+    lintian && \
+    sed -i 's/if (yes)  # WITH_LIBATOMIC/if (no)  # WITH_LIBATOMIC/' \
+    /usr/lib/*-linux-gnu/cmake/CapnProto/CapnProtoConfig.cmake
+
+
+COPY . /uda
+
+RUN cd /uda && \
+    cmake -B build \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DSSLAUTHENTICATION="$SSL_AUTH" \
+    -DCLIENT_ONLY="$CLIENT_ONLY" \
+    -DENABLE_CAPNP="$CAPNP" \
+    -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+    -DUDA_INSTALL_LAYOUT=SYSTEM
+
+RUN cd /uda && cmake --build build -j "$BUILD_CORES" --config Release --target install
+
+# Check the installed package in its system locations, using the same smoke tests as CI.
+RUN GENERATOR="Unix Makefiles" /uda/scripts/ci/smoke-installed.sh "$INSTALL_DIR" /tmp/uda-cpp /uda/build
+RUN cd /uda && cmake --build build --target package
+
+# ignore warnings for shebang paths in python wrapper setup.py
+# no-changelog: this is an internal package whose history is in git, not a Debian changelog.
+RUN lintian --fail-on error --suppress-tags unusual-interpreter,no-changelog /uda/build/*.deb

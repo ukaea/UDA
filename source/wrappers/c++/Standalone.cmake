@@ -12,16 +12,9 @@ endif()
 function( uda_add_cpp_wrapper KIND )
   string( TOLOWER "${KIND}" _kind )
   set( _target "uda_cpp-${_kind}" )
+
   add_library( ${_target} ${KIND} ${SRC_FILES} )
-  if( _kind STREQUAL "shared" )
-    set( _export UDACppSharedTargets )
-  else()
-    set( _export UDACppTargets )
-  endif()
-  set_target_properties( ${_target} PROPERTIES
-    EXPORT_NAME "cpp_${_kind}"
-    OUTPUT_NAME uda_cpp${_name_suffix}
-  )
+  set_target_properties( ${_target} PROPERTIES EXPORT_NAME "cpp_${_kind}" )
   target_compile_features( ${_target} PUBLIC cxx_std_17 )
   target_include_directories( ${_target} PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
@@ -30,27 +23,33 @@ function( uda_add_cpp_wrapper KIND )
   target_link_libraries( ${_target} PUBLIC UDA::client_${_kind} Boost::boost )
 
   if( KIND STREQUAL "STATIC" )
+    set( _export UDACppTargets )
+    set( _component development )
+    set_target_properties( ${_target} PROPERTIES
+      OUTPUT_NAME uda_cpp${UDA_STATIC_LIB_SUFFIX}
+      POSITION_INDEPENDENT_CODE ON
+    )
     target_compile_definitions( ${_target} PUBLIC UDA_CXX_STATIC )
-    set_target_properties( ${_target} PROPERTIES POSITION_INDEPENDENT_CODE ON )
-    set( _runtime_component development )
-    set( _name_suffix "${UDA_STATIC_LIB_SUFFIX}" )
   else()
-    target_compile_definitions( ${_target} PUBLIC UDA_CXX_SHARED PRIVATE UDA_CXX_EXPORT )
-    set_target_properties( ${_target} PROPERTIES VERSION "${UDA_VERSION}" SOVERSION "${UDA_VERSION_MAJOR}" )
-    if( MSVC )
-      # Keep the DLL import library distinct from the static .lib.
-      set_target_properties( ${_target} PROPERTIES IMPORT_SUFFIX ".dll.lib" )
+    set( _export UDACppSharedTargets )
+    set( _component client-runtime )
+    set_target_properties( ${_target} PROPERTIES
+      OUTPUT_NAME uda_cpp
+      VERSION "${UDA_VERSION}"
+      SOVERSION "${UDA_VERSION_MAJOR}"
+    )
+    if( WIN32 )
+      set_target_properties( ${_target} PROPERTIES IMPORT_SUFFIX ${IMPLIB_SUFFIX} )
     elseif( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
       set_property( TARGET ${_target} APPEND_STRING PROPERTY LINK_FLAGS " -Wl,-z,defs" )
     endif()
-    set( _runtime_component client-runtime )
-    set( _name_suffix "" )
+    target_compile_definitions( ${_target} PUBLIC UDA_CXX_SHARED PRIVATE UDA_CXX_EXPORT )
   endif()
 
   install( TARGETS ${_target} EXPORT ${_export}
     ARCHIVE DESTINATION "${UDA_INSTALL_LIBDIR}" COMPONENT development
-    LIBRARY DESTINATION "${UDA_INSTALL_LIBDIR}" COMPONENT ${_runtime_component} NAMELINK_COMPONENT development
-    RUNTIME DESTINATION "${UDA_INSTALL_BINDIR}" COMPONENT ${_runtime_component}
+    LIBRARY DESTINATION "${UDA_INSTALL_LIBDIR}" COMPONENT ${_component} NAMELINK_COMPONENT development
+    RUNTIME DESTINATION "${UDA_INSTALL_BINDIR}" COMPONENT ${_component}
   )
 endfunction()
 

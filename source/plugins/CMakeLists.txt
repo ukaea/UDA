@@ -12,12 +12,6 @@ else()
   find_package( TIRPC QUIET )
 endif()
 
-set ( STDFS_VAR "" )
-if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
-  set( STDFS_VAR "stdc++fs" )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
-  set( STDFS_VAR "c++fs" )
-endif()
 
 configure_file(
   "${CMAKE_SOURCE_DIR}/source/etc/udaPlugins.conf.in"
@@ -99,7 +93,7 @@ if( BUILD_SHARED_LIBS )
   target_link_libraries( plugins-shared PRIVATE
     server-static
     ${LINK_LIB}
-    ${STDFS_VAR}
+    ${UDA_STDFS_LIBRARY}
   )
 endif()
 

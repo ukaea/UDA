@@ -1,0 +1,3 @@
+# Keep .git: the version comes from `git describe`.
+build*
+**/build

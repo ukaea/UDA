@@ -1,5 +1,8 @@
 name: Build
 
+env:
+  CONFIG: Release
+
 on:
   push:
     branches:
@@ -23,7 +26,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        release: [Release]
         ssl: [ON, OFF]
         client-only: [ON, OFF]
         capnp: [ON, OFF]
@@ -132,15 +134,20 @@ jobs:
           liblzma
           zlib
 
-      - name: Configure CMake (linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: >
-          cmake -G Ninja -B build
-          -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DSSLAUTHENTICATION=${{ matrix.ssl }}
-          -DCLIENT_ONLY=${{ matrix.client-only }}
-          -DENABLE_CAPNP=${{ matrix.capnp }}
+      - name: Configure CMake (linux, macos)
+        if: matrix.os != 'windows-latest'
+        run: |
+          openssl_args=()
+          if [[ "$RUNNER_OS" == macOS ]]; then
+            openssl_args+=("-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)")
+          fi
+          cmake -G Ninja -B build \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCMAKE_BUILD_TYPE=$CONFIG \
+            -DSSLAUTHENTICATION=${{ matrix.ssl }} \
+            -DCLIENT_ONLY=${{ matrix.client-only }} \
+            -DENABLE_CAPNP=${{ matrix.capnp }} \
+            "${openssl_args[@]}"
 
       - name: Configure CMake (linux Intel)
         if: matrix.os == 'ubuntu-latest'
@@ -150,35 +157,18 @@ jobs:
           icpx --version
           CXX=icpx CC=icx cmake -G Ninja -B build-intel \
             -DBUILD_SHARED_LIBS=ON \
-            -DCMAKE_BUILD_TYPE=${{ matrix.release }} \
+            -DCMAKE_BUILD_TYPE=$CONFIG \
             -DSSLAUTHENTICATION=${{ matrix.ssl }} \
             -DCLIENT_ONLY=${{ matrix.client-only }} \
             -DENABLE_CAPNP=${{ matrix.capnp }}
 
-      - name: Configure CMake (macos)
-        if: matrix.os == 'macos-latest'
-        run: >
-          cmake -G Ninja -B build
-          -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DSSLAUTHENTICATION=${{ matrix.ssl }}
-          -DCLIENT_ONLY=${{ matrix.client-only }}
-          -DENABLE_CAPNP=${{ matrix.capnp }}
-          -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@3)"
-
-      - name: Configure portable XDR
+      - name: Build and install portable XDR
         if: matrix.os == 'windows-latest'
-        run: >
+        run: |
           cd extlib
-          && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B build -G "MinGW Makefiles" .
-
-      - name: Build portable XDR
-        if: matrix.os == 'windows-latest'
-        run: cd extlib && cmake --build build
-
-      - name: Install portable XDR
-        if: matrix.os == 'windows-latest'
-        run: cd extlib && cmake --install build --prefix install
+          cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B build -G "MinGW Makefiles" .
+          cmake --build build
+          cmake --install build --prefix install
 
       - name: Configure CMake (windows)
         if: matrix.os == 'windows-latest'
@@ -187,7 +177,7 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DVCPKG_TARGET_TRIPLET=x64-mingw-static
           -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DCMAKE_BUILD_TYPE=$CONFIG
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
@@ -195,103 +185,55 @@ jobs:
           -DZLIB_USE_STATIC_LIBS=ON
 
       - name: Build
-        run: cmake --build build --config ${{ matrix.release }}
+        run: cmake --build build --config $CONFIG
 
       - name: Build Intel
         if: matrix.os == 'ubuntu-latest'
-        run: cmake --build build-intel --config ${{ matrix.release }}
+        run: cmake --build build-intel --config $CONFIG
 
       - name: Install
-        if: matrix.os != 'windows-latest'
-        run: sudo cmake --install build --config ${{ matrix.release }}
+        run: ${{ matrix.os != 'windows-latest' && 'sudo ' || '' }}cmake --install build --config $CONFIG
 
-      - name: Install
-        if: matrix.os == 'windows-latest'
-        run: cmake --install build --config ${{ matrix.release }}
-
-      # Run package smoke tests once per OS, with the usual shared/static build.
-      - name: Test installed CMake consumers
+      - name: Smoke test installed package
         if: matrix.ssl == 'OFF' && matrix.capnp == 'OFF'
+        env:
+          GENERATOR: ${{ matrix.os == 'windows-latest' && 'MinGW Makefiles' || 'Ninja' }}
+          PKGCONFIG: ${{ matrix.os == 'windows-latest' && '0' || '1' }}
         run: |
-          workspace="$PWD"
-          generator="Ninja"
-          platform_args=()
-          core_prefix=/usr/local
-          if [[ "$RUNNER_OS" == Windows ]]; then
-            workspace="$(pwd -W)"
-            generator="MinGW Makefiles"
-            core_prefix="$workspace/uda_install"
-            export XDR_ROOT="$workspace/extlib/install"
-            export PATH="$PWD/uda_install/lib:$PWD/uda_cpp_install/bin:$PATH"
-            platform_args+=(
-              -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-              -DVCPKG_TARGET_TRIPLET=x64-mingw-static
-              -DZLIB_USE_STATIC_LIBS=ON
-            )
-          elif [[ "$RUNNER_OS" == macOS ]]; then
-            platform_args+=("-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)")
+          case "$RUNNER_OS" in
+            Windows)
+              workspace="$(pwd -W)"
+              core="$workspace/uda_install"
+              export XDR_ROOT="$workspace/extlib/install"
+              export PATH="$workspace/uda_install/lib:$workspace/uda_cpp_install/bin:$PATH"
+              args=(
+                -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+                -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+                -DZLIB_USE_STATIC_LIBS=ON
+              )
+              ;;
+            macOS)
+              workspace="$PWD"
+              core=/usr/local
+              args=(
+                "-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)"
+                "-DCMAKE_CXX_FLAGS=-I$(brew --prefix boost)/include"
+              )
+              for formula in libxml2 openssl@3 fmt; do
+                export PKG_CONFIG_PATH="$(brew --prefix "$formula")/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+              done
+              ;;
+            *)
+              workspace="$PWD"
+              core=/usr/local
+              args=()
+              ;;
+          esac
+          if [[ "$RUNNER_OS" != Windows ]]; then
+            export LD_LIBRARY_PATH="$core/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            export DYLD_LIBRARY_PATH="$core/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
           fi
-
-          cpp_prefix="$workspace/uda_cpp_install"
-          cmake -G "$generator" -S source/wrappers/c++ -B build-standalone-cpp \
-            -DCMAKE_BUILD_TYPE=${{ matrix.release }} -DBUILD_SHARED_LIBS=ON \
-            "-DCMAKE_PREFIX_PATH=$core_prefix" "-DCMAKE_INSTALL_PREFIX=$cpp_prefix" \
-            "${platform_args[@]}"
-          cmake --build build-standalone-cpp --config ${{ matrix.release }}
-          cmake --install build-standalone-cpp --config ${{ matrix.release }}
-
-          for target in client_static client_shared cpp_static cpp_shared; do
-            cmake -G "$generator" -S test/consumer -B "build-consumer-$target" \
-              -DCMAKE_BUILD_TYPE=${{ matrix.release }} \
-              "-DCMAKE_PREFIX_PATH=$cpp_prefix;$core_prefix" \
-              "-DUDA_CONSUMER_TARGET=UDA::$target" "${platform_args[@]}"
-            cmake --build "build-consumer-$target" --config ${{ matrix.release }}
-            ctest --test-dir "build-consumer-$target" -C ${{ matrix.release }} --output-on-failure
-          done
-
-      - name: Test installed pkg-config consumers
-        if: matrix.os != 'windows-latest' && matrix.ssl == 'OFF' && matrix.capnp == 'OFF'
-        run: |
-          # Install only development files here so the linker selects UDA archives.
-          static_prefix="$PWD/uda_pc_static_install"
-          cmake --install build --config ${{ matrix.release }} \
-            --component development --prefix "$static_prefix"
-          test -f "$static_prefix/lib/libuda_client.a"
-          test -f "$static_prefix/lib/libuda_cpp.a"
-          for module in uda-client uda-cpp; do
-            test -f "$static_prefix/lib/pkgconfig/$module.pc"
-          done
-          for library in uda_client uda_cpp; do
-            test ! -e "$static_prefix/lib/lib$library.so"
-            test ! -e "$static_prefix/lib/lib$library.dylib"
-          done
-          export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-          export LD_LIBRARY_PATH="/usr/local/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-          export DYLD_LIBRARY_PATH="/usr/local/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
-          platform_args=()
-          if [[ "$RUNNER_OS" == macOS ]]; then
-            for formula in libxml2 openssl@3 fmt; do
-              export PKG_CONFIG_PATH="$(brew --prefix "$formula")/lib/pkgconfig:$PKG_CONFIG_PATH"
-            done
-            platform_args+=("-DCMAKE_CXX_FLAGS=-I$(brew --prefix boost)/include")
-          fi
-
-          for linkage in shared static; do
-            pc_path="$PKG_CONFIG_PATH"
-            pc_static=OFF
-            if [[ "$linkage" == static ]]; then
-              pc_path="$static_prefix/lib/pkgconfig:$pc_path"
-              pc_static=ON
-            fi
-            for module in uda-client uda-cpp; do
-              consumer_build="build-pkgconfig-$module-$linkage"
-              PKG_CONFIG_PATH="$pc_path" cmake -G Ninja -S test/pkgconfig -B "$consumer_build" \
-                -DCMAKE_BUILD_TYPE=${{ matrix.release }} "-DUDA_PC_MODULE=$module" \
-                "-DUDA_PC_STATIC=$pc_static" "${platform_args[@]}"
-              cmake --build "$consumer_build" --config ${{ matrix.release }}
-              ctest --test-dir "$consumer_build" -C ${{ matrix.release }} --output-on-failure
-            done
-          done
+          scripts/ci/smoke-installed.sh "$core" "$workspace/uda_cpp_install" build "${args[@]}"
 
       - name: Install pyuda
         if: matrix.os == 'ubuntu-latest'
@@ -325,7 +267,7 @@ jobs:
           uda_cli --help && uda_cli --request "help::help()"
 
       - name: Run SSL system tests
-        if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
         run: |
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system
           sudo chown -R $USER:$USER /usr/local/etc
@@ -348,10 +290,3 @@ jobs:
           set -e
           export UDA_CLIENT_SSL_AUTHENTICATE=ON
           ./build/test/plugins/plugin_test_testplugin
-
-#      - name: Test
-#        working-directory: build
-#        # Execute tests defined by the CMake configuration.
-#        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-#        run: ctest -C ${{ matrix.release }}
-

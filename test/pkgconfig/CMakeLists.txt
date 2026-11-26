@@ -2,49 +2,52 @@ cmake_minimum_required( VERSION 3.12 )
 project( uda_pkgconfig_consumer LANGUAGES CXX )
 
 find_package( PkgConfig REQUIRED )
-set( UDA_PC_MODULE "uda-client" CACHE STRING "Installed UDA pkg-config module" )
-option( UDA_PC_STATIC "Request the static dependency closure from pkg-config" OFF )
 
-set( _PC_ARGS )
-if( UDA_PC_STATIC )
-  list( APPEND _PC_ARGS --static )
-endif()
-foreach( _KIND IN ITEMS cflags libs )
+option( UDA_PC_STATIC "Request the static dependency closure from pkg-config (--static)" OFF )
+
+# Returns one kind of flag (--cflags or --libs) for MODULE as a CMake list.
+function( uda_pc_flags MODULE KIND OUTVAR )
+  set( _ARGS ${KIND} ${MODULE} )
+  if( UDA_PC_STATIC )
+    list( INSERT _ARGS 0 --static )
+  endif()
   execute_process(
-    COMMAND ${PKG_CONFIG_EXECUTABLE} ${_PC_ARGS} --${_KIND} ${UDA_PC_MODULE}
-    RESULT_VARIABLE _PC_RESULT
-    OUTPUT_VARIABLE _PC_${_KIND}
+    COMMAND ${PKG_CONFIG_EXECUTABLE} ${_ARGS}
+    RESULT_VARIABLE _RESULT
+    OUTPUT_VARIABLE _OUTPUT
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  if( NOT _PC_RESULT EQUAL 0 )
-    message( FATAL_ERROR "pkg-config failed for ${UDA_PC_MODULE}" )
+  if( NOT _RESULT EQUAL 0 )
+    message( FATAL_ERROR "pkg-config failed for ${MODULE}" )
   endif()
-  separate_arguments( _PC_${_KIND} UNIX_COMMAND "${_PC_${_KIND}}" )
-endforeach()
+  separate_arguments( _OUTPUT UNIX_COMMAND "${_OUTPUT}" )
+  set( ${OUTVAR} "${_OUTPUT}" PARENT_SCOPE )
+endfunction()
 
-# CMake treats raw -L entries in target_link_libraries as linker flag strings.
-# Supply directories separately so it can quote prefixes containing spaces.
-set( _PC_LINK_LIBS )
-foreach( _FLAG IN LISTS _PC_libs )
-  if( _FLAG MATCHES "^-L(.+)$" )
-    link_directories( "${CMAKE_MATCH_1}" )
-  else()
-    list( APPEND _PC_LINK_LIBS "${_FLAG}" )
-  endif()
-endforeach()
+# Builds SOURCE against MODULE using only the flags pkg-config reports for it.
+function( uda_pc_consumer MODULE SOURCE )
+  uda_pc_flags( ${MODULE} --cflags CFLAGS )
+  uda_pc_flags( ${MODULE} --libs LIBS )
 
-if( UDA_PC_MODULE MATCHES "cpp$" )
-  set( _SOURCE ../consumer/main_cpp.cpp )
-elseif( UDA_PC_MODULE STREQUAL "uda-plugins" )
-  set( _SOURCE main_plugin.cpp )
-else()
-  set( _SOURCE ../consumer/main.cpp )
-endif()
-add_executable( uda_pkgconfig_consumer ${_SOURCE} )
-target_compile_features( uda_pkgconfig_consumer PRIVATE cxx_std_17 )
-target_compile_options( uda_pkgconfig_consumer PRIVATE ${_PC_cflags} )
-# Preserve pkg-config's archive order. It is significant for static consumers.
-target_link_libraries( uda_pkgconfig_consumer PRIVATE ${_PC_LINK_LIBS} )
+  # Preserve pkg-config's archive order, which matters for static consumers. CMake would treat
+  # -L entries as raw linker strings, so they are passed to link_directories() instead.
+  set( LINK_LIBS )
+  foreach( _FLAG IN LISTS LIBS )
+    if( _FLAG MATCHES "^-L(.+)$" )
+      link_directories( "${CMAKE_MATCH_1}" )
+    else()
+      list( APPEND LINK_LIBS "${_FLAG}" )
+    endif()
+  endforeach()
+
+  string( REPLACE "-" "_" _NAME "pc_${MODULE}" )
+  add_executable( ${_NAME} ${SOURCE} )
+  target_compile_features( ${_NAME} PRIVATE cxx_std_17 )
+  target_compile_options( ${_NAME} PRIVATE ${CFLAGS} )
+  target_link_libraries( ${_NAME} PRIVATE ${LINK_LIBS} )
+  add_test( NAME ${_NAME} COMMAND ${_NAME} )
+endfunction()
 
 enable_testing()
-add_test( NAME uda_pkgconfig_consumer COMMAND uda_pkgconfig_consumer )
+uda_pc_consumer( uda-client ../consumer/main.cpp )
+uda_pc_consumer( uda-cpp ../consumer/main_cpp.cpp )

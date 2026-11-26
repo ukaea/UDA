@@ -1,8 +1,9 @@
-# Legacy pkg-config consumer check
+# Legacy pkg-config check
 
 Point `PKG_CONFIG_PATH` at the installed UDA metadata and configure this
-standalone project. It obtains its flags only from pkg-config, rather than
-the UDA CMake exports.
+standalone project. It builds one program against the client (`uda-client`) and
+one against the C++ wrapper (`uda-cpp`), taking every flag from pkg-config rather
+than from the UDA CMake package.
 
 ```sh
 export PKG_CONFIG_PATH=/path/to/uda/lib/pkgconfig
@@ -12,14 +13,10 @@ ctest --test-dir pc-consumer --output-on-failure
 ```
 
 For an installation built with `BUILD_SHARED_LIBS=OFF`, use a fresh consumer
-directory and `-DUDA_PC_STATIC=ON`. This requests `pkg-config --static`;
-that flag expands private dependencies but does not itself force a linker to
-choose static archives when shared libraries are also installed.
-
-Select another installed module with `-DUDA_PC_MODULE=uda-cpp`,
-`uda-fat-client`, `uda-fat-cpp`, or `uda-plugins`. The C++ cases reference the
-C++ wrapper API, and the plugin case calls a plugin file-list function.
-All normal smoke-test invocations run without a server connection.
+directory and `-DUDA_PC_STATIC=ON`. This requests `pkg-config --static`, which
+expands the private dependencies. Installing only the development component
+(`cmake --install build --component development`) to a separate prefix leaves
+just the static archives, so the linker must choose them.
 
 C++ wrapper consumers need Boost headers in the compiler's search path. For a
 nonstandard Boost installation, supply normal toolchain include flags, for

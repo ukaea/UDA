@@ -10,12 +10,6 @@ endif()
 
 include( plugins )
 
-set ( STDFS_VAR "" )
-if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
-    set ( STDFS_VAR "stdc++fs" )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
-    set ( STDFS_VAR "c++fs" )
-endif()
 
 uda_plugin(
   NAME BYTES
@@ -27,5 +21,5 @@ uda_plugin(
   EXTRA_LINK_LIBS
     LibXml2::LibXml2
     Boost::boost
-    ${STDFS_VAR}
+    ${UDA_STDFS_LIBRARY}
 )

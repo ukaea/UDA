@@ -1,6 +1,12 @@
 #ifndef UDA_CXX_EXPORT_HPP
 #define UDA_CXX_EXPORT_HPP
 
+// UDA_CXX_API marks the C++ wrapper's public classes. It depends on how the wrapper is built:
+//   UDA_CXX_STATIC  static wrapper archive: no decoration.
+//   UDA_CXX_SHARED  standalone shared wrapper: export from its DLL when UDA_CXX_EXPORT is set,
+//                   import otherwise (Windows). Unix needs no decoration.
+//   otherwise       in-tree build: follows the core LIBRARY_API.
+
 #include <clientserver/export.h>
 
 // Standalone builds link to a separate core library, so its DLL annotations

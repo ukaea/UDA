@@ -273,14 +273,7 @@ install(
   COMPONENT server
 )
 
-install(
-  FILES
-    ${CMAKE_BINARY_DIR}/etc/udaserver.sh
-    ${CMAKE_BINARY_DIR}/etc/rc.uda
-  DESTINATION ${UDA_INSTALL_SERVER_SCRIPTDIR}
-  COMPONENT server
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ
-)
+# The server scripts are installed once, by the server directory.
 
 install(
   DIRECTORY

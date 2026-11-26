@@ -1,0 +1,4 @@
+#!/bin/sh
+# Shared libraries are registered by the ldconfig trigger (see triggers), so no ldconfig call is needed here.
+set -e
+exit 0
