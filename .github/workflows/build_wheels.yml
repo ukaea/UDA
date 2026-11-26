@@ -124,7 +124,8 @@ jobs:
           CIBW_BUILD: cp3*-${{matrix.build-platform[2]}}
           # CIBW_SKIP: cp36* cp37* cp313*  
           CIBW_SKIP: cp36* cp37* 
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/lib"
+          # shared UDA and XDR DLLs are installed to bin (the .lib import libraries are in lib)
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel} --add-path ${{github.workspace}}/install/bin"
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
 
       - name: Build manylinux2014 wheels
@@ -149,7 +150,8 @@ jobs:
           CIBW_ENVIRONMENT: PIP_ONLY_BINARY=numpy
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
-          CIBW_SKIP: cp*-musllinux* *-musllinux*
+          # no numpy wheel exists for cp314 on this image (numpy 2.3+ needs manylinux_2_27)
+          CIBW_SKIP: cp*-musllinux* *-musllinux* cp314*
           CIBW_BEFORE_ALL: >
             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && 
             sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* &&
