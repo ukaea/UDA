@@ -140,7 +140,13 @@ jobs:
           config-file: ./source/wrappers/python/pyproject.toml
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          # show pip's own output when a build requirement fails to install
+          CIBW_BUILD_VERBOSITY: 1
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
+          # numpy 2.3+ has no manylinux2014 wheels, and pip would otherwise fall back to building its
+          # source distribution, which this image's GCC cannot compile. Binary-only selects the newest
+          # numpy that has a wheel for this platform.
+          CIBW_ENVIRONMENT: PIP_ONLY_BINARY=numpy
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
           CIBW_SKIP: cp*-musllinux* *-musllinux*
@@ -191,6 +197,8 @@ jobs:
           config-file: ./source/wrappers/python/pyproject.toml
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          # show pip's own output when a build requirement fails to install
+          CIBW_BUILD_VERBOSITY: 1
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*

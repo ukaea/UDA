@@ -289,14 +289,17 @@ if( WIN32 OR MINGW )
   find_file( UDA_XDR_RUNTIME NAMES libxdr.dll xdr.dll
     HINTS "${_XDR_LIBDIR}/../bin" "${XDR_ROOT}/bin"
     NO_DEFAULT_PATH )
-  if( NOT UDA_XDR_RUNTIME )
+  if( UDA_XDR_RUNTIME )
+    install(
+      FILES "${UDA_XDR_RUNTIME}"
+      DESTINATION ${UDA_INSTALL_BINDIR}
+      COMPONENT client-runtime
+    )
+  elseif( XDR_LIBRARIES MATCHES "\\.dll\\.(a|lib)$" )
     message( FATAL_ERROR "The portablexdr runtime DLL was not found next to ${XDR_LIBRARIES}" )
+  else()
+    message( STATUS "portablexdr is linked statically, so there is no runtime DLL to install" )
   endif()
-  install(
-    FILES "${UDA_XDR_RUNTIME}"
-    DESTINATION ${UDA_INSTALL_BINDIR}
-    COMPONENT client-runtime
-  )
   return()
 endif()
 
