@@ -83,13 +83,17 @@ check_windows_executables() {
 
   # A start-up hang is reported here; ctest would otherwise wait out its full timeout.
   for file in "${exes[@]}"; do
-    timeout 30 "$file" > /dev/null 2>&1 && continue
+    set +e
+    output=$(timeout 30 "$file" 2>&1)
     status=$?
+    set -e
+    (( status == 0 )) && continue
     if (( status == 124 )); then
       echo "error: $(basename "$file") did not exit within 30 s" >&2
     else
       echo "error: $(basename "$file") exited with status $status" >&2
     fi
+    [[ -n "$output" ]] && printf '%s\n' "$output" | head -n 20 >&2
     missing=1
   done
   return $missing

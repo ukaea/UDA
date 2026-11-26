@@ -107,6 +107,13 @@ tar -xzf "$src/$boost_name.tar.gz" -C "$src"
   ./b2 headers
   cp -R boost "$prefix/include/"
 )
+# CMake 4 has no FindBoost, so UDA needs this package configuration file.
+boost_config="$prefix/lib/cmake/Boost-$boost_version/BoostConfig.cmake"
+if [[ ! -f "$boost_config" ]]; then
+  echo "error: $boost_config was not installed; Boost CMake files:" >&2
+  find "$prefix/lib/cmake" -maxdepth 2 >&2 || true
+  exit 1
+fi
 
 touch "$marker"
 echo "macOS $target dependencies installed to $prefix"

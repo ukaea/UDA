@@ -251,7 +251,7 @@ jobs:
           -DENABLE_CAPNP=ON
           -DNO_JAVA_WRAPPER=ON
           -DCMAKE_PREFIX_PATH=${{github.workspace}}/macos-deps
-          -DBOOST_ROOT=${{github.workspace}}/macos-deps
+          -DBoost_DIR=${{github.workspace}}/macos-deps/lib/cmake/Boost-1.92.0
           -DOPENSSL_ROOT_DIR=${{github.workspace}}/macos-deps
           -DCMAKE_INSTALL_PREFIX=$PWD/install
           -DCLIENT_ONLY=ON &&
