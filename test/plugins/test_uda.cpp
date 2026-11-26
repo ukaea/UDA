@@ -2,6 +2,38 @@
 #include "catch.hpp"
 
 #include <c++/UDA.hpp>
+#include <client/accAPI.h>
+
+#include <cstdlib>
+#include <string>
+
+#ifndef FATCLIENT
+namespace {
+
+// Downstream requests are made by the server's UDA plugin back to the server the test is using (UDA_HOST/UDA_PORT),
+// so a single locally running server (e.g. under xinetd) exercises a plugin that performs a client read.
+std::string downstream_request(const std::string& signal)
+{
+    const char* host = std::getenv("UDA_HOST");
+    const char* port = std::getenv("UDA_PORT");
+    return std::string("UDA::get(host=") + (host != nullptr ? host : "localhost")
+           + ", port=" + (port != nullptr ? port : "56565")
+           + ", signal=\"" + signal + "\", source=\"\")";
+}
+
+int count_errors_containing(const UDA_ERROR_STACK* errors, const std::string& text)
+{
+    int count = 0;
+    for (unsigned int i = 0; i < errors->nerrors; ++i) {
+        if (std::string(errors->idamerror[i].msg).find(text) != std::string::npos) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+} // namespace
+#endif
 
 TEST_CASE( "Test UDA::help() function", "[UDA][plugins]" )
 {
@@ -76,3 +108,58 @@ TEST_CASE( "Test UDA::get() function", "[UDA][plugins]" )
     REQUIRE( vec[7498] == Approx(0.00011) );
     REQUIRE( vec[7499] == Approx(0.00011) );
 }
+#ifndef FATCLIENT
+
+TEST_CASE( "Test UDA::get() downstream read returns the downstream data", "[UDA][plugins][downstream]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get(downstream_request("TESTPLUGIN::scalartest()"), "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    auto scalar = dynamic_cast<uda::Scalar*>(result.data());
+    REQUIRE( scalar != nullptr );
+    REQUIRE( scalar->as<int>() == 10 );
+}
+
+TEST_CASE( "Test UDA::get() downstream failure is reported exactly once without client contamination", "[UDA][plugins][downstream]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    REQUIRE_THROWS_AS( client.get(downstream_request("TESTPLUGIN::detailed_error_test()"), ""), uda::ServerException );
+
+    // Exactly the downstream server's record followed by the UDA plugin's context: no records from the plugin's
+    // embedded client library (or duplicates via shared global error state) may leak into the upstream response
+    UDA_ERROR_STACK* errors = getUdaServerErrorStack();
+    REQUIRE( errors->nerrors == 2 );
+    REQUIRE( errors->idamerror[0].code == 9877 );
+    REQUIRE( std::string(errors->idamerror[0].msg) == "Detailed error from the child plugin" );
+    REQUIRE( count_errors_containing(errors, "Detailed error from the child plugin") == 1 );
+    REQUIRE( std::string(errors->idamerror[1].msg) == "Downstream UDA request failed" );
+}
+
+TEST_CASE( "Test UDA::get() downstream failure leaves no stale state for later requests", "[UDA][plugins][downstream]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    REQUIRE_THROWS_AS( client.get(downstream_request("TESTPLUGIN::detailed_error_test()"), ""), uda::ServerException );
+
+    const uda::Result& downstream = client.get(downstream_request("TESTPLUGIN::scalartest()"), "");
+    REQUIRE( downstream.errorCode() == 0 );
+    REQUIRE( downstream.errorMessage().empty() );
+
+    const uda::Result& direct = client.get("TESTPLUGIN::scalartest()", "");
+    REQUIRE( direct.errorCode() == 0 );
+    REQUIRE( direct.errorMessage().empty() );
+    REQUIRE( getUdaServerErrorStack()->nerrors == 0 );
+}
+
+#endif // FATCLIENT

@@ -75,7 +75,7 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     // Standard v1 Plugin Interface
 
     if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
+        UDA_PLUGIN_RAISE_ERROR(plugin_interface, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -129,7 +129,7 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     } else if (STR_IEQUALS(request->function, "functionName")) {
         return plugin.function(plugin_interface);
     } else {
-        RAISE_PLUGIN_ERROR("Unknown function requested!");
+        UDA_PLUGIN_RAISE_ERROR(plugin_interface, "Unknown function requested!");
     }
 }
 
@@ -218,6 +218,9 @@ int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     int optional = -1;
     bool optional_found = FIND_INT_VALUE(nvl, optional);
+
+    // Diagnostics go to the server's configured logs via the interface, never to stdout/stderr
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "required=%s, array length=%zu\n", required, narray);
 
     std::string result = std::string("Passed args: required=") + required
             + ", array=[" + to_string(array, narray) + "]";

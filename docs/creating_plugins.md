@@ -74,6 +74,74 @@ int arg1;
 FIND_REQUIRED_INT_VALUE(nvl, arg1);
 ```
 
+## Reporting errors
+
+Errors must be recorded on the `IDAM_PLUGIN_INTERFACE` passed to the plugin: the server collects
+`plugin_interface->error_stack` after the call and returns it to the client. Do not use `addIdamError()` /
+`concatUdaError()` for this. They record into library-global state, and each UDA library (and on macOS and
+Windows, each loaded copy of it) has its own, so the server may never see those errors.
+
+```c
+// Record an error, log it and return the code from the current function
+UDA_PLUGIN_RAISE_ERROR_CODE(plugin_interface, 1234, "Unable to open file");
+UDA_PLUGIN_RAISE_ERROR(plugin_interface, "Something failed");            // code 999
+UDA_PLUGIN_RAISE_ERROR_F(plugin_interface, "Bad value: %d", value);      // formatted, code 999
+
+// Record without returning
+UDA_PLUGIN_ADD_ERROR(plugin_interface, code, "message");
+UDA_PLUGIN_ADD_SYS_ERROR(plugin_interface, errno, "");                   // appends strerror(errno)
+```
+
+Records are kept in insertion order (at most `UDA_MAX_ERRORS`). The first record is treated as the root cause and
+becomes the error code and message the client sees. If a plugin returns non-zero without recording anything, the
+server still reports the failure with the returned code and a generic message.
+
+The older `RAISE_PLUGIN_ERROR` / `FIND_REQUIRED_*` macros do not take the interface. To route them through it,
+define the name of the interface variable before including the UDA headers. The compiler then reports every
+function that uses them without an interface in scope:
+
+```c
+#define UDA_PLUGIN_INTERFACE_VAR plugin_interface
+#include <plugins/udaPlugin.h>
+```
+
+A plugin that makes its own UDA client request should read the downstream failure through the client API (for
+example `getUdaServerErrorStack()`) and append the relevant records to its interface with `udaAppendErrorStack()`.
+
+## Calling other plugins
+
+Use `udaCallPlugin(plugin_interface, "OTHER::function(args)")` (or `CALL_PLUGIN`). The child runs with an empty
+error stack and the parent's logging, and its error records are appended to the parent's before any context the
+parent adds. A child failure is returned before any subsetting in the request (e.g. `[0:10]`) is applied.
+
+## Logging
+
+Log through the interface so diagnostics go to the server's configured log files at the server's configured
+level, and never to stdout/stderr (which may be the client connection under xinetd):
+
+```c
+UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "Reading %s\n", path);
+```
+
+The level check happens before formatting, so disabled debug logging costs little. Under a host that only
+provides interface version 1, these messages fall back to the legacy logger.
+
+## Interface versions
+
+`interfaceVersion` on the interface is the version the server is offering this plugin: the lower of the version the
+plugin is registered for (configuration column 6, see below) and the highest version the server supports
+(`UDA_PLUGIN_INTERFACE_VERSION`). Version 2 adds the host logging fields (`log_function`, `log_context`,
+`log_level`). Only read those when `interfaceVersion >= 2`. A plugin should reject versions newer than it
+understands:
+
+```c
+if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+    UDA_PLUGIN_RAISE_ERROR(plugin_interface, "Plugin Interface Version Unknown to this plugin");
+}
+```
+
+The server refuses to call a plugin whose registration asks for a newer version than it supports.
+
 ## Returning data from a plugin
 
 To return
@@ -84,7 +152,7 @@ The UDA server has a plugin configuration file that specifies how to load and us
 the plugins available to the server. The plugin configuration file is a comman separated
 text file with each line defined as:
 
-`NAME, TYPE, ENTRY_FUNC, LIBRARY, *, 1, 1, 1, DESC`
+`NAME, TYPE, ENTRY_FUNC, LIBRARY, *, INTERFACE_VERSION, 1, 1, DESC`
 
 Where:
 
@@ -92,16 +160,19 @@ Where:
 - `TYPE`: the type of the plugin — should be `function` for the plugins defined here.
 - `ENTRY_FUNC`: the name of the plugin entry function.
 - `LIBRARY`: the file name of the compile shared library, including extension.
+- `INTERFACE_VERSION`: the highest plugin interface version the plugin binary supports (1 if empty). It must match
+  the plugin's `THISPLUGIN_MAX_INTERFACE_VERSION`, so deploy configuration files and rebuilt plugins together. When
+  building with the `uda_plugin()` CMake macro, set it with the `INTERFACE_VERSION` argument (default 1).
 - `DESC`: a short description of the plugin which is used by UDA when listing the plugins available. 
 
 Note:
 
-The other elements (`*, 1, 1, 1`) are not applicable to the `function` type plugins are should always be set
-to these values.
+The other elements (`*`, and the two `1`s after the interface version) are not applicable to the `function` type
+plugins and should always be set to these values.
 
 For example:
 
-`HELP, function, helpPlugin, libhelp_plugin.dylib, *, 1, 1, 1, Service Discovery: list the details on all registered services, HELP::services()`
+`HELP, function, helpPlugin, libhelp_plugin.dylib, *, 2, 1, 1, Service Discovery: list the details on all registered services, HELP::services()`
 
 ## Copying the template plugin
 
