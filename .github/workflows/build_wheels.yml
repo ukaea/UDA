@@ -1,12 +1,9 @@
 name: build and upload wheels
 
-# Currently we aim to test building python wheels for all pushes to feature and release branches
-# HOWEVER we only want to upload these wheels to testpypi for release candidates, which are considered
-# to be pushes to a release branch or to develop.
-# finally, we only push tagged releases to pypi proper. Note that only a subset of platforms are considered
-# for test builds and the full suite (including longer-running builds) is only run on pushes to tags. 
-# This is controlled using conditional statements for individual jobs and steps in this script. 
-on: 
+# Wheels are built for PRs targeting develop and pushes to develop, main, release branches and tags.
+# PRs build artifacts only; TestPyPI publication runs on configured push events.
+# Production PyPI publication runs only on tag pushes.
+on:
   push:
     tags:
       - '*'
@@ -14,7 +11,9 @@ on:
       - release/*
       - main
       - develop
-      - feature/*
+  pull_request:
+    branches:
+      - develop
 
 # prevent duplicate CI runs from separate triggers
 concurrency:
@@ -294,10 +293,8 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   upload_test_pypi:
-    # push test wheels to testpypi for all intermediate release candidates (release/*, develop, etc.) 
-    # but never for feature branches
-    if: >
-      github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/feature/')
+    # Publish test wheels only for configured push events, never for pull requests.
+    if: github.event_name == 'push'
     needs: build_wheels
     runs-on: ubuntu-latest
     environment: 
@@ -339,8 +336,7 @@ jobs:
           verbose: true
 
   upload_dummy_repo_to_testpypi:
-    if: >
-      github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/feature/')
+    if: github.event_name == 'push'
     # only upload dummy repo if normal one exists
     needs: upload_test_pypi
     runs-on: ubuntu-latest
