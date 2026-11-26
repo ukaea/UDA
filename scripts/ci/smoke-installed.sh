@@ -36,9 +36,38 @@ pkgconfig_dir() {
   find "$1" -name uda-client.pc | sed -n '1{p;q;}' | xargs dirname
 }
 
+# On Windows a DLL that cannot be found opens a modal dialog, which hangs CI until ctest times out.
+# Check each executable's DLL imports first, so the missing DLL is named in the log instead.
+check_windows_dlls() {
+  local dir=$1 exe dll system_dir missing=0
+  command -v objdump >/dev/null 2>&1 || { echo "note: objdump not found, skipping DLL check" >&2; return 0; }
+  system_dir=$(cygpath -u "${SYSTEMROOT:-C:/Windows}")
+  # True if the DLL is in a PATH directory or the system directory (names are case-insensitive).
+  dll_found() {
+    local IFS=: d
+    for d in $PATH "$system_dir"; do
+      [[ -n "$d" && -n "$(find "$d" -maxdepth 1 -iname "$1" -print -quit 2>/dev/null)" ]] && return 0
+    done
+    return 1
+  }
+  while IFS= read -r exe; do
+    while IFS= read -r dll; do
+      case "$dll" in api-ms-win-*|ext-ms-*) continue ;; esac
+      if ! dll_found "$dll"; then
+        echo "error: $(basename "$exe") needs $dll, which is not on PATH or in $system_dir" >&2
+        missing=1
+      fi
+    done < <(objdump -p "$exe" | sed -n 's/^[[:space:]]*DLL Name: //p')
+  done < <(find "$dir" -maxdepth 1 -name '*.exe')
+  return $missing
+}
+
 run_build_and_test() {
   local name=$1
   cmake --build "$name" --config "$config"
+  if [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]]; then
+    check_windows_dlls "$name" || exit 1
+  fi
   (cd "$name" && ctest -C "$config" --timeout 120 --output-on-failure)
 }
 

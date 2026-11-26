@@ -150,8 +150,8 @@ jobs:
           CIBW_ENVIRONMENT: PIP_ONLY_BINARY=numpy
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
           CIBW_BUILD: cp*-manylinux*
-          # no numpy wheel exists for cp314 on this image (numpy 2.3+ needs manylinux_2_27)
-          CIBW_SKIP: cp*-musllinux* *-musllinux* cp314*
+          # no numpy wheel exists for CPython 3.14+ on this image (numpy 2.3+ needs manylinux_2_27)
+          CIBW_SKIP: cp*-musllinux* *-musllinux* cp31[4-9]* cp3[2-9][0-9]*
           CIBW_BEFORE_ALL: >
             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && 
             sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* &&
