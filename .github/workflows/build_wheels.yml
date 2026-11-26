@@ -139,8 +139,11 @@ jobs:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
-          CIBW_BUILD: cp*-manylinux*
+          # NumPy >=2.3 wheels require glibc >=2.28. Keep newer Python builds in
+          # the manylinux_2_28 job, and select a compatible NumPy wheel here.
+          CIBW_BUILD: cp3{9,10,11,12,13}-manylinux*
           CIBW_SKIP: cp*-musllinux* *-musllinux*
+          CIBW_ENVIRONMENT: PIP_ONLY_BINARY=numpy
           CIBW_BEFORE_ALL: >
             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && 
             sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* &&
