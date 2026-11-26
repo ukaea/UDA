@@ -282,13 +282,20 @@ if( BUILD_SHARED_LIBS )
   )
 endif()
 
-# Portablexdr 4.9.1 libraries
+# Portablexdr 4.9.1 runtime. The DLL is built next to its import library (lib/libxdr.dll.a) and
+# must sit in the bin directory with the other DLLs, or the programs that load it cannot start.
 if( WIN32 OR MINGW )
+  get_filename_component( _XDR_LIBDIR "${XDR_LIBRARIES}" DIRECTORY )
+  find_file( UDA_XDR_RUNTIME NAMES libxdr.dll xdr.dll
+    HINTS "${_XDR_LIBDIR}/../bin" "${XDR_ROOT}/bin"
+    NO_DEFAULT_PATH )
+  if( NOT UDA_XDR_RUNTIME )
+    message( FATAL_ERROR "The portablexdr runtime DLL was not found next to ${XDR_LIBRARIES}" )
+  endif()
   install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
-    DESTINATION ${UDA_INSTALL_LIBDIR}
+    FILES "${UDA_XDR_RUNTIME}"
+    DESTINATION ${UDA_INSTALL_BINDIR}
     COMPONENT client-runtime
-      FILES_MATCHING PATTERN "*xdr*"
   )
   return()
 endif()

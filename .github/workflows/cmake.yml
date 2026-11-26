@@ -212,7 +212,7 @@ jobs:
               # Use the prefix CMake installed to, rather than rebuilding it from the workspace path.
               core=$(cygpath -m "$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)")
               export XDR_ROOT="$workspace/extlib/install"
-              export PATH="$core/lib:$workspace/uda_cpp_install/bin:$PATH"
+              export PATH="$core/bin:$workspace/uda_cpp_install/bin:$PATH"
               args=(
                 -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
                 -DVCPKG_TARGET_TRIPLET=x64-mingw-static

@@ -39,7 +39,7 @@ pkgconfig_dir() {
 run_build_and_test() {
   local name=$1
   cmake --build "$name" --config "$config"
-  (cd "$name" && ctest -C "$config" --output-on-failure)
+  (cd "$name" && ctest -C "$config" --timeout 120 --output-on-failure)
 }
 
 # Fail early, and say what is installed, if the core package is not where it was expected.
