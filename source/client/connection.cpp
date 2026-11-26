@@ -213,7 +213,6 @@ void setHints(struct addrinfo* hints, const char* hostname)
 
 int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_start, int user_timeout, int client_version)
 {
-    int window_size = DB_READ_BLOCK_SIZE;        // 128K
     int rc;
 
     static int max_socket_delay = -1;
@@ -515,13 +514,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
 
     if (result) freeaddrinfo(result);
 
-    // Set the receive and send buffer sizes
-
-    setsockopt(client_socket, SOL_SOCKET, SO_SNDBUF, (char*)&window_size, sizeof(window_size));
-
-    setsockopt(client_socket, SOL_SOCKET, SO_RCVBUF, (char*)&window_size, sizeof(window_size));
-
-    // Other Socket Options
+    // Leave TCP buffer sizing to the operating system so it can autotune.
 
     int on = 1;
     if (setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {

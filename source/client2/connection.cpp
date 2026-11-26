@@ -197,7 +197,6 @@ void setHints(struct addrinfo* hints, const char* hostname)
 
 int uda::client::Connection::create(XDR* client_input, XDR* client_output, const HostList& host_list)
 {
-    int window_size = DB_READ_BLOCK_SIZE;        // 128K
     int rc;
 
     static int max_socket_delay = -1;
@@ -473,13 +472,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     if (result) freeaddrinfo(result);
 
-    // Set the receive and send buffer sizes
-
-    setsockopt(client_socket, SOL_SOCKET, SO_SNDBUF, (char*)&window_size, sizeof(window_size));
-
-    setsockopt(client_socket, SOL_SOCKET, SO_RCVBUF, (char*)&window_size, sizeof(window_size));
-
-    // Other Socket Options
+    // Leave TCP buffer sizing to the operating system so it can autotune.
 
     int on = 1;
     if (setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
