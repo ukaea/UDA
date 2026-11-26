@@ -6,8 +6,9 @@
 
 #include <clientserver/stringUtils.h>
 
-#include "read_netcdf.hpp"
 #include "file_handle.hpp"
+#include "read_netcdf.hpp"
+#include "write_uda.hpp"
 
 namespace uda::plugins::netcdf {
 
@@ -169,12 +170,8 @@ int uda::plugins::netcdf::Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface) 
     const char* data_path = nullptr;
     FIND_REQUIRED_STRING_VALUE(request->nameValueList, data_path)
 
-    int err_code = 0;
-
-    // TODO: write the tree to the UDA data block (ignored for now)
-
     const FileHandle& file = get_file(file_path);
-    [[maybe_unused]] Node tree = read_netcdf_tree(file, data_path);
+    const Node tree = read_netcdf_tree(file, data_path);
 
-    return err_code;
+    return write_node_to_uda(tree, plugin_interface);
 }

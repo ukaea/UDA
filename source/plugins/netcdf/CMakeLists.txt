@@ -17,7 +17,7 @@ uda_plugin(
   DESCRIPTION "Plugin for saving and loading from a netcdf store"
   EXAMPLE "NETCDF::save(key='keyName', value='valueData')"
   LIBNAME netcdf_plugin
-  SOURCES netcdf_plugin.cpp read_netcdf.cpp
+  SOURCES netcdf_plugin.cpp read_netcdf.cpp write_uda.cpp
   EXTRA_INCLUDE_DIRS
     ${NETCDF_INCLUDES}
   EXTRA_LINK_LIBS
