@@ -192,7 +192,13 @@ jobs:
         run: cmake --build build-intel --config $CONFIG
 
       - name: Install
-        run: ${{ matrix.os != 'windows-latest' && 'sudo ' || '' }}cmake --install build --config $CONFIG
+        run: |
+          prefix=$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)
+          echo "install prefix: $prefix"
+          status=0
+          ${{ matrix.os != 'windows-latest' && 'sudo ' || '' }}cmake --install build --config $CONFIG > install.log 2>&1 || status=$?
+          head -n 5 install.log
+          exit $status
 
       - name: Smoke test installed package
         if: matrix.ssl == 'OFF' && matrix.capnp == 'OFF'
@@ -203,9 +209,10 @@ jobs:
           case "$RUNNER_OS" in
             Windows)
               workspace="$(pwd -W)"
-              core="$workspace/uda_install"
+              # Use the prefix CMake installed to, rather than rebuilding it from the workspace path.
+              core=$(cygpath -m "$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)")
               export XDR_ROOT="$workspace/extlib/install"
-              export PATH="$workspace/uda_install/lib:$workspace/uda_cpp_install/bin:$PATH"
+              export PATH="$core/lib:$workspace/uda_cpp_install/bin:$PATH"
               args=(
                 -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
                 -DVCPKG_TARGET_TRIPLET=x64-mingw-static
@@ -214,7 +221,7 @@ jobs:
               ;;
             macOS)
               workspace="$PWD"
-              core=/usr/local
+              core=$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)
               args=(
                 "-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)"
                 "-DCMAKE_CXX_FLAGS=-I$(brew --prefix boost)/include"
@@ -225,7 +232,7 @@ jobs:
               ;;
             *)
               workspace="$PWD"
-              core=/usr/local
+              core=$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)
               args=()
               ;;
           esac
