@@ -35,6 +35,7 @@ jobs:
           - [ubuntu-latest, x86_64, manylinux2014_x86_64, 0.0]
           - [ubuntu-latest, x86_64, manylinux_2_28_x86_64, 0.0]
           - [ubuntu-latest, aarch64, manylinux_2_28_aarch64, 0.0]
+          # Source-built dependencies use the deployment target in the last column.
           - [macos-15-intel, x86_64, macosx_x86_64, 13.0]
           - [macos-15, arm64, macosx_arm64, 14.0]
           - [windows-latest, AMD64, win_amd64, 0.0]
@@ -210,28 +211,38 @@ jobs:
             cmake --build build -j --config Release --target install &&
             cp -r /usr/local/python_installer/* /project/source/wrappers/python/ 
 
+      # Dependencies are built from source at the wheel's deployment target, not taken from
+      # Homebrew bottles (which target the runner's newest macOS). The cache skips the build
+      # when the same versions and target were built before.
+      - name: Cache macOS dependencies
+        if: runner.os == 'macOS'
+        uses: actions/cache@v6
+        with:
+          path: ${{github.workspace}}/macos-deps
+          key: macos-deps-${{ runner.arch }}-${{ matrix.build-platform[3] }}-${{ hashFiles('scripts/ci/build-macos-deps.sh') }}
+
+      - name: Build macOS dependencies from source
+        if: runner.os == 'macOS'
+        env:
+          MACOSX_DEPLOYMENT_TARGET: ${{matrix.build-platform[3]}}
+        run: scripts/ci/build-macos-deps.sh ${{github.workspace}}/macos-deps ${{matrix.build-platform[3]}}
+
       - name: build uda on macos
         if: runner.os == 'macOS'
-        # note: it's recommended in cibuildwheel to build all deps from source in macos 
-        # instead of using homebrew as this way the wheel will be back-compatible with 
-        # other macos versions. MACOSX_DEPLOYMENT_TARGET will no longer be required if
-        # this change is made.
+        env:
+          MACOSX_DEPLOYMENT_TARGET: ${{matrix.build-platform[3]}}
         run: >
-          brew update-reset && brew install
-          git
-          boost
-          openssl
-          cmake
-          libxml2
-          spdlog
-          capnp &&
           cd ${{github.workspace}} &&
-          cmake -B build 
-          -DBUILD_SHARED_LIBS=ON 
-          -DCMAKE_BUILD_TYPE=Release 
-          -DSSLAUTHENTICATION=ON 
-          -DENABLE_CAPNP=ON 
-          -DNO_JAVA_WRAPPER=ON 
+          cmake -B build
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{matrix.build-platform[3]}}
+          -DSSLAUTHENTICATION=ON
+          -DENABLE_CAPNP=ON
+          -DNO_JAVA_WRAPPER=ON
+          -DCMAKE_PREFIX_PATH=${{github.workspace}}/macos-deps
+          -DBOOST_ROOT=${{github.workspace}}/macos-deps
+          -DOPENSSL_ROOT_DIR=${{github.workspace}}/macos-deps
           -DCMAKE_INSTALL_PREFIX=$PWD/install
           -DCLIENT_ONLY=ON &&
           cmake --build build -j --config Release --target install &&
