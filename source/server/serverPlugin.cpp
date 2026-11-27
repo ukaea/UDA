@@ -3,6 +3,10 @@
 *---------------------------------------------------------------------------------------------------------------------*/
 #include "serverPlugin.h"
 
+#ifndef FATCLIENT
+#  include "pluginStreamRedirect.hpp"
+#endif
+
 #include <cstdlib>
 #include <cerrno>
 #include <dlfcn.h>
@@ -11,9 +15,6 @@
 #  include <unistd.h>
 #else
 #  include <winsock2.h>
-#  include <io.h>
-#  define dup _dup
-#  define dup2 _dup2
 #endif
 
 #include <cache/memcache.hpp>
@@ -25,7 +26,6 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/protocol.h>
-#include <clientserver/mkstemp.h>
 #include <structures/struct.h>
 
 #define REQUEST_READ_START      1000
@@ -115,113 +115,6 @@ void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
         fprintf(fd, "cachePermission : %d\n", plugin_list->plugin[i].cachePermission);
         fprintf(fd, "interfaceVersion: %d\n\n", plugin_list->plugin[i].interfaceVersion);
     }
-}
-
-int udaServerRedirectStdStreams(bool reset, bool cleanup)
-{
-    // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
-
-    // Multi platform compliance
-    static int original_std_fd = 0;
-    static int original_err_fd = 0;
-    static FILE* plugin_redirect_fh = nullptr;
-    static bool is_specified_redirect_file = false;
-
-    static char mksdir_template[MAXPATH] = { 0 };
-    static char temp_file[MAXPATH] = { 0 };
-
-    if (cleanup) {
-        UDA_LOG(UDA_LOG_DEBUG, "Closing redirect file\n");
-
-        errno = 0;
-        int rc = fclose(plugin_redirect_fh);
-        if (rc) {
-            int err = errno;
-            UDA_THROW_ERROR(err, strerror(err));
-        }
-
-        plugin_redirect_fh = nullptr;
-
-        if (!is_specified_redirect_file) {
-            UDA_LOG(UDA_LOG_DEBUG, "Removing temporary file\n");
-
-            errno = 0;
-            rc = remove(temp_file);    // Delete the temporary file
-            if (rc) {
-                int err = errno;
-                UDA_THROW_ERROR(err, strerror(err));
-            }
-        }
-
-        mksdir_template[0] = '\0';
-        temp_file[0] = '\0';
-
-        return 0;
-    }
-
-    if (!reset) {
-        if (plugin_redirect_fh != nullptr) {
-            // Multi platform compliance
-            //stdout = plugin_redirect_fh;                                  // Redirect all IO to a temporary file
-            //stderr = plugin_redirect_fh;
-            dup2(fileno(plugin_redirect_fh), fileno(stdout));
-            dup2(fileno(plugin_redirect_fh), fileno(stderr));
-            return 0;
-        }
-
-        // Multi platform compliance
-        //original_std_fd = stdout;                                 // Retain current values
-        //original_err_fd = stderr;
-        original_std_fd = dup(fileno(stdout));
-        original_err_fd = dup(fileno(stderr));
-
-        UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
-
-        const char* redirect_file = getenv("UDA_PLUGIN_REDIRECT_FILE");
-        errno = 0;
-
-        if (redirect_file == nullptr) {
-            if (mksdir_template[0] == '\0') {
-                is_specified_redirect_file = false;
-                const char* redirect_dir = getenv("UDA_PLUGIN_REDIRECT_DIR");
-                if (redirect_dir != nullptr) {
-                    snprintf(mksdir_template, MAXPATH, "%s/idamPLUGINXXXXXX", redirect_dir);
-                } else {
-                    strcpy(mksdir_template, "/tmp/idamPLUGINXXXXXX");
-                }
-            }
-
-            strcpy(temp_file, mksdir_template);
-            int fd = mkstemp(temp_file);
-            if (fd < 0 || errno != 0) {
-                int err = (errno != 0) ? errno : 994;
-                UDA_THROW_ERROR(err, "Unable to Obtain a Temporary File Name");
-            }
-            plugin_redirect_fh = fdopen(fd, "a");
-        } else {
-            strcpy(temp_file, redirect_file);
-            plugin_redirect_fh = fopen(temp_file, "w");
-        }
-
-        // Open the message Trap
-        if (plugin_redirect_fh == nullptr || errno != 0) {
-            UDA_THROW_ERROR(999, "Unable to Trap Plugin Error Messages.");
-        }
-
-        // Multi platform compliance
-        dup2(fileno(plugin_redirect_fh), fileno(stdout));
-        dup2(fileno(plugin_redirect_fh), fileno(stderr));
-    } else {
-        if (plugin_redirect_fh != nullptr) {
-            UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles\n");
-
-            // Multi platform compliance
-            dup2(original_std_fd, fileno(stdout));
-            dup2(original_err_fd, fileno(stderr));
-        }
-    }
-
-    return 0;
 }
 
 // 1. open configuration file
@@ -431,8 +324,13 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     // Redirect Output to temporary file if no file handles passed
 
-    bool reset = false;
-    if ((err = udaServerRedirectStdStreams(reset)) != 0) {
+#ifdef FATCLIENT
+    err = udaServerRedirectStdStreams(false);
+#else
+    uda::PluginOutputCapture capture;
+    err = capture.status();
+#endif
+    if (err != 0) {
         UDA_THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
@@ -462,8 +360,12 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     // Reset Redirected Output
 
-    reset = true;
-    if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
+#ifdef FATCLIENT
+    rc = udaServerRedirectStdStreams(true);
+#else
+    rc = capture.restore();
+#endif
+    if (rc != 0 || err != 0) {
         if (rc != 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
@@ -577,8 +479,13 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
 
     // Redirect Output to temporary file if no file handles passed
 
-    bool reset = false;
-    if ((err = udaServerRedirectStdStreams(reset)) != 0) {
+#ifdef FATCLIENT
+    err = udaServerRedirectStdStreams(false);
+#else
+    uda::PluginOutputCapture capture;
+    err = capture.status();
+#endif
+    if (err != 0) {
         UDA_THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
@@ -588,8 +495,12 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
 
     // Reset Redirected Output
 
-    reset = true;
-    if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
+#ifdef FATCLIENT
+    rc = udaServerRedirectStdStreams(true);
+#else
+    rc = capture.restore();
+#endif
+    if (rc != 0 || err != 0) {
         if (rc != 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }

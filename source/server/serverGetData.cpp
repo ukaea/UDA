@@ -20,6 +20,10 @@
 #include "serverPlugin.h"
 #include "serverSubsetData.h"
 
+#ifndef FATCLIENT
+#  include "pluginStreamRedirect.hpp"
+#endif
+
 static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
 static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
 static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
@@ -1124,9 +1128,8 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
 #ifndef FATCLIENT
                 // Redirect Output to temporary file if no file handles passed
-                bool reset = false;
-                int rc;
-                if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
+                uda::PluginOutputCapture capture;
+                if (const int rc = capture.status(); rc != 0) {
                     UDA_THROW_ERROR(rc, "Error Redirecting Plugin Message Output");
                 }
 #endif
@@ -1141,8 +1144,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
 #ifndef FATCLIENT
                 // Reset Redirected Output
-                reset = true;
-                if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
+                if (const int rc = capture.restore(); rc != 0) {
                     UDA_THROW_ERROR(rc, "Error Resetting Redirected Plugin Message Output");
                 }
 #endif

@@ -1,5 +1,6 @@
 #include <fmt/format.h>
 #include <cstdio>
+#include <cstring>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else
@@ -26,6 +27,7 @@
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
 #include "getServerEnvironment.h"
+#include "pluginStreamRedirect.hpp"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
@@ -106,6 +108,8 @@ handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* ser
 
 int udaServer(CLIENT_BLOCK client_block)
 {
+    uda::PluginStreamRedirect redirect;
+    redirect.activate();
     int err = 0;
     METADATA_BLOCK metadata_block;
     memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
@@ -165,6 +169,9 @@ int udaServer(CLIENT_BLOCK client_block)
                      &total_datablock_size, &server_tot_block_time, &server_timeout);
     }
 
+    if (const int cleanup_error = redirect.close(); cleanup_error != 0) {
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, cleanup_error, std::strerror(cleanup_error));
+    }
     err = doServerClosedown(&client_block, &request_block, &data_block_list, server_tot_block_time, server_timeout);
 
     return err;
@@ -918,8 +925,6 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
 {
     //----------------------------------------------------------------------------
     // Server Destruct.....
-
-    udaServerRedirectStdStreams(false, true);
 
     UDA_LOG(UDA_LOG_DEBUG, "Server Shutting Down\n");
     if (server_tot_block_time > 1000 * server_timeout) {

@@ -1,0 +1,8 @@
+add_executable( test_server_resources server_resources.test.cpp )
+target_link_libraries( test_server_resources PRIVATE Catch2::Catch2WithMain server-shared ${LINK_LIB} )
+if( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1 )
+  target_link_libraries( test_server_resources PRIVATE stdc++fs )
+elseif( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0 )
+  target_link_libraries( test_server_resources PRIVATE c++fs )
+endif()
+add_test( NAME TestServerResources COMMAND test_server_resources )

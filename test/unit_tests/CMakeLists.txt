@@ -8,3 +8,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable( Catch2 )
 add_subdirectory( common )
+
+if( UNIX )
+  add_subdirectory( server )
+endif()

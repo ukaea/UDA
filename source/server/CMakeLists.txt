@@ -26,6 +26,7 @@ set( SRC_FILES
   getServerEnvironment.cpp
   initPluginList.cpp
   makeServerRequestBlock.cpp
+  pluginStreamRedirect.cpp
   serverGetData.cpp
   serverLegacyPlugin.cpp
   serverPlugin.cpp
