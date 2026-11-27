@@ -15,6 +15,20 @@
 
 #include "utils.h"
 
+// Temporary compatibility shim until the certificate time checks migrate from
+// X509_cmp_time, deprecated in OpenSSL 4. Keep other deprecation warnings enabled.
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+static int compare_x509_time(const ASN1_TIME* certificate_time, time_t* comparison_time)
+{
+    return X509_cmp_time(certificate_time, comparison_time);
+}
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+
 static bool g_sslDisabled = true;   // Default state is not SSL authentication
 static int g_sslProtocol = 0;       // The default server host name has the SSL protocol name prefix or
 static int g_sslSocket = -1;
@@ -290,7 +304,7 @@ int configureUdaClientSSLContext(const HostData* host)
 
     UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before: %s\n", before_string.c_str());
     int rc = 0;
-    if ((rc = X509_cmp_time(before, &current_time)) >= 0) {
+    if ((rc = compare_x509_time(before, &current_time)) >= 0) {
         // Not Before is after Now!
         X509_free(clientCert);
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
@@ -302,7 +316,7 @@ int configureUdaClientSSLContext(const HostData* host)
     std::string after_string = to_string(after);
 
     UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after   : %s\n", after_string.c_str());
-    if ((rc = X509_cmp_time(after, &current_time)) <= 0) {// Not After is before Now!
+    if ((rc = compare_x509_time(after, &current_time)) <= 0) {// Not After is before Now!
         X509_free(clientCert);
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
         UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after date is after the current date!\n");
@@ -418,7 +432,7 @@ int startUdaClientSSL()
         std::string before_string = to_string(before);
 
         UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before: %s\n", before_string.c_str());
-        if ((rc = X509_cmp_time(before, &current_time)) >= 0) {// Not Before is after Now!
+        if ((rc = compare_x509_time(before, &current_time)) >= 0) {// Not Before is after Now!
             X509_free(peer);
             UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
             UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before date is before the current date!\n");
@@ -430,7 +444,7 @@ int startUdaClientSSL()
         std::string after_string = to_string(after);
 
         UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after   : %s\n", after_string.c_str());
-        if ((rc = X509_cmp_time(after, &current_time)) <= 0) {// Not After is before Now!
+        if ((rc = compare_x509_time(after, &current_time)) <= 0) {// Not After is before Now!
             X509_free(peer);
             UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
             UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after date is after the current date!\n");

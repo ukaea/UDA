@@ -1,7 +1,7 @@
 if( NOT CLIENT_ONLY )
   include( LibXml2StrPrintfConfig )
 endif()
-set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
+list( APPEND CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
 find_package( Boost 1.60 REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 

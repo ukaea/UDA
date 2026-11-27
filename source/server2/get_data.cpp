@@ -1,4 +1,8 @@
 #include "get_data.hpp"
+
+#include <cstring>
+#include <string>
+
 #include "clientserver/stringUtils.h"
 #include "clientserver/errorLog.h"
 #include "logging/logging.h"
@@ -1160,12 +1164,13 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
         // Don't append the file name to the path - if it's already present!
 
         if (strstr(metadata_block_.data_source.path, metadata_block_.data_source.filename) == nullptr) {
-            if (strlen(metadata_block_.data_source.path) + strlen(metadata_block_.data_source.filename) + 1 < MAXPATH) {
-                strcat(metadata_block_.data_source.path, "/");
-                strcat(metadata_block_.data_source.path, metadata_block_.data_source.filename);
-            } else {
+            // Build the joined path in a separate string rather than strcat-ing two members of the same
+            // struct: GCC 15 at -O3 reports a false -Werror=restrict overlap for that pattern.
+            std::string full_path = std::string(metadata_block_.data_source.path) + "/" + metadata_block_.data_source.filename;
+            if (full_path.size() + 1 > sizeof(metadata_block_.data_source.path)) {
                 UDA_THROW_ERROR(999, "Path + Filename too long");
             }
+            std::memcpy(metadata_block_.data_source.path, full_path.c_str(), full_path.size() + 1);
         }
 
         if (maybe_plugin) {
