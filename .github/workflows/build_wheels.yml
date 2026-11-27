@@ -170,7 +170,8 @@ jobs:
             cmake --build build  &&
             cmake --install build &&
             cd /tmp  &&
-            wget https://sourceforge.net/projects/boost/files/boost/1.80.0/boost_1_80_0.tar.gz &&
+            wget --tries=5 --retry-connrefused --waitretry=10 --timeout=60 https://archives.boost.io/release/1.80.0/source/boost_1_80_0.tar.gz &&
+            echo "4b2136f98bdd1f5857f1c3dea9ac2018effe65286cf251534b6ae20cc45e1847  boost_1_80_0.tar.gz" | sha256sum -c - &&
             tar xzf boost_1_80_0.tar.gz  &&
             cd boost_1_80_0  &&
             ./bootstrap.sh --prefix=/usr/local  &&

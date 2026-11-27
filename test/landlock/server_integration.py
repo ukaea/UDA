@@ -92,8 +92,10 @@ def integration(server, library, plugin, disabled=False):
         startup_failure("UDA_LANDLOCK_READONLY_PATHS", str(root / "missing"), "open Landlock path")
 
         # Fail closed: with no grants configured, the server cannot load its plugin configuration.
-        client_status, output, _ = serve({})
+        client_status, output, server_status = serve({})
         assert client_status != 0, "request succeeded with no Landlock grants:\n" + output
+        # Shutdown must be clean even though no plugin ran (no redirect file to close).
+        assert server_status == 0, f"server exited {server_status} after a denied request"
         assert "Landlock filesystem policy enforced" in logs(), logs()
 
         # An explicit OFF disables enforcement even when grants are configured.

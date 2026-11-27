@@ -157,12 +157,12 @@ only searches its default trusted directories and `LD_LIBRARY_PATH`.
 
 **The server runs external programs even without plugins that do.** To detect the
 format of a requested file that has no extension, it runs `head -c10 <file>`
-through `/bin/sh` with `popen()`. For HDF-labelled files it also runs the
-programs named by `UDA_DUMP_NETCDF` and `UDA_DUMP_IDA` when those are set. Grant
+through `/bin/sh` with `popen()`. It then runs the program named by `UDA_DUMP_NETCDF`
+(for HDF-labelled files) or `UDA_DUMP_IDA` (for other files), if that variable is set. Grant
 execute permission to `/bin/sh`, `head`, any configured dump programs and the ELF
 interpreter they use. The command discards errors with `2>/dev/null`, so `/dev/null`
 also needs a read/write grant. Without these grants, requests for files without
-extensions fail with "failed to read command".
+extensions fail with "Unable to Identify the File's Format" (system error 13, EACCES).
 
 `UDA_PLUGIN_REDIRECT_DIR` directs plugin output capture to the permitted scratch
 directory; without it, that capture uses `/tmp`, which would need its own writable

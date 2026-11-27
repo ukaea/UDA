@@ -15,10 +15,11 @@ export UDA_DEBUG_APPEND=a
 #------------------------------------------------------------------------------------------------------
 # UDA DUMP Program Locations
 
-export UDA_DUMP_MDSPLUS=`which idl 2>/dev/null`
-export UDA_DUMP_IDA=`which idadump 2>/dev/null`
-export UDA_DUMP_NETCDF=`which /usr/bin/ncdump 2>/dev/null`
-export UDA_DUMP_HDF5=`which h5dump 2>/dev/null`
+# Export each program only if it is installed: the server would try to run an empty value.
+UDA_DUMP_MDSPLUS=$(type -P idl) && export UDA_DUMP_MDSPLUS || unset UDA_DUMP_MDSPLUS
+UDA_DUMP_IDA=$(type -P idadump) && export UDA_DUMP_IDA || unset UDA_DUMP_IDA
+UDA_DUMP_NETCDF=$(type -P /usr/bin/ncdump) && export UDA_DUMP_NETCDF || unset UDA_DUMP_NETCDF
+UDA_DUMP_HDF5=$(type -P h5dump) && export UDA_DUMP_HDF5 || unset UDA_DUMP_HDF5
 
 #------------------------------------------------------------------------------------------------------
 # UDA Server Host
@@ -85,7 +86,7 @@ then
         /etc/localtime /usr/share/zoneinfo /etc/hosts /etc/host.conf /etc/resolv.conf /etc/nsswitch.conf \
         /etc/gai.conf /etc/ssl /dev/urandom)"
     export UDA_LANDLOCK_READWRITE_PATHS="$UDA_LANDLOCK_SCRATCH:/dev/null"
-    export UDA_LANDLOCK_EXECUTE_PATHS="$(uda_landlock_existing /bin/sh "$(command -v head)" \
+    export UDA_LANDLOCK_EXECUTE_PATHS="$(uda_landlock_existing /bin/sh "$(type -P head)" \
         "$UDA_DUMP_NETCDF" "$UDA_DUMP_IDA" /lib64/ld-linux*.so* /lib/ld-linux*.so* /lib/ld-musl*.so*)"
 
     unset -f uda_landlock_existing
