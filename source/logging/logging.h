@@ -5,7 +5,13 @@
 #include <string.h>
 #include <clientserver/export.h>
 
-#ifdef _WIN32
+#if defined(UDA_COMMON_BUILD)
+// Code built for the plugin support library has no logger of its own. Shared code that should log takes a UDA_DIAGNOSTICS context
+// (UDA_DIAG_LOG in clientserver/udaDiagnostics.h); any remaining UDA_LOG trace compiles to nothing, while its
+// arguments still count as used.
+static inline void udaLogDiscard(int level, const char* fmt, ...) { (void)level; (void)fmt; }
+#  define UDA_LOG(LEVEL, FMT, ...) do { if (0) { udaLogDiscard(LEVEL, FMT, ##__VA_ARGS__); } } while (0)
+#elif defined(_WIN32)
 #  define FILENAME (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 #  define UDA_LOG(LEVEL, FMT, ...) udaLog(LEVEL, "%s:%d >> " FMT, FILENAME, __LINE__, ##__VA_ARGS__)
 #else
@@ -42,12 +48,15 @@ typedef enum LogLevel {
 
 typedef void (* logFunc)(FILE*);
 
+#ifndef UDA_COMMON_BUILD
+
 LIBRARY_API void udaSetLogLevel(LOG_LEVEL level);
 LIBRARY_API LOG_LEVEL udaGetLogLevel();
 LIBRARY_API void udaCloseLogging();
 LIBRARY_API void udaSetLogFile(LOG_LEVEL mode, FILE* file);
 LIBRARY_API void udaLogWithFunc(LOG_LEVEL mode, logFunc func);
 LIBRARY_API void udaLog(LOG_LEVEL mode, const char* fmt, ...);
+#endif // UDA_COMMON_BUILD
 
 #ifdef __cplusplus
 }

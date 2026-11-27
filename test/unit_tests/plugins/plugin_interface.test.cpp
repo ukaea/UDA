@@ -8,6 +8,7 @@
 
 #include <clientserver/errorLog.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
 #include <plugins/udaPlugin.h>
 #include <server/pluginInterface.h>
 
@@ -187,4 +188,154 @@ TEST_CASE( "Nested call: unknown plugin is reported on the parent", "[plugin_int
     REQUIRE( udaCallPlugin(f.parent.get(), "NOSUCHPLUGIN::fn()") != 0 );
     REQUIRE( g_calls == 0 );
     REQUIRE( f.parent->error_stack.nerrors >= 1 );
+}
+
+namespace {
+
+struct CapturedLog {
+    int count = 0;
+    int level = 0;
+    std::string message;
+};
+
+void capture_log(void* context, int level, const char*, int, const char* message)
+{
+    auto captured = static_cast<CapturedLog*>(context);
+    ++captured->count;
+    captured->level = level;
+    captured->message = message;
+}
+
+} // namespace
+
+TEST_CASE( "udaPluginDiagnostics records on the interface and logs through the host", "[plugin_interface][diagnostics]" )
+{
+    Fixture f;
+    CapturedLog captured;
+    f.parent->log_function = capture_log;
+    f.parent->log_context = &captured;
+    f.parent->log_level = UDA_LOG_INFO;
+
+    UDA_DIAGNOSTICS diag = udaPluginDiagnostics(f.parent.get());
+    UDA_DIAG_ADD_ERROR(&diag, 77, "helper failed");
+    UDA_DIAG_LOG(&diag, UDA_LOG_DEBUG, "below the host level %d\n", 1);
+    UDA_DIAG_LOG(&diag, UDA_LOG_WARN, "trace %d\n", 5);
+
+    REQUIRE( f.parent->error_stack.nerrors == 1 );
+    REQUIRE( f.parent->error_stack.idamerror[0].code == 77 );
+    REQUIRE( std::string(f.parent->error_stack.idamerror[0].msg) == "helper failed" );
+    REQUIRE( captured.count == 1 );
+    REQUIRE( captured.level == UDA_LOG_WARN );
+    REQUIRE( captured.message == "trace 5\n" );
+
+    SECTION( "a version 1 interface has no host log sink" ) {
+        f.parent->interfaceVersion = 1;
+        UDA_DIAGNOSTICS v1 = udaPluginDiagnostics(f.parent.get());
+        UDA_DIAG_LOG(&v1, UDA_LOG_ERROR, "not delivered\n");
+        REQUIRE( captured.count == 1 );
+        UDA_DIAG_ADD_ERROR(&v1, 78, "still recorded");
+        REQUIRE( f.parent->error_stack.nerrors == 2 );
+    }
+}
+
+TEST_CASE( "A null diagnostics context discards output", "[plugin_interface][diagnostics]" )
+{
+    REQUIRE( udaDiagAddError(nullptr, UDA_CODE_ERROR_TYPE, "here", 1, "dropped") != 0 );
+    REQUIRE( udaDiagLogEnabled(nullptr, UDA_LOG_ERROR) == 0 );
+    UDA_DIAG_LOG((const UDA_DIAGNOSTICS*)nullptr, UDA_LOG_ERROR, "dropped\n");
+}
+
+TEST_CASE( "udaGlobalDiagnostics forwards to the library error stack", "[plugin_interface][diagnostics]" )
+{
+    int before = udaNumErrors();
+    UDA_DIAGNOSTICS diag = udaGlobalDiagnostics();
+    UDA_DIAG_ADD_ERROR(&diag, 79, "global record");
+    REQUIRE( udaNumErrors() == before + 1 );
+    closeUdaError();
+}
+
+TEST_CASE( "Nested call: request parse errors reach the parent, not global state", "[plugin_interface][diagnostics]" )
+{
+    Fixture f;
+    int global_before = udaNumErrors();
+
+    // An empty request is rejected by udaMakeRequestData()
+    REQUIRE( udaCallPlugin(f.parent.get(), "") != 0 );
+    REQUIRE( g_calls == 0 );
+    REQUIRE( udaNumErrors() == global_before );
+    REQUIRE( f.parent->error_stack.nerrors >= 2 );
+    REQUIRE( std::string(f.parent->error_stack.idamerror[0].msg) == "Neither Data Object nor Source specified!" );
+    unsigned int last = f.parent->error_stack.nerrors - 1;
+    REQUIRE( std::string(f.parent->error_stack.idamerror[last].msg).find("Unable to parse plugin call request")
+             != std::string::npos );
+}
+
+TEST_CASE( "Nested call: a successful parse leaves no records behind", "[plugin_interface][diagnostics]" )
+{
+    Fixture f;
+    REQUIRE( udaCallPlugin(f.parent.get(), "OKPLUGIN::fn(a=1, b=two)") == 0 );
+    REQUIRE( g_calls == 1 );
+    REQUIRE( f.parent->error_stack.nerrors == 0 );
+}
+
+namespace {
+
+bool has_error(const UDA_ERROR_STACK& stack, const std::string& text)
+{
+    for (unsigned int i = 0; i < stack.nerrors; ++i) {
+        if (std::string(stack.idamerror[i].msg).find(text) != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
+}
+
+} // namespace
+
+TEST_CASE( "Subset parse errors fail the request", "[plugin_interface][subset]" )
+{
+    Fixture f;
+
+    SECTION( "too many elements" ) {
+        REQUIRE( udaCallPlugin(f.parent.get(), "OKPLUGIN::fn()[1:2:3:4]") != 0 );
+        REQUIRE( has_error(f.parent->error_stack, "Invalid number of elements in subset operation") );
+    }
+
+    SECTION( "a non-integer index is reported, not thrown" ) {
+        REQUIRE( udaCallPlugin(f.parent.get(), "OKPLUGIN::fn()[abc]") != 0 );
+        REQUIRE( has_error(f.parent->error_stack, "Invalid integer in subset operation: abc") );
+    }
+
+    SECTION( "an out of range index is reported, not thrown" ) {
+        REQUIRE( udaCallPlugin(f.parent.get(), "OKPLUGIN::fn()[99999999999999999999]") != 0 );
+        REQUIRE( has_error(f.parent->error_stack, "Integer out of range in subset operation") );
+    }
+
+    REQUIRE( g_calls == 0 );
+    REQUIRE( has_error(f.parent->error_stack, "Subset operation is incorrect!") );
+}
+
+TEST_CASE( "Subset wildcards and padded indices parse", "[plugin_interface][subset]" )
+{
+    // Parsed directly: a successful nested call would go on to subset the (absent) fixture data block
+    Fixture f;
+    UDA_DIAGNOSTICS diag = udaPluginDiagnostics(f.parent.get());
+
+    REQUEST_DATA request = {};
+    initRequestData(&request);
+    strcpy(request.signal, "OKPLUGIN::fn()[*]");
+    REQUIRE( udaMakeRequestData(&diag, &request, f.plugin_list, &f.environment) == 0 );
+    REQUIRE( request.datasubset.nbound == 1 );
+    REQUIRE( !request.datasubset.lbindex[0].init );
+
+    initRequestData(&request);
+    strcpy(request.signal, "OKPLUGIN::fn()[2:*, 0:10:2 ]");
+    REQUIRE( udaMakeRequestData(&diag, &request, f.plugin_list, &f.environment) == 0 );
+    REQUIRE( request.datasubset.nbound == 2 );
+    REQUIRE( request.datasubset.lbindex[0].value == 2 );
+    REQUIRE( !request.datasubset.ubindex[0].init );
+    REQUIRE( request.datasubset.ubindex[1].value == 10 );
+    REQUIRE( request.datasubset.stride[1].value == 2 );
+
+    REQUIRE( f.parent->error_stack.nerrors == 0 );
 }

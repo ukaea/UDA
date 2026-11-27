@@ -7,16 +7,27 @@ endif()
 
 enable_testing()
 
-# Plugin support / plugin libraries must not embed the server or its logger and error-stack state
+# Plugin support / plugin libraries must not embed the client or server logger and error-stack state, and only plugins
+# that opt in with LINK_CLIENT may depend on the client library (see cmake/checkPluginSymbols.cmake)
 if( BUILD_SHARED_LIBS AND NOT WIN32 AND NOT MINGW AND TARGET plugins-shared )
-  set( LINK_GUARD_LIBS $<TARGET_FILE:plugins-shared> )
-  foreach( GUARD_PLUGIN bytes_plugin help_plugin template_plugin testplugin_plugin uda_plugin )
+  if( APPLE )
+    find_program( LINK_GUARD_DEPS_TOOL otool )
+  else()
+    find_program( LINK_GUARD_DEPS_TOOL readelf )
+  endif()
+  set( LINK_GUARD_STATELESS_LIBS $<TARGET_FILE:plugins-shared> )
+  foreach( GUARD_PLUGIN bytes_plugin help_plugin template_plugin testplugin_plugin )
     if( TARGET ${GUARD_PLUGIN} )
-      list( APPEND LINK_GUARD_LIBS $<TARGET_FILE:${GUARD_PLUGIN}> )
+      list( APPEND LINK_GUARD_STATELESS_LIBS $<TARGET_FILE:${GUARD_PLUGIN}> )
     endif()
   endforeach()
+  set( LINK_GUARD_LIBS ${LINK_GUARD_STATELESS_LIBS} )
+  if( TARGET uda_plugin )
+    list( APPEND LINK_GUARD_LIBS $<TARGET_FILE:uda_plugin> )   # uses the client API (LINK_CLIENT)
+  endif()
   add_test( NAME plugin_link_guard
-    COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} "-DLIBS=${LINK_GUARD_LIBS}" -P ${CMAKE_SOURCE_DIR}/cmake/checkPluginSymbols.cmake )
+    COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} -DDEPS_TOOL=${LINK_GUARD_DEPS_TOOL} "-DLIBS=${LINK_GUARD_LIBS}"
+      "-DSTATELESS_LIBS=${LINK_GUARD_STATELESS_LIBS}" -P ${CMAKE_SOURCE_DIR}/cmake/checkPluginSymbols.cmake )
 endif()
 
 find_package( Boost )

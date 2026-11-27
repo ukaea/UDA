@@ -6,6 +6,7 @@
 #include <clientserver/udaStructs.h>
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
+#include <clientserver/udaDiagnostics.h>
 #include <plugins/pluginStructs.h>
 #include <clientserver/export.h>
 #include "clientserver/udaTypes.h"
@@ -72,11 +73,18 @@ LIBRARY_API int udaPluginAddErrorF(IDAM_PLUGIN_INTERFACE* plugin_interface, int 
 // Logging through the plugin interface
 //
 // With interface version >= 2 and a host log_function, diagnostics go to the host's configured sinks (never to the
-// protocol streams). Under an older host they fall back to the legacy udaLog() of the library the plugin is bound to.
+// protocol streams). Under an older host plugin logging is a no-op.
 
 LIBRARY_API bool udaPluginLogEnabled(const IDAM_PLUGIN_INTERFACE* plugin_interface, int level);
 LIBRARY_API void udaPluginLog(const IDAM_PLUGIN_INTERFACE* plugin_interface, int level, const char* file, int line,
                               const char* fmt, ...) UDA_PLUGIN_PRINTF_FORMAT(5, 6);
+
+/**
+ * A diagnostics context for the shared helpers that take one (udaMakeRequestData(), udaExpandEnvironmentVariables(),
+ * udaServerSubsetData(), udaPrintDataBlock(), ...): their errors are recorded on plugin_interface->error_stack and
+ * their traces go to the host's log. The context points into plugin_interface, so use it only during this call.
+ */
+LIBRARY_API UDA_DIAGNOSTICS udaPluginDiagnostics(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 // udaCreatePluginInterface() / udaFreePluginInterface() create a full host environment (server environment and
 // plugin list) and so are host functions: they are declared in server/pluginInterface.h and live in the server.

@@ -3299,7 +3299,8 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* plugin_interface)
     REQUEST_DATA* request = plugin_interface->request_data;
 
     UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "TESTPLUGIN test50\n");
-    printRequestData(*request);
+    UDA_DIAGNOSTICS diag = udaPluginDiagnostics(plugin_interface);
+    udaPrintRequestData(&diag, *request);
 
     // Return an array of strings with all passed parameters and substitutions
 
@@ -3828,7 +3829,8 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         strcpy(next_request.signal, signal);
         strcpy(next_request.source, source);
 
-        makeRequestData(&next_request, *pluginList, plugin_interface->environment);
+        UDA_DIAGNOSTICS diag = udaPluginDiagnostics(plugin_interface);
+        udaMakeRequestData(&diag, &next_request, *pluginList, plugin_interface->environment);
 
         for (int i = 0; i < pluginList->count; i++) {
             if (next_request.request == pluginList->plugin[i].request) {

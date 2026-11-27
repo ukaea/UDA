@@ -16,7 +16,9 @@ extern "C" {
 LIBRARY_API int udaCheckAllowedPath(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* expanded_path);
 
 /**
- * Legacy form of udaCheckAllowedPath(): errors are recorded in library-global error state.
+ * Legacy form of udaCheckAllowedPath(), kept for existing plugin binaries. It returns the same codes but its error
+ * details are dropped (libuda_plugins has no error stack of its own), so the client only sees the server's generic
+ * "Request failed with error code N" message. Use udaCheckAllowedPath().
  */
 LIBRARY_API int check_allowed_path(const char* expanded_path);
 

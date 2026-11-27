@@ -2,6 +2,7 @@
 
 #include <structures/struct.h>
 #include <logging/logging.h>
+#include <plugins/udaPlugin.h>
 
 void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
@@ -107,12 +108,12 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 defined\n");
+    UDA_PLUGIN_LOG(idam_plugin_interface, UDA_LOG_DEBUG, "Type TEST9 defined\n");
 
     old = findUserDefinedType(userdefinedtypelist, "TEST9", 0);            // Clone existing structure & modify
     copyUserDefinedType(old, &usertype);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 located\n");
+    UDA_PLUGIN_LOG(idam_plugin_interface, UDA_LOG_DEBUG, "Type TEST9 located\n");
 
     strcpy(usertype.name, "TEST9A");
     strcpy(usertype.source, "Test #9A");
@@ -137,5 +138,5 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     addUserDefinedType(userdefinedtypelist, usertype);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Type TEST9A defined\n");
+    UDA_PLUGIN_LOG(idam_plugin_interface, UDA_LOG_DEBUG, "Type TEST9A defined\n");
 }

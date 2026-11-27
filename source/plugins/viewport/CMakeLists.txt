@@ -22,6 +22,7 @@ endif()
 include( plugins )
 
 uda_plugin(
+  LINK_CLIENT
   NAME VIEWPORT
   ENTRY_FUNC viewport
   DESCRIPTION "Reduce data to viewport pixel size"

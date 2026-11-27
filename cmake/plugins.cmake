@@ -25,7 +25,9 @@ macro( uda_plugin )
 
   include( CMakeParseArguments )
 
-  set( optionArgs )
+  # LINK_CLIENT: the plugin uses the UDA client API (e.g. to make downstream requests). Other plugins link only the
+  # plugin support library (libuda_plugins), and must report through the plugin interface.
+  set( optionArgs LINK_CLIENT )
   set( oneValueArgs NAME LIBNAME ENTRY_FUNC DESCRIPTION EXAMPLE CONFIG_FILE TYPE EXTENSION VERSION INTERFACE_VERSION )
   set( multiValueArgs SOURCES EXTRA_INCLUDE_DIRS EXTRA_LINK_DIRS EXTRA_LINK_LIBS EXTRA_DEFINITIONS EXTRA_INSTALL_FILES EXTRA_NAMES )
 
@@ -92,7 +94,10 @@ macro( uda_plugin )
     add_definitions( ${DEF} )
   endforeach()
 
-  set( LIBRARIES client-shared plugins-shared ${OPENSSL_LIBRARIES} )
+  set( LIBRARIES plugins-shared ${OPENSSL_LIBRARIES} )
+  if( PLUGIN_LINK_CLIENT )
+    set( LIBRARIES client-shared ${LIBRARIES} )
+  endif()
   if( ENABLE_CAPNP )
     set( LIBRARIES ${LIBRARIES} serialisation-static )
   endif()

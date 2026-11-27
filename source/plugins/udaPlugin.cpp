@@ -18,7 +18,9 @@
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    udaSetLogLevel((LOG_LEVEL)plugin_interface->environment->loglevel);
+    // Historically set the log level of whichever logger this library was bound to. The host now owns logging
+    // (interface version 2), so there is nothing to initialise; kept for source and binary compatibility.
+    (void)plugin_interface;
     return 0;
 }
 
@@ -463,8 +465,8 @@ bool findUnsignedLongValue(const NAMEVALUELIST* namevaluelist, unsigned long* va
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
         if (std::strchr(str, '-') != nullptr) {
-            std::string err_msg = std::string("Negative value found when unsigned expected: ") + name + "=" + str;
-            RAISE_PLUGIN_ERROR(err_msg.c_str());
+            // No plugin interface here to report through, so a negative value is treated as not supplied (the
+            // legacy RAISE_PLUGIN_ERROR used here returned 999, i.e. "found", without setting the value)
             return false;
         }
         *value = std::strtoul(str, nullptr, 10);
@@ -637,11 +639,9 @@ int udaPluginAddErrorF(IDAM_PLUGIN_INTERFACE* plugin_interface, int type, const 
 
 bool udaPluginLogEnabled(const IDAM_PLUGIN_INTERFACE* plugin_interface, int level)
 {
-    if (plugin_interface != nullptr && plugin_interface->interfaceVersion >= 2) {
-        return plugin_interface->log_function != nullptr && level >= plugin_interface->log_level;
-    }
-    // Legacy host: defer to the logger of the library this plugin is bound to
-    return level >= udaGetLogLevel();
+    // Only a version 2 host provides a logging sink; with an older host plugin logging is a no-op
+    return plugin_interface != nullptr && plugin_interface->interfaceVersion >= 2
+           && plugin_interface->log_function != nullptr && level >= plugin_interface->log_level;
 }
 
 void udaPluginLog(const IDAM_PLUGIN_INTERFACE* plugin_interface, int level, const char* file, int line,
@@ -653,13 +653,23 @@ void udaPluginLog(const IDAM_PLUGIN_INTERFACE* plugin_interface, int level, cons
     vsnprintf(msg, STRING_LENGTH, fmt, args);
     va_end(args);
 
-    if (plugin_interface != nullptr && plugin_interface->interfaceVersion >= 2) {
-        if (plugin_interface->log_function != nullptr) {
-            plugin_interface->log_function(plugin_interface->log_context, level, file, line, msg);
-        }
-        return;
+    if (udaPluginLogEnabled(plugin_interface, level)) {
+        plugin_interface->log_function(plugin_interface->log_context, level, file, line, msg);
     }
-    udaLog((LOG_LEVEL)level, "%s:%d >> %s", file != nullptr ? file : "", line, msg);
+}
+
+UDA_DIAGNOSTICS udaPluginDiagnostics(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    if (plugin_interface == nullptr) {
+        return UDA_DIAGNOSTICS{};
+    }
+    UDA_DIAGNOSTICS diag = udaStackDiagnostics(&plugin_interface->error_stack, nullptr, nullptr, UDA_LOG_NONE);
+    if (plugin_interface->interfaceVersion >= 2) {
+        diag.log_function = plugin_interface->log_function;
+        diag.log_context = plugin_interface->log_context;
+        diag.log_level = plugin_interface->log_level;
+    }
+    return diag;
 }
 
 namespace {
@@ -719,11 +729,16 @@ int udaCallPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* signal)
     request.source[0] = '\0';
     strcpy(request.signal, signal);
 
-    // makeRequestData still records into library-global error state: on failure, move those records to the parent
-    int global_errors = udaNumErrors();
-    int err = makeRequestData(&request, *pluginlist, plugin_interface->environment);
+    // Helper errors are collected on a scratch stack and only passed to the parent if the step fails; traces go
+    // straight to the parent's log
+    auto scratch = std::make_unique<UDA_ERROR_STACK>();
+    scratch->nerrors = 0;
+    UDA_DIAGNOSTICS diag = udaPluginDiagnostics(plugin_interface);
+    diag.error_context = scratch.get();
+
+    int err = udaMakeRequestData(&diag, &request, *pluginlist, plugin_interface->environment);
     if (err != 0) {
-        udaMoveErrorsSince(global_errors, &plugin_interface->error_stack);
+        udaAppendErrorStack(&plugin_interface->error_stack, scratch.get());
         udaPluginAddErrorF(plugin_interface, UDA_CODE_ERROR_TYPE, "callPlugin", err,
                            "Unable to parse plugin call request: %s", signal);
         return err;
@@ -789,10 +804,10 @@ int udaCallPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* signal)
         initAction(&action);
         action.actionType = UDA_SUBSET_TYPE;
         action.subset = request.datasubset;
-        global_errors = udaNumErrors();
-        err = serverSubsetData(child_interface->data_block, action, child_interface->logmalloclist);
+        scratch->nerrors = 0;
+        err = udaServerSubsetData(&diag, child_interface->data_block, action, child_interface->logmalloclist);
         if (err != 0) {
-            udaMoveErrorsSince(global_errors, &plugin_interface->error_stack);
+            udaAppendErrorStack(&plugin_interface->error_stack, scratch.get());
             char msg[STRING_LENGTH];
             snprintf(msg, STRING_LENGTH, "Subsetting failed for plugin call request: %s", signal);
             add_parent_error(plugin_interface, err, msg);

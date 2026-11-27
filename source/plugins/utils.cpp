@@ -76,18 +76,13 @@ int udaCheckAllowedPath(IDAM_PLUGIN_INTERFACE* plugin_interface, const char* exp
     return 0;
 }
 
-// Legacy form: records into library-global error state (see udaCheckAllowedPath() for the interface-aware form)
+// Legacy form, kept so existing plugin binaries still load. libuda_plugins has no error stack of its own, so the
+// detailed records are dropped: a failure still returns its code and the server reports it with its generic
+// fallback message. Use udaCheckAllowedPath() to report the detail.
 int check_allowed_path(const char* expanded_path)
 {
-    // A local version-1 interface: the plugin logging helpers fall back to the legacy logger
     auto plugin_interface = std::make_unique<IDAM_PLUGIN_INTERFACE>();
     plugin_interface->interfaceVersion = 1;
     plugin_interface->error_stack.nerrors = 0;
-
-    int err = udaCheckAllowedPath(plugin_interface.get(), expanded_path);
-    for (unsigned int i = 0; i < plugin_interface->error_stack.nerrors; ++i) {
-        const UDA_ERROR* error = &plugin_interface->error_stack.idamerror[i];
-        addIdamError(error->type, error->location, error->code, error->msg);
-    }
-    return err;
+    return udaCheckAllowedPath(plugin_interface.get(), expanded_path);
 }

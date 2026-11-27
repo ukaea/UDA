@@ -251,8 +251,9 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     char tmp_path[MAXPATH];
     StringCopy(tmp_path, path, MAXPATH);
-    expand_environment_variables(tmp_path);
-    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
+    UDA_DIAGNOSTICS diag = udaPluginDiagnostics(plugin_interface);
+    udaExpandEnvironmentVariables(&diag, tmp_path);
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "udaExpandEnvironmentVariables: path=%s \n", tmp_path);
 
     int rc = udaCheckAllowedPath(plugin_interface, tmp_path);
     if (rc != 0) {
@@ -312,8 +313,9 @@ int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     char tmp_path[MAXPATH];
     StringCopy(tmp_path, path, MAXPATH);
-    expand_environment_variables(tmp_path);
-    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "expand_environment_variables: path=%s \n", tmp_path);
+    UDA_DIAGNOSTICS diag = udaPluginDiagnostics(plugin_interface);
+    udaExpandEnvironmentVariables(&diag, tmp_path);
+    UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "udaExpandEnvironmentVariables: path=%s \n", tmp_path);
 
     int rc = udaCheckAllowedPath(plugin_interface, tmp_path);
     if (rc != 0) {

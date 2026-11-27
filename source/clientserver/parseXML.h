@@ -188,8 +188,11 @@ typedef struct Actions {
 #ifndef NOXMLPARSER
 LIBRARY_API int parseDoc(char* docname, ACTIONS* actions);
 #endif
+#ifndef UDA_COMMON_BUILD
+// Print through the calling library's own logger; see actionStructs.h for the diagnostics-taking forms
 LIBRARY_API void printAction(ACTION action);
 LIBRARY_API void printActions(ACTIONS actions);
+#endif
 LIBRARY_API void initAction(ACTION* act);
 LIBRARY_API void initActions(ACTIONS* act);
 LIBRARY_API void freeActions(ACTIONS* actions);

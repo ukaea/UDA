@@ -6,6 +6,10 @@
 #include <logging/logging.h>
 #include <clientserver/stringUtils.h>
 
+#ifndef _WIN32
+#  include <sys/time.h>
+#endif
+
 static std::vector<UDA_ERROR> udaerrorstack;
 
 int udaNumErrors()
@@ -67,16 +71,6 @@ void initUdaErrorStack()
     udaerrorstack.clear();
 }
 
-void initErrorRecords(UDA_ERROR_STACK* errorstack)
-{
-    for (unsigned int i = 0; i < UDA_MAX_ERRORS; i++) {
-        errorstack->idamerror[i].type = 0;
-        errorstack->idamerror[i].code = 0;
-        errorstack->idamerror[i].location[0] = '\0';
-        errorstack->idamerror[i].msg[0] = '\0';
-    }
-}
-
 void printIdamErrorStack()
 {
     if (udaerrorstack.empty()) {
@@ -96,114 +90,10 @@ void printIdamErrorStack()
 //            1 => Code Error
 //            2 => Plugin Error
 
-namespace {
-
-// Build a single error record. Strings are copied, truncated and terminated; null strings are treated as empty.
-// System errors have the strerror() text for their code appended to the message.
-UDA_ERROR make_error(int type, const char* location, int code, const char* msg)
-{
-    UDA_ERROR error = {};
-
-    error.type = type;
-    error.code = code;
-    strncpy(error.location, location != nullptr ? location : "", STRING_LENGTH - 1);
-    error.location[STRING_LENGTH - 1] = '\0';
-    strncpy(error.msg, msg != nullptr ? msg : "", STRING_LENGTH - 1);
-    error.msg[STRING_LENGTH - 1] = '\0';
-
-    size_t lmsg0 = strlen(error.msg);
-
-    if (type == UDA_SYSTEM_ERROR_TYPE) {
-        const char* errmsg = strerror(code);
-        size_t lmsg1 = strlen(errmsg);
-        if (lmsg0 == 0) {
-            strncpy(error.msg, errmsg, STRING_LENGTH - 1);
-            error.msg[STRING_LENGTH - 1] = '\0';
-        } else {
-            if ((lmsg0 + 2) < STRING_LENGTH) {
-                strcat(error.msg, "; ");
-                if ((lmsg0 + lmsg1 + 2) < STRING_LENGTH) {
-                    strcat(error.msg, errmsg);
-                } else {
-                    strncat(error.msg, errmsg, ((unsigned int)(STRING_LENGTH - 1 - (lmsg0 + 2))));
-                    error.msg[STRING_LENGTH - 1] = '\0';
-                }
-            }
-        }
-    }
-
-    return error;
-}
-
-} // namespace
 
 void addIdamError(int type, const char* location, int code, const char* msg)
 {
-    udaerrorstack.push_back(make_error(type, location, code, msg));
-}
-
-int udaAddErrorToStack(UDA_ERROR_STACK* error_stack, int type, const char* location, int code, const char* msg)
-{
-    if (error_stack == nullptr) {
-        return -1;
-    }
-    if (error_stack->nerrors >= UDA_MAX_ERRORS) {
-        // Keep the earliest records: the first record is the root cause and drives the response header
-        return 1;
-    }
-    error_stack->idamerror[error_stack->nerrors] = make_error(type, location, code, msg);
-    error_stack->nerrors++;
-    return 0;
-}
-
-int udaAppendErrorStack(UDA_ERROR_STACK* error_stack, const UDA_ERROR_STACK* source)
-{
-    if (error_stack == nullptr || source == nullptr) {
-        return -1;
-    }
-    int rc = 0;
-    unsigned int count = source->nerrors < UDA_MAX_ERRORS ? source->nerrors : UDA_MAX_ERRORS;
-    for (unsigned int i = 0; i < count; ++i) {
-        if (error_stack->nerrors >= UDA_MAX_ERRORS) {
-            rc = 1;
-            break;
-        }
-        error_stack->idamerror[error_stack->nerrors++] = source->idamerror[i];
-    }
-    return rc;
-}
-
-int udaEnsureErrorRecorded(UDA_ERROR_STACK* error_stack, int code, const char* location)
-{
-    if (error_stack == nullptr || code == 0 || error_stack->nerrors > 0) {
-        return 0;
-    }
-    char msg[STRING_LENGTH];
-    snprintf(msg, STRING_LENGTH, "Request failed with error code %d but no error details were reported", code);
-    udaAddErrorToStack(error_stack, UDA_CODE_ERROR_TYPE, location, code, msg);
-    return 1;
-}
-
-int udaMoveErrorsSince(int start, UDA_ERROR_STACK* error_stack)
-{
-    if (start < 0) {
-        start = 0;
-    }
-    if (static_cast<size_t>(start) >= udaerrorstack.size()) {
-        return 0;
-    }
-    int rc = 0;
-    if (error_stack != nullptr) {
-        for (size_t i = start; i < udaerrorstack.size(); ++i) {
-            if (error_stack->nerrors >= UDA_MAX_ERRORS) {
-                rc = 1;
-                break;
-            }
-            error_stack->idamerror[error_stack->nerrors++] = udaerrorstack[i];
-        }
-    }
-    udaerrorstack.resize(start);
-    return rc;
+    udaerrorstack.push_back(udaMakeError(type, location, code, msg));
 }
 
 // Concatenate Error Stack structures
@@ -239,4 +129,42 @@ void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
 void closeUdaError()
 {
     initUdaErrorStack();
+}
+
+// Diagnostics context forwarding to this library's own error stack and logger
+
+namespace {
+
+int global_error_sink(void*, int type, const char* location, int code, const char* message)
+{
+    addIdamError(type, location, code, message);
+    return 0;
+}
+
+void global_log_sink(void*, int level, const char* file, int line, const char* message)
+{
+    // Same layout as UDA_LOG
+#ifndef _WIN32
+    struct timeval tv = {};
+    gettimeofday(&tv, nullptr);
+    struct tm tm_now = {};
+    localtime_r(&tv.tv_sec, &tm_now);
+    char timestamp[30];
+    strftime(timestamp, sizeof(timestamp), "%Y:%m:%dT%H:%M:%S", &tm_now);
+    udaLog((LOG_LEVEL)level, "%s.%dZ, %s:%d >> %s", timestamp, (int)tv.tv_usec, file != nullptr ? file : "", line,
+           message);
+#else
+    udaLog((LOG_LEVEL)level, "%s:%d >> %s", file != nullptr ? file : "", line, message);
+#endif
+}
+
+} // namespace
+
+UDA_DIAGNOSTICS udaGlobalDiagnostics()
+{
+    UDA_DIAGNOSTICS diag = {};
+    diag.error_function = global_error_sink;
+    diag.log_function = global_log_sink;
+    diag.log_level = (int)udaGetLogLevel();
+    return diag;
 }

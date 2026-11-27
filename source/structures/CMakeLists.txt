@@ -22,6 +22,7 @@ endif()
 set( SRC_FILES
   parseIncludeFile.cpp
   struct.cpp
+  structTypes.cpp
   accessors.cpp
   xdrUserDefinedData.cpp
 )
@@ -47,6 +48,12 @@ if( NOT CLIENT_ONLY )
 endif()
 
 add_library( structures-client-objects OBJECT ${SRC_FILES} )
+
+# Common objects built into libuda_plugins (see clientserver/CMakeLists.txt): type registration and the malloc log
+if( NOT CLIENT_ONLY )
+  add_library( structures-common-objects OBJECT structTypes.cpp )
+  target_compile_definitions( structures-common-objects PRIVATE UDA_COMMON_BUILD )
+endif()
 
 file( GLOB HEADER_FILES "*.h" )
 

@@ -79,6 +79,11 @@ add_definitions( -DSERVERBUILD )
 add_library( server-support-objects OBJECT serverSubsetData.cpp serverSubsetData.h )
 target_link_libraries( server-support-objects PRIVATE Boost::boost )
 
+# The same, built for the plugin support library: no legacy global-state entry points (UDA_COMMON_BUILD)
+add_library( server-support-common-objects OBJECT serverSubsetData.cpp serverSubsetData.h )
+target_compile_definitions( server-support-common-objects PRIVATE UDA_COMMON_BUILD )
+target_link_libraries( server-support-common-objects PRIVATE Boost::boost )
+
 add_library( server-objects OBJECT
   udaServer.cpp
   udaLegacyServer.cpp

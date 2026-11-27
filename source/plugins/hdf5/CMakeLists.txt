@@ -15,6 +15,7 @@ endif()
 include( plugins )
 
 uda_plugin(
+  LINK_CLIENT
   NAME NEWHDF5
   ENTRY_FUNC udaHDF5
   DESCRIPTION "HDF5 Data Reader"

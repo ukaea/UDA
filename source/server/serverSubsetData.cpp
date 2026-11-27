@@ -25,6 +25,8 @@
 #include <logging/logging.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/errorLog.h>
+#include <clientserver/udaDiagnostics.h>
+#include <clientserver/actionStructs.h>
 #include <clientserver/udaTypes.h>
 #include <structures/struct.h>
 #include <clientserver/initStructs.h>
@@ -52,7 +54,7 @@
 
 static int get_subset_indices(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices);
 
-int apply_sub_setting(DIMS* dims, int rank, int dim_id,
+int apply_sub_setting(const UDA_DIAGNOSTICS* diag, DIMS* dims, int rank, int dim_id,
                       char* data, int ndata, int data_type, int not_operation,
                       int start, int end, int start1, int end1, int stride, int* n, void** new_data);
 
@@ -78,7 +80,7 @@ int number_of_subsetting_operations(const ACTION* action) {
     }
 }
 
-int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist)
+int process_subset_operation(const UDA_DIAGNOSTICS* diag, int ii, SUBSET subset, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist)
 {
     int n_bound = subset.nbound;                        // the Number of operations in the set
 
@@ -96,13 +98,13 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         std::string operation = subset.operation[j];                // a single operation
         int dim_id = subset.dimid[j];                    // applied to this dimension (if -1 then to data only!)
 
-        UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n", ii, j, value, operation.c_str(), dim_id, subset.reform);
+        UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n", ii, j, value, operation.c_str(), dim_id, subset.reform);
 
         if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-            UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n",
+            UDA_DIAG_LOG(diag, UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n",
                     dim_id, data_block->rank, dim_id >= (int)data_block->rank);
-            printDataBlock(*data_block);
-            UDA_THROW_ERROR(9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
+            udaPrintDataBlock(diag, *data_block);
+            UDA_DIAG_THROW_ERROR(diag, 9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
             return 9999;
         }
 
@@ -168,7 +170,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
                                         if ((shape = udt->compoundfield[i].shape) == nullptr &&
                                             udt->compoundfield[i].rank > 1) {
-                                            UDA_THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
+                                            UDA_DIAG_THROW_ERROR(diag, 999, "The Data Structure member's shape data is missing (rank > 1)");
                                         }
 
                                     } else {        // mapType == 3
@@ -225,7 +227,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                         }
                                     } else {
                                         if (rank > 1) {
-                                            UDA_THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
+                                            UDA_DIAG_THROW_ERROR(diag, 999, "The Data Structure member's shape data is missing (rank > 1)");
                                         }
                                     }
                                 }
@@ -242,7 +244,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                         }
 
                         if (mapType == 3) {
-                            UDA_THROW_ERROR(999, "Unable to subset an array of Data Structures when the target "
+                            UDA_DIAG_THROW_ERROR(diag, 999, "Unable to subset an array of Data Structures when the target "
                                              "member is also an array. (Functionality has not been implemented!)");
                         }
 
@@ -451,11 +453,21 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
             stride = (int)(maybe_stride.init ? maybe_stride.value : 1);
 
+            if (stride == 0) {
+                UDA_DIAG_THROW_ERROR(diag, 999, "stride must not be zero")
+            }
+            if (end > dim->dim_n) {
+                end = dim->dim_n;
+            }
+            if (start < 0 || start >= dim->dim_n) {
+                UDA_DIAG_THROW_ERROR(diag, 999, "start is outside the dimension")
+            }
             if (start > end) {
-                UDA_THROW_ERROR(999, "start must be before end")
+                UDA_DIAG_THROW_ERROR(diag, 999, "start must be before end")
             }
             reshape = 1;
-            dim_n = abs((end - start) / stride);
+            // Elements visited by apply_sub_setting's loop over [start, end) in steps of |stride| (rounded up)
+            dim_n = (end - start + abs(stride) - 1) / abs(stride);
         }
 
         if (operation[0] == '#') {            // Reshape Operation - Highest array position (last value)
@@ -486,7 +498,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
             if ((dim_n = get_subset_indices(operation, dim, value, subset_indices)) == 0) {
                 free(subset_indices);
-                UDA_THROW_ERROR(9999, "No Data were found that satisfies a subset");
+                UDA_DIAG_THROW_ERROR(diag, 9999, "No Data were found that satisfies a subset");
             }
 
             // Start and End of Subset Ranges
@@ -511,12 +523,12 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                 }
                 if (dim_n != end - start + 1 + range2) {        // Dimension array is Not well ordered!
                     free(subset_indices);
-                    UDA_THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
+                    UDA_DIAG_THROW_ERROR(diag, 9999, "The Dimensional Array is Not Ordered: Unable to Subset");
                 }
             } else {
                 if (dim_n != end - start + 1) {        // Dimension array is Not well ordered!
                     free(subset_indices);
-                    UDA_THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
+                    UDA_DIAG_THROW_ERROR(diag, 9999, "The Dimensional Array is Not Ordered: Unable to Subset");
                 }
             }
             free(subset_indices);
@@ -527,27 +539,27 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         //----------------------------------------------------------------------------------------------------------------------------
         // Build the New Sub-setted Dimension
 
-        printDataBlock(*data_block);
-        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: %d\n\n\n", dim->data_type);
-        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errhi != nullptr: %d\n\n\n", dim->errhi != nullptr);
-        UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errlo != nullptr: %d\n\n\n", dim->errlo != nullptr);
+        udaPrintDataBlock(diag, *data_block);
+        UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: %d\n\n\n", dim->data_type);
+        UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "\n\n\n*** dim->errhi != nullptr: %d\n\n\n", dim->errhi != nullptr);
+        UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "\n\n\n*** dim->errlo != nullptr: %d\n\n\n", dim->errlo != nullptr);
 
         int n;
         int ierr = 0;
 
-        if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->dim, dim_n, dim->data_type, not_operation,
+        if ((ierr = apply_sub_setting(diag, dim, 1, dim_id, dim->dim, dim_n, dim->data_type, not_operation,
                                         start, end, start1, end1, stride, &n, (void**)&new_dim.dim)) != 0) {
             return ierr;
         }
 
         if (dim->errhi != nullptr && dim->error_type != UDA_TYPE_UNKNOWN) {
-            if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->errhi, dim_n, dim->error_type, not_operation,
+            if ((ierr = apply_sub_setting(diag, dim, 1, dim_id, dim->errhi, dim_n, dim->error_type, not_operation,
                                             start, end, start1, end1, stride, &n, (void**)&new_dim.errhi)) != 0)
                 return ierr;
         }
 
         if (dim->errlo != nullptr && dim->error_type != UDA_TYPE_UNKNOWN) {
-            if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->errlo, dim_n, dim->error_type, not_operation,
+            if ((ierr = apply_sub_setting(diag, dim, 1, dim_id, dim->errlo, dim_n, dim->error_type, not_operation,
                                             start, end, start1, end1, stride, &n, (void**)&new_dim.errlo)) != 0)
                 return ierr;
         }
@@ -555,12 +567,12 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         //-----------------------------------------------------------------------------------------------------------------------
         // Reshape and Save the Subsetted Data
 
-        printDataBlock(*data_block);
+        udaPrintDataBlock(diag, *data_block);
 
         int n_data;
         char* new_data;
 
-        if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->data,
+        if ((ierr = apply_sub_setting(diag, data_block->dims, data_block->rank, dim_id, data_block->data,
                                         data_block->data_n, data_block->data_type, not_operation,
                                         start, end, start1, end1, stride, &n_data, (void**)&new_data)) != 0) {
             return ierr;
@@ -569,7 +581,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         char* new_errhi;
 
         if (data_block->error_type != UDA_TYPE_UNKNOWN && data_block->errhi != nullptr) {
-            if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->errhi,
+            if ((ierr = apply_sub_setting(diag, data_block->dims, data_block->rank, dim_id, data_block->errhi,
                                             data_block->data_n, data_block->error_type, not_operation,
                                             start, end, start1, end1, stride, &n, (void**)&new_errhi)) != 0) {
                 return ierr;
@@ -581,7 +593,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         char* new_errlo;
 
         if (data_block->error_type != UDA_TYPE_UNKNOWN && dim->errlo != nullptr) {
-            if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->errlo,
+            if ((ierr = apply_sub_setting(diag, data_block->dims, data_block->rank, dim_id, data_block->errlo,
                                             data_block->data_n, data_block->error_type, not_operation,
                                             start, end, start1, end1, stride, &n, (void**)&new_errlo)) != 0) {
                 return ierr;
@@ -616,12 +628,12 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
     return 0;
 }
 
-int reform_data(DATA_BLOCK* data_block)
+int reform_data(const UDA_DIAGNOSTICS* diag, DATA_BLOCK* data_block)
 {
     int rank = data_block->rank;
     for (int j = 0; j < rank; j++) {
         if (data_block->dims[j].dim_n <= 1) {
-            UDA_LOG(UDA_LOG_DEBUG, "Reforming Dimension %d\n", j);
+            UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "Reforming Dimension %d\n", j);
 
             data_block->dims[j].compressed = 0;
             data_block->dims[j].method = 0;
@@ -651,7 +663,7 @@ int reform_data(DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
+int apply_minimum(const UDA_DIAGNOSTICS* diag, SUBSET subset, DATA_BLOCK* data_block)
 {
     int dim_id = 0;
 
@@ -673,9 +685,9 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
     }
 
     if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id,
+        UDA_DIAG_LOG(diag, UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id,
                 data_block->rank);
-        UDA_THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
+        UDA_DIAG_THROW_ERROR(diag, 999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
     }
 
     switch (data_block->data_type) {
@@ -839,7 +851,7 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
+int apply_maximum(const UDA_DIAGNOSTICS* diag, SUBSET subset, DATA_BLOCK* data_block)
 {
     int dim_id = 0;
 
@@ -861,9 +873,9 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
     }
 
     if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id,
+        UDA_DIAG_LOG(diag, UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id,
                 data_block->rank);
-        UDA_THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
+        UDA_DIAG_THROW_ERROR(diag, 999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
     }
 
     switch (data_block->data_type) {
@@ -1124,13 +1136,13 @@ int apply_abs(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_const(SUBSET subset, DATA_BLOCK* data_block)
+int apply_const(const UDA_DIAGNOSTICS* diag, SUBSET subset, DATA_BLOCK* data_block)
 {
     double value = 0.0;                    // Zero data default
     char* p1 = strstr(subset.function, "value");
     strcpy(data_block->data_label, subset.function);
 
-    UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+    UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "%s\n", subset.function);
 
     if (p1 != nullptr) {
         char* p3, * p2 = strchr(&p1[5], '=');
@@ -1139,16 +1151,16 @@ int apply_const(SUBSET subset, DATA_BLOCK* data_block)
         p3[0] = '\0';
         TrimString(p2);
         LeftTrimString(p2);
-        UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
+        UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
         if (IsFloat(p2)) {
             value = atof(p2);
         } else {
-            UDA_LOG(UDA_LOG_DEBUG, "IsFloat FALSE!\n");
+            UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "IsFloat FALSE!\n");
             // ERROR
         }
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "value = %f\n", value);
+    UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "value = %f\n", value);
 
     if (data_block->errhi != nullptr) free(data_block->errhi);
     if (data_block->errlo != nullptr) free(data_block->errlo);
@@ -1180,10 +1192,10 @@ int apply_const(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_order(SUBSET subset, DATA_BLOCK* data_block)
+int apply_order(const UDA_DIAGNOSTICS* diag, SUBSET subset, DATA_BLOCK* data_block)
 {
     char* p1 = strstr(subset.function, "dim_id");
-    UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+    UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "%s\n", subset.function);
     if (p1 != nullptr) {
         char* p3, * p2 = strchr(&p1[5], '=');
         p2[0] = ' ';
@@ -1191,30 +1203,30 @@ int apply_order(SUBSET subset, DATA_BLOCK* data_block)
         p3[0] = '\0';
         TrimString(p2);
         LeftTrimString(p2);
-        UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
+        UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
         if (IsNumber(p2)) {
             data_block->order = (int)atof(p2);
         } else {
             // ERROR
         }
     }
-    UDA_LOG(UDA_LOG_DEBUG, "order = %d\n", data_block->order);
+    UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "order = %d\n", data_block->order);
     return 0;
 }
 
-int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
+int apply_rotate_rz(const UDA_DIAGNOSTICS* diag, SUBSET subset, DATA_BLOCK* data_block)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
+    UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "%s\n", subset.function);
     if (data_block->rank != 3) {
-        UDA_THROW_ERROR(999, "The function rotateRZ only operates on rank 3 arrays");
+        UDA_DIAG_THROW_ERROR(diag, 999, "The function rotateRZ only operates on rank 3 arrays");
     }
     int order = data_block->order;
     if (order < 0) {
-        UDA_THROW_ERROR(999, "The function rotateRZ expects a Time coordinate");
+        UDA_DIAG_THROW_ERROR(diag, 999, "The function rotateRZ expects a Time coordinate");
     }
     int type = data_block->data_type;
     if (type != UDA_TYPE_DOUBLE) {
-        UDA_THROW_ERROR(999, "The function rotateRZ is configured for type DOUBLE only");
+        UDA_DIAG_THROW_ERROR(diag, 999, "The function rotateRZ is configured for type DOUBLE only");
     }
     int nt, nr, nz, count;
     count = data_block->data_n;
@@ -1250,7 +1262,7 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
         data_block->dims[1] = d2;
         data_block->dims[2] = d1;
     } else if (order == 1) {        // array[nz][nt][nr]
-        UDA_THROW_ERROR(999, "The function rotateRZ only operates on arrays with shape [nz][nr][nt] or [nt][nz][nr]");
+        UDA_DIAG_THROW_ERROR(diag, 999, "The function rotateRZ only operates on arrays with shape [nz][nr][nt] or [nt][nz][nr]");
     } else if (order == 2) {        // array[nt][nz][nr] -> [nt][nr][nz]
         nr = data_block->dims[0].dim_n;
         nz = data_block->dims[1].dim_n;
@@ -1279,21 +1291,21 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
         data_block->dims[0] = d1;
         data_block->dims[1] = d0;
     } else {
-        UDA_THROW_ERROR(999, "rotateRZ: Incorrect ORDER value found!");
+        UDA_DIAG_THROW_ERROR(diag, 999, "rotateRZ: Incorrect ORDER value found!");
     }
     free(data_block->data);
     data_block->data = (char*)newData;
     return 0;
 }
 
-int apply_functions(SUBSET subset, DATA_BLOCK* data_block)
+int apply_functions(const UDA_DIAGNOSTICS* diag, SUBSET subset, DATA_BLOCK* data_block)
 {
     if (STR_ISTARTSWITH(subset.function, "minimum")) {        // Single scalar result
-        return apply_minimum(subset, data_block);
+        return apply_minimum(diag, subset, data_block);
     }
 
     if (STR_ISTARTSWITH(subset.function, "maximum")) {        // Single scalar result
-        return apply_maximum(subset, data_block);
+        return apply_maximum(diag, subset, data_block);
     }
 
     if (STR_ISTARTSWITH(subset.function, "count")) {        // Single scalar result
@@ -1305,24 +1317,24 @@ int apply_functions(SUBSET subset, DATA_BLOCK* data_block)
     }
 
     if (STR_ISTARTSWITH(subset.function, "const")) {        // Constant value substitution
-        return apply_const(subset, data_block);
+        return apply_const(diag, subset, data_block);
     }
 
     if (STR_ISTARTSWITH(subset.function, "order")) {        // Identify the Time dimension order
-        return apply_order(subset, data_block);
+        return apply_order(diag, subset, data_block);
     }
 
     if (STR_ISTARTSWITH(subset.function, "rotateRZ")) {        // Rotate R,Z coordinates in rank 3 array
-        return apply_rotate_rz(subset, data_block);
+        return apply_rotate_rz(diag, subset, data_block);
     }
 
-    UDA_THROW_ERROR(999, "Unknown function");
+    UDA_DIAG_THROW_ERROR(diag, 999, "Unknown function");
 }
 
-int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist)
+int udaServerSubsetData(const UDA_DIAGNOSTICS* diag, DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist)
 {
-    printAction(action);
-    printDataBlock(*data_block);
+    udaPrintAction(diag, action);
+    udaPrintDataBlock(diag, *data_block);
 
     //-----------------------------------------------------------------------------------------------------------------------
     // How many sets of sub-setting operations?
@@ -1334,7 +1346,7 @@ int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST
 
     if (data_block->rank > 2 &&
         !(action.actionType == UDA_SUBSET_TYPE && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
-        UDA_THROW_ERROR(9999, "Not Configured to Subset Data with Rank Higher than 2");
+        UDA_DIAG_THROW_ERROR(diag, 9999, "Not Configured to Subset Data with Rank Higher than 2");
     }
 
     //-----------------------------------------------------------------------------------------------------------------------
@@ -1354,7 +1366,7 @@ int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST
             }
         }
 
-        int rc = process_subset_operation(i, subset, data_block, logmalloclist);
+        int rc = process_subset_operation(diag, i, subset, data_block, logmalloclist);
         if (rc != 0) {
             return rc;
         }
@@ -1362,13 +1374,13 @@ int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST
         //-------------------------------------------------------------------------------------------------------------
         // Reform the Data if requested
         if (subset.reform) {
-            reform_data(data_block);
+            reform_data(diag, data_block);
         }
 
         //-------------------------------------------------------------------------------------------------------------
         // Apply simple functions to the subset data: XML syntax function="name(dim_id=9)"
         if (subset.function[0] != '\0') {
-            apply_functions(subset, data_block);
+            apply_functions(diag, subset, data_block);
         }
 
         //-------------------------------------------------------------------------------------------------------------
@@ -1580,7 +1592,7 @@ int get_subset_indices(const std::string& operation, DIMS* dim, double value, un
 
 
 template <typename T>
-int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
+int apply_sub_setting_for_type(const UDA_DIAGNOSTICS* diag, DIMS* dims, int rank, int dim_id,
                       const char* data, int ndata, int data_type, int not_operation,
                       int start, int end, int start1, int end1, int stride, int* n, void** new_data)
 {
@@ -1588,7 +1600,7 @@ int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
 
     T* p = nullptr;
     if ((p = (T*)malloc(ndata * sizeof(T))) == nullptr) {
-        UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
+        UDA_DIAG_THROW_ERROR(diag, 9999, "Unable to Allocate Heap memory");
     }
 
     auto dp = (T*)data;        // the Originating Data Array
@@ -1668,7 +1680,7 @@ int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
                                 count++;
                             }
                         }
-                        for (int i = end; i >= start; i += stride) {
+                        for (int i = end - 1; i >= start; i += stride) {
                             pa[j][k++] = dpa[j][i];
                             count++;
                         }
@@ -1722,53 +1734,61 @@ int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
     return 0;
 }
 
-int apply_sub_setting(DIMS* dims, int rank, int dim_id,
+int apply_sub_setting(const UDA_DIAGNOSTICS* diag, DIMS* dims, int rank, int dim_id,
                         char* data, int ndata, int data_type, int not_operation,
                         int start, int end, int start1, int end1, int stride, int* n, void** new_data)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "Data Type: %d    Rank: %d\n", data_type, rank);
+    UDA_DIAG_LOG(diag, UDA_LOG_DEBUG, "Data Type: %d    Rank: %d\n", data_type, rank);
 
     *n = 0;
 
     switch (data_type) {
         case UDA_TYPE_FLOAT:
-            return apply_sub_setting_for_type<float>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<float>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_DOUBLE:
-            return apply_sub_setting_for_type<double>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<double>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_INT:
-            return apply_sub_setting_for_type<int>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<int>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_SHORT:
-            return apply_sub_setting_for_type<short>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<short>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_LONG:
-            return apply_sub_setting_for_type<long>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<long>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_LONG64:
-            return apply_sub_setting_for_type<int64_t>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<int64_t>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_UNSIGNED_INT:
-            return apply_sub_setting_for_type<unsigned int>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<unsigned int>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_UNSIGNED_SHORT:
-            return apply_sub_setting_for_type<unsigned short>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<unsigned short>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_UNSIGNED_LONG:
-            return apply_sub_setting_for_type<unsigned long>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<unsigned long>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_UNSIGNED_LONG64:
-            return apply_sub_setting_for_type<uint64_t>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<uint64_t>(diag, dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         default:
-            UDA_LOG(UDA_LOG_ERROR, "Invalid data type for sub-setting operation!\n");
-            UDA_LOG(UDA_LOG_ERROR, "Data Type: %d    Rank: %d\n", data_type, rank);
-            UDA_THROW_ERROR(9999, "Invalid data type for sub-setting operation!");
+            UDA_DIAG_LOG(diag, UDA_LOG_ERROR, "Invalid data type for sub-setting operation!\n");
+            UDA_DIAG_LOG(diag, UDA_LOG_ERROR, "Data Type: %d    Rank: %d\n", data_type, rank);
+            UDA_DIAG_THROW_ERROR(diag, 9999, "Invalid data type for sub-setting operation!");
     }
 
     return 0;
 }
 
+#ifndef UDA_COMMON_BUILD
 
+// Legacy form: report through this library's own error stack and logger
+int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist)
+{
+    UDA_DIAGNOSTICS diag = udaGlobalDiagnostics();
+    return udaServerSubsetData(&diag, data_block, action, logmalloclist);
+}
 
+#endif // UDA_COMMON_BUILD

@@ -47,7 +47,24 @@ set( SRC_FILES
   xdrlib.cpp
   nameValueSubstitution.cpp
   udaStructs.cpp
+  udaDiagnostics.cpp
+  actionStructs.cpp
 #  utils.c
+)
+
+# Stateless helpers built into libuda_plugins (see the common objects below). Built with UDA_COMMON_BUILD: they must
+# report through an explicit UDA_DIAGNOSTICS context, as libuda_plugins has no error stack or logger of its own.
+set( COMMON_SRC_FILES
+  udaDiagnostics.cpp
+  actionStructs.cpp
+  allocData.cpp
+  compressDim.cpp
+  initStructs.cpp
+  makeRequestBlock.cpp
+  printStructs.cpp
+  stringUtils.cpp
+  udaStructs.cpp
+  udaTypes.cpp
 )
 
 set( HIERARCHICAL_SRC_FILES
@@ -88,6 +105,8 @@ set( HEADER_FILES
   xmlStructs.h
   export.h
   nameValueSubstitution.h
+  udaDiagnostics.h
+  actionStructs.h
 )
 
 if( APPLE )
@@ -128,6 +147,17 @@ if( NOT CLIENT_ONLY )
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
   target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt )
+endif()
+
+########################################################################################################################
+# Common objects: the stateless subset of clientserver/ and structures/ that plugins need. They are built into the
+# plugin support library (libuda_plugins) and hold no error or log state, so plugins can use them without linking
+# the client or server libraries.
+
+if( NOT CLIENT_ONLY )
+  add_library( clientserver-common-objects OBJECT ${COMMON_SRC_FILES} )
+  target_compile_definitions( clientserver-common-objects PRIVATE UDA_COMMON_BUILD )
+  target_link_libraries( clientserver-common-objects PUBLIC fmt::fmt )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )

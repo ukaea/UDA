@@ -15,6 +15,7 @@ endif()
 include( plugins )
 
 uda_plugin(
+  LINK_CLIENT
   NAME VALUE
   ENTRY_FUNC keyValue
   DESCRIPTION "Plugin for saving and loading from a key value store"

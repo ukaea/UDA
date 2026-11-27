@@ -1862,6 +1862,44 @@ TEST_CASE( "Test array subsetting - reverse elements", "[plugins][TESTPLUGIN]" )
     REQUIRE( vec[4] == Approx(95.0) );
 }
 
+TEST_CASE( "Test array subsetting - stride that does not divide the range", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const std::string request = GENERATE( "TESTPLUGIN::array1dtest()[2::3]", "TESTPLUGIN::array1dtest()[2:*:3]" );
+    const uda::Result& result = client.get(request, "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    auto array = dynamic_cast<uda::Array*>(result.data());
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 33 );
+    REQUIRE( vec[0] == Approx(2.0) );
+    REQUIRE( vec[1] == Approx(5.0) );
+    REQUIRE( vec[32] == Approx(98.0) );
+    REQUIRE( array->dims().size() == 1 );
+    REQUIRE( array->dims()[0].size() == 33 );
+}
+
+TEST_CASE( "Test array subsetting - invalid subsets are reported", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const std::string request = GENERATE( "TESTPLUGIN::array1dtest()[1:2:3:4]", "TESTPLUGIN::array1dtest()[abc]",
+                                          "TESTPLUGIN::array1dtest()[::0]", "TESTPLUGIN::array1dtest()[200:]" );
+
+    REQUIRE_THROWS_AS( client.get(request, ""), uda::ServerException );
+}
+
 TEST_CASE( "Test array subsetting with argument with square brackets", "[plugins][TESTPLUGIN]" )
 {
 #include "setup.inc"

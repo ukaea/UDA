@@ -23,6 +23,7 @@ endif()
 include( plugins )
 
 uda_plugin(
+  LINK_CLIENT
   NAME UDA
   ENTRY_FUNC UDAPlugin
   DESCRIPTION "forward on requests to the UDA client"

@@ -108,6 +108,47 @@ function that uses them without an interface in scope:
 A plugin that makes its own UDA client request should read the downstream failure through the client API (for
 example `getUdaServerErrorStack()`) and append the relevant records to its interface with `udaAppendErrorStack()`.
 
+## Using the shared helpers
+
+Shared helpers that can fail or trace take a diagnostics context rather than recording into global state. Pass
+`udaPluginDiagnostics(plugin_interface)`, which records their errors on the interface's error stack and sends their
+traces to the server's log:
+
+```c
+UDA_DIAGNOSTICS diag = udaPluginDiagnostics(plugin_interface);
+udaExpandEnvironmentVariables(&diag, path);
+err = udaMakeRequestData(&diag, &request, *plugin_interface->pluginList, plugin_interface->environment);
+udaPrintDataBlock(&diag, *plugin_interface->data_block);
+```
+
+The context points into `plugin_interface`, so only use it during the current call. The older forms of these
+helpers (`expand_environment_variables()`, `makeRequestData()`, `name_value_pairs()`, `printDataBlock()`,
+`printAction()`, `serverSubsetData()`, ...) report through the client or server library's own error stack. Those
+libraries are not available to plugins by default (see [Linking](#linking)).
+
+Helpers that cannot fail (data block initialisation, string utilities, user defined type registration, the malloc
+log) are unchanged.
+
+## Linking
+
+Plugins built with the `uda_plugin()` CMake macro link only `libuda_plugins`, which includes the shared helpers
+above. It has no error stack or logger of its own and does not link the UDA client or server, so plugins report only
+through the plugin interface.
+
+A plugin that uses the UDA client API itself (for example to make downstream requests) opts in with `LINK_CLIENT`:
+
+```cmake
+uda_plugin(
+  LINK_CLIENT
+  NAME MYPLUGIN
+  ...
+)
+```
+
+It must still report through its interface: errors recorded with `addIdamError()` go to the client library's
+error stack, which the server never reads. The `plugin_link_guard` test checks that the built-in plugins follow
+these rules.
+
 ## Calling other plugins
 
 Use `udaCallPlugin(plugin_interface, "OTHER::function(args)")` (or `CALL_PLUGIN`). The child runs with an empty
@@ -124,7 +165,7 @@ UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "Reading %s\n", path);
 ```
 
 The level check happens before formatting, so disabled debug logging costs little. Under a host that only
-provides interface version 1, these messages fall back to the legacy logger.
+provides interface version 1 plugin logging is a no-op.
 
 ## Interface versions
 

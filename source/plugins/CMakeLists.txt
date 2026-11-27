@@ -85,12 +85,17 @@ set( HEADER_FILES
 )
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
+# No error stack or logger of its own: reports only through the plugin interface or a UDA_DIAGNOSTICS context
+target_compile_definitions( plugins-objects PRIVATE UDA_COMMON_BUILD )
 
-# The plugin support library carries the server-support objects (subsetting for nested callPlugin()) but never the
-# server itself, so it has no copy of the server's logger or error-stack state
+# The plugin support library carries the stateless common objects (shared helpers plugins use) and the server-support
+# objects (subsetting for nested callPlugin()). It never links the client or server, so it has no copy of their
+# logger or error-stack state.
 set( PLUGINS_OBJ
   $<TARGET_OBJECTS:plugins-objects>
-  $<TARGET_OBJECTS:server-support-objects>
+  $<TARGET_OBJECTS:clientserver-common-objects>
+  $<TARGET_OBJECTS:structures-common-objects>
+  $<TARGET_OBJECTS:server-support-common-objects>
 )
 add_library( plugins-static STATIC ${PLUGINS_OBJ} )
 if( BUILD_SHARED_LIBS )
@@ -109,13 +114,11 @@ elseif(TIRPC_FOUND)
 endif()
 
 target_link_libraries( plugins-static PRIVATE
-  #server-static
   ${LINK_LIB}
 )
 
 if( BUILD_SHARED_LIBS )
   target_link_libraries( plugins-shared PRIVATE
-    client-shared
     ${LINK_LIB}
     ${STDFS_VAR}
   )

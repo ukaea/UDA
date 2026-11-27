@@ -612,9 +612,16 @@ Notes: there are three pathways depending on the request pattern
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
+    // The copy is shallow: the plugin's data block takes ownership of the downstream heap data, which the server
+    // frees once the reply has been sent. Detach it from the client's data block so the client does not free it
+    // again (udaFree / udaFreeAll on the plugin reset).
+
     if (getIdamClientVersion() >= 7) {
         // This should contain everything!
-        *data_block = *getIdamDataBlock(handle);
+        DATA_BLOCK* downstream_block = getIdamDataBlock(handle);
+        *data_block = *downstream_block;
+        initDataBlock(downstream_block);
+        downstream_block->handle = handle;
     } else {                        // use abstraction functions
 
         // Straight structure mapping causes potential problems when the client library uses different versions
@@ -669,14 +676,43 @@ Notes: there are three pathways depending on the request pattern
         db.opaque_block = odb->opaque_block;
 
         *data_block = db;
+
+        odb->rank = 0;
+        odb->data_n = 0;
+        odb->data = nullptr;
+        odb->synthetic = nullptr;
+        odb->errhi = nullptr;
+        odb->errlo = nullptr;
+        odb->dims = nullptr;
+        odb->data_system = nullptr;
+        odb->system_config = nullptr;
+        odb->data_source = nullptr;
+        odb->signal_rec = nullptr;
+        odb->signal_desc = nullptr;
+        odb->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
+        odb->opaque_count = 0;
+        odb->opaque_block = nullptr;
     }
 
     // Replace provenance metadata records
 
-    if (client_block->get_meta && strlen(data_source->xml) == 0 && strlen(signal_desc->xml) == 0) {
+    if (client_block->get_meta && data_block->data_source != nullptr && data_block->signal_desc != nullptr
+        && strlen(data_source->xml) == 0 && strlen(signal_desc->xml) == 0) {
         *data_source = *(data_block->data_source);
         *signal_desc = *(data_block->signal_desc);
     }
+
+    // The server neither returns nor frees the downstream metadata records taken over with the data block
+    free(data_block->data_system);
+    free(data_block->system_config);
+    free(data_block->data_source);
+    free(data_block->signal_rec);
+    free(data_block->signal_desc);
+    data_block->data_system = nullptr;
+    data_block->system_config = nullptr;
+    data_block->data_source = nullptr;
+    data_block->signal_rec = nullptr;
+    data_block->signal_desc = nullptr;
 
     UDA_PLUGIN_LOG(idam_plugin_interface, UDA_LOG_DEBUG, "Exit\n");
 
