@@ -20,6 +20,7 @@
 #include "stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"
+#include "unique_resource.hpp"
 
 #if !defined(__GNUC__) && defined(_WIN32)
 #  include <direct.h>
@@ -754,6 +755,36 @@ void extract_function_name(const char* str, REQUEST_DATA* request)
     free(work);
 }
 
+#ifndef _WIN32
+static int command_lines(const std::string& command, size_t limit, std::vector<std::string>& lines)
+{
+    errno = 0;
+    uda::UniquePipe pipe{::popen(command.c_str(), "r")};
+    if (!pipe) {
+        const int error = errno;
+        if (error != 0) {
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", error, "");
+        }
+        addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999, "Unable to Identify the File's Format");
+        return -999;
+    }
+
+    lines.clear();
+    char buffer[STRING_LENGTH];
+    while (lines.size() < limit && std::fgets(buffer, sizeof buffer, pipe.get()) != nullptr) {
+        convertNonPrintable2(buffer);
+        LeftTrimString(buffer);
+        TrimString(buffer);
+        lines.emplace_back(buffer);
+    }
+    if (std::ferror(pipe.get())) {
+        addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", -999, "failed to read command output");
+        return -999;
+    }
+    return 0;
+}
+#endif
+
 /**
  * returns true if a format was identified, false otherwise.
  */
@@ -794,120 +825,40 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
         // No extension => test the first line of file, e.g. head -c10 <file>, but both netcdf and hdf5 use the same label HDF!
 
 #ifndef _WIN32
-        const char* nc = " nc";
-        const char* hf = " hf";
-        const char* ida = " 99";
-        const char* blank = "   ";
-        FILE* ph = nullptr;
-        int lstr = STRING_LENGTH;
-        std::string cmd;
-        cmd = fmt::format("head -c10 {} 2>/dev/null", source);
-        errno = 0;
-        if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
-            if (errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
-            addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
-                         "Unable to Identify the File's Format");
-            return -999;
-        }
+        std::vector<std::string> lines;
+        rc = command_lines(fmt::format("head -c10 {} 2>/dev/null", source), 1, lines);
+        if (rc != 0) return rc;
 
-        char buffer[STRING_LENGTH];
-        if (!feof(ph)) {
-            if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                UDA_THROW_ERROR(-999, "failed to read command");
-            }
-        }
-        pclose(ph);
+        test = "   ";
+        const std::string header = lines.empty() ? "" : lines.front();
+        if (header == "CDF") {
+            test = " nc";    // Legacy netCDF file
+        } else if (header == "HDF") {
+            // Both netCDF-4 and plain HDF5 use the HDF signature.
+            const char* dump_netcdf = getenv("UDA_DUMP_NETCDF");
+            if (dump_netcdf != nullptr && dump_netcdf[0] != '\0') {
+                rc = command_lines(fmt::format("{} -h {} 2>/dev/null | head -c10 2>/dev/null",
+                                              dump_netcdf, source), 1, lines);
+                if (rc != 0) return rc;
 
-        test = blank;
-        convertNonPrintable2(buffer);
-        LeftTrimString(buffer);
-        TrimString(buffer);
-
-        if (STR_EQUALS(buffer, "CDF")) {    // Legacy netCDF file
-            test = nc;
-        } else {
-            if (STR_EQUALS(buffer, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
-                char* env = getenv("UDA_DUMP_NETCDF");
-                if (env != nullptr) {
-                    cmd = fmt::format("{} -h {} 2>/dev/null | head -c10 2>/dev/null", env, source);
-                    errno = 0;
-                    if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
-                        if (errno != 0) {
-                            addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
-                        }
-                        addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
-                                     "Unable to Identify the File's Format");
-                        return -999;
-                    }
-
-                    buffer[0] = '\0';
-                    if (!feof(ph)) {
-                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command");
-                        }
-                    }
-                    pclose(ph);
-                    convertNonPrintable2(buffer);
-                    LeftTrimString(buffer);
-                    TrimString(buffer);
-
-                    if (STR_EQUALS(buffer, "netcdf")) {        // netCDF file written to an HDF5 file
-                        test = nc;
-                    } else {
-                        if (cmd[0] == '\0') test = hf;        // HDF5 file
-                    }
+                if (lines.empty() || lines.front().empty()) {
+                    test = " hf";
+                } else if (lines.front() == "netcdf" || lines.front().compare(0, 7, "netcdf ") == 0) {
+                    test = " nc";
                 }
-            } else {                    // an IDA File?
-                char* env = getenv("UDA_DUMP_IDA");
-                if (env != nullptr) {
-                    cmd = fmt::format("{} -h {} 2>/dev/null 2>/dev/null", env, source);
-                    errno = 0;
-                    if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
-                        if (errno != 0) {
-                            UDA_ADD_SYS_ERROR("");
-                        }
-                        UDA_ADD_ERROR(999, "Unable to Identify the File's Format");
-                        return -999;
-                    }
+            }
+        } else if (!header.empty()) {
+            const char* dump_ida = getenv("UDA_DUMP_IDA");
+            if (dump_ida != nullptr && dump_ida[0] != '\0') {
+                constexpr size_t ida_header_lines = 5;
+                rc = command_lines(fmt::format("{} -h {} 2>/dev/null", dump_ida, source),
+                                   ida_header_lines, lines);
+                if (rc != 0) return rc;
 
-                    buffer[0] = '\0';
-                    if (!feof(ph)) {
-                        // IDA3 interface version V3.13 with file structure IDA3.1
-                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
-                        }
-                    }
-                    if (!feof(ph)) {
-                        // Build JW Jan 25 2007 09:08:47
-                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
-                        }
-                    }
-                    if (!feof(ph)) {
-                        // Compiled without high level read/write CUTS
-                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
-                        }
-                    }
-                    if (!feof(ph)) {
-                        // Opening ida file
-                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
-                        }
-                    }
-                    if (!feof(ph)) {
-                        // ida_open error ?
-                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
-                            UDA_THROW_ERROR(-999, "failed to read command output");
-                        }
-                    }
-                    pclose(ph);
-                    convertNonPrintable2(buffer);
-                    LeftTrimString(buffer);
-                    TrimString(buffer);
-                    if (strncmp(buffer, "ida_open error", 14) != 0) {
-                        test = ida;    // Legacy IDA file
-                    }
+                // The IDA tool reports the result of opening the file on line five.
+                if (lines.size() == ida_header_lines && !lines.back().empty() &&
+                    lines.back().compare(0, 14, "ida_open error") != 0) {
+                    test = " 99";
                 }
             }
         }
