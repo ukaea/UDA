@@ -29,6 +29,8 @@ elif sys.platform.lower() == 'darwin':
     dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s' % uda_lib_dir)
+    # Leave room for delocate-wheel to rewrite install names to longer @loader_path paths.
+    extra_link_args.append('-Wl,-headerpad_max_install_names')
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
