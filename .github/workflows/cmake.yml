@@ -110,13 +110,15 @@ jobs:
           capnp
 
       - name: Cache windows packages
+        if: matrix.os == 'windows-latest'
         id: cache-vcpkg
         uses: actions/cache@v6
         env:
           cache-name: cache-vcpkg-packages
         with:
           path: C:/vcpkg
-          key: ${{ runner.os }}-build-${{ env.cache-name }}
+          # The package list lives in this workflow, so a change to it refreshes the cache.
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('.github/workflows/cmake.yml') }}
 
       - name: Install windows dependencies
         if: matrix.os == 'windows-latest'
@@ -202,6 +204,10 @@ jobs:
           ctest --test-dir build/test/landlock --output-on-failure --no-tests=error
           source /opt/intel/oneapi/setvars.sh
           ctest --test-dir build-intel/test/landlock --output-on-failure --no-tests=error
+
+      - name: Test Landlock policy rejection without support
+        if: matrix.os == 'macos-latest' && matrix.client-only == 'OFF'
+        run: ctest --test-dir build/test -R Landlock_server_plugin_disabled --output-on-failure --no-tests=error
 
       - name: Install
         run: ${{ matrix.os != 'windows-latest' && 'sudo ' || '' }}cmake --install build --config $CONFIG

@@ -55,8 +55,14 @@ export UDA_ALLOWED_PATHS=
 # an empty value grants nothing. Read/read-write never imply execute permission.
 # Directory grants include descendants; overlapping grants combine permissions.
 # Configure runtime libraries, plugin configuration, certificates and data as needed.
-# export UDA_LANDLOCK_READONLY_PATHS="$UDA_ROOT/etc:$UDA_ROOT/lib:/srv/uda/data:/usr/lib:/lib"
+# Every path must exist: drop /usr/lib64 and /lib64 if your distribution lacks them.
+# The server itself runs "head" via /bin/sh to detect extensionless file formats (plus
+# UDA_DUMP_NETCDF/UDA_DUMP_IDA if set), so those and the ELF loader need execute grants.
+# UDA_WORK_DIR and UDA_PLUGIN_REDIRECT_DIR default to /tmp; point them at writable scratch.
+# Example for x86-64 (check the loader path for your architecture):
+# export UDA_LANDLOCK_READONLY_PATHS="$UDA_ROOT/etc:$UDA_ROOT/lib:/srv/uda/data:/usr/lib:/usr/lib64:/lib:/lib64:/etc/ld.so.cache"
 # export UDA_LANDLOCK_READWRITE_PATHS="/var/tmp/uda"
 # export UDA_PLUGIN_REDIRECT_DIR="/var/tmp/uda"
-# export UDA_LANDLOCK_EXECUTE_PATHS="/usr/bin/some-helper:/lib/ld-linux-aarch64.so.1"
-# See the server installation guide for loader/interpreter and security limitations.
+# export UDA_WORK_DIR="/var/tmp/uda"
+# export UDA_LANDLOCK_EXECUTE_PATHS="/bin/sh:/usr/bin/head:/lib64/ld-linux-x86-64.so.2"
+# Startup failures are written to etc/server.log. See docs/server_sandboxing.md.

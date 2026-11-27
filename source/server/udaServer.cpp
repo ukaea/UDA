@@ -1141,6 +1141,11 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
             UDA_LOG(UDA_LOG_DEBUG, "Landlock disabled: no permission classes configured\n");
         }
     } catch (const std::exception& e) {
+        // The XDR streams do not exist yet, so this error cannot be returned to the client, which only sees the
+        // connection close. Also write to stderr (etc/server.log via udaserver.sh) because the default
+        // UDA_LOG_LEVEL opens no log files. The policy is deliberately applied before SSL and plugin setup, so do
+        // not defer it just to report the failure over the connection.
+        fprintf(stderr, "UDA server: Landlock failed: %s\n", e.what());
         UDA_LOG(UDA_LOG_ERROR, "Landlock failed: %s\n", e.what());
         addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, e.what());
         concatUdaError(&server_block->idamerrorstack);

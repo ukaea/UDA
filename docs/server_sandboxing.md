@@ -95,25 +95,50 @@ If **all three variables are unset**, Landlock is disabled. Setting a variable t
 empty string enables the policy but adds no grants for that class. Setting all
 configured classes empty denies new opens for the handled operations everywhere;
 it will normally prevent successful server startup. A configured policy also causes
-startup to fail in a build without Landlock support. The legacy `UDA_ENABLE_PATHS`
+startup to fail in a build without Landlock support.
+
+When the policy cannot be parsed or applied, the server exits before it can send
+an error to the client, so the client reports only a closed connection or protocol
+error. The cause is written to the server's stderr, which the supplied
+`udaserver.sh` sends to `etc/server.log`, and to `Error.log` when `UDA_LOG_LEVEL`
+enables logging. The legacy `UDA_ENABLE_PATHS`
 variable is rejected with migration instructions; replace it with
 the appropriate permission classes. `UDA_ALLOWED_PATHS` remains a separate
 application-level plugin check, with its existing semicolon-separated syntax.
 
 For example, after creating `/var/tmp/uda`, configure a read-only data tree, runtime
-files and writable scratch space:
+files, writable scratch space and the programs the server runs itself (shown for
+x86-64):
 
 ```sh
-export UDA_LANDLOCK_READONLY_PATHS="$UDA_ROOT/etc:$UDA_ROOT/lib:/srv/uda/data:/usr/lib:/lib:/etc/ld.so.cache"
+export UDA_LANDLOCK_READONLY_PATHS="$UDA_ROOT/etc:$UDA_ROOT/lib:/srv/uda/data:/usr/lib:/usr/lib64:/lib:/lib64:/etc/ld.so.cache"
 export UDA_LANDLOCK_READWRITE_PATHS="/var/tmp/uda"
 export UDA_PLUGIN_REDIRECT_DIR="/var/tmp/uda"
-# Leave UDA_LANDLOCK_EXECUTE_PATHS unset if the server launches no external programs.
+export UDA_WORK_DIR="/var/tmp/uda"
+export UDA_LANDLOCK_EXECUTE_PATHS="/bin/sh:/usr/bin/head:/lib64/ld-linux-x86-64.so.2"
 ```
+
+Every listed path must exist, so remove entries your distribution does not have
+(for example `/usr/lib64` or `/lib64` on some Debian-based systems). The library
+directories must cover wherever plugin dependencies are installed, including
+multiarch directories such as `/usr/lib/x86_64-linux-gnu` and `lib64` directories on
+RHEL-like systems. Without read access to `/etc/ld.so.cache`, the dynamic loader
+only searches its default trusted directories and `LD_LIBRARY_PATH`.
+
+**The server runs external programs even without plugins that do.** To detect the
+format of a requested file that has no extension, it runs `head -c10 <file>`
+through `/bin/sh` with `popen()`. For HDF-labelled files it also runs the
+programs named by `UDA_DUMP_NETCDF` and `UDA_DUMP_IDA` when those are set. Grant
+execute permission to `/bin/sh`, `head`, any configured dump programs and the ELF
+interpreter they use. Without these grants, requests for files without extensions
+fail with "failed to read command".
 
 `UDA_PLUGIN_REDIRECT_DIR` directs plugin output capture to the permitted scratch
 directory; without it, that capture uses `/tmp`, which would need its own writable
-grant. Adapt the runtime paths to your deployment; include plugin configuration, plugin
-libraries and their dependencies, certificates, and any other required reads.
+grant. `UDA_WORK_DIR` likewise holds the temporary XDR files used for structured
+data in server-to-server requests; it also defaults to `/tmp`. Adapt the runtime
+paths to your deployment; include plugin configuration, plugin libraries and their
+dependencies, certificates, and any other required reads.
 Libraries loaded with `dlopen()` need read access, not Landlock execute permission.
 When launching an external program, grant its path execute permission **and** grant
 the ELF interpreter (dynamic loader) or script interpreter execute permission. Its
@@ -292,5 +317,7 @@ headers inside a container do not upgrade that kernel. Tests fail instead of bei
 silently skipped if enforcement is unavailable. Full UDA builds with Landlock enabled
 also register these tests under `build/test/landlock`, plus a real server/plugin
 request test when Python 3, the shared client and the help plugin are available.
-Linux CI runs them with enforcement enabled.
+Linux CI runs them with enforcement enabled. Builds without Landlock instead register
+`Landlock_server_plugin_disabled`, which checks that a configured policy stops the
+server from starting; macOS CI runs it.
 

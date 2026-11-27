@@ -3,6 +3,16 @@
 if( ENABLE_LANDLOCK )
   enable_testing()
   add_subdirectory( landlock )
+elseif( NOT WIN32 AND TARGET server-exe AND TARGET client-shared AND TARGET help_plugin )
+  # Without Landlock support, a configured policy must make the server refuse to start.
+  find_package( Python3 COMPONENTS Interpreter QUIET )
+  if( Python3_Interpreter_FOUND )
+    enable_testing()
+    add_test( NAME Landlock_server_plugin_disabled
+      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/landlock/server_integration.py
+      $<TARGET_FILE:server-exe> $<TARGET_FILE:client-shared> $<TARGET_FILE:help_plugin> --disabled )
+    set_tests_properties( Landlock_server_plugin_disabled PROPERTIES TIMEOUT 30 )
+  endif()
 endif()
 
 if( NO_WRAPPERS )
