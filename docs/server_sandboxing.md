@@ -70,8 +70,9 @@ option defaults to `OFF`; explicitly enabling it for a non-Linux target is an er
 
 A Landlock build enforces a policy on every server start unless it is switched off,
 and the policy **fails closed**: the server can only open what the path lists grant.
-`UDA_LANDLOCK` controls enforcement: `ON` (the default in Landlock builds) or `OFF`,
-case-insensitive. Three lists hold the grants:
+`UDA_LANDLOCK` controls enforcement. It takes the same case-insensitive values as other
+UDA switches such as `UDA_SERVER_SSL_AUTHENTICATE`: `on`, `true`, `yes` or `1` (the default
+in Landlock builds), and `off`, `false`, `no` or `0`. Three lists hold the grants:
 
 | Variable | Directory grant | Individual file grant |
 | --- | --- | --- |

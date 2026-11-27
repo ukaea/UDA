@@ -63,9 +63,10 @@ export UDA_ALLOWED_PATHS=
 # and UDA_DUMP_IDA if set), so those, their ELF loader and /dev/null are granted here.
 # Startup failures are written to etc/server.log. See docs/server_sandboxing.md.
 #
-# export UDA_LANDLOCK=OFF   # disable enforcement entirely (not recommended)
+# export UDA_LANDLOCK=OFF   # disable enforcement entirely (not recommended); also false/no/0
 
-if [[ "@ENABLE_LANDLOCK@" == "ON" && "${UDA_LANDLOCK:-ON}" != [Oo][Ff][Ff] ]]
+uda_landlock_setting=$(printf '%s' "${UDA_LANDLOCK:-on}" | tr '[:upper:]' '[:lower:]')
+if [[ "@ENABLE_LANDLOCK@" == "ON" && ! "$uda_landlock_setting" =~ ^(off|false|no|0)$ ]]
 then
     # Print the arguments that are existing absolute paths, colon-separated.
     uda_landlock_existing() {
@@ -92,3 +93,4 @@ then
     unset -f uda_landlock_existing
     unset uda_landlock_libs UDA_LANDLOCK_SCRATCH
 fi
+unset uda_landlock_setting

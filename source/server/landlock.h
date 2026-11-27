@@ -13,9 +13,9 @@ struct PathPolicy {
     std::vector<std::string> execute_paths;
 };
 
-// Reads UDA_LANDLOCK (ON/OFF) and the UDA_LANDLOCK_*_PATHS lists. When UDA_LANDLOCK is unset, enforcement
+// Reads UDA_LANDLOCK (on/off, true/false, yes/no or 1/0) and the UDA_LANDLOCK_*_PATHS lists. When UDA_LANDLOCK is unset, enforcement
 // follows enabled_by_default (true in Landlock builds), and setting any path list also requests it.
-// Enforcement fails closed: unset or empty lists grant nothing. UDA_LANDLOCK=OFF disables it and ignores the lists.
+// Enforcement fails closed: unset or empty lists grant nothing. UDA_LANDLOCK off disables it and ignores the lists.
 PathPolicy policy_from_environment(bool enabled_by_default);
 
 // Apply once, during single-threaded startup. Restrictions cannot be undone.

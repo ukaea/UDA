@@ -84,10 +84,10 @@ def integration(server, library, plugin, disabled=False):
 
         startup_failure("UDA_ENABLE_PATHS", "/", "has been replaced")
         startup_failure("UDA_LANDLOCK_READONLY_PATHS", "relative", "expected nonempty absolute paths")
-        startup_failure("UDA_LANDLOCK", "maybe", "expected ON or OFF")
+        startup_failure("UDA_LANDLOCK", "maybe", "UDA_LANDLOCK: expected on/off")
         if disabled:
             startup_failure("UDA_LANDLOCK_READONLY_PATHS", str(configuration), "built without ENABLE_LANDLOCK")
-            startup_failure("UDA_LANDLOCK", "ON", "built without ENABLE_LANDLOCK")
+            startup_failure("UDA_LANDLOCK", "yes", "built without ENABLE_LANDLOCK")
             return
         startup_failure("UDA_LANDLOCK_READONLY_PATHS", str(root / "missing"), "open Landlock path")
 
@@ -99,11 +99,11 @@ def integration(server, library, plugin, disabled=False):
         assert "Landlock filesystem policy enforced" in logs(), logs()
 
         # An explicit OFF disables enforcement even when grants are configured.
-        client_status, output, server_status = serve({"UDA_LANDLOCK": "OFF",
+        client_status, output, server_status = serve({"UDA_LANDLOCK": "false",
                                                       "UDA_LANDLOCK_READONLY_PATHS": str(configuration)})
         assert client_status == 0, output + "\n" + logs()
         assert server_status == 0, f"server exited {server_status}"
-        assert "Landlock disabled by UDA_LANDLOCK=OFF" in logs(), logs()
+        assert "Landlock disabled by UDA_LANDLOCK" in logs(), logs()
         assert "Landlock filesystem policy enforced" not in logs(), logs()
 
         # Libraries are readable, scratch is writable, and no paths grant execution.

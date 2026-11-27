@@ -1144,7 +1144,7 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
             throw std::runtime_error("Landlock policy requested but UDA was built without ENABLE_LANDLOCK=ON");
 #endif
         } else if (landlock_by_default) {
-            UDA_LOG(UDA_LOG_WARN, "Landlock disabled by UDA_LANDLOCK=OFF\n");
+            UDA_LOG(UDA_LOG_WARN, "Landlock disabled by UDA_LANDLOCK\n");
         } else {
             UDA_LOG(UDA_LOG_DEBUG, "Landlock disabled: UDA was built without ENABLE_LANDLOCK=ON\n");
         }

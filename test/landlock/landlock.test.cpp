@@ -94,19 +94,27 @@ static void configuration()
     require(policy.execute_paths == std::vector<std::string>{"/bin/true"}, "execute parsing");
 
     // An explicit switch overrides the default and, when OFF, the path lists.
-    setenv("UDA_LANDLOCK", "off", 1);
-    for (bool supported : {true, false}) {
-        policy = policy_from_environment(supported);
-        require(!policy.enabled && policy.readonly_paths.empty(), "UDA_LANDLOCK=OFF must disable enforcement");
+    // Accepted spellings are shared with other UDA switches (common/uda_env_options.hpp).
+    for (const char* off : {"off", "OFF", "false", "No", "0"}) {
+        setenv("UDA_LANDLOCK", off, 1);
+        for (bool supported : {true, false}) {
+            policy = policy_from_environment(supported);
+            require(!policy.enabled && policy.readonly_paths.empty(),
+                    std::string{"UDA_LANDLOCK="} + off + " must disable enforcement");
+        }
     }
     setenv("UDA_LANDLOCK_READONLY_PATHS", "relative", 1);
-    require(!policy_from_environment(true).enabled, "UDA_LANDLOCK=OFF must not parse path lists");
+    require(!policy_from_environment(true).enabled, "UDA_LANDLOCK off must not parse path lists");
     clear_environment();
-    setenv("UDA_LANDLOCK", "ON", 1);
-    require(policy_from_environment(false).enabled, "UDA_LANDLOCK=ON must request enforcement");
-    for (const char* invalid : {"", "yes", "1", "ONN"}) {
+    for (const char* on : {"on", "ON", "TRUE", "yes", "1"}) {
+        setenv("UDA_LANDLOCK", on, 1);
+        require(policy_from_environment(false).enabled, std::string{"UDA_LANDLOCK="} + on + " must request enforcement");
+    }
+    // Unlike evaluate_bool_param, unrecognised values are errors rather than the default.
+    for (const char* invalid : {"", "maybe", "ONN", "2", "of"}) {
         setenv("UDA_LANDLOCK", invalid, 1);
-        expect_failure([] { policy_from_environment(true); }, "UDA_LANDLOCK: expected ON or OFF");
+        expect_failure([] { policy_from_environment(true); }, "UDA_LANDLOCK: expected on/off");
+        expect_failure([] { policy_from_environment(false); }, "UDA_LANDLOCK: expected on/off");
     }
     setenv("UDA_ENABLE_PATHS", "/", 1);
     expect_failure([] { policy_from_environment(true); }, "replaced");

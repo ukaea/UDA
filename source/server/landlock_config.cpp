@@ -1,7 +1,8 @@
 #include "landlock.h"
 
+#include <common/uda_env_options.hpp>
+
 #include <cstdlib>
-#include <strings.h>
 #include <stdexcept>
 
 namespace
@@ -42,10 +43,14 @@ uda::server::landlock::PathPolicy uda::server::landlock::policy_from_environment
     const char* path_variables[] = {"UDA_LANDLOCK_READONLY_PATHS", "UDA_LANDLOCK_READWRITE_PATHS",
                                     "UDA_LANDLOCK_EXECUTE_PATHS"};
     if (const char* setting = std::getenv("UDA_LANDLOCK")) {
-        if (strcasecmp(setting, "ON") == 0) {
+        // Same spellings as other UDA switches, but reject anything else instead of falling back to the
+        // default: a typo must not leave a server that cannot enforce Landlock running unconfined.
+        namespace env = uda::common::env_config;
+        if (env::strings_match(setting, env::truthy_values)) {
             policy.enabled = true;
-        } else if (strcasecmp(setting, "OFF") != 0) {
-            throw std::runtime_error(std::string{"UDA_LANDLOCK: expected ON or OFF, got '"} + setting + "'");
+        } else if (!env::strings_match(setting, env::falsey_values)) {
+            throw std::runtime_error(std::string{"UDA_LANDLOCK: expected on/off, true/false, yes/no or 1/0, got '"} +
+                                     setting + "'");
         }
     } else {
         policy.enabled = enabled_by_default;
