@@ -39,53 +39,81 @@ def integration(server, library, plugin, disabled=False):
         library_paths += [path for path in env.get("LD_LIBRARY_PATH", "").split(":") if path]
         env["LD_LIBRARY_PATH"] = ":".join(library_paths)
 
+        def clear_logs():
+            for path in root.glob("*.log"):
+                path.unlink()
+
+        def logs():
+            return "\n".join(path.read_text(errors="replace") for path in root.glob("*.log"))
+
         def startup_failure(setting, value, diagnostic):
+            clear_logs()
             bad = dict(env)
             bad[setting] = value
             result = subprocess.run([server], env=bad, stdin=subprocess.DEVNULL,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=10)
-            logs = "\n".join(path.read_text(errors="replace") for path in root.glob("*.log"))
             assert result.returncode != 0, "invalid policy was accepted"
-            assert diagnostic in logs, (diagnostic, logs, result.stdout)
+            assert diagnostic in logs(), (diagnostic, logs(), result.stdout)
+            # Also reported on stderr, since the default log level opens no log files.
+            assert diagnostic.encode() in result.stdout, result.stdout
+
+        def serve(settings):
+            """Run one client request against a server started with env plus settings."""
+            clear_logs()
+            run_env = dict(env, **settings)
+            with socket.socket() as listener:
+                listener.bind(("127.0.0.1", 0))
+                listener.listen(1)
+                listener.settimeout(10)
+                request = subprocess.Popen([sys.executable, __file__, "--client", library,
+                                            str(listener.getsockname()[1])], env=run_env,
+                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                process = None
+                try:
+                    with listener.accept()[0] as connection:
+                        process = subprocess.Popen([server], env=run_env, stdin=connection,
+                                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    output, _ = request.communicate(timeout=15)
+                    process.wait(timeout=5)
+                    return request.returncode, output.decode(errors="replace"), process.returncode
+                finally:
+                    for child in (request, process):
+                        if child is not None and child.poll() is None:
+                            child.kill()
+                            child.wait()
 
         startup_failure("UDA_ENABLE_PATHS", "/", "has been replaced")
         startup_failure("UDA_LANDLOCK_READONLY_PATHS", "relative", "expected nonempty absolute paths")
+        startup_failure("UDA_LANDLOCK", "maybe", "expected ON or OFF")
         if disabled:
             startup_failure("UDA_LANDLOCK_READONLY_PATHS", str(configuration), "built without ENABLE_LANDLOCK")
+            startup_failure("UDA_LANDLOCK", "ON", "built without ENABLE_LANDLOCK")
             return
         startup_failure("UDA_LANDLOCK_READONLY_PATHS", str(root / "missing"), "open Landlock path")
+
+        # Fail closed: with no grants configured, the server cannot load its plugin configuration.
+        client_status, output, _ = serve({})
+        assert client_status != 0, "request succeeded with no Landlock grants:\n" + output
+        assert "Landlock filesystem policy enforced" in logs(), logs()
+
+        # An explicit OFF disables enforcement even when grants are configured.
+        client_status, output, server_status = serve({"UDA_LANDLOCK": "OFF",
+                                                      "UDA_LANDLOCK_READONLY_PATHS": str(configuration)})
+        assert client_status == 0, output + "\n" + logs()
+        assert server_status == 0, f"server exited {server_status}"
+        assert "Landlock disabled by UDA_LANDLOCK=OFF" in logs(), logs()
+        assert "Landlock filesystem policy enforced" not in logs(), logs()
 
         # Libraries are readable, scratch is writable, and no paths grant execution.
         # Logs were opened before enforcement.
         # Include all UDA dependency libraries in the build tree, not just libuda_client.
         readable = [str(configuration), str(build_root)]
         readable += [path for path in ("/usr", "/lib", "/lib64", "/etc/ld.so.cache") if Path(path).exists()]
-        env["UDA_LANDLOCK_READONLY_PATHS"] = ":".join(readable)
-        env["UDA_LANDLOCK_READWRITE_PATHS"] = str(scratch)
-        with socket.socket() as listener:
-            listener.bind(("127.0.0.1", 0))
-            listener.listen(1)
-            listener.settimeout(10)
-            request = subprocess.Popen([sys.executable, __file__, "--client", library,
-                                        str(listener.getsockname()[1])], env=env,
-                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            process = None
-            try:
-                with listener.accept()[0] as connection:
-                    process = subprocess.Popen([server], env=env, stdin=connection,
-                                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                output, _ = request.communicate(timeout=15)
-                errors = (root / "Error.log").read_text(errors="replace")
-                assert request.returncode == 0, output.decode(errors="replace") + "\n" + errors
-                process.wait(timeout=5)
-                assert process.returncode == 0, f"server exited {process.returncode}"
-                assert "Landlock filesystem policy enforced" in (root / "DebugServer.log").read_text()
-            finally:
-                for child in (request, process):
-                    if child is not None and child.poll() is None:
-                        child.kill()
-                        child.wait()
-
+        client_status, output, server_status = serve({"UDA_LANDLOCK_READONLY_PATHS": ":".join(readable),
+                                                      "UDA_LANDLOCK_READWRITE_PATHS": str(scratch)})
+        assert client_status == 0, output + "\n" + logs()
+        assert server_status == 0, f"server exited {server_status}"
+        assert "Landlock filesystem policy enforced" in logs(), logs()
 
 if __name__ == "__main__":
     if sys.argv[1] == "--client":

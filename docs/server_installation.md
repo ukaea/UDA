@@ -164,8 +164,11 @@ Restrict the paths as narrowly as possible to limit server file access and reduc
 ### Linux filesystem restrictions with Landlock
 
 UDA supports optional kernel-enforced filesystem restrictions through Landlock.
-Build with `-DENABLE_LANDLOCK=ON` and configure separate read-only, read/write and
-execute path lists. Read access does not grant execution permission.
+Build with `-DENABLE_LANDLOCK=ON`. A Landlock build then enforces a policy that fails
+closed: the server can only open paths in its read-only, read/write and execute
+lists, and the shipped `udaserver.cfg` provides a starter policy to which you add
+your data paths. Read access does not grant execution permission. Set
+`UDA_LANDLOCK=OFF` to disable enforcement.
 
 See [Server sandboxing](/UDA/server_sandboxing) for configuration, examples,
 limitations, Linux testing from macOS, and administrator-managed alternatives such

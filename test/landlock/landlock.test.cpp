@@ -65,7 +65,7 @@ static int descriptors()
 
 static void clear_environment()
 {
-    for (const char* key : {"UDA_ENABLE_PATHS", "UDA_LANDLOCK_READONLY_PATHS", "UDA_LANDLOCK_READWRITE_PATHS",
+    for (const char* key : {"UDA_ENABLE_PATHS", "UDA_LANDLOCK", "UDA_LANDLOCK_READONLY_PATHS", "UDA_LANDLOCK_READWRITE_PATHS",
                             "UDA_LANDLOCK_EXECUTE_PATHS"})
         unsetenv(key);
 }
@@ -73,22 +73,43 @@ static void clear_environment()
 static void configuration()
 {
     clear_environment();
-    require(!policy_from_environment().enabled, "unset policy must be disabled");
+    // Landlock builds fail closed: no settings means enforcement with no grants.
+    auto policy = policy_from_environment(true);
+    require(policy.enabled && policy.readonly_paths.empty() && policy.readwrite_paths.empty() &&
+                policy.execute_paths.empty(),
+            "unset policy in a Landlock build must enforce with no grants");
+    require(!policy_from_environment(false).enabled, "unset policy without Landlock support must be disabled");
     setenv("UDA_LANDLOCK_READONLY_PATHS", "", 1);
-    require(policy_from_environment().enabled, "empty configured policy must be enabled");
+    require(policy_from_environment(false).enabled, "a configured path list must request enforcement");
     for (const char* invalid : {"relative", ":/tmp", "/tmp:", "/tmp::/usr"}) {
         setenv("UDA_LANDLOCK_READONLY_PATHS", invalid, 1);
-        expect_failure([] { policy_from_environment(); }, "UDA_LANDLOCK_READONLY_PATHS");
+        expect_failure([] { policy_from_environment(true); }, "UDA_LANDLOCK_READONLY_PATHS");
     }
     setenv("UDA_LANDLOCK_READONLY_PATHS", "/tmp/a path:/usr", 1);
     setenv("UDA_LANDLOCK_READWRITE_PATHS", "/tmp/output", 1);
     setenv("UDA_LANDLOCK_EXECUTE_PATHS", "/bin/true", 1);
-    const auto policy = policy_from_environment();
+    policy = policy_from_environment(true);
     require(policy.readonly_paths == std::vector<std::string>{"/tmp/a path", "/usr"}, "read-only parsing");
     require(policy.readwrite_paths == std::vector<std::string>{"/tmp/output"}, "read/write parsing");
     require(policy.execute_paths == std::vector<std::string>{"/bin/true"}, "execute parsing");
+
+    // An explicit switch overrides the default and, when OFF, the path lists.
+    setenv("UDA_LANDLOCK", "off", 1);
+    for (bool supported : {true, false}) {
+        policy = policy_from_environment(supported);
+        require(!policy.enabled && policy.readonly_paths.empty(), "UDA_LANDLOCK=OFF must disable enforcement");
+    }
+    setenv("UDA_LANDLOCK_READONLY_PATHS", "relative", 1);
+    require(!policy_from_environment(true).enabled, "UDA_LANDLOCK=OFF must not parse path lists");
+    clear_environment();
+    setenv("UDA_LANDLOCK", "ON", 1);
+    require(policy_from_environment(false).enabled, "UDA_LANDLOCK=ON must request enforcement");
+    for (const char* invalid : {"", "yes", "1", "ONN"}) {
+        setenv("UDA_LANDLOCK", invalid, 1);
+        expect_failure([] { policy_from_environment(true); }, "UDA_LANDLOCK: expected ON or OFF");
+    }
     setenv("UDA_ENABLE_PATHS", "/", 1);
-    expect_failure([] { policy_from_environment(); }, "replaced");
+    expect_failure([] { policy_from_environment(true); }, "replaced");
     clear_environment();
 }
 

@@ -68,7 +68,10 @@ implementation with ABI 3 or newer. UDA fails startup if a requested policy cann
 be enforced, rather than dropping restrictions unsupported by the kernel. The build
 option defaults to `OFF`; explicitly enabling it for a non-Linux target is an error.
 
-Set any of these environment variables in `udaserver.cfg` to enable enforcement:
+A Landlock build enforces a policy on every server start unless it is switched off,
+and the policy **fails closed**: the server can only open what the path lists grant.
+`UDA_LANDLOCK` controls enforcement: `ON` (the default in Landlock builds) or `OFF`,
+case-insensitive. Three lists hold the grants:
 
 | Variable | Directory grant | Individual file grant |
 | --- | --- | --- |
@@ -91,11 +94,15 @@ follow filesystem objects, rather than trusting a textual path prefix. Directory
 grants include descendants. A file grant does not permit access to sibling files or
 allow creation, deletion or renaming through its parent directory.
 
-If **all three variables are unset**, Landlock is disabled. Setting a variable to an
-empty string enables the policy but adds no grants for that class. Setting all
-configured classes empty denies new opens for the handled operations everywhere;
-it will normally prevent successful server startup. A configured policy also causes
-startup to fail in a build without Landlock support.
+**An unset or empty list grants nothing.** With no grants at all, every new open of
+a handled kind is denied and the server cannot even read its plugin configuration,
+so a Landlock build needs a policy to serve requests. `UDA_LANDLOCK=OFF` disables
+enforcement and ignores the lists; the server logs a warning when it does. Any other
+value of `UDA_LANDLOCK` stops the server from starting.
+
+A build without Landlock support does not enforce by default. Setting
+`UDA_LANDLOCK=ON`, or any of the path lists, requests a policy it cannot apply, so
+the server refuses to start rather than running unconfined.
 
 When the policy cannot be parsed or applied, the server exits before it can send
 an error to the client, so the client reports only a closed connection or protocol
@@ -106,13 +113,36 @@ variable is rejected with migration instructions; replace it with
 the appropriate permission classes. `UDA_ALLOWED_PATHS` remains a separate
 application-level plugin check, with its existing semicolon-separated syntax.
 
-For example, after creating `/var/tmp/uda`, configure a read-only data tree, runtime
-files, writable scratch space and the programs the server runs itself (shown for
-x86-64):
+### The shipped starter policy
+
+In a Landlock build, the installed `etc/udaserver.cfg` sets an active starter policy
+when the server launches. It grants read access to the install's `etc` directory,
+every directory in `LD_LIBRARY_PATH`, the system library directories, the loader
+cache and configuration, time zone data, the name-resolution files, `/etc/ssl` and
+`/dev/urandom`. It grants read/write access to a scratch directory,
+`etc/scratch` (created with mode 700, and used for `UDA_PLUGIN_REDIRECT_DIR` and
+`UDA_WORK_DIR`), and to `/dev/null`. It grants execute access to `/bin/sh`, `head`,
+the programs named by `UDA_DUMP_NETCDF` and `UDA_DUMP_IDA`, and the ELF loaders in
+`/lib64` and `/lib`. Entries missing on the host are left out, so the same file works
+across distributions.
+
+The starter policy does not grant access to data. Append your data directories, and
+anything your plugins read, write or run, in a file sourced after `udaserver.cfg`,
+such as `etc/machine.d/<host>.cfg` or `etc/plugins.d/*.cfg`:
+
+```sh
+UDA_LANDLOCK_READONLY_PATHS+=":/srv/uda/data"
+```
+
+### Writing a policy by hand
+
+For a server launched some other way, set the lists directly. For example, after
+creating `/var/tmp/uda`, configure a read-only data tree, runtime files, writable
+scratch space and the programs the server runs itself (shown for x86-64):
 
 ```sh
 export UDA_LANDLOCK_READONLY_PATHS="$UDA_ROOT/etc:$UDA_ROOT/lib:/srv/uda/data:/usr/lib:/usr/lib64:/lib:/lib64:/etc/ld.so.cache"
-export UDA_LANDLOCK_READWRITE_PATHS="/var/tmp/uda"
+export UDA_LANDLOCK_READWRITE_PATHS="/var/tmp/uda:/dev/null"
 export UDA_PLUGIN_REDIRECT_DIR="/var/tmp/uda"
 export UDA_WORK_DIR="/var/tmp/uda"
 export UDA_LANDLOCK_EXECUTE_PATHS="/bin/sh:/usr/bin/head:/lib64/ld-linux-x86-64.so.2"
@@ -130,8 +160,9 @@ format of a requested file that has no extension, it runs `head -c10 <file>`
 through `/bin/sh` with `popen()`. For HDF-labelled files it also runs the
 programs named by `UDA_DUMP_NETCDF` and `UDA_DUMP_IDA` when those are set. Grant
 execute permission to `/bin/sh`, `head`, any configured dump programs and the ELF
-interpreter they use. Without these grants, requests for files without extensions
-fail with "failed to read command".
+interpreter they use. The command discards errors with `2>/dev/null`, so `/dev/null`
+also needs a read/write grant. Without these grants, requests for files without
+extensions fail with "failed to read command".
 
 `UDA_PLUGIN_REDIRECT_DIR` directs plugin output capture to the permitted scratch
 directory; without it, that capture uses `/tmp`, which would need its own writable

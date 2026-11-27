@@ -49,20 +49,45 @@ export DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
 export UDA_ALLOWED_PATHS=
 
 #------------------------------------------------------------------------------------------------------
-# Optional Linux Landlock policy (requires ENABLE_LANDLOCK=ON and kernel ABI >= 3).
-# Colon-separated absolute paths; files and directories must already exist.
-# Leave all three UNSET to disable. Any exported class enables enforcement;
-# an empty value grants nothing. Read/read-write never imply execute permission.
-# Directory grants include descendants; overlapping grants combine permissions.
-# Configure runtime libraries, plugin configuration, certificates and data as needed.
-# Every path must exist: drop /usr/lib64 and /lib64 if your distribution lacks them.
-# The server itself runs "head" via /bin/sh to detect extensionless file formats (plus
-# UDA_DUMP_NETCDF/UDA_DUMP_IDA if set), so those and the ELF loader need execute grants.
-# UDA_WORK_DIR and UDA_PLUGIN_REDIRECT_DIR default to /tmp; point them at writable scratch.
-# Example for x86-64 (check the loader path for your architecture):
-# export UDA_LANDLOCK_READONLY_PATHS="$UDA_ROOT/etc:$UDA_ROOT/lib:/srv/uda/data:/usr/lib:/usr/lib64:/lib:/lib64:/etc/ld.so.cache"
-# export UDA_LANDLOCK_READWRITE_PATHS="/var/tmp/uda"
-# export UDA_PLUGIN_REDIRECT_DIR="/var/tmp/uda"
-# export UDA_WORK_DIR="/var/tmp/uda"
-# export UDA_LANDLOCK_EXECUTE_PATHS="/bin/sh:/usr/bin/head:/lib64/ld-linux-x86-64.so.2"
+# Linux Landlock filesystem policy (servers built with ENABLE_LANDLOCK=ON; kernel ABI >= 3).
+#
+# Landlock builds always enforce a policy unless UDA_LANDLOCK=OFF is set, and it fails closed:
+# an unset or empty list grants nothing, so the server can only open what is listed below.
+# The starter policy below covers the server's own needs. Add your data directories, and
+# anything your plugins read, write or run, e.g. in machine.d/<host>.cfg or plugins.d/*.cfg:
+#     UDA_LANDLOCK_READONLY_PATHS+=":/srv/uda/data"
+# Lists are colon-separated absolute paths that must exist when the server starts. Read and
+# read/write grants never imply execute; directory grants include descendants; grants combine.
+# The server runs "head" via /bin/sh to detect extensionless file formats (plus UDA_DUMP_NETCDF
+# and UDA_DUMP_IDA if set), so those, their ELF loader and /dev/null are granted here.
 # Startup failures are written to etc/server.log. See docs/server_sandboxing.md.
+#
+# export UDA_LANDLOCK=OFF   # disable enforcement entirely (not recommended)
+
+if [[ "@ENABLE_LANDLOCK@" == "ON" && "${UDA_LANDLOCK:-ON}" != [Oo][Ff][Ff] ]]
+then
+    # Print the arguments that are existing absolute paths, colon-separated.
+    uda_landlock_existing() {
+        local path out=
+        for path in "$@"; do
+            [[ "$path" == /* && -e "$path" ]] && out="${out:+$out:}$path"
+        done
+        printf '%s' "$out"
+    }
+    UDA_LANDLOCK_SCRATCH="$UDA_ROOT/etc/scratch"
+    mkdir -p -m 700 "$UDA_LANDLOCK_SCRATCH"
+    export UDA_PLUGIN_REDIRECT_DIR="$UDA_LANDLOCK_SCRATCH"
+    export UDA_WORK_DIR="$UDA_LANDLOCK_SCRATCH"
+
+    IFS=: read -r -a uda_landlock_libs <<< "$LD_LIBRARY_PATH"
+    export UDA_LANDLOCK_READONLY_PATHS="$(uda_landlock_existing "$UDA_ROOT/etc" "${uda_landlock_libs[@]}" \
+        /usr/lib /usr/lib64 /lib /lib64 /usr/local/lib /etc/ld.so.cache /etc/ld.so.conf /etc/ld.so.conf.d \
+        /etc/localtime /usr/share/zoneinfo /etc/hosts /etc/host.conf /etc/resolv.conf /etc/nsswitch.conf \
+        /etc/gai.conf /etc/ssl /dev/urandom)"
+    export UDA_LANDLOCK_READWRITE_PATHS="$UDA_LANDLOCK_SCRATCH:/dev/null"
+    export UDA_LANDLOCK_EXECUTE_PATHS="$(uda_landlock_existing /bin/sh "$(command -v head)" \
+        "$UDA_DUMP_NETCDF" "$UDA_DUMP_IDA" /lib64/ld-linux*.so* /lib/ld-linux*.so* /lib/ld-musl*.so*)"
+
+    unset -f uda_landlock_existing
+    unset uda_landlock_libs UDA_LANDLOCK_SCRATCH
+fi

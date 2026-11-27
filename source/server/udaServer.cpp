@@ -1129,7 +1129,13 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
     }
 
     try {
-        const auto policy = uda::server::landlock::policy_from_environment();
+        // Landlock builds enforce by default (fail closed); other builds only fail if a policy is requested.
+#ifdef USE_LANDLOCK
+        constexpr bool landlock_by_default = true;
+#else
+        constexpr bool landlock_by_default = false;
+#endif
+        const auto policy = uda::server::landlock::policy_from_environment(landlock_by_default);
         if (policy.enabled) {
 #ifdef USE_LANDLOCK
             uda::server::landlock::enforce_path_policy(policy);
@@ -1137,8 +1143,10 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
 #else
             throw std::runtime_error("Landlock policy requested but UDA was built without ENABLE_LANDLOCK=ON");
 #endif
+        } else if (landlock_by_default) {
+            UDA_LOG(UDA_LOG_WARN, "Landlock disabled by UDA_LANDLOCK=OFF\n");
         } else {
-            UDA_LOG(UDA_LOG_DEBUG, "Landlock disabled: no permission classes configured\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Landlock disabled: UDA was built without ENABLE_LANDLOCK=ON\n");
         }
     } catch (const std::exception& e) {
         // The XDR streams do not exist yet, so this error cannot be returned to the client, which only sees the
