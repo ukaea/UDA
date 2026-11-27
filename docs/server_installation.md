@@ -95,8 +95,12 @@ The plugin helper accepts `--config-dir` to override its configured plugin
 configuration directory.
 
 The service templates still require deployment configuration: select an
-appropriate service user and provision writable log/runtime directories before
-starting the server. Layout selection does not create users or set ownership.
+appropriate service user before starting the server. Layout selection does not
+create users. On Linux, `SYSTEM` installs a systemd-tmpfiles entry
+(`UDA_INSTALL_TMPFILESDIR`, default `lib/tmpfiles.d/uda.conf`) that creates the
+log and runtime directories, owned by the configuring user; the DEB and RPM
+packages apply it on install. Run `systemd-tmpfiles --create uda.conf` after a
+plain `cmake --install`.
 With prefix `/usr`, configuration is under `/etc/uda`, scripts under
 `/usr/libexec/uda`, and logs under `/var/log/uda`. The runtime directory follows
 GNUInstallDirs' `CMAKE_INSTALL_RUNSTATEDIR`.

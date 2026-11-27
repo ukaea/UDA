@@ -1,6 +1,3 @@
-if( NOT NO_MEMCACHE )
-  find_package( LibMemcached QUIET )
-endif()
 find_package( Boost REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )

@@ -68,7 +68,7 @@ export UDA_DOWNLOADABLE_PATHS=
 #
 
 uda_landlock_setting=$(printf '%s' "${UDA_LANDLOCK:-on}" | tr '[:upper:]' '[:lower:]')
-if [[ "@ENABLE_LANDLOCK@" == "ON" && ! "$uda_landlock_setting" =~ ^(off|false|no|0)$ ]]
+if [[ "@UDA_LANDLOCK_ENABLED@" == "ON" && ! "$uda_landlock_setting" =~ ^(off|false|no|0)$ ]]
 then
     # Print the arguments that are existing absolute paths, colon-separated.
     uda_landlock_existing() {

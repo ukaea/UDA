@@ -65,9 +65,15 @@ if build_shared:
 else:
     print("Building against static UDA libraries")
     uda_link_libs = []
-    uda_static_objs = [
-        os.path.join(uda_lib_dir, name + '_static.' + stalib_ext) for name in uda_base_names
-    ]
+    # UDA built with MinGW names its archives lib<name>_static.a; MSVC names them <name>_static.lib.
+    if '@UDA_PYTHON_MINGW@' == 'ON':
+        uda_static_objs = [
+            os.path.join(uda_lib_dir, 'lib' + name + '_static.a') for name in uda_base_names
+        ]
+    else:
+        uda_static_objs = [
+            os.path.join(uda_lib_dir, name + '_static.' + stalib_ext) for name in uda_base_names
+        ]
 
 ext = Extension(
     'cpyuda',

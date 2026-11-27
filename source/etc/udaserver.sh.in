@@ -1,6 +1,12 @@
 #!/bin/bash
 
 #------------------------------------------------------------------------------------------------------
+# Make sure the log and runtime directories exist: bash skips any command whose redirection target
+# cannot be opened. Packaged SYSTEM installs create them through systemd-tmpfiles (uda.conf).
+
+mkdir -p "@UDA_INSTALL_FULL_LOGDIR@" "@UDA_INSTALL_FULL_RUNDIR@" 2>/dev/null
+
+#------------------------------------------------------------------------------------------------------
 # Load core UDA configuration
 
 source @UDA_INSTALL_FULL_CONFIGDIR@/udaserver.cfg >>@UDA_INSTALL_FULL_LOGDIR@/startup.log 2>&1

@@ -137,5 +137,27 @@ if( NOT CLIENT_ONLY )
       PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
     )
   endforeach()
+
+  # The SYSTEM layout logs to /var/log/uda and runs from /run/uda, which nothing else creates.
+  # udaserver.sh and uda@.service fail without them, so let systemd-tmpfiles provision them.
+  if( UDA_INSTALL_LAYOUT STREQUAL "SYSTEM" AND CMAKE_SYSTEM_NAME STREQUAL "Linux" )
+    if( USER )
+      set( UDA_TMPFILES_USER "${USER}" )
+    else()
+      set( UDA_TMPFILES_USER "-" )
+    endif()
+    configure_file(
+      "${CMAKE_SOURCE_DIR}/source/etc/uda-tmpfiles.conf.in"
+      "${CMAKE_BINARY_DIR}/etc/uda-tmpfiles.conf"
+      @ONLY
+    )
+    install(
+      FILES "${CMAKE_BINARY_DIR}/etc/uda-tmpfiles.conf"
+      DESTINATION ${UDA_INSTALL_TMPFILESDIR}
+      RENAME uda.conf
+      COMPONENT server
+      PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    )
+  endif()
 endif()
 

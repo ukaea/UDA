@@ -171,6 +171,13 @@ option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( NO_MEMCACHE "Do not attempt to build with libmemcached support" ON )
 option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
 option( ENABLE_LANDLOCK "Enable landlock file restriction" OFF )
+# ON/OFF spelling of ENABLE_LANDLOCK for templates, which compare strings: CMake keeps whatever
+# truthy value was passed (1, TRUE, YES, ...).
+if( ENABLE_LANDLOCK )
+  set( UDA_LANDLOCK_ENABLED "ON" )
+else()
+  set( UDA_LANDLOCK_ENABLED "OFF" )
+endif()
 if(ENABLE_LANDLOCK)
     if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" )
         message( FATAL_ERROR "Landlock requires Linux" )
@@ -225,6 +232,11 @@ set( UDA_SERVER_HOST "`hostname`" CACHE STRING "define hostname in server config
 
 ########################################################################################################################
 # Source directories
+
+# Found here so the imported LibMemcached::LibMemcached target is visible to every subdirectory
+if( NOT NO_MEMCACHE )
+  find_package( LibMemcached QUIET )
+endif()
 
 add_subdirectory( source )
 include( UDAPkgConfig )

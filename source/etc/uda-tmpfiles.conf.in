@@ -1,0 +1,4 @@
+# systemd-tmpfiles(8) configuration: create the UDA server's log and runtime directories, owned by
+# the service user from uda@.service, at boot and when the package is installed.
+d @UDA_INSTALL_FULL_LOGDIR@ 0755 @UDA_TMPFILES_USER@ - -
+d @UDA_INSTALL_FULL_RUNDIR@ 0755 @UDA_TMPFILES_USER@ - -

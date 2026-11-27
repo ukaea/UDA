@@ -55,9 +55,14 @@ if build_shared:
     print("Building against shared UDA libraries")
     uda_link_libs = uda_base_names
     uda_static_objs = []
+    uda_link_dirs = [uda_lib_dir]
+    # macOS already gets an rpath to uda_lib_dir above.
+    uda_runtime_dirs = [] if sys.platform.lower() == 'darwin' else [uda_lib_dir]
 else:
     print("Building against static UDA libraries")
     uda_link_libs = []
+    uda_link_dirs = []
+    uda_runtime_dirs = []
     uda_static_objs = [
         os.path.join(uda_lib_dir, 'lib' + name + '.' + stalib_ext) for name in uda_base_names
     ]
@@ -74,14 +79,14 @@ ext = Extension(
         '@FMT_INCLUDE_DIR@'
     ])),
     libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs + uda_link_libs)),
-    library_dirs=list(filter(None, [
+    library_dirs=list(filter(None, uda_link_dirs + [
         '@STDCXX_LIB_DIR@',
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@CAPNP_LIB_DIR@',
         '@FMT_LIB_DIR@'
     ])),
-    runtime_library_dirs=list(filter(None, [
+    runtime_library_dirs=list(filter(None, uda_runtime_dirs + [
         '@STDCXX_LIB_DIR@',
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',

@@ -148,11 +148,24 @@ int open_downloadable_file(const char* expanded_path, FILE** file)
     *file = nullptr;
     const PathList path_list = downloadable_paths();
 
+    // Check the resolved name first, so the server never opens anything outside the list or anything but a
+    // regular file: opening a device can have side effects (e.g. a tape rewind) even if it is rejected afterwards.
+    std::string full_path;
+    const int rc = resolve_downloadable_path(expanded_path, path_list, full_path);
+    if (rc != 0) {
+        return rc;
+    }
+    std::error_code status_error;
+    if (!filesystem::is_regular_file(full_path, status_error)) {
+        RAISE_PLUGIN_ERROR("Provided File Path is not a Regular File");
+    }
+
 #ifdef UDA_HAVE_OPENED_PATH
-    // Open first, then check where the opened file really is. Checking the name and then opening it would let a
-    // symlink swapped into a downloadable directory in between redirect the read anywhere the server can read.
-    // O_NONBLOCK stops a FIFO blocking the open; anything but a regular file is rejected below.
-    const int fd = open(expanded_path, O_RDONLY | O_CLOEXEC | O_NOCTTY | O_NONBLOCK);
+    // Then open the resolved name and check where the opened file really is: a symlink swapped into a downloadable
+    // directory between the check and the open could otherwise redirect the read anywhere the server can read.
+    // O_NOFOLLOW rejects a symlink swapped in as the final component; O_NONBLOCK stops a FIFO swapped in blocking
+    // the open. Anything but a regular file is still rejected below.
+    const int fd = open(full_path.c_str(), O_RDONLY | O_CLOEXEC | O_NOCTTY | O_NONBLOCK | O_NOFOLLOW);
     if (fd < 0) {
         const int error = errno;
         UDA_LOG(UDA_LOG_DEBUG, "Unable to open [%s]: %s\n", expanded_path, std::strerror(error));
@@ -190,16 +203,8 @@ int open_downloadable_file(const char* expanded_path, FILE** file)
     }
     return 0;
 #else
-    // No way to ask where an open file is: check the resolved name and open that, not the name as given. A
-    // symlink swapped into a downloadable directory between the check and the open can still redirect the read.
-    std::string full_path;
-    const int rc = resolve_downloadable_path(expanded_path, path_list, full_path);
-    if (rc != 0) {
-        return rc;
-    }
-    if (!filesystem::is_regular_file(full_path)) {
-        RAISE_PLUGIN_ERROR("Provided File Path is not a Regular File");
-    }
+    // No way to ask where an open file is: open the checked, resolved name, not the name as given. A symlink
+    // swapped into a downloadable directory between the check and the open can still redirect the read.
     *file = fopen(full_path.c_str(), "rb");
     if (*file == nullptr) {
         addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");

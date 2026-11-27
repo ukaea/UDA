@@ -1,0 +1,4 @@
+# Create the server's log and runtime directories now rather than at the next boot (SYSTEM layout).
+if command -v systemd-tmpfiles >/dev/null 2>&1; then
+  systemd-tmpfiles --create uda.conf >/dev/null 2>&1 || true
+fi

@@ -63,6 +63,8 @@ else()
   set( UDA_INSTALL_SYSTEMD_UNITDIR "lib/systemd/system" CACHE PATH
     "Systemd unit directory, relative to the install prefix or absolute" )
   set( UDA_INSTALL_SERVICEDIR "${UDA_INSTALL_SYSTEMD_UNITDIR}" )
+  set( UDA_INSTALL_TMPFILESDIR "lib/tmpfiles.d" CACHE PATH
+    "systemd-tmpfiles configuration directory, relative to the install prefix or absolute" )
   set( UDA_INSTALL_LOGDIR "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/uda" )
   set( UDA_INSTALL_RUNDIR "${CMAKE_INSTALL_FULL_RUNSTATEDIR}/uda" )
   set( UDA_INSTALL_PYTHONDIR "${CMAKE_INSTALL_DATADIR}/uda/python" )

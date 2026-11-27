@@ -27,6 +27,7 @@ endif()
 if( @UDA_PACKAGE_NEEDS_ICONV@ )
   find_dependency( Iconv )
   find_dependency( liblzma CONFIG )
+  find_dependency( ZLIB )
 endif()
 
 set( CMAKE_MODULE_PATH "${_UDA_SAVED_MODULE_PATH}" )
