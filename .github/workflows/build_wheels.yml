@@ -1,11 +1,8 @@
 name: build and upload wheels
 
-# Wheels are built for pull requests into develop, pushes to develop, main and release branches, and tags.
-# HOWEVER we only want to upload these wheels to testpypi for release candidates, which are considered
-# to be pushes to a release branch or to develop.
-# finally, we only push tagged releases to pypi proper. Note that only a subset of platforms are considered
-# for test builds and the full suite (including longer-running builds) is only run on pushes to tags. 
-# This is controlled using conditional statements for individual jobs and steps in this script. 
+# Wheels are built for PRs targeting develop and pushes to develop, main, release branches and tags.
+# PRs build artifacts only; TestPyPI publication runs on configured push events.
+# Production PyPI publication runs only on tag pushes.
 on:
   push:
     tags:
@@ -38,8 +35,7 @@ jobs:
           - [ubuntu-latest, x86_64, manylinux2014_x86_64, 0.0]
           - [ubuntu-latest, x86_64, manylinux_2_28_x86_64, 0.0]
           - [ubuntu-latest, aarch64, manylinux_2_28_aarch64, 0.0]
-          # macos-13 and macos-14 runners are retired; -intel is the x86_64 image.
-          # The last column is the deployment target; the dependencies are built from source to match it.
+          # Source-built dependencies use the deployment target in the last column.
           - [macos-15-intel, x86_64, macosx_x86_64, 13.0]
           - [macos-15, arm64, macosx_arm64, 14.0]
           - [windows-latest, AMD64, win_amd64, 0.0]
@@ -116,7 +112,7 @@ jobs:
          
       - name: build windows wheels
         if: runner.OS == 'Windows'
-        uses: pypa/cibuildwheel@v4.2.1
+        uses: pypa/cibuildwheel@v4.3.5
         with:
           package-dir: ${{github.workspace}}/install/python_installer
           config-file: ${{github.workspace}}/install/python_installer/pyproject.toml
@@ -137,7 +133,7 @@ jobs:
       # startsWith(github.ref, 'refs/tags/')
         if: >
           startswith(matrix.build-platform[2], 'manylinux2014') 
-        uses: pypa/cibuildwheel@v4.2.1
+        uses: pypa/cibuildwheel@v4.3.5
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -151,9 +147,11 @@ jobs:
           # numpy that has a wheel for this platform.
           CIBW_ENVIRONMENT: PIP_ONLY_BINARY=numpy
           CIBW_ARCHS: ${{matrix.build-platform[1]}}
-          CIBW_BUILD: cp*-manylinux*
-          # no numpy wheel exists for CPython 3.14+ on this image (numpy 2.3+ needs manylinux_2_27)
-          CIBW_SKIP: cp*-musllinux* *-musllinux* cp31[4-9]* cp3[2-9][0-9]*
+          # NumPy >=2.3 wheels require glibc >=2.28. Keep newer Python builds in
+          # the manylinux_2_28 job, and select a compatible NumPy wheel here.
+          CIBW_BUILD: cp3{9,10,11,12,13}-manylinux*
+          CIBW_SKIP: cp*-musllinux* *-musllinux*
+          CIBW_ENVIRONMENT: PIP_ONLY_BINARY=numpy
           CIBW_BEFORE_ALL: >
             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && 
             sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* &&
@@ -179,7 +177,8 @@ jobs:
             cmake --build build  &&
             cmake --install build &&
             cd /tmp  &&
-            wget https://sourceforge.net/projects/boost/files/boost/1.80.0/boost_1_80_0.tar.gz &&
+            wget --tries=5 --retry-connrefused --waitretry=10 --timeout=60 https://archives.boost.io/release/1.80.0/source/boost_1_80_0.tar.gz &&
+            echo "4b2136f98bdd1f5857f1c3dea9ac2018effe65286cf251534b6ae20cc45e1847  boost_1_80_0.tar.gz" | sha256sum -c - &&
             tar xzf boost_1_80_0.tar.gz  &&
             cd boost_1_80_0  &&
             ./bootstrap.sh --prefix=/usr/local  &&
@@ -195,7 +194,7 @@ jobs:
           startswith(matrix.build-platform[2], 'manylinux_2_28') && 
           ! ( startswith(matrix.build-platform[1], 'aarch64') && 
           !startsWith(github.ref, 'refs/tags/') )
-        uses: pypa/cibuildwheel@v4.2.1
+        uses: pypa/cibuildwheel@v4.3.5
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -247,10 +246,10 @@ jobs:
           cmake -B build
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{matrix.build-platform[3]}}
           -DSSLAUTHENTICATION=ON
           -DENABLE_CAPNP=ON
           -DNO_JAVA_WRAPPER=ON
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{matrix.build-platform[3]}}
           -DCMAKE_PREFIX_PATH=${{github.workspace}}/macos-deps
           -DBOOST_ROOT=${{github.workspace}}/macos-deps
           -DOPENSSL_ROOT_DIR=${{github.workspace}}/macos-deps
@@ -261,7 +260,7 @@ jobs:
 
       - name: Build macos wheels
         if: runner.os == 'macOS'
-        uses: pypa/cibuildwheel@v4.2.1
+        uses: pypa/cibuildwheel@v4.3.5
         with:
           package-dir: ./source/wrappers/python
           config-file: ./source/wrappers/python/pyproject.toml
@@ -318,7 +317,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   upload_test_pypi:
-    # push test wheels to testpypi for all intermediate release candidates (release/*, develop, etc.) 
+    # Publish test wheels only for configured push events, never for pull requests.
     if: github.event_name == 'push'
     needs: build_wheels
     runs-on: ubuntu-latest

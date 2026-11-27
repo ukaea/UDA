@@ -88,10 +88,10 @@ jobs:
           wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB |
             gpg --dearmor |
             sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
-          
+
           echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" |
             sudo tee /etc/apt/sources.list.d/oneAPI.list
-          
+
           sudo apt update
           sudo apt install -y intel-oneapi-compiler-dpcpp-cpp
 
@@ -110,13 +110,15 @@ jobs:
           capnp
 
       - name: Cache windows packages
+        if: matrix.os == 'windows-latest'
         id: cache-vcpkg
         uses: actions/cache@v6
         env:
           cache-name: cache-vcpkg-packages
         with:
           path: C:/vcpkg
-          key: ${{ runner.os }}-build-${{ env.cache-name }}
+          # The package list lives in this workflow, so a change to it refreshes the cache.
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('.github/workflows/cmake.yml') }}
 
       - name: Install windows dependencies
         if: matrix.os == 'windows-latest'
@@ -137,9 +139,11 @@ jobs:
       - name: Configure CMake (linux, macos)
         if: matrix.os != 'windows-latest'
         run: |
-          openssl_args=()
+          platform_args=()
           if [[ "$RUNNER_OS" == macOS ]]; then
-            openssl_args+=("-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)")
+            platform_args+=("-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)")
+          else
+            platform_args+=("-DENABLE_LANDLOCK=ON")
           fi
           cmake -G Ninja -B build \
             -DBUILD_SHARED_LIBS=ON \
@@ -147,7 +151,7 @@ jobs:
             -DSSLAUTHENTICATION=${{ matrix.ssl }} \
             -DCLIENT_ONLY=${{ matrix.client-only }} \
             -DENABLE_CAPNP=${{ matrix.capnp }} \
-            "${openssl_args[@]}"
+            "${platform_args[@]}"
 
       - name: Configure CMake (linux Intel)
         if: matrix.os == 'ubuntu-latest'
@@ -160,7 +164,8 @@ jobs:
             -DCMAKE_BUILD_TYPE=$CONFIG \
             -DSSLAUTHENTICATION=${{ matrix.ssl }} \
             -DCLIENT_ONLY=${{ matrix.client-only }} \
-            -DENABLE_CAPNP=${{ matrix.capnp }}
+            -DENABLE_CAPNP=${{ matrix.capnp }} \
+            -DENABLE_LANDLOCK=ON
 
       - name: Build and install portable XDR
         if: matrix.os == 'windows-latest'
@@ -189,7 +194,20 @@ jobs:
 
       - name: Build Intel
         if: matrix.os == 'ubuntu-latest'
-        run: cmake --build build-intel --config $CONFIG
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          cmake --build build-intel --config $CONFIG
+
+      - name: Test Landlock enforcement
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          ctest --test-dir build/test/landlock --output-on-failure --no-tests=error
+          source /opt/intel/oneapi/setvars.sh
+          ctest --test-dir build-intel/test/landlock --output-on-failure --no-tests=error
+
+      - name: Test Landlock policy rejection without support
+        if: matrix.os == 'macos-latest' && matrix.client-only == 'OFF'
+        run: ctest --test-dir build/test -R Landlock_server_plugin_disabled --output-on-failure --no-tests=error
 
       - name: Install
         run: |

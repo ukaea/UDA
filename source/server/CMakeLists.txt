@@ -19,9 +19,11 @@ endif()
 set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
+  createXDRStream.cpp
   getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
+  landlock_config.cpp
   makeServerRequestBlock.cpp
   serverGetData.cpp
   serverLegacyPlugin.cpp
@@ -30,7 +32,6 @@ set( SRC_FILES
   serverStartup.cpp
   serverSubsetData.cpp
   writer.cpp
-  createXDRStream.cpp
 )
 
 set( HEADER_FILES
@@ -40,6 +41,7 @@ set( HEADER_FILES
   getPluginAddress.h
   getServerEnvironment.h
   initPluginList.h
+  landlock.h
   makeServerRequestBlock.h
   serverGetData.h
   serverLegacyPlugin.h
@@ -78,6 +80,14 @@ target_compile_definitions( fatserver-objects PRIVATE SERVERBUILD )
 target_link_libraries( fatserver-objects PRIVATE fmt::fmt Boost::boost OpenSSL::SSL LibXml2::LibXml2 )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
+
+if( ENABLE_LANDLOCK )
+  foreach( target server-objects fatserver-objects )
+    target_sources( ${target} PRIVATE landlock.cpp )
+    target_compile_definitions( ${target} PRIVATE USE_LANDLOCK )
+  endforeach()
+endif()
+
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>

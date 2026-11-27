@@ -15,10 +15,11 @@ export UDA_DEBUG_APPEND=a
 #------------------------------------------------------------------------------------------------------
 # UDA DUMP Program Locations
 
-export UDA_DUMP_MDSPLUS=`which idl 2>/dev/null`
-export UDA_DUMP_IDA=`which idadump 2>/dev/null`
-export UDA_DUMP_NETCDF=`which /usr/bin/ncdump 2>/dev/null`
-export UDA_DUMP_HDF5=`which h5dump 2>/dev/null`
+# Export each program only if it is installed: the server would try to run an empty value.
+UDA_DUMP_MDSPLUS=$(type -P idl) && export UDA_DUMP_MDSPLUS || unset UDA_DUMP_MDSPLUS
+UDA_DUMP_IDA=$(type -P idadump) && export UDA_DUMP_IDA || unset UDA_DUMP_IDA
+UDA_DUMP_NETCDF=$(type -P /usr/bin/ncdump) && export UDA_DUMP_NETCDF || unset UDA_DUMP_NETCDF
+UDA_DUMP_HDF5=$(type -P h5dump) && export UDA_DUMP_HDF5 || unset UDA_DUMP_HDF5
 
 #------------------------------------------------------------------------------------------------------
 # UDA Server Host
@@ -42,8 +43,56 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"
 export DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
 
 #------------------------------------------------------------------------------------------------------
-# Permitted filepaths for the server to access formatted as a comma-delimited list
-# by deafult all file access will be prohibited if this is set to empty or 
-# the environment variable is unset. Use semi-colons (;) to deliminate multiple allowed paths
-# set the path to "/" to allow everything to be accessed
-export UDA_ALLOWED_PATHS=
+# Files clients may download through plugins that check this list (e.g. bytes::read): a
+# colon-separated list of absolute directories or files. Unset or empty rejects every request.
+# "/" allows every file the server can read, including its own keys and configuration, so list only
+# data directories. This is separate from the Landlock policy below, which limits what the server
+# process itself can open. UDA_ALLOWED_PATHS is the legacy name, used only if this is unset or empty;
+# it keeps its old semicolon separator.
+export UDA_DOWNLOADABLE_PATHS=
+
+#------------------------------------------------------------------------------------------------------
+# Linux Landlock filesystem policy (servers built with ENABLE_LANDLOCK=ON; kernel ABI >= 3).
+#
+# Landlock builds always enforce a policy unless UDA_LANDLOCK=OFF is set, and it fails closed:
+# an unset or empty list grants nothing, so the server can only open what is listed below.
+# The starter policy below covers the server's own needs. Add your data directories, and
+# anything your plugins read, write or run, e.g. in machine.d/<host>.cfg or plugins.d/*.cfg:
+#     UDA_LANDLOCK_READONLY_PATHS+=":/srv/uda/data"
+# Lists are colon-separated absolute paths that must exist when the server starts; empty entries are
+# ignored. Read and read/write grants never imply execute; directory grants include descendants;
+# grants combine.
+# The server runs "head" via /bin/sh to detect extensionless file formats (plus UDA_DUMP_NETCDF
+# and UDA_DUMP_IDA if set), so those, their ELF loader and /dev/null are granted here.
+# Startup failures are written to @UDA_INSTALL_FULL_LOGDIR@/server.log. See docs/server_sandboxing.md.
+#
+
+uda_landlock_setting=$(printf '%s' "${UDA_LANDLOCK:-on}" | tr '[:upper:]' '[:lower:]')
+if [[ "@ENABLE_LANDLOCK@" == "ON" && ! "$uda_landlock_setting" =~ ^(off|false|no|0)$ ]]
+then
+    # Print the arguments that are existing absolute paths, colon-separated.
+    uda_landlock_existing() {
+        local path out=
+        for path in "$@"; do
+            [[ "$path" == /* && -e "$path" ]] && out="${out:+$out:}$path"
+        done
+        printf '%s' "$out"
+    }
+    UDA_LANDLOCK_SCRATCH="@UDA_INSTALL_FULL_RUNDIR@/scratch"
+    mkdir -p -m 700 "$UDA_LANDLOCK_SCRATCH"
+    export UDA_PLUGIN_REDIRECT_DIR="$UDA_LANDLOCK_SCRATCH"
+    export UDA_WORK_DIR="$UDA_LANDLOCK_SCRATCH"
+
+    IFS=: read -r -a uda_landlock_libs <<< "$LD_LIBRARY_PATH"
+    export UDA_LANDLOCK_READONLY_PATHS="$(uda_landlock_existing "@UDA_INSTALL_FULL_CONFIGDIR@" "${uda_landlock_libs[@]}" \
+        /usr/lib /usr/lib64 /lib /lib64 /usr/local/lib /etc/ld.so.cache /etc/ld.so.conf /etc/ld.so.conf.d \
+        /etc/localtime /usr/share/zoneinfo /etc/hosts /etc/host.conf /etc/resolv.conf /etc/nsswitch.conf \
+        /etc/gai.conf /etc/ssl /dev/urandom)"
+    export UDA_LANDLOCK_READWRITE_PATHS="$UDA_LANDLOCK_SCRATCH:/dev/null"
+    export UDA_LANDLOCK_EXECUTE_PATHS="$(uda_landlock_existing /bin/sh "$(type -P head)" \
+        "$UDA_DUMP_NETCDF" "$UDA_DUMP_IDA" /lib64/ld-linux*.so* /lib/ld-linux*.so* /lib/ld-musl*.so*)"
+
+    unset -f uda_landlock_existing
+    unset uda_landlock_libs UDA_LANDLOCK_SCRATCH
+fi
+unset uda_landlock_setting
