@@ -40,7 +40,7 @@ new server processes. They do not modify an already installed ruleset.
 
 | Control | Who configures it | What it covers |
 | --- | --- | --- |
-| `UDA_ALLOWED_PATHS` | UDA administrator | Application-level path checks in plugins that use the check; not a kernel boundary for arbitrary plugin I/O |
+| `UDA_DOWNLOADABLE_PATHS` (formerly `UDA_ALLOWED_PATHS`) | UDA administrator | Which files clients may request from plugins that return file contents, such as `bytes`; an application-level check, not a kernel boundary for arbitrary plugin I/O |
 | UDA Landlock variables | UDA administrator; enforced by the kernel after UDA applies them | Selected filesystem operations by the calling thread and future children |
 | systemd sandbox settings | Service administrator | Service launch environment, filesystem namespaces and optional resource/syscall restrictions |
 | AppArmor or SELinux policy | Host administrator | Kernel-enforced mandatory access control for the deployed process/domain |
@@ -89,8 +89,9 @@ entry cannot revoke permission granted by a writable ancestor.
 Lists use `:` separators and require absolute paths. Paths must already exist when
 the server starts; create scratch directories before launching it. Spaces in paths
 are supported when the environment variable is quoted, but `:` in a filename cannot
-be represented. Relative paths and empty components such as `/data:` or `/data::/tmp`
-are rejected. Symlinks in configured paths resolve to their targets; access checks
+be represented. Relative paths are rejected. Empty entries such as the leading one in
+`:/data` grant nothing and are ignored, so appending with `+=":/data"` is safe even when
+the list starts out empty. Symlinks in configured paths resolve to their targets; access checks
 follow filesystem objects, rather than trusting a textual path prefix. Directory
 grants include descendants. A file grant does not permit access to sibling files or
 allow creation, deletion or renaming through its parent directory.
@@ -111,8 +112,19 @@ error. The cause is written to the server's stderr, which the supplied
 `udaserver.sh` sends to `etc/server.log`, and to `Error.log` when `UDA_LOG_LEVEL`
 enables logging. The legacy `UDA_ENABLE_PATHS`
 variable is rejected with migration instructions; replace it with
-the appropriate permission classes. `UDA_ALLOWED_PATHS` remains a separate
-application-level plugin check, with its existing semicolon-separated syntax.
+the appropriate permission classes.
+
+**Landlock does not replace `UDA_DOWNLOADABLE_PATHS`.** The two lists answer different
+questions. The Landlock policy limits what the server process can open, and the server
+must be able to read its own configuration, TLS certificate and private key, plugin
+libraries and system files. `UDA_DOWNLOADABLE_PATHS` (formerly `UDA_ALLOWED_PATHS`;
+also `:`-separated) limits which files clients can ask plugins such as `bytes` to
+return. Without it, a client could download any file the server can read, including
+its private key. Keep it to data directories; see
+[server installation](/UDA/server_installation). The `bytes` plugin applies the list to
+the file it actually opened, not the name it was given, so swapping in a symbolic link
+mid-request cannot redirect a download. Landlock is a second layer, enforced by the kernel
+on every open, including for plugins that do their own file I/O.
 
 ### The shipped starter policy
 

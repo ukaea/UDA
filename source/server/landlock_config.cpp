@@ -8,25 +8,27 @@
 namespace
 {
 
+// Empty entries (e.g. from appending ":/path" to an empty list) grant nothing and are skipped.
 void read_paths(const char* name, std::vector<std::string>& paths)
 {
     const char* value = std::getenv(name);
     if (value == nullptr)
         return;
     const std::string input{value};
-    if (input.empty())
-        return;
 
     size_t start = 0;
-    while (true) {
-        const auto end = input.find(':', start);
-        const auto path = input.substr(start, end == std::string::npos ? end : end - start);
-        if (path.empty() || path.front() != '/') {
-            throw std::runtime_error(std::string{name} + ": expected nonempty absolute paths separated by ':'");
-        }
-        paths.push_back(path);
+    while (start <= input.size()) {
+        auto end = input.find(':', start);
         if (end == std::string::npos)
-            break;
+            end = input.size();
+        const auto path = input.substr(start, end - start);
+        if (!path.empty()) {
+            if (path.front() != '/') {
+                throw std::runtime_error(std::string{name} + ": expected absolute paths separated by ':', got '" +
+                                         path + "'");
+            }
+            paths.push_back(path);
+        }
         start = end + 1;
     }
 }

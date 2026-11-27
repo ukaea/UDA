@@ -31,7 +31,7 @@ def integration(server, library, plugin, disabled=False):
         env.update(UDA_LOG=temporary, UDA_LOG_LEVEL="DEBUG", UDA_LOG_MODE="a",
                    UDA_PLUGIN_CONFIG=str(configuration), UDA_PLUGIN_DIR=str(Path(plugin).parent),
                    UDA_PLUGIN_FAIL_ON_LOAD="1", UDA_SERVER_SSL_AUTHENTICATE="OFF",
-                   UDA_CLIENT_SSL_AUTHENTICATE="OFF", UDA_ALLOWED_PATHS="/")
+                   UDA_CLIENT_SSL_AUTHENTICATE="OFF", UDA_DOWNLOADABLE_PATHS="/")
         env["UDA_PLUGIN_REDIRECT_DIR"] = str(scratch)
         build_root = Path(server).resolve().parents[2]
         # Plugins use install RPATHs, so resolve dependencies from this uninstalled build explicitly.
@@ -83,7 +83,7 @@ def integration(server, library, plugin, disabled=False):
                             child.wait()
 
         startup_failure("UDA_ENABLE_PATHS", "/", "has been replaced")
-        startup_failure("UDA_LANDLOCK_READONLY_PATHS", "relative", "expected nonempty absolute paths")
+        startup_failure("UDA_LANDLOCK_READONLY_PATHS", "relative", "expected absolute paths")
         startup_failure("UDA_LANDLOCK", "maybe", "UDA_LANDLOCK: expected on/off")
         if disabled:
             startup_failure("UDA_LANDLOCK_READONLY_PATHS", str(configuration), "built without ENABLE_LANDLOCK")

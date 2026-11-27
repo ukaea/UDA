@@ -81,9 +81,17 @@ static void configuration()
     require(!policy_from_environment(false).enabled, "unset policy without Landlock support must be disabled");
     setenv("UDA_LANDLOCK_READONLY_PATHS", "", 1);
     require(policy_from_environment(false).enabled, "a configured path list must request enforcement");
-    for (const char* invalid : {"relative", ":/tmp", "/tmp:", "/tmp::/usr"}) {
+    for (const char* invalid : {"relative", "/tmp:relative", " /tmp"}) {
         setenv("UDA_LANDLOCK_READONLY_PATHS", invalid, 1);
         expect_failure([] { policy_from_environment(true); }, "UDA_LANDLOCK_READONLY_PATHS");
+    }
+    // Empty entries grant nothing, so appending ":/path" to an empty list works.
+    for (const char* sparse : {":/tmp", "/tmp:", "::/tmp::", ":"}) {
+        setenv("UDA_LANDLOCK_READONLY_PATHS", sparse, 1);
+        const auto expected = std::string{sparse} == ":" ? std::vector<std::string>{}
+                                                         : std::vector<std::string>{"/tmp"};
+        require(policy_from_environment(true).readonly_paths == expected,
+                std::string{"empty entries must be skipped: "} + sparse);
     }
     setenv("UDA_LANDLOCK_READONLY_PATHS", "/tmp/a path:/usr", 1);
     setenv("UDA_LANDLOCK_READWRITE_PATHS", "/tmp/output", 1);

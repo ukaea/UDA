@@ -151,15 +151,39 @@ Most general server options are set in `<install_dir>/etc/udaserver.cfg` includi
 
 Note that the UDA_LOG_LEVEL should Generally be set to ERROR for a production deployment. The DEBUG level will impose severe a performance penalty, but can be used to print some very verbose logs for each incoming request during server development.
 
-##### UDA_ALLOWED_PATHS
-This environment variable defines the permitted file paths for the UDA server. By default, all file access is prohibited if this is unset or empty. Multiple paths can be specified using semi-colons (`;`). Setting the path to `/` allows unrestricted access.
+##### UDA_DOWNLOADABLE_PATHS
+This environment variable lists the files that clients may download through plugins that return file contents,
+such as `bytes::read` and `bytes::size`. A requested path is allowed if it is one of the listed paths or lies
+beneath one. Separate multiple paths with colons (`:`), as for `PATH` and the Landlock lists (on Windows, use
+semicolons). If the variable is unset or empty, every request is rejected.
+
+Requested paths and list entries are both resolved to their real location first, so symbolic links and `..`
+cannot be used to escape the list, and a listed symbolic link refers to its target. Matching is by whole path
+components: `/data` allows `/data/shot1` but not `/data2`. Entries must be absolute and must exist; empty,
+relative and missing entries are ignored and logged as warnings.
+
+On Linux and macOS, the `bytes` plugin opens the file first and then checks where the opened file actually is,
+so a symbolic link swapped in during the request cannot redirect it. Only regular files are served; directories,
+FIFOs and devices are rejected. Plugin authors should use `open_downloadable_file` from `plugins/utils.h` rather
+than checking a name with `check_allowed_path` and opening it afterwards.
 
 **Example**
 ```sh
-export UDA_ALLOWED_PATHS=/
+export UDA_DOWNLOADABLE_PATHS="/srv/uda/data:/common/uda-scratch"
 ```
+
+`UDA_ALLOWED_PATHS` is the older name for this variable and still works. It is used only when
+`UDA_DOWNLOADABLE_PATHS` is unset or empty; if both are set, `UDA_ALLOWED_PATHS` is ignored and a warning is
+logged. `UDA_ALLOWED_PATHS` keeps its original semicolon separator, so existing configurations work unchanged;
+when renaming it to `UDA_DOWNLOADABLE_PATHS`, also change the separators to colons. A `;` left in
+`UDA_DOWNLOADABLE_PATHS` is logged as a warning, and the entry it is part of matches nothing.
+
 **Security Note**  
-Restrict the paths as narrowly as possible to limit server file access and reduce risk.
+This controls what clients can *request*, which is different from what the server process can *open*. The
+server must be able to read its own configuration, TLS certificates and private key, and system files, so do
+not use `/` or any directory containing those. List only data directories. On Linux, the
+[Landlock policy](/UDA/server_sandboxing) separately limits what the server process can open; it does not
+replace this list.
 
 ### Linux filesystem restrictions with Landlock
 

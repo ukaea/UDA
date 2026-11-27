@@ -43,11 +43,13 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"
 export DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH
 
 #------------------------------------------------------------------------------------------------------
-# Permitted filepaths for the server to access formatted as a comma-delimited list
-# by deafult all file access will be prohibited if this is set to empty or 
-# the environment variable is unset. Use semi-colons (;) to deliminate multiple allowed paths
-# set the path to "/" to allow everything to be accessed
-export UDA_ALLOWED_PATHS=
+# Files clients may download through plugins that check this list (e.g. bytes::read): a
+# colon-separated list of absolute directories or files. Unset or empty rejects every request.
+# "/" allows every file the server can read, including its own keys and configuration, so list only
+# data directories. This is separate from the Landlock policy below, which limits what the server
+# process itself can open. UDA_ALLOWED_PATHS is the legacy name, used only if this is unset or empty;
+# it keeps its old semicolon separator.
+export UDA_DOWNLOADABLE_PATHS=
 
 #------------------------------------------------------------------------------------------------------
 # Linux Landlock filesystem policy (servers built with ENABLE_LANDLOCK=ON; kernel ABI >= 3).
@@ -57,8 +59,9 @@ export UDA_ALLOWED_PATHS=
 # The starter policy below covers the server's own needs. Add your data directories, and
 # anything your plugins read, write or run, e.g. in machine.d/<host>.cfg or plugins.d/*.cfg:
 #     UDA_LANDLOCK_READONLY_PATHS+=":/srv/uda/data"
-# Lists are colon-separated absolute paths that must exist when the server starts. Read and
-# read/write grants never imply execute; directory grants include descendants; grants combine.
+# Lists are colon-separated absolute paths that must exist when the server starts; empty entries are
+# ignored. Read and read/write grants never imply execute; directory grants include descendants;
+# grants combine.
 # The server runs "head" via /bin/sh to detect extensionless file formats (plus UDA_DUMP_NETCDF
 # and UDA_DUMP_IDA if set), so those, their ELF loader and /dev/null are granted here.
 # Startup failures are written to etc/server.log. See docs/server_sandboxing.md.
