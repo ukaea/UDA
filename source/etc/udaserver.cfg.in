@@ -66,7 +66,6 @@ export UDA_DOWNLOADABLE_PATHS=
 # and UDA_DUMP_IDA if set), so those, their ELF loader and /dev/null are granted here.
 # Startup failures are written to etc/server.log. See docs/server_sandboxing.md.
 #
-# export UDA_LANDLOCK=OFF   # disable enforcement entirely (not recommended); also false/no/0
 
 uda_landlock_setting=$(printf '%s' "${UDA_LANDLOCK:-on}" | tr '[:upper:]' '[:lower:]')
 if [[ "@ENABLE_LANDLOCK@" == "ON" && ! "$uda_landlock_setting" =~ ^(off|false|no|0)$ ]]
