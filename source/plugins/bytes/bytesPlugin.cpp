@@ -268,7 +268,7 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (fstat(fileno(file), &status) != 0) {
         addIdamError(UDA_SYSTEM_ERROR_TYPE, "readBytes", errno, "");
         file_map_.erase(entry);
-        RAISE_PLUGIN_ERROR("Unable to Open the File for Read Access");
+        RAISE_PLUGIN_ERROR("Unable to determine file size");
     }
     if (offset >= static_cast<unsigned long>(status.st_size)) {
         RAISE_PLUGIN_ERROR("Offset specified is out of bounds");
@@ -304,7 +304,7 @@ int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)
     struct stat status = {};
     if (fstat(fileno(file.get()), &status) != 0) {
         addIdamError(UDA_SYSTEM_ERROR_TYPE, "size", errno, "");
-        RAISE_PLUGIN_ERROR("Unable to Open the File for Read Access");
+        RAISE_PLUGIN_ERROR("Unable to determine file size");
     }
     const auto file_size = static_cast<size_t>(status.st_size);
 

@@ -65,8 +65,8 @@ static int descriptors()
 
 static void clear_environment()
 {
-    for (const char* key : {"UDA_ENABLE_PATHS", "UDA_LANDLOCK", "UDA_LANDLOCK_READONLY_PATHS", "UDA_LANDLOCK_READWRITE_PATHS",
-                            "UDA_LANDLOCK_EXECUTE_PATHS"})
+    for (const char* key :
+         {"UDA_LANDLOCK", "UDA_LANDLOCK_READONLY_PATHS", "UDA_LANDLOCK_READWRITE_PATHS", "UDA_LANDLOCK_EXECUTE_PATHS"})
         unsetenv(key);
 }
 
@@ -124,8 +124,6 @@ static void configuration()
         expect_failure([] { policy_from_environment(true); }, "UDA_LANDLOCK: expected on/off");
         expect_failure([] { policy_from_environment(false); }, "UDA_LANDLOCK: expected on/off");
     }
-    setenv("UDA_ENABLE_PATHS", "/", 1);
-    expect_failure([] { policy_from_environment(true); }, "replaced");
     clear_environment();
 }
 

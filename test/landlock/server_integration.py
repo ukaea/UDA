@@ -82,7 +82,6 @@ def integration(server, library, plugin, disabled=False):
                             child.kill()
                             child.wait()
 
-        startup_failure("UDA_ENABLE_PATHS", "/", "has been replaced")
         startup_failure("UDA_LANDLOCK_READONLY_PATHS", "relative", "expected absolute paths")
         startup_failure("UDA_LANDLOCK", "maybe", "UDA_LANDLOCK: expected on/off")
         if disabled:

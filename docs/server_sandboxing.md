@@ -110,9 +110,7 @@ When the policy cannot be parsed or applied, the server exits before it can send
 an error to the client, so the client reports only a closed connection or protocol
 error. The cause is written to the server's stderr, which the supplied
 `udaserver.sh` sends to `etc/server.log`, and to `Error.log` when `UDA_LOG_LEVEL`
-enables logging. The legacy `UDA_ENABLE_PATHS`
-variable is rejected with migration instructions; replace it with
-the appropriate permission classes.
+enables logging.
 
 **Landlock does not replace `UDA_DOWNLOADABLE_PATHS`.** The two lists answer different
 questions. The Landlock policy limits what the server process can open, and the server

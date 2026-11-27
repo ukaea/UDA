@@ -8,10 +8,11 @@
 extern "C" {
 #endif
 
-// Returns 0 if the path may be downloaded by clients (it lies within UDA_DOWNLOADABLE_PATHS, ':'-separated, or
-// the legacy ';'-separated UDA_ALLOWED_PATHS), otherwise raises a plugin error and returns it. Unset or empty rejects every path.
-// This checks the name only: if the file is then opened by name, a symlink swapped in between the check and the
-// open can redirect it. Use open_downloadable_file to read the file.
+// Returns 0 if clients may download the path, otherwise raises a plugin error and returns it.
+// Downloadable paths come from UDA_DOWNLOADABLE_PATHS (':'-separated), or the legacy ';'-separated
+// UDA_ALLOWED_PATHS. Unset or empty rejects every path.
+// This checks the name only: if the file is then opened by name, a symlink swapped in between the check
+// and the open can redirect it. Use open_downloadable_file to read the file.
 LIBRARY_API int check_allowed_path(const char* expanded_path);
 
 // Opens a downloadable regular file for binary reading. The check applies to the file actually opened (on Linux

@@ -6,24 +6,12 @@
 
 #include "udaPlugin.h"
 
-#if defined __has_include
-#  if !__has_include(<filesystem>)
-#    include <experimental/filesystem>
-namespace filesystem = std::experimental::filesystem;
-#  else
-#    include <filesystem>
-namespace filesystem = std::filesystem;
-#  endif
-#else
-#  include <filesystem>
-namespace filesystem = std::filesystem;
-#endif
-
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <string>
 #include <system_error>
 
@@ -33,6 +21,8 @@ namespace filesystem = std::filesystem;
 #  include <sys/stat.h>
 #  include <unistd.h>
 #endif
+
+namespace filesystem = std::filesystem;
 
 namespace {
 
@@ -97,6 +87,22 @@ int reject_path(const char* expanded_path, const PathList& path_list)
     RAISE_PLUGIN_ERROR(error_msg.c_str());
 }
 
+// Resolves expanded_path (symlinks and "..") into full_path and checks it against the downloadable list.
+// This checks the name only; see open_downloadable_file for why that is weaker than checking an opened file.
+int resolve_downloadable_path(const char* expanded_path, const PathList& path_list, std::string& full_path)
+{
+    try {
+        full_path = filesystem::canonical(expanded_path).string();
+    } catch (filesystem::filesystem_error& e) {
+        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", expanded_path, e.what());
+        RAISE_PLUGIN_ERROR("Provided File Path Not Found!");
+    }
+    if (!uda::plugins::path_in_list(full_path, path_list.value, path_list.separator)) {
+        return reject_path(expanded_path, path_list);
+    }
+    return 0;
+}
+
 } // namespace
 
 bool uda::plugins::path_in_list(const std::string& canonical_path, const std::string& path_list, char separator)
@@ -134,18 +140,7 @@ bool uda::plugins::path_in_list(const std::string& canonical_path, const std::st
 int check_allowed_path(const char* expanded_path)
 {
     std::string full_path;
-    try {
-        full_path = filesystem::canonical(expanded_path).string();
-    } catch (filesystem::filesystem_error& e) {
-        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", expanded_path, e.what());
-        RAISE_PLUGIN_ERROR("Provided File Path Not Found!");
-    }
-
-    const PathList path_list = downloadable_paths();
-    if (!uda::plugins::path_in_list(full_path, path_list.value, path_list.separator)) {
-        return reject_path(expanded_path, path_list);
-    }
-    return 0;
+    return resolve_downloadable_path(expanded_path, downloadable_paths(), full_path);
 }
 
 int open_downloadable_file(const char* expanded_path, FILE** file)
@@ -198,14 +193,9 @@ int open_downloadable_file(const char* expanded_path, FILE** file)
     // No way to ask where an open file is: check the resolved name and open that, not the name as given. A
     // symlink swapped into a downloadable directory between the check and the open can still redirect the read.
     std::string full_path;
-    try {
-        full_path = filesystem::canonical(expanded_path).string();
-    } catch (filesystem::filesystem_error& e) {
-        UDA_LOG(UDA_LOG_DEBUG, "Filepath [%s] not found! Error: %s\n", expanded_path, e.what());
-        RAISE_PLUGIN_ERROR("Provided File Path Not Found!");
-    }
-    if (!uda::plugins::path_in_list(full_path, path_list.value, path_list.separator)) {
-        return reject_path(expanded_path, path_list);
+    const int rc = resolve_downloadable_path(expanded_path, path_list, full_path);
+    if (rc != 0) {
+        return rc;
     }
     if (!filesystem::is_regular_file(full_path)) {
         RAISE_PLUGIN_ERROR("Provided File Path is not a Regular File");

@@ -72,6 +72,7 @@ typedef struct MetadataBlock {
 } METADATA_BLOCK;
 
 static int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data);
+static int apply_landlock_policy(SERVER_BLOCK* server_block);
 
 static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
@@ -1112,22 +1113,10 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
     return err;
 }
 
-int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data)
+// Applies the Landlock filesystem policy from the environment. Returns 0, or an error code if the policy is
+// invalid, cannot be enforced, or is requested from a build without Landlock support.
+int apply_landlock_policy(SERVER_BLOCK* server_block)
 {
-    static int socket_list_initialised = 0;
-    static int plugin_list_initialised = 0;
-
-    //-------------------------------------------------------------------------
-    // Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
-
-    if (startup() != 0) {
-        int err = FATAL_ERROR_LOGS;
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Fatal Error Opening the Server Logs");
-        concatUdaError(&server_block->idamerrorstack);
-        initUdaErrorStack();
-        return err;
-    }
-
     try {
         // Landlock builds enforce by default (fail closed); other builds only fail if a policy is requested.
 #ifdef USE_LANDLOCK
@@ -1159,6 +1148,28 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
         concatUdaError(&server_block->idamerrorstack);
         initUdaErrorStack();
         return 999;
+    }
+    return 0;
+}
+
+int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data)
+{
+    static int socket_list_initialised = 0;
+    static int plugin_list_initialised = 0;
+
+    //-------------------------------------------------------------------------
+    // Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
+
+    if (startup() != 0) {
+        int err = FATAL_ERROR_LOGS;
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Fatal Error Opening the Server Logs");
+        concatUdaError(&server_block->idamerrorstack);
+        initUdaErrorStack();
+        return err;
+    }
+
+    if (int err = apply_landlock_policy(server_block)) {
+        return err;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");

@@ -58,10 +58,6 @@ set( HEADER_FILES
   writer.h
 )
 
-if( ENABLE_LANDLOCK )
-  list( APPEND SRC_FILES landlock.cpp )
-endif()
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -86,21 +82,20 @@ add_library( server-objects OBJECT
 )
 target_link_libraries( server-objects PRIVATE fmt::fmt Boost::boost )
 
-if( ENABLE_LANDLOCK )
-  target_compile_definitions( server-objects PRIVATE -DUSE_LANDLOCK )
-endif()
-
 add_library( fatserver-objects OBJECT
   fatServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
 target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
+target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
 if( ENABLE_LANDLOCK )
-  target_compile_definitions( fatserver-objects PRIVATE -DUSE_LANDLOCK )
+  foreach( target server-objects fatserver-objects )
+    target_sources( ${target} PRIVATE landlock.cpp )
+    target_compile_definitions( ${target} PRIVATE USE_LANDLOCK )
+  endforeach()
 endif()
-target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
