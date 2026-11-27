@@ -36,67 +36,120 @@ pkgconfig_dir() {
   find "$1" -name uda-client.pc | sed -n '1{p;q;}' | xargs dirname
 }
 
-# On Windows a DLL that cannot be found opens a modal dialog, which hangs CI until ctest times out.
-# Check every DLL the executables need, transitively, and run each one briefly, so a missing DLL
-# or a start-up hang is reported in the log within seconds instead of after the ctest timeout.
-check_windows_executables() {
-  local dir=$1 system_dir posix_path path dll file missing=0
-  local -a exes queue
-  local -A seen=()
-  mapfile -t exes < <(find "$dir" -maxdepth 1 -name '*.exe')
-  system_dir=$(cygpath -u "${SYSTEMROOT:-C:/Windows}")
-  # PATH can hold Windows entries such as D:/a/...; convert it first so ':' only separates entries.
-  posix_path=$(cygpath -pu "$PATH")
+run_windows_executables() {
+  local native_dir
+  native_dir=$(cygpath -w "$1") || return 1
+  UDA_SMOKE_CONSUMER_DIR="$native_dir" MSYS2_ARG_CONV_EXCL='*' \
+    powershell.exe -NoLogo -NoProfile -NonInteractive -Command '
+      $ErrorActionPreference = "Stop"
+      Add-Type -Namespace UdaSmoke -Name NativeMethods -MemberDefinition @"
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        public static extern uint SetErrorMode(uint mode);
+"@
+      # Children inherit this mode and can exit without dismissing a Windows error dialog.
+      # SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX
+      [void][UdaSmoke.NativeMethods]::SetErrorMode(3)
+      $failed = $false
+      foreach ($exe in (Get-ChildItem -LiteralPath $env:UDA_SMOKE_CONSUMER_DIR -Filter "*.exe" -File)) {
+        $process = New-Object System.Diagnostics.Process
+        try {
+          $process.StartInfo.FileName = $exe.FullName
+          $process.StartInfo.WorkingDirectory = $exe.DirectoryName
+          $process.StartInfo.UseShellExecute = $false
+          [void]$process.Start()
+          if ($process.WaitForExit(30000)) {
+            $status = "0x{0:X8}" -f $process.ExitCode
+            $detail = switch ($status) {
+              "0xC0000135" { " (DLL not found)" }
+              "0xC0000139" { " (DLL entry point not found)" }
+            }
+            Write-Host "$($exe.Name) exited with Windows status $status$detail"
+            if ($process.ExitCode -ne 0) { $failed = $true }
+          } else {
+            Write-Host "error: $($exe.Name) did not exit within 30 s"
+            $failed = $true
+            $process.Kill()
+          }
+        } catch {
+          Write-Host "error: $($exe.Name): $($_.Exception.Message)"
+          $failed = $true
+        } finally {
+          $process.Dispose()
+        }
+      }
+      exit ([int]$failed)
+    '
+}
 
-  # Print the first PATH directory, then the system directory, that holds the DLL.
+# Inspect regular PE imports before launching the executables. This search approximates the
+# Windows loader, so use the native launch result to decide whether the smoke test passed.
+check_windows_executables() {
+  local dir=$1 windows_dir objdump cxx mingw_bin file imports dll key path
+  local -a search_path queue
+  local -A resolved=()
+  queue=("$dir"/*.exe)
+  if [[ ! -f "${queue[0]}" ]]; then
+    echo "error: no consumer executables found in $dir" >&2
+    return 1
+  fi
+  windows_dir=$(cygpath -u "${SYSTEMROOT:-C:/Windows}") || return 1
+  IFS=: read -r -a search_path <<< "$PATH"
+  cxx=$(sed -n 's/^CMAKE_CXX_COMPILER:[^=]*=//p' "$dir/CMakeCache.txt")
+  cxx=$(cygpath -u "$cxx") || return 1
+  mingw_bin=$(dirname "$cxx")
+  objdump="$mingw_bin/objdump.exe"
+
   find_dll() {
-    local IFS=: d hit
-    for d in $posix_path "$system_dir"; do
-      [[ -n "$d" ]] || continue
-      hit=$(find "$d" -maxdepth 1 -iname "$1" -print -quit 2>/dev/null)
+    local d hit
+    for d in "$dir" "$windows_dir/System32" "$windows_dir/System" "$windows_dir" "${search_path[@]}"; do
+      [[ -d "$d" ]] || continue
+      hit=$(find "$d" -maxdepth 1 -type f -iname "$1" -print -quit 2>/dev/null)
       if [[ -n "$hit" ]]; then echo "$hit"; return 0; fi
     done
     return 1
   }
 
-  if command -v objdump >/dev/null 2>&1; then
-    queue=("${exes[@]}")
+  if [[ -x "$objdump" ]]; then
+    echo "Inspecting consumer DLL imports with $objdump"
     while (( ${#queue[@]} )); do
       file=${queue[0]}
       queue=("${queue[@]:1}")
+      if ! imports=$("$objdump" -p "$file"); then
+        echo "warning: objdump failed for $file" >&2
+        continue
+      fi
       while IFS= read -r dll; do
-        case "$dll" in api-ms-win-*|ext-ms-*) continue ;; esac
-        [[ -n "${seen[${dll,,}]:-}" ]] && continue
-        seen[${dll,,}]=1
-        if ! path=$(find_dll "$dll"); then
-          echo "error: $(basename "$file") needs $dll, which is not on PATH or in $system_dir" >&2
-          missing=1
+        dll=${dll%$'\r'}
+        key=${dll,,}
+        case "$key" in api-ms-win-*|ext-ms-*) continue ;; esac
+        if [[ ! ${resolved[$key]+set} ]]; then
+          path=$(find_dll "$dll") || path=
+          resolved[$key]=$path
+          case "$path" in
+            ""|"$windows_dir"/*) ;;
+            *) queue+=("$path") ;;
+          esac
+        fi
+        path=${resolved[$key]}
+        if [[ -z "$path" ]]; then
+          echo "warning: ${file##*/} imports $dll, which the probe could not resolve" >&2
           continue
         fi
-        # Follow DLLs from the install and toolchain directories; system DLLs are taken as given.
-        case "$path" in "$system_dir"/*) ;; *) queue+=("$path") ;; esac
-      done < <(objdump -p "$file" | sed -n 's/^[[:space:]]*DLL Name: //p')
+        echo "${file##*/} imports $dll -> $path"
+        case "$key" in
+          libstdc++-6.dll|libgcc_s_*.dll|libwinpthread-1.dll)
+            if [[ -f "$mingw_bin/$dll" && ! "$path" -ef "$mingw_bin/$dll" ]]; then
+              echo "warning: $dll resolves outside the consumer compiler directory ($mingw_bin)" >&2
+            fi
+            ;;
+        esac
+      done < <(sed -n 's/^[[:space:]]*DLL Name: //p' <<< "$imports")
     done
   else
-    echo "note: objdump not found, skipping the DLL check" >&2
+    echo "warning: $objdump is unavailable, skipping DLL import inspection" >&2
   fi
 
-  # A start-up hang is reported here; ctest would otherwise wait out its full timeout.
-  for file in "${exes[@]}"; do
-    set +e
-    output=$(timeout 30 "$file" 2>&1)
-    status=$?
-    set -e
-    (( status == 0 )) && continue
-    if (( status == 124 )); then
-      echo "error: $(basename "$file") did not exit within 30 s" >&2
-    else
-      echo "error: $(basename "$file") exited with status $status" >&2
-    fi
-    [[ -n "$output" ]] && printf '%s\n' "$output" | head -n 20 >&2
-    missing=1
-  done
-  return $missing
+  run_windows_executables "$dir"
 }
 
 run_build_and_test() {

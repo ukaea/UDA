@@ -250,8 +250,9 @@ jobs:
           -DSSLAUTHENTICATION=ON
           -DENABLE_CAPNP=ON
           -DNO_JAVA_WRAPPER=ON
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{matrix.build-platform[3]}}
           -DCMAKE_PREFIX_PATH=${{github.workspace}}/macos-deps
-          -DBoost_DIR=${{github.workspace}}/macos-deps/lib/cmake/Boost-1.92.0
+          -DBOOST_ROOT=${{github.workspace}}/macos-deps
           -DOPENSSL_ROOT_DIR=${{github.workspace}}/macos-deps
           -DCMAKE_INSTALL_PREFIX=$PWD/install
           -DCLIENT_ONLY=ON &&

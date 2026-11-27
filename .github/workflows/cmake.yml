@@ -212,7 +212,20 @@ jobs:
               # Use the prefix CMake installed to, rather than rebuilding it from the workspace path.
               core=$(cygpath -m "$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)")
               export XDR_ROOT="$workspace/extlib/install"
-              export PATH="$core/bin:$workspace/uda_cpp_install/bin:$PATH"
+              grep -E '^UDA_XDR_RUNTIME:' build/CMakeCache.txt || true
+              grep -Ei '[/\\]libxdr\.dll[[:space:]]*$' build/install_manifest.txt || true
+              if [[ ! -f "$core/bin/libxdr.dll" ]]; then
+                echo "error: libxdr.dll is missing from $core/bin" >&2
+                exit 1
+              fi
+              # Git Bash needs POSIX paths in its colon-separated PATH.
+              core_bin=$(cygpath -u "$core/bin")
+              cpp_bin=$(cygpath -u "$workspace/uda_cpp_install/bin")
+              cxx=$(sed -n 's/^CMAKE_CXX_COMPILER:[^=]*=//p' build/CMakeCache.txt)
+              mingw_bin=$(dirname "$(cygpath -u "$cxx")")
+              export PATH="$core_bin:$cpp_bin:$mingw_bin:$PATH"
+              echo "MinGW runtime directory: $mingw_bin"
+              where.exe libxdr.dll || echo "warning: native PATH lookup did not find libxdr.dll" >&2
               args=(
                 -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
                 -DVCPKG_TARGET_TRIPLET=x64-mingw-static

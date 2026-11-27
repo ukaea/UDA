@@ -51,7 +51,7 @@ cmake_build() {
   shift 2
   cmake -S "$dir" -B "$src/build-$name" -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_OSX_DEPLOYMENT_TARGET="$target" -DCMAKE_INSTALL_PREFIX="$prefix" \
-    -DCMAKE_PREFIX_PATH="$prefix" -DBUILD_TESTING=OFF "$@"
+    -DCMAKE_PREFIX_PATH="$prefix" -DCMAKE_INSTALL_RPATH="$prefix/lib" -DBUILD_TESTING=OFF "$@"
   cmake --build "$src/build-$name" -j "$jobs"
   cmake --install "$src/build-$name"
 }
