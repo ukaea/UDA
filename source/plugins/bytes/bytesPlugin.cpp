@@ -13,24 +13,12 @@
 
 #include "readBytesNonOptimally.h"
 
-#if defined __has_include
-#  if !__has_include(<filesystem>)
-#include <experimental/filesystem>
-namespace filesystem = std::experimental::filesystem;
-#  else
-#include <filesystem>
-namespace filesystem = std::filesystem;
-#  endif
-#else
-#include <filesystem>
-namespace filesystem = std::filesystem;
-#endif
-
 #include <boost/algorithm/string.hpp>
+#include <cerrno>
 #include <string>
 #include <regex>
+#include <sys/stat.h>
 
-#define BYTEFILEOPENERROR           100004
 #define BYTEFILEHEAPERROR           100005
 
 namespace {
@@ -255,50 +243,36 @@ int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     udaExpandEnvironmentVariables(&diag, tmp_path);
     UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "udaExpandEnvironmentVariables: path=%s \n", tmp_path);
 
-    int rc = udaCheckAllowedPath(plugin_interface, tmp_path);
-    if (rc != 0) {
-        return rc;
-    }
-
     if (checksum == nullptr) {
         checksum = "";
     }
 
-    rc = check_path(plugin_interface, tmp_path);
+    int rc = check_path(plugin_interface, tmp_path);
     if (rc != 0) {
         return rc;
     }
 
-    if (!filesystem::exists(tmp_path)) {
-        std::string msg = std::string("Path does not exist: ") + tmp_path;
-        RAISE_PLUGIN_ERROR(msg.c_str());
-    }
-    if (offset >= filesystem::file_size(tmp_path)) {
-        RAISE_PLUGIN_ERROR("Offset specified is out of bounds");
-    }
-
-    errno = 0;
-
-    FILE* file = nullptr;
-    if (file_map_.count(tmp_path) == 0) {
-        file_ptr ptr(fopen(tmp_path, "rb"));
-        file = ptr.get();
-        file_map_.emplace(tmp_path, std::move(ptr));
-    } else {
-        file = file_map_.at(tmp_path).get();
-    }
-
-    int serrno = errno;
-
-    if (file == nullptr || ferror(file) || serrno != 0) {
-        int err = BYTEFILEOPENERROR;
-        if (serrno != 0) {
-            UDA_PLUGIN_ADD_SYS_ERROR(plugin_interface, serrno, "");
+    // Cached files were checked when they were opened.
+    auto entry = file_map_.find(tmp_path);
+    if (entry == file_map_.end()) {
+        FILE* opened = nullptr;
+        rc = udaOpenDownloadableFile(plugin_interface, tmp_path, &opened);
+        if (rc != 0) {
+            return rc;
         }
-        UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_ERROR, "Unable to Open the File for Read Access: %s\n", tmp_path);
-        UDA_PLUGIN_ADD_ERROR(plugin_interface, err, "Unable to Open the File for Read Access");
-        file_map_.erase(tmp_path);
-        return err;
+        entry = file_map_.emplace(tmp_path, file_ptr(opened)).first;
+    }
+    FILE* file = entry->second.get();
+
+    // Size the open file, not the name, which may now refer to something else.
+    struct stat status = {};
+    if (fstat(fileno(file), &status) != 0) {
+        UDA_PLUGIN_ADD_SYS_ERROR(plugin_interface, errno, "");
+        file_map_.erase(entry);
+        RAISE_PLUGIN_ERROR("Unable to determine file size");
+    }
+    if (offset >= static_cast<unsigned long>(status.st_size)) {
+        RAISE_PLUGIN_ERROR("Offset specified is out of bounds");
     }
 
     return readBytes(plugin_interface, file, data_block, offset, max_bytes, checksum, opaque);
@@ -317,22 +291,24 @@ int BytesPlugin::size(IDAM_PLUGIN_INTERFACE* plugin_interface)
     udaExpandEnvironmentVariables(&diag, tmp_path);
     UDA_PLUGIN_LOG(plugin_interface, UDA_LOG_DEBUG, "udaExpandEnvironmentVariables: path=%s \n", tmp_path);
 
-    int rc = udaCheckAllowedPath(plugin_interface, tmp_path);
+    int rc = check_path(plugin_interface, tmp_path);
     if (rc != 0) {
         return rc;
     }
 
-    rc = check_path(plugin_interface, tmp_path);
+    FILE* opened = nullptr;
+    rc = udaOpenDownloadableFile(plugin_interface, tmp_path, &opened);
     if (rc != 0) {
         return rc;
     }
+    const file_ptr file(opened);
 
-    if (!filesystem::exists(tmp_path)) {
-        std::string msg = std::string("Path does not exist: ") + tmp_path;
-        RAISE_PLUGIN_ERROR(msg.c_str());
+    struct stat status = {};
+    if (fstat(fileno(file.get()), &status) != 0) {
+        UDA_PLUGIN_ADD_SYS_ERROR(plugin_interface, errno, "");
+        RAISE_PLUGIN_ERROR("Unable to determine file size");
     }
-
-    size_t file_size = filesystem::file_size(tmp_path);
+    const auto file_size = static_cast<size_t>(status.st_size);
 
     return setReturnDataLongScalar(data_block, (long)file_size, nullptr);
 }

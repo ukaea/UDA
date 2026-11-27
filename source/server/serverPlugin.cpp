@@ -138,7 +138,7 @@ int udaServerRedirectStdStreams(bool reset, bool cleanup)
 
     if (cleanup) {
         if (plugin_redirect_fh == nullptr) {
-            return 0;       // Never redirected, e.g. the request failed before a plugin was called
+            return 0; // No plugin ran, so no redirect file was opened
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Closing redirect file\n");

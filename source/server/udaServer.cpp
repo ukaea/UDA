@@ -8,6 +8,7 @@
 
 #include <tuple>
 #include <string>
+#include <stdexcept>
 
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
@@ -18,7 +19,6 @@
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
-#include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
 #include <cache/memcache.hpp>
 #include <common/uuid.hpp>
@@ -32,6 +32,7 @@
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
 #include "initPluginList.h"
+#include "landlock.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -71,6 +72,7 @@ typedef struct MetadataBlock {
 } METADATA_BLOCK;
 
 static int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data);
+static int apply_landlock_policy(SERVER_BLOCK* server_block);
 
 static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
@@ -1114,6 +1116,45 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
     return err;
 }
 
+// Applies the Landlock filesystem policy from the environment. Returns 0, or an error code if the policy is
+// invalid, cannot be enforced, or is requested from a build without Landlock support.
+int apply_landlock_policy(SERVER_BLOCK* server_block)
+{
+    try {
+        // Landlock builds enforce by default (fail closed); other builds only fail if a policy is requested.
+#ifdef USE_LANDLOCK
+        constexpr bool landlock_by_default = true;
+#else
+        constexpr bool landlock_by_default = false;
+#endif
+        const auto policy = uda::server::landlock::policy_from_environment(landlock_by_default);
+        if (policy.enabled) {
+#ifdef USE_LANDLOCK
+            uda::server::landlock::enforce_path_policy(policy);
+            UDA_LOG(UDA_LOG_DEBUG, "Landlock filesystem policy enforced\n");
+#else
+            throw std::runtime_error("Landlock policy requested but UDA was built without ENABLE_LANDLOCK=ON");
+#endif
+        } else if (landlock_by_default) {
+            UDA_LOG(UDA_LOG_WARN, "Landlock disabled by UDA_LANDLOCK\n");
+        } else {
+            UDA_LOG(UDA_LOG_DEBUG, "Landlock disabled: UDA was built without ENABLE_LANDLOCK=ON\n");
+        }
+    } catch (const std::exception& e) {
+        // The XDR streams do not exist yet, so this error cannot be returned to the client, which only sees the
+        // connection close. Also write to stderr (etc/server.log via udaserver.sh) because the default
+        // UDA_LOG_LEVEL opens no log files. The policy is deliberately applied before SSL and plugin setup, so do
+        // not defer it just to report the failure over the connection.
+        fprintf(stderr, "UDA server: Landlock failed: %s\n", e.what());
+        UDA_LOG(UDA_LOG_ERROR, "Landlock failed: %s\n", e.what());
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, e.what());
+        concatUdaError(&server_block->idamerrorstack);
+        initUdaErrorStack();
+        return 999;
+    }
+    return 0;
+}
+
 int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data)
 {
     static int socket_list_initialised = 0;
@@ -1127,6 +1168,11 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
         addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Fatal Error Opening the Server Logs");
         concatUdaError(&server_block->idamerrorstack);
         initUdaErrorStack();
+        return err;
+    }
+
+    if (int err = apply_landlock_policy(server_block)) {
+        return err;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");

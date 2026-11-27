@@ -23,9 +23,11 @@ set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
   createPluginInterface.cpp
+  createXDRStream.cpp
   getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
+  landlock_config.cpp
   makeServerRequestBlock.cpp
   pluginInterface.cpp
   serverGetData.cpp
@@ -35,7 +37,6 @@ set( SRC_FILES
   serverParseServerSide.cpp
   serverStartup.cpp
   writer.cpp
-  createXDRStream.cpp
 )
 
 set( HEADER_FILES
@@ -45,6 +46,7 @@ set( HEADER_FILES
   getPluginAddress.h
   getServerEnvironment.h
   initPluginList.h
+  landlock.h
   makeServerRequestBlock.h
   pluginInterface.h
   serverGetData.h
@@ -101,8 +103,15 @@ add_library( fatserver-objects OBJECT
   ${HEADER_FILES}
 )
 target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
-
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
+
+if( ENABLE_LANDLOCK )
+  foreach( target server-objects fatserver-objects )
+    target_sources( ${target} PRIVATE landlock.cpp )
+    target_compile_definitions( ${target} PRIVATE USE_LANDLOCK )
+  endforeach()
+endif()
+
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:server-support-objects>

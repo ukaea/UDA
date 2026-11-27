@@ -1,5 +1,8 @@
 name: Build
 
+env:
+  CONFIG: Release
+
 on:
   push:
     branches:
@@ -23,7 +26,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        release: [Release]
         ssl: [ON, OFF]
         client-only: [ON, OFF]
         capnp: [ON, OFF]
@@ -63,6 +65,7 @@ jobs:
           libtirpc-dev
           pkg-config
           libxml2-dev
+          liblzma-dev
           libspdlog-dev
           ninja-build
           capnproto
@@ -85,10 +88,10 @@ jobs:
           wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB |
             gpg --dearmor |
             sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
-          
+
           echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" |
             sudo tee /etc/apt/sources.list.d/oneAPI.list
-          
+
           sudo apt update
           sudo apt install -y intel-oneapi-compiler-dpcpp-cpp
 
@@ -107,13 +110,15 @@ jobs:
           capnp
 
       - name: Cache windows packages
+        if: matrix.os == 'windows-latest'
         id: cache-vcpkg
         uses: actions/cache@v6
         env:
           cache-name: cache-vcpkg-packages
         with:
           path: C:/vcpkg
-          key: ${{ runner.os }}-build-${{ env.cache-name }}
+          # The package list lives in this workflow, so a change to it refreshes the cache.
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('.github/workflows/cmake.yml') }}
 
       - name: Install windows dependencies
         if: matrix.os == 'windows-latest'
@@ -131,15 +136,22 @@ jobs:
           liblzma
           zlib
 
-      - name: Configure CMake (linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: >
-          cmake -G Ninja -B build
-          -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DSSLAUTHENTICATION=${{ matrix.ssl }}
-          -DCLIENT_ONLY=${{ matrix.client-only }}
-          -DENABLE_CAPNP=${{ matrix.capnp }}
+      - name: Configure CMake (linux, macos)
+        if: matrix.os != 'windows-latest'
+        run: |
+          platform_args=()
+          if [[ "$RUNNER_OS" == macOS ]]; then
+            platform_args+=("-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)")
+          else
+            platform_args+=("-DENABLE_LANDLOCK=ON")
+          fi
+          cmake -G Ninja -B build \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCMAKE_BUILD_TYPE=$CONFIG \
+            -DSSLAUTHENTICATION=${{ matrix.ssl }} \
+            -DCLIENT_ONLY=${{ matrix.client-only }} \
+            -DENABLE_CAPNP=${{ matrix.capnp }} \
+            "${platform_args[@]}"
 
       - name: Configure CMake (linux Intel)
         if: matrix.os == 'ubuntu-latest'
@@ -149,35 +161,19 @@ jobs:
           icpx --version
           CXX=icpx CC=icx cmake -G Ninja -B build-intel \
             -DBUILD_SHARED_LIBS=ON \
-            -DCMAKE_BUILD_TYPE=${{ matrix.release }} \
+            -DCMAKE_BUILD_TYPE=$CONFIG \
             -DSSLAUTHENTICATION=${{ matrix.ssl }} \
             -DCLIENT_ONLY=${{ matrix.client-only }} \
-            -DENABLE_CAPNP=${{ matrix.capnp }}
+            -DENABLE_CAPNP=${{ matrix.capnp }} \
+            -DENABLE_LANDLOCK=ON
 
-      - name: Configure CMake (macos)
-        if: matrix.os == 'macos-latest'
-        run: >
-          cmake -G Ninja -B build
-          -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
-          -DSSLAUTHENTICATION=${{ matrix.ssl }}
-          -DCLIENT_ONLY=${{ matrix.client-only }}
-          -DENABLE_CAPNP=${{ matrix.capnp }}
-          -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@3)"
-
-      - name: Configure portable XDR
+      - name: Build and install portable XDR
         if: matrix.os == 'windows-latest'
-        run: >
+        run: |
           cd extlib
-          && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B build -G "MinGW Makefiles" .
-
-      - name: Build portable XDR
-        if: matrix.os == 'windows-latest'
-        run: cd extlib && cmake --build build
-
-      - name: Install portable XDR
-        if: matrix.os == 'windows-latest'
-        run: cd extlib && cmake --install build --prefix install
+          cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B build -G "MinGW Makefiles" .
+          cmake --build build
+          cmake --install build --prefix install
 
       - name: Configure CMake (windows)
         if: matrix.os == 'windows-latest'
@@ -186,7 +182,7 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DVCPKG_TARGET_TRIPLET=x64-mingw-static
           -DBUILD_SHARED_LIBS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DCMAKE_BUILD_TYPE=$CONFIG
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
@@ -194,19 +190,27 @@ jobs:
           -DZLIB_USE_STATIC_LIBS=ON
 
       - name: Build
-        run: cmake --build build --config ${{ matrix.release }}
+        run: cmake --build build --config $CONFIG
 
       - name: Build Intel
         if: matrix.os == 'ubuntu-latest'
-        run: cmake --build build-intel --config ${{ matrix.release }}
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          cmake --build build-intel --config $CONFIG
+
+      - name: Test Landlock enforcement
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          ctest --test-dir build/test/landlock --output-on-failure --no-tests=error
+          source /opt/intel/oneapi/setvars.sh
+          ctest --test-dir build-intel/test/landlock --output-on-failure --no-tests=error
+
+      - name: Test Landlock policy rejection without support
+        if: matrix.os == 'macos-latest' && matrix.client-only == 'OFF'
+        run: ctest --test-dir build/test -R Landlock_server_plugin_disabled --output-on-failure --no-tests=error
 
       - name: Install
-        if: matrix.os != 'windows-latest'
-        run: sudo cmake --install build --config ${{ matrix.release }}
-
-      - name: Install
-        if: matrix.os == 'windows-latest'
-        run: cmake --install build --config ${{ matrix.release }}
+        run: ${{ matrix.os != 'windows-latest' && 'sudo ' || '' }}cmake --install build --config $CONFIG
 
       - name: Install pyuda
         if: matrix.os == 'ubuntu-latest'
@@ -240,7 +244,7 @@ jobs:
           uda_cli --help && uda_cli --request "help::help()"
 
       - name: Run SSL system tests
-        if: matrix.os == 'ubuntu-22.04' && matrix.ssl == 'ON'
+        if: matrix.os == 'ubuntu-latest' && matrix.ssl == 'ON'
         run: |
           sudo cp /usr/local/etc/uda.socket /usr/local/etc/uda@.service /etc/systemd/system
           sudo chown -R $USER:$USER /usr/local/etc
@@ -263,10 +267,3 @@ jobs:
           set -e
           export UDA_CLIENT_SSL_AUTHENTICATE=ON
           ./build/test/plugins/plugin_test_testplugin
-
-#      - name: Test
-#        working-directory: build
-#        # Execute tests defined by the CMake configuration.
-#        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-#        run: ctest -C ${{ matrix.release }}
-

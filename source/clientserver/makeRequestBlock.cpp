@@ -830,7 +830,7 @@ int source_file_format_test(const UDA_DIAGNOSTICS* diag, const char* source, REQ
         } else {
             if (STR_EQUALS(buffer, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
                 char* env = getenv("UDA_DUMP_NETCDF");
-                if (env != nullptr) {
+                if (env != nullptr && env[0] != '\0') { // empty means unset
                     cmd = fmt::format("{} -h {} 2>/dev/null | head -c10 2>/dev/null", env, source);
                     errno = 0;
                     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
@@ -861,7 +861,7 @@ int source_file_format_test(const UDA_DIAGNOSTICS* diag, const char* source, REQ
                 }
             } else {                    // an IDA File?
                 char* env = getenv("UDA_DUMP_IDA");
-                if (env != nullptr) {
+                if (env != nullptr && env[0] != '\0') { // empty means unset
                     cmd = fmt::format("{} -h {} 2>/dev/null 2>/dev/null", env, source);
                     errno = 0;
                     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
