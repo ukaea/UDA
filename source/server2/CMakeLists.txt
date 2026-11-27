@@ -69,7 +69,7 @@ endif()
 target_link_libraries( server2-objects PRIVATE ${LINK_XDR} )
 
 set( LINK_MEMCACHED )
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+if( TARGET LibMemcached::LibMemcached )
   set( LINK_MEMCACHED LibMemcached::LibMemcached )
 endif()
 

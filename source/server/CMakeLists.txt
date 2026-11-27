@@ -116,7 +116,7 @@ target_link_libraries( server-objects PRIVATE ${LINK_XDR} )
 target_link_libraries( fatserver-objects PRIVATE ${LINK_XDR} )
 
 set( LINK_MEMCACHED )
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+if( TARGET LibMemcached::LibMemcached )
   set( LINK_MEMCACHED LibMemcached::LibMemcached )
 endif()
 
@@ -214,57 +214,15 @@ endif()
 ########################################################################################################################
 # Set library properties
 
-set_target_properties( server-static
-  PROPERTIES
-  OUTPUT_NAME ${PROJECT_NAME}_server${UDA_STATIC_LIB_SUFFIX}
-)
-
-install(
-  TARGETS server-static
-  RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-  COMPONENT development
-)
-
+uda_install_library( server-static ${PROJECT_NAME}_server )
 if( BUILD_SHARED_LIBS )
-  set_target_properties( server-shared
-      PROPERTIES
-        OUTPUT_NAME ${PROJECT_NAME}_server
-        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-        SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( server-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install(
-    TARGETS server-shared
-    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-    COMPONENT server
-  )
+  uda_install_library( server-shared ${PROJECT_NAME}_server RUNTIME_COMPONENT server )
 endif()
 
 ########################################################################################################################
 # Set executable properties
 
-set_target_properties( server-exe
-  PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_server
-)
-
-if( WIN32 )
-  set_target_properties( server-exe
-    PROPERTIES
-     COMPILE_FLAGS -DNOIMPLIB
-  )
-endif()
+set_target_properties( server-exe PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_server )
 
 install( TARGETS server-exe
   DESTINATION ${UDA_INSTALL_BINDIR}

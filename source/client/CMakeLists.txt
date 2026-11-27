@@ -24,32 +24,21 @@ endif()
 add_definitions( -DNOTGENERICENABLED )
 add_definitions( -DNO_GSL_LIB )
 
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
-  set( EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS};${LIBMEMCACHED_LIB_DIR}" CACHE INTERNAL "" )
-else()
-  add_definitions( -DNOLIBMEMCACHED )
-endif()
+# Which dependencies the installed CMake package and pkg-config files must find for consumers.
+# Cached because they are read at the top level, after this directory is processed.
+function( uda_package_needs NAME )
+  if( ${ARGN} )
+    set( UDA_PACKAGE_NEEDS_${NAME} ON CACHE INTERNAL "" )
+  else()
+    set( UDA_PACKAGE_NEEDS_${NAME} OFF CACHE INTERNAL "" )
+  endif()
+endfunction()
 
-set( UDA_PACKAGE_NEEDS_TIRPC OFF CACHE INTERNAL "" FORCE )
-set( UDA_PACKAGE_NEEDS_XDR OFF CACHE INTERNAL "" FORCE )
-set( UDA_PACKAGE_NEEDS_LIBMEMCACHED OFF CACHE INTERNAL "" FORCE )
-if( TIRPC_FOUND )
-  set( UDA_PACKAGE_NEEDS_TIRPC ON CACHE INTERNAL "" FORCE )
-endif()
-if( XDR_FOUND )
-  set( UDA_PACKAGE_NEEDS_XDR ON CACHE INTERNAL "" FORCE )
-endif()
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
-  set( UDA_PACKAGE_NEEDS_LIBMEMCACHED ON CACHE INTERNAL "" FORCE )
-endif()
-set( UDA_PACKAGE_NEEDS_DLFCN_WIN32 OFF CACHE INTERNAL "" FORCE )
-set( UDA_PACKAGE_NEEDS_ICONV OFF CACHE INTERNAL "" FORCE )
-if( WIN32 OR MINGW )
-  set( UDA_PACKAGE_NEEDS_DLFCN_WIN32 ON CACHE INTERNAL "" FORCE )
-endif()
-if( MINGW AND NOT CLIENT_ONLY )
-  set( UDA_PACKAGE_NEEDS_ICONV ON CACHE INTERNAL "" FORCE )
-endif()
+uda_package_needs( TIRPC TIRPC_FOUND )
+uda_package_needs( XDR XDR_FOUND )
+uda_package_needs( LIBMEMCACHED TARGET LibMemcached::LibMemcached )
+uda_package_needs( DLFCN_WIN32 WIN32 OR MINGW )
+uda_package_needs( ICONV MINGW AND NOT CLIENT_ONLY )
 
 ########################################################################################################################
 # Sources
@@ -126,13 +115,6 @@ set( FATCLIENT_OBJS
 add_library( client-static STATIC ${CLIENT_OBJS} )
 add_library( UDA::client_static ALIAS client-static )
 target_compile_definitions( client-static INTERFACE UDA_STATIC )
-# The archive contains objects compiled by these targets, not its own sources.
-foreach( _UDA_OBJECT_TARGET IN ITEMS client-objects clientserver-client-objects
-    cache-objects logging-client-objects structures-client-objects
-    authentication-client-objects )
-  set_target_properties( ${_UDA_OBJECT_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON )
-endforeach()
-unset( _UDA_OBJECT_TARGET )
 if( BUILD_SHARED_LIBS )
   add_library( client-shared SHARED ${CLIENT_OBJS} )
   add_library( UDA::client_shared ALIAS client-shared )
@@ -141,7 +123,7 @@ endif()
 set( CLIENT_LINK_LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt Threads::Threads )
 # udaStructs.h includes parseXML.h, which exposes libxml2 types.
 set( CLIENT_PUBLIC_LINK_LIBS LibXml2::LibXml2 )
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+if( TARGET LibMemcached::LibMemcached )
   list( APPEND CLIENT_LINK_LIBS LibMemcached::LibMemcached )
 endif()
 if( NOT CLIENT_ONLY )
@@ -174,10 +156,7 @@ target_include_directories( client-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/source>
   $<INSTALL_INTERFACE:${UDA_INSTALL_INCLUDEDIR}>
 )
-set_target_properties( client-static PROPERTIES
-  EXPORT_NAME client_static
-  POSITION_INDEPENDENT_CODE ON
-)
+set_target_properties( client-static PROPERTIES EXPORT_NAME client_static )
 
 target_link_libraries( client-static
   PUBLIC ${CLIENT_PUBLIC_LINK_LIBS}
@@ -205,41 +184,9 @@ if( NOT CLIENT_ONLY )
   endif()
 endif()
 
-set_target_properties( client-static
-  PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_client${UDA_STATIC_LIB_SUFFIX}
-)
-
-install( TARGETS client-static
-  EXPORT UDAClientTargets
-  RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-  COMPONENT development
-)
-
+uda_install_library( client-static ${PROJECT_NAME}_client EXPORT UDAClientTargets )
 if( BUILD_SHARED_LIBS )
-  set_target_properties( client-shared
-    PROPERTIES
-      OUTPUT_NAME ${PROJECT_NAME}_client
-      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-      SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( client-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install( TARGETS client-shared
-    EXPORT UDAClientSharedTargets
-    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-    COMPONENT client-runtime
-  )
+  uda_install_library( client-shared ${PROJECT_NAME}_client EXPORT UDAClientSharedTargets )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )
@@ -250,38 +197,8 @@ install( FILES ${HEADER_FILES}
 )
 
 if( NOT CLIENT_ONLY )
-  set_target_properties( fatclient-static
-    PROPERTIES
-    OUTPUT_NAME fat${PROJECT_NAME}_client${UDA_STATIC_LIB_SUFFIX}
-  )
-
-  install( TARGETS fatclient-static
-    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-    COMPONENT development
-  )
-  
+  uda_install_library( fatclient-static fat${PROJECT_NAME}_client )
   if( BUILD_SHARED_LIBS )
-    set_target_properties( fatclient-shared
-      PROPERTIES
-        OUTPUT_NAME fat${PROJECT_NAME}_client
-        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-        SOVERSION ${PROJECT_VERSION_MAJOR}
-    )
-    if( WIN32 )
-      set_target_properties( fatclient-shared
-        PROPERTIES
-          COMPILE_FLAGS -DLIBRARY_EXPORTS
-          IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-      )
-    endif()
-
-    install( TARGETS fatclient-shared
-      RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-      LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-      ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-      COMPONENT client-runtime
-  )
+    uda_install_library( fatclient-shared fat${PROJECT_NAME}_client )
   endif()
 endif()

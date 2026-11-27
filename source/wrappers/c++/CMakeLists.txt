@@ -84,7 +84,7 @@ set( CPP_LINK_LIBS
   OpenSSL::Crypto
   fmt::fmt
 )
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+if( TARGET LibMemcached::LibMemcached )
   list( APPEND CPP_LINK_LIBS LibMemcached::LibMemcached )
 endif()
 
@@ -143,75 +143,14 @@ if( NOT CLIENT_ONLY )
   endif()
 endif()
 
-set_target_properties( ${LIB_NAME}-static
-  PROPERTIES
-    OUTPUT_NAME ${LIB_NAME}${UDA_STATIC_LIB_SUFFIX}
-)
-
-install( TARGETS ${LIB_NAME}-static
-  RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-  COMPONENT development
-)
-
+uda_install_library( ${LIB_NAME}-static ${LIB_NAME} )
 if( BUILD_SHARED_LIBS )
-  set_target_properties( ${LIB_NAME}-shared
-    PROPERTIES
-      OUTPUT_NAME ${LIB_NAME}
-      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-      SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( ${LIB_NAME}-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install( TARGETS ${LIB_NAME}-shared
-    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-    COMPONENT client-runtime
-  )
+  uda_install_library( ${LIB_NAME}-shared ${LIB_NAME} )
 endif()
 
 if( NOT CLIENT_ONLY )
-  set_target_properties( fat${LIB_NAME}-static
-    PROPERTIES
-      OUTPUT_NAME fat${LIB_NAME}${UDA_STATIC_LIB_SUFFIX}
-  )
-  
-  install( TARGETS fat${LIB_NAME}-static
-    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-    COMPONENT development
-  )
-  
+  uda_install_library( fat${LIB_NAME}-static fat${LIB_NAME} )
   if( BUILD_SHARED_LIBS )
-    set_target_properties( fat${LIB_NAME}-shared
-      PROPERTIES
-        OUTPUT_NAME fat${LIB_NAME}
-        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-        SOVERSION ${PROJECT_VERSION_MAJOR}
-    )
-    if( WIN32 )
-      set_target_properties( fat${LIB_NAME}-shared
-        PROPERTIES
-          COMPILE_FLAGS -DLIBRARY_EXPORTS
-          IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-      )
-    endif()
-
-    install( TARGETS fat${LIB_NAME}-shared
-      RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-      LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-      ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-      COMPONENT client-runtime
-    )
+    uda_install_library( fat${LIB_NAME}-shared fat${LIB_NAME} )
   endif()
-  
 endif()

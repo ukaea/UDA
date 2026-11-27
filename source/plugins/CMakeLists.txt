@@ -97,41 +97,9 @@ if( BUILD_SHARED_LIBS )
   )
 endif()
 
-set_target_properties( plugins-static
-  PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_plugins${UDA_STATIC_LIB_SUFFIX}
-)
-
-install(
-  TARGETS plugins-static
-  RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-  COMPONENT development
-)
-
+uda_install_library( plugins-static ${PROJECT_NAME}_plugins )
 if( BUILD_SHARED_LIBS )
-  set_target_properties( plugins-shared
-    PROPERTIES
-      OUTPUT_NAME ${PROJECT_NAME}_plugins
-      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-      SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( plugins-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install(
-    TARGETS plugins-shared
-    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-    COMPONENT plugins
-  )
+  uda_install_library( plugins-shared ${PROJECT_NAME}_plugins RUNTIME_COMPONENT plugins )
 endif()
 
 install( FILES ${HEADER_FILES}

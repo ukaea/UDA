@@ -15,7 +15,9 @@ macro( filter_lib_list INPUT OUTPUT GOOD BAD )
   endforeach()
 endmacro( filter_lib_list )
 
-macro( uda_plugin )
+# Builds, installs and registers one plugin. A function, so its settings stay out of the calling
+# directory's scope.
+function( uda_plugin )
 
   find_package( OpenSSL REQUIRED )
   if( WIN32 OR MINGW )
@@ -23,30 +25,23 @@ macro( uda_plugin )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
 
-  include( CMakeParseArguments )
-
-  set( optionArgs )
   set( oneValueArgs NAME LIBNAME ENTRY_FUNC DESCRIPTION EXAMPLE CONFIG_FILE TYPE EXTENSION VERSION )
   set( multiValueArgs SOURCES EXTRA_INCLUDE_DIRS EXTRA_LINK_DIRS EXTRA_LINK_LIBS EXTRA_DEFINITIONS EXTRA_INSTALL_FILES EXTRA_NAMES )
-
-  cmake_parse_arguments(
-    PLUGIN
-    "${optionArgs}"
-    "${oneValueArgs}"
-    "${multiValueArgs}"
-    "${ARGN}"
-  )
-
-  set( BUILT_PLUGINS ${BUILT_PLUGINS} "${PLUGIN_NAME}" PARENT_SCOPE )
+  cmake_parse_arguments( PLUGIN "" "${oneValueArgs}" "${multiValueArgs}" "${ARGN}" )
 
   if( NOT PLUGIN_VERSION )
     set( PLUGIN_VERSION "0.0.0" )
   endif()
-
-  if( NOT APPLE AND NOT WIN32 AND NOT MINGW AND CMAKE_COMPILER_IS_GNUCC )
-    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs" )
+  if( "${PLUGIN_TYPE}" STREQUAL "" )
+    set( PLUGIN_TYPE function )
+  elseif( NOT PLUGIN_TYPE MATCHES "^(file|function|server)$" )
+    message( FATAL_ERROR "unknown plugin type for plugin ${PLUGIN_NAME}: ${PLUGIN_TYPE}" )
+  endif()
+  if( "${PLUGIN_EXTENSION}" STREQUAL "" )
+    set( PLUGIN_EXTENSION "*" )
   endif()
 
+  # link_directories() only affects targets created after it, in this directory.
   foreach( LINK_DIR ${PLUGIN_EXTRA_LINK_DIRS} )
     link_directories( ${LINK_DIR} )
   endforeach()
@@ -58,37 +53,30 @@ macro( uda_plugin )
     SOVERSION ${PLUGIN_VERSION}
     VERSION ${PLUGIN_VERSION}
   )
-
   if( WIN32 )
-    set_target_properties( ${PLUGIN_LIBNAME}
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
+    set_target_properties( ${PLUGIN_LIBNAME} PROPERTIES IMPORT_SUFFIX ${IMPLIB_SUFFIX} )
+  endif()
+  # Report unresolved symbols when the plugin is linked, not when the server loads it.
+  if( NOT APPLE AND NOT WIN32 AND NOT MINGW AND CMAKE_COMPILER_IS_GNUCC )
+    set_property( TARGET ${PLUGIN_LIBNAME} APPEND_STRING PROPERTY LINK_FLAGS " -Wl,-z,defs" )
   endif()
 
-  # Include paths and definitions are set on the plugin target, not the directory.
   target_include_directories( ${PLUGIN_LIBNAME} PRIVATE ${CMAKE_SOURCE_DIR}/source )
   target_include_directories( ${PLUGIN_LIBNAME} SYSTEM PRIVATE /opt/local/include ${PLUGIN_EXTRA_INCLUDE_DIRS} )
 
-  target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE SERVERBUILD )
+  target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE SERVERBUILD ${PLUGIN_EXTRA_DEFINITIONS} )
   if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE A64 )
   endif()
-  # EXTRA_DEFINITIONS are macro names without the leading -D.
-  foreach( DEF ${PLUGIN_EXTRA_DEFINITIONS} )
-    target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE ${DEF} )
-  endforeach()
 
   set( LIBRARIES client-shared plugins-shared OpenSSL::SSL OpenSSL::Crypto )
   if( ENABLE_CAPNP )
     list( APPEND LIBRARIES serialisation-static )
   endif()
   if( WIN32 OR MINGW )
+    list( APPEND LIBRARIES XDR::XDR dlfcn-win32::dl )
     if( MINGW )
-      list( APPEND LIBRARIES XDR::XDR dlfcn-win32::dl stdc++ )
-    else()
-      list( APPEND LIBRARIES XDR::XDR dlfcn-win32::dl )
+      list( APPEND LIBRARIES stdc++ )
     endif()
   elseif( TIRPC_FOUND )
     # TIRPC::TIRPC also supplies the -D__TIRPC__ definition.
@@ -96,24 +84,19 @@ macro( uda_plugin )
   else()
     list( APPEND LIBRARIES dl stdc++ )
   endif()
-
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized )
-  set( LIBRARIES ${LIBRARIES} ${FILTERED_LINK_LIBS} )
-
-  target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} )
+  target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} ${FILTERED_LINK_LIBS} )
 
   install(
     TARGETS ${PLUGIN_LIBNAME}
     DESTINATION ${UDA_INSTALL_PLUGINDIR}
     COMPONENT plugins
   )
-
   install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf
     DESTINATION ${UDA_INSTALL_PLUGIN_CONFIGDIR}
     COMPONENT plugins
   )
-
   foreach( INSTALL_FILE ${PLUGIN_EXTRA_INSTALL_FILES} )
     get_filename_component( INSTALL_DIR ${INSTALL_FILE} DIRECTORY )
     install(
@@ -123,6 +106,7 @@ macro( uda_plugin )
     )
   endforeach()
 
+  # Plugin registration, one line per name, written to the plugin's own file and the combined udaPlugins.conf:
   #targetFormat, formatClass="function", librarySymbol, libraryName, methodName, interface, cachePermission, publicUse, description, example
   if( APPLE )
     set( EXT_NAME "dylib" )
@@ -131,36 +115,15 @@ macro( uda_plugin )
   else()
     set( EXT_NAME "so" )
   endif()
-
-  if( "${PLUGIN_TYPE}" STREQUAL "" )
-    set( PLUGIN_TYPE function )
-  elseif( "${PLUGIN_TYPE}" STREQUAL "file" )
-  elseif( "${PLUGIN_TYPE}" STREQUAL "function" )
-  elseif( "${PLUGIN_TYPE}" STREQUAL "server" )
-  else()
-    message( FATAL_ERROR "unknown plugin type for plugin ${PLUGIN_NAME}: ${PLUGIN_TYPE}" )
-  endif()
-
-  if( "${PLUGIN_EXTENSION}" STREQUAL "" )
-    set( PLUGIN_EXTENSION "*" )
-  endif()
-
-  file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf"
-    "${PLUGIN_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
-  file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf"
-    "${PLUGIN_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
-
-  foreach( EXTRA_NAME ${PLUGIN_EXTRA_NAMES} )
-    file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf"
-      "${EXTRA_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
-    file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf"
-      "${EXTRA_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
+  set( _CONF "" )
+  foreach( _NAME IN ITEMS ${PLUGIN_NAME} ${PLUGIN_EXTRA_NAMES} )
+    string( APPEND _CONF "${_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, "
+      "${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
   endforeach()
+  file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf" "${_CONF}" )
+  file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf" "${_CONF}" )
 
-  if( NOT EXISTS "${CMAKE_BINARY_DIR}/etc/plugins.d" )
-    file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/etc/plugins.d" )
-  endif()
-
+  file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/etc/plugins.d" )
   if( NOT "${PLUGIN_CONFIG_FILE}" STREQUAL "" )
     configure_file(
       "${CMAKE_CURRENT_LIST_DIR}/${PLUGIN_CONFIG_FILE}.in"
@@ -169,4 +132,4 @@ macro( uda_plugin )
     )
   endif()
 
-endmacro( uda_plugin )
+endfunction()

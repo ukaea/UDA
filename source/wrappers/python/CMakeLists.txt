@@ -54,7 +54,7 @@ get_filename_component(STDCXX_LIB_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
 set( UDA_LIBS )
 set( EXTRA_LIBS ${EXTRA_LIBS} fmt )
 
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
+if( TARGET LibMemcached::LibMemcached )
   set( EXTRA_LIBS ${EXTRA_LIBS} memcached )
 endif()
 if( ENABLE_CAPNP )

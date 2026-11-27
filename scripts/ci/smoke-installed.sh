@@ -81,84 +81,20 @@ run_windows_executables() {
     '
 }
 
-# Inspect regular PE imports before launching the executables. This search approximates the
-# Windows loader, so use the native launch result to decide whether the smoke test passed.
-check_windows_executables() {
-  local dir=$1 windows_dir objdump cxx mingw_bin file imports dll key path
-  local -a search_path queue
-  local -A resolved=()
-  queue=("$dir"/*.exe)
-  if [[ ! -f "${queue[0]}" ]]; then
-    echo "error: no consumer executables found in $dir" >&2
-    return 1
-  fi
-  windows_dir=$(cygpath -u "${SYSTEMROOT:-C:/Windows}") || return 1
-  IFS=: read -r -a search_path <<< "$PATH"
-  cxx=$(sed -n 's/^CMAKE_CXX_COMPILER:[^=]*=//p' "$dir/CMakeCache.txt")
-  cxx=$(cygpath -u "$cxx") || return 1
-  mingw_bin=$(dirname "$cxx")
-  objdump="$mingw_bin/objdump.exe"
-
-  find_dll() {
-    local d hit
-    for d in "$dir" "$windows_dir/System32" "$windows_dir/System" "$windows_dir" "${search_path[@]}"; do
-      [[ -d "$d" ]] || continue
-      hit=$(find "$d" -maxdepth 1 -type f -iname "$1" -print -quit 2>/dev/null)
-      if [[ -n "$hit" ]]; then echo "$hit"; return 0; fi
-    done
-    return 1
-  }
-
-  if [[ -x "$objdump" ]]; then
-    echo "Inspecting consumer DLL imports with $objdump"
-    while (( ${#queue[@]} )); do
-      file=${queue[0]}
-      queue=("${queue[@]:1}")
-      if ! imports=$("$objdump" -p "$file"); then
-        echo "warning: objdump failed for $file" >&2
-        continue
-      fi
-      while IFS= read -r dll; do
-        dll=${dll%$'\r'}
-        key=${dll,,}
-        case "$key" in api-ms-win-*|ext-ms-*) continue ;; esac
-        if [[ ! ${resolved[$key]+set} ]]; then
-          path=$(find_dll "$dll") || path=
-          resolved[$key]=$path
-          case "$path" in
-            ""|"$windows_dir"/*) ;;
-            *) queue+=("$path") ;;
-          esac
-        fi
-        path=${resolved[$key]}
-        if [[ -z "$path" ]]; then
-          echo "warning: ${file##*/} imports $dll, which the probe could not resolve" >&2
-          continue
-        fi
-        echo "${file##*/} imports $dll -> $path"
-        case "$key" in
-          libstdc++-6.dll|libgcc_s_*.dll|libwinpthread-1.dll)
-            if [[ -f "$mingw_bin/$dll" && ! "$path" -ef "$mingw_bin/$dll" ]]; then
-              echo "warning: $dll resolves outside the consumer compiler directory ($mingw_bin)" >&2
-            fi
-            ;;
-        esac
-      done < <(sed -n 's/^[[:space:]]*DLL Name: //p' <<< "$imports")
-    done
-  else
-    echo "warning: $objdump is unavailable, skipping DLL import inspection" >&2
-  fi
-
-  run_windows_executables "$dir"
-}
-
+# Each test just runs one executable. On Windows they are launched directly instead of through ctest, so a
+# missing DLL fails with its Windows status rather than an error dialog that blocks the run.
 run_build_and_test() {
   local name=$1
   cmake --build "$name" --config "$config"
   if [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]]; then
-    check_windows_executables "$name" || exit 1
+    if ! compgen -G "$name/*.exe" >/dev/null; then
+      echo "error: no consumer executables found in $name" >&2
+      exit 1
+    fi
+    run_windows_executables "$name"
+  else
+    (cd "$name" && ctest -C "$config" --timeout 120 --output-on-failure)
   fi
-  (cd "$name" && ctest -C "$config" --timeout 120 --output-on-failure)
 }
 
 # Fail early, and say what is installed, if the core package is not where it was expected.

@@ -24,12 +24,6 @@ endif()
 add_definitions( -DNOTGENERICENABLED )
 add_definitions( -DNO_GSL_LIB )
 
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
-  set( EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS};${LIBMEMCACHED_LIB_DIR}" CACHE INTERNAL "" )
-else()
-  add_definitions( -DNOLIBMEMCACHED )
-endif()
-
 ########################################################################################################################
 # Sources
 
@@ -110,7 +104,10 @@ if( BUILD_SHARED_LIBS )
   add_library( client2-shared SHARED ${CLIENT_OBJS} )
 endif()
 
-set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} ${LIBXML2_LIBRARIES} fmt::fmt )
+set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${LIBXML2_LIBRARIES} fmt::fmt )
+if( TARGET LibMemcached::LibMemcached )
+  list( APPEND CLIENT_LINK_LIBS LibMemcached::LibMemcached )
+endif()
 if( NOT CLIENT_ONLY )
   set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${LIBXML2_LIBRARIES} )
   if( MINGW )
@@ -146,39 +143,9 @@ if( NOT CLIENT_ONLY )
   endif()
 endif()
 
-set_target_properties( client2-static
-  PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_client2${UDA_STATIC_LIB_SUFFIX}
-)
-
-install( TARGETS client2-static
-  RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-  COMPONENT development
-)
-
+uda_install_library( client2-static ${PROJECT_NAME}_client2 )
 if( BUILD_SHARED_LIBS )
-  set_target_properties( client2-shared
-    PROPERTIES
-      OUTPUT_NAME ${PROJECT_NAME}_client2
-      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-      SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( client2-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install( TARGETS client2-shared
-    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-    COMPONENT client-runtime
-  )
+  uda_install_library( client2-shared ${PROJECT_NAME}_client2 )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )
@@ -189,38 +156,8 @@ install( FILES ${HEADER_FILES}
 )
 
 if( NOT CLIENT_ONLY )
-  set_target_properties( fatclient2-static
-    PROPERTIES
-    OUTPUT_NAME fat${PROJECT_NAME}_client2${UDA_STATIC_LIB_SUFFIX}
-  )
-
-  install( TARGETS fatclient2-static
-    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-    COMPONENT development
-  )
-  
+  uda_install_library( fatclient2-static fat${PROJECT_NAME}_client2 )
   if( BUILD_SHARED_LIBS )
-    set_target_properties( fatclient2-shared
-      PROPERTIES
-        OUTPUT_NAME fat${PROJECT_NAME}_client2
-        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-        SOVERSION ${PROJECT_VERSION_MAJOR}
-    )
-    if( WIN32 )
-      set_target_properties( fatclient2-shared
-        PROPERTIES
-          COMPILE_FLAGS -DLIBRARY_EXPORTS
-          IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-      )
-    endif()
-
-    install( TARGETS fatclient2-shared
-      RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
-      LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
-      ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
-      COMPONENT client-runtime
-  )
+    uda_install_library( fatclient2-shared fat${PROJECT_NAME}_client2 )
   endif()
 endif()
