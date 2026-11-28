@@ -333,6 +333,92 @@ cd <uda-install-dir>/bin
 ./uda_cli --host <host-ip> --port 56565 --request "help::help()" --source ""
 ```
 
+## Consuming the installed client from CMake
+
+CMake package exports are the primary supported interface for new integrations,
+including native Windows builds. The package exports the existing C client API
+through `UDA::client_static` and, when built, `UDA::client_shared`:
+
+```cmake
+find_package(UDA CONFIG REQUIRED COMPONENTS Client)
+add_executable(my_client main.cpp)
+target_link_libraries(my_client PRIVATE UDA::client_shared)
+```
+
+Use `UDA::client_static` explicitly for an embedded client, including the IDL
+wrapper. Both targets provide installed include paths and dependency metadata.
+Configure the consuming project with `-DCMAKE_PREFIX_PATH=/path/to/uda`, or set
+`UDA_DIR` to the directory containing `UDAConfig.cmake`. Dependencies must be
+installed for the same platform and toolchain; an export does not make binary
+libraries portable between compilers or operating systems.
+
+The installed-consumer check in `test/consumer` exercises this contract.
+The `Client` component exports the core client. The standalone C++ wrapper
+provides its own `UDACpp` package. Fat-client and plugin SDK exports are
+separate follow-up work.
+
+## Building the C++ wrapper against an installed client
+
+Use wrapper sources from the same UDA release and a compatible C++ toolchain.
+Point CMake at the core installation and install the wrapper to its own prefix
+to avoid overwriting the in-tree wrapper libraries.
+
+```sh
+cmake -S source/wrappers/c++ -B build-cxx \
+    -DCMAKE_PREFIX_PATH=/path/to/uda \
+    -DCMAKE_INSTALL_PREFIX=/path/to/uda-cxx
+cmake --build build-cxx
+cmake --install build-cxx
+```
+
+The standalone build produces a static wrapper. Add `-DBUILD_SHARED_LIBS=ON`
+to also build a shared wrapper when the installed core provides
+`UDA::client_shared`. The fat C++ wrapper remains an in-tree build.
+
+For downstream builds, add both prefixes to `CMAKE_PREFIX_PATH` and use the
+installed wrapper target. It carries the matching core and Boost requirements.
+
+```cmake
+find_package(UDACpp CONFIG REQUIRED)
+target_link_libraries(my_client PRIVATE UDA::cpp_static)
+# Use UDA::cpp_shared if the shared wrapper was installed.
+```
+
+The standalone static archive contains only the C++ wrapper objects. Use the
+CMake target to link the core archive as well. The legacy `uda-cpp.pc` continues
+to describe the in-tree wrapper, whose archive includes the core objects.
+
+## Legacy pkg-config integrations
+
+Existing Unix integrations can continue to use `uda-client`, `uda-cpp`,
+`uda-fat-client`, `uda-fat-cpp` and `uda-plugins`. Only modules whose libraries
+are built are installed. They use package requirements for public libxml2/RPC
+headers and private requirements for static-link dependencies such as OpenSSL
+and fmt. Dependency `.pc` files must be available on the consuming machine.
+
+```sh
+export PKG_CONFIG_PATH=/path/to/uda/lib/pkgconfig
+pkg-config --cflags --libs uda-client
+pkg-config --static --cflags --libs uda-client
+```
+
+Use the installation's actual library directory (for example `lib64` or a
+multiarch directory) in `PKG_CONFIG_PATH`. The UDA prefix is computed relative
+to the metadata location so a prefix-local installation can be moved.
+
+`--static` includes private dependencies; it does not force the linker to use
+an archive if shared libraries are also installed. Use a C++ linker driver for
+static UDA clients, including callers written in C, because the implementation
+uses C++. C++ wrapper consumers also need Boost headers in their toolchain's
+include search path.
+
+`UDA_INSTALL_PKGCONFIG` defaults to `ON` on Unix and `OFF` on Windows. Windows
+integrations should use the CMake exports; the legacy metadata does not claim
+MSVC or MinGW portability. To omit compatibility metadata on Unix, configure
+with `-DUDA_INSTALL_PKGCONFIG=OFF`. This does not affect the CMake exports.
+
+See `test/pkgconfig` for independent shared/static consumer checks.
+
 ## Building the pyuda python wrapper
 
 After successful client library build there will be a directory called `python_installer` from which you can pip install pyuda, this command will also compile the cython part of the pyuda module.
@@ -347,6 +433,44 @@ python3 -m pip install .
 # test
 python3 -c 'import pyuda; print(pyuda.__version__)'
 ```
+
+## Building the IDL wrapper against an installed client
+
+The IDL wrapper can be configured separately after the UDA client libraries
+have been installed. `CMAKE_PREFIX_PATH` identifies the UDA installation and
+`IDL_ROOT` identifies the IDL installation:
+
+```sh
+cmake -S source/wrappers/idl -B build-idl \
+    -DCMAKE_PREFIX_PATH=<uda-install-dir> \
+    -DIDL_ROOT=<idl-install-dir> \
+    -DCMAKE_INSTALL_PREFIX=<uda-idl-install-dir>
+
+cmake --build build-idl
+cmake --install build-idl
+```
+
+The standalone wrapper links the exported `UDA::client_static` target. A fat
+IDL client still requires the full in-tree UDA build.
+
+Use the SDK for the target platform and architecture. `FindIDL.cmake` reads
+the version from `external/include/idl_export.h` and searches the corresponding
+`bin/bin.linux.x86_64`, `bin/bin.darwin.arm64`, `bin/bin.darwin.x86_64`, or
+Windows library directory. Configuration and compilation do not start IDL.
+On macOS, select a single `CMAKE_OSX_ARCHITECTURES` value when cross-compiling;
+the installed UDA client and its dependencies must have the same architecture.
+The macOS DLM is installed as `uda.so`, following the vendor's DLM examples.
+
+GNU/Linux builds retain the existing static-libstdc++ workaround. Install the
+compiler's static C++ runtime, or set `STDCXX_STATIC` to its `libstdc++.a`.
+Apple Clang builds use libc++ instead. Static linkage does not establish
+isolation from a C++ runtime already loaded by the interpreter; compatibility
+with the deployed IDL host still requires a separate runtime check.
+
+The obsolete `CALLIDAM /TEST` keyword reports an unsupported-operation error;
+the core API it previously called no longer exists. Normal requests use the
+existing client APIs. Linux DLM links reject unresolved symbols at build time.
+
 # Configuring an authenticated client connection
 
 Once you have a certificate bundle, set the following environment variables to the individual SSL file locations. See the [Authentication section](/UDA/authentication) for more details about authenticated connections in uda.

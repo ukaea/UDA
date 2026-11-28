@@ -5,7 +5,7 @@
 		<key>Label</key>
 		<string>udaserver</string>
 		<key>Program</key>
-        <string>@CMAKE_INSTALL_PREFIX@/etc/udaserver.sh</string>
+        <string>@UDA_INSTALL_FULL_SERVER_SCRIPTDIR@/udaserver.sh</string>
         <key>Sockets</key>
         <dict>
             <key>sock1</key>
@@ -19,11 +19,11 @@
             </dict>
         </dict>
         <key>WorkingDirectory</key>
-        <string>@CMAKE_INSTALL_PREFIX@/etc</string>
+        <string>@UDA_INSTALL_FULL_CONFIGDIR@</string>
         <key>StandardOutPath</key>
-        <string>@CMAKE_INSTALL_PREFIX@/etc/launchd_out.log</string>
+        <string>@UDA_INSTALL_FULL_LOGDIR@/launchd_out.log</string>
         <key>StandardErrorPath</key>
-        <string>@CMAKE_INSTALL_PREFIX@/etc/launchd_err.log</string>
+        <string>@UDA_INSTALL_FULL_LOGDIR@/launchd_err.log</string>
         <key>inetdCompatibility</key>
         <dict>
             <key>Wait</key>

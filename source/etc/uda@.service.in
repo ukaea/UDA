@@ -2,7 +2,7 @@
 Description=@USER@-uda service
 
 [Service]
-ExecStart=@CMAKE_INSTALL_PREFIX@/etc/udaserver.sh
+ExecStart=@UDA_INSTALL_FULL_SERVER_SCRIPTDIR@/udaserver.sh
 Type=exec
 User=@USER@
 #Group=yes
@@ -10,7 +10,7 @@ UMask=002
 StandardInput=socket
 LimitNOFILE=30
 
-StandardOutput=file:@CMAKE_INSTALL_PREFIX@/etc/uda.logfile
+StandardOutput=file:@UDA_INSTALL_FULL_LOGDIR@/uda.logfile
 StandardError=inherit
 SuccessExitStatus=0
 LogLevelMax=info

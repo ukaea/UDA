@@ -11,9 +11,6 @@ if( WIN32 OR MINGW )
   find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
-  endif()
 endif()
 
 ########################################################################################################################
@@ -58,17 +55,6 @@ set( HEADER_FILES
   writer.h
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${fmt_SOURCE_DIR}/include
-  ${Boost_INCLUDE_DIRS}
-)
-
-add_definitions( -DSERVERBUILD )
-
 ########################################################################################################################
 # Targets
 
@@ -80,14 +66,19 @@ add_library( server-objects OBJECT
   ${SRC_FILES}
   ${HEADER_FILES}
 )
-target_link_libraries( server-objects PRIVATE fmt::fmt Boost::boost )
+target_include_directories( server-objects PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( server-objects PRIVATE SERVERBUILD )
+target_link_libraries( server-objects PRIVATE fmt::fmt Boost::boost OpenSSL::SSL LibXml2::LibXml2 )
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
-target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
+target_include_directories( fatserver-objects PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( fatserver-objects PRIVATE SERVERBUILD )
+target_link_libraries( fatserver-objects PRIVATE fmt::fmt Boost::boost OpenSSL::SSL LibXml2::LibXml2 )
+
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
 if( ENABLE_LANDLOCK )
@@ -115,11 +106,18 @@ set( LINK_XDR )
 set( EXE_FLAG )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-  set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
+  set( LINK_XDR XDR::XDR ws2_32 )
+elseif( TIRPC_FOUND )
+  set( LINK_XDR TIRPC::TIRPC )
+endif()
+
+# The object libraries compile the RPC/XDR code, so they need the same headers and -D__TIRPC__ as the archives.
+target_link_libraries( server-objects PRIVATE ${LINK_XDR} )
+target_link_libraries( fatserver-objects PRIVATE ${LINK_XDR} )
+
+set( LINK_MEMCACHED )
+if( TARGET LibMemcached::LibMemcached )
+  set( LINK_MEMCACHED LibMemcached::LibMemcached )
 endif()
 
 target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
@@ -128,6 +126,8 @@ if( BUILD_SHARED_LIBS )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
+target_include_directories( server-exe PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( server-exe PRIVATE SERVERBUILD )
 
 ########################################################################################################################
 # Add libraries
@@ -160,9 +160,9 @@ endif()
 
 target_link_libraries( server-static PRIVATE
   ${CLIENT_STATIC}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
+  OpenSSL::SSL OpenSSL::Crypto
+  LibXml2::LibXml2
+  ${LINK_MEMCACHED}
   ${LINK_DL}
 )
 
@@ -178,9 +178,9 @@ if( BUILD_SHARED_LIBS )
 
   target_link_libraries( server-shared PRIVATE
     ${CLIENT_SHARED}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
+    OpenSSL::SSL OpenSSL::Crypto
+    LibXml2::LibXml2
+    ${LINK_MEMCACHED}
     ${LINK_DL}
   )
 endif()
@@ -195,16 +195,16 @@ endif()
 
 target_link_libraries( server-exe PRIVATE
   ${SERVER_LINKING}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
+  OpenSSL::SSL OpenSSL::Crypto
+  LibXml2::LibXml2
+  ${LINK_MEMCACHED}
   ${LINK_M}
   ${LINK_DL}
   ${LINK_XDR}
 )
 
 if( NOT WIN32 AND NOT MINGW )
-  target_link_libraries( server-exe LINK_PRIVATE c )
+  target_link_libraries( server-exe PRIVATE c )
 endif()
 
 if( NOT APPLE AND ( NOT WIN32 OR ( WIN32 AND MINGW ) ) )
@@ -214,54 +214,19 @@ endif()
 ########################################################################################################################
 # Set library properties
 
-set_target_properties( server-static
-  PROPERTIES
-  OUTPUT_NAME ${PROJECT_NAME}_server
-)
-
-install(
-  TARGETS server-static
-  DESTINATION lib
-)
-
+uda_install_library( server-static ${PROJECT_NAME}_server )
 if( BUILD_SHARED_LIBS )
-  set_target_properties( server-shared
-      PROPERTIES
-        OUTPUT_NAME ${PROJECT_NAME}_server
-        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-        SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( server-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install(
-    TARGETS server-shared
-    DESTINATION lib
-  )
+  uda_install_library( server-shared ${PROJECT_NAME}_server RUNTIME_COMPONENT server )
 endif()
 
 ########################################################################################################################
 # Set executable properties
 
-set_target_properties( server-exe
-  PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_server
-)
-
-if( WIN32 )
-  set_target_properties( server-exe
-    PROPERTIES
-     COMPILE_FLAGS -DNOIMPLIB
-  )
-endif()
+set_target_properties( server-exe PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_server )
 
 install( TARGETS server-exe
-  DESTINATION bin
+  DESTINATION ${UDA_INSTALL_BINDIR}
+  COMPONENT server
 )
 
 ########################################################################################################################
@@ -278,15 +243,12 @@ set( ETC_FILES
   launchd.udaserver.plist
 )
 
-set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
-
 foreach( ETC_FILE ${ETC_FILES} )
   configure_file(
     "${CMAKE_SOURCE_DIR}/source/etc/${ETC_FILE}.in"
     "${CMAKE_BINARY_DIR}/etc/${ETC_FILE}"
     @ONLY
   )
-  list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
 endforeach()
 
 configure_file(
@@ -297,36 +259,37 @@ configure_file(
 
 install(
   FILES
-    ${GEN_ETC_FILES}
-  DESTINATION etc
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_SOURCE_DIR}/source/etc/machine.d
-  DESTINATION etc
-)
-
-install(
-  FILES
-    ${CMAKE_BINARY_DIR}/etc/udaserver.sh
-    ${CMAKE_BINARY_DIR}/etc/rc.uda
-  DESTINATION etc
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_BINARY_DIR}/etc/plugins.d
-  DESTINATION etc
-)
-
-install(
-  FILES
+    ${CMAKE_BINARY_DIR}/etc/udaserver.cfg
+    ${CMAKE_BINARY_DIR}/etc/xinetd.conf
+    ${CMAKE_BINARY_DIR}/etc/README.md
+    ${CMAKE_BINARY_DIR}/etc/launchd.udaserver.plist
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
-  DESTINATION etc
+  DESTINATION ${UDA_INSTALL_CONFIGDIR}
+  COMPONENT server
+)
+
+install(
+  DIRECTORY
+    ${CMAKE_SOURCE_DIR}/source/etc/machine.d/
+  DESTINATION ${UDA_INSTALL_MACHINE_CONFIGDIR}
+  COMPONENT server
+)
+
+install(
+  PROGRAMS
+    ${CMAKE_BINARY_DIR}/etc/udaserver.sh
+  DESTINATION ${UDA_INSTALL_SERVER_SCRIPTDIR}
+  COMPONENT server
+)
+
+install(
+  DIRECTORY
+    ${CMAKE_BINARY_DIR}/etc/plugins.d/
+  DESTINATION ${UDA_INSTALL_PLUGIN_FRAGMENTDIR}
+  COMPONENT server
 )
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/server
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/server
+  COMPONENT development
 )

@@ -27,32 +27,31 @@ if( ENABLE_CAPNP )
   find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
   get_filename_component(STDCXX_LIBRARY_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
   
-  if ( "${STDCXX_LIBRARY_DIR}" STREQUAL "" )
-    set ( STDCXX_RPATH "" ) 
-  else()
-      set ( STDCXX_RPATH "-Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} -lstdc++" )
+  # Directories that the system already searches are not added to RUNPATH; packages must not
+  # carry build-machine library paths.
+  set( _LINK_FLAGS )
+  if ( NOT "${STDCXX_LIBRARY_DIR}" STREQUAL "" AND NOT "${STDCXX_LIBRARY_DIR}" MATCHES "^/(usr/)?lib" )
+    string( APPEND _LINK_FLAGS " -Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR}" )
   endif()
-
-  if ( "${capnp_LIBRARY_DIRS}" STREQUAL "" )
-      set( CAPNP_RPATH "" )
-  else()
-      set( CAPNP_RPATH "-Wl,-rpath,${capnp_LIBRARY_DIRS} -L${capnp_LIBRARY_DIRS} -lcapnp -lkj" )
+  if ( NOT "${capnp_LIBRARY_DIRS}" STREQUAL "" )
+    if ( NOT "${capnp_LIBRARY_DIRS}" MATCHES "^/(usr/)?lib" )
+      string( APPEND _LINK_FLAGS " -Wl,-rpath,${capnp_LIBRARY_DIRS} -L${capnp_LIBRARY_DIRS}" )
+    endif()
+    string( APPEND _LINK_FLAGS " -lcapnp -lkj" )
   endif()
-
-  set_target_properties( uda_cli
-    PROPERTIES
-    LINK_FLAGS "${CAPNP_RPATH} ${STDCXX_RPATH}" 
-  )
+  set_target_properties( uda_cli PROPERTIES LINK_FLAGS "${_LINK_FLAGS}" )
 endif()
 
 install(
   TARGETS uda_cli
-  DESTINATION bin
+  DESTINATION ${UDA_INSTALL_BINDIR}
+  COMPONENT tools
   PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 )
 
+# A convenience script: it has a shebang, so it is installed executable.
 install(
-  FILES log_parser.py
-  DESTINATION bin
-  PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
+  PROGRAMS log_parser.py
+  DESTINATION ${UDA_INSTALL_TOOLSDIR}
+  COMPONENT tools
 )

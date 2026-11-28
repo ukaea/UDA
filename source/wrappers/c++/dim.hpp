@@ -3,7 +3,7 @@
 
 #include <string>
 #include <boost/multi_array/base.hpp>
-#include <clientserver/export.h>
+#include "export.hpp"
 #include "vector.hpp"
 
 #if defined(_WIN32)
@@ -17,7 +17,7 @@ namespace uda {
 
 typedef unsigned int dim_type;
 
-class LIBRARY_API Dim {
+class UDA_CXX_API Dim {
 public:
     template <typename T>
     Dim(dim_type num, T* array, size_t size, const std::string& label, const std::string& units)

@@ -1,9 +1,15 @@
 #!/bin/bash
 
 #------------------------------------------------------------------------------------------------------
+# Make sure the log and runtime directories exist: bash skips any command whose redirection target
+# cannot be opened. Packaged SYSTEM installs create them through systemd-tmpfiles (uda.conf).
+
+mkdir -p "@UDA_INSTALL_FULL_LOGDIR@" "@UDA_INSTALL_FULL_RUNDIR@" 2>/dev/null
+
+#------------------------------------------------------------------------------------------------------
 # Load core UDA configuration
 
-source @CMAKE_INSTALL_PREFIX@/etc/udaserver.cfg >>@CMAKE_INSTALL_PREFIX@/etc/startup.log 2>&1
+source @UDA_INSTALL_FULL_CONFIGDIR@/udaserver.cfg >>@UDA_INSTALL_FULL_LOGDIR@/startup.log 2>&1
 
 #------------------------------------------------------------------------------------------------------
 # Load machine specific configuration if it exists
@@ -24,22 +30,22 @@ then
     UDAHOSTNAME=$(hostname -f)
 fi
 
-if [[ -e "@CMAKE_INSTALL_PREFIX@/etc/machine.d/$UDAHOSTNAME.cfg" ]]
+if [[ -e "@UDA_INSTALL_FULL_MACHINE_CONFIGDIR@/$UDAHOSTNAME.cfg" ]]
 then
-    source @CMAKE_INSTALL_PREFIX@/etc/machine.d/$UDAHOSTNAME.cfg >>@CMAKE_INSTALL_PREFIX@/etc/startup.log 2>&1
+    source @UDA_INSTALL_FULL_MACHINE_CONFIGDIR@/$UDAHOSTNAME.cfg >>@UDA_INSTALL_FULL_LOGDIR@/startup.log 2>&1
 fi
 
 #------------------------------------------------------------------------------------------------------
 # Load plugin configurations
 
-for I in $(ls @CMAKE_INSTALL_PREFIX@/etc/plugins.d/*.cfg 2>/dev/null)
+for I in $(ls @UDA_INSTALL_FULL_PLUGIN_FRAGMENTDIR@/*.cfg 2>/dev/null)
 do
-    source $I >>@CMAKE_INSTALL_PREFIX@/etc/startup.log 2>&1
+    source $I >>@UDA_INSTALL_FULL_LOGDIR@/startup.log 2>&1
 done
 
 #------------------------------------------------------------------------------------------------------
 # Run the Server Program
 
-@CMAKE_INSTALL_PREFIX@/bin/@PROJECT_NAME@_server >>@CMAKE_INSTALL_PREFIX@/etc/server.log 2>&1
+@UDA_INSTALL_FULL_BINDIR@/@PROJECT_NAME@_server >>@UDA_INSTALL_FULL_LOGDIR@/server.log 2>&1
 
 exit $?

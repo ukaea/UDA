@@ -1,0 +1,44 @@
+@PACKAGE_INIT@
+
+include( CMakeFindDependencyMacro )
+
+# Find the dependencies with this package's Find modules, then restore the caller's module path.
+# A missing dependency makes find_dependency() return from this file, which marks UDA as not found.
+set( _UDA_SAVED_MODULE_PATH "${CMAKE_MODULE_PATH}" )
+list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Modules" )
+
+find_dependency( OpenSSL )
+find_dependency( LibXml2 )
+find_dependency( fmt CONFIG )
+find_dependency( Threads )
+
+if( @UDA_PACKAGE_NEEDS_TIRPC@ )
+  find_dependency( TIRPC )
+endif()
+if( @UDA_PACKAGE_NEEDS_XDR@ )
+  find_dependency( XDR )
+endif()
+if( @UDA_PACKAGE_NEEDS_LIBMEMCACHED@ )
+  find_dependency( LibMemcached )
+endif()
+if( @UDA_PACKAGE_NEEDS_DLFCN_WIN32@ )
+  find_dependency( dlfcn-win32 CONFIG )
+endif()
+if( @UDA_PACKAGE_NEEDS_ICONV@ )
+  find_dependency( Iconv )
+  find_dependency( liblzma CONFIG )
+  find_dependency( ZLIB )
+endif()
+
+set( CMAKE_MODULE_PATH "${_UDA_SAVED_MODULE_PATH}" )
+unset( _UDA_SAVED_MODULE_PATH )
+
+include( "${CMAKE_CURRENT_LIST_DIR}/UDAClientTargets.cmake" )
+
+# UDA::client_shared is only present when the client-runtime component is installed.
+if( EXISTS "${CMAKE_CURRENT_LIST_DIR}/UDAClientSharedTargets.cmake" )
+  include( "${CMAKE_CURRENT_LIST_DIR}/UDAClientSharedTargets.cmake" )
+endif()
+
+set( UDA_Client_FOUND TRUE )
+check_required_components( UDA )

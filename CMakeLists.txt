@@ -1,25 +1,6 @@
 cmake_minimum_required( VERSION 3.12 )
 
 ########################################################################################################################
-# Macro used to convert Windows path to Unix
-macro( CONVERT_WIN_PATH VarName )
-  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
-    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
-    string( STRIP ${${VarName}} ${VarName} )
-    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
-  endif()
-endmacro()
-
-# Macro used to convert Unix path to Windows
-macro( CONVERT_LIN_PATH VarName )
-  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
-    execute_process( COMMAND cygpath.exe -m ${${VarName}} OUTPUT_VARIABLE ${VarName} )
-    string( STRIP "${${VarName}}" ${VarName} )
-    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} "${${VarName}}" )
-  endif()
-endmacro()
-
-########################################################################################################################
 # CMake configuration
 
 cmake_policy( SET CMP0048 NEW )
@@ -57,7 +38,22 @@ include( DetermineVersion )
 
 project( uda VERSION ${VERSION} )
 
+# Discover the thread flags before the legacy compiler flags add -pthread.
+# The installed CMake package and pkg-config consumers have their own flags.
+find_package( Threads REQUIRED )
+
 set( USER $ENV{USER} )
+
+include( UDAInstallDirs )
+include( UDALibrary )
+
+# GCC before 9.1 and Clang before 9.0 keep std::filesystem in a separate library.
+set( UDA_STDFS_LIBRARY "" )
+if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
+  set( UDA_STDFS_LIBRARY "stdc++fs" )
+elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
+  set( UDA_STDFS_LIBRARY "c++fs" )
+endif()
 
 ########################################################################################################################
 # Compiler configuration
@@ -106,9 +102,13 @@ else()
   endif()
 endif()
 
+# Static archives are linked into shared libraries and Python extensions, so build everything as
+# position-independent code. (No effect on Windows, where code is always relocatable.)
+set( CMAKE_POSITION_INDEPENDENT_CODE ON )
+
 if( NOT WIN32 )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread -Wno-implicit-function-declaration" )
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -pthread" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread -Wno-implicit-function-declaration" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread" )
   
   if( MINGW )
     add_definitions( -DMINGW )
@@ -135,11 +135,6 @@ if( WIN32 OR MINGW )
   add_definitions( -D_CRT_SECURE_NO_WARNINGS -DNOMINMAX )
   set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
   set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".dll.lib" ".a" ".lib" )
-  if( MINGW )
-    set( IMPLIB_SUFFIX ".dll.a" )
-  else()
-    set( IMPLIB_SUFFIX ".dll.lib" )
-  endif()
   find_package( XDR REQUIRED )
   
   # "-Wl,-z,defs" is an ELF instruction, not supported by Windows
@@ -162,6 +157,13 @@ option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( NO_MEMCACHE "Do not attempt to build with libmemcached support" ON )
 option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
 option( ENABLE_LANDLOCK "Enable landlock file restriction" OFF )
+# ON/OFF spelling of ENABLE_LANDLOCK for templates, which compare strings: CMake keeps whatever
+# truthy value was passed (1, TRUE, YES, ...).
+if( ENABLE_LANDLOCK )
+  set( UDA_LANDLOCK_ENABLED "ON" )
+else()
+  set( UDA_LANDLOCK_ENABLED "OFF" )
+endif()
 if(ENABLE_LANDLOCK)
     if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" )
         message( FATAL_ERROR "Landlock requires Linux" )
@@ -217,7 +219,21 @@ set( UDA_SERVER_HOST "`hostname`" CACHE STRING "define hostname in server config
 ########################################################################################################################
 # Source directories
 
+# Optional libmemcached support. Found here so the imported target and the settings below reach
+# every subdirectory, which then only test if( TARGET LibMemcached::LibMemcached ).
+if( NOT NO_MEMCACHE )
+  find_package( LibMemcached QUIET )
+endif()
+set( EXTRA_LD_LIBRARY_PATHS "" )
+if( TARGET LibMemcached::LibMemcached )
+  set( EXTRA_LD_LIBRARY_PATHS "${LIBMEMCACHED_LIB_DIR}" )
+else()
+  add_compile_definitions( NOLIBMEMCACHED )
+endif()
+
 add_subdirectory( source )
+include( UDAPkgConfig )
+uda_install_pkgconfig()
 if( NOT CLIENT_ONLY )
   add_subdirectory( test )
 endif()
@@ -233,82 +249,86 @@ configure_file(
 
 install(
   FILES ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
-  DESTINATION modulefiles/uda
+  DESTINATION ${UDA_INSTALL_MODULEDIR}
+  COMPONENT tools
 )
 
-# Portablexdr 4.9.1 libraries
-if( WIN32 OR MINGW )
+########################################################################################################################
+# Installed CMake package for client consumers
+
+include( CMakePackageConfigHelpers )
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/UDAConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/UDAConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/UDAConfig.cmake
+  INSTALL_DESTINATION ${UDA_INSTALL_CMAKEDIR}
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/UDAConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/UDAConfigVersion.cmake
+  DESTINATION ${UDA_INSTALL_CMAKEDIR}
+  COMPONENT development
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindTIRPC.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindXDR.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindLibMemcached.cmake
+  DESTINATION ${UDA_INSTALL_CMAKEDIR}/Modules
+  COMPONENT development
+)
+
+# Static client targets are usable from the development component alone. The shared client
+# targets reference the runtime library, so they are exported with the runtime component.
+install(
+  EXPORT UDAClientTargets
+  FILE UDAClientTargets.cmake
+  NAMESPACE UDA::
+  DESTINATION ${UDA_INSTALL_CMAKEDIR}
+  COMPONENT development
+)
+
+if( BUILD_SHARED_LIBS )
   install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
-    DESTINATION lib
-      FILES_MATCHING PATTERN "*xdr*"
+    EXPORT UDAClientSharedTargets
+    FILE UDAClientSharedTargets.cmake
+    NAMESPACE UDA::
+    DESTINATION ${UDA_INSTALL_CMAKEDIR}
+    COMPONENT client-runtime
   )
+endif()
+
+# Portablexdr 4.9.1 runtime. The DLL is built next to its import library (lib/libxdr.dll.a) and
+# must sit in the bin directory with the other DLLs, or the programs that load it cannot start.
+if( WIN32 OR MINGW )
+  get_filename_component( _XDR_LIBDIR "${XDR_LIBRARIES}" DIRECTORY )
+  find_file( UDA_XDR_RUNTIME NAMES libxdr.dll xdr.dll
+    HINTS "${_XDR_LIBDIR}/../bin" "${XDR_ROOT}/bin"
+    NO_DEFAULT_PATH )
+  if( UDA_XDR_RUNTIME )
+    install(
+      FILES "${UDA_XDR_RUNTIME}"
+      DESTINATION ${UDA_INSTALL_BINDIR}
+      COMPONENT client-runtime
+    )
+  elseif( XDR_LIBRARIES MATCHES "\\.dll\\.(a|lib)$" )
+    message( FATAL_ERROR "The portablexdr runtime DLL was not found next to ${XDR_LIBRARIES}" )
+  else()
+    message( STATUS "portablexdr is linked statically, so there is no runtime DLL to install" )
+  endif()
   return()
 endif()
 
 ########################################################################################################################
-# Package creations
+# Packages (Windows builds returned above)
 
-include( InstallRequiredSystemLibraries )
-
-set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Universal Data Access library" )
-set( CPACK_PACKAGE_VENDOR "ITER" )
-set( CPACK_PACKAGE_CONTACT "jonathan.hollocombe@ukaea.uk" )
-set( CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}" )
-set( CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}" )
-set( CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}" )
-set( CPACK_PACKAGE_INSTALL_DIRECTORY "uda-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}" )
-set( CPACK_PACKAGE_FILE_NAME "uda-install-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" )
-set( CPACK_BUNDLE_NAME uda )
-set( CPACK_BUNDLE_PLIST ${CMAKE_SOURCE_DIR}/Info.plist )
-set( CPACK_BUNDLE_ICON ${CMAKE_SOURCE_DIR}/cmake/uda.icns )
-if( WIN32 OR MINGW )
-  set( CMAKE_WIN_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
-  set( CMAKE_WIN_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} )
-  set( CMAKE_WIN_SOURCE_DIR ${CMAKE_SOURCE_DIR} )
-  set( CMAKE_WIN_BINARY_DIR  ${CMAKE_BINARY_DIR} )
-  if( MINGW )
-    CONVERT_LIN_PATH( CMAKE_WIN_CURRENT_SOURCE_DIR )
-    CONVERT_LIN_PATH( CMAKE_WIN_INSTALL_PREFIX )
-    CONVERT_LIN_PATH( CMAKE_WIN_SOURCE_DIR )
-    CONVERT_LIN_PATH( CMAKE_WIN_BINARY_DIR )
-    # For MinGW, it is required to use Windows style path for the NSIS command "File"
-    # otherwise it is not able to find files
-    set( CPACK_NSIS_FULL_INSTALL "File /r \\\"\\\${INST_DIR_WIN}\\\\*.*\\\"" )
-  endif()
-  
-  set( CPACK_TEMPORARY_INSTALL_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
-  set( CPACK_PACKAGE_DIRECTORY "${CMAKE_WIN_BINARY_DIR}" )
-  set( CPACK_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
-  set( CPACK_WIN_TEMPORARY_DIRECTORY "${CMAKE_WIN_BINARY_DIR}/cpack" )
-  set( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_WIN_CURRENT_SOURCE_DIR}/README.md" )
-  set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_WIN_CURRENT_SOURCE_DIR}/LICENCE.txt" )
-  set( CPACK_NSIS_INSTALLED_ICON_NAME "bin/uda_server.exe" )
-  set( CPACK_NSIS_DISPLAY_NAME "Universal Data Access v${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" )
-  # Windows trick: Replace last / by \\ otherwise bitmap extraction failed
-  set( CPACK_PACKAGE_ICON "${CMAKE_WIN_SOURCE_DIR}/cmake\\\\icon.bmp" )
-  set( CPACK_NSIS_HELP_LINK "http://www.iter.org/uda.html" )
-  set( CPACK_NSIS_URL_INFO_ABOUT "http://www.iter.org/uda.html" )
-  set( CPACK_NSIS_CONTACT "Jonathan.Hollocombe@iter.org" )
-  set( CPACK_NSIS_MODIFY_PATH ON )
-else()
-  set( CPACK_TEMPORARY_INSTALL_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
-  set( CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}" )
-  set( CPACK_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
-  set( CPACK_WIN_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
-  set( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md" )
-  set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENCE.txt" )
-  set( CPACK_STRIP_FILES "bin/uda_server" )
-  set( CPACK_SOURCE_STRIP_FILES "" )
-
-  set( CPACK_RPM_PACKAGE_NAME "uda" )
-  set( CPACK_RPM_PACKAGE_SUMMARY "UDA RPM package" )
-  set( CPACK_RPM_FILE_NAME RPM-DEFAULT )
-  set( CPACK_RPM_PACKAGE_VERSION CPACK_PACKAGE_VERSION )
-  set( CPACK_RPM_PACKAGE_ARCHITECTURE noarch )
-  set( CPACK_RPM_PACKAGE_RELEASE 1 )
-  set( CPACK_RPM_PACKAGE_LICENSE "Apache, version 2" )
-endif()
-set( CPACK_PACKAGE_EXECUTABLES "uda_server" "UDA Server" )
-
-include( CPack )
+include( packaging )

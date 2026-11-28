@@ -1,4 +1,4 @@
-#!@PYTHON_EXE@
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -31,8 +31,9 @@ def write(plugin_file, plugins):
 def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument('--uda-home', '-u', help='UDA installation directory')
+    parser.add_argument('--config-dir', help='Plugin configuration directory')
     parser.add_argument('command', choices=['install', 'uninstall', 'list'], help='action to perform')
-    parser.add_argument('plugin', help='name of plugin')
+    parser.add_argument('plugin', nargs='?', help='name of plugin (required for install/uninstall)')
 
     args = parser.parse_args(args[1:])
 
@@ -41,9 +42,19 @@ def main(args):
     elif 'UDA_DIR' in os.environ:
         uda_home = os.environ['UDA_DIR']
     else:
-        raise SystemExit('UDA installation directory not found in $UDA_DIR or provided as argument')
+        uda_home = '@CMAKE_INSTALL_PREFIX@'
 
-    plugins_conf = os.path.join(uda_home, 'etc', 'plugins', 'udaPlugins.conf')
+    if args.config_dir:
+        config_dir = args.config_dir
+    elif '@UDA_INSTALL_LAYOUT@' == 'LEGACY':
+        config_dir = os.path.join(uda_home, 'etc', 'plugins')
+    else:
+        config_dir = '@UDA_INSTALL_FULL_PLUGIN_CONFIGDIR@'
+
+    if args.command != 'list' and not args.plugin:
+        parser.error('plugin is required for install/uninstall')
+
+    plugins_conf = os.path.join(config_dir, 'udaPlugins.conf')
 
     if not os.path.exists(plugins_conf):
         raise SystemExit('udaPlugins.conf not found')
@@ -52,7 +63,7 @@ def main(args):
         lines = file.readlines()
         installed_plugins = parse(lines)
 
-    plugin_name = args.plugin.upper()
+    plugin_name = args.plugin.upper() if args.plugin else None
 
     if args.command == 'list':
         for (name, plugin) in installed_plugins.items():
@@ -65,7 +76,7 @@ def main(args):
     elif args.command == 'install':
         if plugin_name in installed_plugins:
             raise SystemExit('plugin %s already installed' % args.plugin)
-        plugin_conf = os.path.join(uda_home, 'etc', 'plugins', 'udaPlugins_%s.conf' % plugin_name)
+        plugin_conf = os.path.join(config_dir, 'udaPlugins_%s.conf' % plugin_name)
         if not os.path.exists(plugin_conf):
             raise SystemExit('%s not found' % plugin_conf)
         with open(plugin_conf) as file:

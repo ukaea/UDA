@@ -53,7 +53,8 @@ endif()
 file( GLOB HEADER_FILES "*.h" )
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/logging
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/logging
+  COMPONENT development
 )
 
 if( MINGW )

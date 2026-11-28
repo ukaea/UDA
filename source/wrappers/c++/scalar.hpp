@@ -5,7 +5,7 @@
 #include <typeinfo>
 #include <boost/any.hpp>
 
-#include <clientserver/export.h>
+#include "export.hpp"
 #include "data.hpp"
 
 #if defined(_WIN32)
@@ -17,7 +17,7 @@
 
 namespace uda {
 
-class LIBRARY_API Scalar : public Data
+class UDA_CXX_API Scalar : public Data
 {
 public:
     template<typename T>

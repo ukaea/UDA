@@ -3,11 +3,11 @@
 
 #include <typeinfo>
 #include <cstddef>
-#include <clientserver/export.h>
+#include "export.hpp"
 
 namespace uda {
 
-class LIBRARY_API Data
+class UDA_CXX_API Data
 {
 public:
     explicit Data(bool isnull)

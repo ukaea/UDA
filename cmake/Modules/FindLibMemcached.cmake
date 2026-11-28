@@ -18,11 +18,13 @@
 
 # Check using pkg-config first
 find_package( PkgConfig QUIET )
-pkg_check_modules( LIBMEMCACHED QUIET libmemcached )
+if( PkgConfig_FOUND )
+  pkg_check_modules( LIBMEMCACHED QUIET libmemcached )
+endif()
 
-if( LIBMEMCACHED_FIND_QUIETLY )
+if( LibMemcached_FIND_QUIETLY )
   find_package( Threads QUIET )
-elseif( LIBMEMCACHED_FIND_REQURIED )
+elseif( LibMemcached_FIND_REQUIRED )
   find_package( Threads REQUIRED )
 else()
   find_package( Threads )
@@ -46,6 +48,15 @@ set( LIBMEMCACHED_LIBRARIES ${LIBMEMCACHED_LIB} ${CMAKE_THREAD_LIBS_INIT} )
 get_filename_component( LIBMEMCACHED_LIB_DIR "${LIBMEMCACHED_LIB}" PATH CACHE )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( LibMemcached DEFAULT_MSG LIBMEMCACHED_LIBRARIES LIBMEMCACHED_INCLUDES )
+find_package_handle_standard_args( LibMemcached DEFAULT_MSG LIBMEMCACHED_LIB LIBMEMCACHED_INCLUDES Threads_FOUND )
 
 mark_as_advanced( LIBMEMCACHED_LIBRARIES LIBMEMCACHED_INCLUDES )
+
+if( LIBMEMCACHED_FOUND AND NOT TARGET LibMemcached::LibMemcached )
+  add_library( LibMemcached::LibMemcached UNKNOWN IMPORTED )
+  set_target_properties( LibMemcached::LibMemcached PROPERTIES
+    IMPORTED_LOCATION "${LIBMEMCACHED_LIB}"
+    INTERFACE_INCLUDE_DIRECTORIES "${LIBMEMCACHED_INCLUDES}"
+    INTERFACE_LINK_LIBRARIES "Threads::Threads"
+  )
+endif()

@@ -136,7 +136,8 @@ bool uda::plugins::path_in_list(const std::string& canonical_path, const std::st
 }
 
 // Check that the requested path is in a client-downloadable location (UDA_DOWNLOADABLE_PATHS).
-// Raises a plugin error if not. This checks the name, so prefer open_downloadable_file, which checks the opened file.
+// Raises a plugin error if not. Kept for external plugins: UDA's own plugins use open_downloadable_file, which
+// also checks the file it opens.
 int check_allowed_path(const char* expanded_path)
 {
     std::string full_path;
@@ -148,11 +149,31 @@ int open_downloadable_file(const char* expanded_path, FILE** file)
     *file = nullptr;
     const PathList path_list = downloadable_paths();
 
-#ifdef UDA_HAVE_OPENED_PATH
-    // Open first, then check where the opened file really is. Checking the name and then opening it would let a
-    // symlink swapped into a downloadable directory in between redirect the read anywhere the server can read.
-    // O_NONBLOCK stops a FIFO blocking the open; anything but a regular file is rejected below.
-    const int fd = open(expanded_path, O_RDONLY | O_CLOEXEC | O_NOCTTY | O_NONBLOCK);
+    // Check the resolved name first, so the server never opens anything outside the list or anything but a
+    // regular file: opening a device can have side effects (e.g. a tape rewind) even if it is rejected afterwards.
+    std::string full_path;
+    const int rc = resolve_downloadable_path(expanded_path, path_list, full_path);
+    if (rc != 0) {
+        return rc;
+    }
+    std::error_code status_error;
+    if (!filesystem::is_regular_file(full_path, status_error)) {
+        RAISE_PLUGIN_ERROR("Provided File Path is not a Regular File");
+    }
+
+#ifdef _WIN32
+    // Open the checked, resolved name, not the name as given. Windows cannot report where an open file is, so a
+    // symlink swapped into a downloadable directory between the check and the open can still redirect the read.
+    *file = fopen(full_path.c_str(), "rb");
+    if (*file == nullptr) {
+        addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+        RAISE_PLUGIN_ERROR("Unable to Open the File for Read Access");
+    }
+    return 0;
+#else
+    // Open the resolved name. O_NOFOLLOW rejects a symlink swapped in as the final component since the check, and
+    // O_NONBLOCK stops a FIFO swapped in from blocking the open.
+    const int fd = open(full_path.c_str(), O_RDONLY | O_CLOEXEC | O_NOCTTY | O_NONBLOCK | O_NOFOLLOW);
     if (fd < 0) {
         const int error = errno;
         UDA_LOG(UDA_LOG_DEBUG, "Unable to open [%s]: %s\n", expanded_path, std::strerror(error));
@@ -163,6 +184,9 @@ int open_downloadable_file(const char* expanded_path, FILE** file)
         RAISE_PLUGIN_ERROR("Unable to Open the File for Read Access");
     }
 
+#  ifdef UDA_HAVE_OPENED_PATH
+    // Check where the opened file really is: a directory swapped for a symlink between the check and the open could
+    // otherwise redirect the read anywhere the server can read.
     const std::string real_path = opened_path(fd);
     if (real_path.empty() || !uda::plugins::path_in_list(real_path, path_list.value, path_list.separator)) {
         if (real_path.empty()) {
@@ -171,7 +195,9 @@ int open_downloadable_file(const char* expanded_path, FILE** file)
         close(fd);
         return reject_path(expanded_path, path_list);
     }
+#  endif
 
+    // Something other than a regular file may have been swapped in since the check.
     struct stat status = {};
     if (fstat(fd, &status) != 0 || !S_ISREG(status.st_mode)) {
         close(fd);
@@ -186,23 +212,6 @@ int open_downloadable_file(const char* expanded_path, FILE** file)
     if (*file == nullptr) {
         addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
         close(fd);
-        RAISE_PLUGIN_ERROR("Unable to Open the File for Read Access");
-    }
-    return 0;
-#else
-    // No way to ask where an open file is: check the resolved name and open that, not the name as given. A
-    // symlink swapped into a downloadable directory between the check and the open can still redirect the read.
-    std::string full_path;
-    const int rc = resolve_downloadable_path(expanded_path, path_list, full_path);
-    if (rc != 0) {
-        return rc;
-    }
-    if (!filesystem::is_regular_file(full_path)) {
-        RAISE_PLUGIN_ERROR("Provided File Path is not a Regular File");
-    }
-    *file = fopen(full_path.c_str(), "rb");
-    if (*file == nullptr) {
-        addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
         RAISE_PLUGIN_ERROR("Unable to Open the File for Read Access");
     }
     return 0;

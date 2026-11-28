@@ -44,25 +44,10 @@ else()
   add_jar( ${JAR_NAME} jIdam/Idam.java
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
   )
-  install_jni_symlink( ${JAR_NAME} java )
+  install_jni_symlink( ${JAR_NAME} ${UDA_INSTALL_JAVA_DIR} )
 endif()
 
-install_jar( ${JAR_NAME} java )
+install_jar( ${JAR_NAME} ${UDA_INSTALL_JAVA_DIR} )
 
-set_target_properties( ${LIB_NAME}
-  PROPERTIES
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-    C_STANDARD 99
-)
-if( WIN32 )
-  set_target_properties( ${LIB_NAME}
-    PROPERTIES
-      COMPILE_FLAGS -DLIBRARY_EXPORTS
-      IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-  )
-endif()
-
-install( TARGETS ${LIB_NAME}
-  DESTINATION lib
-)
+set_target_properties( ${LIB_NAME} PROPERTIES C_STANDARD 99 )
+uda_install_library( ${LIB_NAME} ${LIB_NAME} RUNTIME_COMPONENT java )

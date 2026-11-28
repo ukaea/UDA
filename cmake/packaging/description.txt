@@ -1,0 +1,7 @@
+Universal Data Access (UDA) is a client-server data access library. The client
+can run as a thin client that forwards each request to a UDA server, or as a
+fat client that runs the plugins locally.
+
+The package provides the UDA client and C++ wrapper libraries, the server,
+the plugins and the command-line tools. Use the pyuda Python package to access
+UDA from Python. Documentation: https://ukaea.github.io/UDA/

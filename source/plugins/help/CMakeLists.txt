@@ -11,13 +11,8 @@ endif()
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-  include_directories( ${XDR_INCLUDE_DIR} )
 else()
   find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    include_directories( ${TIRPC_INCLUDE_DIR} )
-    add_definitions(-D__TIRPC__)   
-  endif()
 endif()
 
 include( plugins )
@@ -29,9 +24,7 @@ uda_plugin(
   EXAMPLE "HELP::services()"
   LIBNAME help_plugin
   SOURCES help_plugin.cpp
-  EXTRA_INCLUDE_DIRS
-    ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS
-    ${LIBXML2_LIBRARIES}
+    LibXml2::LibXml2
     fmt::fmt
 )

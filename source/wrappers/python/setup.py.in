@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 import os
 import sys
@@ -14,6 +13,8 @@ extra_link_args = []
 extra_compile_args = ['-std=c++17']
 
 root = '@CMAKE_INSTALL_PREFIX@'
+uda_include_dir = '@UDA_INSTALL_FULL_INCLUDEDIR@'
+uda_lib_dir = '@UDA_INSTALL_FULL_LIBDIR@'
 
 print('Detected platform: ' + sys.platform)
 print('Detected system: ' + sysconfig.get_platform())
@@ -27,26 +28,44 @@ elif sys.platform.lower() == 'darwin':
     stalib_ext = 'a'
     dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
-    extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
-    # Leave room for delocate-wheel to rewrite install names to longer @loader_path paths
+    extra_link_args.append('-Wl,-rpath,%s' % uda_lib_dir)
+    # Leave room for delocate-wheel to rewrite install names to longer @loader_path paths.
     extra_link_args.append('-Wl,-headerpad_max_install_names')
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
+# UDA_PYTHON_SHARED=1 links the shared UDA libraries; UDA_PYTHON_SHARED=0 links the static archives.
+build_shared = os.environ.get('UDA_PYTHON_SHARED', '0') not in ('', '0')
 if build_fat:
-    uda_libs = [
-        'libfat@PROJECT_NAME@_client.' + stalib_ext,
-        'lib@PROJECT_NAME@_plugins.' + stalib_ext,
-    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+    uda_base_names = [
+        'fat@PROJECT_NAME@_client',
+        '@PROJECT_NAME@_plugins',
+    ] + ['@PROJECT_NAME@_' + name for name in uda_lib_names]
     extra_libs = ['xml2']
     extra_libs.extend('@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else [])
     extra_macros = [('FATCLIENT', None)]
 else:
-    uda_libs = [
-        'lib@PROJECT_NAME@_client.' + stalib_ext,
-    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+    uda_base_names = [
+        '@PROJECT_NAME@_client',
+    ] + ['@PROJECT_NAME@_' + name for name in uda_lib_names]
     extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []
+
+if build_shared:
+    print("Building against shared UDA libraries")
+    uda_link_libs = uda_base_names
+    uda_static_objs = []
+    uda_link_dirs = [uda_lib_dir]
+    # macOS already gets an rpath to uda_lib_dir above.
+    uda_runtime_dirs = [] if sys.platform.lower() == 'darwin' else [uda_lib_dir]
+else:
+    print("Building against static UDA libraries")
+    uda_link_libs = []
+    uda_link_dirs = []
+    uda_runtime_dirs = []
+    uda_static_objs = [
+        os.path.join(uda_lib_dir, 'lib' + name + '.' + stalib_ext) for name in uda_base_names
+    ]
 
 ext = Extension(
     'cpyuda',
@@ -55,26 +74,26 @@ ext = Extension(
         '/usr/include/tirpc',
         '@TIRPC_PYUDA_INCLUDE_DIR@',
         '@LIBXML2_INCLUDE_DIR@',
-        os.path.join(root, 'include', 'uda'),
+        uda_include_dir,
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),
-    libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs)),
-    library_dirs=list(filter(None, [
+    libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs + uda_link_libs)),
+    library_dirs=list(filter(None, uda_link_dirs + [
         '@STDCXX_LIB_DIR@',
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@CAPNP_LIB_DIR@',
         '@FMT_LIB_DIR@'
     ])),
-    runtime_library_dirs=list(filter(None, [
+    runtime_library_dirs=list(filter(None, uda_runtime_dirs + [
         '@STDCXX_LIB_DIR@',
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@CAPNP_LIB_DIR@',
         '@FMT_LIB_DIR@'
     ])),
-    extra_objects=[os.path.join(root, 'lib', uda_lib) for uda_lib in uda_libs],
+    extra_objects=uda_static_objs,
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
     language='c++',

@@ -186,7 +186,7 @@ jobs:
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
           -DCLIENT_ONLY=${{ matrix.client-only }}
           -DENABLE_CAPNP=${{ matrix.capnp }}
-          -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/uda_install
+          -DCMAKE_INSTALL_PREFIX=$(pwd -W)/uda_install
           -DZLIB_USE_STATIC_LIBS=ON
 
       - name: Build
@@ -210,7 +210,68 @@ jobs:
         run: ctest --test-dir build/test -R Landlock_server_plugin_disabled --output-on-failure --no-tests=error
 
       - name: Install
-        run: ${{ matrix.os != 'windows-latest' && 'sudo ' || '' }}cmake --install build --config $CONFIG
+        run: |
+          prefix=$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)
+          echo "install prefix: $prefix"
+          status=0
+          ${{ matrix.os != 'windows-latest' && 'sudo ' || '' }}cmake --install build --config $CONFIG > install.log 2>&1 || status=$?
+          head -n 5 install.log
+          exit $status
+
+      - name: Smoke test installed package
+        if: matrix.ssl == 'OFF' && matrix.capnp == 'OFF'
+        env:
+          GENERATOR: ${{ matrix.os == 'windows-latest' && 'MinGW Makefiles' || 'Ninja' }}
+          PKGCONFIG: ${{ matrix.os == 'windows-latest' && '0' || '1' }}
+        run: |
+          case "$RUNNER_OS" in
+            Windows)
+              workspace="$(pwd -W)"
+              # Use the prefix CMake installed to, rather than rebuilding it from the workspace path.
+              core=$(cygpath -m "$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)")
+              export XDR_ROOT="$workspace/extlib/install"
+              grep -E '^UDA_XDR_RUNTIME:' build/CMakeCache.txt || true
+              grep -Ei '[/\\]libxdr\.dll[[:space:]]*$' build/install_manifest.txt || true
+              if [[ ! -f "$core/bin/libxdr.dll" ]]; then
+                echo "error: libxdr.dll is missing from $core/bin" >&2
+                exit 1
+              fi
+              # Git Bash needs POSIX paths in its colon-separated PATH.
+              core_bin=$(cygpath -u "$core/bin")
+              cpp_bin=$(cygpath -u "$workspace/uda_cpp_install/bin")
+              cxx=$(sed -n 's/^CMAKE_CXX_COMPILER:[^=]*=//p' build/CMakeCache.txt)
+              mingw_bin=$(dirname "$(cygpath -u "$cxx")")
+              export PATH="$core_bin:$cpp_bin:$mingw_bin:$PATH"
+              echo "MinGW runtime directory: $mingw_bin"
+              where.exe libxdr.dll || echo "warning: native PATH lookup did not find libxdr.dll" >&2
+              args=(
+                -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+                -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+                -DZLIB_USE_STATIC_LIBS=ON
+              )
+              ;;
+            macOS)
+              workspace="$PWD"
+              core=$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)
+              args=(
+                "-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)"
+                "-DCMAKE_CXX_FLAGS=-I$(brew --prefix boost)/include"
+              )
+              for formula in libxml2 openssl@3 fmt; do
+                export PKG_CONFIG_PATH="$(brew --prefix "$formula")/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+              done
+              ;;
+            *)
+              workspace="$PWD"
+              core=$(sed -n 's/^CMAKE_INSTALL_PREFIX:PATH=//p' build/CMakeCache.txt)
+              args=()
+              ;;
+          esac
+          if [[ "$RUNNER_OS" != Windows ]]; then
+            export LD_LIBRARY_PATH="$core/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            export DYLD_LIBRARY_PATH="$core/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+          fi
+          scripts/ci/smoke-installed.sh "$core" "$workspace/uda_cpp_install" build "${args[@]}"
 
       - name: Install pyuda
         if: matrix.os == 'ubuntu-latest'

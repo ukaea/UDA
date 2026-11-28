@@ -137,6 +137,13 @@ the programs named by `UDA_DUMP_NETCDF` and `UDA_DUMP_IDA`, and the ELF loaders 
 `/lib64` and `/lib`. Entries missing on the host are left out, so the same file works
 across distributions.
 
+The paths above are for the default `LEGACY` install layout. With
+`-DUDA_INSTALL_LAYOUT=SYSTEM`, the policy grants the configuration directory
+(`/etc/uda`) instead of the install's `etc`, the scratch directory is
+`<runstatedir>/uda/scratch` (`/var/run/uda/scratch` by default; the server user must be
+able to create it, e.g. via systemd's `RuntimeDirectory=uda`), and `udaserver.sh` writes
+`server.log` to the log directory (normally `/var/log/uda`).
+
 The starter policy does not grant access to data. Append your data directories, and
 anything your plugins read, write or run, in a file sourced after `udaserver.cfg`,
 such as `etc/machine.d/<host>.cfg` or `etc/plugins.d/*.cfg`:

@@ -1,0 +1,12 @@
+# Per-generator CPack settings, read by cpack once for each generator it runs (CPACK_GENERATOR is
+# the one running).
+
+if( CPACK_GENERATOR STREQUAL "DEB" OR CPACK_GENERATOR STREQUAL "RPM" )
+  # Install under the configured prefix, not the generator default (/usr), so the package contents
+  # match the UDA_INSTALL_FULL_* paths used for conffiles and baked into the configuration files.
+  set( CPACK_PACKAGING_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@" )
+elseif( CPACK_GENERATOR STREQUAL "TGZ" AND "@UDA_INSTALL_LAYOUT@" STREQUAL "SYSTEM" )
+  # The SYSTEM layout installs configuration to absolute destinations (e.g. /etc/uda). Archive
+  # generators only capture those through DESTDIR; the archive then holds paths from the root.
+  set( CPACK_SET_DESTDIR ON )
+endif()

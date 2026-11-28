@@ -1113,30 +1113,35 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
     return err;
 }
 
+#ifdef USE_LANDLOCK
+// Landlock builds enforce the policy from the environment by default (fail closed). Throws on failure.
+static void enforce_landlock_from_environment()
+{
+    const auto policy = uda::server::landlock::policy_from_environment(true);
+    if (policy.enabled) {
+        uda::server::landlock::enforce_path_policy(policy);
+        UDA_LOG(UDA_LOG_DEBUG, "Landlock filesystem policy enforced\n");
+    } else {
+        UDA_LOG(UDA_LOG_WARN, "Landlock disabled by UDA_LANDLOCK\n");
+    }
+}
+#else
+// Builds without Landlock only fail if the environment requests a policy, which they cannot enforce.
+static void enforce_landlock_from_environment()
+{
+    if (uda::server::landlock::policy_from_environment(false).enabled) {
+        throw std::runtime_error("Landlock policy requested but UDA was built without ENABLE_LANDLOCK=ON");
+    }
+    UDA_LOG(UDA_LOG_DEBUG, "Landlock disabled: UDA was built without ENABLE_LANDLOCK=ON\n");
+}
+#endif
+
 // Applies the Landlock filesystem policy from the environment. Returns 0, or an error code if the policy is
 // invalid, cannot be enforced, or is requested from a build without Landlock support.
 int apply_landlock_policy(SERVER_BLOCK* server_block)
 {
     try {
-        // Landlock builds enforce by default (fail closed); other builds only fail if a policy is requested.
-#ifdef USE_LANDLOCK
-        constexpr bool landlock_by_default = true;
-#else
-        constexpr bool landlock_by_default = false;
-#endif
-        const auto policy = uda::server::landlock::policy_from_environment(landlock_by_default);
-        if (policy.enabled) {
-#ifdef USE_LANDLOCK
-            uda::server::landlock::enforce_path_policy(policy);
-            UDA_LOG(UDA_LOG_DEBUG, "Landlock filesystem policy enforced\n");
-#else
-            throw std::runtime_error("Landlock policy requested but UDA was built without ENABLE_LANDLOCK=ON");
-#endif
-        } else if (landlock_by_default) {
-            UDA_LOG(UDA_LOG_WARN, "Landlock disabled by UDA_LANDLOCK\n");
-        } else {
-            UDA_LOG(UDA_LOG_DEBUG, "Landlock disabled: UDA was built without ENABLE_LANDLOCK=ON\n");
-        }
+        enforce_landlock_from_environment();
     } catch (const std::exception& e) {
         // The XDR streams do not exist yet, so this error cannot be returned to the client, which only sees the
         // connection close. Also write to stderr (etc/server.log via udaserver.sh) because the default

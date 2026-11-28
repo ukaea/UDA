@@ -1,69 +1,64 @@
-# - Try to find KSBA
-# Once done this will define
+# - Find KSBA (libksba)
 #
-#  KSBA_FOUND - system has KSBA
-#  KSBA_INCLUDE_DIRS - the KSBA include directory
-#  KSBA_LIBRARIES - Link these to use KSBA
-#  KSBA_DEFINITIONS - Compiler switches required for using KSBA
+# Result variables:
 #
+#  KSBA_FOUND          - True if libksba and libgpg-error were found
+#  KSBA_INCLUDE_DIRS   - Include directory (legacy name, kept for existing callers)
+#  KSBA_LIBRARIES      - Libraries to link (legacy name, kept for existing callers)
+#
+# Imported target:
+#
+#  KSBA::KSBA          - Created when KSBA is found; depends on gpg-error
+#
+# Hints: the KSBA_ROOT CMake variable or environment variable.
+#
+# Normal usage:
+#  find_package( KSBA )
+#  target_link_libraries( my_target PRIVATE KSBA::KSBA )
 
-if( KSBA_LIBRARIES AND KSBA_INCLUDE_DIRS )
-  # in cache already
-  # set(KSBA_FOUND TRUE)
-else( KSBA_LIBRARIES AND KSBA_INCLUDE_DIRS )
-
-  set( _KSBA_ROOT_PATHS
+find_path( KSBA_INCLUDE_DIR
+  NAMES ksba.h
+  HINTS ${KSBA_ROOT} ENV KSBA_ROOT
+  PATHS
     "$ENV{PROGRAMFILES}/libKSBA"
-    )
+    /usr/local/include
+    /opt/local/include
+    /sw/include
+    /usr/lib/sfw/include
+  PATH_SUFFIXES include
+)
 
-  find_path( KSBA_ROOT_DIR
-    NAMES
-      include/ksba.h
-    PATHS
-      ${_KSBA_ROOT_PATHS}
-    )
-  mark_as_advanced( KSBA_ROOT_DIR )
+find_library( KSBA_LIBRARY
+  NAMES ksba
+  HINTS ${KSBA_ROOT} ENV KSBA_ROOT
+  PATHS /opt/local/lib /sw/lib /usr/lib /usr/local/lib
+  PATH_SUFFIXES lib lib64
+)
 
-  find_path( KSBA_INCLUDE_DIR
-    NAMES
-      ksba.h
-    PATHS
-      /usr/local/include
-      /opt/local/include
-      /sw/include
-      /usr/lib/sfw/include
-      ${KSBA_ROOT_DIR}/include
-    )
+find_library( GPG_ERROR_LIBRARY
+  NAMES gpg-error
+  HINTS ${KSBA_ROOT} ENV KSBA_ROOT
+  PATHS /opt/local/lib /sw/lib /usr/lib /usr/local/lib
+  PATH_SUFFIXES lib lib64
+)
+
+include( FindPackageHandleStandardArgs )
+find_package_handle_standard_args( KSBA
+  REQUIRED_VARS KSBA_LIBRARY KSBA_INCLUDE_DIR GPG_ERROR_LIBRARY
+)
+
+mark_as_advanced( KSBA_INCLUDE_DIR KSBA_LIBRARY GPG_ERROR_LIBRARY )
+
+if( KSBA_FOUND )
   set( KSBA_INCLUDE_DIRS ${KSBA_INCLUDE_DIR} )
-
-  find_library( KSBA_LIBRARY
-    NAMES
-      ksba
-    PATHS
-      /opt/local/lib
-      /sw/lib
-      /usr/lib
-      /usr/local/lib
-      ${KSBA_ROOT_DIR}/lib
-    )
-
-  find_library( GPG_ERROR_LIBRARY
-    NAMES
-      gpg-error
-    PATHS
-      /opt/local/lib
-      /sw/lib
-      /usr/lib
-      /usr/local/lib
-      ${KSBA_ROOT_DIR}/lib
-    )
-
   set( KSBA_LIBRARIES ${KSBA_LIBRARY} ${GPG_ERROR_LIBRARY} )
+endif()
 
-  include( FindPackageHandleStandardArgs )
-  find_package_handle_standard_args( KSBA DEFAULT_MSG KSBA_LIBRARIES KSBA_INCLUDE_DIRS )
-
-  # show the KSBA_INCLUDE_DIRS and KSBA_LIBRARIES variables only in the advanced view
-  mark_as_advanced( KSBA_INCLUDE_DIRS KSBA_LIBRARIES )
-
-endif( KSBA_LIBRARIES AND KSBA_INCLUDE_DIRS )
+if( KSBA_FOUND AND NOT TARGET KSBA::KSBA )
+  add_library( KSBA::KSBA UNKNOWN IMPORTED )
+  set_target_properties( KSBA::KSBA PROPERTIES
+    IMPORTED_LOCATION "${KSBA_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${KSBA_INCLUDE_DIR}"
+    INTERFACE_LINK_LIBRARIES "${GPG_ERROR_LIBRARY}"
+  )
+endif()

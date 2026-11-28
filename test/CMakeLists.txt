@@ -25,7 +25,6 @@ enable_testing()
 find_package( Boost )
 find_package( OpenSSL )
 find_package( LibXml2 )
-find_package( LibMemcached )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -46,8 +45,9 @@ if( NOT Boost_FOUND OR NOT OPENSSL_FOUND OR NOT LIBXML2_FOUND )
   return()
 endif()
 
-if( LIBMEMCACHED_FOUND )
-  set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} )
+set( CACHE_LIBRARIES )
+if( TARGET LibMemcached::LibMemcached )
+  set( CACHE_LIBRARIES LibMemcached::LibMemcached )
 endif()
 
 include_directories(
@@ -124,18 +124,6 @@ macro( BUILD_TEST NAME SOURCE )
     ${LINK_STD}
   )
 
-  set_target_properties( ${NAME}
-    PROPERTIES
-      OUTPUT_NAME ${NAME}
-  )
-  
-  if( WIN32 )
-    set_target_properties( ${NAME}
-      PROPERTIES
-       COMPILE_FLAGS -DNOIMPLIB
-    )
-  endif()
-  
   add_executable( fat_${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( fat_${NAME} PRIVATE
     ${Boost_LIBRARIES}
@@ -152,18 +140,6 @@ macro( BUILD_TEST NAME SOURCE )
     target_link_libraries( fat_${NAME} PRIVATE c )
   endif()
   target_compile_definitions( fat_${NAME} PRIVATE -DFATCLIENT )
-
-  set_target_properties( fat_${NAME}
-    PROPERTIES
-      OUTPUT_NAME fat_${NAME}
-  )
-
-  if( WIN32 )
-    set_target_properties( fat_${NAME}
-      PROPERTIES
-       COMPILE_FLAGS -DNOIMPLIB
-    )
-  endif()
 
   if( FAT_TESTS )
     add_test( ${NAME} fat_${NAME} -r junit -o ${NAME}_out.xml )

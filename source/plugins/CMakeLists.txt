@@ -10,17 +10,8 @@ if( WIN32 OR MINGW )
   find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
-  endif()
 endif()
 
-set ( STDFS_VAR "" )
-if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.1 )
-  set( STDFS_VAR "stdc++fs" )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0 )
-  set( STDFS_VAR "c++fs" )
-endif()
 
 configure_file(
   "${CMAKE_SOURCE_DIR}/source/etc/udaPlugins.conf.in"
@@ -39,7 +30,8 @@ install(
     ${CMAKE_CURRENT_BINARY_DIR}/udaPlugins.conf
     ${CMAKE_CURRENT_BINARY_DIR}/test_plugin.cpp
   DESTINATION
-    etc/plugins
+    ${UDA_INSTALL_PLUGIN_CONFIGDIR}
+  COMPONENT plugins
 )
 
 file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/server/plugins.d" )
@@ -56,20 +48,6 @@ else()
   add_subdirectory( uda )
 endif( DEFINED BUILD_PLUGINS )
 
-add_definitions( -DSERVERBUILD )
-
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${LIBXML2_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS}
-)
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif(TIRPC_FOUND)
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
 set( SOURCE_FILES
   managePluginFiles.cpp
   udaPlugin.cpp
@@ -85,21 +63,26 @@ set( HEADER_FILES
 )
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
+target_include_directories( plugins-objects PRIVATE ${CMAKE_SOURCE_DIR}/source )
+target_compile_definitions( plugins-objects PRIVATE SERVERBUILD )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
 if( BUILD_SHARED_LIBS )
   add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
 endif()
 
-set( LINK_LIB ${LIBXML2_LIBRARIES} fmt::fmt )
+set( LINK_LIB LibXml2::LibXml2 fmt::fmt )
 if( WIN32 OR MINGW )
   if( MINGW )
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl stdc++ )
+    set( LINK_LIB ${LINK_LIB} XDR::XDR ws2_32 dlfcn-win32::dl stdc++ )
   else()
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
+    set( LINK_LIB ${LINK_LIB} XDR::XDR ws2_32 dlfcn-win32::dl )
   endif()
-elseif(TIRPC_FOUND)
-  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES} )
+elseif( TIRPC_FOUND )
+  set( LINK_LIB ${LINK_LIB} TIRPC::TIRPC )
 endif()
+
+# Objects need the same headers and dependencies as the archives that contain them.
+target_link_libraries( plugins-objects PRIVATE ${LINK_LIB} Boost::boost )
 
 target_link_libraries( plugins-static PRIVATE
   #server-static
@@ -110,43 +93,18 @@ if( BUILD_SHARED_LIBS )
   target_link_libraries( plugins-shared PRIVATE
     server-static
     ${LINK_LIB}
-    ${STDFS_VAR}
+    ${UDA_STDFS_LIBRARY}
   )
 endif()
 
-set_target_properties( plugins-static
-  PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_plugins
-)
-
-install(
-  TARGETS plugins-static
-  DESTINATION lib
-)
-
+uda_install_library( plugins-static ${PROJECT_NAME}_plugins )
 if( BUILD_SHARED_LIBS )
-  set_target_properties( plugins-shared
-    PROPERTIES
-      OUTPUT_NAME ${PROJECT_NAME}_plugins
-      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-      SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-  if( WIN32 )
-    set_target_properties( plugins-shared
-      PROPERTIES
-        COMPILE_FLAGS -DLIBRARY_EXPORTS
-        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
-    )
-  endif()
-
-  install(
-    TARGETS plugins-shared
-    DESTINATION lib
-  )
+  uda_install_library( plugins-shared ${PROJECT_NAME}_plugins RUNTIME_COMPONENT plugins )
 endif()
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/plugins
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/plugins
+  COMPONENT development
 )
 
 

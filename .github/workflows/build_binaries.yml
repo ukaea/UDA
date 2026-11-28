@@ -1,0 +1,110 @@
+name: Build binary distributions
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - develop
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+# a newer push or pull request run supersedes an older one
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - rocky8
+          - ubuntu24.04
+          # - manylinux2_28
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: get version
+        id: version
+        run: |
+          VERSION=`git describe --tags`
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build image for ${{ matrix.distro }}
+        run: |
+          docker build \
+            --build-arg INSTALL_DIR="/usr" \
+            --build-arg CLIENT_ONLY="OFF" \
+            -f docker/Dockerfile.${{ matrix.distro }} \
+            -t uda-${{ matrix.distro }}:${{ steps.version.outputs.version }} .
+
+      - name: extract binaries from container
+        run: |
+          mkdir -p build_artifacts/${{ matrix.distro }}/pkg
+          id=`docker create uda-${{ matrix.distro }}:${{ steps.version.outputs.version }}`
+          docker cp $id:/uda/build build_artifacts/${{ matrix.distro }}
+
+          mv build_artifacts/${{ matrix.distro }}/build/*.deb build_artifacts/${{ matrix.distro }}/pkg || true
+          mv build_artifacts/${{ matrix.distro }}/build/*.rpm build_artifacts/${{ matrix.distro }}/pkg || true
+          mv build_artifacts/${{ matrix.distro }}/build/*.tar.gz build_artifacts/${{ matrix.distro }}/pkg || true
+          docker rm $id
+
+      - name: Upload TGZ for ${{ matrix.distro }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: uda-${{ steps.version.outputs.version }}-${{ matrix.distro }}
+          path: build_artifacts/${{ matrix.distro }}/pkg/*.tar.gz
+          if-no-files-found: ignore
+          retention-days: ${{ github.ref_type == 'tag' && 30 || 7 }}
+
+      - name: Upload RPM for ${{ matrix.distro }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: uda-${{ steps.version.outputs.version }}-${{ matrix.distro }}-rpm
+          path: build_artifacts/${{ matrix.distro }}/pkg/*.rpm
+          if-no-files-found: ignore
+          retention-days: ${{ github.ref_type == 'tag' && 30 || 7 }}
+
+      - name: Upload DEB for ${{ matrix.distro }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: uda-${{ steps.version.outputs.version }}-${{ matrix.distro }}-deb
+          path: build_artifacts/${{ matrix.distro }}/pkg/*deb
+          if-no-files-found: ignore
+          retention-days: ${{ github.ref_type == 'tag' && 30 || 7 }}
+
+  upload-release:
+    if: github.event_name == 'release'
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: release_assets
+
+      - name: Upload assets to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release_assets/**/*.{deb,rpm,tar.gz}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,2 @@
+# Unregister the shared libraries.
+/sbin/ldconfig

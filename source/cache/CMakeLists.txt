@@ -1,4 +1,3 @@
-find_package( LibMemcached QUIET )
 find_package( Boost REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
@@ -37,20 +36,11 @@ elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
 endif()
 
-if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
-  include_directories( ${LIBMEMCACHED_INCLUDES} )
-  set( EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS};${LIBMEMCACHED_LIB_DIR}" CACHE INTERNAL "" )
-  set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} PARENT_SCOPE )
-else()
-  add_definitions( -DNOLIBMEMCACHED )
-endif()
-
 add_library( cache-objects OBJECT ${SRC_FILES} )
 target_link_libraries( cache-objects PRIVATE fmt::fmt )
-
-#if( LIBMEMCACHED_FOUND )
-#  set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} PARENT_SCOPE )
-#endif()
+if( TARGET LibMemcached::LibMemcached )
+  target_link_libraries( cache-objects PRIVATE LibMemcached::LibMemcached )
+endif()
 
 if( MINGW )
   add_definitions( -Wno-format-truncation -Wno-format-overflow )

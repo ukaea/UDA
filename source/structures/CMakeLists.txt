@@ -51,5 +51,6 @@ add_library( structures-client-objects OBJECT ${SRC_FILES} )
 file( GLOB HEADER_FILES "*.h" )
 
 install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/structures
+  DESTINATION ${UDA_INSTALL_INCLUDEDIR}/structures
+  COMPONENT development
 )

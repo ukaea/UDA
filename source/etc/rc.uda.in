@@ -15,8 +15,9 @@ done
 
 SCRIPT=$TARGET
 HERE=$DIR
-PID=$HERE/xinetd.$HOST.pid
-LOG=$HERE/mylog.$HOST
+PID="@UDA_INSTALL_FULL_RUNDIR@/xinetd.$HOST.pid"
+LOG="@UDA_INSTALL_FULL_LOGDIR@/mylog.$HOST"
+CONFIG="@UDA_INSTALL_FULL_CONFIGDIR@/xinetd.conf"
 XINETD=@XINETD_EXE@
 
 if [ -z "$XINETD" ] ; then
@@ -28,7 +29,7 @@ case $1 in
 
     start)
     if [ ! -f "$PID" ] ; then
-        $XINETD -f $HERE/xinetd.conf -pidfile $PID -filelog $LOG
+        "$XINETD" -f "$CONFIG" -pidfile "$PID" -filelog "$LOG"
     else
         echo "$SCRIPT: $PID exists, already running?"
     fi

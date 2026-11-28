@@ -1,0 +1,8 @@
+#!/bin/sh
+# Shared libraries are registered by the ldconfig trigger (see triggers), so no ldconfig call is needed here.
+set -e
+# Create the server's log and runtime directories now rather than at the next boot (SYSTEM layout).
+if [ "$1" = "configure" ] && command -v systemd-tmpfiles >/dev/null 2>&1; then
+  systemd-tmpfiles --create uda.conf >/dev/null 2>&1 || true
+fi
+exit 0

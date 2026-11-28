@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 import os
 import sys
@@ -13,7 +12,14 @@ default_options['compile_time_env'] = {'CAPNP': @CAPNP_FLAG@}
 extra_link_args = []
 extra_compile_args = ['-std=c++17']
 
-root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
+configured_root = '@CMAKE_INSTALL_PREFIX@'
+root = os.environ.get('UDA_DIR', configured_root)
+if root == configured_root:
+    uda_include_dir = '@UDA_INSTALL_FULL_INCLUDEDIR@'
+    uda_lib_dir = '@UDA_INSTALL_FULL_LIBDIR@'
+else:
+    uda_include_dir = os.path.join(root, 'include', 'uda')
+    uda_lib_dir = os.path.join(root, 'lib')
 
 print('Detected platform: ' + sys.platform)
 print('Detected system: ' + sysconfig.get_platform())
@@ -27,7 +33,7 @@ elif sys.platform.lower() == 'darwin':
     stalib_ext = 'a'
     dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
-    extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
+    extra_link_args.append('-Wl,-rpath,%s' % uda_lib_dir)
 else:
     stalib_ext = 'lib'
     dynlib_ext = 'dll'
@@ -35,19 +41,39 @@ else:
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
+# Windows has always linked the DLL import libraries, so shared is the default here.
+# UDA_PYTHON_SHARED=0 links the static archives (named with the _static suffix) instead.
+build_shared = os.environ.get('UDA_PYTHON_SHARED', '1') not in ('', '0')
 if build_fat:
-    uda_libs = [
-        'libfat@PROJECT_NAME@_client.' + stalib_ext,
-        'lib@PROJECT_NAME@_plugins.' + stalib_ext,
-    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+    uda_base_names = [
+        'fat@PROJECT_NAME@_client',
+        '@PROJECT_NAME@_plugins',
+    ] + ['@PROJECT_NAME@_' + name for name in uda_lib_names]
     extra_libs = ['xml2', 'pq']
     extra_macros = [('FATCLIENT', None)]
 else:
-    uda_libs = [
-        '@PROJECT_NAME@_client.dll.' + stalib_ext,
-    ] + ['@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+    uda_base_names = [
+        '@PROJECT_NAME@_client',
+    ] + ['@PROJECT_NAME@_' + name for name in uda_lib_names]
     extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []
+
+if build_shared:
+    print("Building against shared UDA libraries")
+    uda_link_libs = uda_base_names
+    uda_static_objs = []
+else:
+    print("Building against static UDA libraries")
+    uda_link_libs = []
+    # UDA built with MinGW names its archives lib<name>_static.a; MSVC names them <name>_static.lib.
+    if '@UDA_PYTHON_MINGW@' == 'ON':
+        uda_static_objs = [
+            os.path.join(uda_lib_dir, 'lib' + name + '_static.a') for name in uda_base_names
+        ]
+    else:
+        uda_static_objs = [
+            os.path.join(uda_lib_dir, name + '_static.' + stalib_ext) for name in uda_base_names
+        ]
 
 ext = Extension(
     'cpyuda',
@@ -55,19 +81,19 @@ ext = Extension(
     include_dirs=list(filter(None, [
         '@TIRPC_PYUDA_INCLUDE_DIR@',
         '@LIBXML2_INCLUDE_DIR@',
-        os.path.join(root, 'include', 'uda'),
+        uda_include_dir,
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),
-    libraries=list(filter(None, extra_libs)),
+    libraries=list(filter(None, extra_libs + uda_link_libs)),
     library_dirs=list(filter(None, [
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@CAPNP_LIB_DIR@',
         '@FMT_LIB_DIR@',
-        os.path.join(root, 'lib')
+        uda_lib_dir
     ])),
-    extra_objects=[os.path.join(root, 'lib', uda_lib) for uda_lib in uda_libs],
+    extra_objects=uda_static_objs,
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
     language='c++',

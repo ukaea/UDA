@@ -5,7 +5,7 @@
 #include <typeinfo>
 #include <string>
 
-#include <clientserver/export.h>
+#include "export.hpp"
 #include "data.hpp"
 
 #if defined(_WIN32)
@@ -17,7 +17,7 @@
 
 namespace uda {
 
-class LIBRARY_API String : public Data
+class UDA_CXX_API String : public Data
 {
 public:
     explicit String(const char * data)

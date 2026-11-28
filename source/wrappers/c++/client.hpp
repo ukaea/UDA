@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <cstdint>
 
-#include <clientserver/export.h>
+#include "export.hpp"
 
 #include "UDA.hpp"
 
@@ -23,7 +23,7 @@ namespace uda {
 
 class Array;
 
-class LIBRARY_API UDAException : public std::exception
+class UDA_CXX_API UDAException : public std::exception
 {
 public:
     UDAException(std::string what, std::vector<std::string> backtrace)
@@ -65,7 +65,7 @@ private:
     std::string backtrace_msg_;
 };
 
-class LIBRARY_API ProtocolException : public UDAException {
+class UDA_CXX_API ProtocolException : public UDAException {
 public:
     ProtocolException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
     {}
@@ -74,7 +74,7 @@ public:
     {}
 };
 
-class LIBRARY_API ServerException : public UDAException {
+class UDA_CXX_API ServerException : public UDAException {
 public:
     ServerException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
     {}
@@ -83,7 +83,7 @@ public:
     {}
 };
 
-class LIBRARY_API InvalidUseException : public UDAException {
+class UDA_CXX_API InvalidUseException : public UDAException {
 public:
     InvalidUseException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
     {}
@@ -124,7 +124,7 @@ class Result;
 class Signal;
 class Client;
 
-class ResultList {
+class UDA_CXX_API ResultList {
 public:
     ResultList(std::unordered_map<int, size_t> indices, Client& client);
     const Result& at(int handle) const;
@@ -134,7 +134,7 @@ private:
     Client& client_;
 };
 
-class LIBRARY_API Client {
+class UDA_CXX_API Client {
 public:
     ~Client();
 

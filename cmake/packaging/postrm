@@ -1,0 +1,4 @@
+#!/bin/sh
+# Shared libraries are unregistered by the ldconfig trigger (see triggers).
+set -e
+exit 0

@@ -5,15 +5,13 @@ find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( spdlog REQUIRED )
 find_package( fmt REQUIRED )
+find_package( Boost REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
   find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
-  endif()
 endif()
 
 ########################################################################################################################
@@ -34,24 +32,15 @@ set( SRC_FILES
   xdr_protocol.cpp
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${spdlog_SOURCE_DIR}/include
-  ${fmt_SOURCE_DIR}/include
-)
-
-add_definitions( -DSERVERBUILD )
-
 ########################################################################################################################
 # Targets
 
 add_library( server2-objects OBJECT
   ${SRC_FILES}
 )
-target_link_libraries( server2-objects PRIVATE spdlog::spdlog fmt::fmt )
+target_include_directories( server2-objects PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( server2-objects PRIVATE SERVERBUILD )
+target_link_libraries( server2-objects PRIVATE Boost::boost spdlog::spdlog fmt::fmt OpenSSL::SSL LibXml2::LibXml2 )
 
 set( SERVER2_OBJ
   $<TARGET_OBJECTS:server2-objects>
@@ -71,11 +60,17 @@ set( LINK_XDR )
 set( EXE_FLAG )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-  set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
+  set( LINK_XDR XDR::XDR ws2_32 )
+elseif( TIRPC_FOUND )
+  set( LINK_XDR TIRPC::TIRPC )
+endif()
+
+# The object libraries compile the RPC/XDR code, so they need the same headers and -D__TIRPC__ as the archives.
+target_link_libraries( server2-objects PRIVATE ${LINK_XDR} )
+
+set( LINK_MEMCACHED )
+if( TARGET LibMemcached::LibMemcached )
+  set( LINK_MEMCACHED LibMemcached::LibMemcached )
 endif()
 
 target_link_libraries( server2-static PRIVATE ${LINK_XDR} fmt::fmt )
@@ -83,7 +78,9 @@ if( BUILD_SHARED_LIBS )
   target_link_libraries( server2-shared PRIVATE ${LINK_XDR} fmt::fmt )
 endif()
 
-add_executable( server2-exe ${EXE_FLAG} server_main.cpp)
+add_executable( server2-exe ${EXE_FLAG} server_main.cpp )
+target_include_directories( server2-exe PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_CURRENT_SOURCE_DIR} )
+target_compile_definitions( server2-exe PRIVATE SERVERBUILD )
 
 ########################################################################################################################
 # Add libraries
@@ -116,9 +113,9 @@ endif()
 
 target_link_libraries( server2-static PRIVATE
   ${CLIENT_STATIC}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
+  OpenSSL::SSL OpenSSL::Crypto
+  LibXml2::LibXml2
+  ${LINK_MEMCACHED}
   ${LINK_DL}
   fmt::fmt
 )
@@ -135,9 +132,9 @@ if( BUILD_SHARED_LIBS )
 
   target_link_libraries( server2-shared PRIVATE
     ${CLIENT_SHARED}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
+    OpenSSL::SSL OpenSSL::Crypto
+    LibXml2::LibXml2
+    ${LINK_MEMCACHED}
     ${LINK_DL}
     fmt::fmt
   )
@@ -152,17 +149,18 @@ else()
 endif()
 
 target_link_libraries( server2-exe PRIVATE
+  Boost::boost
   ${SERVER_LINKING}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
+  OpenSSL::SSL OpenSSL::Crypto
+  LibXml2::LibXml2
+  ${LINK_MEMCACHED}
   ${LINK_M}
   ${LINK_DL}
   ${LINK_XDR}
 )
 
 if( NOT WIN32 AND NOT MINGW )
-  target_link_libraries( server2-exe LINK_PRIVATE c )
+  target_link_libraries( server2-exe PRIVATE c )
 endif()
 
 if( NOT APPLE AND ( NOT WIN32 OR ( WIN32 AND MINGW ) ) )
@@ -174,12 +172,15 @@ endif()
 
 set_target_properties( server2-static
   PROPERTIES
-  OUTPUT_NAME ${PROJECT_NAME}_server2
+  OUTPUT_NAME ${PROJECT_NAME}_server2${UDA_STATIC_LIB_SUFFIX}
 )
 
 install(
   TARGETS server2-static
-  DESTINATION lib
+  RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
+  COMPONENT development
 )
 
 if( BUILD_SHARED_LIBS )
@@ -199,7 +200,10 @@ if( BUILD_SHARED_LIBS )
 
   install(
     TARGETS server2-shared
-    DESTINATION lib
+    RUNTIME DESTINATION ${UDA_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${UDA_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${UDA_INSTALL_LIBDIR}
+    COMPONENT server
   )
 endif()
 
@@ -219,7 +223,8 @@ if( WIN32 )
 endif()
 
 install( TARGETS server2-exe
-  DESTINATION bin
+  DESTINATION ${UDA_INSTALL_BINDIR}
+  COMPONENT server
 )
 
 ########################################################################################################################
@@ -236,15 +241,12 @@ set( ETC_FILES
   launchd.udaserver.plist
 )
 
-set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
-
 foreach( ETC_FILE ${ETC_FILES} )
   configure_file(
     "${CMAKE_SOURCE_DIR}/source/etc/${ETC_FILE}.in"
     "${CMAKE_BINARY_DIR}/etc/${ETC_FILE}"
     @ONLY
   )
-  list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
 endforeach()
 
 configure_file(
@@ -255,38 +257,27 @@ configure_file(
 
 install(
   FILES
-    ${GEN_ETC_FILES}
-  DESTINATION etc
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_BINARY_DIR}/lib/pkgconfig
-  DESTINATION lib
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_SOURCE_DIR}/source/etc/machine.d
-  DESTINATION etc
-)
-
-install(
-  FILES
-    ${CMAKE_BINARY_DIR}/etc/udaserver.sh
-    ${CMAKE_BINARY_DIR}/etc/rc.uda
-  DESTINATION etc
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ
-)
-
-install(
-  DIRECTORY
-    ${CMAKE_BINARY_DIR}/etc/plugins.d
-  DESTINATION etc
-)
-
-install(
-  FILES
+    ${CMAKE_BINARY_DIR}/etc/udaserver.cfg
+    ${CMAKE_BINARY_DIR}/etc/xinetd.conf
+    ${CMAKE_BINARY_DIR}/etc/README.md
+    ${CMAKE_BINARY_DIR}/etc/launchd.udaserver.plist
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
-  DESTINATION etc
+  DESTINATION ${UDA_INSTALL_CONFIGDIR}
+  COMPONENT server
+)
+
+install(
+  DIRECTORY
+    ${CMAKE_SOURCE_DIR}/source/etc/machine.d/
+  DESTINATION ${UDA_INSTALL_MACHINE_CONFIGDIR}
+  COMPONENT server
+)
+
+# The server scripts are installed once, by the server directory.
+
+install(
+  DIRECTORY
+    ${CMAKE_BINARY_DIR}/etc/plugins.d/
+  DESTINATION ${UDA_INSTALL_PLUGIN_FRAGMENTDIR}
+  COMPONENT server
 )
