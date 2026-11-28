@@ -5,6 +5,7 @@
 //----------------------------------------------------------------------------------
 
 #include <cstdlib>
+#include <cstring>
 
 #ifndef _WIN32
 #  include <unistd.h>
@@ -27,33 +28,93 @@ void initSocketList(SOCKETLIST* socks)
     socks->sockets = nullptr;
 }
 
+namespace {
+
+bool matchesEndpoint(const SOCKETS* sock, int type, const char* host, int port)
+{
+    return sock->type == type && sock->port == port && STR_IEQUALS(host, sock->host);
+}
+
+bool isOpen(const SOCKETS* sock)
+{
+    return sock->status == 1 && sock->fh >= 0;
+}
+
+} // namespace
+
 // Add a New Socket to the Socket List
+//
+// A closed record for the same endpoint is reused, otherwise a record is appended. Registering the same open
+// descriptor for the same endpoint again is a no-op. Returns 0 on success, 1 on failure (list left unchanged).
 
 int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh)
 {
-    int old_fh = -1;
-	int isock;
-
-    if (!getSocket(socks, type, &status, host, port, &old_fh)) {    // Is an Open Socket already listed?
-		isock=getSocketRecordId(socks, old_fh);
+    if (socks == nullptr || host == nullptr || strlen(host) >= MAXSERVER) {
+        return 1;
     }
-	else {
-    	socks->sockets = (Sockets*)realloc(socks->sockets, (socks->nsocks + 1) * sizeof(SOCKETS));
-		isock=socks->nsocks;
-	}
-    socks->sockets[isock].type = type;
-    socks->sockets[isock].status = status;
-    socks->sockets[isock].fh = fh;
-    socks->sockets[isock].port = port;
 
-    strcpy(socks->sockets[isock].host, host);
-    socks->sockets[isock].tv_server_start = 0;
-    socks->sockets[isock].user_timeout = 0;
-	socks->sockets[isock].protocol_version=-1;
-	socks->sockets[isock].server_version=0;
+    int reuse = -1;
 
-    (socks->nsocks)++;
+    for (int i = 0; i < socks->nsocks; i++) {
+        SOCKETS* sock = &socks->sockets[i];
+        if (fh >= 0 && sock->fh == fh && isOpen(sock)) {
+            if (matchesEndpoint(sock, type, host, port)) {
+                return 0;    // Already registered
+            }
+            // The descriptor was closed outside the list and reused by the OS: retire the stale record
+            // without closing the descriptor, which now belongs to the new connection.
+            sock->status = 0;
+            sock->fh = -1;
+        }
+        if (reuse < 0 && !isOpen(sock) && matchesEndpoint(sock, type, host, port)) {
+            reuse = i;
+        }
+    }
+
+    // A record of a different open descriptor to the same endpoint stays in the list until the client closes it.
+
+    if (reuse < 0) {
+        auto sockets = (SOCKETS*)realloc(socks->sockets, (socks->nsocks + 1) * sizeof(SOCKETS));
+        if (sockets == nullptr) {
+            return 1;
+        }
+        socks->sockets = sockets;
+    }
+
+    SOCKETS* sock = &socks->sockets[reuse < 0 ? socks->nsocks : reuse];
+    memset(sock, 0, sizeof(SOCKETS));
+    sock->type = type;
+    sock->status = status;
+    sock->fh = fh;
+    sock->port = port;
+    strcpy(sock->host, host);    // Length checked above
+    sock->tv_server_start = 0;
+    sock->user_timeout = 0;
+    sock->Input = nullptr;
+    sock->Output = nullptr;
+    sock->protocol_version = -1;
+    sock->server_version = 0;
+
+    if (reuse < 0) {
+        socks->nsocks++;
+    }
+
     return 0;
+}
+
+// Search for an Open Socket to an endpoint, skipping any closed records. Returns the record id or -1.
+
+int findOpenSocketRecordId(SOCKETLIST* socks, int type, const char* host, int port)
+{
+    if (socks == nullptr || host == nullptr) {
+        return -1;
+    }
+    for (int i = 0; i < socks->nsocks; i++) {
+        if (isOpen(&socks->sockets[i]) && matchesEndpoint(&socks->sockets[i], type, host, port)) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 // Search for an Open Socket in the Socket List

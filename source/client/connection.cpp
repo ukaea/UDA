@@ -89,17 +89,18 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
 
     // Identify the current Socket connection in the Socket List
 
-    int socketId = getSocketRecordId(&client_socketlist, client_socket);
+    int socketId = client_socket >= 0 ? getSocketRecordId(&client_socketlist, client_socket) : -1;
 
     // Instance a new server if the Client has changed the host and/or port number
 
     if (environment->server_reconnect) {
-        //RC
-        int status;
-        int fh;
-        if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port, &fh) == 0) {
-            environment->server_socket = fh;
+        // Only an open connection to the endpoint can be reused: closed records are skipped
+        int openId = findOpenSocketRecordId(&client_socketlist, TYPE_UDA_SERVER, environment->server_host,
+                                            environment->server_port);
+        if (openId >= 0) {
+            environment->server_socket = client_socketlist.sockets[openId].fh;
             environment->server_change_socket = 1;
+            environment->server_reconnect = 0;
         } else {
             time(tv_server_start);                     // Start a New Server AGE timer
             client_socket = -1;                          // Flags no Socket is open
@@ -112,8 +113,9 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
     // Client manages connections through the Socket id and specifies which running server to connect to
 
     if (environment->server_change_socket) {
-        int newsocketId;
-        if ((newsocketId = getSocketRecordId(&client_socketlist, environment->server_socket)) < 0) {
+        int newsocketId = environment->server_socket >= 0
+                          ? getSocketRecordId(&client_socketlist, environment->server_socket) : -1;
+        if (newsocketId < 0 || client_socketlist.sockets[newsocketId].status != 1) {
             err = NO_SOCKET_CONNECTION;
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "The User Specified Socket Connection does not exist");
             return err;
@@ -539,14 +541,22 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
     }
 
     // Add New Socket to the Socket's List
-    addSocket(&client_socketlist, TYPE_UDA_SERVER, 1, environment->server_host, environment->server_port,
-              client_socket);
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Input = client_input;
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Output = client_output;
-	client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].user_timeout = user_timeout;
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].tv_server_start = *tv_server_start;
-	client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].protocol_version = client_version;
-	client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].server_version = 0;
+    int socketId = -1;
+    if (addSocket(&client_socketlist, TYPE_UDA_SERVER, 1, environment->server_host, environment->server_port,
+                  client_socket) != 0
+        || (socketId = getSocketRecordId(&client_socketlist, client_socket)) < 0) {
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1, "Unable to register the Socket Connection");
+        close(client_socket);
+        client_socket = -1;
+        return -1;
+    }
+    SOCKETS* socket_record = &client_socketlist.sockets[socketId];
+    socket_record->Input = client_input;
+    socket_record->Output = client_output;
+    socket_record->user_timeout = user_timeout;
+    socket_record->tv_server_start = *tv_server_start;
+    socket_record->protocol_version = client_version;
+    socket_record->server_version = 0;
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = client_socket;
