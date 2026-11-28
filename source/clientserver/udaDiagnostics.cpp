@@ -10,16 +10,27 @@
 // Everything in this file is stateless: it only touches the stack or context it is given, so any number of copies
 // of it may be loaded into one process.
 
+namespace {
+
+// Copies at most size - 1 characters of src and always terminates dest. Used instead of strncpy, which GCC's
+// -Wstringop-truncation flags here once inlining shows the source may fill the buffer.
+void copy_string(char* dest, const char* src, size_t size)
+{
+    const size_t length = strnlen(src, size - 1);
+    memcpy(dest, src, length);
+    dest[length] = '\0';
+}
+
+} // namespace
+
 UDA_ERROR udaMakeError(int type, const char* location, int code, const char* msg)
 {
     UDA_ERROR error = {};
 
     error.type = type;
     error.code = code;
-    strncpy(error.location, location != nullptr ? location : "", STRING_LENGTH - 1);
-    error.location[STRING_LENGTH - 1] = '\0';
-    strncpy(error.msg, msg != nullptr ? msg : "", STRING_LENGTH - 1);
-    error.msg[STRING_LENGTH - 1] = '\0';
+    copy_string(error.location, location != nullptr ? location : "", STRING_LENGTH);
+    copy_string(error.msg, msg != nullptr ? msg : "", STRING_LENGTH);
 
     size_t lmsg0 = strlen(error.msg);
 
@@ -27,8 +38,7 @@ UDA_ERROR udaMakeError(int type, const char* location, int code, const char* msg
         const char* errmsg = strerror(code);
         size_t lmsg1 = strlen(errmsg);
         if (lmsg0 == 0) {
-            strncpy(error.msg, errmsg, STRING_LENGTH - 1);
-            error.msg[STRING_LENGTH - 1] = '\0';
+            copy_string(error.msg, errmsg, STRING_LENGTH);
         } else {
             if ((lmsg0 + 2) < STRING_LENGTH) {
                 strcat(error.msg, "; ");
