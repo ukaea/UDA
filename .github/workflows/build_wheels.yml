@@ -151,7 +151,6 @@ jobs:
           # the manylinux_2_28 job, and select a compatible NumPy wheel here.
           CIBW_BUILD: cp3{9,10,11,12,13}-manylinux*
           CIBW_SKIP: cp*-musllinux* *-musllinux*
-          CIBW_ENVIRONMENT: PIP_ONLY_BINARY=numpy
           CIBW_BEFORE_ALL: >
             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && 
             sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* &&
