@@ -134,14 +134,8 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_blo
     // Request Completed Time: Elasped & CPU
 
     gettimeofday(&et_end, nullptr);
-    auto elapsedtime = (double)((et_end.tv_sec - et_start.tv_sec) * 1000);    // millisecs
-
-    if (et_end.tv_usec < et_start.tv_usec) {
-        elapsedtime = elapsedtime - 1.0 + (double)(1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
-    } else {
-        elapsedtime = elapsedtime + (double)(et_end.tv_usec - et_start.tv_usec) / 1000.0;
-    }
-
+     // tv_usec is signed type
+    double elapsedtime = (double)(et_end.tv_sec - et_start.tv_sec) * 1000. + (double)(et_end.tv_usec - et_start.tv_usec) / 1000.0;   // millisecs
     // Write the Log Record & Flush the fd
 
     for (int i = 0; i < request_block.num_requests; ++i) {

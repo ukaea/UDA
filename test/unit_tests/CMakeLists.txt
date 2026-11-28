@@ -8,6 +8,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable( Catch2 )
 add_subdirectory( common )
+add_subdirectory( plugins )
 
 if( UNIX )
   add_subdirectory( server )

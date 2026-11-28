@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <string_view>
 #include <algorithm>
 #include <cctype>
 #include <vector>
@@ -9,25 +10,30 @@
 
 namespace uda::common::env_config {
 
+inline std::string to_lower(std::string_view text) {
+    std::string lower(text);
+    std::transform(lower.begin(), lower.end(), lower.begin(), [] (unsigned char c) { return std::tolower(c); });
+    return lower;
+}
+
+// std::getenv needs a null-terminated name, which a string_view does not guarantee.
+inline const char* get_env(std::string_view var_name) {
+    return std::getenv(std::string(var_name).c_str());
+}
+
 const std::vector<std::string> truthy_values = {"1", "true", "yes", "on"};
 const std::vector<std::string> falsey_values = {"0", "false", "no", "off"};
 
+// Case-insensitive: true if val is one of accepted_values.
 inline bool strings_match(std::string_view val, const std::vector<std::string>& accepted_values) {
-    std::string value(val);
-    std::transform(value.begin(), value.end(), value.begin(),
-                   [] (unsigned char c) {return std::tolower(c); });
-
-    // case insensitive comparison
+    const std::string value = to_lower(val);
     return std::any_of(accepted_values.begin(), accepted_values.end(),
-                       [&] (std::string v){ 
-                       std::transform(v.begin(), v.end(), v.begin(),
-                               [] (unsigned char c) {return std::tolower(c); });
-                       return value == v; });
+                       [&] (const std::string& accepted) { return value == to_lower(accepted); });
 }
 
 inline bool match_custom_values(std::string_view var_name, const std::vector<std::string>& accepted_values,
                                 bool default_value=false) {
-    const char* value = std::getenv(var_name.data());
+    const char* value = get_env(var_name);
     if (value == nullptr) {
         return default_value;
     }
@@ -36,7 +42,7 @@ inline bool match_custom_values(std::string_view var_name, const std::vector<std
 
 inline std::optional<std::string> 
 get_custom_param(std::string_view var_name, const std::vector<std::string>& accepted_values) {
-    const char* value = std::getenv(var_name.data());
+    const char* value = get_env(var_name);
     if (value == nullptr) {
         return {};
     }
@@ -48,7 +54,7 @@ get_custom_param(std::string_view var_name, const std::vector<std::string>& acce
 
 inline bool evaluate_bool_param(std::string_view var_name, bool default_value=false) {
 
-    const char* val = std::getenv(var_name.data());
+    const char* val = get_env(var_name);
     if (val == nullptr) {
         return default_value;
     }
