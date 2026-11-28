@@ -1,5 +1,6 @@
 #cython: language_level=3
 
+import os
 import numpy as np
 cimport uda
 cimport numpy as np
@@ -9,6 +10,7 @@ from libc.stdlib cimport malloc, free
 from libc.string cimport strlen
 
 
+_pid = None
 _properties = {
     "get_datadble": ("GET_DATA_DOUBLE", False),
     "get_dimdble": ("GET_DIM_DOUBLE", False),
@@ -38,6 +40,12 @@ if PY_MAJOR_VERSION >= 3.0:
     Properties = type('Properties', (), {v[0]:k for k,v in _properties.items()})
 else:
     Properties = type(b'Properties', (), {v[0]:k for k,v in _properties.items()})
+
+
+def set_pid():
+    global _pid
+    _pid = os.getpid()
+
 
 def set_property(prop_name, value):
     if prop_name.lower() not in _properties:
@@ -98,6 +106,8 @@ def get_server_uuid():
 
 
 def get_data(signal, source):
+    if _pid != os.getpid():
+        raise ClientException("Calling client from a process different to process in which library was initialised")
     handle = uda.idamGetAPI(signal.encode(), source.encode())
     cdef const char* err_msg
     cdef int err_code
@@ -114,6 +124,8 @@ def get_data(signal, source):
 
 
 def get_data_batch(signals, sources):
+    if _pid != os.getpid():
+        raise ClientException("Calling client from a process different to process in which library was initialised")
     assert len(signals) == len(sources)
     cdef const char** signals_array = <const char**>malloc(len(signals) * sizeof(char*))
     cdef const char** sources_array = <const char**>malloc(len(sources) * sizeof(char*))
@@ -301,6 +313,8 @@ cdef put_string(const char* instruction, const char* data):
 
 
 def put_data(instruction, data=None):
+    if _pid != os.getpid():
+        raise ClientException("Calling client from a process different to process in which library was initialised")
     if isinstance(data, np.ndarray):
         if np.PyArray_TYPE(data) not in (np.NPY_STRING, np.NPY_UNICODE):
             return put_ndarray(instruction, data)
